@@ -1,0 +1,2162 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "Documentation of our dms API.",
+    "title": "dms api.",
+    "version": "0.1.0"
+  },
+  "basePath": "/",
+  "paths": {
+    "/v1/dms/configurations/feishu": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "get feishu configuration.",
+        "operationId": "GetFeishuConfiguration",
+        "responses": {
+          "200": {
+            "description": "GetFeishuConfigurationReply",
+            "schema": {
+              "$ref": "#/definitions/GetFeishuConfigurationReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "update feishu configuration.",
+        "operationId": "UpdateFeishuConfiguration",
+        "parameters": [
+          {
+            "x-go-name": "UpdateFeishuConfiguration",
+            "description": "update feishu configuration",
+            "name": "update_feishu_configuration",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/feishu/test": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "test feishu configuration.",
+        "operationId": "TestFeishuConfiguration",
+        "parameters": [
+          {
+            "x-go-name": "TestFeishuConfiguration",
+            "description": "test feishu configuration",
+            "name": "test_feishu_configuration",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "TestFeishuConfigurationReply",
+            "schema": {
+              "$ref": "#/definitions/TestFeishuConfigurationReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/ldap": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get ldap configuration.",
+        "operationId": "GetLDAPConfiguration",
+        "responses": {
+          "200": {
+            "description": "GetLDAPConfigurationResDataReply",
+            "schema": {
+              "$ref": "#/definitions/GetLDAPConfigurationResDataReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Update ldap configuration.",
+        "operationId": "UpdateLDAPConfiguration",
+        "parameters": [
+          {
+            "x-go-name": "LDAPConfiguration",
+            "description": "update ldap configuration",
+            "name": "ldap",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/oauth2": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get Oauth2 configuration.",
+        "operationId": "GetOauth2Configuration",
+        "responses": {
+          "200": {
+            "description": "GetOauth2ConfigurationResDataReply",
+            "schema": {
+              "$ref": "#/definitions/GetOauth2ConfigurationResDataReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Update Oauth2 configuration..",
+        "operationId": "UpdateOauth2Configuration",
+        "parameters": [
+          {
+            "x-go-name": "Oauth2Configuration",
+            "description": "update oauth2 configuration",
+            "name": "oauth2",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/smtp": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "get smtp configuration.",
+        "operationId": "GetSMTPConfiguration",
+        "responses": {
+          "200": {
+            "description": "GetSMTPConfigurationReply",
+            "schema": {
+              "$ref": "#/definitions/GetSMTPConfigurationReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get smtp configuration.",
+        "operationId": "UpdateSMTPConfiguration",
+        "parameters": [
+          {
+            "x-go-name": "UpdateSMTPConfiguration",
+            "description": "update smtp configuration",
+            "name": "smtp_configuration",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/smtp/test": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "test smtp configuration.",
+        "operationId": "TestSMTPConfiguration",
+        "parameters": [
+          {
+            "x-go-name": "TestSMTPConfiguration",
+            "description": "test smtp configuration",
+            "name": "test_smtp_configuration",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "TestSMTPConfigurationReply",
+            "schema": {
+              "$ref": "#/definitions/TestSMTPConfigurationReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/sql_query": {
+      "get": {
+        "tags": [
+          "cloudbeaver"
+        ],
+        "summary": "get sql_query configuration.",
+        "operationId": "GetSQLQueryConfiguration",
+        "responses": {
+          "200": {
+            "description": "GetSQLQueryConfigurationReply",
+            "schema": {
+              "$ref": "#/definitions/GetSQLQueryConfigurationReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/webhook": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "get webhook configuration.",
+        "operationId": "GetWebHookConfiguration",
+        "responses": {
+          "200": {
+            "description": "GetWebHookConfigurationReply",
+            "schema": {
+              "$ref": "#/definitions/GetWebHookConfigurationReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "update webhook configuration.",
+        "operationId": "UpdateWebHookConfiguration",
+        "parameters": [
+          {
+            "x-go-name": "UpdateWebHookConfiguration",
+            "description": "test webhook configuration",
+            "name": "webhook_config",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/webhook/test": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "test webhook configuration.",
+        "operationId": "TestWebHookConfiguration",
+        "responses": {
+          "200": {
+            "description": "TestWebHookConfigurationReply",
+            "schema": {
+              "$ref": "#/definitions/TestWebHookConfigurationReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/wechat": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "get wechat configuration.",
+        "operationId": "GetWeChatConfiguration",
+        "responses": {
+          "200": {
+            "description": "GetWeChatConfigurationReply",
+            "schema": {
+              "$ref": "#/definitions/GetWeChatConfigurationReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "update wechat configuration.",
+        "operationId": "UpdateWeChatConfiguration",
+        "parameters": [
+          {
+            "x-go-name": "UpdateWeChatConfiguration",
+            "description": "update wechat configuration",
+            "name": "update_wechat_configuration",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/wechat/test": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "test wechat configuration.",
+        "operationId": "TestWeChatConfiguration",
+        "parameters": [
+          {
+            "x-go-name": "TestWeChatConfiguration",
+            "description": "test wechat configuration",
+            "name": "test_wechat_configuration",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "TestWeChatConfigurationReply",
+            "schema": {
+              "$ref": "#/definitions/TestWeChatConfigurationReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/db_services": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List db service.",
+        "operationId": "ListDBServices",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of db service to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of users to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "x-go-name": "OrderBy",
+            "description": "Multiple of [\"name\"], default is [\"name\"]",
+            "name": "order_by",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByBusiness",
+            "description": "the db service business name",
+            "name": "filter_by_business",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByHost",
+            "description": "the db service host",
+            "name": "filter_by_host",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByUID",
+            "description": "the db service uid",
+            "name": "filter_by_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByPort",
+            "description": "the db service port",
+            "name": "filter_by_port",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByDBType",
+            "description": "the db service db type",
+            "name": "filter_by_db_type",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByNamespaceUid",
+            "description": "filter by db service namespace uid\nonly the sys user can use an empty namespace value, which means lookup from all namespaces",
+            "name": "filter_by_namespace_uid",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListDBServiceReply",
+            "schema": {
+              "$ref": "#/definitions/ListDBServiceReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Add DB Service.",
+        "operationId": "AddDBService",
+        "parameters": [
+          {
+            "x-go-name": "DBService",
+            "description": "Add new db service",
+            "name": "db_service",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddDBServiceReply",
+            "schema": {
+              "$ref": "#/definitions/AddDBServiceReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/db_services/connect": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "check if the db_service is connectable.",
+        "operationId": "CheckDBServiceIsConnectable",
+        "parameters": [
+          {
+            "x-go-name": "DBService",
+            "description": "check db_service is connectable",
+            "name": "db_service",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CheckDBServiceIsConnectableReply",
+            "schema": {
+              "$ref": "#/definitions/CheckDBServiceIsConnectableReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/db_services/{db_service_uid}": {
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "update a DB Service.",
+        "operationId": "UpdateDBService",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "DBServiceUid",
+            "description": "db_service_uid",
+            "name": "db_service_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "DBService",
+            "description": "Update a DB service",
+            "name": "db_service",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Delete a DB Service.",
+        "operationId": "DelDBService",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "DBServiceUid",
+            "description": "db service uid",
+            "name": "db_service_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/members": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List member, for front page.",
+        "operationId": "ListMembers",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of member to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of members to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "x-go-name": "OrderBy",
+            "description": "Multiple of [\"name\"], default is [\"name\"]",
+            "name": "order_by",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByUserUid",
+            "description": "filter the member user uid",
+            "name": "filter_by_user_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "NamespaceUid",
+            "description": "the member namespace uid",
+            "name": "namespace_uid",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListMemberReply",
+            "schema": {
+              "$ref": "#/definitions/ListMemberReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Add member.",
+        "operationId": "AddMember",
+        "parameters": [
+          {
+            "x-go-name": "Member",
+            "description": "Add new member",
+            "name": "member",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddMemberReply",
+            "schema": {
+              "$ref": "#/definitions/AddMemberReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/members/internal": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List members, for internal backend service.",
+        "operationId": "ListMembersForInternal",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of member to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of members to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "NamespaceUid",
+            "description": "the member namespace uid",
+            "name": "namespace_uid",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListMembersForInternalReply",
+            "schema": {
+              "$ref": "#/definitions/ListMembersForInternalReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/members/{member_uid}": {
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Update a member.",
+        "operationId": "UpdateMember",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "MemberUid",
+            "description": "Member uid",
+            "name": "member_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "Member",
+            "description": "Update a member",
+            "name": "member",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Delete a member.",
+        "operationId": "DelMember",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "MemberUid",
+            "description": "member uid",
+            "name": "member_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/namespaces": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List namespaces.",
+        "operationId": "ListNamespaces",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of namespace to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of namespaces to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "x-go-name": "OrderBy",
+            "description": "Multiple of [\"name\"], default is [\"name\"]",
+            "name": "order_by",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByName",
+            "description": "filter the namespace name",
+            "name": "filter_by_name",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByUID",
+            "description": "filter the namespace UID",
+            "name": "filter_by_uid",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListNamespaceReply",
+            "schema": {
+              "$ref": "#/definitions/ListNamespaceReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Add namespaces.",
+        "operationId": "AddNamespace",
+        "parameters": [
+          {
+            "x-go-name": "Namespace",
+            "description": "Add new Namespace",
+            "name": "namespace",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddNamespaceReply",
+            "schema": {
+              "$ref": "#/definitions/AddNamespaceReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/namespaces/{namespace_uid}": {
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "update a Namespace.",
+        "operationId": "UpdateNamespace",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "NamespaceUid",
+            "description": "Namespace uid",
+            "name": "namespace_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "Namespace",
+            "description": "Update a namespace",
+            "name": "namespace",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete a Namespace",
+        "tags": [
+          "dms"
+        ],
+        "operationId": "DelNamespace",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "NamespaceUid",
+            "description": "namespace uid",
+            "name": "namespace_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/namespaces/{namespace_uid}/archive": {
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Archive a Namespace.",
+        "operationId": "ArchiveNamespace",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "NamespaceUid",
+            "description": "Namespace uid",
+            "name": "namespace_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/namespaces/{namespace_uid}/unarchive": {
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Unarchive a Namespace.",
+        "operationId": "UnarchiveNamespace",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "NamespaceUid",
+            "description": "Namespace uid",
+            "name": "namespace_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/notifications": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "notify message.",
+        "operationId": "Notification",
+        "parameters": [
+          {
+            "x-go-name": "Notification",
+            "description": "notification",
+            "name": "notification",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "NotificationReply",
+            "schema": {
+              "$ref": "#/definitions/NotificationReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/oauth2/tips": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get Oauth2 Tips.",
+        "operationId": "GetOauth2Tips",
+        "responses": {
+          "200": {
+            "description": "GetOauth2TipsReply",
+            "schema": {
+              "$ref": "#/definitions/GetOauth2TipsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/oauth2/user/bind": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Bind Oauth2 User.",
+        "operationId": "BindOauth2User",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "UserName",
+            "name": "user_name",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "Pwd",
+            "name": "pwd",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "Oauth2Token",
+            "name": "oauth2_token",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "BindOauth2UserReply",
+            "schema": {
+              "$ref": "#/definitions/BindOauth2UserReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/op_permissions": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List op permission.",
+        "operationId": "ListOpPermissions",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of op permission to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of op permissions to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "x-go-name": "OrderBy",
+            "description": "Order by the specified field",
+            "name": "order_by",
+            "in": "query"
+          },
+          {
+            "x-go-name": "FilterByTarget",
+            "description": "filter by op permission target",
+            "name": "filter_by_target",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListOpPermissionReply",
+            "schema": {
+              "$ref": "#/definitions/ListOpPermissionReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/plugin": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Register dms plugin.",
+        "operationId": "RegisterDMSPlugin",
+        "parameters": [
+          {
+            "x-go-name": "Plugin",
+            "description": "Register dms plugin",
+            "name": "plugin",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/proxy": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Register dms proxy target.",
+        "operationId": "RegisterDMSProxyTarget",
+        "parameters": [
+          {
+            "x-go-name": "DMSProxyTarget",
+            "description": "register dms proxy",
+            "name": "dms_proxy_target",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/roles": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List roles.",
+        "operationId": "ListRoles",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of role to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of roles to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "x-go-name": "OrderBy",
+            "description": "Multiple of [\"name\"], default is [\"name\"]",
+            "name": "order_by",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByName",
+            "description": "filter the role name",
+            "name": "filter_by_name",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListRoleReply",
+            "schema": {
+              "$ref": "#/definitions/ListRoleReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Add role.",
+        "operationId": "AddRole",
+        "parameters": [
+          {
+            "x-go-name": "Role",
+            "description": "Add new role",
+            "name": "role",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddRoleReply",
+            "schema": {
+              "$ref": "#/definitions/AddRoleReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/roles/{role_uid}": {
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Update a role.",
+        "operationId": "UpdateRole",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "RoleUid",
+            "description": "Role uid",
+            "name": "role_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "Role",
+            "description": "Update a role",
+            "name": "role",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Delete a role.",
+        "operationId": "DelRole",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "RoleUid",
+            "description": "role uid",
+            "name": "role_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/sessions": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Add a session.",
+        "operationId": "AddSession",
+        "parameters": [
+          {
+            "x-go-name": "Session",
+            "description": "Add a new session",
+            "name": "session",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddSessionReply",
+            "schema": {
+              "$ref": "#/definitions/AddSessionReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/sessions/user": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get current user.",
+        "operationId": "GetUserBySession",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "UserUid",
+            "name": "user_uid",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GetUserBySessionReply",
+            "schema": {
+              "$ref": "#/definitions/GetUserBySessionReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/user_groups": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List user groups.",
+        "operationId": "ListUserGroups",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of user to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of user groups to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "x-go-name": "OrderBy",
+            "description": "Multiple of [\"name\"], default is [\"name\"]",
+            "name": "order_by",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByName",
+            "description": "filter the user group name",
+            "name": "filter_by_name",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListUserGroupReply",
+            "schema": {
+              "$ref": "#/definitions/ListUserGroupReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Add user group.",
+        "operationId": "AddUserGroup",
+        "parameters": [
+          {
+            "x-go-name": "UserGroup",
+            "description": "Add new user group",
+            "name": "user_group",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddUserGroupReply",
+            "schema": {
+              "$ref": "#/definitions/AddUserGroupReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/user_groups/{user_group_uid}": {
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Update a user group.",
+        "operationId": "UpdateUserGroup",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "UserGroupUid",
+            "description": "UserGroup uid",
+            "name": "user_group_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "UserGroup",
+            "description": "Update a user group",
+            "name": "user_group",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Delete a user group.",
+        "operationId": "DelUserGroup",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "UserGroupUid",
+            "description": "user group uid",
+            "name": "user_group_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/users": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List users.",
+        "operationId": "ListUsers",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of user to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of users to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "x-go-name": "OrderBy",
+            "description": "Multiple of [\"name\"], default is [\"name\"]",
+            "name": "order_by",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByName",
+            "description": "filter the user name",
+            "name": "filter_by_name",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByUids",
+            "description": "filter the user uids",
+            "name": "filter_by_uids",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "x-go-name": "FilterDeletedUser",
+            "description": "filter deleted user to be return ,default is false",
+            "name": "filter_del_user",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListUserReply",
+            "schema": {
+              "$ref": "#/definitions/ListUserReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Add user.",
+        "operationId": "AddUser",
+        "parameters": [
+          {
+            "x-go-name": "User",
+            "description": "Add new user",
+            "name": "user",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddUserReply",
+            "schema": {
+              "$ref": "#/definitions/AddUserReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/users/{user_uid}": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get user info, This API is used by other component such as sqle\u0026auth to get user info.",
+        "operationId": "GetUser",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "UserUid",
+            "description": "user uid",
+            "name": "user_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GetUserReply",
+            "schema": {
+              "$ref": "#/definitions/GetUserReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Update a user.",
+        "operationId": "UpdateUser",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "UserUid",
+            "description": "User uid",
+            "name": "user_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "User",
+            "description": "Update a user",
+            "name": "user",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Delete a user.",
+        "operationId": "DelUser",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "UserUid",
+            "description": "user uid",
+            "name": "user_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/users/{user_uid}/op_permission": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get user op permission info, This API is used by other component such as sqle\u0026auth to check user permissions.",
+        "operationId": "GetUserOpPermission",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "UserUid",
+            "description": "user uid",
+            "name": "user_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "UserOpPermission",
+            "description": "user op permission info",
+            "name": "user_op_permission",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GetUserOpPermissionReply",
+            "schema": {
+              "$ref": "#/definitions/GetUserOpPermissionReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/webhooks": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "webhook send message.",
+        "operationId": "WebHookSendMessage",
+        "parameters": [
+          {
+            "x-go-name": "WebHookMessage",
+            "description": "webhooks",
+            "name": "webhook_message",
+            "in": "body",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "WebHookSendMessageReply",
+            "schema": {
+              "$ref": "#/definitions/WebHookSendMessageReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AddDBServicePreCheckReply": {
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "AddDBServiceReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddMemberReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddNamespaceReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddRoleReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddSessionReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddUserGroupReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddUserReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "BindOauth2UserReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "CheckDBServiceIsConnectableReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DelDBServicePreCheckReply": {
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "DelUserGroupPreCheckReply": {
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "DelUserPreCheckReply": {
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "GetFeishuConfigurationReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetLDAPConfigurationResDataReply": {
+      "x-go-name": "GetLDAPConfigurationReply",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetOauth2ConfigurationResDataReply": {
+      "x-go-name": "GetOauth2ConfigurationReply",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetOauth2TipsReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetSMTPConfigurationReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetSQLQueryConfigurationReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetUserBySessionReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetUserOpPermissionReply": {
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "GetUserReply": {
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "GetWeChatConfigurationReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetWebHookConfigurationReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListDBServiceReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListMemberReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListMembersForInternalReply": {
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "ListNamespaceReply": {
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "ListOpPermissionReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListRoleReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListUserGroupReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListUserReply": {
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "NotificationReply": {
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "OperateDataResourceHandleReply": {
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "RegisterDMSPluginReply": {
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "RegisterDMSProxyTargetReply": {
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "TestFeishuConfigurationReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "TestSMTPConfigurationReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "TestWeChatConfigurationReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "TestWebHookConfigurationReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateDBServiceReply": {
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "WebHookSendMessageReply": {
+      "x-go-name": "WebHooksSendMessageReply",
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    }
+  },
+  "responses": {
+    "GenericResp": {
+      "description": "GenericResp defines the return code and msg",
+      "headers": {
+        "code": {
+          "type": "integer",
+          "format": "int64",
+          "description": "code"
+        },
+        "msg": {
+          "type": "string",
+          "description": "message"
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "basic": {
+      "type": "basic"
+    }
+  }
+}

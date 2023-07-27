@@ -1,0 +1,5 @@
+static
+.vscode
+bin
+process_record.json
+*.db

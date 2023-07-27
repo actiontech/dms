@@ -1,0 +1,129 @@
+package biz
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"time"
+
+	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
+	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
+	pkgRand "github.com/actiontech/dms/pkg/rand"
+
+	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
+)
+
+type NamespaceStatus string
+
+const (
+	NamespaceStatusArchived NamespaceStatus = "archived"
+	NamespaceStatusActive   NamespaceStatus = "active"
+	NamespaceStatusUnknown  NamespaceStatus = "unknown"
+)
+
+type Namespace struct {
+	Base
+
+	UID           string
+	Name          string
+	Desc          string
+	CreateUserUID string
+	CreateTime    time.Time
+	Status        NamespaceStatus
+}
+
+func NewNamespace(createUserUID, name, desc string) (*Namespace, error) {
+	uid, err := pkgRand.GenStrUid()
+	if err != nil {
+		return nil, err
+	}
+	return &Namespace{
+		UID:           uid,
+		Name:          name,
+		Desc:          desc,
+		Status:        NamespaceStatusActive,
+		CreateUserUID: createUserUID,
+	}, nil
+}
+
+func initNamespaces() []*Namespace {
+	return []*Namespace{
+		{
+			UID:           pkgConst.UIDOfNamespaceDefault,
+			Name:          "default",
+			Desc:          "default namespace",
+			Status:        NamespaceStatusActive,
+			CreateUserUID: pkgConst.UIDOfUserAdmin,
+		},
+	}
+}
+
+type NamespaceRepo interface {
+	SaveNamespace(ctx context.Context, namespace *Namespace) error
+	ListNamespaces(ctx context.Context, opt *ListNamespacesOption, currentUserUID string) (namespaces []*Namespace, total int64, err error)
+	GetNamespace(ctx context.Context, namespaceUid string) (*Namespace, error)
+	GetNamespaceByName(ctx context.Context, namespaceName string) (*Namespace, error)
+	UpdateNamespace(ctx context.Context, u *Namespace) error
+	DelNamespace(ctx context.Context, namespaceUid string) error
+}
+
+type NamespaceUsecase struct {
+	tx                        TransactionGenerator
+	repo                      NamespaceRepo
+	memberUsecase             *MemberUsecase
+	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
+	pluginUsecase             *PluginUsecase
+	log                       *utilLog.Helper
+}
+
+func NewNamespaceUsecase(log utilLog.Logger, tx TransactionGenerator, repo NamespaceRepo, memberUsecase *MemberUsecase,
+	opPermissionVerifyUsecase *OpPermissionVerifyUsecase, pluginUsecase *PluginUsecase) *NamespaceUsecase {
+	return &NamespaceUsecase{
+		tx:                        tx,
+		repo:                      repo,
+		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.namespace")),
+		memberUsecase:             memberUsecase,
+		pluginUsecase:             pluginUsecase,
+		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
+	}
+}
+
+type ListNamespacesOption struct {
+	PageNumber   uint32
+	LimitPerPage uint32
+	OrderBy      NamespaceField
+	FilterBy     []pkgConst.FilterCondition
+}
+
+func (d *NamespaceUsecase) ListNamespace(ctx context.Context, option *ListNamespacesOption, currentUserUid string) (namespaces []*Namespace, total int64, err error) {
+	namespaces, total, err = d.repo.ListNamespaces(ctx, option, currentUserUid)
+	if err != nil {
+		return nil, 0, fmt.Errorf("list namespaces failed: %v", err)
+	}
+
+	return namespaces, total, nil
+}
+
+func (d *NamespaceUsecase) InitNamespaces(ctx context.Context) (err error) {
+	for _, n := range initNamespaces() {
+
+		_, err := d.GetNamespace(ctx, n.UID)
+		// already exist
+		if err == nil {
+			continue
+		}
+
+		// error, return directly
+		if !errors.Is(err, pkgErr.ErrStorageNoData) {
+			return fmt.Errorf("failed to get namespace: %v", err)
+		}
+
+		// not exist, then create it.
+		if err := d.CreateNamespace(ctx, n, pkgConst.UIDOfUserAdmin); err != nil {
+			return fmt.Errorf("failed to init namespace: %v", err)
+		}
+
+	}
+	d.log.Debug("init namespace success")
+	return nil
+}

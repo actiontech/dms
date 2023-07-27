@@ -1,0 +1,50 @@
+# command line param: https://golangci-lint.run/usage/configuration/
+# config param: https://golangci-lint.run/usage/linters/
+
+run:
+  deadline: 1m
+
+linters:
+  disable-all: true
+  enable:
+    - errcheck # unchecked error , method has err return , but not handle
+    - gosimple # simple code
+    #      func _() {
+    #       var x int
+    #       x = 5   // S1021: should merge variable declaration with assignment on next , like x := 5
+    #       println(x)
+    #      }
+    - govet # such as fmt.Printf("%d\n", "232423")
+    - ineffassign
+    #    func _() {
+    #     var x int
+    #     x = 2 // ineffectual assignment to x
+    #     x = 5
+    #     println(x)
+    #    }
+    - staticcheck # Staticcheck is a go vet on steroids , check regexp expression whether correct , https://staticcheck.io/docs/checks/#SA1002
+    - typecheck # s:="111" , but s not used or fmt.hello() fmt package do not have hello() method
+    - unused # function/struct statement but not use
+    - asciicheck # check alphabet whether ascii
+    #    type TеstStruct struct{}
+    #    ^ this 'e' (U+0435) is not 'e' (U+0065) can not use ide code prompt , may be cause undefined: TestStruct error
+    - bidichk # check dangerous string sequences like "LEFT-TO-RIGHT-OVERRIDE"
+    - bodyclose # checks whether HTTP response body is closed successfully
+    #    resp, err := http.Get("http://example.com/") // Wrong case
+    #    if err != nil {
+    #     handle error
+    #    }
+    #  body, err := ioutil.ReadAll(resp.Body)
+    #  resp's body is not closed
+    - durationcheck # can not use time.second * time.second
+    - forcetypeassert # can not omit s, ok := i.(string) ok result
+    - sqlclosecheck    # Checks that sql.Rows and sql.Stmt are closed
+    - unconvert # Remove unnecessary type conversions
+    - asasalint # lint that pass any slice as any in variadic function
+    - decorder # check declaration order and count of types, constants, variables and functions
+    - errname # checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error
+    - exhaustive # check exhaustiveness of enum switch statements and map literals
+    - exportloopref # checks for pointers to enclosing loop variables
+    - goconst # Finds repeated strings that could be replaced by a constant
+    - importas # Enforces consistent import aliases
+    - misspell # Finds commonly misspelled English words in comments

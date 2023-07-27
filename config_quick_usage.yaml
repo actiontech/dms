@@ -1,0 +1,15 @@
+api:
+  http:
+    addr: 0.0.0.0
+    port: 7601
+dms:
+  data:
+    database:
+      username: root
+      password: 123
+      host: 172.41.134.4
+      port: 3306
+      database: dmstest
+      debug: true
+node:
+  nodeno: 1

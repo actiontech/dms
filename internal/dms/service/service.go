@@ -1,0 +1,137 @@
+package service
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/actiontech/dms/internal/apiserver/conf"
+	"github.com/actiontech/dms/internal/dms/biz"
+
+	"github.com/actiontech/dms/internal/dms/storage"
+
+	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
+)
+
+type DMSService struct {
+	PluginUsecase               *biz.PluginUsecase
+	DBServiceUsecase            *biz.DBServiceUsecase
+	UserUsecase                 *biz.UserUsecase
+	UserGroupUsecase            *biz.UserGroupUsecase
+	RoleUsecase                 *biz.RoleUsecase
+	OpPermissionUsecase         *biz.OpPermissionUsecase
+	MemberUsecase               *biz.MemberUsecase
+	OpPermissionVerifyUsecase   *biz.OpPermissionVerifyUsecase
+	NamespaceUsecase            *biz.NamespaceUsecase
+	DmsProxyUsecase             *biz.DmsProxyUsecase
+	Oauth2ConfigurationUsecase  *biz.Oauth2ConfigurationUsecase
+	LDAPConfigurationUsecase    *biz.LDAPConfigurationUsecase
+	SMTPConfigurationUsecase    *biz.SMTPConfigurationUsecase
+	WeChatConfigurationUsecase  *biz.WeChatConfigurationUsecase
+	WebHookConfigurationUsecase *biz.WebHookConfigurationUsecase
+	IMConfigurationUsecase      *biz.IMConfigurationUsecase
+	log                         *utilLog.Helper
+	shutdownCallback            func() error
+}
+
+func NewAndInitDMSService(logger utilLog.Logger, opts *conf.Options) (*DMSService, error) {
+	st, err := storage.NewStorage(logger, &storage.StorageConfig{
+		User:     opts.DMSServiceOpts.Data.Database.UserName,
+		Password: opts.DMSServiceOpts.Data.Database.Password,
+		Host:     opts.DMSServiceOpts.Data.Database.Host,
+		Port:     opts.DMSServiceOpts.Data.Database.Port,
+		Schema:   opts.DMSServiceOpts.Data.Database.Database,
+		Debug:    opts.DMSServiceOpts.Data.Database.Debug,
+	})
+	if nil != err {
+		return nil, fmt.Errorf("failed to new data: %v", err)
+	}
+
+	tx := storage.NewTXGenerator()
+	opPermissionVerifyRepo := storage.NewOpPermissionVerifyRepo(logger, st)
+	opPermissionVerifyUsecase := biz.NewOpPermissionVerifyUsecase(logger, tx, opPermissionVerifyRepo)
+	pluginRepo := storage.NewPluginRepo(logger, st)
+	pluginUseCase, err := biz.NewDMSPluginUsecase(logger, pluginRepo)
+	if err != nil {
+		return nil, fmt.Errorf("failed to new dms plugin usecase: %v", err)
+	}
+	// 预定义解决usecase循环依赖问题
+	memberUsecase := biz.MemberUsecase{}
+
+	namespaceRepo := storage.NewNamespaceRepo(logger, st)
+	namespaceUsecase := biz.NewNamespaceUsecase(logger, tx, namespaceRepo, &memberUsecase, opPermissionVerifyUsecase, pluginUseCase)
+	dbServiceRepo := storage.NewDBServiceRepo(logger, st)
+	dbServiceUseCase := biz.NewDBServiceUsecase(dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, namespaceUsecase)
+	ldapConfigurationRepo := storage.NewLDAPConfigurationRepo(logger, st)
+	ldapConfigurationUsecase := biz.NewLDAPConfigurationUsecase(logger, tx, ldapConfigurationRepo)
+	userRepo := storage.NewUserRepo(logger, st)
+	userGroupRepo := storage.NewUserGroupRepo(logger, st)
+	opPermissionRepo := storage.NewOpPermissionRepo(logger, st)
+	opPermissionUsecase := biz.NewOpPermissionUsecase(logger, tx, opPermissionRepo, pluginUseCase)
+	userUsecase := biz.NewUserUsecase(logger, tx, userRepo, userGroupRepo, pluginUseCase, opPermissionUsecase, opPermissionVerifyUsecase, ldapConfigurationUsecase)
+	userGroupUsecase := biz.NewUserGroupUsecase(logger, tx, userGroupRepo, userRepo, pluginUseCase, opPermissionVerifyUsecase)
+	roleRepo := storage.NewRoleRepo(logger, st)
+	memberRepo := storage.NewMemberRepo(logger, st)
+	roleUsecase := biz.NewRoleUsecase(logger, tx, roleRepo, opPermissionRepo, memberRepo, pluginUseCase, opPermissionVerifyUsecase)
+	dmsConfigRepo := storage.NewDMSConfigRepo(logger, st)
+	dmsConfigUsecase := biz.NewDMSConfigUseCase(logger, dmsConfigRepo)
+	memberUsecase = *biz.NewMemberUsecase(logger, tx, memberRepo, userUsecase, roleUsecase, dbServiceUseCase, opPermissionVerifyUsecase, namespaceUsecase)
+	dmsProxyTargetRepo := storage.NewProxyTargetRepo(logger, st)
+	dmsProxyUsecase, err := biz.NewDmsProxyUsecase(logger, dmsProxyTargetRepo, opts.APIServiceOpts.HTTP.Port)
+	oauth2ConfigurationRepo := storage.NewOauth2ConfigurationRepo(logger, st)
+	oauth2ConfigurationUsecase := biz.NewOauth2ConfigurationUsecase(logger, tx, oauth2ConfigurationRepo, userUsecase)
+	smtpConfigurationRepo := storage.NewSMTPConfigurationRepo(logger, st)
+	smtpConfigurationUsecase := biz.NewSMTPConfigurationUsecase(logger, tx, smtpConfigurationRepo)
+	wechatConfigurationRepo := storage.NewWeChatConfigurationRepo(logger, st)
+	wechatConfigurationUsecase := biz.NewWeChatConfigurationUsecase(logger, tx, wechatConfigurationRepo)
+	webhookConfigurationRepo := storage.NewWebHookConfigurationRepo(logger, st)
+	webhookConfigurationUsecase := biz.NewWebHookConfigurationUsecase(logger, tx, webhookConfigurationRepo)
+	imConfigurationRepo := storage.NewIMConfigurationRepo(logger, st)
+	imConfigurationUsecase := biz.NewIMConfigurationUsecase(logger, tx, imConfigurationRepo)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to new dms proxy usecase: %v", err)
+	}
+
+	s := &DMSService{
+		PluginUsecase:               pluginUseCase,
+		DBServiceUsecase:            dbServiceUseCase,
+		UserUsecase:                 userUsecase,
+		UserGroupUsecase:            userGroupUsecase,
+		RoleUsecase:                 roleUsecase,
+		OpPermissionUsecase:         opPermissionUsecase,
+		MemberUsecase:               &memberUsecase,
+		OpPermissionVerifyUsecase:   opPermissionVerifyUsecase,
+		NamespaceUsecase:            namespaceUsecase,
+		DmsProxyUsecase:             dmsProxyUsecase,
+		Oauth2ConfigurationUsecase:  oauth2ConfigurationUsecase,
+		LDAPConfigurationUsecase:    ldapConfigurationUsecase,
+		SMTPConfigurationUsecase:    smtpConfigurationUsecase,
+		WeChatConfigurationUsecase:  wechatConfigurationUsecase,
+		WebHookConfigurationUsecase: webhookConfigurationUsecase,
+		IMConfigurationUsecase:      imConfigurationUsecase,
+		log:                         utilLog.NewHelper(logger, utilLog.WithMessageKey("dms.service")),
+		shutdownCallback: func() error {
+			if err := st.Close(); nil != err {
+				return fmt.Errorf("failed to close storage: %v", err)
+			}
+			return nil
+		},
+	}
+
+	// init notification
+	biz.Init(smtpConfigurationUsecase, wechatConfigurationUsecase, imConfigurationUsecase)
+	// init env
+	if err := biz.EnvPrepare(context.TODO(), logger, tx, dmsConfigUsecase, opPermissionUsecase, userUsecase, roleUsecase, namespaceUsecase); nil != err {
+		return nil, fmt.Errorf("failed to prepare env: %v", err)
+	}
+	s.log.Debug("env prepared")
+
+	return s, nil
+}
+
+func (a *DMSService) Shutdown() error {
+	if nil != a.shutdownCallback {
+		return a.shutdownCallback()
+	}
+	return nil
+}

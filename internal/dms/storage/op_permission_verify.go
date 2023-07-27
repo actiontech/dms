@@ -1,0 +1,250 @@
+package storage
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/actiontech/dms/internal/dms/biz"
+	"github.com/actiontech/dms/internal/dms/storage/model"
+
+	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
+	"gorm.io/gorm"
+)
+
+var _ biz.OpPermissionVerifyRepo = (*OpPermissionVerifyRepo)(nil)
+
+type OpPermissionVerifyRepo struct {
+	*Storage
+	log *utilLog.Helper
+}
+
+func NewOpPermissionVerifyRepo(log utilLog.Logger, s *Storage) *OpPermissionVerifyRepo {
+	return &OpPermissionVerifyRepo{Storage: s, log: utilLog.NewHelper(log, utilLog.WithMessageKey("storage.op_permission_verify"))}
+}
+
+func (o *OpPermissionVerifyRepo) IsUserHasOpPermissionInNamespace(ctx context.Context, userUid, namespaceUid, opPermissionUid string) (has bool, err error) {
+	var count int64
+	if err := transaction(o.log, ctx, o.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Raw(`SELECT count(*) FROM members AS m 
+		JOIN member_role_op_ranges AS r ON m.uid=r.member_uid AND m.user_uid=? AND m.namespace_uid=? 
+		JOIN role_op_permissions AS p ON r.role_uid = p.role_uid AND p.op_permission_uid = ?`, userUid, namespaceUid, opPermissionUid).Count(&count).Error; err != nil {
+			return fmt.Errorf("failed to check user has op permission in namespace: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+func (o *OpPermissionVerifyRepo) GetUserNamespaceWithOpPermissions(ctx context.Context, userUid string) (namespaceWithPermission []biz.NamespaceOpPermissionWithOpRange, err error) {
+	var ret []struct {
+		Uid             string
+		Name            string
+		OpPermissionUid string
+		OpRangeType     string
+		RangeUids       string
+	}
+	if err := transaction(o.log, ctx, o.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Raw(`SELECT n.uid,n.name,p.op_permission_uid, r.op_range_type, r.range_uids FROM namespaces AS n
+		JOIN members AS m ON n.uid = m.namespace_uid
+		JOIN users AS u ON m.user_uid = u.uid AND u.uid = ?
+		JOIN member_role_op_ranges AS r ON m.uid=r.member_uid
+		JOIN role_op_permissions AS p ON r.role_uid = p.role_uid
+		WHERE n.status = 'active'
+	`, userUid).Find(&ret).Error; err != nil {
+			return fmt.Errorf("failed to find user op permission with namespace: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	namespaceWithPermission = make([]biz.NamespaceOpPermissionWithOpRange, 0, len(ret))
+	for _, r := range ret {
+		typ, err := biz.ParseOpRangeType(r.OpRangeType)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse op range type: %v", err)
+		}
+
+		namespaceWithPermission = append(namespaceWithPermission, biz.NamespaceOpPermissionWithOpRange{
+			NamespaceUid:  r.Uid,
+			NamespaceName: r.Name,
+			OpPermissionWithOpRange: biz.OpPermissionWithOpRange{
+				OpPermissionUID: r.OpPermissionUid,
+				OpRangeType:     typ,
+				RangeUIDs:       convertModelRangeUIDs(r.RangeUids),
+			},
+		})
+	}
+	return namespaceWithPermission, nil
+}
+
+func (o *OpPermissionVerifyRepo) GetUserOpPermissionInNamespace(ctx context.Context, userUid, namespaceUid string) (opPermissionWithOpRanges []biz.OpPermissionWithOpRange, err error) {
+	type result struct {
+		OpPermissionUid string
+		OpRangeType     string
+		RangeUids       string
+	}
+	var results []result
+	if err := transaction(o.log, ctx, o.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Raw(`SELECT p.op_permission_uid, r.op_range_type, r.range_uids FROM members AS m 
+		JOIN member_role_op_ranges AS r ON m.uid=r.member_uid AND m.user_uid=? AND m.namespace_uid=? 
+		JOIN role_op_permissions AS p ON r.role_uid = p.role_uid`, userUid, namespaceUid).Scan(&results).Error; err != nil {
+			return fmt.Errorf("failed to get user op permission in namespace: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	opPermissionWithOpRanges = make([]biz.OpPermissionWithOpRange, 0, len(results))
+	for _, r := range results {
+		typ, err := biz.ParseOpRangeType(r.OpRangeType)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse op range type: %v", err)
+		}
+
+		opPermissionWithOpRanges = append(opPermissionWithOpRanges, biz.OpPermissionWithOpRange{
+			OpPermissionUID: r.OpPermissionUid,
+			OpRangeType:     typ,
+			RangeUIDs:       convertModelRangeUIDs(r.RangeUids),
+		})
+	}
+
+	return opPermissionWithOpRanges, nil
+}
+
+func (o *OpPermissionVerifyRepo) GetUserOpPermission(ctx context.Context, userUid string) (opPermissionWithOpRanges []biz.OpPermissionWithOpRange, err error) {
+	type result struct {
+		OpPermissionUid string
+		OpRangeType     string
+		RangeUids       string
+	}
+	var results []result
+	if err = transaction(o.log, ctx, o.db, func(tx *gorm.DB) error {
+		if err = tx.WithContext(ctx).Raw(`
+		SELECT 
+			p.op_permission_uid, r.op_range_type, r.range_uids 
+		FROM members AS m 
+		JOIN member_role_op_ranges AS r ON m.uid=r.member_uid AND m.user_uid = ?
+		JOIN role_op_permissions AS p ON r.role_uid = p.role_uid`, userUid).Scan(&results).Error; err != nil {
+			return fmt.Errorf("failed to get user op permission: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	opPermissionWithOpRanges = make([]biz.OpPermissionWithOpRange, 0, len(results))
+	for _, r := range results {
+		typ, err := biz.ParseOpRangeType(r.OpRangeType)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse op range type: %v", err)
+		}
+
+		opPermissionWithOpRanges = append(opPermissionWithOpRanges, biz.OpPermissionWithOpRange{
+			OpPermissionUID: r.OpPermissionUid,
+			OpRangeType:     typ,
+			RangeUIDs:       convertModelRangeUIDs(r.RangeUids),
+		})
+	}
+
+	return opPermissionWithOpRanges, nil
+}
+
+func (o *OpPermissionVerifyRepo) GetUserGlobalOpPermission(ctx context.Context, userUid string) (opPermissions []*biz.OpPermission, err error) {
+	ops := []*model.OpPermission{}
+	if err := transaction(o.log, ctx, o.db, func(tx *gorm.DB) error {
+		user := model.User{Model: model.Model{UID: userUid}}
+		if err := tx.WithContext(ctx).Model(&user).Association("OpPermissions").Find(&ops); err != nil {
+			return fmt.Errorf("failed to get user global op permission: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	opPermissions = make([]*biz.OpPermission, 0, len(ops))
+	for _, o := range ops {
+		opPermission, err := convertModelOpPermission(o)
+		if err != nil {
+			return nil, err
+		}
+		opPermissions = append(opPermissions, opPermission)
+	}
+
+	return opPermissions, nil
+}
+
+func (o *OpPermissionVerifyRepo) ListMembersOpPermissionInNamespace(ctx context.Context, namespaceUid string, opt *biz.ListMembersOpPermissionOption) (items []biz.ListMembersOpPermissionItem, total int64, err error) {
+	type result struct {
+		MemberUid       string
+		UserUid         string
+		UserName        string
+		OpPermissionUid string
+		OpRangeType     string
+		RangeUids       string
+	}
+	var results []result
+	if err := transaction(o.log, ctx, o.db, func(tx *gorm.DB) error {
+		// opt中的分页属性作用于空间内的成员，即opt.LimitPerPage表示返回opt.LimitPerPage个成员的权限
+
+		// find result
+		{
+			if err := tx.WithContext(ctx).Raw(`SELECT um.member_uid, um.user_uid, um.user_name, p.op_permission_uid, r.op_range_type, r.range_uids FROM 
+			(SELECT m.user_uid AS user_uid, u.name AS user_name, m.uid AS member_uid FROM members AS m JOIN users AS u ON m.user_uid = u.uid AND m.namespace_uid=? ORDER BY m.user_uid LIMIT ? OFFSET ?) AS um 
+			LEFT JOIN member_role_op_ranges AS r ON um.member_uid=r.member_uid 
+			LEFT JOIN role_op_permissions AS p ON r.role_uid = p.role_uid`,
+				namespaceUid, opt.LimitPerPage, opt.LimitPerPage*(uint32(fixPageIndices(opt.PageNumber)))).Scan(&results).Error; err != nil {
+				return fmt.Errorf("failed to list member op permission in namespace: %v", err)
+			}
+		}
+
+		// find total
+		{
+			if err := tx.WithContext(ctx).Raw(`SELECT COUNT(*) FROM members AS m JOIN users AS u ON m.user_uid = u.uid AND m.namespace_uid=?`,
+				namespaceUid).Scan(&total).Error; err != nil {
+				return fmt.Errorf("failed to list total member op permission in namespace: %v", err)
+			}
+		}
+
+		return nil
+	}); err != nil {
+		return nil, 0, err
+	}
+
+	resultGroupByUser := make(map[string][]result)
+	for _, r := range results {
+		resultGroupByUser[r.UserUid] = append(resultGroupByUser[r.UserUid], r)
+	}
+
+	for _, rs := range resultGroupByUser {
+		opPermissionWithOpRanges := make([]biz.OpPermissionWithOpRange, 0, len(rs))
+
+		for _, r := range rs {
+			// 这里表示没有任何角色权限的成员
+			if r.OpRangeType == "" {
+				continue
+			}
+			typ, err := biz.ParseOpRangeType(r.OpRangeType)
+			if err != nil {
+				return nil, 0, fmt.Errorf("failed to parse op range type: %v", err)
+			}
+
+			opPermissionWithOpRanges = append(opPermissionWithOpRanges, biz.OpPermissionWithOpRange{
+				OpPermissionUID: r.OpPermissionUid,
+				OpRangeType:     typ,
+				RangeUIDs:       convertModelRangeUIDs(r.RangeUids),
+			})
+		}
+
+		items = append(items, biz.ListMembersOpPermissionItem{
+			MemberUid:     rs[0].MemberUid,
+			UserUid:       rs[0].UserUid,
+			UserName:      rs[0].UserName,
+			OpPermissions: opPermissionWithOpRanges,
+		})
+
+	}
+
+	return items, total, nil
+}

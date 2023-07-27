@@ -1,0 +1,36 @@
+//go:build !enterprise
+
+package biz
+
+import (
+	"context"
+	"errors"
+)
+
+var errNotSupportOauth2 = errors.New("oauth2 related functions are enterprise version functions")
+
+func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Context, enableOauth2 *bool, clientID, clientKey, clientHost, serverAuthUrl, serverTokenUrl, serverUserIdUrl,
+	accessTokenTag, userIdTag, loginTip *string, scopes *[]string) error {
+
+	return errNotSupportOauth2
+}
+
+func (d *Oauth2ConfigurationUsecase) GetOauth2Configuration(ctx context.Context) (oauth2C *Oauth2Configuration, exist bool, err error) {
+	return nil, false, errNotSupportOauth2
+}
+
+func (d *Oauth2ConfigurationUsecase) GenOauth2LinkURI(ctx context.Context) (uri string, err error) {
+	return "", errNotSupportOauth2
+}
+
+func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, state, code string) (string, error) {
+	return "", errNotSupportOauth2
+}
+
+func (d *Oauth2ConfigurationUsecase) getOauth2UserID(conf *Oauth2Configuration, token string) (userID string, err error) {
+	return "", errNotSupportOauth2
+}
+
+func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2Token, userName, password string) (token string, err error) {
+	return "", errNotSupportOauth2
+}

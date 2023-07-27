@@ -1,0 +1,8 @@
+stages:
+  - golangci_lint
+golangci_lint_job:
+  stage: golangci_lint
+  tags: 
+    - docker
+  script:
+    - docker run --rm -v $(pwd):/src  golangci/golangci-lint:v1.49 bash -c "cd /src && make golangci_lint"
