@@ -6,6 +6,7 @@ import (
 
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
+	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/dms/storage/model"
 
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
@@ -116,6 +117,37 @@ func (d *DBServiceRepo) DelDBService(ctx context.Context, dbServiceUid string) e
 		}
 		return nil
 	})
+}
+
+func (d *DBServiceRepo) GetDBServices(ctx context.Context, conditions []pkgConst.FilterCondition) (services []*biz.DBService, err error) {
+	var models []*model.DBService
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		// find models
+		{
+			db := tx.WithContext(ctx)
+			for _, f := range conditions {
+				db = gormWhere(db, f)
+			}
+			db = db.Find(&models)
+			if err := db.Error; err != nil {
+				return fmt.Errorf("failed to list db service: %v", err)
+			}
+		}
+
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	// convert model to biz
+	for _, model := range models {
+		ds, err := convertModelDBService(model)
+		if err != nil {
+			return nil, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert model db services: %w", err))
+		}
+		services = append(services, ds)
+	}
+	return services, nil
 }
 
 func (d *DBServiceRepo) GetDBService(ctx context.Context, dbServiceUid string) (*biz.DBService, error) {
