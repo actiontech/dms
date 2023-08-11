@@ -172,6 +172,149 @@ func (d *DMSController) CheckDBServiceIsConnectable(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
+// swagger:route GET /v1/dms/database_source_services dms ListDatabaseSourceServices
+//
+// List database source service.
+//
+//	responses:
+//	  200: body:ListDatabaseSourceServicesReply
+//	  default: body:GenericResp
+func (d *DMSController) ListDatabaseSourceServices(c echo.Context) error {
+	req := new(aV1.ListDatabaseSourceServicesReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	reply, err := d.DMS.ListDatabaseSourceService(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route POST /v1/dms/database_source_services dms AddDatabaseSourceService
+//
+// Add database source service.
+//
+//	responses:
+//	  200: body:AddDatabaseSourceServiceReply
+//	  default: body:GenericResp
+func (d *DMSController) AddDatabaseSourceService(c echo.Context) error {
+	req := new(aV1.AddDatabaseSourceServiceReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, err := d.DMS.AddDatabaseSourceService(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route PUT /v1/dms/database_source_services/{database_source_service_uid} dms UpdateDatabaseSourceService
+//
+// update database source service.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) UpdateDatabaseSourceService(c echo.Context) error {
+	req := &aV1.UpdateDatabaseSourceServiceReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	err = d.DMS.UpdateDatabaseSourceService(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkResp(c)
+}
+
+// swagger:route DELETE /v1/dms/database_source_services/{database_source_service_uid} dms DeleteDatabaseSourceService
+//
+// Delete database source service.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) DeleteDatabaseSourceService(c echo.Context) error {
+	req := &aV1.DeleteDatabaseSourceServiceReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	err = d.DMS.DeleteDatabaseSourceService(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkResp(c)
+}
+
+// swagger:route GET /v1/dms/database_source_services/tips dms ListDatabaseSourceServiceTips
+//
+// List database source service tips.
+//
+//	responses:
+//	  200: body:ListDatabaseSourceServiceTipsReply
+//	  default: body:GenericResp
+func (d *DMSController) ListDatabaseSourceServiceTips(c echo.Context) error {
+	reply, err := d.DMS.ListDatabaseSourceServiceTips(c.Request().Context())
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route POST /v1/dms/database_source_services/{database_source_service_uid}/sync dms SyncDatabaseSourceService
+//
+// Sync database source service.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) SyncDatabaseSourceService(c echo.Context) error {
+	req := &aV1.SyncDatabaseSourceServiceReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	err = d.DMS.SyncDatabaseSourceService(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkResp(c)
+}
+
 // swagger:route POST /v1/dms/sessions dms AddSession
 //
 // Add a session.

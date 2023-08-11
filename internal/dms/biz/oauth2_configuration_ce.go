@@ -27,10 +27,6 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 	return "", errNotSupportOauth2
 }
 
-func (d *Oauth2ConfigurationUsecase) getOauth2UserID(conf *Oauth2Configuration, token string) (userID string, err error) {
-	return "", errNotSupportOauth2
-}
-
 func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2Token, userName, password string) (token string, err error) {
 	return "", errNotSupportOauth2
 }
