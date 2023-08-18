@@ -329,3 +329,27 @@ func (u *UpdateDBServiceReply) String() string {
 	}
 	return fmt.Sprintf("UpdateDBServiceReply{Uid:%s}", u.Payload.Uid)
 }
+
+type DatabaseDriverAdditionalParam struct {
+	Name        string `json:"name"`
+	Value       string `json:"value"`
+	Description string `json:"description" example:"参数项中文名"`
+	Type        string `json:"type" example:"int"`
+}
+
+type DatabaseDriverOption struct {
+	DBType   string                           `json:"db_type"`
+	LogoPath string                           `json:"logo_path"`
+	Params   []*DatabaseDriverAdditionalParam `json:"params"`
+}
+
+// swagger:model ListDBServiceDriverOptionReply
+type ListDBServiceDriverOptionReply struct {
+	// List db service reply
+	Payload struct {
+		DatabaseDriverOptions []*DatabaseDriverOption `json:"database_driver_options"`
+	} `json:"payload"`
+
+	// Generic reply
+	base.GenericResp
+}

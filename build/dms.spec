@@ -26,10 +26,12 @@ make build_dms RELEASE=$(echo %{release} | tr '.' '\n' | head -n1)
 rm -rf $RPM_BUILD_ROOT/usr/local/%{name}
 mkdir -p $RPM_BUILD_ROOT/usr/local/%{name}
 mkdir -p $RPM_BUILD_ROOT/usr/local/%{name}/service-file-template
-mkdir -p $RPM_BUILD_ROOT/usr/local/%{name}/static
+mkdir -p $RPM_BUILD_ROOT/usr/local/%{name}/static/logo
 cp %{_builddir}/%{buildsubdir}/bin/dms $RPM_BUILD_ROOT/usr/local/%{name}/dms
 cp %{_builddir}/%{buildsubdir}/build/service-file-template/* $RPM_BUILD_ROOT/usr/local/%{name}/service-file-template/
+cp %{_builddir}/%{buildsubdir}/build/logo/* $RPM_BUILD_ROOT/usr/local/%{name}/static/logo/
 cp %{_builddir}/%{buildsubdir}/config.yaml $RPM_BUILD_ROOT/usr/local/%{name}/config.yaml
+cp %{_builddir}/%{buildsubdir}/database_driver_option.yaml $RPM_BUILD_ROOT/usr/local/%{name}/database_driver_option.yaml
 cp -r %{_builddir}/%{buildsubdir}/build/static/* $RPM_BUILD_ROOT/usr/local/%{name}/static/
 cp %{_builddir}/%{buildsubdir}/build/scripts/init_start.sh $RPM_BUILD_ROOT/usr/local/%{name}/init_start.sh
 
@@ -199,5 +201,6 @@ fi
 /usr/local/%{name}/service-file-template/*
 /usr/local/%{name}/dms
 /usr/local/%{name}/config.yaml
+/usr/local/%{name}/database_driver_option.yaml
 /usr/local/%{name}/init_start.sh
 /usr/local/%{name}/static/* 

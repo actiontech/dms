@@ -101,6 +101,21 @@ func (d *DMSController) ListDBServices(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
+// swagger:route GET /v1/dms/db_services/driver_option dms ListDBServiceDriverOption
+//
+// List db service driver option.
+//
+//	responses:
+//	  200: body:ListDBServiceDriverOptionReply
+//	  default: body:GenericResp
+func (d *DMSController) ListDBServiceDriverOption(c echo.Context) error {
+	reply, err := d.DMS.ListDBServiceDriverOption(c.Request().Context())
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
 // swagger:route DELETE /v1/dms/db_services/{db_service_uid} dms DelDBService
 //
 // Delete a DB Service.
