@@ -15,8 +15,8 @@ node:
   nodeno: 1
 cloudbeaver:
   enable_https: false
-  host: 127.0.0.1
+  host: 172.41.134.5
   port: 8978
-  admin_user: admin
-  admin_password: admin
+  admin_user: administrator
+  admin_password: 123456
 

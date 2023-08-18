@@ -26,7 +26,7 @@ type Oauth2Configuration struct {
 	LoginTip        string
 }
 
-func initOauth2Configuration() (*Oauth2Configuration, error) {
+func initOauth2Configuration() (*Oauth2Configuration, error) { //nolint
 	uid, err := pkgRand.GenStrUid()
 	if err != nil {
 		return nil, err

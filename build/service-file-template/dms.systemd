@@ -1,0 +1,17 @@
+[Unit]
+Description=DMS
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+LimitNOFILE=65535
+LimitNPROC=65535
+TasksMax=512
+Type=simple
+PIDFile=
+WorkingDirectory=
+ExecStart=
+RestartSec=30
+Restart=on-failure
+KillMode=process

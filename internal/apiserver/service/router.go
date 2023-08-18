@@ -7,6 +7,7 @@ import (
 	pkgLog "github.com/actiontech/dms/internal/pkg/log"
 
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+	commonLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
 
@@ -31,7 +32,15 @@ func (s *APIServer) initRouter() error {
 		dbServiceV1.GET("", s.DMSController.ListDBServices)
 		dbServiceV1.DELETE("/:db_service_uid", s.DMSController.DelDBService)
 		dbServiceV1.PUT("/:db_service_uid", s.DMSController.UpdateDBService)
-		dbServiceV1.POST("/connect", s.DMSController.CheckDBServiceIsConnectable)
+		dbServiceV1.POST("/connection", s.DMSController.CheckDBServiceIsConnectable)
+
+		DatabaseSourceServiceV1 := v1.Group("/dms/database_source_services")
+		DatabaseSourceServiceV1.GET("/tips", s.DMSController.ListDatabaseSourceServiceTips)
+		DatabaseSourceServiceV1.POST("/:database_source_service_uid/sync", s.DMSController.SyncDatabaseSourceService)
+		DatabaseSourceServiceV1.GET("", s.DMSController.ListDatabaseSourceServices)
+		DatabaseSourceServiceV1.POST("", s.DMSController.AddDatabaseSourceService)
+		DatabaseSourceServiceV1.PUT("/:database_source_service_uid", s.DMSController.UpdateDatabaseSourceService)
+		DatabaseSourceServiceV1.DELETE("/:database_source_service_uid", s.DMSController.DeleteDatabaseSourceService)
 
 		userV1 := v1.Group(dmsV1.UserRouterGroup)
 		userV1.POST("", s.DMSController.AddUser)
@@ -136,6 +145,15 @@ func (s *APIServer) installMiddleware() error {
 			`status:${status}, error:${error}, latency:${latency}, latency_human:${latency_human}` +
 			`, bytes_in:${bytes_in}, bytes_out:${bytes_out}` + "\n",
 		CustomTimeFormat: pkgLog.LogTimeLayout,
+	}))
+
+	s.echo.Use(middleware.BodyDumpWithConfig(middleware.BodyDumpConfig{
+		Skipper: func(c echo.Context) bool {
+			return !strings.HasPrefix(c.Request().RequestURI, dmsV1.GroupV1)
+		},
+		Handler: func(context echo.Context, req []byte, reply []byte) {
+			_ = s.logger.Log(commonLog.LevelInfo, "middleware.uri", context.Request().RequestURI, "req", string(req), "reply", string(reply))
+		},
 	}))
 
 	s.echo.Use(middleware.StaticWithConfig(middleware.StaticConfig{
