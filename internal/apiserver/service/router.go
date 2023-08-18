@@ -7,6 +7,7 @@ import (
 	pkgLog "github.com/actiontech/dms/internal/pkg/log"
 
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+	commonLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
 
@@ -136,6 +137,15 @@ func (s *APIServer) installMiddleware() error {
 			`status:${status}, error:${error}, latency:${latency}, latency_human:${latency_human}` +
 			`, bytes_in:${bytes_in}, bytes_out:${bytes_out}` + "\n",
 		CustomTimeFormat: pkgLog.LogTimeLayout,
+	}))
+
+	s.echo.Use(middleware.BodyDumpWithConfig(middleware.BodyDumpConfig{
+		Skipper: func(c echo.Context) bool {
+			return !strings.HasPrefix(c.Request().RequestURI, dmsV1.GroupV1)
+		},
+		Handler: func(context echo.Context, req []byte, reply []byte) {
+			_ = s.logger.Log(commonLog.LevelInfo, "middleware.uri", context.Request().RequestURI, "req", string(req), "reply", string(reply))
+		},
 	}))
 
 	s.echo.Use(middleware.StaticWithConfig(middleware.StaticConfig{
