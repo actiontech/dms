@@ -32,6 +32,7 @@ func GetAllModels() []interface{} {
 		IMConfiguration{},
 		CloudbeaverUserCache{},
 		CloudbeaverConnectionCache{},
+		DatabaseSourceService{},
 	}
 }
 
@@ -268,4 +269,19 @@ type CloudbeaverConnectionCache struct {
 	DMSDBServiceID          string `json:"dms_db_service_id" gorm:"column:dms_db_service_id;primaryKey"`
 	DMSDBServiceFingerprint string `json:"dms_db_service_fingerprint" gorm:"column:dms_db_service_fingerprint"`
 	CloudbeaverConnectionID string `json:"cloudbeaver_connection_id" gorm:"column:cloudbeaver_connection_id"`
+}
+
+type DatabaseSourceService struct {
+	Model
+	Name         string `json:"name" gorm:"size:200;not null;uniqueIndex" example:""`
+	Source       string `json:"source" gorm:"not null"`
+	Version      string `json:"version" gorm:"not null"`
+	URL          string `json:"url" gorm:"not null"`
+	DbType       string `json:"db_type" gorm:"not null"`
+	NamespaceUID string `json:"namespace_uid" gorm:"column:namespace_uid"`
+	// Cron表达式
+	CronExpress         string          `json:"cron_express" gorm:"column:cron_express; not null"`
+	LastSyncErr         string          `json:"last_sync_err" gorm:"column:last_sync_err"`
+	LastSyncSuccessTime *time.Time      `json:"last_sync_success_time" gorm:"column:last_sync_success_time"`
+	ExtraParameters     ExtraParameters `json:"extra_parameters" gorm:"TYPE:json"`
 }

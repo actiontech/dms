@@ -6,31 +6,31 @@ import (
 
 	"github.com/actiontech/dms/internal/apiserver/conf"
 	"github.com/actiontech/dms/internal/dms/biz"
-
 	"github.com/actiontech/dms/internal/dms/storage"
 
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 )
 
 type DMSService struct {
-	PluginUsecase               *biz.PluginUsecase
-	DBServiceUsecase            *biz.DBServiceUsecase
-	UserUsecase                 *biz.UserUsecase
-	UserGroupUsecase            *biz.UserGroupUsecase
-	RoleUsecase                 *biz.RoleUsecase
-	OpPermissionUsecase         *biz.OpPermissionUsecase
-	MemberUsecase               *biz.MemberUsecase
-	OpPermissionVerifyUsecase   *biz.OpPermissionVerifyUsecase
-	NamespaceUsecase            *biz.NamespaceUsecase
-	DmsProxyUsecase             *biz.DmsProxyUsecase
-	Oauth2ConfigurationUsecase  *biz.Oauth2ConfigurationUsecase
-	LDAPConfigurationUsecase    *biz.LDAPConfigurationUsecase
-	SMTPConfigurationUsecase    *biz.SMTPConfigurationUsecase
-	WeChatConfigurationUsecase  *biz.WeChatConfigurationUsecase
-	WebHookConfigurationUsecase *biz.WebHookConfigurationUsecase
-	IMConfigurationUsecase      *biz.IMConfigurationUsecase
-	log                         *utilLog.Helper
-	shutdownCallback            func() error
+	PluginUsecase                *biz.PluginUsecase
+	DBServiceUsecase             *biz.DBServiceUsecase
+	DatabaseSourceServiceUsecase *biz.DatabaseSourceServiceUsecase
+	UserUsecase                  *biz.UserUsecase
+	UserGroupUsecase             *biz.UserGroupUsecase
+	RoleUsecase                  *biz.RoleUsecase
+	OpPermissionUsecase          *biz.OpPermissionUsecase
+	MemberUsecase                *biz.MemberUsecase
+	OpPermissionVerifyUsecase    *biz.OpPermissionVerifyUsecase
+	NamespaceUsecase             *biz.NamespaceUsecase
+	DmsProxyUsecase              *biz.DmsProxyUsecase
+	Oauth2ConfigurationUsecase   *biz.Oauth2ConfigurationUsecase
+	LDAPConfigurationUsecase     *biz.LDAPConfigurationUsecase
+	SMTPConfigurationUsecase     *biz.SMTPConfigurationUsecase
+	WeChatConfigurationUsecase   *biz.WeChatConfigurationUsecase
+	WebHookConfigurationUsecase  *biz.WebHookConfigurationUsecase
+	IMConfigurationUsecase       *biz.IMConfigurationUsecase
+	log                          *utilLog.Helper
+	shutdownCallback             func() error
 }
 
 func NewAndInitDMSService(logger utilLog.Logger, opts *conf.Options) (*DMSService, error) {
@@ -61,6 +61,8 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.Options) (*DMSServic
 	namespaceUsecase := biz.NewNamespaceUsecase(logger, tx, namespaceRepo, &memberUsecase, opPermissionVerifyUsecase, pluginUseCase)
 	dbServiceRepo := storage.NewDBServiceRepo(logger, st)
 	dbServiceUseCase := biz.NewDBServiceUsecase(dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, namespaceUsecase)
+	databaseSourceServiceRepo := storage.NewDatabaseSourceServiceRepo(logger, st)
+	databaseSourceServiceUsecase := biz.NewDatabaseSourceServiceUsecase(logger, databaseSourceServiceRepo, opPermissionVerifyUsecase, namespaceUsecase, dbServiceUseCase)
 	ldapConfigurationRepo := storage.NewLDAPConfigurationRepo(logger, st)
 	ldapConfigurationUsecase := biz.NewLDAPConfigurationUsecase(logger, tx, ldapConfigurationRepo)
 	userRepo := storage.NewUserRepo(logger, st)
@@ -93,23 +95,24 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.Options) (*DMSServic
 	}
 
 	s := &DMSService{
-		PluginUsecase:               pluginUseCase,
-		DBServiceUsecase:            dbServiceUseCase,
-		UserUsecase:                 userUsecase,
-		UserGroupUsecase:            userGroupUsecase,
-		RoleUsecase:                 roleUsecase,
-		OpPermissionUsecase:         opPermissionUsecase,
-		MemberUsecase:               &memberUsecase,
-		OpPermissionVerifyUsecase:   opPermissionVerifyUsecase,
-		NamespaceUsecase:            namespaceUsecase,
-		DmsProxyUsecase:             dmsProxyUsecase,
-		Oauth2ConfigurationUsecase:  oauth2ConfigurationUsecase,
-		LDAPConfigurationUsecase:    ldapConfigurationUsecase,
-		SMTPConfigurationUsecase:    smtpConfigurationUsecase,
-		WeChatConfigurationUsecase:  wechatConfigurationUsecase,
-		WebHookConfigurationUsecase: webhookConfigurationUsecase,
-		IMConfigurationUsecase:      imConfigurationUsecase,
-		log:                         utilLog.NewHelper(logger, utilLog.WithMessageKey("dms.service")),
+		PluginUsecase:                pluginUseCase,
+		DBServiceUsecase:             dbServiceUseCase,
+		DatabaseSourceServiceUsecase: databaseSourceServiceUsecase,
+		UserUsecase:                  userUsecase,
+		UserGroupUsecase:             userGroupUsecase,
+		RoleUsecase:                  roleUsecase,
+		OpPermissionUsecase:          opPermissionUsecase,
+		MemberUsecase:                &memberUsecase,
+		OpPermissionVerifyUsecase:    opPermissionVerifyUsecase,
+		NamespaceUsecase:             namespaceUsecase,
+		DmsProxyUsecase:              dmsProxyUsecase,
+		Oauth2ConfigurationUsecase:   oauth2ConfigurationUsecase,
+		LDAPConfigurationUsecase:     ldapConfigurationUsecase,
+		SMTPConfigurationUsecase:     smtpConfigurationUsecase,
+		WeChatConfigurationUsecase:   wechatConfigurationUsecase,
+		WebHookConfigurationUsecase:  webhookConfigurationUsecase,
+		IMConfigurationUsecase:       imConfigurationUsecase,
+		log:                          utilLog.NewHelper(logger, utilLog.WithMessageKey("dms.service")),
 		shutdownCallback: func() error {
 			if err := st.Close(); nil != err {
 				return fmt.Errorf("failed to close storage: %v", err)

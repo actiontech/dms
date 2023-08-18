@@ -80,6 +80,7 @@ func newDBService(args *BizDBServiceArgs) (*DBService, error) {
 		AdditionalParams:  args.AdditionalParams,
 		NamespaceUID:      args.NamespaceUID,
 		Business:          args.Business,
+		Source:            args.Source,
 		MaintenancePeriod: args.MaintenancePeriod,
 	}
 	if args.SQLQueryConfig != nil && args.RuleTemplateName != "" {
@@ -100,6 +101,7 @@ type DBServiceRepo interface {
 	ListDBServices(ctx context.Context, opt *ListDBServicesOption) (services []*DBService, total int64, err error)
 	DelDBService(ctx context.Context, dbServiceUid string) error
 	GetDBService(ctx context.Context, dbServiceUid string) (*DBService, error)
+	GetDBServices(ctx context.Context, conditions []pkgConst.FilterCondition) (services []*DBService, err error)
 	CheckDBServiceExist(ctx context.Context, dbServiceUids []string) (exists bool, err error)
 	UpdateDBService(ctx context.Context, dbService *DBService) error
 }
@@ -129,6 +131,7 @@ type BizDBServiceArgs struct {
 	AdminUser         string
 	AdminPassword     *string
 	Business          string
+	Source            string
 	AdditionalParams  pkgParams.Params
 	NamespaceUID      string
 	MaintenancePeriod pkgPeriods.Periods
@@ -278,14 +281,7 @@ func (d *DBServiceUsecase) UpdateDBService(ctx context.Context, dbServiceUid str
 		if ds.DBType != updateDBService.DBType {
 			return fmt.Errorf("update db service db type is unsupported")
 		}
-		source, err := pkgConst.ParseDBServiceSource(ds.Source)
-		if err != nil {
-			return fmt.Errorf("parse db service source failed: %v", err)
-		}
 
-		if source != pkgConst.DBServiceSourceNameDMS {
-			return fmt.Errorf("external db service can not be updated")
-		}
 		if updateDBService.Host == "" || updateDBService.Port == "" ||
 			updateDBService.AdminUser == "" || updateDBService.Business == "" {
 			return fmt.Errorf("db service's host,port,user,business can't be empty")
