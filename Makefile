@@ -15,7 +15,7 @@ RPM_BUILD_PATH      = ./RPMS/x86_64/$(RPM_NAME)
 
 gen_repo_fields:
 	go run ./internal/dms/cmd/gencli/gencli.go -d generate-node-repo-fields ./internal/dms/storage/model/ ./internal/dms/biz/
-build_dms: download_front
+build_dms:
 	GOOS=linux GOARCH=amd64 GOPROXY=https://goproxy.io,direct go build -tags ${RELEASE} -mod=vendor -ldflags "-X 'main.defaultRunUser=${USER_NAME}' -X 'main.version=${VERSION}' -X 'main.gitCommitID=${GIT_LATEST_COMMIT_ID}'" -o ./bin/dms ./internal/apiserver/cmd/server/main.go
 dms_unit_test_prepare:
 	./build/scripts/dms_run_unit_test_db_container.sh $(DMS_UNIT_TEST_MYSQL_DB_CONTAINER)
