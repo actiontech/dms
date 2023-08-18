@@ -6,6 +6,7 @@ import (
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/dms/pkg/database"
+	utilConf "github.com/actiontech/dms/pkg/dms-common/pkg/config"
 	pkgParams "github.com/actiontech/dms/pkg/params"
 	pkgPeriods "github.com/actiontech/dms/pkg/periods"
 	pkgRand "github.com/actiontech/dms/pkg/rand"
@@ -195,6 +196,25 @@ func (d *DBServiceUsecase) ListDBService(ctx context.Context, option *ListDBServ
 		return nil, 0, fmt.Errorf("list db services failed: %w", err)
 	}
 	return services, total, nil
+}
+
+type databaseOption struct {
+	DbType   string           `json:"db_type"`
+	LogoPath string           `json:"logo_path"`
+	Params   pkgParams.Params `json:"params"`
+}
+
+type databaseDriver struct {
+	Driver []databaseOption `json:"driver"`
+}
+
+func (d *DBServiceUsecase) ListDBServiceDriverOption(ctx context.Context) ([]databaseOption, error) {
+	var driver databaseDriver
+	if err := utilConf.ParseYamlFile(d.pluginUsecase.logger, "./database_driver_option.yaml", &driver); err != nil {
+		return nil, err
+	}
+
+	return driver.Driver, nil
 }
 
 func (d *DBServiceUsecase) GetActiveDBServices(ctx context.Context, dbServiceIds []string) (dbServices []*DBService, err error) {
