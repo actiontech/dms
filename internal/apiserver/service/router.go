@@ -31,7 +31,7 @@ func (s *APIServer) initRouter() error {
 		dbServiceV1.GET("", s.DMSController.ListDBServices)
 		dbServiceV1.DELETE("/:db_service_uid", s.DMSController.DelDBService)
 		dbServiceV1.PUT("/:db_service_uid", s.DMSController.UpdateDBService)
-		dbServiceV1.POST("/connect", s.DMSController.CheckDBServiceIsConnectable)
+		dbServiceV1.POST("/connection", s.DMSController.CheckDBServiceIsConnectable)
 
 		userV1 := v1.Group(dmsV1.UserRouterGroup)
 		userV1.POST("", s.DMSController.AddUser)
