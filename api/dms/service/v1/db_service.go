@@ -5,6 +5,7 @@ import (
 
 	base "github.com/actiontech/dms/api/base/v1"
 
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	"github.com/go-openapi/strfmt"
 )
 
@@ -59,7 +60,7 @@ type DBService struct {
 	NamespaceUID string `json:"namespace_uid" validate:"required"`
 	// DB Service Custom connection parameters
 	// Required: false
-	AdditionalParams []*DBServiceAdditionalParam `json:"additional_params"`
+	AdditionalParams []*dmsCommonV1.AdditionalParam `json:"additional_params"`
 	// Service description
 	Desc string `json:"desc"`
 	// SQLE config
@@ -113,31 +114,7 @@ func (u *AddDBServiceReply) String() string {
 type CheckDBServiceIsConnectableReq struct {
 	// check db_service is connectable
 	// in:body
-	DBService struct {
-		// DB Service type
-		// Required: true
-		// example: MySQL
-		DBType string `json:"db_type" validate:"required"`
-		// DB Service admin user
-		// Required: true
-		// example: root
-		User string `json:"user" validate:"required"`
-		// DB Service admin password
-		// Required: true
-		// example: 123456
-		Password string `json:"password" validate:"required"`
-		// DB Service host
-		// Required: true
-		// example: 127.0.0.1
-		Host string `json:"host" validate:"required,ip_addr|uri|hostname|hostname_rfc1123"`
-		// DB Service port
-		// Required: true
-		// example: 3306
-		Port string `json:"port" validate:"required"`
-		// DB Service Custom connection parameters
-		// Required: false
-		AdditionalParams []*DBServiceAdditionalParam `json:"additional_params"`
-	} `json:"db_service"`
+	DBService dmsCommonV1.CheckDbConnectable `json:"db_service"`
 }
 
 // swagger:model CheckDBServiceIsConnectableReply
@@ -237,10 +214,6 @@ type ListDBService struct {
 	AuthConfig *AuthSyncConfig `json:"auth_config"`
 }
 
-type DBServiceAdditionalParam struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-}
 type SQLEConfig struct {
 	// DB Service rule template name
 	RuleTemplateName string `json:"rule_template_name"`
@@ -331,7 +304,7 @@ type UpdateDBService struct {
 	MaintenanceTimes []*MaintenanceTime `json:"maintenance_times"`
 	// DB Service Custom connection parameters
 	// Required: false
-	AdditionalParams []*DBServiceAdditionalParam `json:"additional_params"`
+	AdditionalParams []*dmsCommonV1.AdditionalParam `json:"additional_params"`
 	// Service description
 	Desc *string `json:"desc"`
 	// SQLE config
