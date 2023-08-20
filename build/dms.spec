@@ -19,7 +19,7 @@ Acitontech %{name}
 
 
 # e.g: %{release} = qa.el7, RELEASE need qa/alpha
-make build_dms RELEASE=$(echo %{release} | tr '.' '\n' | head -n1)
+# build is done in outside, please see Makefile.
 
 
 %install
