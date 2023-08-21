@@ -6,8 +6,8 @@ dms:
   data:
     database:
       username: root
-      password: pass
-      host: 127.0.0.1
+      password: 123
+      host: 172.41.134.4
       port: 3306
       database: dms
       debug: true
