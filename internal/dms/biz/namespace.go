@@ -105,6 +105,12 @@ func (d *NamespaceUsecase) ListNamespace(ctx context.Context, option *ListNamesp
 }
 
 func (d *NamespaceUsecase) InitNamespaces(ctx context.Context) (err error) {
+	tx := d.tx.BeginTX(ctx)
+	defer func() {
+		if err != nil {
+			err = tx.RollbackWithError(d.log, err)
+		}
+	}()
 	for _, n := range initNamespaces() {
 
 		_, err := d.GetNamespace(ctx, n.UID)
@@ -119,11 +125,23 @@ func (d *NamespaceUsecase) InitNamespaces(ctx context.Context) (err error) {
 		}
 
 		// not exist, then create it.
-		if err := d.CreateNamespace(ctx, n, pkgConst.UIDOfUserAdmin); err != nil {
-			return fmt.Errorf("failed to init namespace: %v", err)
+		err = d.repo.SaveNamespace(tx, n)
+		if err != nil {
+			return fmt.Errorf("save namespaces failed: %v", err)
 		}
 
+		_, err = d.memberUsecase.AddUserToNamespaceAdminMember(tx, pkgConst.UIDOfUserAdmin, n.UID)
+		if err != nil {
+			return fmt.Errorf("add admin to namespaces failed: %v", err)
+		}
+	}
+	if err := tx.Commit(d.log); err != nil {
+		return fmt.Errorf("commit tx failed: %v", err)
 	}
 	d.log.Debug("init namespace success")
 	return nil
+}
+
+func (d *NamespaceUsecase) GetNamespace(ctx context.Context, namespaceUid string) (*Namespace, error) {
+	return d.repo.GetNamespace(ctx, namespaceUid)
 }
