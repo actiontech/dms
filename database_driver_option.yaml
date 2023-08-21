@@ -1,0 +1,8 @@
+driver:
+  -
+    db_type: MySQL
+    logo_path: "/static/logo/mysql.png"
+    params:
+
+
+
