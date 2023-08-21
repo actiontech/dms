@@ -120,7 +120,7 @@ type CheckDBServiceIsConnectableReq struct {
 type CheckDBServiceIsConnectableReplyItem struct {
 	IsConnectable       bool   `json:"is_connectable"`
 	Component           string `json:"component"`
-	ConnectErrorMessage string `json:"connect_error_message,omitempty"`
+	ConnectErrorMessage string `json:"connect_error_message"`
 }
 
 // swagger:model CheckDBServiceIsConnectableReply
