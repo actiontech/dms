@@ -13,10 +13,6 @@ func (d *NamespaceUsecase) CreateNamespace(ctx context.Context, namespace *Names
 	return errNotSupportNamespace
 }
 
-func (d *NamespaceUsecase) GetNamespace(ctx context.Context, namespaceUid string) (*Namespace, error) {
-	return nil, errNotSupportNamespace
-}
-
 func (d *NamespaceUsecase) GetNamespaceByName(ctx context.Context, namespaceName string) (*Namespace, error) {
 	return nil, errNotSupportNamespace
 }
