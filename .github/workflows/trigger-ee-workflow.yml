@@ -1,0 +1,22 @@
+name: Trigger dms-ee Workflow
+
+on:
+  push:
+    branches:
+      - main
+      - 'release*'
+
+jobs:
+  trigger-sync-workflow:
+    # this file will sync to dms-ee, we only execute job on actiontech/dms
+    if: github.repository == 'actiontech/dms' 
+    name: Create workflow dispatch on dms-ee
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger dms-ee workflow
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          token: ${{ secrets.DOWNSTREAM_REPO_SECRET }}
+          repo: actiontech/dms-ee
+          workflow: Sync with DMS
+          ref: ${{ github.ref }}-ee
