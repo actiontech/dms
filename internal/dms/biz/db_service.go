@@ -208,9 +208,11 @@ type databaseDriver struct {
 	Driver []databaseOption `json:"driver"`
 }
 
+const DatabaseDriverOptionPath = "./database_driver_option.yaml"
+
 func (d *DBServiceUsecase) ListDBServiceDriverOption(ctx context.Context) ([]databaseOption, error) {
 	var driver databaseDriver
-	if err := utilConf.ParseYamlFile(d.pluginUsecase.logger, "./database_driver_option.yaml", &driver); err != nil {
+	if err := utilConf.ParseYamlFile(d.pluginUsecase.logger, DatabaseDriverOptionPath, &driver); err != nil {
 		return nil, err
 	}
 
