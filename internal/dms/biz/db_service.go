@@ -360,7 +360,7 @@ type IsConnectableParams struct {
 type IsConnectableReply struct {
 	IsConnectable       bool   `json:"is_connectable"`
 	Component           string `json:"component"`
-	ConnectErrorMessage string `json:"connect_error_message,omitempty"`
+	ConnectErrorMessage string `json:"connect_error_message"`
 }
 
 func (d *DBServiceUsecase) IsConnectable(ctx context.Context, params IsConnectableParams) ([]*IsConnectableReply, error) {
