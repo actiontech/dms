@@ -30,6 +30,7 @@ func (s *APIServer) initRouter() error {
 		dbServiceV1 := v1.Group(dmsV1.DBServiceRouterGroup)
 		dbServiceV1.POST("", s.DMSController.AddDBService)
 		dbServiceV1.GET("", s.DMSController.ListDBServices)
+		dbServiceV1.GET("/driver_options", s.DMSController.ListDBServiceDriverOption)
 		dbServiceV1.DELETE("/:db_service_uid", s.DMSController.DelDBService)
 		dbServiceV1.PUT("/:db_service_uid", s.DMSController.UpdateDBService)
 		dbServiceV1.POST("/connection", s.DMSController.CheckDBServiceIsConnectable)

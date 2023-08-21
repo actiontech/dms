@@ -340,3 +340,37 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsV1.ListDBServic
 		}{DBServices: ret, Total: total},
 	}, nil
 }
+
+func (d *DMSService) ListDBServiceDriverOption(ctx context.Context) (reply *dmsV1.ListDBServiceDriverOptionReply, err error) {
+	options, err := d.DBServiceUsecase.ListDBServiceDriverOption(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := make([]*dmsV1.DatabaseDriverOption, 0, len(options))
+	for _, item := range options {
+		additionalParams := make([]*dmsV1.DatabaseDriverAdditionalParam, 0, len(item.Params))
+		for _, param := range item.Params {
+			additionalParams = append(additionalParams, &dmsV1.DatabaseDriverAdditionalParam{
+				Name:        param.Key,
+				Value:       param.Value,
+				Type:        string(param.Type),
+				Description: param.Desc,
+			})
+		}
+
+		ret = append(ret, &dmsV1.DatabaseDriverOption{
+			DBType:   item.DbType,
+			LogoPath: item.LogoPath,
+			Params:   additionalParams,
+		})
+	}
+
+	return &dmsV1.ListDBServiceDriverOptionReply{
+		Payload: struct {
+			DatabaseDriverOptions []*dmsV1.DatabaseDriverOption `json:"database_driver_options"`
+		}{
+			ret,
+		},
+	}, nil
+}
