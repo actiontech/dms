@@ -5,8 +5,10 @@ import (
 	"fmt"
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
-	"github.com/actiontech/dms/internal/dms/pkg/database"
+	v1Base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
+	v1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	utilConf "github.com/actiontech/dms/pkg/dms-common/pkg/config"
+	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 	pkgParams "github.com/actiontech/dms/pkg/params"
 	pkgPeriods "github.com/actiontech/dms/pkg/periods"
 	pkgRand "github.com/actiontech/dms/pkg/rand"
@@ -109,17 +111,19 @@ type DBServiceRepo interface {
 
 type DBServiceUsecase struct {
 	repo                      DBServiceRepo
+	dmsProxyTargetRepo        ProxyTargetRepo
 	pluginUsecase             *PluginUsecase
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	namespaceUsecase          *NamespaceUsecase
 }
 
-func NewDBServiceUsecase(repo DBServiceRepo, pluginUsecase *PluginUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, namespaceUsecase *NamespaceUsecase) *DBServiceUsecase {
+func NewDBServiceUsecase(repo DBServiceRepo, pluginUsecase *PluginUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, namespaceUsecase *NamespaceUsecase, proxyTargetRepo ProxyTargetRepo) *DBServiceUsecase {
 	return &DBServiceUsecase{
 		repo:                      repo,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 		pluginUsecase:             pluginUsecase,
 		namespaceUsecase:          namespaceUsecase,
+		dmsProxyTargetRepo:        proxyTargetRepo,
 	}
 }
 
@@ -353,19 +357,41 @@ type IsConnectableParams struct {
 	AdditionalParams pkgParams.Params
 }
 
-func (d *DBServiceUsecase) IsConnectable(ctx context.Context, params IsConnectableParams) (bool, error) {
-	switch params.DBType {
-	case pkgConst.DBTypeMySQL:
-		return database.NewMysqlManager(params.Host, params.Port, params.User, params.Password).IsConnectable(ctx)
-	case pkgConst.DBTypeOracle:
-		return false, nil
-	case pkgConst.DBTypeOceanBaseMySQL:
-		return false, nil
-	case pkgConst.DBTypePostgreSQL:
-		return false, nil
-	case pkgConst.DBTypeSQLServer:
-		return false, nil
-	default:
-		return false, fmt.Errorf("%s does not exist", params.DBType)
+type IsConnectableReply struct {
+	IsConnectable       bool   `json:"is_connectable"`
+	Component           string `json:"component"`
+	ConnectErrorMessage string `json:"connect_error_message,omitempty"`
+}
+
+func (d *DBServiceUsecase) IsConnectable(ctx context.Context, params IsConnectableParams) ([]*IsConnectableReply, error) {
+	dmsProxyTargets, err := d.dmsProxyTargetRepo.ListProxyTargets(ctx)
+	if err != nil {
+		return nil, err
 	}
+
+	ret := make([]*IsConnectableReply, 0, len(dmsProxyTargets))
+
+	header := map[string]string{
+		"Authorization": pkgHttp.DefaultDMSToken,
+	}
+
+	for _, target := range dmsProxyTargets {
+		isConnectableReply := &IsConnectableReply{Component: target.Name}
+
+		uri := v1.GetDBConnectionAbleRouter()
+
+		var reply = &v1Base.GenericResp{}
+		err = pkgHttp.POST(ctx, fmt.Sprintf("%s%s", target.URL, uri), header, params, reply)
+		if err != nil {
+			isConnectableReply.ConnectErrorMessage = err.Error()
+		} else if reply.Code != 0 {
+			isConnectableReply.ConnectErrorMessage = reply.Msg
+		} else {
+			isConnectableReply.IsConnectable = true
+		}
+
+		ret = append(ret, isConnectableReply)
+	}
+
+	return ret, nil
 }

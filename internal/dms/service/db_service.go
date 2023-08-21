@@ -108,20 +108,22 @@ func (d *DMSService) CheckDBServiceIsConnectable(ctx context.Context, req *dmsV1
 		AdditionalParams: additionalParams,
 	}
 
-	isConnectable, err := d.DBServiceUsecase.IsConnectable(ctx, IsConnectableParams)
+	results, err := d.DBServiceUsecase.IsConnectable(ctx, IsConnectableParams)
 
-	connectErrorMessage := ""
 	if err != nil {
 		d.log.Errorf("IsConnectable err: %v", err)
-		connectErrorMessage = err.Error()
 	}
 
-	return &dmsV1.CheckDBServiceIsConnectableReply{
-		Payload: struct {
-			IsConnectable       bool   `json:"is_connectable"`
-			ConnectErrorMessage string `json:"connect_error_message,omitempty"`
-		}{IsConnectable: isConnectable, ConnectErrorMessage: connectErrorMessage},
-	}, nil
+	ret := &dmsV1.CheckDBServiceIsConnectableReply{}
+	for _, item := range results {
+		ret.Payload.Connections = append(ret.Payload.Connections, dmsV1.CheckDBServiceIsConnectableReplyItem{
+			IsConnectable:       item.IsConnectable,
+			Component:           item.Component,
+			ConnectErrorMessage: item.ConnectErrorMessage,
+		})
+	}
+
+	return ret, nil
 }
 
 func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceReq, currentUserUid string) (reply *dmsV1.AddDBServiceReply, err error) {
