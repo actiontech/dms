@@ -46,10 +46,6 @@ func (d *NamespaceUsecase) CreateNamespace(ctx context.Context, namespace *Names
 	return nil
 }
 
-func (d *NamespaceUsecase) GetNamespace(ctx context.Context, namespaceUid string) (*Namespace, error) {
-	return d.repo.GetNamespace(ctx, namespaceUid)
-}
-
 func (d *NamespaceUsecase) GetNamespaceByName(ctx context.Context, namespaceName string) (*Namespace, error) {
 	return d.repo.GetNamespaceByName(ctx, namespaceName)
 }
