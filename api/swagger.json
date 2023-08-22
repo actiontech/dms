@@ -582,6 +582,43 @@
       }
     },
     "/v1/dms/database_source_services/{database_source_service_uid}": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get database source service.",
+        "operationId": "GetDatabaseSourceService",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "DatabaseSourceServiceUid",
+            "name": "database_source_service_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "NamespaceId",
+            "description": "filter by db service namespace uid\nonly the sys user can use an empty namespace value, which means lookup from all namespaces",
+            "name": "namespace_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GetDatabaseSourceServiceReply",
+            "schema": {
+              "$ref": "#/definitions/GetDatabaseSourceServiceReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
       "put": {
         "tags": [
           "dms"
@@ -811,7 +848,7 @@
         }
       }
     },
-    "/v1/dms/db_services/connection": {
+    "/v1/dms/db_services/connect": {
       "post": {
         "tags": [
           "dms"
@@ -2677,33 +2714,16 @@
         "payload": {
           "type": "object",
           "properties": {
-            "connections": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/CheckDBServiceIsConnectableReplyItem"
-              },
-              "x-go-name": "Connections"
+            "connect_error_message": {
+              "type": "string",
+              "x-go-name": "ConnectErrorMessage"
+            },
+            "is_connectable": {
+              "type": "boolean",
+              "x-go-name": "IsConnectable"
             }
           },
           "x-go-name": "Payload"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "CheckDBServiceIsConnectableReplyItem": {
-      "type": "object",
-      "properties": {
-        "component": {
-          "type": "string",
-          "x-go-name": "Component"
-        },
-        "connect_error_message": {
-          "type": "string",
-          "x-go-name": "ConnectErrorMessage"
-        },
-        "is_connectable": {
-          "type": "boolean",
-          "x-go-name": "IsConnectable"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -3080,7 +3100,33 @@
           "x-go-name": "Msg"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/base/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
+    },
+    "GetDatabaseSourceServiceReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "msg": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Msg"
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "database_source_service": {
+              "$ref": "#/definitions/ListDatabaseSourceService"
+            }
+          },
+          "x-go-name": "Payload"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetFeishuConfigurationReply": {
       "type": "object",
@@ -5146,7 +5192,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateDBService": {
       "description": "update db service",
