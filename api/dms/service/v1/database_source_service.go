@@ -37,10 +37,18 @@ type GetDatabaseSourceServiceReq struct {
 // swagger:model GetDatabaseSourceServiceReply
 type GetDatabaseSourceServiceReply struct {
 	Payload struct {
-		DatabaseSourceService *ListDatabaseSourceService `json:"database_source_service"`
+		DatabaseSourceService *GetDatabaseSourceService `json:"database_source_service"`
 	} `json:"payload"`
 	// Generic reply
 	base.GenericResp
+}
+
+type GetDatabaseSourceService struct {
+	DatabaseSourceService
+	UID string `json:"uid"`
+	// last sync error message
+	LastSyncErr         string     `json:"last_sync_err"`
+	LastSyncSuccessTime *time.Time `json:"last_sync_success_time"`
 }
 
 type ListDatabaseSourceService struct {
