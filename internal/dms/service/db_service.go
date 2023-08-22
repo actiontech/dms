@@ -112,6 +112,7 @@ func (d *DMSService) CheckDBServiceIsConnectable(ctx context.Context, req *dmsV1
 
 	if err != nil {
 		d.log.Errorf("IsConnectable err: %v", err)
+		return nil, err
 	}
 
 	ret := &dmsV1.CheckDBServiceIsConnectableReply{}
