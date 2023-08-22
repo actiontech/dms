@@ -212,6 +212,31 @@ func (d *DMSController) ListDatabaseSourceServices(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
+// swagger:route GET /v1/dms/database_source_services/{database_source_service_uid} dms GetDatabaseSourceService
+//
+// Get database source service.
+//
+//	responses:
+//	  200: body:GetDatabaseSourceServiceReply
+//	  default: body:GenericResp
+func (d *DMSController) GetDatabaseSourceService(c echo.Context) error {
+	req := new(aV1.GetDatabaseSourceServiceReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	reply, err := d.DMS.GetDatabaseSourceService(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
 // swagger:route POST /v1/dms/database_source_services dms AddDatabaseSourceService
 //
 // Add database source service.
