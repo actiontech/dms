@@ -74,7 +74,7 @@ func (d *DMSService) GetDatabaseSourceService(ctx context.Context, req *v1.GetDa
 		return nil, err
 	}
 
-	item := &v1.ListDatabaseSourceService{
+	item := &v1.GetDatabaseSourceService{
 		UID: service.UID,
 		DatabaseSourceService: v1.DatabaseSourceService{
 			Name:         service.Name,
@@ -107,7 +107,7 @@ func (d *DMSService) GetDatabaseSourceService(ctx context.Context, req *v1.GetDa
 
 	return &v1.GetDatabaseSourceServiceReply{
 		Payload: struct {
-			DatabaseSourceService *v1.ListDatabaseSourceService `json:"database_source_service"`
+			DatabaseSourceService *v1.GetDatabaseSourceService `json:"database_source_service"`
 		}{DatabaseSourceService: item},
 	}, nil
 }
