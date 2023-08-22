@@ -592,7 +592,77 @@ definitions:
                 type: string
                 x-go-name: Msg
         type: object
-        x-go-package: github.com/actiontech/dms/api/base/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/base/v1
+    GetDatabaseSourceService:
+        properties:
+            cron_express:
+                description: cron expression
+                example: 0 0 * * *
+                type: string
+                x-go-name: CronExpress
+            db_type:
+                description: database type
+                example: MySQL
+                type: string
+                x-go-name: DbType
+            name:
+                description: name
+                example: dmp
+                type: string
+                x-go-name: Name
+            namespace_uid:
+                description: namespace id
+                type: string
+                x-go-name: NamespaceUID
+            source:
+                description: source
+                example: actiontech-dmp
+                type: string
+                x-go-name: Source
+            sqle_config:
+                $ref: '#/definitions/SQLEConfig'
+            uid:
+                type: string
+                x-go-name: UID
+            url:
+                description: addr
+                example: http://10.186.62.56:10000
+                type: string
+                x-go-name: URL
+            version:
+                description: version
+                example: 5.23.01.0
+                type: string
+                x-go-name: Version
+        required:
+            - name
+            - source
+            - version
+            - url
+            - db_type
+            - cron_express
+            - namespace_uid
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetDatabaseSourceServiceReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                properties:
+                    database_source_service:
+                        $ref: '#/definitions/GetDatabaseSourceService'
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetFeishuConfigurationReply:
         properties:
             code:
@@ -3029,6 +3099,33 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: Delete database source service.
+            tags:
+                - dms
+        get:
+            operationId: GetDatabaseSourceService
+            parameters:
+                - in: path
+                  name: database_source_service_uid
+                  required: true
+                  type: string
+                  x-go-name: DatabaseSourceServiceUid
+                - description: |-
+                    filter by db service namespace uid
+                    only the sys user can use an empty namespace value, which means lookup from all namespaces
+                  in: query
+                  name: namespace_id
+                  type: string
+                  x-go-name: NamespaceId
+            responses:
+                "200":
+                    description: GetDatabaseSourceServiceReply
+                    schema:
+                        $ref: '#/definitions/GetDatabaseSourceServiceReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get database source service.
             tags:
                 - dms
         put:

@@ -39,6 +39,7 @@ func (s *APIServer) initRouter() error {
 		DatabaseSourceServiceV1.GET("/tips", s.DMSController.ListDatabaseSourceServiceTips)
 		DatabaseSourceServiceV1.POST("/:database_source_service_uid/sync", s.DMSController.SyncDatabaseSourceService)
 		DatabaseSourceServiceV1.GET("", s.DMSController.ListDatabaseSourceServices)
+		DatabaseSourceServiceV1.GET("/:database_source_service_uid", s.DMSController.GetDatabaseSourceService)
 		DatabaseSourceServiceV1.POST("", s.DMSController.AddDatabaseSourceService)
 		DatabaseSourceServiceV1.PUT("/:database_source_service_uid", s.DMSController.UpdateDatabaseSourceService)
 		DatabaseSourceServiceV1.DELETE("/:database_source_service_uid", s.DMSController.DeleteDatabaseSourceService)

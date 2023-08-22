@@ -582,6 +582,43 @@
       }
     },
     "/v1/dms/database_source_services/{database_source_service_uid}": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get database source service.",
+        "operationId": "GetDatabaseSourceService",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "DatabaseSourceServiceUid",
+            "name": "database_source_service_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "NamespaceId",
+            "description": "filter by db service namespace uid\nonly the sys user can use an empty namespace value, which means lookup from all namespaces",
+            "name": "namespace_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GetDatabaseSourceServiceReply",
+            "schema": {
+              "$ref": "#/definitions/GetDatabaseSourceServiceReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
       "put": {
         "tags": [
           "dms"
@@ -3080,7 +3117,96 @@
           "x-go-name": "Msg"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/base/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
+    },
+    "GetDatabaseSourceService": {
+      "type": "object",
+      "required": [
+        "name",
+        "source",
+        "version",
+        "url",
+        "db_type",
+        "cron_express",
+        "namespace_uid"
+      ],
+      "properties": {
+        "cron_express": {
+          "description": "cron expression",
+          "type": "string",
+          "x-go-name": "CronExpress",
+          "example": "0 0 * * *"
+        },
+        "db_type": {
+          "description": "database type",
+          "type": "string",
+          "x-go-name": "DbType",
+          "example": "MySQL"
+        },
+        "name": {
+          "description": "name",
+          "type": "string",
+          "x-go-name": "Name",
+          "example": "dmp"
+        },
+        "namespace_uid": {
+          "description": "namespace id",
+          "type": "string",
+          "x-go-name": "NamespaceUID"
+        },
+        "source": {
+          "description": "source",
+          "type": "string",
+          "x-go-name": "Source",
+          "example": "actiontech-dmp"
+        },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "UID"
+        },
+        "url": {
+          "description": "addr",
+          "type": "string",
+          "x-go-name": "URL",
+          "example": "http://10.186.62.56:10000"
+        },
+        "version": {
+          "description": "version",
+          "type": "string",
+          "x-go-name": "Version",
+          "example": "5.23.01.0"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetDatabaseSourceServiceReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "msg": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Msg"
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "database_source_service": {
+              "$ref": "#/definitions/GetDatabaseSourceService"
+            }
+          },
+          "x-go-name": "Payload"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetFeishuConfigurationReply": {
       "type": "object",

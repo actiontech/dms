@@ -23,6 +23,31 @@ type ListDatabaseSourceServicesReply struct {
 	base.GenericResp
 }
 
+// swagger:parameters GetDatabaseSourceService
+type GetDatabaseSourceServiceReq struct {
+	// Required: true
+	// in:path
+	DatabaseSourceServiceUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
+	// filter by db service namespace uid
+	// only the sys user can use an empty namespace value, which means lookup from all namespaces
+	// in:query
+	NamespaceId string `query:"namespace_id" json:"namespace_id"`
+}
+
+// swagger:model GetDatabaseSourceServiceReply
+type GetDatabaseSourceServiceReply struct {
+	Payload struct {
+		DatabaseSourceService *GetDatabaseSourceService `json:"database_source_service"`
+	} `json:"payload"`
+	// Generic reply
+	base.GenericResp
+}
+
+type GetDatabaseSourceService struct {
+	DatabaseSourceService
+	UID string `json:"uid"`
+}
+
 type ListDatabaseSourceService struct {
 	DatabaseSourceService
 	UID string `json:"uid"`
