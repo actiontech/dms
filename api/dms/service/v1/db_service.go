@@ -117,11 +117,16 @@ type CheckDBServiceIsConnectableReq struct {
 	DBService dmsCommonV1.CheckDbConnectable `json:"db_service"`
 }
 
+type CheckDBServiceIsConnectableReplyItem struct {
+	IsConnectable       bool   `json:"is_connectable"`
+	Component           string `json:"component"`
+	ConnectErrorMessage string `json:"connect_error_message"`
+}
+
 // swagger:model CheckDBServiceIsConnectableReply
 type CheckDBServiceIsConnectableReply struct {
 	Payload struct {
-		IsConnectable       bool   `json:"is_connectable"`
-		ConnectErrorMessage string `json:"connect_error_message,omitempty"`
+		Connections []CheckDBServiceIsConnectableReplyItem `json:"connections"`
 	} `json:"payload"`
 
 	base.GenericResp

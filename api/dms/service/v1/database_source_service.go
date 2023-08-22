@@ -86,7 +86,7 @@ type AddDatabaseSourceServiceReply struct {
 type UpdateDatabaseSourceServiceReq struct {
 	// Required: true
 	// in:path
-	DatabaseSourceServiceUid string `param:"database_source_service_uid" validate:"required"`
+	DatabaseSourceServiceUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
 	// update database source service
 	// in:body
 	DatabaseSourceService DatabaseSourceService `json:"database_source_service" validate:"required"`
@@ -96,7 +96,7 @@ type UpdateDatabaseSourceServiceReq struct {
 type DeleteDatabaseSourceServiceReq struct {
 	// Required: true
 	// in:path
-	DatabaseSourceServiceUid string `param:"database_source_service_uid" validate:"required"`
+	DatabaseSourceServiceUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
 }
 
 type DatabaseSource struct {
@@ -121,5 +121,5 @@ type ListDatabaseSourceServiceTipsReply struct {
 type SyncDatabaseSourceServiceReq struct {
 	// Required: true
 	// in:path
-	DatabaseSourceServiceUid string `param:"database_source_service_uid" validate:"required"`
+	DatabaseSourceServiceUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
 }
