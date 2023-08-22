@@ -166,7 +166,7 @@ func (a *DMSController) UpdateDBService(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/db_services/connect dms CheckDBServiceIsConnectable
+// swagger:route POST /v1/dms/db_services/connection dms CheckDBServiceIsConnectable
 //
 // check if the db_service is connectable.
 //
