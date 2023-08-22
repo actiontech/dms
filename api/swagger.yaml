@@ -605,14 +605,6 @@ definitions:
                 example: MySQL
                 type: string
                 x-go-name: DbType
-            last_sync_err:
-                description: last sync error message
-                type: string
-                x-go-name: LastSyncErr
-            last_sync_success_time:
-                format: date-time
-                type: string
-                x-go-name: LastSyncSuccessTime
             name:
                 description: name
                 example: dmp
@@ -2340,7 +2332,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateDBService:
         description: update db service
         properties:

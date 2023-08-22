@@ -3143,16 +3143,6 @@
           "x-go-name": "DbType",
           "example": "MySQL"
         },
-        "last_sync_err": {
-          "description": "last sync error message",
-          "type": "string",
-          "x-go-name": "LastSyncErr"
-        },
-        "last_sync_success_time": {
-          "type": "string",
-          "format": "date-time",
-          "x-go-name": "LastSyncSuccessTime"
-        },
         "name": {
           "description": "name",
           "type": "string",
@@ -5282,7 +5272,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateDBService": {
       "description": "update db service",

@@ -46,9 +46,6 @@ type GetDatabaseSourceServiceReply struct {
 type GetDatabaseSourceService struct {
 	DatabaseSourceService
 	UID string `json:"uid"`
-	// last sync error message
-	LastSyncErr         string     `json:"last_sync_err"`
-	LastSyncSuccessTime *time.Time `json:"last_sync_success_time"`
 }
 
 type ListDatabaseSourceService struct {

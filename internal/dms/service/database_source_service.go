@@ -37,25 +37,10 @@ func (d *DMSService) ListDatabaseSourceService(ctx context.Context, req *v1.List
 				DbType:       service.DbType.String(),
 				CronExpress:  service.CronExpress,
 				NamespaceUID: service.NamespaceUID,
-				SQLEConfig:   nil,
+				SQLEConfig:   d.buildReplySqleConfig(service.SQLEConfig),
 			},
 			LastSyncErr:         service.LastSyncErr,
 			LastSyncSuccessTime: service.LastSyncSuccessTime,
-		}
-
-		if service.SQLEConfig != nil {
-			sqlConfig := &v1.SQLEConfig{
-				RuleTemplateName: service.SQLEConfig.RuleTemplateName,
-				RuleTemplateID:   service.SQLEConfig.RuleTemplateID,
-				SQLQueryConfig:   &v1.SQLQueryConfig{},
-			}
-			if service.SQLEConfig.SQLQueryConfig != nil {
-				sqlConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel = v1.SQLAllowQueryAuditLevel(service.SQLEConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel)
-				sqlConfig.SQLQueryConfig.AuditEnabled = service.SQLEConfig.SQLQueryConfig.AuditEnabled
-				sqlConfig.SQLQueryConfig.MaxPreQueryRows = service.SQLEConfig.SQLQueryConfig.MaxPreQueryRows
-				sqlConfig.SQLQueryConfig.QueryTimeoutSecond = service.SQLEConfig.SQLQueryConfig.QueryTimeoutSecond
-			}
-			item.SQLEConfig = sqlConfig
 		}
 
 		ret = append(ret, item)
@@ -66,6 +51,26 @@ func (d *DMSService) ListDatabaseSourceService(ctx context.Context, req *v1.List
 			DatabaseSourceServices []*v1.ListDatabaseSourceService `json:"database_source_services"`
 		}{DatabaseSourceServices: ret},
 	}, nil
+}
+
+func (d *DMSService) buildReplySqleConfig(params *biz.SQLEConfig) *v1.SQLEConfig {
+	if params == nil {
+		return nil
+	}
+
+	sqlConfig := &v1.SQLEConfig{
+		RuleTemplateName: params.RuleTemplateName,
+		RuleTemplateID:   params.RuleTemplateID,
+		SQLQueryConfig:   &v1.SQLQueryConfig{},
+	}
+	if params.SQLQueryConfig != nil {
+		sqlConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel = v1.SQLAllowQueryAuditLevel(params.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel)
+		sqlConfig.SQLQueryConfig.AuditEnabled = params.SQLQueryConfig.AuditEnabled
+		sqlConfig.SQLQueryConfig.MaxPreQueryRows = params.SQLQueryConfig.MaxPreQueryRows
+		sqlConfig.SQLQueryConfig.QueryTimeoutSecond = params.SQLQueryConfig.QueryTimeoutSecond
+	}
+
+	return sqlConfig
 }
 
 func (d *DMSService) GetDatabaseSourceService(ctx context.Context, req *v1.GetDatabaseSourceServiceReq, currentUserUid string) (reply *v1.GetDatabaseSourceServiceReply, err error) {
@@ -84,25 +89,8 @@ func (d *DMSService) GetDatabaseSourceService(ctx context.Context, req *v1.GetDa
 			DbType:       service.DbType.String(),
 			CronExpress:  service.CronExpress,
 			NamespaceUID: service.NamespaceUID,
-			SQLEConfig:   nil,
+			SQLEConfig:   d.buildReplySqleConfig(service.SQLEConfig),
 		},
-		LastSyncErr:         service.LastSyncErr,
-		LastSyncSuccessTime: service.LastSyncSuccessTime,
-	}
-
-	if service.SQLEConfig != nil {
-		sqlConfig := &v1.SQLEConfig{
-			RuleTemplateName: service.SQLEConfig.RuleTemplateName,
-			RuleTemplateID:   service.SQLEConfig.RuleTemplateID,
-			SQLQueryConfig:   &v1.SQLQueryConfig{},
-		}
-		if service.SQLEConfig.SQLQueryConfig != nil {
-			sqlConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel = v1.SQLAllowQueryAuditLevel(service.SQLEConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel)
-			sqlConfig.SQLQueryConfig.AuditEnabled = service.SQLEConfig.SQLQueryConfig.AuditEnabled
-			sqlConfig.SQLQueryConfig.MaxPreQueryRows = service.SQLEConfig.SQLQueryConfig.MaxPreQueryRows
-			sqlConfig.SQLQueryConfig.QueryTimeoutSecond = service.SQLEConfig.SQLQueryConfig.QueryTimeoutSecond
-		}
-		item.SQLEConfig = sqlConfig
 	}
 
 	return &v1.GetDatabaseSourceServiceReply{
