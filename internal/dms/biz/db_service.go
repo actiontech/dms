@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	v1Base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
@@ -369,29 +370,37 @@ func (d *DBServiceUsecase) IsConnectable(ctx context.Context, params IsConnectab
 		return nil, err
 	}
 
-	ret := make([]*IsConnectableReply, 0, len(dmsProxyTargets))
+	ret := make([]*IsConnectableReply, len(dmsProxyTargets))
 
 	header := map[string]string{
 		"Authorization": pkgHttp.DefaultDMSToken,
 	}
 
-	for _, target := range dmsProxyTargets {
-		isConnectableReply := &IsConnectableReply{Component: target.Name}
+	uri := v1.GetDBConnectionAbleRouter()
 
-		uri := v1.GetDBConnectionAbleRouter()
+	var wg = &sync.WaitGroup{}
+	wg.Add(len(dmsProxyTargets))
 
-		var reply = &v1Base.GenericResp{}
-		err = pkgHttp.POST(ctx, fmt.Sprintf("%s%s", target.URL, uri), header, params, reply)
-		if err != nil {
-			isConnectableReply.ConnectErrorMessage = err.Error()
-		} else if reply.Code != 0 {
-			isConnectableReply.ConnectErrorMessage = reply.Msg
-		} else {
-			isConnectableReply.IsConnectable = true
-		}
+	for i, target := range dmsProxyTargets {
+		go func(i int, target *ProxyTarget) {
+			defer wg.Done()
 
-		ret = append(ret, isConnectableReply)
+			isConnectableReply := &IsConnectableReply{Component: target.Name}
+			var reply = &v1Base.GenericResp{}
+			err = pkgHttp.POST(ctx, fmt.Sprintf("%s%s", target.URL.String(), uri), header, params, reply)
+			if err != nil {
+				isConnectableReply.ConnectErrorMessage = err.Error()
+			} else if reply.Code != 0 {
+				isConnectableReply.ConnectErrorMessage = reply.Msg
+			} else {
+				isConnectableReply.IsConnectable = true
+			}
+
+			ret[i] = isConnectableReply
+		}(i, target)
 	}
+
+	wg.Wait()
 
 	return ret, nil
 }
