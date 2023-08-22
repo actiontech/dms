@@ -273,14 +273,26 @@ definitions:
                 x-go-name: Msg
             payload:
                 properties:
-                    connect_error_message:
-                        type: string
-                        x-go-name: ConnectErrorMessage
-                    is_connectable:
-                        type: boolean
-                        x-go-name: IsConnectable
+                    connections:
+                        items:
+                            $ref: '#/definitions/CheckDBServiceIsConnectableReplyItem'
+                        type: array
+                        x-go-name: Connections
                 type: object
                 x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CheckDBServiceIsConnectableReplyItem:
+        properties:
+            component:
+                type: string
+                x-go-name: Component
+            connect_error_message:
+                type: string
+                x-go-name: ConnectErrorMessage
+            is_connectable:
+                type: boolean
+                x-go-name: IsConnectable
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CheckDbConnectable:
@@ -581,6 +593,65 @@ definitions:
                 x-go-name: Msg
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/base/v1
+    GetDatabaseSourceService:
+        properties:
+            cron_express:
+                description: cron expression
+                example: 0 0 * * *
+                type: string
+                x-go-name: CronExpress
+            db_type:
+                description: database type
+                example: MySQL
+                type: string
+                x-go-name: DbType
+            last_sync_err:
+                description: last sync error message
+                type: string
+                x-go-name: LastSyncErr
+            last_sync_success_time:
+                format: date-time
+                type: string
+                x-go-name: LastSyncSuccessTime
+            name:
+                description: name
+                example: dmp
+                type: string
+                x-go-name: Name
+            namespace_uid:
+                description: namespace id
+                type: string
+                x-go-name: NamespaceUID
+            source:
+                description: source
+                example: actiontech-dmp
+                type: string
+                x-go-name: Source
+            sqle_config:
+                $ref: '#/definitions/SQLEConfig'
+            uid:
+                type: string
+                x-go-name: UID
+            url:
+                description: addr
+                example: http://10.186.62.56:10000
+                type: string
+                x-go-name: URL
+            version:
+                description: version
+                example: 5.23.01.0
+                type: string
+                x-go-name: Version
+        required:
+            - name
+            - source
+            - version
+            - url
+            - db_type
+            - cron_express
+            - namespace_uid
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetDatabaseSourceServiceReply:
         properties:
             code:
@@ -595,7 +666,7 @@ definitions:
             payload:
                 properties:
                     database_source_service:
-                        $ref: '#/definitions/ListDatabaseSourceService'
+                        $ref: '#/definitions/GetDatabaseSourceService'
                 type: object
                 x-go-name: Payload
         type: object
@@ -3268,7 +3339,7 @@ paths:
             summary: update a DB Service.
             tags:
                 - dms
-    /v1/dms/db_services/connect:
+    /v1/dms/db_services/connection:
         post:
             operationId: CheckDBServiceIsConnectable
             parameters:
