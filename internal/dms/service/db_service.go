@@ -108,20 +108,23 @@ func (d *DMSService) CheckDBServiceIsConnectable(ctx context.Context, req *dmsV1
 		AdditionalParams: additionalParams,
 	}
 
-	isConnectable, err := d.DBServiceUsecase.IsConnectable(ctx, IsConnectableParams)
+	results, err := d.DBServiceUsecase.IsConnectable(ctx, IsConnectableParams)
 
-	connectErrorMessage := ""
 	if err != nil {
 		d.log.Errorf("IsConnectable err: %v", err)
-		connectErrorMessage = err.Error()
+		return nil, err
 	}
 
-	return &dmsV1.CheckDBServiceIsConnectableReply{
-		Payload: struct {
-			IsConnectable       bool   `json:"is_connectable"`
-			ConnectErrorMessage string `json:"connect_error_message,omitempty"`
-		}{IsConnectable: isConnectable, ConnectErrorMessage: connectErrorMessage},
-	}, nil
+	ret := &dmsV1.CheckDBServiceIsConnectableReply{}
+	for _, item := range results {
+		ret.Payload.Connections = append(ret.Payload.Connections, dmsV1.CheckDBServiceIsConnectableReplyItem{
+			IsConnectable:       item.IsConnectable,
+			Component:           item.Component,
+			ConnectErrorMessage: item.ConnectErrorMessage,
+		})
+	}
+
+	return ret, nil
 }
 
 func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceReq, currentUserUid string) (reply *dmsV1.AddDBServiceReply, err error) {
@@ -338,5 +341,39 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsV1.ListDBServic
 			DBServices []*dmsV1.ListDBService `json:"db_services"`
 			Total      int64                  `json:"total"`
 		}{DBServices: ret, Total: total},
+	}, nil
+}
+
+func (d *DMSService) ListDBServiceDriverOption(ctx context.Context) (reply *dmsV1.ListDBServiceDriverOptionReply, err error) {
+	options, err := d.DBServiceUsecase.ListDBServiceDriverOption(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := make([]*dmsV1.DatabaseDriverOption, 0, len(options))
+	for _, item := range options {
+		additionalParams := make([]*dmsV1.DatabaseDriverAdditionalParam, 0, len(item.Params))
+		for _, param := range item.Params {
+			additionalParams = append(additionalParams, &dmsV1.DatabaseDriverAdditionalParam{
+				Name:        param.Key,
+				Value:       param.Value,
+				Type:        string(param.Type),
+				Description: param.Desc,
+			})
+		}
+
+		ret = append(ret, &dmsV1.DatabaseDriverOption{
+			DBType:   item.DbType,
+			LogoPath: item.LogoPath,
+			Params:   additionalParams,
+		})
+	}
+
+	return &dmsV1.ListDBServiceDriverOptionReply{
+		Payload: struct {
+			DatabaseDriverOptions []*dmsV1.DatabaseDriverOption `json:"database_driver_options"`
+		}{
+			ret,
+		},
 	}, nil
 }

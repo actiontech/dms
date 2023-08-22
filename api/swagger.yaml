@@ -3,91 +3,2722 @@ consumes:
     - application/json
 definitions:
     AddDBServicePreCheckReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     AddDBServiceReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                description: Add db service reply
+                properties:
+                    uid:
+                        description: db service UID
+                        type: string
+                        x-go-name: Uid
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddDatabaseSourceServiceReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                description: add database source service reply
+                properties:
+                    uid:
+                        description: db service UID
+                        type: string
+                        x-go-name: Uid
+                type: object
+                x-go-name: Payload
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddMemberReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                description: Add member reply
+                properties:
+                    uid:
+                        description: member UID
+                        type: string
+                        x-go-name: Uid
+                type: object
+                x-go-name: Payload
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddNamespaceReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                description: Add Namespace reply
+                properties:
+                    uid:
+                        description: Namespace UID
+                        type: string
+                        x-go-name: Uid
+                type: object
+                x-go-name: Payload
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddRoleReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                description: Add role reply
+                properties:
+                    uid:
+                        description: role UID
+                        type: string
+                        x-go-name: Uid
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddSession:
+        description: Use this struct to add a new session
+        properties:
+            password:
+                description: User password
+                type: string
+                x-go-name: Password
+            username:
+                description: User name
+                type: string
+                x-go-name: UserName
+        required:
+            - username
+            - password
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddSessionReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                description: Add user reply
+                properties:
+                    token:
+                        description: Session token
+                        type: string
+                        x-go-name: Token
+                    user_uid:
+                        description: User UID
+                        type: string
+                        x-go-name: UserUid
+                type: object
+                x-go-name: Payload
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddUserGroupReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                description: Add user group reply
+                properties:
+                    uid:
+                        description: user group UID
+                        type: string
+                        x-go-name: Uid
+                type: object
+                x-go-name: Payload
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddUserReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                description: Add user reply
+                properties:
+                    uid:
+                        description: user UID
+                        type: string
+                        x-go-name: Uid
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AdditionalParam:
+        properties:
+            name:
+                type: string
+                x-go-name: Name
+            value:
+                type: string
+                x-go-name: Value
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    AuthSyncConfig:
+        properties:
+            last_sync_data_result:
+                description: last sync data result
+                type: string
+                x-go-name: LastSyncDataResult
+            last_sync_data_time:
+                description: last sync data time
+                format: date-time
+                type: string
+                x-go-name: LastSyncDataTime
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     BindOauth2UserReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                properties:
+                    data:
+                        $ref: '#/definitions/BindOauth2UserResData'
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    BindOauth2UserResData:
+        properties:
+            token:
+                type: string
+                x-go-name: Token
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CheckDBServiceIsConnectableReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                properties:
+                    connections:
+                        items:
+                            $ref: '#/definitions/CheckDBServiceIsConnectableReplyItem'
+                        type: array
+                        x-go-name: Connections
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CheckDBServiceIsConnectableReplyItem:
+        properties:
+            component:
+                type: string
+                x-go-name: Component
+            connect_error_message:
+                type: string
+                x-go-name: ConnectErrorMessage
+            is_connectable:
+                type: boolean
+                x-go-name: IsConnectable
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CheckDbConnectable:
+        properties:
+            additional_params:
+                description: DB Service Custom connection parameters
+                items:
+                    $ref: '#/definitions/AdditionalParam'
+                type: array
+                x-go-name: AdditionalParams
+            db_type:
+                description: DB Service type
+                example: MySQL
+                type: string
+                x-go-name: DBType
+            host:
+                description: DB Service host
+                example: 127.0.0.1
+                type: string
+                x-go-name: Host
+            password:
+                description: DB Service admin password
+                example: "123456"
+                type: string
+                x-go-name: Password
+            port:
+                description: DB Service port
+                example: "3306"
+                type: string
+                x-go-name: Port
+            user:
+                description: DB Service admin user
+                example: root
+                type: string
+                x-go-name: User
+        required:
+            - db_type
+            - user
+            - host
+            - port
+            - password
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    DBService:
+        description: A db service
+        properties:
+            additional_params:
+                description: DB Service Custom connection parameters
+                items:
+                    $ref: '#/definitions/AdditionalParam'
+                type: array
+                x-go-name: AdditionalParams
+            business:
+                description: DB Service business name
+                type: string
+                x-go-name: Business
+            db_type:
+                description: |-
+                    Service DB type
+                    MySQL DBTypeMySQL
+                    OceanBaseMySQL DBTypeOceanBaseMySQL
+                enum:
+                    - MySQL
+                    - OceanBaseMySQL
+                type: string
+                x-go-enum-desc: |-
+                    MySQL DBTypeMySQL
+                    OceanBaseMySQL DBTypeOceanBaseMySQL
+                x-go-name: DBType
+            desc:
+                description: Service description
+                type: string
+                x-go-name: Desc
+            host:
+                description: DB Service Host
+                type: string
+                x-go-name: Host
+            maintenance_times:
+                description: |-
+                    DB Service maintenance time
+                    empty value means that maintenance time is unlimited
+                items:
+                    $ref: '#/definitions/MaintenanceTime'
+                type: array
+                x-go-name: MaintenanceTimes
+            name:
+                description: Service name
+                type: string
+                x-go-name: Name
+            namespace_uid:
+                description: DB Service namespace id
+                type: string
+                x-go-name: NamespaceUID
+            password:
+                description: DB Service admin password
+                type: string
+                x-go-name: Password
+            port:
+                description: DB Service port
+                type: string
+                x-go-name: Port
+            sqle_config:
+                $ref: '#/definitions/SQLEConfig'
+            user:
+                description: DB Service admin user
+                type: string
+                x-go-name: User
+        required:
+            - name
+            - db_type
+            - host
+            - port
+            - user
+            - password
+            - business
+            - maintenance_times
+            - namespace_uid
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DMSProxyTarget:
+        description: A dms proxy target
+        properties:
+            addr:
+                description: 'target addr, eg: http://10.1.2.1:5432'
+                type: string
+                x-go-name: Addr
+            name:
+                description: target name
+                type: string
+                x-go-name: Name
+            proxy_url_prefixs:
+                description: 'url prefix that need to be proxy, eg: /v1/user'
+                items:
+                    type: string
+                type: array
+                x-go-name: ProxyUrlPrefixs
+        required:
+            - name
+            - addr
+            - proxy_url_prefixs
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    DatabaseDriverAdditionalParam:
+        properties:
+            description:
+                type: string
+                x-go-name: Description
+            name:
+                type: string
+                x-go-name: Name
+            type:
+                type: string
+                x-go-name: Type
+            value:
+                type: string
+                x-go-name: Value
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DatabaseDriverOption:
+        properties:
+            db_type:
+                type: string
+                x-go-name: DBType
+            logo_path:
+                type: string
+                x-go-name: LogoPath
+            params:
+                items:
+                    $ref: '#/definitions/DatabaseDriverAdditionalParam'
+                type: array
+                x-go-name: Params
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DatabaseSource:
+        properties:
+            db_types:
+                description: database type
+                example: MySQL
+                items:
+                    type: string
+                type: array
+                x-go-name: DbTypes
+            source:
+                description: database source
+                example: actiontech-dmp
+                type: string
+                x-go-name: Source
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DatabaseSourceService:
+        properties:
+            cron_express:
+                description: cron expression
+                example: 0 0 * * *
+                type: string
+                x-go-name: CronExpress
+            db_type:
+                description: database type
+                example: MySQL
+                type: string
+                x-go-name: DbType
+            name:
+                description: name
+                example: dmp
+                type: string
+                x-go-name: Name
+            namespace_uid:
+                description: namespace id
+                type: string
+                x-go-name: NamespaceUID
+            source:
+                description: source
+                example: actiontech-dmp
+                type: string
+                x-go-name: Source
+            sqle_config:
+                $ref: '#/definitions/SQLEConfig'
+            url:
+                description: addr
+                example: http://10.186.62.56:10000
+                type: string
+                x-go-name: URL
+            version:
+                description: version
+                example: 5.23.01.0
+                type: string
+                x-go-name: Version
+        required:
+            - name
+            - source
+            - version
+            - url
+            - db_type
+            - cron_express
+            - namespace_uid
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DelDBServicePreCheckReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     DelUserGroupPreCheckReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     DelUserPreCheckReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    FeishuConfigurationResData:
+        properties:
+            app_id:
+                type: string
+                x-go-name: AppID
+            is_feishu_notification_enabled:
+                type: boolean
+                x-go-name: IsFeishuNotificationEnabled
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GenericResp:
+        description: GenericResp defines the return code and msg
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/base/v1
+    GetDatabaseSourceService:
+        properties:
+            cron_express:
+                description: cron expression
+                example: 0 0 * * *
+                type: string
+                x-go-name: CronExpress
+            db_type:
+                description: database type
+                example: MySQL
+                type: string
+                x-go-name: DbType
+            name:
+                description: name
+                example: dmp
+                type: string
+                x-go-name: Name
+            namespace_uid:
+                description: namespace id
+                type: string
+                x-go-name: NamespaceUID
+            source:
+                description: source
+                example: actiontech-dmp
+                type: string
+                x-go-name: Source
+            sqle_config:
+                $ref: '#/definitions/SQLEConfig'
+            uid:
+                type: string
+                x-go-name: UID
+            url:
+                description: addr
+                example: http://10.186.62.56:10000
+                type: string
+                x-go-name: URL
+            version:
+                description: version
+                example: 5.23.01.0
+                type: string
+                x-go-name: Version
+        required:
+            - name
+            - source
+            - version
+            - url
+            - db_type
+            - cron_express
+            - namespace_uid
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetDatabaseSourceServiceReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                properties:
+                    database_source_service:
+                        $ref: '#/definitions/GetDatabaseSourceService'
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetFeishuConfigurationReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                properties:
+                    data:
+                        $ref: '#/definitions/FeishuConfigurationResData'
+                type: object
+                x-go-name: Payload
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetLDAPConfigurationResDataReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                properties:
+                    data:
+                        $ref: '#/definitions/LDAPConfigurationResData'
+                type: object
+                x-go-name: Payload
+        type: object
         x-go-name: GetLDAPConfigurationReply
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetOauth2ConfigurationResData:
+        properties:
+            access_token_tag:
+                type: string
+                x-go-name: AccessTokenTag
+            client_host:
+                type: string
+                x-go-name: ClientHost
+            client_id:
+                type: string
+                x-go-name: ClientID
+            enable_oauth2:
+                type: boolean
+                x-go-name: EnableOauth2
+            login_tip:
+                type: string
+                x-go-name: LoginTip
+            scopes:
+                items:
+                    type: string
+                type: array
+                x-go-name: Scopes
+            server_auth_url:
+                type: string
+                x-go-name: ServerAuthUrl
+            server_token_url:
+                type: string
+                x-go-name: ServerTokenUrl
+            server_user_id_url:
+                type: string
+                x-go-name: ServerUserIdUrl
+            user_id_tag:
+                type: string
+                x-go-name: UserIdTag
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetOauth2ConfigurationResDataReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                properties:
+                    data:
+                        $ref: '#/definitions/GetOauth2ConfigurationResData'
+                type: object
+                x-go-name: Payload
+        type: object
         x-go-name: GetOauth2ConfigurationReply
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetOauth2TipsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                properties:
+                    data:
+                        $ref: '#/definitions/GetOauth2TipsResData'
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetOauth2TipsResData:
+        properties:
+            enable_oauth2:
+                type: boolean
+                x-go-name: EnableOauth2
+            login_tip:
+                type: string
+                x-go-name: LoginTip
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetSMTPConfigurationReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                properties:
+                    data:
+                        $ref: '#/definitions/SMTPConfigurationResData'
+                type: object
+                x-go-name: Payload
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetSQLQueryConfigurationReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                properties:
+                    enable_sql_query:
+                        type: boolean
+                        x-go-name: EnableSQLQuery
+                    sql_query_root_uri:
+                        type: string
+                        x-go-name: SQLQueryRootURI
+                type: object
+                x-go-name: Payload
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetUser:
+        description: A dms user
+        properties:
+            authentication_type:
+                description: |-
+                    user authentication type
+                    ldap UserAuthenticationTypeLDAP
+                    dms UserAuthenticationTypeDMS
+                    oauth2 UserAuthenticationTypeOAUTH2
+                    unknown UserAuthenticationTypeUnknown
+                enum:
+                    - ldap
+                    - dms
+                    - oauth2
+                    - unknown
+                type: string
+                x-go-enum-desc: |-
+                    ldap UserAuthenticationTypeLDAP
+                    dms UserAuthenticationTypeDMS
+                    oauth2 UserAuthenticationTypeOAUTH2
+                    unknown UserAuthenticationTypeUnknown
+                x-go-name: AuthenticationType
+            email:
+                description: user email
+                type: string
+                x-go-name: Email
+            is_admin:
+                description: is admin
+                type: boolean
+                x-go-name: IsAdmin
+            name:
+                description: user name
+                type: string
+                x-go-name: Name
+            op_permissions:
+                description: user operation permissions
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: OpPermissions
+            phone:
+                description: user phone
+                type: string
+                x-go-name: Phone
+            stat:
+                description: |-
+                    user stat
+                    正常 StatOK
+                    被禁用 StatDisable
+                    未知 StatUnknown
+                enum:
+                    - 正常
+                    - 被禁用
+                    - 未知
+                type: string
+                x-go-enum-desc: |-
+                    正常 StatOK
+                    被禁用 StatDisable
+                    未知 StatUnknown
+                x-go-name: Stat
+            uid:
+                description: user uid
+                type: string
+                x-go-name: UserUid
+            user_bind_namespaces:
+                description: user bind name space
+                items:
+                    $ref: '#/definitions/UserBindNamespace'
+                type: array
+                x-go-name: UserBindNamespaces
+            user_groups:
+                description: user groups
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: UserGroups
+            wxid:
+                description: user wxid
+                type: string
+                x-go-name: WxID
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GetUserBySessionReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                description: Get user reply
+                properties:
+                    name:
+                        description: User name
+                        type: string
+                        x-go-name: Name
+                    user_uid:
+                        description: User UID
+                        type: string
+                        x-go-name: UserUid
+                type: object
+                x-go-name: Payload
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetUserOpPermissionReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                description: user op permission reply
+                properties:
+                    is_admin:
+                        description: is user admin, admin has all permissions
+                        type: boolean
+                        x-go-name: IsAdmin
+                    op_permission_list:
+                        description: user op permissions
+                        items:
+                            $ref: '#/definitions/OpPermissionItem'
+                        type: array
+                        x-go-name: OpPermissionList
+                type: object
+                x-go-name: Payload
+        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GetUserReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                description: Get user reply
+                properties:
+                    user:
+                        $ref: '#/definitions/GetUser'
+                type: object
+                x-go-name: Payload
+        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GetWeChatConfigurationReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                properties:
+                    data:
+                        $ref: '#/definitions/WeChatConfigurationResData'
+                type: object
+                x-go-name: Payload
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetWebHookConfigurationReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                properties:
+                    data:
+                        $ref: '#/definitions/WebHookConfigurationData'
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    IPluginDBService:
+        properties:
+            Business:
+                type: string
+            DBType:
+                enum:
+                    - MySQL
+                    - OceanBaseMySQL
+                type: string
+                x-go-enum-desc: |-
+                    MySQL IPluginDBTypeDBTypeMySQL
+                    OceanBaseMySQL IPluginDBTypeDBTypeOceanBaseMySQL
+            Host:
+                type: string
+            Name:
+                type: string
+            Port:
+                type: string
+            SQLERuleTemplateId:
+                type: string
+            SQLERuleTemplateName:
+                type: string
+            User:
+                type: string
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    LDAPConfiguration:
+        properties:
+            enable_ldap:
+                type: boolean
+                x-go-name: EnableLdap
+            enable_ssl:
+                type: boolean
+                x-go-name: EnableSSL
+            ldap_connect_dn:
+                type: string
+                x-go-name: LdapConnectDn
+            ldap_connect_pwd:
+                type: string
+                x-go-name: LdapConnectPwd
+            ldap_search_base_dn:
+                type: string
+                x-go-name: LdapSearchBaseDn
+            ldap_server_host:
+                type: string
+                x-go-name: LdapServerHost
+            ldap_server_port:
+                type: string
+                x-go-name: LdapServerPort
+            ldap_user_email_rdn_key:
+                type: string
+                x-go-name: LdapUserEmailRdnKey
+            ldap_user_name_rdn_key:
+                type: string
+                x-go-name: LdapUserNameRdnKey
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    LDAPConfigurationResData:
+        properties:
+            enable_ldap:
+                type: boolean
+                x-go-name: EnableLdap
+            enable_ssl:
+                type: boolean
+                x-go-name: EnableSSL
+            ldap_connect_dn:
+                type: string
+                x-go-name: LdapConnectDn
+            ldap_search_base_dn:
+                type: string
+                x-go-name: LdapSearchBaseDn
+            ldap_server_host:
+                type: string
+                x-go-name: LdapServerHost
+            ldap_server_port:
+                type: string
+                x-go-name: LdapServerPort
+            ldap_user_email_rdn_key:
+                type: string
+                x-go-name: LdapUserEmailRdnKey
+            ldap_user_name_rdn_key:
+                type: string
+                x-go-name: LdapUserNameRdnKey
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListDBService:
+        description: A dms db Service
+        properties:
+            auth_config:
+                $ref: '#/definitions/AuthSyncConfig'
+            business:
+                description: the db service business name
+                type: string
+                x-go-name: Business
+            db_type:
+                description: |-
+                    Multiple of ["MySQL"], default is ["MySQL"]
+                    db service DB type
+                    MySQL DBTypeMySQL
+                    OceanBaseMySQL DBTypeOceanBaseMySQL
+                enum:
+                    - MySQL
+                    - OceanBaseMySQL
+                type: string
+                x-go-enum-desc: |-
+                    MySQL DBTypeMySQL
+                    OceanBaseMySQL DBTypeOceanBaseMySQL
+                x-go-name: DBType
+            desc:
+                description: DB desc
+                type: string
+                x-go-name: Desc
+            host:
+                description: db service host
+                type: string
+                x-go-name: Host
+            maintenance_times:
+                description: DB Service maintenance time
+                items:
+                    $ref: '#/definitions/MaintenanceTime'
+                type: array
+                x-go-name: MaintenanceTimes
+            name:
+                description: db service name
+                type: string
+                x-go-name: Name
+            namespace_uid:
+                description: DB namespace uid
+                type: string
+                x-go-name: NamespaceUID
+            password:
+                description: db service admin encrypted password
+                type: string
+                x-go-name: Password
+            port:
+                description: db service port
+                type: string
+                x-go-name: Port
+            source:
+                description: DB source
+                type: string
+                x-go-name: Source
+            sqle_config:
+                $ref: '#/definitions/SQLEConfig'
+            uid:
+                description: db service uid
+                type: string
+                x-go-name: DBServiceUid
+            user:
+                description: db service admin user
+                type: string
+                x-go-name: User
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListDBServiceDriverOptionReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                description: List db service reply
+                properties:
+                    database_driver_options:
+                        items:
+                            $ref: '#/definitions/DatabaseDriverOption'
+                        type: array
+                        x-go-name: DatabaseDriverOptions
+                type: object
+                x-go-name: Payload
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListDBServiceReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                description: List db service reply
+                properties:
+                    db_services:
+                        items:
+                            $ref: '#/definitions/ListDBService'
+                        type: array
+                        x-go-name: DBServices
+                    total:
+                        format: int64
+                        type: integer
+                        x-go-name: Total
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListDatabaseSourceService:
+        properties:
+            cron_express:
+                description: cron expression
+                example: 0 0 * * *
+                type: string
+                x-go-name: CronExpress
+            db_type:
+                description: database type
+                example: MySQL
+                type: string
+                x-go-name: DbType
+            last_sync_err:
+                description: last sync error message
+                type: string
+                x-go-name: LastSyncErr
+            last_sync_success_time:
+                format: date-time
+                type: string
+                x-go-name: LastSyncSuccessTime
+            name:
+                description: name
+                example: dmp
+                type: string
+                x-go-name: Name
+            namespace_uid:
+                description: namespace id
+                type: string
+                x-go-name: NamespaceUID
+            source:
+                description: source
+                example: actiontech-dmp
+                type: string
+                x-go-name: Source
+            sqle_config:
+                $ref: '#/definitions/SQLEConfig'
+            uid:
+                type: string
+                x-go-name: UID
+            url:
+                description: addr
+                example: http://10.186.62.56:10000
+                type: string
+                x-go-name: URL
+            version:
+                description: version
+                example: 5.23.01.0
+                type: string
+                x-go-name: Version
+        required:
+            - name
+            - source
+            - version
+            - url
+            - db_type
+            - cron_express
+            - namespace_uid
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListDatabaseSourceServiceTipsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                properties:
+                    database_sources:
+                        items:
+                            $ref: '#/definitions/DatabaseSource'
+                        type: array
+                        x-go-name: DatabaseSources
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListDatabaseSourceServicesReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                properties:
+                    database_source_services:
+                        items:
+                            $ref: '#/definitions/ListDatabaseSourceService'
+                        type: array
+                        x-go-name: DatabaseSourceServices
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListMember:
+        description: A dms member
+        properties:
+            is_namespace_admin:
+                description: Whether the member has namespace admin permission
+                type: boolean
+                x-go-name: IsNamespaceAdmin
+            role_with_op_ranges:
+                description: member op permission
+                items:
+                    $ref: '#/definitions/ListMemberRoleWithOpRange'
+                type: array
+                x-go-name: RoleWithOpRanges
+            uid:
+                description: member uid
+                type: string
+                x-go-name: MemberUid
+            user:
+                $ref: '#/definitions/UidWithName'
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                description: List member reply
+                properties:
+                    members:
+                        items:
+                            $ref: '#/definitions/ListMember'
+                        type: array
+                        x-go-name: Members
+                    total:
+                        format: int64
+                        type: integer
+                        x-go-name: Total
+                type: object
+                x-go-name: Payload
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListMemberRoleWithOpRange:
+        properties:
+            op_range_type:
+                description: |-
+                    op permission range type, only support db service now
+                    unknown OpRangeTypeUnknown
+                    global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
+                    namespace OpRangeTypeNamespace  空间权限: 该权限只能被成员使用
+                    db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
+                enum:
+                    - unknown
+                    - global
+                    - namespace
+                    - db_service
+                type: string
+                x-go-enum-desc: |-
+                    unknown OpRangeTypeUnknown
+                    global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
+                    namespace OpRangeTypeNamespace  空间权限: 该权限只能被成员使用
+                    db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
+                x-go-name: OpRangeType
+            range_uids:
+                description: op range uids
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: RangeUIDs
+            role_uid:
+                $ref: '#/definitions/UidWithName'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListMembersForInternalItem:
+        description: A dms member for internal
+        properties:
+            is_admin:
+                description: is member namespace admin, admin has all permissions
+                type: boolean
+                x-go-name: IsAdmin
+            member_op_permission_list:
+                description: member op permissions
+                items:
+                    $ref: '#/definitions/OpPermissionItem'
+                type: array
+                x-go-name: MemberOpPermissionList
+            uid:
+                description: member uid
+                type: string
+                x-go-name: MemberUid
+            user:
+                $ref: '#/definitions/UidWithName'
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ListMembersForInternalReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                description: List member reply
+                properties:
+                    members:
+                        items:
+                            $ref: '#/definitions/ListMembersForInternalItem'
+                        type: array
+                        x-go-name: Members
+                    total:
+                        format: int64
+                        type: integer
+                        x-go-name: Total
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    ListNamespace:
+        description: A dms namespace
+        properties:
+            archived:
+                description: namespace is archived
+                type: boolean
+                x-go-name: Archived
+            create_time:
+                description: create time
+                format: date-time
+                type: string
+                x-go-name: CreateTime
+            create_user:
+                $ref: '#/definitions/UidWithName'
+            desc:
+                description: namespace desc
+                type: string
+                x-go-name: Desc
+            name:
+                description: namespace name
+                type: string
+                x-go-name: Name
+            uid:
+                description: namespace uid
+                type: string
+                x-go-name: NamespaceUid
+        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ListNamespaceReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                description: List namespace reply
+                properties:
+                    namespaces:
+                        items:
+                            $ref: '#/definitions/ListNamespace'
+                        type: array
+                        x-go-name: Namespaces
+                    total:
+                        format: int64
+                        type: integer
+                        x-go-name: Total
+                type: object
+                x-go-name: Payload
+        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    ListOpPermission:
+        description: A dms op permission
+        properties:
+            description:
+                type: string
+                x-go-name: Description
+            op_permission:
+                $ref: '#/definitions/UidWithName'
+            range_type:
+                enum:
+                    - unknown
+                    - global
+                    - namespace
+                    - db_service
+                type: string
+                x-go-enum-desc: |-
+                    unknown OpRangeTypeUnknown
+                    global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
+                    namespace OpRangeTypeNamespace  空间权限: 该权限只能被成员使用
+                    db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
+                x-go-name: RangeType
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListOpPermissionReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                description: List op_permission reply
+                properties:
+                    op_permissions:
+                        items:
+                            $ref: '#/definitions/ListOpPermission'
+                        type: array
+                        x-go-name: OpPermissions
+                    total:
+                        format: int64
+                        type: integer
+                        x-go-name: Total
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListRole:
+        description: A dms role
+        properties:
+            desc:
+                description: role desc
+                type: string
+                x-go-name: Desc
+            name:
+                description: role name
+                type: string
+                x-go-name: Name
+            op_permissions:
+                description: op permissions
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: OpPermissions
+            stat:
+                description: |-
+                    role stat
+                    正常 StatOK
+                    被禁用 StatDisable
+                    未知 StatUnknown
+                enum:
+                    - 正常
+                    - 被禁用
+                    - 未知
+                type: string
+                x-go-enum-desc: |-
+                    正常 StatOK
+                    被禁用 StatDisable
+                    未知 StatUnknown
+                x-go-name: Stat
+            uid:
+                description: role uid
+                type: string
+                x-go-name: RoleUid
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListRoleReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                description: List role reply
+                properties:
+                    roles:
+                        items:
+                            $ref: '#/definitions/ListRole'
+                        type: array
+                        x-go-name: Roles
+                    total:
+                        format: int64
+                        type: integer
+                        x-go-name: Total
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListUser:
+        description: A dms user
+        properties:
+            authentication_type:
+                description: |-
+                    user authentication type
+                    ldap UserAuthenticationTypeLDAP
+                    dms UserAuthenticationTypeDMS
+                    oauth2 UserAuthenticationTypeOAUTH2
+                    unknown UserAuthenticationTypeUnknown
+                enum:
+                    - ldap
+                    - dms
+                    - oauth2
+                    - unknown
+                type: string
+                x-go-enum-desc: |-
+                    ldap UserAuthenticationTypeLDAP
+                    dms UserAuthenticationTypeDMS
+                    oauth2 UserAuthenticationTypeOAUTH2
+                    unknown UserAuthenticationTypeUnknown
+                x-go-name: AuthenticationType
+            email:
+                description: user email
+                type: string
+                x-go-name: Email
+            is_deleted:
+                description: user is deleted
+                type: boolean
+                x-go-name: IsDeleted
+            name:
+                description: user name
+                type: string
+                x-go-name: Name
+            op_permissions:
+                description: user operation permissions
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: OpPermissions
+            phone:
+                description: user phone
+                type: string
+                x-go-name: Phone
+            stat:
+                description: |-
+                    user stat
+                    正常 StatOK
+                    被禁用 StatDisable
+                    未知 StatUnknown
+                enum:
+                    - 正常
+                    - 被禁用
+                    - 未知
+                type: string
+                x-go-enum-desc: |-
+                    正常 StatOK
+                    被禁用 StatDisable
+                    未知 StatUnknown
+                x-go-name: Stat
+            uid:
+                description: user uid
+                type: string
+                x-go-name: UserUid
+            user_groups:
+                description: user groups
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: UserGroups
+            wxid:
+                description: user wxid
+                type: string
+                x-go-name: WxID
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    ListUserGroup:
+        description: A dms user group
+        properties:
+            desc:
+                description: user group description
+                type: string
+                x-go-name: Desc
+            name:
+                description: user group name
+                type: string
+                x-go-name: Name
+            stat:
+                description: |-
+                    user group stat
+                    正常 StatOK
+                    被禁用 StatDisable
+                    未知 StatUnknown
+                enum:
+                    - 正常
+                    - 被禁用
+                    - 未知
+                type: string
+                x-go-enum-desc: |-
+                    正常 StatOK
+                    被禁用 StatDisable
+                    未知 StatUnknown
+                x-go-name: Stat
+            uid:
+                description: user group uid
+                type: string
+                x-go-name: UserGroupUid
+            users:
+                description: users
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: Users
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListUserGroupReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                description: List user reply
+                properties:
+                    total:
+                        format: int64
+                        type: integer
+                        x-go-name: Total
+                    user_groups:
+                        items:
+                            $ref: '#/definitions/ListUserGroup'
+                        type: array
+                        x-go-name: UserGroups
+                type: object
+                x-go-name: Payload
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListUserReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                description: List user reply
+                properties:
+                    total:
+                        format: int64
+                        type: integer
+                        x-go-name: Total
+                    users:
+                        items:
+                            $ref: '#/definitions/ListUser'
+                        type: array
+                        x-go-name: Users
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    MaintenanceTime:
+        properties:
+            maintenance_start_time:
+                $ref: '#/definitions/Time'
+            maintenance_stop_time:
+                $ref: '#/definitions/Time'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    Member:
+        description: A member
+        properties:
+            is_namespace_admin:
+                description: Whether the member has namespace admin permission
+                type: boolean
+                x-go-name: IsNamespaceAdmin
+            namespace_uid:
+                description: namespace uid
+                type: string
+                x-go-name: NamespaceUid
+            role_with_op_ranges:
+                description: member role with op ranges
+                items:
+                    $ref: '#/definitions/MemberRoleWithOpRange'
+                type: array
+                x-go-name: RoleWithOpRanges
+            user_uid:
+                description: member user uid
+                type: string
+                x-go-name: UserUid
+        required:
+            - user_uid
+            - namespace_uid
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    MemberRoleWithOpRange:
+        properties:
+            op_range_type:
+                description: |-
+                    op permission range type, only support db service now
+                    unknown OpRangeTypeUnknown
+                    global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
+                    namespace OpRangeTypeNamespace  空间权限: 该权限只能被成员使用
+                    db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
+                enum:
+                    - unknown
+                    - global
+                    - namespace
+                    - db_service
+                type: string
+                x-go-enum-desc: |-
+                    unknown OpRangeTypeUnknown
+                    global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
+                    namespace OpRangeTypeNamespace  空间权限: 该权限只能被成员使用
+                    db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
+                x-go-name: OpRangeType
+            range_uids:
+                description: op range uids
+                items:
+                    type: string
+                type: array
+                x-go-name: RangeUIDs
+            role_uid:
+                description: role uid
+                type: string
+                x-go-name: RoleUID
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    Namespace:
+        description: A Namespace
+        properties:
+            desc:
+                description: namespace desc
+                type: string
+                x-go-name: Desc
+            name:
+                description: namespace name
+                type: string
+                x-go-name: Name
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    Notification:
+        properties:
+            notification_body:
+                type: string
+                x-go-name: NotificationBody
+            notification_subject:
+                type: string
+                x-go-name: NotificationSubject
+            user_uids:
+                items:
+                    type: string
+                type: array
+                x-go-name: UserUids
+        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     NotificationReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    Oauth2Configuration:
+        properties:
+            access_token_tag:
+                type: string
+                x-go-name: AccessTokenTag
+            client_host:
+                type: string
+                x-go-name: ClientHost
+            client_id:
+                type: string
+                x-go-name: ClientID
+            client_key:
+                type: string
+                x-go-name: ClientKey
+            enable_oauth2:
+                type: boolean
+                x-go-name: EnableOauth2
+            login_tip:
+                type: string
+                x-go-name: LoginTip
+            scopes:
+                items:
+                    type: string
+                type: array
+                x-go-name: Scopes
+            server_auth_url:
+                type: string
+                x-go-name: ServerAuthUrl
+            server_token_url:
+                type: string
+                x-go-name: ServerTokenUrl
+            server_user_id_url:
+                type: string
+                x-go-name: ServerUserIdUrl
+            user_id_tag:
+                type: string
+                x-go-name: UserIdTag
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    OpPermissionItem:
+        properties:
+            op_permission_type:
+                description: |-
+                    op permission type
+                    unknown OpPermissionTypeUnknown
+                    create_namespace OpPermissionTypeCreateNamespace  创建空间；创建空间的用户自动拥有该空间管理权限
+                    namespace_admin OpPermissionTypeNamespaceAdmin  空间管理；拥有该权限的用户可以管理空间下的所有资源
+                    create_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单
+                    audit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单
+                    auth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限
+                    view_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限
+                    execute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单
+                    view_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限
+                    save_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务
+                    sql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限
+                enum:
+                    - unknown
+                    - create_namespace
+                    - namespace_admin
+                    - create_workflow
+                    - audit_workflow
+                    - auth_db_service_data
+                    - view_others_workflow
+                    - execute_workflow
+                    - view_other_audit_plan
+                    - save_audit_plan
+                    - sql_query
+                type: string
+                x-go-enum-desc: |-
+                    unknown OpPermissionTypeUnknown
+                    create_namespace OpPermissionTypeCreateNamespace  创建空间；创建空间的用户自动拥有该空间管理权限
+                    namespace_admin OpPermissionTypeNamespaceAdmin  空间管理；拥有该权限的用户可以管理空间下的所有资源
+                    create_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单
+                    audit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单
+                    auth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限
+                    view_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限
+                    execute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单
+                    view_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限
+                    save_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务
+                    sql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限
+                x-go-name: OpPermissionType
+            range_type:
+                description: |-
+                    object type of RangeUids
+                    unknown OpRangeTypeUnknown
+                    global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
+                    namespace OpRangeTypeNamespace  空间权限: 该权限只能被成员使用
+                    db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
+                enum:
+                    - unknown
+                    - global
+                    - namespace
+                    - db_service
+                type: string
+                x-go-enum-desc: |-
+                    unknown OpRangeTypeUnknown
+                    global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
+                    namespace OpRangeTypeNamespace  空间权限: 该权限只能被成员使用
+                    db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
+                x-go-name: RangeType
+            range_uids:
+                description: object uids, object type is defined by RangeType
+                items:
+                    type: string
+                type: array
+                x-go-name: RangeUids
+        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     OperateDataResourceHandleReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    Plugin:
+        properties:
+            add_db_service_pre_check_url:
+                description: '添加数据源预检查接口地址, 如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/services/precheck/add'
+                type: string
+                x-go-name: AddDBServicePreCheckUrl
+            del_db_service_pre_check_url:
+                description: '删除数据源预检查接口地址, 如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/services/precheck/del'
+                type: string
+                x-go-name: DelDBServicePreCheckUrl
+            del_user_group_pre_check_url:
+                description: '删除用户组预检查接口地址,如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/usergroups/precheck/del'
+                type: string
+                x-go-name: DelUserGroupPreCheckUrl
+            del_user_pre_check_url:
+                description: '删除用户预检查接口地址,如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/users/precheck/del'
+                type: string
+                x-go-name: DelUserPreCheckUrl
+            name:
+                description: 插件名称
+                type: string
+                x-go-name: Name
+            operate_data_resource_handle_url:
+                description: '操作资源处理接口地址,如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/data_resource_operate/handle'
+                type: string
+                x-go-name: OperateDataResourceHandleUrl
+        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     RegisterDMSPluginReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     RegisterDMSProxyTargetReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    Role:
+        description: A role
+        properties:
+            desc:
+                description: role description
+                type: string
+                x-go-name: Desc
+            name:
+                description: role name
+                type: string
+                x-go-name: Name
+            op_permission_uids:
+                description: op permission uid
+                items:
+                    type: string
+                type: array
+                x-go-name: OpPermissionUids
+        required:
+            - name
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    SMTPConfigurationResData:
+        properties:
+            enable_smtp_notify:
+                type: boolean
+                x-go-name: EnableSMTPNotify
+            is_skip_verify:
+                type: boolean
+                x-go-name: IsSkipVerify
+            smtp_host:
+                type: string
+                x-go-name: Host
+            smtp_port:
+                type: string
+                x-go-name: Port
+            smtp_username:
+                type: string
+                x-go-name: Username
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    SQLEConfig:
+        properties:
+            rule_template_id:
+                description: DB Service rule template id
+                type: string
+                x-go-name: RuleTemplateID
+            rule_template_name:
+                description: DB Service rule template name
+                type: string
+                x-go-name: RuleTemplateName
+            sql_query_config:
+                $ref: '#/definitions/SQLQueryConfig'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    SQLQueryConfig:
+        properties:
+            allow_query_when_less_than_audit_level:
+                enum:
+                    - normal
+                    - notice
+                    - warn
+                    - error
+                type: string
+                x-go-enum-desc: |-
+                    normal AuditLevelNormal
+                    notice AuditLevelNotice
+                    warn AuditLevelWarn
+                    error AuditLevelError
+                x-go-name: AllowQueryWhenLessThanAuditLevel
+            audit_enabled:
+                type: boolean
+                x-go-name: AuditEnabled
+            max_pre_query_rows:
+                format: int64
+                type: integer
+                x-go-name: MaxPreQueryRows
+            query_timeout_second:
+                format: int64
+                type: integer
+                x-go-name: QueryTimeoutSecond
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TestFeishuConfiguration:
+        properties:
+            account:
+                type: string
+                x-go-name: Account
+            account_type:
+                enum:
+                    - email
+                    - phone
+                type: string
+                x-go-enum-desc: |-
+                    email FeishuAccountTypeEmail
+                    phone FeishuAccountTypePhone
+                x-go-name: AccountType
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     TestFeishuConfigurationReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                properties:
+                    data:
+                        $ref: '#/definitions/TestFeishuConfigurationResData'
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TestFeishuConfigurationResData:
+        properties:
+            error_message:
+                type: string
+                x-go-name: ErrorMessage
+            is_message_sent_normally:
+                type: boolean
+                x-go-name: IsMessageSentNormally
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TestSMTPConfiguration:
+        properties:
+            recipient_addr:
+                type: string
+                x-go-name: RecipientAddr
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     TestSMTPConfigurationReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                properties:
+                    data:
+                        $ref: '#/definitions/TestSMTPConfigurationResData'
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TestSMTPConfigurationResData:
+        properties:
+            is_smtp_send_normal:
+                type: boolean
+                x-go-name: IsSMTPSendNormal
+            send_error_message:
+                type: string
+                x-go-name: SendErrorMessage
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TestWeChatConfiguration:
+        properties:
+            recipient_id:
+                type: string
+                x-go-name: RecipientID
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     TestWeChatConfigurationReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                properties:
+                    data:
+                        $ref: '#/definitions/TestWeChatConfigurationResData'
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TestWeChatConfigurationResData:
+        properties:
+            is_wechat_send_normal:
+                type: boolean
+                x-go-name: IsWeChatSendNormal
+            send_error_message:
+                type: string
+                x-go-name: SendErrorMessage
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     TestWebHookConfigurationReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                properties:
+                    data:
+                        $ref: '#/definitions/TestWebHookConfigurationResData'
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TestWebHookConfigurationResData:
+        properties:
+            is_message_sent_normally:
+                type: boolean
+                x-go-name: IsMessageSentNormally
+            send_error_message:
+                type: string
+                x-go-name: SendErrorMessage
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    Time:
+        properties:
+            hour:
+                format: int64
+                type: integer
+                x-go-name: Hour
+            minute:
+                format: int64
+                type: integer
+                x-go-name: Minute
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TriggerEventType:
+        type: string
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    UidWithName:
+        properties:
+            name:
+                type: string
+                x-go-name: Name
+            uid:
+                type: string
+                x-go-name: Uid
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    UpdateDBService:
+        description: update db service
+        properties:
+            additional_params:
+                description: DB Service Custom connection parameters
+                items:
+                    $ref: '#/definitions/AdditionalParam'
+                type: array
+                x-go-name: AdditionalParams
+            business:
+                description: DB Service business name
+                type: string
+                x-go-name: Business
+            db_type:
+                description: |-
+                    Service DB type
+                    MySQL DBTypeMySQL
+                    OceanBaseMySQL DBTypeOceanBaseMySQL
+                enum:
+                    - MySQL
+                    - OceanBaseMySQL
+                type: string
+                x-go-enum-desc: |-
+                    MySQL DBTypeMySQL
+                    OceanBaseMySQL DBTypeOceanBaseMySQL
+                x-go-name: DBType
+            desc:
+                description: Service description
+                type: string
+                x-go-name: Desc
+            host:
+                description: DB Service Host
+                type: string
+                x-go-name: Host
+            maintenance_times:
+                description: DB Service maintenance time
+                items:
+                    $ref: '#/definitions/MaintenanceTime'
+                type: array
+                x-go-name: MaintenanceTimes
+            password:
+                description: DB Service admin password
+                type: string
+                x-go-name: Password
+            port:
+                description: DB Service port
+                type: string
+                x-go-name: Port
+            sqle_config:
+                $ref: '#/definitions/SQLEConfig'
+            user:
+                description: DB Service admin user
+                type: string
+                x-go-name: User
+        required:
+            - db_type
+            - host
+            - port
+            - user
+            - business
+            - maintenance_times
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateDBServiceReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                description: update db service reply
+                properties:
+                    uid:
+                        description: db service UID
+                        type: string
+                        x-go-name: Uid
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateFeishuConfiguration:
+        properties:
+            app_id:
+                type: string
+                x-go-name: AppID
+            app_secret:
+                type: string
+                x-go-name: AppSecret
+            is_feishu_notification_enabled:
+                type: boolean
+                x-go-name: IsFeishuNotificationEnabled
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateMember:
+        properties:
+            is_namespace_admin:
+                description: Whether the member has namespace admin permission
+                type: boolean
+                x-go-name: IsNamespaceAdmin
+            role_with_op_ranges:
+                description: member role with op ranges
+                items:
+                    $ref: '#/definitions/MemberRoleWithOpRange'
+                type: array
+                x-go-name: RoleWithOpRanges
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateNamespace:
+        properties:
+            desc:
+                description: Namespace desc
+                type: string
+                x-go-name: Desc
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateRole:
+        properties:
+            desc:
+                description: Role desc
+                type: string
+                x-go-name: Desc
+            is_disabled:
+                description: Whether the role is disabled or not
+                type: boolean
+                x-go-name: IsDisabled
+            op_permission_uids:
+                description: Op permission uids
+                items:
+                    type: string
+                type: array
+                x-go-name: OpPermissionUids
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateSMTPConfiguration:
+        properties:
+            enable_smtp_notify:
+                type: boolean
+                x-go-name: EnableSMTPNotify
+            is_skip_verify:
+                type: boolean
+                x-go-name: IsSkipVerify
+            smtp_host:
+                type: string
+                x-go-name: Host
+            smtp_password:
+                type: string
+                x-go-name: Password
+            smtp_port:
+                type: string
+                x-go-name: Port
+            smtp_username:
+                type: string
+                x-go-name: Username
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateUser:
+        properties:
+            email:
+                description: User email
+                type: string
+                x-go-name: Email
+            is_disabled:
+                description: Whether the user is disabled or not
+                type: boolean
+                x-go-name: IsDisabled
+            op_permission_uids:
+                description: User operation permission uids
+                items:
+                    type: string
+                type: array
+                x-go-name: OpPermissionUids
+            password:
+                description: User password, User can login with this password
+                type: string
+                x-go-name: Password
+            phone:
+                description: User phone
+                type: string
+                x-go-name: Phone
+            user_group_uids:
+                description: User group uids
+                items:
+                    type: string
+                type: array
+                x-go-name: UserGroupUids
+            wxid:
+                description: User wxid
+                type: string
+                x-go-name: WxID
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateUserGroup:
+        properties:
+            desc:
+                description: UserGroup description
+                type: string
+                x-go-name: Desc
+            is_disabled:
+                description: Whether the user group is disabled or not
+                type: boolean
+                x-go-name: IsDisabled
+            user_uids:
+                description: User uids
+                items:
+                    type: string
+                type: array
+                x-go-name: UserUids
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateWeChatConfiguration:
+        properties:
+            agent_id:
+                format: int64
+                type: integer
+                x-go-name: AgentID
+            corp_id:
+                type: string
+                x-go-name: CorpID
+            corp_secret:
+                type: string
+                x-go-name: CorpSecret
+            enable_wechat_notify:
+                type: boolean
+                x-go-name: EnableWeChatNotify
+            proxy_ip:
+                type: string
+                x-go-name: ProxyIP
+            safe_enabled:
+                type: boolean
+                x-go-name: SafeEnabled
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    User:
+        description: A user
+        properties:
+            desc:
+                description: user description
+                type: string
+                x-go-name: Desc
+            email:
+                description: user email
+                type: string
+                x-go-name: Email
+            name:
+                description: user name
+                type: string
+                x-go-name: Name
+            op_permission_uids:
+                description: user op permission uid
+                items:
+                    type: string
+                type: array
+                x-go-name: OpPermissionUids
+            password:
+                description: user password
+                type: string
+                x-go-name: Password
+            phone:
+                description: user phone
+                type: string
+                x-go-name: Phone
+            user_group_uids:
+                description: user group uid
+                items:
+                    type: string
+                type: array
+                x-go-name: UserGroupUids
+            wxid:
+                description: user wxid
+                type: string
+                x-go-name: WxID
+        required:
+            - name
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UserBindNamespace:
+        properties:
+            is_manager:
+                type: boolean
+                x-go-name: IsManager
+            namespace_id:
+                type: string
+                x-go-name: NamespaceID
+            namespace_name:
+                type: string
+                x-go-name: NamespaceName
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    UserGroup:
+        description: A user group
+        properties:
+            desc:
+                description: user group description
+                type: string
+                x-go-name: Desc
+            name:
+                description: user group name
+                type: string
+                x-go-name: Name
+            user_uids:
+                description: user uids
+                items:
+                    type: string
+                type: array
+                x-go-name: UserUids
+        required:
+            - name
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UserOpPermission:
+        properties:
+            namespace_uid:
+                description: uesr namespace uid
+                type: string
+                x-go-name: NamespaceUid
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    WeChatConfigurationResData:
+        properties:
+            agent_id:
+                format: int64
+                type: integer
+                x-go-name: AgentID
+            corp_id:
+                type: string
+                x-go-name: CorpID
+            enable_wechat_notify:
+                type: boolean
+                x-go-name: EnableWeChatNotify
+            proxy_ip:
+                type: string
+                x-go-name: ProxyIP
+            safe_enabled:
+                type: boolean
+                x-go-name: SafeEnabled
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    WebHookConfigurationData:
+        properties:
+            enable:
+                type: boolean
+                x-go-name: Enable
+            max_retry_times:
+                description: minlength(3) maxlength(100)
+                format: int64
+                type: integer
+                x-go-name: MaxRetryTimes
+            retry_interval_seconds:
+                format: int64
+                type: integer
+                x-go-name: RetryIntervalSeconds
+            token:
+                type: string
+                x-go-name: Token
+            url:
+                type: string
+                x-go-name: URL
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     WebHookSendMessageReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+        type: object
         x-go-name: WebHooksSendMessageReply
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    WebHooksMessage:
+        properties:
+            message:
+                type: string
+                x-go-name: Message
+            trigger_event_type:
+                $ref: '#/definitions/TriggerEventType'
+        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
 info:
     description: Documentation of our dms API.
@@ -115,7 +2746,8 @@ paths:
                 - description: update feishu configuration
                   in: body
                   name: update_feishu_configuration
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/UpdateFeishuConfiguration'
                   x-go-name: UpdateFeishuConfiguration
             responses:
                 "200":
@@ -136,7 +2768,8 @@ paths:
                 - description: test feishu configuration
                   in: body
                   name: test_feishu_configuration
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/TestFeishuConfiguration'
                   x-go-name: TestFeishuConfiguration
             responses:
                 "200":
@@ -171,7 +2804,8 @@ paths:
                 - description: update ldap configuration
                   in: body
                   name: ldap
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/LDAPConfiguration'
                   x-go-name: LDAPConfiguration
             responses:
                 "200":
@@ -206,7 +2840,8 @@ paths:
                 - description: update oauth2 configuration
                   in: body
                   name: oauth2
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/Oauth2Configuration'
                   x-go-name: Oauth2Configuration
             responses:
                 "200":
@@ -241,7 +2876,8 @@ paths:
                 - description: update smtp configuration
                   in: body
                   name: smtp_configuration
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/UpdateSMTPConfiguration'
                   x-go-name: UpdateSMTPConfiguration
             responses:
                 "200":
@@ -262,7 +2898,8 @@ paths:
                 - description: test smtp configuration
                   in: body
                   name: test_smtp_configuration
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/TestSMTPConfiguration'
                   x-go-name: TestSMTPConfiguration
             responses:
                 "200":
@@ -312,7 +2949,8 @@ paths:
                 - description: test webhook configuration
                   in: body
                   name: webhook_config
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/WebHookConfigurationData'
                   x-go-name: UpdateWebHookConfiguration
             responses:
                 "200":
@@ -362,7 +3000,8 @@ paths:
                 - description: update wechat configuration
                   in: body
                   name: update_wechat_configuration
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/UpdateWeChatConfiguration'
                   x-go-name: UpdateWeChatConfiguration
             responses:
                 "200":
@@ -383,7 +3022,8 @@ paths:
                 - description: test wechat configuration
                   in: body
                   name: test_wechat_configuration
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/TestWeChatConfiguration'
                   x-go-name: TestWeChatConfiguration
             responses:
                 "200":
@@ -395,6 +3035,159 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: test wechat configuration.
+            tags:
+                - dms
+    /v1/dms/database_source_services:
+        get:
+            operationId: ListDatabaseSourceServices
+            parameters:
+                - description: |-
+                    filter by db service namespace uid
+                    only the sys user can use an empty namespace value, which means lookup from all namespaces
+                  in: query
+                  name: NamespaceId
+                  type: string
+            responses:
+                "200":
+                    description: ListDatabaseSourceServicesReply
+                    schema:
+                        $ref: '#/definitions/ListDatabaseSourceServicesReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List database source service.
+            tags:
+                - dms
+        post:
+            operationId: AddDatabaseSourceService
+            parameters:
+                - description: add database source service
+                  in: body
+                  name: database_source_service
+                  schema:
+                    $ref: '#/definitions/DatabaseSourceService'
+                  x-go-name: DatabaseSourceService
+            responses:
+                "200":
+                    description: AddDatabaseSourceServiceReply
+                    schema:
+                        $ref: '#/definitions/AddDatabaseSourceServiceReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Add database source service.
+            tags:
+                - dms
+    /v1/dms/database_source_services/{database_source_service_uid}:
+        delete:
+            operationId: DeleteDatabaseSourceService
+            parameters:
+                - in: path
+                  name: database_source_service_uid
+                  required: true
+                  type: string
+                  x-go-name: DatabaseSourceServiceUid
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Delete database source service.
+            tags:
+                - dms
+        get:
+            operationId: GetDatabaseSourceService
+            parameters:
+                - in: path
+                  name: database_source_service_uid
+                  required: true
+                  type: string
+                  x-go-name: DatabaseSourceServiceUid
+                - description: |-
+                    filter by db service namespace uid
+                    only the sys user can use an empty namespace value, which means lookup from all namespaces
+                  in: query
+                  name: namespace_id
+                  type: string
+                  x-go-name: NamespaceId
+            responses:
+                "200":
+                    description: GetDatabaseSourceServiceReply
+                    schema:
+                        $ref: '#/definitions/GetDatabaseSourceServiceReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get database source service.
+            tags:
+                - dms
+        put:
+            operationId: UpdateDatabaseSourceService
+            parameters:
+                - in: path
+                  name: database_source_service_uid
+                  required: true
+                  type: string
+                  x-go-name: DatabaseSourceServiceUid
+                - description: update database source service
+                  in: body
+                  name: database_source_service
+                  schema:
+                    $ref: '#/definitions/DatabaseSourceService'
+                  x-go-name: DatabaseSourceService
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: update database source service.
+            tags:
+                - dms
+    /v1/dms/database_source_services/{database_source_service_uid}/sync:
+        post:
+            operationId: SyncDatabaseSourceService
+            parameters:
+                - in: path
+                  name: database_source_service_uid
+                  required: true
+                  type: string
+                  x-go-name: DatabaseSourceServiceUid
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Sync database source service.
+            tags:
+                - dms
+    /v1/dms/database_source_services/tips:
+        get:
+            operationId: ListDatabaseSourceServiceTips
+            responses:
+                "200":
+                    description: ListDatabaseSourceServiceTipsReply
+                    schema:
+                        $ref: '#/definitions/ListDatabaseSourceServiceTipsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List database source service tips.
             tags:
                 - dms
     /v1/dms/db_services:
@@ -414,9 +3207,15 @@ paths:
                   name: page_index
                   type: integer
                   x-go-name: PageIndex
-                - description: Multiple of ["name"], default is ["name"]
+                - description: |-
+                    Multiple of ["name"], default is ["name"]
+                    name DBServiceOrderByName
+                  enum:
+                    - name
                   in: query
                   name: order_by
+                  type: string
+                  x-go-enum-desc: name DBServiceOrderByName
                   x-go-name: OrderBy
                 - description: the db service business name
                   in: query
@@ -468,7 +3267,8 @@ paths:
                 - description: Add new db service
                   in: body
                   name: db_service
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/DBService'
                   x-go-name: DBService
             responses:
                 "200":
@@ -516,7 +3316,8 @@ paths:
                 - description: Update a DB service
                   in: body
                   name: db_service
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/UpdateDBService'
                   x-go-name: DBService
             responses:
                 "200":
@@ -530,14 +3331,15 @@ paths:
             summary: update a DB Service.
             tags:
                 - dms
-    /v1/dms/db_services/connect:
+    /v1/dms/db_services/connection:
         post:
             operationId: CheckDBServiceIsConnectable
             parameters:
                 - description: check db_service is connectable
                   in: body
                   name: db_service
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/CheckDbConnectable'
                   x-go-name: DBService
             responses:
                 "200":
@@ -549,6 +3351,21 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: check if the db_service is connectable.
+            tags:
+                - dms
+    /v1/dms/db_services/driver_option:
+        get:
+            operationId: ListDBServiceDriverOption
+            responses:
+                "200":
+                    description: ListDBServiceDriverOptionReply
+                    schema:
+                        $ref: '#/definitions/ListDBServiceDriverOptionReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List db service driver option.
             tags:
                 - dms
     /v1/dms/members:
@@ -568,9 +3385,15 @@ paths:
                   name: page_index
                   type: integer
                   x-go-name: PageIndex
-                - description: Multiple of ["name"], default is ["name"]
+                - description: |-
+                    Multiple of ["name"], default is ["name"]
+                    user_uid MemberOrderByUserUid
+                  enum:
+                    - user_uid
                   in: query
                   name: order_by
+                  type: string
+                  x-go-enum-desc: user_uid MemberOrderByUserUid
                   x-go-name: OrderBy
                 - description: filter the member user uid
                   in: query
@@ -601,7 +3424,8 @@ paths:
                 - description: Add new member
                   in: body
                   name: member
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/Member'
                   x-go-name: Member
             responses:
                 "200":
@@ -649,7 +3473,8 @@ paths:
                 - description: Update a member
                   in: body
                   name: member
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/UpdateMember'
                   x-go-name: Member
             responses:
                 "200":
@@ -714,9 +3539,15 @@ paths:
                   name: page_index
                   type: integer
                   x-go-name: PageIndex
-                - description: Multiple of ["name"], default is ["name"]
+                - description: |-
+                    Multiple of ["name"], default is ["name"]
+                    name NamespaceOrderByName
+                  enum:
+                    - name
                   in: query
                   name: order_by
+                  type: string
+                  x-go-enum-desc: name NamespaceOrderByName
                   x-go-name: OrderBy
                 - description: filter the namespace name
                   in: query
@@ -746,7 +3577,8 @@ paths:
                 - description: Add new Namespace
                   in: body
                   name: namespace
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/Namespace'
                   x-go-name: Namespace
             responses:
                 "200":
@@ -794,7 +3626,8 @@ paths:
                 - description: Update a namespace
                   in: body
                   name: namespace
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/UpdateNamespace'
                   x-go-name: Namespace
             responses:
                 "200":
@@ -859,7 +3692,8 @@ paths:
                 - description: notification
                   in: body
                   name: notification
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/Notification'
                   x-go-name: Notification
             responses:
                 "200":
@@ -933,13 +3767,32 @@ paths:
                   name: page_index
                   type: integer
                   x-go-name: PageIndex
-                - description: Order by the specified field
+                - description: |-
+                    Order by the specified field
+                    name OpPermissionOrderByName
+                  enum:
+                    - name
                   in: query
                   name: order_by
+                  type: string
+                  x-go-enum-desc: name OpPermissionOrderByName
                   x-go-name: OrderBy
-                - description: filter by op permission target
+                - description: |-
+                    filter by op permission target
+                    all OpPermissionTargetAll
+                    user OpPermissionTargetUser
+                    member OpPermissionTargetMember
+                  enum:
+                    - all
+                    - user
+                    - member
                   in: query
                   name: filter_by_target
+                  type: string
+                  x-go-enum-desc: |-
+                    all OpPermissionTargetAll
+                    user OpPermissionTargetUser
+                    member OpPermissionTargetMember
                   x-go-name: FilterByTarget
             responses:
                 "200":
@@ -960,7 +3813,8 @@ paths:
                 - description: Register dms plugin
                   in: body
                   name: plugin
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/Plugin'
                   x-go-name: Plugin
             responses:
                 "200":
@@ -981,7 +3835,8 @@ paths:
                 - description: register dms proxy
                   in: body
                   name: dms_proxy_target
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/DMSProxyTarget'
                   x-go-name: DMSProxyTarget
             responses:
                 "200":
@@ -1012,9 +3867,15 @@ paths:
                   name: page_index
                   type: integer
                   x-go-name: PageIndex
-                - description: Multiple of ["name"], default is ["name"]
+                - description: |-
+                    Multiple of ["name"], default is ["name"]
+                    name RoleOrderByName
+                  enum:
+                    - name
                   in: query
                   name: order_by
+                  type: string
+                  x-go-enum-desc: name RoleOrderByName
                   x-go-name: OrderBy
                 - description: filter the role name
                   in: query
@@ -1039,7 +3900,8 @@ paths:
                 - description: Add new role
                   in: body
                   name: role
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/Role'
                   x-go-name: Role
             responses:
                 "200":
@@ -1087,7 +3949,8 @@ paths:
                 - description: Update a role
                   in: body
                   name: role
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/UpdateRole'
                   x-go-name: Role
             responses:
                 "200":
@@ -1108,7 +3971,8 @@ paths:
                 - description: Add a new session
                   in: body
                   name: session
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/AddSession'
                   x-go-name: Session
             responses:
                 "200":
@@ -1159,9 +4023,15 @@ paths:
                   name: page_index
                   type: integer
                   x-go-name: PageIndex
-                - description: Multiple of ["name"], default is ["name"]
+                - description: |-
+                    Multiple of ["name"], default is ["name"]
+                    name UserGroupOrderByName
+                  enum:
+                    - name
                   in: query
                   name: order_by
+                  type: string
+                  x-go-enum-desc: name UserGroupOrderByName
                   x-go-name: OrderBy
                 - description: filter the user group name
                   in: query
@@ -1186,7 +4056,8 @@ paths:
                 - description: Add new user group
                   in: body
                   name: user_group
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/UserGroup'
                   x-go-name: UserGroup
             responses:
                 "200":
@@ -1234,7 +4105,8 @@ paths:
                 - description: Update a user group
                   in: body
                   name: user_group
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/UpdateUserGroup'
                   x-go-name: UserGroup
             responses:
                 "200":
@@ -1265,9 +4137,15 @@ paths:
                   name: page_index
                   type: integer
                   x-go-name: PageIndex
-                - description: Multiple of ["name"], default is ["name"]
+                - description: |-
+                    Multiple of ["name"], default is ["name"]
+                    name UserOrderByName
+                  enum:
+                    - name
                   in: query
                   name: order_by
+                  type: string
+                  x-go-enum-desc: name UserOrderByName
                   x-go-name: OrderBy
                 - description: filter the user name
                   in: query
@@ -1302,7 +4180,8 @@ paths:
                 - description: Add new user
                   in: body
                   name: user
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/User'
                   x-go-name: User
             responses:
                 "200":
@@ -1371,7 +4250,8 @@ paths:
                 - description: Update a user
                   in: body
                   name: user
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/UpdateUser'
                   x-go-name: User
             responses:
                 "200":
@@ -1398,7 +4278,8 @@ paths:
                 - description: user op permission info
                   in: body
                   name: user_op_permission
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/UserOpPermission'
                   x-go-name: UserOpPermission
             responses:
                 "200":
@@ -1419,7 +4300,8 @@ paths:
                 - description: webhooks
                   in: body
                   name: webhook_message
-                  schema: {}
+                  schema:
+                    $ref: '#/definitions/WebHooksMessage'
                   x-go-name: WebHookMessage
             responses:
                 "200":

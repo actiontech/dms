@@ -101,6 +101,21 @@ func (d *DMSController) ListDBServices(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
+// swagger:route GET /v1/dms/db_services/driver_option dms ListDBServiceDriverOption
+//
+// List db service driver option.
+//
+//	responses:
+//	  200: body:ListDBServiceDriverOptionReply
+//	  default: body:GenericResp
+func (d *DMSController) ListDBServiceDriverOption(c echo.Context) error {
+	reply, err := d.DMS.ListDBServiceDriverOption(c.Request().Context())
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
 // swagger:route DELETE /v1/dms/db_services/{db_service_uid} dms DelDBService
 //
 // Delete a DB Service.
@@ -151,7 +166,7 @@ func (a *DMSController) UpdateDBService(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/db_services/connect dms CheckDBServiceIsConnectable
+// swagger:route POST /v1/dms/db_services/connection dms CheckDBServiceIsConnectable
 //
 // check if the db_service is connectable.
 //
@@ -191,6 +206,31 @@ func (d *DMSController) ListDatabaseSourceServices(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 	reply, err := d.DMS.ListDatabaseSourceService(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route GET /v1/dms/database_source_services/{database_source_service_uid} dms GetDatabaseSourceService
+//
+// Get database source service.
+//
+//	responses:
+//	  200: body:GetDatabaseSourceServiceReply
+//	  default: body:GenericResp
+func (d *DMSController) GetDatabaseSourceService(c echo.Context) error {
+	req := new(aV1.GetDatabaseSourceServiceReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	reply, err := d.DMS.GetDatabaseSourceService(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}

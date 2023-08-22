@@ -117,11 +117,16 @@ type CheckDBServiceIsConnectableReq struct {
 	DBService dmsCommonV1.CheckDbConnectable `json:"db_service"`
 }
 
+type CheckDBServiceIsConnectableReplyItem struct {
+	IsConnectable       bool   `json:"is_connectable"`
+	Component           string `json:"component"`
+	ConnectErrorMessage string `json:"connect_error_message"`
+}
+
 // swagger:model CheckDBServiceIsConnectableReply
 type CheckDBServiceIsConnectableReply struct {
 	Payload struct {
-		IsConnectable       bool   `json:"is_connectable"`
-		ConnectErrorMessage string `json:"connect_error_message,omitempty"`
+		Connections []CheckDBServiceIsConnectableReplyItem `json:"connections"`
 	} `json:"payload"`
 
 	base.GenericResp
@@ -328,4 +333,28 @@ func (u *UpdateDBServiceReply) String() string {
 		return "UpdateDBServiceReply{nil}"
 	}
 	return fmt.Sprintf("UpdateDBServiceReply{Uid:%s}", u.Payload.Uid)
+}
+
+type DatabaseDriverAdditionalParam struct {
+	Name        string `json:"name"`
+	Value       string `json:"value"`
+	Description string `json:"description" example:"参数项中文名"`
+	Type        string `json:"type" example:"int"`
+}
+
+type DatabaseDriverOption struct {
+	DBType   string                           `json:"db_type"`
+	LogoPath string                           `json:"logo_path"`
+	Params   []*DatabaseDriverAdditionalParam `json:"params"`
+}
+
+// swagger:model ListDBServiceDriverOptionReply
+type ListDBServiceDriverOptionReply struct {
+	// List db service reply
+	Payload struct {
+		DatabaseDriverOptions []*DatabaseDriverOption `json:"database_driver_options"`
+	} `json:"payload"`
+
+	// Generic reply
+	base.GenericResp
 }
