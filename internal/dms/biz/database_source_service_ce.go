@@ -15,6 +15,10 @@ func (d *DatabaseSourceServiceUsecase) ListDatabaseSourceServices(ctx context.Co
 	return nil, errNotSupportOauth2
 }
 
+func (d *DatabaseSourceServiceUsecase) GetDatabaseSourceService(ctx context.Context, databaseSourceServiceId, namespaceId, currentUserId string) (*DatabaseSourceServiceParams, error) {
+	return nil, errNotSupportOauth2
+}
+
 func (d *DatabaseSourceServiceUsecase) AddDatabaseSourceService(ctx context.Context, params *DatabaseSourceServiceParams, currentUserId string) (string, error) {
 	return "", errNotDatabaseSourceService
 
