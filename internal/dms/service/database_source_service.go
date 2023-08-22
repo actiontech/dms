@@ -68,6 +68,50 @@ func (d *DMSService) ListDatabaseSourceService(ctx context.Context, req *v1.List
 	}, nil
 }
 
+func (d *DMSService) GetDatabaseSourceService(ctx context.Context, req *v1.GetDatabaseSourceServiceReq, currentUserUid string) (reply *v1.GetDatabaseSourceServiceReply, err error) {
+	service, err := d.DatabaseSourceServiceUsecase.GetDatabaseSourceService(ctx, req.DatabaseSourceServiceUid, req.NamespaceId, currentUserUid)
+	if nil != err {
+		return nil, err
+	}
+
+	item := &v1.ListDatabaseSourceService{
+		UID: service.UID,
+		DatabaseSourceService: v1.DatabaseSourceService{
+			Name:         service.Name,
+			Source:       service.Source,
+			Version:      service.Version,
+			URL:          service.URL,
+			DbType:       service.DbType.String(),
+			CronExpress:  service.CronExpress,
+			NamespaceUID: service.NamespaceUID,
+			SQLEConfig:   nil,
+		},
+		LastSyncErr:         service.LastSyncErr,
+		LastSyncSuccessTime: service.LastSyncSuccessTime,
+	}
+
+	if service.SQLEConfig != nil {
+		sqlConfig := &v1.SQLEConfig{
+			RuleTemplateName: service.SQLEConfig.RuleTemplateName,
+			RuleTemplateID:   service.SQLEConfig.RuleTemplateID,
+			SQLQueryConfig:   &v1.SQLQueryConfig{},
+		}
+		if service.SQLEConfig.SQLQueryConfig != nil {
+			sqlConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel = v1.SQLAllowQueryAuditLevel(service.SQLEConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel)
+			sqlConfig.SQLQueryConfig.AuditEnabled = service.SQLEConfig.SQLQueryConfig.AuditEnabled
+			sqlConfig.SQLQueryConfig.MaxPreQueryRows = service.SQLEConfig.SQLQueryConfig.MaxPreQueryRows
+			sqlConfig.SQLQueryConfig.QueryTimeoutSecond = service.SQLEConfig.SQLQueryConfig.QueryTimeoutSecond
+		}
+		item.SQLEConfig = sqlConfig
+	}
+
+	return &v1.GetDatabaseSourceServiceReply{
+		Payload: struct {
+			DatabaseSourceService *v1.ListDatabaseSourceService `json:"database_source_service"`
+		}{DatabaseSourceService: item},
+	}, nil
+}
+
 func (d *DMSService) AddDatabaseSourceService(ctx context.Context, req *v1.AddDatabaseSourceServiceReq, currentUserId string) (reply *v1.AddDatabaseSourceServiceReply, err error) {
 	dbType, err := pkgConst.ParseDBType(req.DatabaseSourceService.DbType)
 	if err != nil {
