@@ -1,27 +1,73 @@
-PROJECT_NAME              = dms
-VERSION                   = 99.99.99
-RELEASE                   ?= alpha
-USER_NAME                 = actiontech-$(PROJECT_NAME)
-GROUP_NAME                = actiontech
-GIT_LATEST_COMMIT_ID	  = $(shell git rev-parse HEAD)
+# PROJECT_NAME              = dms
+# VERSION                   = 99.99.99
+# RELEASE                   ?= alpha
+# USER_NAME                 = actiontech-$(PROJECT_NAME)
+# GROUP_NAME                = actiontech
+# GIT_LATEST_COMMIT_ID	  = $(shell git rev-parse HEAD)
 DMS_UNIT_TEST_MYSQL_DB_CONTAINER = dms-mysql-unit-test-db
 ARCH=$(shell uname -s| tr A-Z a-z)
-DOCKER=$(shell which docker)
-DOCKER_IMAGE_RPM = reg.actiontech.com/actiontech/$(PROJECT_NAME)-rpmbuild:v1
+# DOCKER=$(shell which docker)
+# DOCKER_IMAGE_RPM = reg.actiontech.com/actiontech/$(PROJECT_NAME)-rpmbuild:v1
 DOCKER_IMAGE_GO_SWAGGER = quay.io/goswagger/swagger
-GIT_LATEST_COMMIT_ID	  = $(shell git rev-parse HEAD)
+# GIT_LATEST_COMMIT_ID	  = $(shell git rev-parse HEAD)
+# EDITION ?= ce
+# GO_BUILD_TAGS = dummyhead
+# ifeq ($(EDITION),ee)
+#     GO_BUILD_TAGS :=$(GO_BUILD_TAGS),enterprise
+# endif
+# RPM_NAME            = $(PROJECT_NAME)-$(EDITION)-$(VERSION)-${RELEASE}.el7.x86_64.rpm
+# RPM_BUILD_PATH      = ./RPMS/x86_64/$(RPM_NAME)
+
+override GIT_VERSION    		= $(shell git rev-parse --abbrev-ref HEAD)${CUSTOM} $(shell git rev-parse HEAD)
+override GIT_COMMIT     		= $(shell git rev-parse HEAD)
+override PROJECT_NAME 			= dms
+override DOCKER         		= $(shell which docker)
+override GOOS           		= linux
+override OS_VERSION 			= el7
+override GO_BUILD_FLAGS 		= -mod=vendor
+override RPM_USER_GROUP_NAME 	= actiontech
+override RPM_USER_NAME 			= actiontech-universe
+override LDFLAGS 				= -ldflags "-X 'main.version=\"${GIT_VERSION}\"' -X 'main.gitCommitID=${GIT_COMMIT}' -X 'main.defaultRunUser=${RPM_USER_NAME}'"
+
+GOARCH         		= amd64
+RPMBUILD_TARGET		= x86_64
+
+GO_COMPILER_IMAGE ?= golang:1.19.6
+RPM_BUILD_IMAGE ?= rpmbuild/centos7
+
+ifeq ($(GOARCH), arm64)
+    RPMBUILD_TARGET = aarch64
+endif
+
 EDITION ?= ce
 GO_BUILD_TAGS = dummyhead
 ifeq ($(EDITION),ee)
     GO_BUILD_TAGS :=$(GO_BUILD_TAGS),enterprise
 endif
-RPM_NAME            = $(PROJECT_NAME)-$(EDITION)-$(VERSION)-${RELEASE}.el7.x86_64.rpm
-RPM_BUILD_PATH      = ./RPMS/x86_64/$(RPM_NAME)
+
+RELEASE = qa
+ifeq ($(RELEASE),rel)
+    GO_BUILD_TAGS :=$(GO_BUILD_TAGS),release
+endif
+
+# Two cases:
+# 1. if there is tag on current commit, means that
+# 	 we release new version on current branch just now.
+#    Set rpm name with tag name(v1.2109.0 -> 1.2109.0).
+#
+# 2. if there is no tag on current commit, means that
+#    current branch is on process.
+#    Set rpm name with current branch name(release-1.2109.x-ee or release-1.2109.x -> 1.2109.x).
+PROJECT_VERSION = $(shell if [ "$$(git tag --points-at HEAD | tail -n1)" ]; then git tag --points-at HEAD | tail -n1 | sed 's/v\(.*\)/\1/'; else git rev-parse --abbrev-ref HEAD | sed 's/release-\(.*\)/\1/' | tr '-' '\n' | head -n1; fi)
+
+override RPM_NAME = $(PROJECT_NAME)-$(EDITION)-$(PROJECT_VERSION).$(RELEASE).$(OS_VERSION).$(RPMBUILD_TARGET).rpm
+
+override FTP_PATH = ftp://$(RELEASE_FTPD_HOST)/actiontech-$(PROJECT_NAME)/$(EDITION)/$(RELEASE)/$(PROJECT_VERSION)/$(RPM_NAME)
 
 gen_repo_fields:
 	go run ./internal/dms/cmd/gencli/gencli.go -d generate-node-repo-fields ./internal/dms/storage/model/ ./internal/dms/biz/
-build_dms:
-	GOOS=linux GOARCH=amd64 GOPROXY=https://goproxy.io,direct go build -tags ${GO_BUILD_TAGS} -mod=vendor -ldflags "-X 'main.defaultRunUser=${USER_NAME}' -X 'main.version=${VERSION}' -X 'main.gitCommitID=${GIT_LATEST_COMMIT_ID}'" -o ./bin/dms ./internal/apiserver/cmd/server/main.go
+# build_dms:
+# 	GOOS=linux GOARCH=amd64 GOPROXY=https://goproxy.io,direct go build -tags ${GO_BUILD_TAGS} -mod=vendor -ldflags "-X 'main.defaultRunUser=${USER_NAME}' -X 'main.version=${VERSION}' -X 'main.gitCommitID=${GIT_LATEST_COMMIT_ID}'" -o ./bin/dms ./internal/apiserver/cmd/server/main.go
 dms_unit_test_prepare:
 	./build/scripts/dms_run_unit_test_db_container.sh $(DMS_UNIT_TEST_MYSQL_DB_CONTAINER)
 dms_unit_test_clean:
@@ -36,20 +82,21 @@ validation_swag:
 open_swag_server:
 	./internal/apiserver/cmd/swag/swagger_${ARCH}_amd64 serve --no-open -F=swagger --port 36666 ./api/swagger.yaml
 upload_rpm:
-	curl -T $(RPM_BUILD_PATH) ftp://$(RELEASE_FTPD_HOST)/actiontech-$(PROJECT_NAME)/$(EDITION)/$(VERSION)/$(RPM_NAME) --ftp-create-dirs
+	curl -T $(shell pwd)/$(RPM_NAME) $(FTP_PATH) --ftp-create-dirs
+	curl -T $(shell pwd)/$(RPM_NAME).md5 $(FTP_PATH).md5 --ftp-create-dirs
 
-rpm: build_dms
-	$(DOCKER) run --rm -e VERBOSE=1 --volume=$(shell pwd):/source --volume=$(shell pwd)/build:/spec --volume=$(shell pwd):/out \
-	--env=PRE_BUILDDEP="mkdir /src && tar zcf  /src/$(PROJECT_NAME).tar.gz /source --transform 's|source|$(PROJECT_NAME)-$(VERSION)|'" \
-	--env=RPM_ARGS='-bb \
-	--define "user_name $(USER_NAME)" --define "group_name $(GROUP_NAME)" --define "project_name $(PROJECT_NAME)" --define "version $(VERSION)" --define "release $(RELEASE)"' \
-	$(DOCKER_IMAGE_RPM) dms.spec &&\
-	mv ./RPMS/x86_64/$(PROJECT_NAME)-$(VERSION)-${RELEASE}.el7.x86_64.rpm ./RPMS/x86_64/$(RPM_NAME)
+# rpm: build_dms
+# 	$(DOCKER) run --rm -e VERBOSE=1 --volume=$(shell pwd):/source --volume=$(shell pwd)/build:/spec --volume=$(shell pwd):/out \
+# 	--env=PRE_BUILDDEP="mkdir /src && tar zcf  /src/$(PROJECT_NAME).tar.gz /source --transform 's|source|$(PROJECT_NAME)-$(VERSION)|'" \
+# 	--env=RPM_ARGS='-bb \
+# 	--define "user_name $(USER_NAME)" --define "group_name $(GROUP_NAME)" --define "project_name $(PROJECT_NAME)" --define "version $(VERSION)" --define "release $(RELEASE)"' \
+# 	$(DOCKER_IMAGE_RPM) dms.spec &&\
+# 	mv ./RPMS/x86_64/$(PROJECT_NAME)-$(VERSION)-${RELEASE}.el7.x86_64.rpm ./RPMS/x86_64/$(RPM_NAME)
 	
-download_front:
-	wget ftp://$(RELEASE_FTPD_HOST)/actiontech-dms-ui/$(VERSION)/dms-ui-$(VERSION).tar.gz -O ./build/dms-ui-$(VERSION).tar.gz
-	mkdir -p ./build/static
-	tar zxf ./build/dms-ui-$(VERSION).tar.gz --strip-components 4 -C ./build/static/
+# download_front:
+# 	wget ftp://$(RELEASE_FTPD_HOST)/actiontech-dms-ui/$(VERSION)/dms-ui-$(VERSION).tar.gz -O ./build/dms-ui-$(VERSION).tar.gz
+# 	mkdir -p ./build/static
+# 	tar zxf ./build/dms-ui-$(VERSION).tar.gz --strip-components 4 -C ./build/static/
 
 golangci_lint:
 	golangci-lint run -c ./build/golangci-lint/.golangci.yml --timeout=10m
@@ -57,4 +104,19 @@ golangci_lint:
 golangci_lint_dev:
 	docker run --rm -v $(shell pwd):/src  golangci/golangci-lint:v1.49 bash -c "cd /src && make golangci_lint"
 dlv_install:
-	GOOS=linux GOARCH=amd64 GOPROXY=https://goproxy.io,direct go build -gcflags "all=-N -l" -tags ${RELEASE} -mod=vendor -ldflags "-X 'main.defaultRunUser=${USER_NAME}' -X 'main.version=${VERSION}' -X 'main.gitCommitID=${GIT_LATEST_COMMIT_ID}'" -o ./bin/dms ./internal/apiserver/cmd/server/main.go
+	GOOS=linux GOARCH=amd64 GOPROXY=https://goproxy.io,direct go build -gcflags "all=-N -l" $(GO_BUILD_FLAGS) ${LDFLAGS} -tags $(GO_BUILD_TAGS) -o ./bin/dms ./internal/apiserver/cmd/server/main.go
+
+install:
+	GOOS=$(GOOS) GOARCH=$(GOARCH) go build $(GO_BUILD_FLAGS) ${LDFLAGS} -tags $(GO_BUILD_TAGS) -o ./bin/dms ./internal/apiserver/cmd/server/main.go
+
+docker_install:
+	$(DOCKER) run -v $(shell pwd):/universe --rm $(GO_COMPILER_IMAGE) sh -c "cd /universe && make install $(MAKEFLAGS)"
+
+docker_rpm: docker_install
+	$(DOCKER) run -v $(shell pwd):/universe/dms --user root --rm -e VERBOSE=1 $(RPM_BUILD_IMAGE) sh -c "(mkdir -p /root/rpmbuild/SOURCES >/dev/null 2>&1);cd /root/rpmbuild/SOURCES; \
+	(tar zcf ${PROJECT_NAME}.tar.gz /universe --transform 's/universe/${PROJECT_NAME}-$(GIT_COMMIT)/' >/tmp/build.log 2>&1) && \
+	(rpmbuild --define 'group_name $(RPM_USER_GROUP_NAME)' --define 'user_name $(RPM_USER_NAME)' \
+	--define 'commit $(GIT_COMMIT)' --define 'os_version $(OS_VERSION)' --define 'project_name $(PROJECT_NAME)' \
+	--target $(RPMBUILD_TARGET)  -bb -vv --with qa /universe/dms/build/dms.spec >>/tmp/build.log 2>&1) && \
+	(cat /root/rpmbuild/RPMS/$(RPMBUILD_TARGET)/${PROJECT_NAME}-$(GIT_COMMIT)-$(OS_VERSION).$(RPMBUILD_TARGET).rpm) || (cat /tmp/build.log && exit 1)" > $(RPM_NAME) && \
+	md5sum $(RPM_NAME) > $(RPM_NAME).md5
