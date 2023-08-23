@@ -20,10 +20,10 @@ require (
 	github.com/go-ldap/ldap/v3 v3.4.5
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/labstack/echo-jwt/v4 v4.1.0
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/stretchr/testify v1.8.2
 	github.com/ungerik/go-dry v0.0.0-20210209114055-a3e162a9e62e
 	github.com/vektah/gqlparser/v2 v2.5.1
-	golang.org/x/oauth2 v0.9.0
 	gopkg.in/chanxuehong/wechat.v1 v1.0.0-20171118020122-aad7e298d1e7
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gorm.io/driver/mysql v1.4.7
@@ -56,7 +56,6 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0
-	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/larksuite/oapi-sdk-go/v3 v3.0.23
 	github.com/leodido/go-urn v1.2.4 // indirect
@@ -75,8 +74,6 @@ require (
 	golang.org/x/text v0.10.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
-	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 )
 
