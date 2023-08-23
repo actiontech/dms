@@ -7,6 +7,7 @@ import (
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	pkgParams "github.com/actiontech/dms/pkg/params"
+	"github.com/robfig/cron/v3"
 )
 
 type DatabaseSourceServiceRepo interface {
@@ -24,6 +25,8 @@ type DatabaseSourceServiceUsecase struct {
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	namespaceUsecase          *NamespaceUsecase
 	dbServiceUsecase          *DBServiceUsecase
+	cron                      *cron.Cron
+	lastSyncTime              time.Time
 }
 
 func NewDatabaseSourceServiceUsecase(log utilLog.Logger, repo DatabaseSourceServiceRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, namespaceUsecase *NamespaceUsecase, dbServiceUsecase *DBServiceUsecase) *DatabaseSourceServiceUsecase {

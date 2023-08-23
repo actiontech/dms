@@ -61,6 +61,12 @@ func run(logger utilLog.Logger) error {
 		return nil
 	})
 
+	cronManager := service.NewCronManager(server)
+	g.Go(func() error {
+		cronManager.Start()
+		return nil
+	})
+
 	// handle exit signal
 	g.Go(func() error {
 
@@ -74,6 +80,8 @@ func run(logger utilLog.Logger) error {
 			if err := server.Shutdown(); nil != err {
 				return fmt.Errorf("failed to shutdown: %v", err)
 			}
+
+			cronManager.Stop()
 			return nil
 		}
 	})
