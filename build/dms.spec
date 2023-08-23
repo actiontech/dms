@@ -1,6 +1,6 @@
-Name: %{project_name}
-Version: 99.99.99
-Release: %{release}%{?dist}
+Name: dms
+Version: %{commit}
+Release: %{os_version}
 Summary: Actiontech %{name}
 Source0: %{name}.tar.gz
 License: Enterprise
@@ -16,25 +16,18 @@ Acitontech %{name}
 %setup -q
 
 %build
-
-
-# e.g: %{release} = qa.el7, RELEASE need qa/alpha
 # build is done in outside, please see Makefile.
-
 
 %install
 rm -rf $RPM_BUILD_ROOT/usr/local/%{name}
 mkdir -p $RPM_BUILD_ROOT/usr/local/%{name}
 mkdir -p $RPM_BUILD_ROOT/usr/local/%{name}/service-file-template
-mkdir -p $RPM_BUILD_ROOT/usr/local/%{name}/static/logo
-cp %{_builddir}/%{buildsubdir}/bin/dms $RPM_BUILD_ROOT/usr/local/%{name}/dms
-cp %{_builddir}/%{buildsubdir}/build/service-file-template/* $RPM_BUILD_ROOT/usr/local/%{name}/service-file-template/
-cp %{_builddir}/%{buildsubdir}/build/logo/* $RPM_BUILD_ROOT/usr/local/%{name}/static/logo/
-cp %{_builddir}/%{buildsubdir}/config.yaml $RPM_BUILD_ROOT/usr/local/%{name}/config.yaml
-cp %{_builddir}/%{buildsubdir}/database_driver_option.yaml $RPM_BUILD_ROOT/usr/local/%{name}/database_driver_option.yaml
-cp -r %{_builddir}/%{buildsubdir}/build/static/* $RPM_BUILD_ROOT/usr/local/%{name}/static/
-cp %{_builddir}/%{buildsubdir}/build/scripts/init_start.sh $RPM_BUILD_ROOT/usr/local/%{name}/init_start.sh
-
+mkdir -p $RPM_BUILD_ROOT/usr/local/%{name}/static
+cp %{_builddir}/%{buildsubdir}/%{name}/build/service-file-template/* $RPM_BUILD_ROOT/usr/local/%{name}/service-file-template/
+cp %{_builddir}/%{buildsubdir}/%{name}/config.yaml $RPM_BUILD_ROOT/usr/local/%{name}/config.yaml
+cp -r %{_builddir}/%{buildsubdir}/%{name}/build/static/* $RPM_BUILD_ROOT/usr/local/%{name}/static/
+cp %{_builddir}/%{buildsubdir}/%{name}/build/scripts/init_start.sh $RPM_BUILD_ROOT/usr/local/%{name}/init_start.sh
+cp %{_builddir}/%{buildsubdir}/%{name}/bin/dms $RPM_BUILD_ROOT/usr/local/%{name}/dms
 
 %clean
 rm -rf %{_builddir}/%{buildsubdir}
@@ -201,6 +194,5 @@ fi
 /usr/local/%{name}/service-file-template/*
 /usr/local/%{name}/dms
 /usr/local/%{name}/config.yaml
-/usr/local/%{name}/database_driver_option.yaml
 /usr/local/%{name}/init_start.sh
 /usr/local/%{name}/static/* 
