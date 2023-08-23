@@ -30,6 +30,24 @@ func (d *DatabaseSourceServiceUsecase) ListDatabaseSourceServices(ctx context.Co
 	return services, nil
 }
 
+func (d *DatabaseSourceServiceUsecase) GetDatabaseSourceService(ctx context.Context, databaseSourceServiceId, namespaceId, currentUserId string) (*DatabaseSourceServiceParams, error) {
+	// 检查空间是否归档/删除
+	if namespaceId != "" {
+		if err := d.namespaceUsecase.isNamespaceActive(ctx, namespaceId); err != nil {
+			return nil, fmt.Errorf("get database_source_service error: %v", err)
+		}
+	} else if currentUserId != pkgConst.UIDOfUserSys {
+		return nil, fmt.Errorf("get database_source_service error: namespace is empty")
+	}
+
+	service, err := d.repo.GetDatabaseSourceServiceById(ctx, databaseSourceServiceId)
+	if err != nil {
+		return nil, fmt.Errorf("get database_source_service failed: %w", err)
+	}
+
+	return service, nil
+}
+
 func (d *DatabaseSourceServiceUsecase) AddDatabaseSourceService(ctx context.Context, params *DatabaseSourceServiceParams, currentUserId string) (string, error) {
 	// 检查空间是否归档/删除
 	if err := d.namespaceUsecase.isNamespaceActive(ctx, params.NamespaceUID); err != nil {
