@@ -61,9 +61,8 @@ func run(logger utilLog.Logger) error {
 		return nil
 	})
 
-	cronManager := service.NewCronManager(server)
 	g.Go(func() error {
-		cronManager.Start()
+		service.StartAllCronJob(server, errCtx)
 		return nil
 	})
 
@@ -77,11 +76,13 @@ func run(logger utilLog.Logger) error {
 			return fmt.Errorf("unexpected shutdown because: %v", errCtx.Err())
 		case <-exit:
 			log_.Info("shutdown because of signal")
+
+			service.StopAllCronJob()
+
 			if err := server.Shutdown(); nil != err {
 				return fmt.Errorf("failed to shutdown: %v", err)
 			}
 
-			cronManager.Stop()
 			return nil
 		}
 	})

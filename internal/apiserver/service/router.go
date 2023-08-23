@@ -154,7 +154,7 @@ func (s *APIServer) installMiddleware() error {
 			return !strings.HasPrefix(c.Request().RequestURI, dmsV1.GroupV1)
 		},
 		Handler: func(context echo.Context, req []byte, reply []byte) {
-			_ = s.logger.Log(commonLog.LevelInfo, "middleware.uri", context.Request().RequestURI, "req", string(req), "reply", string(reply))
+			commonLog.NewHelper(s.logger).Log(commonLog.LevelInfo, "middleware.uri", context.Request().RequestURI, "req", string(req), "reply", string(reply))
 		},
 	}))
 
