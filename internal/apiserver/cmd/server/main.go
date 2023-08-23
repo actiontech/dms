@@ -61,6 +61,11 @@ func run(logger utilLog.Logger) error {
 		return nil
 	})
 
+	g.Go(func() error {
+		service.StartAllCronJob(server, errCtx)
+		return nil
+	})
+
 	// handle exit signal
 	g.Go(func() error {
 
@@ -71,9 +76,13 @@ func run(logger utilLog.Logger) error {
 			return fmt.Errorf("unexpected shutdown because: %v", errCtx.Err())
 		case <-exit:
 			log_.Info("shutdown because of signal")
+
+			service.StopAllCronJob()
+
 			if err := server.Shutdown(); nil != err {
 				return fmt.Errorf("failed to shutdown: %v", err)
 			}
+
 			return nil
 		}
 	})

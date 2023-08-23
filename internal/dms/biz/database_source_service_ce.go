@@ -38,3 +38,9 @@ func (d *DatabaseSourceServiceUsecase) ListDatabaseSourceServiceTips(ctx context
 func (d *DatabaseSourceServiceUsecase) SyncDatabaseSourceService(ctx context.Context, databaseSourceServiceId, currentUserId string) error {
 	return errNotDatabaseSourceService
 }
+
+func (d *DatabaseSourceServiceUsecase) StartSyncDatabaseSourceService() {
+}
+
+func (d *DatabaseSourceServiceUsecase) StopSyncDatabaseSourceService() {
+}
