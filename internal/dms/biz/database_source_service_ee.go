@@ -9,6 +9,7 @@ import (
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgRand "github.com/actiontech/dms/pkg/rand"
+	"github.com/robfig/cron/v3"
 )
 
 func (d *DatabaseSourceServiceUsecase) ListDatabaseSourceServices(ctx context.Context, conditions []pkgConst.FilterCondition, namespaceId string, currentUserId string) ([]*DatabaseSourceServiceParams, error) {
@@ -67,7 +68,12 @@ func (d *DatabaseSourceServiceUsecase) AddDatabaseSourceService(ctx context.Cont
 
 	params.UID = uid
 
-	return uid, d.repo.SaveDatabaseSourceService(ctx, params)
+	if err = d.repo.SaveDatabaseSourceService(ctx, params); err != nil {
+		return "", err
+	}
+
+	d.RestartSyncDatabaseSourceService()
+	return uid, nil
 }
 
 func (d *DatabaseSourceServiceUsecase) UpdateDatabaseSourceService(ctx context.Context, databaseSourceServiceId string, params *DatabaseSourceServiceParams, currentUserId string) error {
@@ -96,7 +102,12 @@ func (d *DatabaseSourceServiceUsecase) UpdateDatabaseSourceService(ctx context.C
 	params.LastSyncErr = databaseSourceService.LastSyncErr
 	params.LastSyncSuccessTime = databaseSourceService.LastSyncSuccessTime
 
-	return d.repo.UpdateDatabaseSourceService(ctx, params)
+	if err = d.repo.UpdateDatabaseSourceService(ctx, params); err != nil {
+		return err
+	}
+
+	d.RestartSyncDatabaseSourceService()
+	return nil
 }
 
 func (d *DatabaseSourceServiceUsecase) DeleteDatabaseSourceService(ctx context.Context, databaseSourceServiceId, currentUserId string) error {
@@ -116,7 +127,12 @@ func (d *DatabaseSourceServiceUsecase) DeleteDatabaseSourceService(ctx context.C
 	}
 
 	//todo: currently only database_source_services data is deleted
-	return d.repo.DeleteDatabaseSourceService(ctx, databaseSourceServiceId)
+	if err = d.repo.DeleteDatabaseSourceService(ctx, databaseSourceServiceId); err != nil {
+		return err
+	}
+
+	d.RestartSyncDatabaseSourceService()
+	return nil
 }
 
 func (d *DatabaseSourceServiceUsecase) ListDatabaseSourceServiceTips(ctx context.Context) ([]ListDatabaseSourceServiceTipsParams, error) {
@@ -172,4 +188,47 @@ func (d *DatabaseSourceServiceUsecase) SyncDatabaseSourceService(ctx context.Con
 	}
 
 	return nil
+}
+
+func (d *DatabaseSourceServiceUsecase) RestartSyncDatabaseSourceService() {
+	d.StopSyncDatabaseSourceService()
+	d.StartSyncDatabaseSourceService()
+}
+
+func (d *DatabaseSourceServiceUsecase) StartSyncDatabaseSourceService() {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	services, err := d.repo.ListDatabaseSourceServices(ctx, nil)
+	if err != nil {
+		d.log.Errorf("start timed sync err: %v", err)
+		return
+	}
+
+	if d.cron == nil {
+		d.cron = cron.New()
+	}
+
+	for _, service := range services {
+		_, err := d.cron.AddFunc(service.CronExpress, func() {
+			ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+
+			if err = d.SyncDatabaseSourceService(ctx, service.UID, pkgConst.UIDOfUserAdmin); err != nil {
+				d.log.Errorf("sync database_source_service err: %d", err)
+			}
+		})
+
+		d.log.Infof("add database_source_service cron: name: %s, err: %v", service.Name, err)
+	}
+
+	d.cron.Start()
+}
+
+func (d *DatabaseSourceServiceUsecase) StopSyncDatabaseSourceService() {
+	if d.cron != nil {
+		d.log.Infof("stop sync database source cron")
+		d.cron.Stop()
+		d.cron = cron.New()
+	}
 }

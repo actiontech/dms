@@ -1,3 +1,5 @@
+//go:build enterprise
+
 package biz
 
 import (
@@ -114,10 +116,10 @@ func (d dmpManager) SyncDatabaseSource(ctx context.Context, params *DatabaseSour
 
 	dbServiceSourceAddrMap := make(map[string]*DBService)
 	for _, dbService := range dbServices {
-		dbServiceSourceAddrMap[fmt.Sprintf("%s:%s", dbService.Host, dbService.Port)] = dbService
+		dbServiceSourceAddrMap[dbService.Name] = dbService
 	}
 
-	updateDBServiceSourceMap := make(map[string]string)
+	remainDBServiceSourceMap := make(map[string]string)
 	for _, item := range resp.Data {
 		password, err := DecryptPassword(item.DataSrcPassword)
 		if err != nil {
@@ -141,11 +143,11 @@ func (d dmpManager) SyncDatabaseSource(ctx context.Context, params *DatabaseSour
 			continue
 		}
 
-		sourceAddr := fmt.Sprintf("%s:%s", item.DataSrcSip, item.DataSrcPort)
+		sourceId := item.DataSrcID
 
 		desc := fmt.Sprintf("sync dmp database source: %v", item.Tags)
 		dbServiceParams := &BizDBServiceArgs{
-			Name:          fmt.Sprintf("%s(%s)", params.Name, item.DataSrcID),
+			Name:          item.DataSrcID,
 			Desc:          &desc,
 			DBType:        params.DbType,
 			Host:          item.DataSrcSip,
@@ -171,12 +173,12 @@ func (d dmpManager) SyncDatabaseSource(ctx context.Context, params *DatabaseSour
 			}
 		}
 
-		dbService, ok := dbServiceSourceAddrMap[sourceAddr]
+		dbService, ok := dbServiceSourceAddrMap[sourceId]
 		if !ok {
 			// create
 			_, err = serviceUsecase.dbServiceUsecase.CreateDBService(ctx, dbServiceParams, currentUserId)
 		} else {
-			updateDBServiceSourceMap[sourceAddr] = dbService.UID
+			remainDBServiceSourceMap[sourceId] = dbService.UID
 			// update
 			if dbService.Host != item.DataSrcSip || dbService.Port != item.DataSrcPort || dbService.AdminUser != item.DataSrcUser || dbService.AdminPassword != password {
 				err = serviceUsecase.dbServiceUsecase.UpdateDBService(ctx, dbService.UID, dbServiceParams, currentUserId)
@@ -188,8 +190,8 @@ func (d dmpManager) SyncDatabaseSource(ctx context.Context, params *DatabaseSour
 		}
 	}
 
-	for addr, dbService := range dbServiceSourceAddrMap {
-		if _, ok := updateDBServiceSourceMap[addr]; !ok {
+	for sourceId, dbService := range dbServiceSourceAddrMap {
+		if _, ok := remainDBServiceSourceMap[sourceId]; !ok {
 			// delete db service
 			if err = serviceUsecase.dbServiceUsecase.DelDBService(ctx, dbService.UID, currentUserId); err != nil {
 				return err
