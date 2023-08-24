@@ -51,29 +51,32 @@ func (c *databaseSourceServiceCronManager) start(server *APIServer, groupCtx con
 	c.apiServer = server
 
 	go func() {
-		ticker := time.NewTicker(20 * time.Second)
-		defer ticker.Stop()
-
 		logger := commonLog.NewHelper(c.apiServer.logger, commonLog.WithMessageKey(CronManager))
 		logger.Info("cron start")
 
-		for {
-			select {
-			case <-ticker.C:
-				logger.Info("cron running")
-
-				c.apiServer.DMSController.DMS.DatabaseSourceServiceUsecase.StartSyncDatabaseSourceService()
-			case <-groupCtx.Done():
-				logger.Infof("cron terminal, err: %s", groupCtx.Err())
-
-				c.apiServer.DMSController.DMS.DatabaseSourceServiceUsecase.StopSyncDatabaseSourceService()
-				return
-			case <-c.ctx.Done():
-				logger.Infof("cron terminal, err: %s", groupCtx.Err())
-
-				c.apiServer.DMSController.DMS.DatabaseSourceServiceUsecase.StopSyncDatabaseSourceService()
-				return
+		ticker := time.NewTicker(5 * time.Second)
+		for range ticker.C {
+			// loop, wait apiServer initial
+			if c.apiServer.DMSController != nil {
+				break
 			}
+		}
+
+		ticker.Stop()
+
+		c.apiServer.DMSController.DMS.DatabaseSourceServiceUsecase.StartSyncDatabaseSourceService()
+
+		select {
+		case <-groupCtx.Done():
+			logger.Infof("cron terminal, err: %s", groupCtx.Err())
+
+			c.apiServer.DMSController.DMS.DatabaseSourceServiceUsecase.StopSyncDatabaseSourceService()
+			return
+		case <-c.ctx.Done():
+			logger.Infof("cron terminal, err: %s", groupCtx.Err())
+
+			c.apiServer.DMSController.DMS.DatabaseSourceServiceUsecase.StopSyncDatabaseSourceService()
+			return
 		}
 	}()
 }
