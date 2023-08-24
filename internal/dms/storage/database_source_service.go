@@ -76,7 +76,7 @@ func (d *DatabaseSourceServiceRepo) UpdateDatabaseSourceService(ctx context.Cont
 
 func (d *DatabaseSourceServiceRepo) UpdateSyncDatabaseSourceService(ctx context.Context, databaseSourceServiceUid string, fields map[string]interface{}) error {
 	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
-		if err := tx.WithContext(ctx).Model(&model.DatabaseSourceService{}).Where("uid = ?", databaseSourceServiceUid).Updates(fields).Error; err != nil {
+		if err := tx.WithContext(ctx).Model(&model.DatabaseSourceService{}).Where("uid = ?", databaseSourceServiceUid).Omit("updated_at").Updates(fields).Error; err != nil {
 			return fmt.Errorf("failed to update database_source_service: %v", err)
 		}
 

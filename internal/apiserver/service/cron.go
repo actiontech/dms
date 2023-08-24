@@ -60,8 +60,6 @@ func (c *databaseSourceServiceCronManager) start(server *APIServer, groupCtx con
 		for {
 			select {
 			case <-ticker.C:
-				logger.Info("cron running")
-
 				c.apiServer.DMSController.DMS.DatabaseSourceServiceUsecase.StartSyncDatabaseSourceService()
 			case <-groupCtx.Done():
 				logger.Infof("cron terminal, err: %s", groupCtx.Err())

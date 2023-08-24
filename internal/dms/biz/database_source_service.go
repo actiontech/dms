@@ -52,6 +52,7 @@ type DatabaseSourceServiceParams struct {
 	LastSyncSuccessTime *time.Time      `json:"last_sync_success_time"`
 	AdditionalParams    pkgParams.Params
 	SQLEConfig          *SQLEConfig
+	UpdatedAt           time.Time
 }
 
 type ListDatabaseSourceServiceTipsParams struct {

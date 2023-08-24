@@ -130,6 +130,7 @@ func convertModelDatabaseSourceService(m *model.DatabaseSourceService) (*biz.Dat
 		CronExpress:  m.CronExpress,
 		NamespaceUID: m.NamespaceUID,
 		LastSyncErr:  m.LastSyncErr,
+		UpdatedAt:    m.UpdatedAt,
 	}
 
 	if m.LastSyncSuccessTime != nil {
