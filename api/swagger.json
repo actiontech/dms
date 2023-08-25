@@ -505,8 +505,9 @@
         "parameters": [
           {
             "type": "string",
+            "x-go-name": "NamespaceId",
             "description": "filter by db service namespace uid\nonly the sys user can use an empty namespace value, which means lookup from all namespaces",
-            "name": "NamespaceId",
+            "name": "namespace_id",
             "in": "query"
           }
         ],
