@@ -2561,11 +2561,6 @@
               "description": "Session token",
               "type": "string",
               "x-go-name": "Token"
-            },
-            "user_uid": {
-              "description": "User UID",
-              "type": "string",
-              "x-go-name": "UserUid"
             }
           },
           "x-go-name": "Payload"
@@ -3118,7 +3113,7 @@
           "x-go-name": "Msg"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
+      "x-go-package": "github.com/actiontech/dms/api/base/v1"
     },
     "GetDatabaseSourceService": {
       "type": "object",
