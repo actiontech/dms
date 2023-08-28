@@ -23,8 +23,6 @@ type AddSessionReq struct {
 type AddSessionReply struct {
 	// Add user reply
 	Payload struct {
-		// User UID
-		UserUid string `json:"user_uid"`
 		// Session token
 		Token string `json:"token"`
 	} `json:"payload"`
