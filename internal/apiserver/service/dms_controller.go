@@ -898,6 +898,131 @@ func (a *DMSController) DelMember(c echo.Context) error {
 	return NewOkResp(c)
 }
 
+// swagger:route GET /v1/dms/member_groups dms ListMemberGroups
+//
+// List member group, for front page.
+//
+//	responses:
+//	  200: body:ListMemberGroupsReply
+//	  default: body:GenericResp
+func (d *DMSController) ListMemberGroups(c echo.Context) error {
+	req := new(aV1.ListMemberGroupsReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	reply, err := d.DMS.ListMemberGroups(c.Request().Context(), req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route GET /v1/dms/member_groups/{member_group_uid} dms GetMemberGroup
+//
+// Get member group, for front page.
+//
+//	responses:
+//	  200: body:GetMemberGroupReply
+//	  default: body:GenericResp
+func (d *DMSController) GetMemberGroup(c echo.Context) error {
+	req := new(aV1.GetMemberGroupReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	reply, err := d.DMS.GetMemberGroup(c.Request().Context(), req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route POST /v1/dms/member_groups dms AddMemberGroup
+//
+// Add member group.
+//
+//	responses:
+//	  200: body:AddMemberGroupReply
+//	  default: body:GenericResp
+func (d *DMSController) AddMemberGroup(c echo.Context) error {
+	req := new(aV1.AddMemberGroupReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, err := d.DMS.AddMemberGroup(c.Request().Context(), currentUserUid, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route PUT /v1/dms/member_groups/{member_group_uid} dms UpdateMemberGroup
+//
+// update member group, for front page.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) UpdateMemberGroup(c echo.Context) error {
+	req := new(aV1.UpdateMemberGroupReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	err = d.DMS.UpdateMemberGroup(c.Request().Context(), currentUserUid, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkResp(c)
+}
+
+// swagger:route DELETE  /v1/dms/member_groups/{member_group_uid} dms DeleteMemberGroup
+//
+// delete member group, for front page.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) DeleteMemberGroup(c echo.Context) error {
+	req := new(aV1.DeleteMemberGroupReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	err = d.DMS.DeleteMemberGroup(c.Request().Context(), currentUserUid, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkResp(c)
+}
+
 // swagger:route GET /v1/dms/op_permissions dms ListOpPermissions
 //
 // List op permission.
