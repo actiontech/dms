@@ -159,10 +159,6 @@ definitions:
                         description: Session token
                         type: string
                         x-go-name: Token
-                    user_uid:
-                        description: User UID
-                        type: string
-                        x-go-name: UserUid
                 type: object
                 x-go-name: Payload
         type: object
@@ -592,7 +588,7 @@ definitions:
                 type: string
                 x-go-name: Msg
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/base/v1
+        x-go-package: github.com/actiontech/dms/api/base/v1
     GetDatabaseSourceService:
         properties:
             cron_express:
