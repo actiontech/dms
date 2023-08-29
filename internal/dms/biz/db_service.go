@@ -14,6 +14,7 @@ import (
 	pkgPeriods "github.com/actiontech/dms/pkg/periods"
 	pkgRand "github.com/actiontech/dms/pkg/rand"
 
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	"github.com/actiontech/dms/pkg/dms-common/pkg/aes"
 )
 
@@ -349,22 +350,13 @@ func (d *DBServiceUsecase) UpdateDBService(ctx context.Context, dbServiceUid str
 	return nil
 }
 
-type IsConnectableParams struct {
-	DBType           pkgConst.DBType
-	Host             string
-	Port             string
-	User             string
-	Password         string
-	AdditionalParams pkgParams.Params
-}
-
 type IsConnectableReply struct {
 	IsConnectable       bool   `json:"is_connectable"`
 	Component           string `json:"component"`
 	ConnectErrorMessage string `json:"connect_error_message"`
 }
 
-func (d *DBServiceUsecase) IsConnectable(ctx context.Context, params IsConnectableParams) ([]*IsConnectableReply, error) {
+func (d *DBServiceUsecase) IsConnectable(ctx context.Context, params dmsCommonV1.CheckDbConnectable) ([]*IsConnectableReply, error) {
 	dmsProxyTargets, err := d.dmsProxyTargetRepo.ListProxyTargets(ctx)
 	if err != nil {
 		return nil, err

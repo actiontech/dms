@@ -85,30 +85,8 @@ func (d *DMSService) CheckDBServiceIsConnectable(ctx context.Context, req *dmsV1
 	defer func() {
 		d.log.Infof("CheckDBServiceIsConnectable.req=%v; error=%v", req, err)
 	}()
-
-	dbType, err := pkgConst.ParseDBType(req.DBService.DBType)
-	if err != nil {
-		return nil, err
-	}
-
-	additionalParams := params.AdditionalParameter[req.DBService.DBType]
-	for _, additionalParam := range req.DBService.AdditionalParams {
-		err = additionalParams.SetParamValue(additionalParam.Name, additionalParam.Value)
-		if err != nil {
-			return nil, fmt.Errorf("set param value failed,invalid db type: %s", req.DBService.DBType)
-		}
-	}
-
-	IsConnectableParams := biz.IsConnectableParams{
-		DBType:           dbType,
-		Host:             req.DBService.Host,
-		Port:             req.DBService.Port,
-		User:             req.DBService.User,
-		Password:         req.DBService.Password,
-		AdditionalParams: additionalParams,
-	}
-
-	results, err := d.DBServiceUsecase.IsConnectable(ctx, IsConnectableParams)
+	
+	results, err := d.DBServiceUsecase.IsConnectable(ctx, req.DBService)
 
 	if err != nil {
 		d.log.Errorf("IsConnectable err: %v", err)
