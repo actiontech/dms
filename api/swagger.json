@@ -979,6 +979,224 @@
         }
       }
     },
+    "/v1/dms/member_groups": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List member group, for front page.",
+        "operationId": "ListMemberGroups",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of member to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of members to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "name"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "name MemberGroupOrderByName",
+            "x-go-name": "OrderBy",
+            "description": "Multiple of [\"name\"], default is [\"name\"]\nname MemberGroupOrderByName",
+            "name": "order_by",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByName",
+            "description": "filter the user group name",
+            "name": "filter_by_name",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "NamespaceUid",
+            "description": "the member namespace uid",
+            "name": "namespace_uid",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListMemberGroupsReply",
+            "schema": {
+              "$ref": "#/definitions/ListMemberGroupsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Add member group.",
+        "operationId": "AddMemberGroup",
+        "parameters": [
+          {
+            "x-go-name": "MemberGroup",
+            "description": "Add new member group",
+            "name": "member_group",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/MemberGroup"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddMemberGroupReply",
+            "schema": {
+              "$ref": "#/definitions/AddMemberGroupReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/member_groups/{member_group_uid}": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get member group, for front page.",
+        "operationId": "GetMemberGroup",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "MemberGroupUid",
+            "description": "Member group id",
+            "name": "member_group_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "NamespaceId",
+            "description": "filter by db service namespace uid\nonly the sys user can use an empty namespace value, which means lookup from all namespaces",
+            "name": "namespace_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GetMemberGroupReply",
+            "schema": {
+              "$ref": "#/definitions/GetMemberGroupReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "update member group, for front page.",
+        "operationId": "UpdateMemberGroup",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "MemberGroupUid",
+            "description": "Member group id",
+            "name": "member_group_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "MemberGroup",
+            "description": "Update a member group",
+            "name": "member_group",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateMemberGroup"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "delete member group, for front page.",
+        "operationId": "DeleteMemberGroup",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "NamespaceId",
+            "description": "filter by db service namespace uid\nonly the sys user can use an empty namespace value, which means lookup from all namespaces",
+            "name": "namespace_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "MemberGroupUid",
+            "description": "member group id",
+            "name": "member_group_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/members": {
       "get": {
         "tags": [
@@ -2431,6 +2649,35 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "AddMemberGroupReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "msg": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Msg"
+        },
+        "payload": {
+          "description": "Add member group reply",
+          "type": "object",
+          "properties": {
+            "id": {
+              "description": "member group ID",
+              "type": "string",
+              "x-go-name": "Id"
+            }
+          },
+          "x-go-name": "Payload"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "AddMemberReply": {
       "type": "object",
       "properties": {
@@ -3118,7 +3365,7 @@
           "x-go-name": "Msg"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
+      "x-go-package": "github.com/actiontech/dms/api/base/v1"
     },
     "GetDatabaseSourceService": {
       "type": "object",
@@ -3260,6 +3507,69 @@
         }
       },
       "x-go-name": "GetLDAPConfigurationReply",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetMemberGroup": {
+      "type": "object",
+      "properties": {
+        "is_namespace_admin": {
+          "description": "Whether the member has namespace admin permission",
+          "type": "boolean",
+          "x-go-name": "IsNamespaceAdmin"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "role_with_op_ranges": {
+          "description": "member op permission",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListMemberRoleWithOpRange"
+          },
+          "x-go-name": "RoleWithOpRanges"
+        },
+        "uid": {
+          "description": "member group uid",
+          "type": "string",
+          "x-go-name": "Uid"
+        },
+        "users": {
+          "description": "member user",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "Users"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetMemberGroupReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "msg": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Msg"
+        },
+        "payload": {
+          "description": "List member reply",
+          "type": "object",
+          "properties": {
+            "member_group": {
+              "$ref": "#/definitions/GetMemberGroup"
+            }
+          },
+          "x-go-name": "Payload"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetOauth2ConfigurationResData": {
@@ -4093,6 +4403,78 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "ListMemberGroup": {
+      "type": "object",
+      "properties": {
+        "is_namespace_admin": {
+          "description": "Whether the member has namespace admin permission",
+          "type": "boolean",
+          "x-go-name": "IsNamespaceAdmin"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "role_with_op_ranges": {
+          "description": "member op permission",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListMemberRoleWithOpRange"
+          },
+          "x-go-name": "RoleWithOpRanges"
+        },
+        "uid": {
+          "description": "member uid",
+          "type": "string",
+          "x-go-name": "Uid"
+        },
+        "users": {
+          "description": "member user",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "Users"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListMemberGroupsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "msg": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Msg"
+        },
+        "payload": {
+          "description": "List member reply",
+          "type": "object",
+          "properties": {
+            "member_groups": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ListMemberGroup"
+              },
+              "x-go-name": "MemberGroups"
+            },
+            "total": {
+              "type": "integer",
+              "format": "int64",
+              "x-go-name": "Total"
+            }
+          },
+          "x-go-name": "Payload"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "ListMemberReply": {
       "type": "object",
       "properties": {
@@ -4663,6 +5045,48 @@
           "description": "member user uid",
           "type": "string",
           "x-go-name": "UserUid"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "MemberGroup": {
+      "type": "object",
+      "required": [
+        "name",
+        "user_uids",
+        "namespace_uid"
+      ],
+      "properties": {
+        "is_namespace_admin": {
+          "description": "Whether the member has namespace admin permission",
+          "type": "boolean",
+          "x-go-name": "IsNamespaceAdmin"
+        },
+        "name": {
+          "description": "member group name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "namespace_uid": {
+          "description": "namespace uid",
+          "type": "string",
+          "x-go-name": "NamespaceUid"
+        },
+        "role_with_op_ranges": {
+          "description": "member role with op ranges",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MemberRoleWithOpRange"
+          },
+          "x-go-name": "RoleWithOpRanges"
+        },
+        "user_uids": {
+          "description": "member user uid",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "UserUids"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -5273,7 +5697,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateDBService": {
       "description": "update db service",
@@ -5411,6 +5835,42 @@
             "$ref": "#/definitions/MemberRoleWithOpRange"
           },
           "x-go-name": "RoleWithOpRanges"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateMemberGroup": {
+      "type": "object",
+      "required": [
+        "user_uids",
+        "namespace_uid"
+      ],
+      "properties": {
+        "is_namespace_admin": {
+          "description": "Whether the member has namespace admin permission",
+          "type": "boolean",
+          "x-go-name": "IsNamespaceAdmin"
+        },
+        "namespace_uid": {
+          "description": "namespace uid",
+          "type": "string",
+          "x-go-name": "NamespaceUid"
+        },
+        "role_with_op_ranges": {
+          "description": "member role with op ranges",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MemberRoleWithOpRange"
+          },
+          "x-go-name": "RoleWithOpRanges"
+        },
+        "user_uids": {
+          "description": "member user uid",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "UserUids"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"

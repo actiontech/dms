@@ -20,6 +20,7 @@ type DMSService struct {
 	RoleUsecase                  *biz.RoleUsecase
 	OpPermissionUsecase          *biz.OpPermissionUsecase
 	MemberUsecase                *biz.MemberUsecase
+	MemberGroupUsecase           *biz.MemberGroupUsecase
 	OpPermissionVerifyUsecase    *biz.OpPermissionVerifyUsecase
 	NamespaceUsecase             *biz.NamespaceUsecase
 	DmsProxyUsecase              *biz.DmsProxyUsecase
@@ -78,6 +79,8 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.Options) (*DMSServic
 	dmsConfigRepo := storage.NewDMSConfigRepo(logger, st)
 	dmsConfigUsecase := biz.NewDMSConfigUseCase(logger, dmsConfigRepo)
 	memberUsecase = *biz.NewMemberUsecase(logger, tx, memberRepo, userUsecase, roleUsecase, dbServiceUseCase, opPermissionVerifyUsecase, namespaceUsecase)
+	memberGroupRepo := storage.NewMemberGroupRepo(logger, st)
+	memberGroupUsecase := biz.NewMemberGroupUsecase(logger, tx, memberGroupRepo, userUsecase, roleUsecase, dbServiceUseCase, opPermissionVerifyUsecase, namespaceUsecase, &memberUsecase)
 	dmsProxyUsecase, err := biz.NewDmsProxyUsecase(logger, dmsProxyTargetRepo, opts.APIServiceOpts.HTTP.Port)
 	oauth2ConfigurationRepo := storage.NewOauth2ConfigurationRepo(logger, st)
 	oauth2ConfigurationUsecase := biz.NewOauth2ConfigurationUsecase(logger, tx, oauth2ConfigurationRepo, userUsecase)
@@ -103,6 +106,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.Options) (*DMSServic
 		RoleUsecase:                  roleUsecase,
 		OpPermissionUsecase:          opPermissionUsecase,
 		MemberUsecase:                &memberUsecase,
+		MemberGroupUsecase:           memberGroupUsecase,
 		OpPermissionVerifyUsecase:    opPermissionVerifyUsecase,
 		NamespaceUsecase:             namespaceUsecase,
 		DmsProxyUsecase:              dmsProxyUsecase,
