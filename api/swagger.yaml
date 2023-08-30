@@ -614,7 +614,7 @@ definitions:
                 type: string
                 x-go-name: Msg
         type: object
-        x-go-package: github.com/actiontech/dms/api/base/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/base/v1
     GetDatabaseSourceService:
         properties:
             cron_express:
@@ -3626,9 +3626,7 @@ paths:
         delete:
             operationId: DeleteMemberGroup
             parameters:
-                - description: |-
-                    filter by db service namespace uid
-                    only the sys user can use an empty namespace value, which means lookup from all namespaces
+                - description: filter by db service namespace uid
                   in: query
                   name: namespace_id
                   type: string
