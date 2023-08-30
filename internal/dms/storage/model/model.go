@@ -152,7 +152,7 @@ type MemberRoleOpRange struct {
 }
 
 func (mg *MemberRoleOpRange) AfterSave(tx *gorm.DB) error {
-	return tx.Debug().Delete(&MemberRoleOpRange{}, "member_uid IS NULL").Error
+	return tx.Delete(&MemberRoleOpRange{}, "member_uid IS NULL").Error
 }
 
 type MemberGroup struct {
@@ -171,7 +171,7 @@ type MemberGroupRoleOpRange struct {
 }
 
 func (mg *MemberGroupRoleOpRange) AfterSave(tx *gorm.DB) error {
-	return tx.Debug().Delete(&MemberGroupRoleOpRange{}, "member_group_uid IS NULL").Error
+	return tx.Delete(&MemberGroupRoleOpRange{}, "member_group_uid IS NULL").Error
 }
 
 type Namespace struct {
