@@ -17,6 +17,10 @@ type LDAPConfigurationField string
 
 type MemberField string
 
+type MemberGroupField string
+
+type MemberGroupRoleOpRangeField string
+
 type MemberRoleOpRangeField string
 
 type ModelField string
@@ -124,6 +128,21 @@ const (
 )
 
 const (
+	MemberGroupFieldUID              MemberGroupField = "uid"
+	MemberGroupFieldName             MemberGroupField = "name"
+	MemberGroupFieldNamespaceUID     MemberGroupField = "namespace_uid"
+	MemberGroupFieldUsers            MemberGroupField = "users"
+	MemberGroupFieldRoleWithOpRanges MemberGroupField = "rolewithopranges"
+)
+
+const (
+	MemberGroupRoleOpRangeFieldMemberGroupUID MemberGroupRoleOpRangeField = "member_group_uid"
+	MemberGroupRoleOpRangeFieldRoleUID        MemberGroupRoleOpRangeField = "role_uid"
+	MemberGroupRoleOpRangeFieldOpRangeType    MemberGroupRoleOpRangeField = "op_range_type"
+	MemberGroupRoleOpRangeFieldRangeUIDs      MemberGroupRoleOpRangeField = "range_uids"
+)
+
+const (
 	MemberRoleOpRangeFieldMemberUID   MemberRoleOpRangeField = "member_uid"
 	MemberRoleOpRangeFieldRoleUID     MemberRoleOpRangeField = "role_uid"
 	MemberRoleOpRangeFieldOpRangeType MemberRoleOpRangeField = "op_range_type"
@@ -212,6 +231,7 @@ const (
 	UserFieldDeletedAt              UserField = "delete_at"
 	UserFieldUserGroups             UserField = "usergroups"
 	UserFieldOpPermissions          UserField = "oppermissions"
+	UserFieldMemberGroup            UserField = "membergroup"
 )
 
 const (
