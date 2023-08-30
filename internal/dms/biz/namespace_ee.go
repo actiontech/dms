@@ -42,6 +42,11 @@ func (d *NamespaceUsecase) CreateNamespace(ctx context.Context, namespace *Names
 	if err := tx.Commit(d.log); err != nil {
 		return fmt.Errorf("commit tx failed: %v", err)
 	}
+	// plugin handle after create namespace
+	err = d.pluginUsecase.OperateDataResourceHandle(ctx, namespace.UID, dmsV1.DataResourceTypeNamespace, dmsV1.OperationTypeCreate, dmsV1.OperationTimingAfter)
+	if err != nil {
+		return fmt.Errorf("plugin handle after create namespace failed: %v", err)
+	}
 
 	return nil
 }
