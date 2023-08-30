@@ -19,6 +19,7 @@ require (
 	github.com/99designs/gqlgen v0.17.20
 	github.com/go-ldap/ldap/v3 v3.4.5
 	github.com/go-sql-driver/mysql v1.7.0
+	github.com/iancoleman/strcase v0.3.0
 	github.com/labstack/echo-jwt/v4 v4.1.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/stretchr/testify v1.8.2

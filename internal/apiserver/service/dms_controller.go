@@ -401,11 +401,9 @@ func (a *DMSController) AddSession(c echo.Context) error {
 
 	return NewOkRespWithReply(c, &aV1.AddSessionReply{
 		Payload: struct {
-			UserUid string `json:"user_uid"`
-			Token   string `json:"token"`
+			Token string `json:"token"`
 		}{
-			UserUid: reply.Payload.UserUid,
-			Token:   token,
+			Token: token,
 		},
 	})
 }
