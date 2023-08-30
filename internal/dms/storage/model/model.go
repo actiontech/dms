@@ -21,6 +21,8 @@ func GetAllModels() []interface{} {
 		DMSConfig{},
 		Member{},
 		MemberRoleOpRange{},
+		MemberGroup{},
+		MemberGroupRoleOpRange{},
 		Namespace{},
 		ProxyTarget{},
 		Plugin{},
@@ -147,6 +149,29 @@ type MemberRoleOpRange struct {
 	RoleUID     string `json:"role_uid" gorm:"column:role_uid"`
 	OpRangeType string `json:"op_range_type" gorm:"column:op_range_type"`
 	RangeUIDs   string `json:"range_uids" gorm:"type:text;column:range_uids"`
+}
+
+func (mg *MemberRoleOpRange) AfterSave(tx *gorm.DB) error {
+	return tx.Delete(&MemberRoleOpRange{}, "member_uid IS NULL").Error
+}
+
+type MemberGroup struct {
+	Model
+	Name             string                   `json:"name" gorm:"size:200;uniqueIndex"`
+	NamespaceUID     string                   `json:"namespace_uid" gorm:"column:namespace_uid"`
+	Users            []*User                  `gorm:"many2many:member_group_users"`
+	RoleWithOpRanges []MemberGroupRoleOpRange `json:"role_with_op_ranges" gorm:"foreignKey:MemberGroupUID;references:UID"`
+}
+
+type MemberGroupRoleOpRange struct {
+	MemberGroupUID string `json:"member_group_uid" gorm:"size:200;column:member_group_uid"`
+	RoleUID        string `json:"role_uid" gorm:"column:role_uid"`
+	OpRangeType    string `json:"op_range_type" gorm:"column:op_range_type"`
+	RangeUIDs      string `json:"range_uids" gorm:"type:text;column:range_uids"`
+}
+
+func (mg *MemberGroupRoleOpRange) AfterSave(tx *gorm.DB) error {
+	return tx.Delete(&MemberGroupRoleOpRange{}, "member_group_uid IS NULL").Error
 }
 
 type Namespace struct {

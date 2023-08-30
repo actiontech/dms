@@ -316,6 +316,39 @@ func convertModelUserGroup(u *model.UserGroup) (*biz.UserGroup, error) {
 	}, nil
 }
 
+func convertModelMemberGroup(mg *model.MemberGroup) (*biz.MemberGroup, error) {
+	roles := make([]biz.MemberRoleWithOpRange, 0, len(mg.RoleWithOpRanges))
+	for _, p := range mg.RoleWithOpRanges {
+		typ, err := biz.ParseOpRangeType(p.OpRangeType)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse op range type: %v", err)
+		}
+
+		roles = append(roles, biz.MemberRoleWithOpRange{
+			RoleUID:     p.RoleUID,
+			OpRangeType: typ,
+			RangeUIDs:   convertModelRangeUIDs(p.RangeUIDs),
+		})
+	}
+
+	users := make([]biz.UserIdWithName, 0, len(mg.Users))
+	for _, user := range mg.Users {
+		users = append(users, biz.UserIdWithName{
+			Uid:  user.UID,
+			Name: user.Name,
+		})
+	}
+
+	return &biz.MemberGroup{
+		Base:             convertBase(mg.Model),
+		UID:              mg.UID,
+		NamespaceUID:     mg.NamespaceUID,
+		Name:             mg.Name,
+		Users:            users,
+		RoleWithOpRanges: roles,
+	}, nil
+}
+
 func convertBizRole(u *biz.Role) (*model.Role, error) {
 
 	return &model.Role{
@@ -407,6 +440,34 @@ func convertBizMember(m *biz.Member) (*model.Member, error) {
 		NamespaceUID:     m.NamespaceUID,
 		RoleWithOpRanges: roles,
 	}, nil
+}
+
+func convertBizMemberGroup(m *biz.MemberGroup) *model.MemberGroup {
+	roles := make([]model.MemberGroupRoleOpRange, 0, len(m.RoleWithOpRanges))
+	for _, p := range m.RoleWithOpRanges {
+		roles = append(roles, model.MemberGroupRoleOpRange{
+			MemberGroupUID: m.UID,
+			RoleUID:        p.RoleUID,
+			OpRangeType:    p.OpRangeType.String(),
+			RangeUIDs:      convertBizRangeUIDs(p.RangeUIDs),
+		})
+	}
+
+	var users []*model.User
+	for _, uid := range m.UserUids {
+		users = append(users, &model.User{Model: model.Model{UID: uid}})
+	}
+
+	return &model.MemberGroup{
+		Model: model.Model{
+			UID:       m.UID,
+			CreatedAt: m.CreatedAt,
+		},
+		Name:             m.Name,
+		NamespaceUID:     m.NamespaceUID,
+		RoleWithOpRanges: roles,
+		Users:            users,
+	}
 }
 
 func convertModelMember(m *model.Member) (*biz.Member, error) {
