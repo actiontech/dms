@@ -151,6 +151,10 @@ type MemberRoleOpRange struct {
 	RangeUIDs   string `json:"range_uids" gorm:"type:text;column:range_uids"`
 }
 
+func (mg *MemberRoleOpRange) AfterSave(tx *gorm.DB) error {
+	return tx.Debug().Delete(&MemberRoleOpRange{}, "member_uid IS NULL").Error
+}
+
 type MemberGroup struct {
 	Model
 	Name             string                   `json:"name" gorm:"size:200;uniqueIndex"`

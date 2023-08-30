@@ -91,7 +91,7 @@ func (d *MemberGroupRepo) CreateMemberGroup(ctx context.Context, u *biz.MemberGr
 	memberGroup := convertBizMemberGroup(u)
 
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
-		if err := tx.WithContext(ctx).Debug().Create(memberGroup).Error; err != nil {
+		if err := tx.WithContext(ctx).Create(memberGroup).Error; err != nil {
 			return fmt.Errorf("failed to create member group err: %v", err)
 		}
 
@@ -106,16 +106,16 @@ func (d *MemberGroupRepo) CreateMemberGroup(ctx context.Context, u *biz.MemberGr
 func (d *MemberGroupRepo) UpdateMemberGroup(ctx context.Context, m *biz.MemberGroup) error {
 	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		memberGroup := convertBizMemberGroup(m)
-		if err := tx.WithContext(ctx).Debug().Model(memberGroup).Association("Users").Clear(); err != nil {
+		if err := tx.WithContext(ctx).Model(memberGroup).Association("Users").Clear(); err != nil {
 			return fmt.Errorf("clean member group relationship with user failed: %v", err)
 		}
 
-		if err := tx.WithContext(ctx).Debug().Model(memberGroup).Association("RoleWithOpRanges").Clear(); err != nil {
+		if err := tx.WithContext(ctx).Model(memberGroup).Association("RoleWithOpRanges").Clear(); err != nil {
 			return fmt.Errorf("failed to delete member group: %v", err)
 		}
 
 		memberGroup = convertBizMemberGroup(m)
-		if err := tx.WithContext(ctx).Debug().Save(memberGroup).Error; err != nil {
+		if err := tx.WithContext(ctx).Save(memberGroup).Error; err != nil {
 			return fmt.Errorf("failed to update member group err: %v", err)
 		}
 
@@ -127,11 +127,11 @@ func (d *MemberGroupRepo) DeleteMemberGroup(ctx context.Context, memberGroupUid 
 	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		memberGroup := model.MemberGroup{Model: model.Model{UID: memberGroupUid}}
 
-		if err := tx.WithContext(ctx).Debug().Model(&memberGroup).Association("Users").Clear(); err != nil {
+		if err := tx.WithContext(ctx).Model(&memberGroup).Association("Users").Clear(); err != nil {
 			return fmt.Errorf("clean member group relationship with user failed: %v", err)
 		}
 
-		if err := tx.WithContext(ctx).Debug().Select("RoleWithOpRanges").Delete(&memberGroup).Error; err != nil {
+		if err := tx.WithContext(ctx).Select("RoleWithOpRanges").Delete(&memberGroup).Error; err != nil {
 			return fmt.Errorf("failed to delete member group: %v", err)
 		}
 
