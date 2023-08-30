@@ -20,7 +20,7 @@ type MemberGroupRepo struct {
 }
 
 func NewMemberGroupRepo(log utilLog.Logger, s *Storage) *MemberGroupRepo {
-	return &MemberGroupRepo{Storage: s, log: utilLog.NewHelper(log, utilLog.WithMessageKey("storage.member"))}
+	return &MemberGroupRepo{Storage: s, log: utilLog.NewHelper(log, utilLog.WithMessageKey("storage.member_group"))}
 }
 
 func (d *MemberGroupRepo) ListMemberGroups(ctx context.Context, opt *biz.ListMemberGroupsOption) (memberGroups []*biz.MemberGroup, total int64, err error) {

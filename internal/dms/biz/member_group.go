@@ -62,7 +62,7 @@ func NewMemberGroupUsecase(log utilLog.Logger, tx TransactionGenerator, repo Mem
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 		namespaceUsecase:          namespaceUsecase,
 		memberUsecase:             memberUsecase,
-		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.member")),
+		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.member_group")),
 	}
 }
 
@@ -112,28 +112,8 @@ func (m *MemberGroupUsecase) GetMemberGroup(ctx context.Context, memberGroupUid,
 
 func (m *MemberGroupUsecase) CreateMemberGroup(ctx context.Context, currentUserUid string, mg *MemberGroup) (string, error) {
 	// check
-	{
-		// 检查空间是否归档/删除
-		if err := m.namespaceUsecase.isNamespaceActive(ctx, mg.NamespaceUID); err != nil {
-			return "", fmt.Errorf("create member error: %v", err)
-		}
-		// 检查当前用户有空间管理员权限
-		if isAdmin, err := m.opPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, currentUserUid, mg.NamespaceUID); err != nil {
-			return "", fmt.Errorf("check user is namespace admin failed: %v", err)
-		} else if !isAdmin {
-			return "", fmt.Errorf("user is not namespace admin")
-		}
-
-		// 检查成员用户存在
-		if exist, err := m.userUsecase.CheckUserExist(ctx, mg.UserUids); err != nil {
-			return "", fmt.Errorf("check user exist failed: %v", err)
-		} else if !exist {
-			return "", fmt.Errorf("user not exist")
-		}
-
-		if err := m.memberUsecase.CheckRoleAndOpRanges(ctx, mg.RoleWithOpRanges); err != nil {
-			return "", err
-		}
+	if err := m.checkMemberGroupBeforeUpsert(ctx, currentUserUid, mg); err != nil {
+		return "", fmt.Errorf("create member group error: %v", err)
 	}
 
 	uid, err := pkgRand.GenStrUid()
@@ -151,30 +131,39 @@ func (m *MemberGroupUsecase) CreateMemberGroup(ctx context.Context, currentUserU
 	}
 
 	if err = m.repo.CreateMemberGroup(ctx, mg); err != nil {
-		return "", fmt.Errorf("save member failed: %v", err)
+		return "", fmt.Errorf("save member group failed: %v", err)
 	}
 
 	return uid, nil
 
 }
 
+func (m *MemberGroupUsecase) checkMemberGroupBeforeUpsert(ctx context.Context, currentUserUid string, mg *MemberGroup) error {
+	// 检查空间是否归档/删除
+	if err := m.namespaceUsecase.isNamespaceActive(ctx, mg.NamespaceUID); err != nil {
+		return fmt.Errorf("create member error: %v", err)
+	}
+	// 检查当前用户有空间管理员权限
+	if isAdmin, err := m.opPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, currentUserUid, mg.NamespaceUID); err != nil {
+		return fmt.Errorf("check user is namespace admin failed: %v", err)
+	} else if !isAdmin {
+		return fmt.Errorf("user is not namespace admin")
+	}
+
+	// 检查成员组成员用户存在
+	if exist, err := m.userUsecase.CheckUserExist(ctx, mg.UserUids); err != nil {
+		return fmt.Errorf("check user exist failed: %v", err)
+	} else if !exist {
+		return fmt.Errorf("user not exist")
+	}
+
+	return m.memberUsecase.CheckRoleAndOpRanges(ctx, mg.RoleWithOpRanges)
+}
+
 func (m *MemberGroupUsecase) UpdateMemberGroup(ctx context.Context, currentUserUid string, mg *MemberGroup) error {
 	// check
-	{
-		// 检查空间是否归档/删除
-		if err := m.namespaceUsecase.isNamespaceActive(ctx, mg.NamespaceUID); err != nil {
-			return fmt.Errorf("update member group error: %v", err)
-		}
-		// 检查当前用户有空间管理员权限
-		if isAdmin, err := m.opPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, currentUserUid, mg.NamespaceUID); err != nil {
-			return fmt.Errorf("check user is namespace admin failed: %v", err)
-		} else if !isAdmin {
-			return fmt.Errorf("user is not namespace admin")
-		}
-
-		if err := m.memberUsecase.CheckRoleAndOpRanges(ctx, mg.RoleWithOpRanges); err != nil {
-			return err
-		}
+	if err := m.checkMemberGroupBeforeUpsert(ctx, currentUserUid, mg); err != nil {
+		return fmt.Errorf("update member group error: %v", err)
 	}
 
 	memberGroup, err := m.GetMemberGroup(ctx, mg.UID, mg.NamespaceUID)
