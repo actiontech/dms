@@ -87,14 +87,18 @@ func newDBService(args *BizDBServiceArgs) (*DBService, error) {
 		Business:          args.Business,
 		Source:            args.Source,
 		MaintenancePeriod: args.MaintenancePeriod,
+		SQLEConfig:        &SQLEConfig{},
 	}
-	if args.SQLQueryConfig != nil && args.RuleTemplateName != "" {
-		dbService.SQLEConfig = &SQLEConfig{
-			SQLQueryConfig:   args.SQLQueryConfig,
-			RuleTemplateName: args.RuleTemplateName,
-			RuleTemplateID:   args.RuleTemplateID,
-		}
+
+	if args.RuleTemplateName != "" {
+		dbService.SQLEConfig.RuleTemplateID = args.RuleTemplateID
+		dbService.SQLEConfig.RuleTemplateName = args.RuleTemplateName
 	}
+
+	if args.SQLQueryConfig != nil {
+		dbService.SQLEConfig.SQLQueryConfig = args.SQLQueryConfig
+	}
+
 	return dbService, nil
 }
 
@@ -333,14 +337,15 @@ func (d *DBServiceUsecase) UpdateDBService(ctx context.Context, dbServiceUid str
 		ds.Business = updateDBService.Business
 		ds.AdditionalParams = updateDBService.AdditionalParams
 		ds.MaintenancePeriod = updateDBService.MaintenancePeriod
-
+		ds.SQLEConfig = &SQLEConfig{}
 		// 支持新增和更新sqleConfig，不允许删除sqle配置
-		if updateDBService.SQLQueryConfig != nil && updateDBService.RuleTemplateName != "" {
-			ds.SQLEConfig = &SQLEConfig{
-				SQLQueryConfig:   updateDBService.SQLQueryConfig,
-				RuleTemplateName: updateDBService.RuleTemplateName,
-				RuleTemplateID:   updateDBService.RuleTemplateID,
-			}
+		if updateDBService.RuleTemplateName != "" {
+			ds.SQLEConfig.RuleTemplateID = updateDBService.RuleTemplateID
+			ds.SQLEConfig.RuleTemplateName = updateDBService.RuleTemplateName
+		}
+
+		if updateDBService.SQLQueryConfig != nil {
+			ds.SQLEConfig.SQLQueryConfig = updateDBService.SQLQueryConfig
 		}
 	}
 
