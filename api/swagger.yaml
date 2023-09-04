@@ -2483,7 +2483,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateDBService:
         description: update db service
         properties:
@@ -3508,6 +3508,28 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: update a DB Service.
+            tags:
+                - dms
+    /v1/dms/db_services/{db_service_uid}/connection:
+        post:
+            operationId: CheckDBServiceIsConnectableById
+            parameters:
+                - description: db service uid
+                  in: path
+                  name: db_service_uid
+                  required: true
+                  type: string
+                  x-go-name: DBServiceUid
+            responses:
+                "200":
+                    description: CheckDBServiceIsConnectableReply
+                    schema:
+                        $ref: '#/definitions/CheckDBServiceIsConnectableReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: check if the db_service is connectable.
             tags:
                 - dms
     /v1/dms/db_services/connection:
