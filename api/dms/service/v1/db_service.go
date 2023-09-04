@@ -132,6 +132,13 @@ type CheckDBServiceIsConnectableReply struct {
 	base.GenericResp
 }
 
+// swagger:parameters CheckDBServiceIsConnectableById
+type CheckDBServiceIsConnectableByIdReq struct {
+	// db service uid
+	// in:path
+	DBServiceUid string `param:"db_service_uid" json:"db_service_uid" validate:"required"`
+}
+
 // swagger:parameters DelDBService
 type DelDBServiceReq struct {
 	// db service uid
