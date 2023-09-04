@@ -979,6 +979,39 @@
         }
       }
     },
+    "/v1/dms/db_services/{db_service_uid}/connection": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "check if the db_service is connectable.",
+        "operationId": "CheckDBServiceIsConnectableById",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "DBServiceUid",
+            "description": "db service uid",
+            "name": "db_service_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CheckDBServiceIsConnectableReply",
+            "schema": {
+              "$ref": "#/definitions/CheckDBServiceIsConnectableReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/member_groups": {
       "get": {
         "tags": [
@@ -5692,7 +5725,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateDBService": {
       "description": "update db service",
