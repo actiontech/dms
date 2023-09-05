@@ -198,17 +198,12 @@ func (d *DMSService) DelMember(ctx context.Context, currentUserUid string, req *
 }
 
 func (d *DMSService) ListMembersForInternal(ctx context.Context, req *dmsCommonV1.ListMembersForInternalReq) (reply *dmsCommonV1.ListMembersForInternalReply, err error) {
-	d.log.Infof("ListMembersForInternal.req=%v", req)
-	defer func() {
-		d.log.Infof("ListMembersForInternal.req=%v;reply=%v;error=%v", req, reply, err)
-	}()
-
 	listOption := &biz.ListMembersOpPermissionOption{
 		PageNumber:   req.PageIndex,
 		LimitPerPage: req.PageSize,
 	}
 
-	members, total, err := d.OpPermissionVerifyUsecase.ListMembersOpPermissionInNamespace(ctx, req.NamespaceUid, listOption)
+	members, total, err := d.OpPermissionVerifyUsecase.ListUsersOpPermissionInNamespace(ctx, req.NamespaceUid, listOption)
 	if nil != err {
 		return nil, err
 	}
@@ -251,6 +246,7 @@ func (d *DMSService) ListMembersForInternal(ctx context.Context, req *dmsCommonV
 
 		ret[i] = &dmsCommonV1.ListMembersForInternalItem{
 			MemberUid:              m.MemberUid,
+			MemberGroupUid:         m.MemberGroupUid,
 			User:                   dmsCommonV1.UidWithName{Uid: m.UserUid, Name: m.UserName},
 			IsAdmin:                isAdmin,
 			MemberOpPermissionList: opPermission,
