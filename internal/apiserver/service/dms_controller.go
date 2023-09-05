@@ -187,6 +187,27 @@ func (d *DMSController) CheckDBServiceIsConnectable(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
+// swagger:route POST /v1/dms/db_services/{db_service_uid}/connection dms CheckDBServiceIsConnectableById
+//
+// check if the db_service is connectable.
+//
+//	responses:
+//	  200: body:CheckDBServiceIsConnectableReply
+//	  default: body:GenericResp
+func (d *DMSController) CheckDBServiceIsConnectableById(c echo.Context) error {
+	var req aV1.CheckDBServiceIsConnectableByIdReq
+	err := bindAndValidateReq(c, &req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	reply, err := d.DMS.CheckDBServiceIsConnectableById(c.Request().Context(), &req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
 // swagger:route GET /v1/dms/database_source_services dms ListDatabaseSourceServices
 //
 // List database source service.
