@@ -335,6 +335,21 @@ func (d *DMSController) DeleteDatabaseSourceService(c echo.Context) error {
 	return NewOkResp(c)
 }
 
+// swagger:route GET /v1/dms/basic_info dms GetBasicInfo
+//
+// get basic info.
+//
+//	responses:
+//	  200: body:GetBasicInfoReply
+//	  default: body:GenericResp
+func (d *DMSController) GetBasicInfo(c echo.Context) error {
+	reply, err := d.DMS.GetBasicInfo(c.Request().Context())
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
 // swagger:route GET /v1/dms/database_source_services/tips dms ListDatabaseSourceServiceTips
 //
 // List database source service tips.
