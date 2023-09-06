@@ -2392,6 +2392,38 @@
           }
         }
       },
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Update current user.",
+        "operationId": "UpdateCurrentUser",
+        "parameters": [
+          {
+            "x-go-name": "User",
+            "description": "Update current user",
+            "name": "current_user",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateCurrentUser"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
       "post": {
         "tags": [
           "dms"
@@ -5726,6 +5758,37 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "UpdateCurrentUser": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "description": "User email",
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "old_password": {
+          "description": "User old password",
+          "type": "string",
+          "x-go-name": "OldPassword"
+        },
+        "password": {
+          "description": "User new password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "phone": {
+          "description": "User phone",
+          "type": "string",
+          "x-go-name": "Phone"
+        },
+        "wxid": {
+          "description": "User wxid",
+          "type": "string",
+          "x-go-name": "WxID"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateDBService": {
       "description": "update db service",

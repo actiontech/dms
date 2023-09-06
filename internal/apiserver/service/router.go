@@ -53,6 +53,7 @@ func (s *APIServer) initRouter() error {
 		userV1.PUT("/:user_uid", s.DMSController.UpdateUser)
 		// userV1.DELETE("/batch", s.APIAdminController.DMSDelUserBatch)
 		userV1.GET(dmsV1.GetUserOpPermissionRouterWithoutPrefix(":user_uid"), s.DMSController.GetUserOpPermission)
+		userV1.PUT("", s.DMSController.UpdateCurrentUser)
 
 		sessionv1 := v1.Group(dmsV1.SessionRouterGroup)
 		sessionv1.POST("", s.DMSController.AddSession)
