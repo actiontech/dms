@@ -244,7 +244,7 @@ func (o *OpPermissionVerifyRepo) ListUsersOpPermissionInNamespace(ctx context.Co
 					members AS m JOIN users AS u ON m.user_uid = u.uid AND m.namespace_uid = ?
 				UNION
 				SELECT 
-					u.uid AS user_uid, u.name AS user_name
+					DISTINCT u.uid AS user_uid, u.name AS user_name
 				FROM 
 					member_groups AS mg
 					JOIN member_group_users mgu on mg.uid = mgu.member_group_uid AND mg.namespace_uid = ?
@@ -265,7 +265,7 @@ func (o *OpPermissionVerifyRepo) ListUsersOpPermissionInNamespace(ctx context.Co
 				JOIN users AS u ON m.user_uid = u.uid AND m.namespace_uid=?
 				UNION
 				SELECT 
-					u.uid AS user_uid, u.name AS user_name 
+					DISTINCT u.uid AS user_uid, u.name AS user_name 
 				FROM member_groups AS mg
 				JOIN member_group_users mgu on mg.uid = mgu.member_group_uid AND mg.namespace_uid = ?
 				JOIN users AS u ON mgu.user_uid = u.uid
