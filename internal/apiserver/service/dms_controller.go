@@ -502,6 +502,33 @@ func (d *DMSController) UpdateUser(c echo.Context) error {
 	return NewOkResp(c)
 }
 
+// swagger:route PUT /v1/dms/users dms UpdateCurrentUser
+//
+// Update current user.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) UpdateCurrentUser(c echo.Context) error {
+	req := new(aV1.UpdateCurrentUserReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// get current user id
+	currentUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	err = d.DMS.UpdateCurrentUser(c.Request().Context(), req, currentUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkResp(c)
+}
+
 // swagger:route DELETE /v1/dms/users/{user_uid} dms DelUser
 //
 // Delete a user.

@@ -112,6 +112,36 @@ func (u *UpdateUserReq) String() string {
 	return fmt.Sprintf("UpdateUserReq{Uid:%s}", u.UserUid)
 }
 
+// swagger:parameters UpdateCurrentUser
+type UpdateCurrentUserReq struct {
+	// Update current user
+	// in:body
+	User *UpdateCurrentUser `json:"current_user" validate:"required"`
+}
+
+func (u *UpdateCurrentUserReq) String() string {
+	if u == nil {
+		return "UpdateCurrentUserReq{nil}"
+	}
+	if u.User == nil {
+		return "UpdateCurrentUserReq{User:nil}"
+	}
+	return fmt.Sprintf("UpdateCurrentUserReq{Uid:%v}", u.User)
+}
+
+type UpdateCurrentUser struct {
+	// User old password
+	OldPassword *string `json:"old_password"`
+	// User new password
+	Password *string `json:"password"`
+	// User email
+	Email *string `json:"email"`
+	// User phone
+	Phone *string `json:"phone"`
+	// User wxid
+	WxID *string `json:"wxid"`
+}
+
 type VerifyUserLoginReq struct {
 	// user name
 	UserName string `json:"user_name" validate:"required"`
