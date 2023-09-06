@@ -678,7 +678,6 @@ func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid, updateUser
 }
 
 func (d *UserUsecase) UpdateCurrentUser(ctx context.Context, currentUserUid string, oldPassword, password, email, phone, wxId *string) error {
-
 	user, err := d.GetUser(ctx, currentUserUid)
 	if err != nil {
 		return fmt.Errorf("get user failed: %v", err)
