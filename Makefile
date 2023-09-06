@@ -7,7 +7,7 @@ override OS_VERSION 			= el7
 override GO_BUILD_FLAGS 		= -mod=vendor
 override RPM_USER_GROUP_NAME 	= actiontech
 override RPM_USER_NAME 			= actiontech-universe
-override LDFLAGS 				= -ldflags "-X 'main.version=\"${GIT_VERSION}\"' -X 'main.gitCommitID=${GIT_COMMIT}' -X 'main.defaultRunUser=${RPM_USER_NAME}'"
+override LDFLAGS 				= -ldflags "-X 'main.Version=${GIT_VERSION}' -X 'main.gitCommitID=${GIT_COMMIT}' -X 'main.defaultRunUser=${RPM_USER_NAME}'"
 
 GO_COMPILER_IMAGE ?= golang:1.19.6
 RPM_BUILD_IMAGE ?= rpmbuild/centos7

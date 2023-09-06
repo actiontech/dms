@@ -21,7 +21,10 @@ type ProxyTargetRepo interface {
 	GetProxyTargetByName(ctx context.Context, name string) (*ProxyTarget, error)
 }
 
-type ProxyTarget middleware.ProxyTarget
+type ProxyTarget struct {
+	middleware.ProxyTarget
+	Version string
+}
 
 const ProxyTargetMetaKey = "prefixs"
 
@@ -54,8 +57,10 @@ func NewDmsProxyUsecase(logger utilLog.Logger, repo ProxyTargetRepo, dmsPort int
 		repo: repo,
 		// 将自身定义为默认代理，当无法匹配转发规则时，转发到自身
 		defaultTargetSelf: &ProxyTarget{
-			Name: "dms",
-			URL:  dmsUrl,
+			ProxyTarget: middleware.ProxyTarget{
+				Name: "dms",
+				URL:  dmsUrl,
+			},
 		},
 		// TODO 支持可配置
 		rewrite: map[string]string{
@@ -69,6 +74,7 @@ func NewDmsProxyUsecase(logger utilLog.Logger, repo ProxyTargetRepo, dmsPort int
 type RegisterDMSProxyTargetArgs struct {
 	Name            string
 	Addr            string
+	Version         string
 	ProxyUrlPrefixs []string
 }
 
@@ -93,9 +99,12 @@ func (d *DmsProxyUsecase) RegisterDMSProxyTarget(ctx context.Context, currentUse
 	}
 
 	target := &ProxyTarget{
-		Name: args.Name,
-		URL:  url,
-		Meta: echo.Map{ProxyTargetMetaKey: args.ProxyUrlPrefixs},
+		ProxyTarget: middleware.ProxyTarget{
+			Name: args.Name,
+			URL:  url,
+			Meta: echo.Map{ProxyTargetMetaKey: args.ProxyUrlPrefixs},
+		},
+		Version: args.Version,
 	}
 
 	for i, t := range d.targets {
@@ -152,7 +161,11 @@ func (d *DmsProxyUsecase) Next(c echo.Context) *middleware.ProxyTarget {
 		for _, prefix := range t.GetProxyUrlPrefixs() {
 			if prefix != "" && strings.HasPrefix(c.Request().URL.Path, prefix) {
 				log.Debugf("url: %s; proxy to target: %s; proxy prefix: %v", c.Request().URL.Path, t.Name, t.Meta[ProxyTargetMetaKey])
-				return (*middleware.ProxyTarget)(t)
+				return &middleware.ProxyTarget{
+					Name: t.Name,
+					URL:  t.URL,
+					Meta: t.Meta,
+				}
 			}
 		}
 	}
@@ -160,7 +173,12 @@ func (d *DmsProxyUsecase) Next(c echo.Context) *middleware.ProxyTarget {
 	// 由于Skipper方法的存在，当无法匹配转发规则时，会跳过转发，所以大部分情况下不会执行到这里。
 	// 极端情况比如Skipper后，target列表发生了变动，则可能执行到这里，使用默认代理转发到自身作为兜底。
 	log.Debugf("proxy to default target")
-	return (*middleware.ProxyTarget)(d.defaultTargetSelf)
+
+	return &middleware.ProxyTarget{
+		Name: d.defaultTargetSelf.Name,
+		URL:  d.defaultTargetSelf.URL,
+		Meta: d.defaultTargetSelf.Meta,
+	}
 }
 
 // DmsProxyUsecase 实现了 middleware.ProxyBalancer 接口

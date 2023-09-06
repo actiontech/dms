@@ -12,6 +12,7 @@ import (
 )
 
 type DMSService struct {
+	BasicUsecase                 *biz.BasicUsecase
 	PluginUsecase                *biz.PluginUsecase
 	DBServiceUsecase             *biz.DBServiceUsecase
 	DatabaseSourceServiceUsecase *biz.DatabaseSourceServiceUsecase
@@ -92,12 +93,14 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.Options) (*DMSServic
 	webhookConfigurationUsecase := biz.NewWebHookConfigurationUsecase(logger, tx, webhookConfigurationRepo)
 	imConfigurationRepo := storage.NewIMConfigurationRepo(logger, st)
 	imConfigurationUsecase := biz.NewIMConfigurationUsecase(logger, tx, imConfigurationRepo)
+	basicUsecase := biz.NewBasicInfoUsecase(logger, dmsProxyTargetRepo)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to new dms proxy usecase: %v", err)
 	}
 
 	s := &DMSService{
+		BasicUsecase:                 basicUsecase,
 		PluginUsecase:                pluginUseCase,
 		DBServiceUsecase:             dbServiceUseCase,
 		DatabaseSourceServiceUsecase: databaseSourceServiceUsecase,
