@@ -223,8 +223,6 @@ func (o *OpPermissionVerifyRepo) GetUserGlobalOpPermission(ctx context.Context, 
 
 func (o *OpPermissionVerifyRepo) ListUsersOpPermissionInNamespace(ctx context.Context, namespaceUid string, opt *biz.ListMembersOpPermissionOption) (items []biz.ListMembersOpPermissionItem, total int64, err error) {
 	type result struct {
-		MemberUid       string
-		MemberGroupUid  string
 		UserUid         string
 		UserName        string
 		OpPermissionUid string
@@ -241,12 +239,12 @@ func (o *OpPermissionVerifyRepo) ListUsersOpPermissionInNamespace(ctx context.Co
 			if err := tx.WithContext(ctx).Raw(`
 			SELECT * FROM (
 				SELECT 
-					m.uid AS member_uid, IFNULL(NULL, "") member_group_uid, m.user_uid, u.name AS user_name 
+					m.user_uid, u.name AS user_name 
 				FROM
 					members AS m JOIN users AS u ON m.user_uid = u.uid AND m.namespace_uid = ?
 				UNION
 				SELECT 
-					IFNULL(NULL, "") AS member_uid, mg.uid AS member_group_uid, u.uid AS user_uid, u.name AS user_name
+					u.uid AS user_uid, u.name AS user_name
 				FROM 
 					member_groups AS mg
 					JOIN member_group_users mgu on mg.uid = mgu.member_group_uid AND mg.namespace_uid = ?
@@ -262,12 +260,12 @@ func (o *OpPermissionVerifyRepo) ListUsersOpPermissionInNamespace(ctx context.Co
 			if err := tx.WithContext(ctx).Raw(`
 			SELECT COUNT(*) FROM (
 				SELECT 
-					m.uid AS member_uid, IFNULL(NULL, "") member_group_uid, m.user_uid, u.name AS user_name
+					m.user_uid, u.name AS user_name
 				FROM members AS m 
 				JOIN users AS u ON m.user_uid = u.uid AND m.namespace_uid=?
 				UNION
 				SELECT 
-					IFNULL(NULL, "") AS member_uid, mg.uid AS member_group_uid, u.uid AS user_uid, u.name AS user_name 
+					u.uid AS user_uid, u.name AS user_name 
 				FROM member_groups AS mg
 				JOIN member_group_users mgu on mg.uid = mgu.member_group_uid AND mg.namespace_uid = ?
 				JOIN users AS u ON mgu.user_uid = u.uid
@@ -336,11 +334,9 @@ func (o *OpPermissionVerifyRepo) ListUsersOpPermissionInNamespace(ctx context.Co
 		}
 
 		items = append(items, biz.ListMembersOpPermissionItem{
-			MemberUid:      rs.MemberUid,
-			MemberGroupUid: rs.MemberGroupUid,
-			UserUid:        rs.UserUid,
-			UserName:       rs.UserName,
-			OpPermissions:  opPermissionWithOpRanges,
+			UserUid:       rs.UserUid,
+			UserName:      rs.UserName,
+			OpPermissions: opPermissionWithOpRanges,
 		})
 	}
 

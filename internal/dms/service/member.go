@@ -245,8 +245,6 @@ func (d *DMSService) ListMembersForInternal(ctx context.Context, req *dmsCommonV
 		}
 
 		ret[i] = &dmsCommonV1.ListMembersForInternalItem{
-			MemberUid:              m.MemberUid,
-			MemberGroupUid:         m.MemberGroupUid,
 			User:                   dmsCommonV1.UidWithName{Uid: m.UserUid, Name: m.UserName},
 			IsAdmin:                isAdmin,
 			MemberOpPermissionList: opPermission,

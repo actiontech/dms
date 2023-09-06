@@ -158,11 +158,9 @@ type ListMembersOpPermissionOption struct {
 }
 
 type ListMembersOpPermissionItem struct {
-	MemberUid      string
-	MemberGroupUid string
-	UserUid        string
-	UserName       string
-	OpPermissions  []OpPermissionWithOpRange
+	UserUid       string
+	UserName      string
+	OpPermissions []OpPermissionWithOpRange
 }
 
 func (o *OpPermissionVerifyUsecase) ListUsersOpPermissionInNamespace(ctx context.Context, namespaceUid string, opt *ListMembersOpPermissionOption) ([]ListMembersOpPermissionItem, int64, error) {
