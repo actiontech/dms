@@ -114,11 +114,6 @@ func (d *DMSService) UpdateUser(ctx context.Context, req *dmsV1.UpdateUserReq, c
 }
 
 func (d *DMSService) UpdateCurrentUser(ctx context.Context, req *dmsV1.UpdateCurrentUserReq, currentUserUid string) (err error) {
-	d.log.Infof("UpdateCurrentUser.req=%v", req)
-	defer func() {
-		d.log.Infof("UpdateCurrentUser.req=%v;error=%v", req, err)
-	}()
-
 	if err = d.UserUsecase.UpdateCurrentUser(ctx, currentUserUid, req.User.OldPassword, req.User.Password, req.User.Email, req.User.Phone, req.User.WxID); nil != err {
 		return fmt.Errorf("update user failed: %v", err)
 	}
