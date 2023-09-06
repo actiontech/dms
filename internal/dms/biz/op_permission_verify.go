@@ -17,7 +17,7 @@ type OpPermissionVerifyRepo interface {
 	GetUserOpPermission(ctx context.Context, userUid string) (opPermissionWithOpRanges []OpPermissionWithOpRange, err error)
 	GetUserGlobalOpPermission(ctx context.Context, userUid string) (opPermissions []*OpPermission, err error)
 	GetUserNamespaceWithOpPermissions(ctx context.Context, userUid string) (namespaceWithPermission []NamespaceOpPermissionWithOpRange, err error)
-	ListMembersOpPermissionInNamespace(ctx context.Context, namespaceUid string, opt *ListMembersOpPermissionOption) (items []ListMembersOpPermissionItem, total int64, err error)
+	ListUsersOpPermissionInNamespace(ctx context.Context, namespaceUid string, opt *ListMembersOpPermissionOption) (items []ListMembersOpPermissionItem, total int64, err error)
 }
 
 type OpPermissionVerifyUsecase struct {
@@ -158,15 +158,14 @@ type ListMembersOpPermissionOption struct {
 }
 
 type ListMembersOpPermissionItem struct {
-	MemberUid     string
 	UserUid       string
 	UserName      string
 	OpPermissions []OpPermissionWithOpRange
 }
 
-func (o *OpPermissionVerifyUsecase) ListMembersOpPermissionInNamespace(ctx context.Context, namespaceUid string, opt *ListMembersOpPermissionOption) ([]ListMembersOpPermissionItem, int64, error) {
+func (o *OpPermissionVerifyUsecase) ListUsersOpPermissionInNamespace(ctx context.Context, namespaceUid string, opt *ListMembersOpPermissionOption) ([]ListMembersOpPermissionItem, int64, error) {
 
-	items, total, err := o.repo.ListMembersOpPermissionInNamespace(ctx, namespaceUid, opt)
+	items, total, err := o.repo.ListUsersOpPermissionInNamespace(ctx, namespaceUid, opt)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to list members op permission in namespace: %v", err)
 	}
