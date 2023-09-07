@@ -18,10 +18,10 @@ func (d *DMSService) RegisterDMSProxyTarget(ctx context.Context, currentUserUid 
 	if err := d.DmsProxyUsecase.RegisterDMSProxyTarget(ctx, currentUserUid, biz.RegisterDMSProxyTargetArgs{
 		Name:            req.DMSProxyTarget.Name,
 		Addr:            req.DMSProxyTarget.Addr,
+		Version:         req.DMSProxyTarget.Version,
 		ProxyUrlPrefixs: req.DMSProxyTarget.ProxyUrlPrefixs,
 	}); err != nil {
 		return fmt.Errorf("register dms proxy target failed: %v", err)
 	}
-
 	return nil
 }

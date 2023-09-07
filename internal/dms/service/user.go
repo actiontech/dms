@@ -113,6 +113,14 @@ func (d *DMSService) UpdateUser(ctx context.Context, req *dmsV1.UpdateUserReq, c
 	return nil
 }
 
+func (d *DMSService) UpdateCurrentUser(ctx context.Context, req *dmsV1.UpdateCurrentUserReq, currentUserUid string) (err error) {
+	if err = d.UserUsecase.UpdateCurrentUser(ctx, currentUserUid, req.User.OldPassword, req.User.Password, req.User.Email, req.User.Phone, req.User.WxID); nil != err {
+		return fmt.Errorf("update user failed: %v", err)
+	}
+
+	return nil
+}
+
 func (d *DMSService) DelUser(ctx context.Context, currentUserUid string, req *dmsV1.DelUserReq) (err error) {
 	d.log.Infof("DelUser.req=%v", req)
 	defer func() {

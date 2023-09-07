@@ -21,6 +21,8 @@ func (s *APIServer) initRouter() error {
 
 	// DMS RESTful resource
 	{
+		v1.GET("/dms/basic_info", s.DMSController.GetBasicInfo)
+
 		dmsProxyV1 := v1.Group(dmsV1.ProxyRouterGroup)
 		dmsProxyV1.POST("", s.DMSController.RegisterDMSProxyTarget)
 
@@ -34,6 +36,7 @@ func (s *APIServer) initRouter() error {
 		dbServiceV1.DELETE("/:db_service_uid", s.DMSController.DelDBService)
 		dbServiceV1.PUT("/:db_service_uid", s.DMSController.UpdateDBService)
 		dbServiceV1.POST("/connection", s.DMSController.CheckDBServiceIsConnectable)
+		dbServiceV1.POST("/:db_service_uid/connection", s.DMSController.CheckDBServiceIsConnectableById)
 
 		DatabaseSourceServiceV1 := v1.Group("/dms/database_source_services")
 		DatabaseSourceServiceV1.GET("/tips", s.DMSController.ListDatabaseSourceServiceTips)
@@ -52,6 +55,7 @@ func (s *APIServer) initRouter() error {
 		userV1.PUT("/:user_uid", s.DMSController.UpdateUser)
 		// userV1.DELETE("/batch", s.APIAdminController.DMSDelUserBatch)
 		userV1.GET(dmsV1.GetUserOpPermissionRouterWithoutPrefix(":user_uid"), s.DMSController.GetUserOpPermission)
+		userV1.PUT("", s.DMSController.UpdateCurrentUser)
 
 		sessionv1 := v1.Group(dmsV1.SessionRouterGroup)
 		sessionv1.POST("", s.DMSController.AddSession)

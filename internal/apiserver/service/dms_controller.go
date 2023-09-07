@@ -187,6 +187,27 @@ func (d *DMSController) CheckDBServiceIsConnectable(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
+// swagger:route POST /v1/dms/db_services/{db_service_uid}/connection dms CheckDBServiceIsConnectableById
+//
+// check if the db_service is connectable.
+//
+//	responses:
+//	  200: body:CheckDBServiceIsConnectableReply
+//	  default: body:GenericResp
+func (d *DMSController) CheckDBServiceIsConnectableById(c echo.Context) error {
+	var req aV1.CheckDBServiceIsConnectableByIdReq
+	err := bindAndValidateReq(c, &req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	reply, err := d.DMS.CheckDBServiceIsConnectableById(c.Request().Context(), &req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
 // swagger:route GET /v1/dms/database_source_services dms ListDatabaseSourceServices
 //
 // List database source service.
@@ -312,6 +333,21 @@ func (d *DMSController) DeleteDatabaseSourceService(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 	return NewOkResp(c)
+}
+
+// swagger:route GET /v1/dms/basic_info dms GetBasicInfo
+//
+// get basic info.
+//
+//	responses:
+//	  200: body:GetBasicInfoReply
+//	  default: body:GenericResp
+func (d *DMSController) GetBasicInfo(c echo.Context) error {
+	reply, err := d.DMS.GetBasicInfo(c.Request().Context())
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:route GET /v1/dms/database_source_services/tips dms ListDatabaseSourceServiceTips
@@ -475,6 +511,33 @@ func (d *DMSController) UpdateUser(c echo.Context) error {
 	}
 
 	err = d.DMS.UpdateUser(c.Request().Context(), req, currentUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkResp(c)
+}
+
+// swagger:route PUT /v1/dms/users dms UpdateCurrentUser
+//
+// Update current user.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) UpdateCurrentUser(c echo.Context) error {
+	req := new(aV1.UpdateCurrentUserReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// get current user id
+	currentUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	err = d.DMS.UpdateCurrentUser(c.Request().Context(), req, currentUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}

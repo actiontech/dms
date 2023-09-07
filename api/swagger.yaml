@@ -252,6 +252,21 @@ definitions:
                 x-go-name: LastSyncDataTime
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    BasicInfo:
+        properties:
+            components:
+                items:
+                    $ref: '#/definitions/ComponentNameWithVersion'
+                type: array
+                x-go-name: Components
+            logo_url:
+                type: string
+                x-go-name: LogoUrl
+            title:
+                type: string
+                x-go-name: Title
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     BindOauth2UserReply:
         properties:
             code:
@@ -354,6 +369,14 @@ definitions:
             - password
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    ComponentNameWithVersion:
+        properties:
+            Name:
+                type: string
+            Version:
+                type: string
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DBService:
         description: A db service
         properties:
@@ -447,9 +470,14 @@ definitions:
                     type: string
                 type: array
                 x-go-name: ProxyUrlPrefixs
+            version:
+                description: version number
+                type: string
+                x-go-name: Version
         required:
             - name
             - addr
+            - version
             - proxy_url_prefixs
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
@@ -610,7 +638,26 @@ definitions:
                 type: string
                 x-go-name: Msg
         type: object
-        x-go-package: github.com/actiontech/dms/api/base/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/base/v1
+    GetBasicInfoReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                properties:
+                    basic_info:
+                        $ref: '#/definitions/BasicInfo'
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetDatabaseSourceService:
         properties:
             cron_express:
@@ -1541,10 +1588,6 @@ definitions:
                     $ref: '#/definitions/OpPermissionItem'
                 type: array
                 x-go-name: MemberOpPermissionList
-            uid:
-                description: member uid
-                type: string
-                x-go-name: MemberUid
             user:
                 $ref: '#/definitions/UidWithName'
         type: object
@@ -2484,6 +2527,30 @@ definitions:
                 x-go-name: Uid
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateCurrentUser:
+        properties:
+            email:
+                description: User email
+                type: string
+                x-go-name: Email
+            old_password:
+                description: User old password
+                type: string
+                x-go-name: OldPassword
+            password:
+                description: User new password
+                type: string
+                x-go-name: Password
+            phone:
+                description: User phone
+                type: string
+                x-go-name: Phone
+            wxid:
+                description: User wxid
+                type: string
+                x-go-name: WxID
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateDBService:
         description: update db service
         properties:
@@ -2903,6 +2970,21 @@ info:
     title: dms api.
     version: 0.1.0
 paths:
+    /v1/dms/basic_info:
+        get:
+            operationId: GetBasicInfo
+            responses:
+                "200":
+                    description: GetBasicInfoReply
+                    schema:
+                        $ref: '#/definitions/GetBasicInfoReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: get basic info.
+            tags:
+                - dms
     /v1/dms/configurations/feishu:
         get:
             operationId: GetFeishuConfiguration
@@ -3508,6 +3590,28 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: update a DB Service.
+            tags:
+                - dms
+    /v1/dms/db_services/{db_service_uid}/connection:
+        post:
+            operationId: CheckDBServiceIsConnectableById
+            parameters:
+                - description: db service uid
+                  in: path
+                  name: db_service_uid
+                  required: true
+                  type: string
+                  x-go-name: DBServiceUid
+            responses:
+                "200":
+                    description: CheckDBServiceIsConnectableReply
+                    schema:
+                        $ref: '#/definitions/CheckDBServiceIsConnectableReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: check if the db_service is connectable.
             tags:
                 - dms
     /v1/dms/db_services/connection:
@@ -4525,6 +4629,27 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: Add user.
+            tags:
+                - dms
+        put:
+            operationId: UpdateCurrentUser
+            parameters:
+                - description: Update current user
+                  in: body
+                  name: current_user
+                  schema:
+                    $ref: '#/definitions/UpdateCurrentUser'
+                  x-go-name: User
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Update current user.
             tags:
                 - dms
     /v1/dms/users/{user_uid}:

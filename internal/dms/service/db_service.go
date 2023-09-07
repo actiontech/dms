@@ -7,6 +7,7 @@ import (
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	pkgAes "github.com/actiontech/dms/pkg/dms-common/pkg/aes"
 	"github.com/actiontech/dms/pkg/params"
 	"github.com/actiontech/dms/pkg/periods"
@@ -81,12 +82,49 @@ func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV1.UpdateDBSer
 }
 
 func (d *DMSService) CheckDBServiceIsConnectable(ctx context.Context, req *dmsV1.CheckDBServiceIsConnectableReq) (reply *dmsV1.CheckDBServiceIsConnectableReply, err error) {
-	d.log.Infof("CheckDBServiceIsConnectable.req=%v", req)
-	defer func() {
-		d.log.Infof("CheckDBServiceIsConnectable.req=%v; error=%v", req, err)
-	}()
-	
 	results, err := d.DBServiceUsecase.IsConnectable(ctx, req.DBService)
+
+	if err != nil {
+		d.log.Errorf("IsConnectable err: %v", err)
+		return nil, err
+	}
+
+	ret := &dmsV1.CheckDBServiceIsConnectableReply{}
+	for _, item := range results {
+		ret.Payload.Connections = append(ret.Payload.Connections, dmsV1.CheckDBServiceIsConnectableReplyItem{
+			IsConnectable:       item.IsConnectable,
+			Component:           item.Component,
+			ConnectErrorMessage: item.ConnectErrorMessage,
+		})
+	}
+
+	return ret, nil
+}
+
+func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *dmsV1.CheckDBServiceIsConnectableByIdReq) (reply *dmsV1.CheckDBServiceIsConnectableReply, err error) {
+	dbService, err := d.DBServiceUsecase.GetDBService(ctx, req.DBServiceUid)
+	if err != nil {
+		return nil, err
+	}
+
+	var additionParams []*dmsCommonV1.AdditionalParam
+	for _, item := range dbService.AdditionalParams {
+		additionParams = append(additionParams, &dmsCommonV1.AdditionalParam{
+			Name:  item.Key,
+			Value: item.Value,
+		})
+	}
+
+	checkDbConnectableParams := dmsCommonV1.CheckDbConnectable{
+		DBType:           dbService.DBType.String(),
+		User:             dbService.AdminUser,
+		Host:             dbService.Host,
+		Port:             dbService.Port,
+		Password:         dbService.AdminPassword,
+		AdditionalParams: additionParams,
+	}
+
+	results, err := d.DBServiceUsecase.IsConnectable(ctx, checkDbConnectableParams)
 
 	if err != nil {
 		d.log.Errorf("IsConnectable err: %v", err)

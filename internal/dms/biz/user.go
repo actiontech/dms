@@ -677,6 +677,40 @@ func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid, updateUser
 	return nil
 }
 
+func (d *UserUsecase) UpdateCurrentUser(ctx context.Context, currentUserUid string, oldPassword, password, email, phone, wxId *string) error {
+	user, err := d.GetUser(ctx, currentUserUid)
+	if err != nil {
+		return fmt.Errorf("get user failed: %v", err)
+	}
+
+	// update password
+	if oldPassword != nil && password != nil {
+		if user.UserAuthenticationType == UserAuthenticationTypeLDAP {
+			return fmt.Errorf("the password of the ldap user cannot be changed or reset, because this password is meaningless")
+		}
+		if user.Password != *oldPassword {
+			return fmt.Errorf("old password is wrong")
+		}
+		user.Password = *password
+	}
+
+	if email != nil {
+		user.Email = *email
+	}
+	if phone != nil {
+		user.Phone = *phone
+	}
+	if wxId != nil {
+		user.WxID = *wxId
+	}
+
+	if err := d.repo.UpdateUser(ctx, user); nil != err {
+		return fmt.Errorf("update current user error: %v", err)
+	}
+
+	return nil
+}
+
 func (d *UserUsecase) GetUserByThirdPartyUserID(ctx context.Context, userUid string) (*User, bool, error) {
 	user, err := d.repo.GetUserByThirdPartyUserID(ctx, userUid)
 	if err != nil {
