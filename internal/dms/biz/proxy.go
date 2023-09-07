@@ -58,7 +58,7 @@ func NewDmsProxyUsecase(logger utilLog.Logger, repo ProxyTargetRepo, dmsPort int
 		// 将自身定义为默认代理，当无法匹配转发规则时，转发到自身
 		defaultTargetSelf: &ProxyTarget{
 			ProxyTarget: middleware.ProxyTarget{
-				Name: "dms",
+				Name: componentDMSName,
 				URL:  dmsUrl,
 			},
 		},
