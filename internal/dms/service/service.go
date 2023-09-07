@@ -93,7 +93,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.Options) (*DMSServic
 	webhookConfigurationUsecase := biz.NewWebHookConfigurationUsecase(logger, tx, webhookConfigurationRepo)
 	imConfigurationRepo := storage.NewIMConfigurationRepo(logger, st)
 	imConfigurationUsecase := biz.NewIMConfigurationUsecase(logger, tx, imConfigurationRepo)
-	basicUsecase := biz.NewBasicInfoUsecase(logger, dmsProxyTargetRepo)
+	basicUsecase := biz.NewBasicInfoUsecase(logger, dmsProxyUsecase)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to new dms proxy usecase: %v", err)

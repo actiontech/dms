@@ -140,6 +140,10 @@ func (d *DmsProxyUsecase) checkProxyUrlPrefix(proxyUrlPrefixs []string) error {
 	return nil
 }
 
+func (d *DmsProxyUsecase) ListProxyTargets(ctx context.Context) ([]*ProxyTarget, error) {
+	return d.repo.ListProxyTargets(ctx)
+}
+
 // AddTarget实现echo的ProxyBalancer接口， 没有实际意义
 func (d *DmsProxyUsecase) AddTarget(target *middleware.ProxyTarget) bool {
 	return true

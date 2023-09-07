@@ -8,14 +8,14 @@ import (
 )
 
 type BasicUsecase struct {
-	log         *utilLog.Helper
-	proxyTarget ProxyTargetRepo
+	log             *utilLog.Helper
+	dmsProxyUsecase *DmsProxyUsecase
 }
 
-func NewBasicInfoUsecase(log utilLog.Logger, proxyTarget ProxyTargetRepo) *BasicUsecase {
+func NewBasicInfoUsecase(log utilLog.Logger, dmsProxyUsecase *DmsProxyUsecase) *BasicUsecase {
 	return &BasicUsecase{
-		log:         utilLog.NewHelper(log, utilLog.WithMessageKey("biz.basic")),
-		proxyTarget: proxyTarget,
+		log:             utilLog.NewHelper(log, utilLog.WithMessageKey("biz.basic")),
+		dmsProxyUsecase: dmsProxyUsecase,
 	}
 }
 
@@ -34,7 +34,7 @@ const (
 )
 
 func (d *BasicUsecase) GetBasicInfo(ctx context.Context) (*BasicInfo, error) {
-	targets, err := d.proxyTarget.ListProxyTargets(ctx)
+	targets, err := d.dmsProxyUsecase.ListProxyTargets(ctx)
 	if err != nil {
 		return nil, err
 	}
