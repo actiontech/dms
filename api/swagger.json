@@ -17,6 +17,29 @@
   },
   "basePath": "/",
   "paths": {
+    "/v1/dms/basic_info": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "get basic info.",
+        "operationId": "GetBasicInfo",
+        "responses": {
+          "200": {
+            "description": "GetBasicInfoReply",
+            "schema": {
+              "$ref": "#/definitions/GetBasicInfoReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/configurations/feishu": {
       "get": {
         "tags": [
@@ -2969,6 +2992,27 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "BasicInfo": {
+      "type": "object",
+      "properties": {
+        "components": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ComponentNameWithVersion"
+          },
+          "x-go-name": "Components"
+        },
+        "logo_url": {
+          "type": "string",
+          "x-go-name": "LogoUrl"
+        },
+        "title": {
+          "type": "string",
+          "x-go-name": "Title"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "BindOauth2UserReply": {
       "type": "object",
       "properties": {
@@ -3104,6 +3148,18 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "ComponentNameWithVersion": {
+      "type": "object",
+      "properties": {
+        "Name": {
+          "type": "string"
+        },
+        "Version": {
+          "type": "string"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "DBService": {
       "description": "A db service",
       "type": "object",
@@ -3197,6 +3253,7 @@
       "required": [
         "name",
         "addr",
+        "version",
         "proxy_url_prefixs"
       ],
       "properties": {
@@ -3217,6 +3274,11 @@
             "type": "string"
           },
           "x-go-name": "ProxyUrlPrefixs"
+        },
+        "version": {
+          "description": "version number",
+          "type": "string",
+          "x-go-name": "Version"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -3425,7 +3487,33 @@
           "x-go-name": "Msg"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/base/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
+    },
+    "GetBasicInfoReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "msg": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Msg"
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "basic_info": {
+              "$ref": "#/definitions/BasicInfo"
+            }
+          },
+          "x-go-name": "Payload"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetDatabaseSourceService": {
       "type": "object",
@@ -4617,11 +4705,6 @@
           },
           "x-go-name": "MemberOpPermissionList"
         },
-        "uid": {
-          "description": "member uid",
-          "type": "string",
-          "x-go-name": "MemberUid"
-        },
         "user": {
           "$ref": "#/definitions/UidWithName"
         }
@@ -5757,7 +5840,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCurrentUser": {
       "type": "object",

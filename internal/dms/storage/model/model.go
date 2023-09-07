@@ -185,6 +185,7 @@ type Namespace struct {
 type ProxyTarget struct {
 	Name            string `json:"name" gorm:"primaryKey;size:200;not null;column:name"`
 	Url             string `json:"url" gorm:"column:url"`
+	Version         string `json:"version" gorm:"column:version"`
 	ProxyUrlPrefixs string `json:"proxy_url_prefixs" gorm:"column:proxy_url_prefixs"`
 }
 
