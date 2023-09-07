@@ -11,6 +11,7 @@ import (
 
 	"github.com/actiontech/dms/internal/apiserver/conf"
 	"github.com/actiontech/dms/internal/apiserver/service"
+	dmsConf "github.com/actiontech/dms/internal/dms/conf"
 	pkgLog "github.com/actiontech/dms/internal/pkg/log"
 	"github.com/actiontech/dms/pkg/rand"
 
@@ -30,6 +31,7 @@ var (
 
 func init() {
 	flag.StringVar(&flagconf, "conf", "config.yaml", "config path, eg: -conf config.yaml")
+	dmsConf.Version = Version
 }
 
 func run(logger utilLog.Logger) error {

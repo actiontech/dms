@@ -9,6 +9,7 @@ import (
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/dms/storage/model"
+	"github.com/labstack/echo/v4/middleware"
 
 	pkgAes "github.com/actiontech/dms/pkg/dms-common/pkg/aes"
 
@@ -539,6 +540,7 @@ func convertBizProxyTarget(t *biz.ProxyTarget) (*model.ProxyTarget, error) {
 	return &model.ProxyTarget{
 		Name:            t.Name,
 		Url:             t.URL.String(),
+		Version:         t.Version,
 		ProxyUrlPrefixs: strings.Join(t.GetProxyUrlPrefixs(), ";"),
 	}, nil
 }
@@ -549,9 +551,12 @@ func convertModelProxyTarget(t *model.ProxyTarget) (*biz.ProxyTarget, error) {
 		return nil, fmt.Errorf("invalid url: %s", t.Url)
 	}
 	p := &biz.ProxyTarget{
-		Name: t.Name,
-		URL:  url,
-		Meta: echo.Map{},
+		ProxyTarget: middleware.ProxyTarget{
+			Name: t.Name,
+			URL:  url,
+			Meta: echo.Map{},
+		},
+		Version: t.Version,
 	}
 	p.SetProxyUrlPrefix(strings.Split(t.ProxyUrlPrefixs, ";"))
 	return p, nil
