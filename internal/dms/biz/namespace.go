@@ -96,6 +96,25 @@ type ListNamespacesOption struct {
 }
 
 func (d *NamespaceUsecase) ListNamespace(ctx context.Context, option *ListNamespacesOption, currentUserUid string) (namespaces []*Namespace, total int64, err error) {
+	// filter visible namespce space in advance
+	// user can only view his belonging namespace,sys user can view all namespace
+	if currentUserUid != pkgConst.UIDOfUserSys {
+		namespaceWithOppermissions, err := d.opPermissionVerifyUsecase.GetUserNamespaceOpPermission(ctx, currentUserUid)
+		if err != nil {
+			return nil, 0, err
+		}
+		canViewableId := make([]string, 0)
+		for _, namespaceWithOppermission := range namespaceWithOppermissions {
+			canViewableId = append(canViewableId, namespaceWithOppermission.NamespaceUid)
+		}
+		option.FilterBy = append(option.FilterBy, pkgConst.FilterCondition{
+			Field:    string(NamespaceFieldUID),
+			Operator: pkgConst.FilterOperatorIn,
+			Value:    canViewableId,
+		})
+
+	}
+
 	namespaces, total, err = d.repo.ListNamespaces(ctx, option, currentUserUid)
 	if err != nil {
 		return nil, 0, fmt.Errorf("list namespaces failed: %v", err)

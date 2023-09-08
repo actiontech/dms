@@ -66,8 +66,8 @@ func (o *OpPermissionVerifyRepo) GetUserNamespaceWithOpPermissions(ctx context.C
 		FROM namespaces AS n
 		JOIN members AS m ON n.uid = m.namespace_uid
 		JOIN users AS u ON m.user_uid = u.uid AND u.uid = ?
-		JOIN member_role_op_ranges AS r ON m.uid=r.member_uid
-		JOIN role_op_permissions AS p ON r.role_uid = p.role_uid
+		LEFT JOIN member_role_op_ranges AS r ON m.uid=r.member_uid
+		LEFT JOIN role_op_permissions AS p ON r.role_uid = p.role_uid
 		WHERE n.status = 'active'
 		UNION
 		SELECT 
@@ -76,8 +76,8 @@ func (o *OpPermissionVerifyRepo) GetUserNamespaceWithOpPermissions(ctx context.C
 		JOIN member_groups AS mg ON n.uid = mg.namespace_uid
 		JOIN member_group_users AS mgu ON mg.uid = mgu.member_group_uid
 		JOIN users AS u ON mgu.user_uid = u.uid AND u.uid = ?
-		JOIN member_group_role_op_ranges AS mgrop ON mg.uid=mgrop.member_group_uid
-		JOIN role_op_permissions AS rop ON mgrop.role_uid = rop.role_uid
+		LEFT JOIN member_group_role_op_ranges AS mgrop ON mg.uid=mgrop.member_group_uid
+		LEFT JOIN role_op_permissions AS rop ON mgrop.role_uid = rop.role_uid
 		WHERE n.status = 'active'
 	`, userUid, userUid).Find(&ret).Error; err != nil {
 			return fmt.Errorf("failed to find user op permission with namespace: %v", err)
@@ -118,15 +118,15 @@ func (o *OpPermissionVerifyRepo) GetUserOpPermissionInNamespace(ctx context.Cont
 		SELECT 
 		    p.op_permission_uid, r.op_range_type, r.range_uids 
 		FROM members AS m 
-		JOIN member_role_op_ranges AS r ON m.uid=r.member_uid AND m.user_uid=? AND m.namespace_uid=? 
-		JOIN role_op_permissions AS p ON r.role_uid = p.role_uid
+		LEFT JOIN member_role_op_ranges AS r ON m.uid=r.member_uid AND m.user_uid=? AND m.namespace_uid=? 
+		LEFT JOIN role_op_permissions AS p ON r.role_uid = p.role_uid
 		UNION 
 		SELECT
 			DISTINCT rop.op_permission_uid, mgror.op_range_type, mgror.range_uids 
 		FROM member_groups mg
 		JOIN member_group_users mgu ON mg.uid = mgu.member_group_uid
-		JOIN member_group_role_op_ranges mgror ON mgu.member_group_uid = mgror.member_group_uid
-		JOIN role_op_permissions rop ON mgror.role_uid = rop.role_uid
+		LEFT JOIN member_group_role_op_ranges mgror ON mgu.member_group_uid = mgror.member_group_uid
+		LEFT JOIN role_op_permissions rop ON mgror.role_uid = rop.role_uid
 		WHERE mg.namespace_uid = ? and mgu.user_uid = ?`, userUid, namespaceUid, namespaceUid, userUid).Scan(&results).Error; err != nil {
 			return fmt.Errorf("failed to get user op permission in namespace: %v", err)
 		}
@@ -286,15 +286,15 @@ func (o *OpPermissionVerifyRepo) ListUsersOpPermissionInNamespace(ctx context.Co
 				SELECT 
 					m.user_uid, p.op_permission_uid, r.op_range_type, r.range_uids 
 				FROM members AS m 
-				JOIN member_role_op_ranges AS r ON m.uid=r.member_uid AND m.user_uid in (?) AND m.namespace_uid=? 
-				JOIN role_op_permissions AS p ON r.role_uid = p.role_uid
+				LEFT JOIN member_role_op_ranges AS r ON m.uid=r.member_uid AND m.user_uid in (?) AND m.namespace_uid=? 
+				LEFT JOIN role_op_permissions AS p ON r.role_uid = p.role_uid
 				UNION 
 				SELECT
 					DISTINCT mgu.user_uid, rop.op_permission_uid, mgror.op_range_type, mgror.range_uids 
 				FROM member_groups mg
 				JOIN member_group_users mgu ON mg.uid = mgu.member_group_uid
-				JOIN member_group_role_op_ranges mgror ON mgu.member_group_uid = mgror.member_group_uid
-				JOIN role_op_permissions rop ON mgror.role_uid = rop.role_uid
+				LEFT JOIN member_group_role_op_ranges mgror ON mgu.member_group_uid = mgror.member_group_uid
+				LEFT JOIN role_op_permissions rop ON mgror.role_uid = rop.role_uid
 				WHERE mg.namespace_uid = ? and mgu.user_uid in (?)`, userIds, namespaceUid, namespaceUid, userIds).Scan(&permissionResults).Error; err != nil {
 					return fmt.Errorf("failed to get user op permission in namespace: %v", err)
 				}
