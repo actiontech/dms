@@ -45,7 +45,7 @@ func ParseOpRangeType(t string) (OpRangeType, error) {
 	case OpRangeTypeDBService.String():
 		return OpRangeTypeDBService, nil
 	default:
-		return "", errors.New("invalid op range type")
+		return "", nil
 	}
 }
 
