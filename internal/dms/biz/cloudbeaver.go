@@ -84,17 +84,6 @@ func NewCloudbeaverUsecase(log utilLog.Logger, cfg CloudbeaverCfg, userUsecase *
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.cloudbeaver")),
 	}
 
-	if cu.IsCloudbeaverConfigured() {
-		graphQl, err := cloudbeaver.NewGraphQL(cu.getGraphQLServerURI())
-		if err != nil {
-			cu.log.Errorf("NewGraphQL err: %v", err)
-
-			return
-		}
-
-		cu.graphQl = graphQl
-	}
-
 	return
 }
 
@@ -104,6 +93,23 @@ func (cu *CloudbeaverUsecase) GetRootUri() string {
 
 func (cu *CloudbeaverUsecase) IsCloudbeaverConfigured() bool {
 	return cu.cloudbeaverCfg.Host != "" && cu.cloudbeaverCfg.Port != "" && cu.cloudbeaverCfg.AdminUser != "" && cu.cloudbeaverCfg.AdminPassword != ""
+}
+
+var graphQLOnce = &sync.Once{}
+
+func (cu *CloudbeaverUsecase) initialGraphQL() {
+	if cu.IsCloudbeaverConfigured() && cu.graphQl == nil {
+		graphQLOnce.Do(func() {
+			graphQl, err := cloudbeaver.NewGraphQL(cu.getGraphQLServerURI())
+			if err != nil {
+				cu.log.Errorf("NewGraphQL err: %v", err)
+
+				return
+			}
+
+			cu.graphQl = graphQl
+		})
+	}
 }
 
 func (cu *CloudbeaverUsecase) getGraphQLServerURI() string {
@@ -135,6 +141,8 @@ func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 				cu.log.Errorf("GetUserUidStrFromContext err: %v", err)
 				return errors.New("get user name from token failed")
 			}
+
+			cu.initialGraphQL()
 
 			cloudbeaverSessionId := cu.getCloudbeaverSession(dmsUserId, dmsToken)
 			if cloudbeaverSessionId != "" {
