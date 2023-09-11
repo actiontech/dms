@@ -99,13 +99,13 @@ func (d *NamespaceUsecase) ListNamespace(ctx context.Context, option *ListNamesp
 	// filter visible namespce space in advance
 	// user can only view his belonging namespace,sys user can view all namespace
 	if currentUserUid != pkgConst.UIDOfUserSys {
-		namespaceWithOppermissions, err := d.opPermissionVerifyUsecase.GetUserNamespaceOpPermission(ctx, currentUserUid)
+		namespaces, err := d.opPermissionVerifyUsecase.GetUserNamespace(ctx, currentUserUid)
 		if err != nil {
 			return nil, 0, err
 		}
 		canViewableId := make([]string, 0)
-		for _, namespaceWithOppermission := range namespaceWithOppermissions {
-			canViewableId = append(canViewableId, namespaceWithOppermission.NamespaceUid)
+		for _, namespace := range namespaces {
+			canViewableId = append(canViewableId, namespace.UID)
 		}
 		option.FilterBy = append(option.FilterBy, pkgConst.FilterCondition{
 			Field:    string(NamespaceFieldUID),
