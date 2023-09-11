@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/actiontech/dms/internal/dms/biz"
+	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	"github.com/actiontech/dms/internal/dms/storage/model"
 
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
@@ -66,8 +67,8 @@ func (o *OpPermissionVerifyRepo) GetUserNamespaceWithOpPermissions(ctx context.C
 		FROM namespaces AS n
 		JOIN members AS m ON n.uid = m.namespace_uid
 		JOIN users AS u ON m.user_uid = u.uid AND u.uid = ?
-		JOIN member_role_op_ranges AS r ON m.uid=r.member_uid
-		JOIN role_op_permissions AS p ON r.role_uid = p.role_uid
+		LEFT JOIN member_role_op_ranges AS r ON m.uid=r.member_uid
+		LEFT JOIN role_op_permissions AS p ON r.role_uid = p.role_uid
 		WHERE n.status = 'active'
 		UNION
 		SELECT 
@@ -76,8 +77,8 @@ func (o *OpPermissionVerifyRepo) GetUserNamespaceWithOpPermissions(ctx context.C
 		JOIN member_groups AS mg ON n.uid = mg.namespace_uid
 		JOIN member_group_users AS mgu ON mg.uid = mgu.member_group_uid
 		JOIN users AS u ON mgu.user_uid = u.uid AND u.uid = ?
-		JOIN member_group_role_op_ranges AS mgrop ON mg.uid=mgrop.member_group_uid
-		JOIN role_op_permissions AS rop ON mgrop.role_uid = rop.role_uid
+		LEFT JOIN member_group_role_op_ranges AS mgrop ON mg.uid=mgrop.member_group_uid
+		LEFT JOIN role_op_permissions AS rop ON mgrop.role_uid = rop.role_uid
 		WHERE n.status = 'active'
 	`, userUid, userUid).Find(&ret).Error; err != nil {
 			return fmt.Errorf("failed to find user op permission with namespace: %v", err)
@@ -341,4 +342,40 @@ func (o *OpPermissionVerifyRepo) ListUsersOpPermissionInNamespace(ctx context.Co
 	}
 
 	return items, total, nil
+}
+
+func (d *OpPermissionVerifyRepo) GetUserNamespace(ctx context.Context, userUid string) (namespaces []*biz.Namespace, err error) {
+	var models []*model.Namespace
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Raw(`
+			SELECT 
+			n.*
+		FROM
+			namespaces n
+			JOIN members m ON n.uid = m.namespace_uid
+			JOIN users u ON m.user_uid = u.uid AND u.uid = ?
+		UNION
+		SELECT 
+			DISTINCT n.*
+		FROM 
+			namespaces n
+			JOIN member_groups mg on n.uid = mg.namespace_uid
+			JOIN member_group_users mgu ON mgu.member_group_uid = mg.uid
+			JOIN users u ON mgu.user_uid = u.uid AND u.uid = ?
+			`, userUid, userUid).Scan(&models).Error; err != nil {
+			return fmt.Errorf("failed to list user namespace: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	// convert model to biz
+	for _, model := range models {
+		ds, err := convertModelNamespace(model)
+		if err != nil {
+			return nil, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert model namespaces: %v", err))
+		}
+		namespaces = append(namespaces, ds)
+	}
+	return namespaces, nil
 }

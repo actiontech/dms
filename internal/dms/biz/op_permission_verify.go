@@ -18,6 +18,7 @@ type OpPermissionVerifyRepo interface {
 	GetUserGlobalOpPermission(ctx context.Context, userUid string) (opPermissions []*OpPermission, err error)
 	GetUserNamespaceWithOpPermissions(ctx context.Context, userUid string) (namespaceWithPermission []NamespaceOpPermissionWithOpRange, err error)
 	ListUsersOpPermissionInNamespace(ctx context.Context, namespaceUid string, opt *ListMembersOpPermissionOption) (items []ListMembersOpPermissionItem, total int64, err error)
+	GetUserNamespace(ctx context.Context, userUid string) (namespaces []*Namespace, err error)
 }
 
 type OpPermissionVerifyUsecase struct {
@@ -171,4 +172,14 @@ func (o *OpPermissionVerifyUsecase) ListUsersOpPermissionInNamespace(ctx context
 	}
 
 	return items, total, nil
+}
+
+func (o *OpPermissionVerifyUsecase) GetUserNamespace(ctx context.Context, userUid string) ([]*Namespace, error) {
+
+	namespaces, err := o.repo.GetUserNamespace(ctx, userUid)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user namespace with op permission : %v", err)
+	}
+
+	return namespaces, nil
 }
