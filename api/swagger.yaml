@@ -4242,6 +4242,34 @@ paths:
             summary: List op permission.
             tags:
                 - dms
+    /v1/dms/personalisation:
+        post:
+            description: personalize [title, logo]
+            operationId: Personalisation
+            parameters:
+                - description: title
+                  in: formData
+                  name: title
+                  required: true
+                  type: string
+                  x-go-name: Title
+                - description: file upload
+                  in: formData
+                  name: file
+                  required: true
+                  type: file
+                  x-go-name: File
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            tags:
+                - dms
     /v1/dms/plugin:
         post:
             operationId: RegisterDMSPlugin
@@ -4440,6 +4468,21 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: Get current user.
+            tags:
+                - dms
+    /v1/dms/static/logo:
+        get:
+            description: get logo
+            operationId: GetStaticLogo
+            produces:
+                - application/octet-stream
+            responses:
+                "200":
+                    $ref: '#/responses/GetStaticLogoReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
             tags:
                 - dms
     /v1/dms/user_groups:
@@ -4785,6 +4828,10 @@ responses:
             msg:
                 description: message
                 type: string
+    GetStaticLogoReply:
+        description: ""
+        schema:
+            type: file
 schemes:
     - http
     - https
