@@ -4242,10 +4242,10 @@ paths:
             summary: List op permission.
             tags:
                 - dms
-    /v1/dms/personalisation:
+    /v1/dms/personalization:
         post:
             description: personalize [title, logo]
-            operationId: Personalisation
+            operationId: Personalization
             parameters:
                 - description: title
                   in: formData
@@ -4264,6 +4264,21 @@ paths:
                     description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            tags:
+                - dms
+    /v1/dms/personalization/logo:
+        get:
+            description: get logo
+            operationId: GetStaticLogo
+            produces:
+                - application/octet-stream
+            responses:
+                "200":
+                    $ref: '#/responses/GetStaticLogoReply'
                 default:
                     description: GenericResp
                     schema:
@@ -4468,21 +4483,6 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: Get current user.
-            tags:
-                - dms
-    /v1/dms/static/logo:
-        get:
-            description: get logo
-            operationId: GetStaticLogo
-            produces:
-                - application/octet-stream
-            responses:
-                "200":
-                    $ref: '#/responses/GetStaticLogoReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
             tags:
                 - dms
     /v1/dms/user_groups:
