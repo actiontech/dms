@@ -388,7 +388,7 @@ func (d *DBServiceUsecase) IsConnectable(ctx context.Context, params dmsCommonV1
 			if err != nil {
 				isConnectableReply.ConnectErrorMessage = err.Error()
 			} else if reply.Code != 0 {
-				isConnectableReply.ConnectErrorMessage = reply.Msg
+				isConnectableReply.ConnectErrorMessage = reply.Message
 			} else {
 				isConnectableReply.IsConnectable = true
 			}

@@ -64,9 +64,6 @@ func (d *DMSService) ListOpPermissions(ctx context.Context, req *dmsV1.ListOpPer
 	}
 
 	return &dmsV1.ListOpPermissionReply{
-		Payload: struct {
-			OpPermissions []*dmsV1.ListOpPermission `json:"op_permissions"`
-			Total         int64                     `json:"total"`
-		}{OpPermissions: ret, Total: total},
+		Data:  ret, Total: total,
 	}, nil
 }

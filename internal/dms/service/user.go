@@ -25,7 +25,7 @@ func (d *DMSService) VerifyUserLogin(ctx context.Context, req *dmsV1.VerifyUserL
 	}
 
 	return &dmsV1.VerifyUserLoginReply{
-		Payload: struct {
+		Data: struct {
 			// If verify Successful, return empty string, otherwise return error message
 			VerifyFailedMsg string `json:"verify_failed_msg"`
 			// If verify Successful, return user uid
@@ -59,7 +59,7 @@ func (d *DMSService) GetCurrentUser(ctx context.Context, req *dmsV1.GetUserBySes
 	}
 
 	return &dmsV1.GetUserBySessionReply{
-		Payload: struct {
+		Data: struct {
 			// User UID
 			UserUid string `json:"user_uid"`
 			// User name
@@ -92,7 +92,7 @@ func (d *DMSService) AddUser(ctx context.Context, currentUserUid string, req *dm
 	}
 
 	return &dmsV1.AddUserReply{
-		Payload: struct {
+		Data: struct {
 			// user UID
 			Uid string `json:"uid"`
 		}{Uid: uid},
@@ -243,10 +243,7 @@ func (d *DMSService) ListUsers(ctx context.Context, req *dmsCommonV1.ListUserReq
 	}
 
 	return &dmsCommonV1.ListUserReply{
-		Payload: struct {
-			Users []*dmsCommonV1.ListUser `json:"users"`
-			Total int64                   `json:"total"`
-		}{Users: ret, Total: total},
+		Data: ret, Total: total,
 	}, nil
 }
 
@@ -268,7 +265,7 @@ func (d *DMSService) AddUserGroup(ctx context.Context, currentUserUid string, re
 	}
 
 	return &dmsV1.AddUserGroupReply{
-		Payload: struct {
+		Data: struct {
 			// user group UID
 			Uid string `json:"uid"`
 		}{Uid: uid},
@@ -367,10 +364,7 @@ func (d *DMSService) ListUserGroups(ctx context.Context, req *dmsV1.ListUserGrou
 	}
 
 	return &dmsV1.ListUserGroupReply{
-		Payload: struct {
-			UserGroups []*dmsV1.ListUserGroup `json:"user_groups"`
-			Total      int64                  `json:"total"`
-		}{UserGroups: ret, Total: total},
+		Data: ret, Total: total,
 	}, nil
 }
 
@@ -420,7 +414,7 @@ func (d *DMSService) GetUserOpPermission(ctx context.Context, req *dmsCommonV1.G
 	}
 
 	reply = &dmsCommonV1.GetUserOpPermissionReply{
-		Payload: struct {
+		Data: struct {
 			IsAdmin          bool                           `json:"is_admin"`
 			OpPermissionList []dmsCommonV1.OpPermissionItem `json:"op_permission_list"`
 		}{IsAdmin: isAdmin, OpPermissionList: replyOpPermission},
@@ -522,9 +516,7 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 	dmsCommonUser.UserBindProjects = userBindProjects
 
 	reply = &dmsCommonV1.GetUserReply{
-		Payload: struct {
-			User *dmsCommonV1.GetUser `json:"user"`
-		}{User: dmsCommonUser},
+		Data: dmsCommonUser,
 	}
 
 	d.log.Infof("GetUser.resp=%v", reply)

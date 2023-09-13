@@ -3,7 +3,7 @@ package v1
 import (
 	"fmt"
 
-	base "github.com/actiontech/dms/api/base/v1"
+	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 )
 
 // A user
@@ -44,10 +44,10 @@ func (u *AddUserReq) String() string {
 // swagger:model AddUserReply
 type AddUserReply struct {
 	// Add user reply
-	Payload struct {
+	Data struct {
 		// user UID
 		Uid string `json:"uid"`
-	} `json:"payload"`
+	} `json:"data"`
 
 	// Generic reply
 	base.GenericResp
@@ -57,7 +57,7 @@ func (u *AddUserReply) String() string {
 	if u == nil {
 		return "AddUserReply{nil}"
 	}
-	return fmt.Sprintf("AddUserReply{Uid:%s}", u.Payload.Uid)
+	return fmt.Sprintf("AddUserReply{Uid:%s}", u.Data.Uid)
 }
 
 // swagger:parameters DelUser
@@ -157,19 +157,19 @@ func (u *VerifyUserLoginReq) String() string {
 }
 
 type VerifyUserLoginReply struct {
-	Payload struct {
+	Data struct {
 		// If verify Successful, return empty string, otherwise return error message
 		VerifyFailedMsg string `json:"verify_failed_msg"`
 		// If verify Successful, return user uid
 		UserUid string `json:"user_uid"`
-	} `json:"payload"`
+	} `json:"data"`
 }
 
 func (u *VerifyUserLoginReply) String() string {
 	if u == nil {
 		return "VerifyUserLoginReply{nil}"
 	}
-	return fmt.Sprintf("VerifyUserLoginReply{UserUid:%s}", u.Payload.UserUid)
+	return fmt.Sprintf("VerifyUserLoginReply{UserUid:%s}", u.Data.UserUid)
 }
 
 type AfterUserLoginReq struct {

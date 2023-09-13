@@ -1,6 +1,6 @@
 package v1
 
-import base "github.com/actiontech/dms/api/base/v1"
+import base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 
 // Use this struct to add a new session
 type AddSession struct {
@@ -22,10 +22,10 @@ type AddSessionReq struct {
 // swagger:model AddSessionReply
 type AddSessionReply struct {
 	// Add user reply
-	Payload struct {
+	Data struct {
 		// Session token
 		Token string `json:"token"`
-	} `json:"payload"`
+	} `json:"data"`
 
 	// Generic reply
 	base.GenericResp
@@ -39,12 +39,12 @@ type GetUserBySessionReq struct {
 // swagger:model GetUserBySessionReply
 type GetUserBySessionReply struct {
 	// Get user reply
-	Payload struct {
+	Data struct {
 		// User UID
 		UserUid string `json:"user_uid"`
 		// User name
 		Name string `json:"name"`
-	} `json:"payload"`
+	} `json:"data"`
 
 	// Generic reply
 	base.GenericResp

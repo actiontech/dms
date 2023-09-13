@@ -3,7 +3,7 @@ package v1
 import (
 	"time"
 
-	base "github.com/actiontech/dms/api/base/v1"
+	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 )
 
 // swagger:parameters ListDatabaseSourceServices
@@ -16,9 +16,8 @@ type ListDatabaseSourceServicesReq struct {
 
 // swagger:model ListDatabaseSourceServicesReply
 type ListDatabaseSourceServicesReply struct {
-	Payload struct {
-		DatabaseSourceServices []*ListDatabaseSourceService `json:"database_source_services"`
-	} `json:"payload"`
+	Data []*ListDatabaseSourceService `json:"data"`
+
 	// Generic reply
 	base.GenericResp
 }
@@ -36,9 +35,8 @@ type GetDatabaseSourceServiceReq struct {
 
 // swagger:model GetDatabaseSourceServiceReply
 type GetDatabaseSourceServiceReply struct {
-	Payload struct {
-		DatabaseSourceService *GetDatabaseSourceService `json:"database_source_service"`
-	} `json:"payload"`
+	Data *GetDatabaseSourceService `json:"data"`
+
 	// Generic reply
 	base.GenericResp
 }
@@ -102,10 +100,10 @@ type AddDatabaseSourceServiceReq struct {
 // swagger:model AddDatabaseSourceServiceReply
 type AddDatabaseSourceServiceReply struct {
 	// add database source service reply
-	Payload struct {
+	Data struct {
 		// db service UID
 		Uid string `json:"uid"`
-	} `json:"payload"`
+	} `json:"data"`
 
 	// Generic reply
 	base.GenericResp
@@ -147,9 +145,8 @@ type DatabaseSource struct {
 
 // swagger:model ListDatabaseSourceServiceTipsReply
 type ListDatabaseSourceServiceTipsReply struct {
-	Payload struct {
-		DatabaseSources []*DatabaseSource `json:"database_sources"`
-	} `json:"payload"`
+	Data []*DatabaseSource `json:"data"`
+
 	// Generic reply
 	base.GenericResp
 }

@@ -91,7 +91,7 @@ func (d *DMSService) CheckDBServiceIsConnectable(ctx context.Context, req *dmsV1
 
 	ret := &dmsV1.CheckDBServiceIsConnectableReply{}
 	for _, item := range results {
-		ret.Payload.Connections = append(ret.Payload.Connections, dmsV1.CheckDBServiceIsConnectableReplyItem{
+		ret.Data = append(ret.Data, dmsV1.CheckDBServiceIsConnectableReplyItem{
 			IsConnectable:       item.IsConnectable,
 			Component:           item.Component,
 			ConnectErrorMessage: item.ConnectErrorMessage,
@@ -133,7 +133,7 @@ func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *d
 
 	ret := &dmsV1.CheckDBServiceIsConnectableReply{}
 	for _, item := range results {
-		ret.Payload.Connections = append(ret.Payload.Connections, dmsV1.CheckDBServiceIsConnectableReplyItem{
+		ret.Data = append(ret.Data, dmsV1.CheckDBServiceIsConnectableReplyItem{
 			IsConnectable:       item.IsConnectable,
 			Component:           item.Component,
 			ConnectErrorMessage: item.ConnectErrorMessage,
@@ -201,7 +201,7 @@ func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceRe
 	}
 
 	return &dmsV1.AddDBServiceReply{
-		Payload: struct {
+		Data: struct {
 			// db service UID
 			Uid string `json:"uid"`
 		}{Uid: uid},
@@ -353,10 +353,8 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsV1.ListDBServic
 	}
 
 	return &dmsV1.ListDBServiceReply{
-		Payload: struct {
-			DBServices []*dmsV1.ListDBService `json:"db_services"`
-			Total      int64                  `json:"total"`
-		}{DBServices: ret, Total: total},
+		Data:  ret,
+		Total: total,
 	}, nil
 }
 
@@ -386,10 +384,6 @@ func (d *DMSService) ListDBServiceDriverOption(ctx context.Context) (reply *dmsV
 	}
 
 	return &dmsV1.ListDBServiceDriverOptionReply{
-		Payload: struct {
-			DatabaseDriverOptions []*dmsV1.DatabaseDriverOption `json:"database_driver_options"`
-		}{
-			ret,
-		},
+		Data: ret,
 	}, nil
 }

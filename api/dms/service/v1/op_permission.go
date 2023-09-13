@@ -3,7 +3,7 @@ package v1
 import (
 	"fmt"
 
-	base "github.com/actiontech/dms/api/base/v1"
+	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 )
 
 // swagger:enum OpRangeType
@@ -76,10 +76,8 @@ type ListOpPermission struct {
 // swagger:model ListOpPermissionReply
 type ListOpPermissionReply struct {
 	// List op_permission reply
-	Payload struct {
-		OpPermissions []*ListOpPermission `json:"op_permissions"`
-		Total         int64               `json:"total"`
-	} `json:"payload"`
+	Data  []*ListOpPermission `json:"data"`
+	Total int64               `json:"total_nums"`
 
 	// Generic reply
 	base.GenericResp
