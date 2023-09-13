@@ -1879,13 +1879,13 @@
         }
       }
     },
-    "/v1/dms/personalisation": {
+    "/v1/dms/personalization": {
       "post": {
         "description": "personalize [title, logo]",
         "tags": [
           "dms"
         ],
-        "operationId": "Personalisation",
+        "operationId": "Personalization",
         "parameters": [
           {
             "type": "string",
@@ -1910,6 +1910,29 @@
             "schema": {
               "$ref": "#/definitions/GenericResp"
             }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/personalization/logo": {
+      "get": {
+        "description": "get logo",
+        "produces": [
+          "application/octet-stream"
+        ],
+        "tags": [
+          "dms"
+        ],
+        "operationId": "GetStaticLogo",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetStaticLogoReply"
           },
           "default": {
             "description": "GenericResp",
@@ -2208,29 +2231,6 @@
             "schema": {
               "$ref": "#/definitions/GetUserBySessionReply"
             }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      }
-    },
-    "/v1/dms/static/logo": {
-      "get": {
-        "description": "get logo",
-        "produces": [
-          "application/octet-stream"
-        ],
-        "tags": [
-          "dms"
-        ],
-        "operationId": "GetStaticLogo",
-        "responses": {
-          "200": {
-            "$ref": "#/responses/GetStaticLogoReply"
           },
           "default": {
             "description": "GenericResp",
