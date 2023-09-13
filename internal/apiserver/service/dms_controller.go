@@ -350,6 +350,55 @@ func (d *DMSController) GetBasicInfo(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
+// swagger:route GET /v1/dms/static/logo dms GetStaticLogo
+//
+// get logo
+//
+//	Produces:
+//	- application/octet-stream
+//
+//	responses:
+//	  200: GetStaticLogoReply
+//	  default: body:GenericResp
+func (d *DMSController) GetStaticLogo(c echo.Context) error {
+	reply, contentType, err := d.DMS.GetStaticLogo(c.Request().Context())
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return c.Blob(http.StatusOK, contentType, reply.File)
+}
+
+// swagger:route POST /v1/dms/personalisation dms Personalisation
+//
+// personalize [title, logo]
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) Personalisation(c echo.Context) error {
+	fileHeader, err := c.FormFile("file")
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	req := &aV1.PersonalisationReq{
+		File: fileHeader,
+	}
+
+	err = bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	err = d.DMS.Personalisation(c.Request().Context(), req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkResp(c)
+}
+
 // swagger:route GET /v1/dms/database_source_services/tips dms ListDatabaseSourceServiceTips
 //
 // List database source service tips.

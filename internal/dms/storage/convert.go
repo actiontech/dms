@@ -235,6 +235,25 @@ func convertBizDatabaseSourceService(u *biz.DatabaseSourceServiceParams) *model.
 	return m
 }
 
+func convertBizBasicConfig(u *biz.BasicConfigParams) *model.BasicConfig {
+	m := &model.BasicConfig{
+		Model: model.Model{UID: u.UID, CreatedAt: u.CreatedAt},
+		Title: u.Title,
+		Logo:  u.Logo,
+	}
+
+	return m
+}
+
+func convertModelBasicConfig(m *model.BasicConfig) *biz.BasicConfigParams {
+	return &biz.BasicConfigParams{
+		Base:  convertBase(m.Model),
+		UID:   m.UID,
+		Title: m.Title,
+		Logo:  m.Logo,
+	}
+}
+
 func convertModelUser(u *model.User) (*biz.User, error) {
 	decrypted, err := pkgAes.AesDecrypt(u.Password)
 	if err != nil {
