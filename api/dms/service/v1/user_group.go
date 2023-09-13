@@ -3,7 +3,7 @@ package v1
 import (
 	"fmt"
 
-	base "github.com/actiontech/dms/api/base/v1"
+	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 )
 
 // A user group
@@ -34,10 +34,10 @@ func (u *AddUserGroupReq) String() string {
 // swagger:model AddUserGroupReply
 type AddUserGroupReply struct {
 	// Add user group reply
-	Payload struct {
+	Data struct {
 		// user group UID
 		Uid string `json:"uid"`
-	} `json:"payload"`
+	} `json:"data"`
 
 	// Generic reply
 	base.GenericResp
@@ -47,7 +47,7 @@ func (u *AddUserGroupReply) String() string {
 	if u == nil {
 		return "AddUserGroupReply{nil}"
 	}
-	return fmt.Sprintf("AddUserGroupReply{Uid:%s}", u.Payload.Uid)
+	return fmt.Sprintf("AddUserGroupReply{Uid:%s}", u.Data.Uid)
 }
 
 // swagger:parameters DelUserGroup
@@ -105,10 +105,8 @@ type ListUserGroup struct {
 // swagger:model ListUserGroupReply
 type ListUserGroupReply struct {
 	// List user reply
-	Payload struct {
-		UserGroups []*ListUserGroup `json:"user_groups"`
-		Total      int64            `json:"total"`
-	} `json:"payload"`
+	Data  []*ListUserGroup `json:"data"`
+	Total int64            `json:"total_nums"`
 
 	// Generic reply
 	base.GenericResp

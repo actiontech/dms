@@ -78,10 +78,8 @@ func (d *DMSService) ListMemberGroups(ctx context.Context, req *dmsV1.ListMember
 	}
 
 	return &dmsV1.ListMemberGroupsReply{
-		Payload: struct {
-			MemberGroups []*dmsV1.ListMemberGroup `json:"member_groups"`
-			Total        int64                    `json:"total"`
-		}{MemberGroups: ret, Total: total},
+		Data:  ret,
+		Total: total,
 	}, nil
 }
 
@@ -171,9 +169,7 @@ func (d *DMSService) GetMemberGroup(ctx context.Context, req *dmsV1.GetMemberGro
 	}
 
 	return &dmsV1.GetMemberGroupReply{
-		Payload: struct {
-			MemberGroup *dmsV1.GetMemberGroup `json:"member_group"`
-		}{ret},
+		Data: ret,
 	}, nil
 }
 
@@ -205,7 +201,7 @@ func (d *DMSService) AddMemberGroup(ctx context.Context, currentUserUid string, 
 	}
 
 	return &dmsV1.AddMemberReply{
-		Payload: struct {
+		Data: struct {
 			// member UID
 			Uid string `json:"uid"`
 		}{Uid: uid},

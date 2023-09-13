@@ -1,7 +1,7 @@
 package v1
 
 import (
-	base "github.com/actiontech/dms/api/base/v1"
+	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 )
 
 // swagger:enum MemberGroupOrderByField
@@ -47,10 +47,8 @@ type ListMemberGroup struct {
 // swagger:model ListMemberGroupsReply
 type ListMemberGroupsReply struct {
 	// List member reply
-	Payload struct {
-		MemberGroups []*ListMemberGroup `json:"member_groups"`
-		Total        int64              `json:"total"`
-	} `json:"payload"`
+	Data  []*ListMemberGroup `json:"data"`
+	Total int64              `json:"total_nums"`
 
 	// Generic reply
 	base.GenericResp
@@ -83,9 +81,7 @@ type GetMemberGroupReq struct {
 // swagger:model GetMemberGroupReply
 type GetMemberGroupReply struct {
 	// List member reply
-	Payload struct {
-		MemberGroup *GetMemberGroup `json:"member_group"`
-	} `json:"payload"`
+	Data *GetMemberGroup `json:"data"`
 
 	// Generic reply
 	base.GenericResp
@@ -118,10 +114,10 @@ type AddMemberGroupReq struct {
 // swagger:model AddMemberGroupReply
 type AddMemberGroupReply struct {
 	// Add member group reply
-	Payload struct {
+	Data struct {
 		// member group ID
 		Id string `json:"id"`
-	} `json:"payload"`
+	} `json:"data"`
 
 	// Generic reply
 	base.GenericResp

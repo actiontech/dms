@@ -2873,10 +2873,10 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -2890,12 +2890,7 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
+        "data": {
           "description": "Add db service reply",
           "type": "object",
           "properties": {
@@ -2905,7 +2900,12 @@
               "x-go-name": "Uid"
             }
           },
-          "x-go-name": "Payload"
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -2919,12 +2919,7 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
+        "data": {
           "description": "add database source service reply",
           "type": "object",
           "properties": {
@@ -2934,7 +2929,12 @@
               "x-go-name": "Uid"
             }
           },
-          "x-go-name": "Payload"
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -2948,12 +2948,7 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
+        "data": {
           "description": "Add member group reply",
           "type": "object",
           "properties": {
@@ -2963,7 +2958,12 @@
               "x-go-name": "Id"
             }
           },
-          "x-go-name": "Payload"
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -2977,12 +2977,7 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
+        "data": {
           "description": "Add member reply",
           "type": "object",
           "properties": {
@@ -2992,7 +2987,12 @@
               "x-go-name": "Uid"
             }
           },
-          "x-go-name": "Payload"
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -3006,12 +3006,7 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
+        "data": {
           "description": "Add Project reply",
           "type": "object",
           "properties": {
@@ -3021,7 +3016,12 @@
               "x-go-name": "Uid"
             }
           },
-          "x-go-name": "Payload"
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -3035,12 +3035,7 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
+        "data": {
           "description": "Add role reply",
           "type": "object",
           "properties": {
@@ -3050,7 +3045,12 @@
               "x-go-name": "Uid"
             }
           },
-          "x-go-name": "Payload"
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -3085,12 +3085,7 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
+        "data": {
           "description": "Add user reply",
           "type": "object",
           "properties": {
@@ -3100,7 +3095,12 @@
               "x-go-name": "Token"
             }
           },
-          "x-go-name": "Payload"
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -3114,12 +3114,7 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
+        "data": {
           "description": "Add user group reply",
           "type": "object",
           "properties": {
@@ -3129,7 +3124,12 @@
               "x-go-name": "Uid"
             }
           },
-          "x-go-name": "Payload"
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -3143,12 +3143,7 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
+        "data": {
           "description": "Add user reply",
           "type": "object",
           "properties": {
@@ -3158,7 +3153,12 @@
               "x-go-name": "Uid"
             }
           },
-          "x-go-name": "Payload"
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -3224,19 +3224,13 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "$ref": "#/definitions/BindOauth2UserResData"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
-          "type": "object",
-          "properties": {
-            "data": {
-              "$ref": "#/definitions/BindOauth2UserResData"
-            }
-          },
-          "x-go-name": "Payload"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -3260,23 +3254,17 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CheckDBServiceIsConnectableReplyItem"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
-          "type": "object",
-          "properties": {
-            "connections": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/CheckDBServiceIsConnectableReplyItem"
-              },
-              "x-go-name": "Connections"
-            }
-          },
-          "x-go-name": "Payload"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -3605,10 +3593,10 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -3622,10 +3610,10 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -3639,10 +3627,10 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -3671,10 +3659,10 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
@@ -3688,19 +3676,13 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "$ref": "#/definitions/BasicInfo"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
-          "type": "object",
-          "properties": {
-            "basic_info": {
-              "$ref": "#/definitions/BasicInfo"
-            }
-          },
-          "x-go-name": "Payload"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -3775,19 +3757,13 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "$ref": "#/definitions/GetDatabaseSourceService"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
-          "type": "object",
-          "properties": {
-            "database_source_service": {
-              "$ref": "#/definitions/GetDatabaseSourceService"
-            }
-          },
-          "x-go-name": "Payload"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -3801,19 +3777,13 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "$ref": "#/definitions/FeishuConfigurationResData"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
-          "type": "object",
-          "properties": {
-            "data": {
-              "$ref": "#/definitions/FeishuConfigurationResData"
-            }
-          },
-          "x-go-name": "Payload"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -3827,19 +3797,13 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "$ref": "#/definitions/LDAPConfigurationResData"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
-          "type": "object",
-          "properties": {
-            "data": {
-              "$ref": "#/definitions/LDAPConfigurationResData"
-            }
-          },
-          "x-go-name": "Payload"
+          "x-go-name": "Message"
         }
       },
       "x-go-name": "GetLDAPConfigurationReply",
@@ -3890,20 +3854,13 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "$ref": "#/definitions/GetMemberGroup"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
-          "description": "List member reply",
-          "type": "object",
-          "properties": {
-            "member_group": {
-              "$ref": "#/definitions/GetMemberGroup"
-            }
-          },
-          "x-go-name": "Payload"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -3966,19 +3923,13 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "$ref": "#/definitions/GetOauth2ConfigurationResData"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
-          "type": "object",
-          "properties": {
-            "data": {
-              "$ref": "#/definitions/GetOauth2ConfigurationResData"
-            }
-          },
-          "x-go-name": "Payload"
+          "x-go-name": "Message"
         }
       },
       "x-go-name": "GetOauth2ConfigurationReply",
@@ -3993,19 +3944,13 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "$ref": "#/definitions/GetOauth2TipsResData"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
-          "type": "object",
-          "properties": {
-            "data": {
-              "$ref": "#/definitions/GetOauth2TipsResData"
-            }
-          },
-          "x-go-name": "Payload"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -4033,19 +3978,13 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "$ref": "#/definitions/SMTPConfigurationResData"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
-          "type": "object",
-          "properties": {
-            "data": {
-              "$ref": "#/definitions/SMTPConfigurationResData"
-            }
-          },
-          "x-go-name": "Payload"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -4059,12 +3998,7 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
+        "data": {
           "type": "object",
           "properties": {
             "enable_sql_query": {
@@ -4076,7 +4010,12 @@
               "x-go-name": "SQLQueryRootURI"
             }
           },
-          "x-go-name": "Payload"
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -4174,12 +4113,7 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
+        "data": {
           "description": "Get user reply",
           "type": "object",
           "properties": {
@@ -4194,7 +4128,12 @@
               "x-go-name": "UserUid"
             }
           },
-          "x-go-name": "Payload"
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -4208,17 +4147,11 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
-          "description": "user op permission reply",
+        "data": {
+          "description": "user op permission reply\nis user admin, admin has all permissions",
           "type": "object",
           "properties": {
             "is_admin": {
-              "description": "is user admin, admin has all permissions",
               "type": "boolean",
               "x-go-name": "IsAdmin"
             },
@@ -4231,7 +4164,12 @@
               "x-go-name": "OpPermissionList"
             }
           },
-          "x-go-name": "Payload"
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -4245,20 +4183,13 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "$ref": "#/definitions/GetUser"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
-          "description": "Get user reply",
-          "type": "object",
-          "properties": {
-            "user": {
-              "$ref": "#/definitions/GetUser"
-            }
-          },
-          "x-go-name": "Payload"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -4272,19 +4203,13 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "$ref": "#/definitions/WeChatConfigurationResData"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
-          "type": "object",
-          "properties": {
-            "data": {
-              "$ref": "#/definitions/WeChatConfigurationResData"
-            }
-          },
-          "x-go-name": "Payload"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -4298,19 +4223,13 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "$ref": "#/definitions/WebHookConfigurationData"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
-          "type": "object",
-          "properties": {
-            "data": {
-              "$ref": "#/definitions/WebHookConfigurationData"
-            }
-          },
-          "x-go-name": "Payload"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -4520,24 +4439,18 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "description": "List db service reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DatabaseDriverOption"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
-          "description": "List db service reply",
-          "type": "object",
-          "properties": {
-            "database_driver_options": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/DatabaseDriverOption"
-              },
-              "x-go-name": "DatabaseDriverOptions"
-            }
-          },
-          "x-go-name": "Payload"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -4551,29 +4464,23 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "description": "List db service reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListDBService"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
+          "x-go-name": "Message"
         },
-        "payload": {
-          "description": "List db service reply",
-          "type": "object",
-          "properties": {
-            "db_services": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/ListDBService"
-              },
-              "x-go-name": "DBServices"
-            },
-            "total": {
-              "type": "integer",
-              "format": "int64",
-              "x-go-name": "Total"
-            }
-          },
-          "x-go-name": "Payload"
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -4658,23 +4565,17 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DatabaseSource"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
-          "type": "object",
-          "properties": {
-            "database_sources": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/DatabaseSource"
-              },
-              "x-go-name": "DatabaseSources"
-            }
-          },
-          "x-go-name": "Payload"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -4688,23 +4589,17 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListDatabaseSourceService"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
-          "type": "object",
-          "properties": {
-            "database_source_services": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/ListDatabaseSourceService"
-              },
-              "x-go-name": "DatabaseSourceServices"
-            }
-          },
-          "x-go-name": "Payload"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -4782,29 +4677,23 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "description": "List member reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListMemberGroup"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
+          "x-go-name": "Message"
         },
-        "payload": {
-          "description": "List member reply",
-          "type": "object",
-          "properties": {
-            "member_groups": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/ListMemberGroup"
-              },
-              "x-go-name": "MemberGroups"
-            },
-            "total": {
-              "type": "integer",
-              "format": "int64",
-              "x-go-name": "Total"
-            }
-          },
-          "x-go-name": "Payload"
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -4818,29 +4707,23 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "description": "List member reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListMember"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
+          "x-go-name": "Message"
         },
-        "payload": {
-          "description": "List member reply",
-          "type": "object",
-          "properties": {
-            "members": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/ListMember"
-              },
-              "x-go-name": "Members"
-            },
-            "total": {
-              "type": "integer",
-              "format": "int64",
-              "x-go-name": "Total"
-            }
-          },
-          "x-go-name": "Payload"
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -4906,29 +4789,23 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "description": "List member reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListMembersForInternalItem"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
+          "x-go-name": "Message"
         },
-        "payload": {
-          "description": "List member reply",
-          "type": "object",
-          "properties": {
-            "members": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/ListMembersForInternalItem"
-              },
-              "x-go-name": "Members"
-            },
-            "total": {
-              "type": "integer",
-              "format": "int64",
-              "x-go-name": "Total"
-            }
-          },
-          "x-go-name": "Payload"
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -4967,29 +4844,23 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "description": "List op_permission reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListOpPermission"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
+          "x-go-name": "Message"
         },
-        "payload": {
-          "description": "List op_permission reply",
-          "type": "object",
-          "properties": {
-            "op_permissions": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/ListOpPermission"
-              },
-              "x-go-name": "OpPermissions"
-            },
-            "total": {
-              "type": "integer",
-              "format": "int64",
-              "x-go-name": "Total"
-            }
-          },
-          "x-go-name": "Payload"
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -5039,29 +4910,23 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "description": "List project reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListProject"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
+          "x-go-name": "Message"
         },
-        "payload": {
-          "description": "List Project reply",
-          "type": "object",
-          "properties": {
-            "projects": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/ListProject"
-              },
-              "x-go-name": "Projects"
-            },
-            "total": {
-              "type": "integer",
-              "format": "int64",
-              "x-go-name": "Total"
-            }
-          },
-          "x-go-name": "Payload"
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -5116,29 +4981,23 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "description": "List role reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListRole"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
+          "x-go-name": "Message"
         },
-        "payload": {
-          "description": "List role reply",
-          "type": "object",
-          "properties": {
-            "roles": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/ListRole"
-              },
-              "x-go-name": "Roles"
-            },
-            "total": {
-              "type": "integer",
-              "format": "int64",
-              "x-go-name": "Total"
-            }
-          },
-          "x-go-name": "Payload"
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -5269,29 +5128,23 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "description": "List user reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListUserGroup"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
+          "x-go-name": "Message"
         },
-        "payload": {
-          "description": "List user reply",
-          "type": "object",
-          "properties": {
-            "total": {
-              "type": "integer",
-              "format": "int64",
-              "x-go-name": "Total"
-            },
-            "user_groups": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/ListUserGroup"
-              },
-              "x-go-name": "UserGroups"
-            }
-          },
-          "x-go-name": "Payload"
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -5305,29 +5158,23 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "description": "List user reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListUser"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
+          "x-go-name": "Message"
         },
-        "payload": {
-          "description": "List user reply",
-          "type": "object",
-          "properties": {
-            "total": {
-              "type": "integer",
-              "format": "int64",
-              "x-go-name": "Total"
-            },
-            "users": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/ListUser"
-              },
-              "x-go-name": "Users"
-            }
-          },
-          "x-go-name": "Payload"
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -5469,10 +5316,10 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -5584,10 +5431,10 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -5654,10 +5501,10 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -5671,10 +5518,10 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -5811,19 +5658,13 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "$ref": "#/definitions/TestFeishuConfigurationResData"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
-          "type": "object",
-          "properties": {
-            "data": {
-              "$ref": "#/definitions/TestFeishuConfigurationResData"
-            }
-          },
-          "x-go-name": "Payload"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -5861,19 +5702,13 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "$ref": "#/definitions/TestSMTPConfigurationResData"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
-          "type": "object",
-          "properties": {
-            "data": {
-              "$ref": "#/definitions/TestSMTPConfigurationResData"
-            }
-          },
-          "x-go-name": "Payload"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -5911,19 +5746,13 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "$ref": "#/definitions/TestWeChatConfigurationResData"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
-          "type": "object",
-          "properties": {
-            "data": {
-              "$ref": "#/definitions/TestWeChatConfigurationResData"
-            }
-          },
-          "x-go-name": "Payload"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -5951,19 +5780,13 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "data": {
+          "$ref": "#/definitions/TestWebHookConfigurationResData"
+        },
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
-          "type": "object",
-          "properties": {
-            "data": {
-              "$ref": "#/definitions/TestWebHookConfigurationResData"
-            }
-          },
-          "x-go-name": "Payload"
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -6014,7 +5837,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCurrentUser": {
       "type": "object",
@@ -6130,12 +5953,7 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Msg"
-        },
-        "payload": {
+        "data": {
           "description": "update db service reply",
           "type": "object",
           "properties": {
@@ -6145,7 +5963,12 @@
               "x-go-name": "Uid"
             }
           },
-          "x-go-name": "Payload"
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -6562,10 +6385,10 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "msg": {
+        "message": {
           "description": "message",
           "type": "string",
-          "x-go-name": "Msg"
+          "x-go-name": "Message"
         }
       },
       "x-go-name": "WebHooksSendMessageReply",
@@ -6594,7 +6417,7 @@
           "format": "int64",
           "description": "code"
         },
-        "msg": {
+        "message": {
           "type": "string",
           "description": "message"
         }

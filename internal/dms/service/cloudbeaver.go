@@ -82,7 +82,7 @@ func (cs *CloudbeaverService) GetCloudbeaverConfiguration(ctx context.Context) (
 	}()
 
 	return &dmsV1.GetSQLQueryConfigurationReply{
-		Payload: struct {
+		Data: struct {
 			EnableSQLQuery  bool   `json:"enable_sql_query"`
 			SQLQueryRootURI string `json:"sql_query_root_uri"`
 		}{

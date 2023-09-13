@@ -21,7 +21,7 @@ func (d *DMSService) AddRole(ctx context.Context, currentUserUid string, req *dm
 	}
 
 	return &dmsV1.AddRoleReply{
-		Payload: struct {
+		Data: struct {
 			// role UID
 			Uid string `json:"uid"`
 		}{Uid: uid},
@@ -120,9 +120,6 @@ func (d *DMSService) ListRoles(ctx context.Context, req *dmsV1.ListRoleReq) (rep
 	}
 
 	return &dmsV1.ListRoleReply{
-		Payload: struct {
-			Roles []*dmsV1.ListRole `json:"roles"`
-			Total int64             `json:"total"`
-		}{Roles: ret, Total: total},
+		Data: ret, Total: total,
 	}, nil
 }
