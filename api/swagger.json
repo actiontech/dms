@@ -1879,6 +1879,70 @@
         }
       }
     },
+    "/v1/dms/personalization": {
+      "post": {
+        "description": "personalize [title, logo]",
+        "tags": [
+          "dms"
+        ],
+        "operationId": "Personalization",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Title",
+            "description": "title",
+            "name": "title",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "file",
+            "x-go-name": "File",
+            "description": "file upload",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/personalization/logo": {
+      "get": {
+        "description": "get logo",
+        "produces": [
+          "application/octet-stream"
+        ],
+        "tags": [
+          "dms"
+        ],
+        "operationId": "GetStaticLogo",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetStaticLogoReply"
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/plugin": {
       "post": {
         "tags": [
@@ -6430,6 +6494,12 @@
           "type": "string",
           "description": "message"
         }
+      }
+    },
+    "GetStaticLogoReply": {
+      "description": "",
+      "schema": {
+        "type": "file"
       }
     }
   },
