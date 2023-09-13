@@ -35,6 +35,7 @@ func GetAllModels() []interface{} {
 		CloudbeaverUserCache{},
 		CloudbeaverConnectionCache{},
 		DatabaseSourceService{},
+		BasicConfig{},
 	}
 }
 
@@ -310,4 +311,10 @@ type DatabaseSourceService struct {
 	LastSyncErr         string          `json:"last_sync_err" gorm:"column:last_sync_err"`
 	LastSyncSuccessTime *time.Time      `json:"last_sync_success_time" gorm:"column:last_sync_success_time"`
 	ExtraParameters     ExtraParameters `json:"extra_parameters" gorm:"TYPE:json"`
+}
+
+type BasicConfig struct {
+	Model
+	Logo  []byte `json:"logo" gorm:"type:mediumblob"`
+	Title string `json:"title" gorm:"size:100;not null;uniqueIndex" example:""`
 }

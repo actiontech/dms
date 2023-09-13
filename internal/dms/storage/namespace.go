@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/actiontech/dms/internal/dms/biz"
-	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	"github.com/actiontech/dms/internal/dms/storage/model"
 
@@ -47,10 +46,6 @@ func (d *NamespaceRepo) ListNamespaces(ctx context.Context, opt *biz.ListNamespa
 	var models []*model.Namespace
 
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
-		// user can only view his belonging namespace,sys user can view all namespace
-		if currentUserUid != pkgConst.UIDOfUserSys {
-			tx = tx.Joins("JOIN (select namespace_uid,user_uid FROM members) as t_members ON t_members.namespace_uid = namespaces.uid AND t_members.user_uid = ? ", currentUserUid)
-		}
 
 		// find models
 		{
