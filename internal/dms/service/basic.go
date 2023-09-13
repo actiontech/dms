@@ -43,7 +43,7 @@ func (d *DMSService) GetStaticLogo(ctx context.Context) (*v1.GetStaticLogoReply,
 	}, contentType, nil
 }
 
-func (d *DMSService) Personalisation(ctx context.Context, req *v1.PersonalisationReq) error {
+func (d *DMSService) Personalization(ctx context.Context, req *v1.PersonalizationReq) error {
 	params := &biz.BasicConfigParams{
 		Title: req.Title,
 		File:  req.File,

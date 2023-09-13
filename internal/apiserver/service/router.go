@@ -22,8 +22,8 @@ func (s *APIServer) initRouter() error {
 	// DMS RESTful resource
 	{
 		v1.GET("/dms/basic_info", s.DMSController.GetBasicInfo)
-		v1.POST("/dms/personalisation", s.DMSController.Personalisation)
-		v1.GET("/dms/static/logo", s.DMSController.GetStaticLogo)
+		v1.GET("/dms/personalization/logo", s.DMSController.GetStaticLogo)
+		v1.POST("/dms/personalization", s.DMSController.Personalization)
 
 		dmsProxyV1 := v1.Group(dmsV1.ProxyRouterGroup)
 		dmsProxyV1.POST("", s.DMSController.RegisterDMSProxyTarget)

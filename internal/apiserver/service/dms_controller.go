@@ -350,7 +350,7 @@ func (d *DMSController) GetBasicInfo(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/static/logo dms GetStaticLogo
+// swagger:route GET /v1/dms/personalization/logo dms GetStaticLogo
 //
 // get logo
 //
@@ -369,20 +369,20 @@ func (d *DMSController) GetStaticLogo(c echo.Context) error {
 	return c.Blob(http.StatusOK, contentType, reply.File)
 }
 
-// swagger:route POST /v1/dms/personalisation dms Personalisation
+// swagger:route POST /v1/dms/personalization dms Personalization
 //
 // personalize [title, logo]
 //
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (d *DMSController) Personalisation(c echo.Context) error {
+func (d *DMSController) Personalization(c echo.Context) error {
 	fileHeader, err := c.FormFile("file")
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	req := &aV1.PersonalisationReq{
+	req := &aV1.PersonalizationReq{
 		File: fileHeader,
 	}
 
@@ -391,7 +391,7 @@ func (d *DMSController) Personalisation(c echo.Context) error {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	err = d.DMS.Personalisation(c.Request().Context(), req)
+	err = d.DMS.Personalization(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
