@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"mime/multipart"
+
 	base "github.com/actiontech/dms/api/base/v1"
 )
 
@@ -21,4 +23,25 @@ type GetBasicInfoReply struct {
 	} `json:"payload"`
 	// Generic reply
 	base.GenericResp
+}
+
+// swagger:response GetStaticLogoReply
+type GetStaticLogoReply struct {
+	// swagger:file
+	// in:  body
+	File []byte
+}
+
+// swagger:parameters Personalisation
+type PersonalisationReq struct {
+	// title
+	// Required: true
+	// in: formData
+	Title string `json:"title" form:"title" validate:"required"`
+
+	// file upload
+	// Required: true
+	// in: formData
+	// swagger:file
+	File *multipart.FileHeader `json:"file" form:"file" validate:"required"`
 }
