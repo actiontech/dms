@@ -49,5 +49,5 @@ func (d *DMSService) Personalization(ctx context.Context, req *v1.Personalizatio
 		File:  req.File,
 	}
 
-	return d.BasicUsecase.Personalisation(ctx, params)
+	return d.BasicUsecase.Personalization(ctx, params)
 }
