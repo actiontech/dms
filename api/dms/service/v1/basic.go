@@ -32,8 +32,8 @@ type GetStaticLogoReply struct {
 	File []byte
 }
 
-// swagger:parameters Personalisation
-type PersonalisationReq struct {
+// swagger:parameters Personalization
+type PersonalizationReq struct {
 	// title
 	// Required: true
 	// in: formData
