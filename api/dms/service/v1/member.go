@@ -11,11 +11,8 @@ type Member struct {
 	// member user uid
 	// Required: true
 	UserUid string `json:"user_uid" validate:"required"`
-	// Whether the member has namespace admin permission
-	IsNamespaceAdmin bool `json:"is_namespace_admin"`
-	// namespace uid
-	// Required: true
-	NamespaceUid string `json:"namespace_uid"`
+	// Whether the member has project admin permission
+	IsProjectAdmin bool `json:"is_project_admin"`
 	// member role with op ranges
 	RoleWithOpRanges []MemberRoleWithOpRange `json:"role_with_op_ranges"`
 }
@@ -31,6 +28,10 @@ type MemberRoleWithOpRange struct {
 
 // swagger:parameters AddMember
 type AddMemberReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// Add new member
 	// in:body
 	Member *Member `json:"member" validate:"required"`
@@ -77,10 +78,10 @@ type ListMemberReq struct {
 	// filter the member user uid
 	// in:query
 	FilterByUserUid string `query:"filter_by_user_uid" json:"filter_by_user_uid"`
-	// the member namespace uid
-	// in:query
+	// project id
 	// Required: true
-	NamespaceUid string `query:"namespace_uid" json:"namespace_uid" validate:"required"`
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 }
 
 // swagger:enum MemberOrderByField
@@ -105,8 +106,8 @@ type ListMember struct {
 	MemberUid string `json:"uid"`
 	// member user
 	User UidWithName `json:"user"`
-	// Whether the member has namespace admin permission
-	IsNamespaceAdmin bool `json:"is_namespace_admin"`
+	// Whether the member has project admin permission
+	IsProjectAdmin bool `json:"is_project_admin"`
 	// member op permission
 	RoleWithOpRanges []ListMemberRoleWithOpRange `json:"role_with_op_ranges"`
 }
@@ -125,6 +126,10 @@ type ListMemberReply struct {
 
 // swagger:parameters DelMember
 type DelMemberReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// member uid
 	// in:path
 	MemberUid string `param:"member_uid" json:"member_uid" validate:"required"`
@@ -138,14 +143,18 @@ func (u *DelMemberReq) String() string {
 }
 
 type UpdateMember struct {
-	// Whether the member has namespace admin permission
-	IsNamespaceAdmin bool `json:"is_namespace_admin"`
+	// Whether the member has project admin permission
+	IsProjectAdmin bool `json:"is_project_admin"`
 	// member role with op ranges
 	RoleWithOpRanges []MemberRoleWithOpRange `json:"role_with_op_ranges"`
 }
 
 // swagger:parameters UpdateMember
 type UpdateMemberReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// Member uid
 	// Required: true
 	// in:path

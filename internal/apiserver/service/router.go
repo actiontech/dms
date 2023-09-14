@@ -82,7 +82,7 @@ func (s *APIServer) initRouter() error {
 		memberV1.DELETE("/:member_uid", s.DMSController.DelMember)
 		memberV1.PUT("/:member_uid", s.DMSController.UpdateMember)
 
-		memberGroupV1 := v1.Group("/dms/member_groups")
+		memberGroupV1 := v1.Group("/dms/projects/:project_uid/member_groups")
 		memberGroupV1.GET("", s.DMSController.ListMemberGroups)
 		memberGroupV1.GET("/:member_group_uid", s.DMSController.GetMemberGroup)
 		memberGroupV1.POST("", s.DMSController.AddMemberGroup)
