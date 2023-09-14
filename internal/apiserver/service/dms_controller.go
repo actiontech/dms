@@ -50,7 +50,7 @@ func (a *DMSController) Shutdown() error {
 	return nil
 }
 
-// swagger:route POST /v1/dms/db_services dms AddDBService
+// swagger:route POST /v1/dms/projects/{project_uid}/db_services dms AddDBService
 //
 // Add DB Service.
 //
@@ -77,7 +77,7 @@ func (d *DMSController) AddDBService(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/db_services dms ListDBServices
+// swagger:route GET /v1/dms/projects/{project_uid}/db_services dms ListDBServices
 //
 // List db service.
 //
@@ -101,7 +101,7 @@ func (d *DMSController) ListDBServices(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/db_services/driver_options dms ListDBServiceDriverOption
+// swagger:route GET /v1/dms/projects/{project_uid}/db_services/driver_options dms ListDBServiceDriverOption
 //
 // List db service driver option.
 //
