@@ -40,7 +40,7 @@ func (s *APIServer) initRouter() error {
 		dbServiceV1.POST("/connection", s.DMSController.CheckDBServiceIsConnectable)
 		dbServiceV1.POST("/:db_service_uid/connection", s.DMSController.CheckDBServiceIsConnectableById)
 
-		DatabaseSourceServiceV1 := v1.Group("/dms/database_source_services")
+		DatabaseSourceServiceV1 := v1.Group("/dms/projects/:project_uid/database_source_services")
 		DatabaseSourceServiceV1.GET("/tips", s.DMSController.ListDatabaseSourceServiceTips)
 		DatabaseSourceServiceV1.POST("/:database_source_service_uid/sync", s.DMSController.SyncDatabaseSourceService)
 		DatabaseSourceServiceV1.GET("", s.DMSController.ListDatabaseSourceServices)

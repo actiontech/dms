@@ -8,10 +8,10 @@ import (
 
 // swagger:parameters ListDatabaseSourceServices
 type ListDatabaseSourceServicesReq struct {
-	// filter by db service namespace uid
-	// only the sys user can use an empty namespace value, which means lookup from all namespaces
-	// in:query
-	NamespaceId string `query:"namespace_id" json:"namespace_id"`
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 }
 
 // swagger:model ListDatabaseSourceServicesReply
@@ -28,10 +28,10 @@ type GetDatabaseSourceServiceReq struct {
 	// Required: true
 	// in:path
 	DatabaseSourceServiceUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
-	// filter by db service namespace uid
-	// only the sys user can use an empty namespace value, which means lookup from all namespaces
-	// in:query
-	NamespaceId string `query:"namespace_id" json:"namespace_id"`
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 }
 
 // swagger:model GetDatabaseSourceServiceReply
@@ -45,12 +45,15 @@ type GetDatabaseSourceServiceReply struct {
 
 type GetDatabaseSourceService struct {
 	DatabaseSourceService
-	UID string `json:"uid"`
+	UID        string `json:"uid"`
+	ProjectUid string `json:"project_uid"`
 }
 
 type ListDatabaseSourceService struct {
 	DatabaseSourceService
-	UID string `json:"uid"`
+	UID        string `json:"uid"`
+	ProjectUid string `json:"project_uid"`
+
 	// last sync error message
 	LastSyncErr         string     `json:"last_sync_err"`
 	LastSyncSuccessTime *time.Time `json:"last_sync_success_time"`
@@ -81,15 +84,16 @@ type DatabaseSourceService struct {
 	// Required: true
 	// example: 0 0 * * *
 	CronExpress string `json:"cron_express" validate:"required"`
-	// namespace id
-	// Required: true
-	NamespaceUID string `json:"namespace_uid" validate:"required"`
 	// SQLE config
 	SQLEConfig *SQLEConfig `json:"sqle_config"`
 }
 
 // swagger:parameters AddDatabaseSourceService
 type AddDatabaseSourceServiceReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// add database source service
 	// in:body
 	DatabaseSourceService DatabaseSourceService `json:"database_source_service"`
@@ -109,6 +113,10 @@ type AddDatabaseSourceServiceReply struct {
 
 // swagger:parameters UpdateDatabaseSourceService
 type UpdateDatabaseSourceServiceReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// Required: true
 	// in:path
 	DatabaseSourceServiceUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
@@ -119,6 +127,10 @@ type UpdateDatabaseSourceServiceReq struct {
 
 // swagger:parameters DeleteDatabaseSourceService
 type DeleteDatabaseSourceServiceReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// Required: true
 	// in:path
 	DatabaseSourceServiceUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
@@ -144,6 +156,10 @@ type ListDatabaseSourceServiceTipsReply struct {
 
 // swagger:parameters SyncDatabaseSourceService
 type SyncDatabaseSourceServiceReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// Required: true
 	// in:path
 	DatabaseSourceServiceUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
