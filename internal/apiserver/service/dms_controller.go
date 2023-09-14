@@ -1154,15 +1154,15 @@ func (d *DMSController) ListOpPermissions(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/namespaces dms ListNamespaces
+// swagger:route GET /v1/dms/projects dms ListProjects
 //
-// List namespaces.
+// List projects.
 //
 //	responses:
-//	  200: body:ListNamespaceReply
+//	  200: body:ListProjectReply
 //	  default: body:GenericResp
-func (d *DMSController) ListNamespaces(c echo.Context) error {
-	req := new(dmsV1.ListNamespaceReq)
+func (d *DMSController) ListProjects(c echo.Context) error {
+	req := new(dmsV1.ListProjectReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
@@ -1181,15 +1181,15 @@ func (d *DMSController) ListNamespaces(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/namespaces dms AddNamespace
+// swagger:route POST /v1/dms/projects dms AddProject
 //
-// Add namespaces.
+// Add project.
 //
 //	responses:
-//	  200: body:AddNamespaceReply
+//	  200: body:AddProjectReply
 //	  default: body:GenericResp
-func (d *DMSController) AddNamespace(c echo.Context) error {
-	req := new(aV1.AddNamespaceReq)
+func (d *DMSController) AddProject(c echo.Context) error {
+	req := new(aV1.AddProjectReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
@@ -1207,15 +1207,15 @@ func (d *DMSController) AddNamespace(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route DELETE /v1/dms/namespaces/{namespace_uid} dms DelNamespace
+// swagger:route DELETE /v1/dms/projects/{project_uid} dms DelProject
 //
-// Delete a Namespace
+// Delete a project
 //
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (a *DMSController) DelNamespace(c echo.Context) error {
-	req := &aV1.DelNamespaceReq{}
+func (a *DMSController) DelProject(c echo.Context) error {
+	req := &aV1.DelProjectReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
@@ -1232,15 +1232,15 @@ func (a *DMSController) DelNamespace(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/namespaces/{namespace_uid} dms UpdateNamespace
+// swagger:route PUT /v1/dms/projects/{project_uid} dms UpdateProject
 //
-// update a Namespace.
+// update a project.
 //
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (a *DMSController) UpdateNamespace(c echo.Context) error {
-	req := &aV1.UpdateNamespaceReq{}
+func (a *DMSController) UpdateProject(c echo.Context) error {
+	req := &aV1.UpdateProjectReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
@@ -1257,15 +1257,15 @@ func (a *DMSController) UpdateNamespace(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/namespaces/{namespace_uid}/archive dms ArchiveNamespace
+// swagger:route PUT /v1/dms/projects/{project_uid}/archive dms ArchiveProject
 //
-// Archive a Namespace.
+// Archive a project.
 //
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (a *DMSController) ArchiveNamespace(c echo.Context) error {
-	req := &aV1.ArchiveNamespaceReq{}
+func (a *DMSController) ArchiveProject(c echo.Context) error {
+	req := &aV1.ArchiveProjectReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
@@ -1283,15 +1283,15 @@ func (a *DMSController) ArchiveNamespace(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/namespaces/{namespace_uid}/unarchive dms UnarchiveNamespace
+// swagger:route PUT /v1/dms/projects/{project_uid}/unarchive dms UnarchiveProject
 //
-// Unarchive a Namespace.
+// Unarchive a project.
 //
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (a *DMSController) UnarchiveNamespace(c echo.Context) error {
-	req := &aV1.UnarchiveNamespaceReq{}
+func (a *DMSController) UnarchiveProject(c echo.Context) error {
+	req := &aV1.UnarchiveProjectReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
