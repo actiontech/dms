@@ -885,7 +885,7 @@ func (d *DMSController) ListRoles(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/members dms AddMember
+// swagger:route POST /v1/dms/projects/{project_uid}/members dms AddMember
 //
 // Add member.
 //
@@ -912,7 +912,7 @@ func (d *DMSController) AddMember(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/members dms ListMembers
+// swagger:route GET /v1/dms/projects/{project_uid}/members dms ListMembers
 //
 // List member, for front page.
 //
@@ -933,7 +933,7 @@ func (d *DMSController) ListMembers(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/members/internal dms ListMembersForInternal
+// swagger:route GET /v1/dms/projects/{project_uid}/members/internal dms ListMembersForInternal
 //
 // List members, for internal backend service.
 //
@@ -954,7 +954,7 @@ func (d *DMSController) ListMembersForInternal(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PUT /v1/dms/members/{member_uid} dms UpdateMember
+// swagger:route PUT /v1/dms/projects/{project_uid}/members/{member_uid} dms UpdateMember
 //
 // Update a member.
 //
@@ -981,7 +981,7 @@ func (d *DMSController) UpdateMember(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route DELETE /v1/dms/members/{member_uid} dms DelMember
+// swagger:route DELETE /v1/dms/projects/{project_uid}/members/{member_uid} dms DelMember
 //
 // Delete a member.
 //
@@ -1008,7 +1008,7 @@ func (a *DMSController) DelMember(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/member_groups dms ListMemberGroups
+// swagger:route GET /v1/dms/projects/{project_uid}/member_groups dms ListMemberGroups
 //
 // List member group, for front page.
 //
@@ -1029,7 +1029,7 @@ func (d *DMSController) ListMemberGroups(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/member_groups/{member_group_uid} dms GetMemberGroup
+// swagger:route GET /v1/dms/projects/{project_uid}/member_groups/{member_group_uid} dms GetMemberGroup
 //
 // Get member group, for front page.
 //
@@ -1050,7 +1050,7 @@ func (d *DMSController) GetMemberGroup(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/member_groups dms AddMemberGroup
+// swagger:route POST /v1/dms/projects/{project_uid}/member_groups dms AddMemberGroup
 //
 // Add member group.
 //
@@ -1077,7 +1077,7 @@ func (d *DMSController) AddMemberGroup(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PUT /v1/dms/member_groups/{member_group_uid} dms UpdateMemberGroup
+// swagger:route PUT /v1/dms/projects/{project_uid}/member_groups/{member_group_uid} dms UpdateMemberGroup
 //
 // update member group, for front page.
 //
@@ -1105,7 +1105,7 @@ func (d *DMSController) UpdateMemberGroup(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route DELETE  /v1/dms/member_groups/{member_group_uid} dms DeleteMemberGroup
+// swagger:route DELETE  /v1/dms/projects/{project_uid}/member_groups/{member_group_uid} dms DeleteMemberGroup
 //
 // delete member group, for front page.
 //

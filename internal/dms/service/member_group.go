@@ -26,11 +26,11 @@ func (d *DMSService) ListMemberGroups(ctx context.Context, req *dmsV1.ListMember
 			Value:    req.FilterByName,
 		})
 	}
-	if req.NamespaceUid != "" {
+	if req.ProjectUid != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.MemberGroupFieldNamespaceUID),
 			Operator: pkgConst.FilterOperatorEqual,
-			Value:    req.NamespaceUid,
+			Value:    req.ProjectUid,
 		})
 	}
 
@@ -41,7 +41,7 @@ func (d *DMSService) ListMemberGroups(ctx context.Context, req *dmsV1.ListMember
 		FilterBy:     filterBy,
 	}
 
-	memberGroups, total, err := d.MemberGroupUsecase.ListMemberGroups(ctx, listOption, req.NamespaceUid)
+	memberGroups, total, err := d.MemberGroupUsecase.ListMemberGroups(ctx, listOption, req.ProjectUid)
 	if nil != err {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func (d *DMSService) ListMemberGroups(ctx context.Context, req *dmsV1.ListMember
 		item := &dmsV1.ListMemberGroup{
 			Name:             memberGroup.Name,
 			Uid:              memberGroup.UID,
-			IsNamespaceAdmin: isAdmin,
+			IsProjectAdmin:   isAdmin,
 			Users:            users,
 			RoleWithOpRanges: roleWithOpRanges,
 		}
@@ -135,7 +135,7 @@ func (d *DMSService) buildMemberGroupRoleWithOpRanges(ctx context.Context, roleW
 }
 
 func (d *DMSService) GetMemberGroup(ctx context.Context, req *dmsV1.GetMemberGroupReq) (reply *dmsV1.GetMemberGroupReply, err error) {
-	memberGroup, err := d.MemberGroupUsecase.GetMemberGroup(ctx, req.MemberGroupUid, req.NamespaceId)
+	memberGroup, err := d.MemberGroupUsecase.GetMemberGroup(ctx, req.MemberGroupUid, req.ProjectUid)
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +161,7 @@ func (d *DMSService) GetMemberGroup(ctx context.Context, req *dmsV1.GetMemberGro
 	ret := &dmsV1.GetMemberGroup{
 		Name:             memberGroup.Name,
 		Uid:              memberGroup.UID,
-		IsNamespaceAdmin: isAdmin,
+		IsProjectAdmin:   isAdmin,
 		Users:            users,
 		RoleWithOpRanges: roleWithOpRanges,
 	}
@@ -192,9 +192,9 @@ func (d *DMSService) AddMemberGroup(ctx context.Context, currentUserUid string, 
 	}
 
 	params := &biz.MemberGroup{
-		IsNamespaceAdmin: req.MemberGroup.IsNamespaceAdmin,
+		IsNamespaceAdmin: req.MemberGroup.IsProjectAdmin,
 		Name:             req.MemberGroup.Name,
-		NamespaceUID:     req.MemberGroup.NamespaceUid,
+		NamespaceUID:     req.ProjectUid,
 		UserUids:         req.MemberGroup.UserUids,
 		RoleWithOpRanges: roles,
 	}
@@ -229,8 +229,8 @@ func (d *DMSService) UpdateMemberGroup(ctx context.Context, currentUserUid strin
 
 	params := &biz.MemberGroup{
 		UID:              req.MemberGroupUid,
-		IsNamespaceAdmin: req.MemberGroup.IsNamespaceAdmin,
-		NamespaceUID:     req.MemberGroup.NamespaceUid,
+		IsNamespaceAdmin: req.MemberGroup.IsProjectAdmin,
+		NamespaceUID:     req.ProjectUid,
 		UserUids:         req.MemberGroup.UserUids,
 		RoleWithOpRanges: roles,
 	}
@@ -244,7 +244,7 @@ func (d *DMSService) UpdateMemberGroup(ctx context.Context, currentUserUid strin
 }
 
 func (d *DMSService) DeleteMemberGroup(ctx context.Context, currentUserUid string, req *dmsV1.DeleteMemberGroupReq) (err error) {
-	if err = d.MemberGroupUsecase.DeleteMemberGroup(ctx, currentUserUid, req.MemberGroupUid, req.NamespaceId); err != nil {
+	if err = d.MemberGroupUsecase.DeleteMemberGroup(ctx, currentUserUid, req.MemberGroupUid, req.ProjectUid); err != nil {
 		return fmt.Errorf("delete member group failed: %v", err)
 	}
 

@@ -30,7 +30,7 @@ func (d *DMSService) AddMember(ctx context.Context, currentUserUid string, req *
 		})
 	}
 
-	uid, err := d.MemberUsecase.CreateMember(ctx, currentUserUid, req.Member.UserUid, req.Member.NamespaceUid, req.Member.IsNamespaceAdmin, roles)
+	uid, err := d.MemberUsecase.CreateMember(ctx, currentUserUid, req.Member.UserUid, req.ProjectUid, req.Member.IsProjectAdmin, roles)
 	if err != nil {
 		return nil, fmt.Errorf("create member failed: %w", err)
 	}
@@ -65,11 +65,11 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) 
 			Value:    req.FilterByUserUid,
 		})
 	}
-	if req.NamespaceUid != "" {
+	if req.ProjectUid != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.MemberFieldNamespaceUID),
 			Operator: pkgConst.FilterOperatorEqual,
-			Value:    req.NamespaceUid,
+			Value:    req.ProjectUid,
 		})
 	}
 
@@ -80,7 +80,7 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) 
 		FilterBy:     filterBy,
 	}
 
-	members, total, err := d.MemberUsecase.ListMember(ctx, listOption, req.NamespaceUid)
+	members, total, err := d.MemberUsecase.ListMember(ctx, listOption, req.ProjectUid)
 	if nil != err {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) 
 
 			// 如果是空间管理员namespace admin，则表示拥有该空间的所有权限
 			if isAdmin {
-				ret[i].IsNamespaceAdmin = true
+				ret[i].IsProjectAdmin = true
 
 				// 如果不是空间管理员namespace admin，则展示具体的权限范围
 			} else {
@@ -177,7 +177,7 @@ func (d *DMSService) UpdateMember(ctx context.Context, currentUserUid string, re
 	}
 
 	if err = d.MemberUsecase.UpdateMember(ctx, currentUserUid, req.MemberUid, pkgConst.UIDOfNamespaceDefault, /*暂时只支持默认namespace*/
-		req.Member.IsNamespaceAdmin, roles); nil != err {
+		req.Member.IsProjectAdmin, roles); nil != err {
 		return fmt.Errorf("update member failed: %v", err)
 	}
 
@@ -203,7 +203,7 @@ func (d *DMSService) ListMembersForInternal(ctx context.Context, req *dmsCommonV
 		LimitPerPage: req.PageSize,
 	}
 
-	members, total, err := d.OpPermissionVerifyUsecase.ListUsersOpPermissionInNamespace(ctx, req.NamespaceUid, listOption)
+	members, total, err := d.OpPermissionVerifyUsecase.ListUsersOpPermissionInNamespace(ctx, req.ProjectUid, listOption)
 	if nil != err {
 		return nil, err
 	}
@@ -239,7 +239,7 @@ func (d *DMSService) ListMembersForInternal(ctx context.Context, req *dmsCommonV
 			})
 		}
 
-		isAdmin, err := d.OpPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, m.UserUid, req.NamespaceUid)
+		isAdmin, err := d.OpPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, m.UserUid, req.ProjectUid)
 		if err != nil {
 			return nil, fmt.Errorf("check user namespace admin error: %v", err)
 		}
