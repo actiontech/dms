@@ -92,13 +92,13 @@ func (s *APIServer) initRouter() error {
 		opPermissionV1 := v1.Group("/dms/op_permissions")
 		opPermissionV1.GET("", s.DMSController.ListOpPermissions)
 
-		namespaceV1 := v1.Group(dmsV1.NamespaceRouterGroup)
-		namespaceV1.GET("", s.DMSController.ListNamespaces)
-		namespaceV1.POST("", s.DMSController.AddNamespace)
-		namespaceV1.DELETE("/:namespace_uid", s.DMSController.DelNamespace)
-		namespaceV1.PUT("/:namespace_uid", s.DMSController.UpdateNamespace)
-		namespaceV1.PUT("/:namespace_uid/archive", s.DMSController.ArchiveNamespace)
-		namespaceV1.PUT("/:namespace_uid/unarchive", s.DMSController.UnarchiveNamespace)
+		projectV1 := v1.Group(dmsV1.ProjectRouterGroup)
+		projectV1.GET("", s.DMSController.ListProjects)
+		projectV1.POST("", s.DMSController.AddProject)
+		projectV1.DELETE("/:project_uid", s.DMSController.DelProject)
+		projectV1.PUT("/:project_uid", s.DMSController.UpdateProject)
+		projectV1.PUT("/:project_uid/archive", s.DMSController.ArchiveProject)
+		projectV1.PUT("/:project_uid/unarchive", s.DMSController.UnarchiveProject)
 
 		// oauth2 interface does not require login authentication
 		oauth2V1 := v1.Group("/dms/oauth2")
