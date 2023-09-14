@@ -14,7 +14,7 @@ var (
 var (
 	SessionRouterGroup            = "/dms/sessions"
 	UserRouterGroup               = "/dms/users"
-	DBServiceRouterGroup          = "/dms/db_services"
+	DBServiceRouterGroup          = "/dms/projects/:project_uid/db_services"
 	ProxyRouterGroup              = "/dms/proxys"
 	PluginRouterGroup             = "/dms/plugins"
 	MemberRouterGroup             = "/dms/projects/:project_uid/members"
@@ -40,8 +40,8 @@ func GetUserOpPermissionRouterWithoutPrefix(userUid string) string {
 	return strings.TrimPrefix(strings.TrimPrefix(router, CurrentGroupVersion), UserRouterGroup)
 }
 
-func GetDBServiceRouter() string {
-	return fmt.Sprintf("%s%s", CurrentGroupVersion, DBServiceRouterGroup)
+func GetDBServiceRouter(projectUid string) string {
+	return fmt.Sprintf("%s%s", CurrentGroupVersion, strings.Replace(DBServiceRouterGroup, ":project_uid", projectUid, 1))
 }
 
 func GetUserRouter(userUid string) string {
@@ -52,8 +52,8 @@ func GetUsersRouter() string {
 	return fmt.Sprintf("%s%s", CurrentGroupVersion, UserRouterGroup)
 }
 
-func GetListMembersForInternalRouter(projectId string) string {
-	return fmt.Sprintf("%s%s%s", CurrentGroupVersion, strings.Replace(MemberRouterGroup, ":project_uid", projectId, 1), MemberForInternalRouterSuffix)
+func GetListMembersForInternalRouter(projectUid string) string {
+	return fmt.Sprintf("%s%s%s", CurrentGroupVersion, strings.Replace(MemberRouterGroup, ":project_uid", projectUid, 1), MemberForInternalRouterSuffix)
 }
 
 func GetProxyRouter() string {

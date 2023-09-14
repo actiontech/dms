@@ -55,9 +55,6 @@ type DBService struct {
 	// empty value means that maintenance time is unlimited
 	// Required: true
 	MaintenanceTimes []*MaintenanceTime `json:"maintenance_times"`
-	// DB Service namespace id
-	// Required: true
-	NamespaceUID string `json:"namespace_uid" validate:"required"`
 	// DB Service Custom connection parameters
 	// Required: false
 	AdditionalParams []*dmsCommonV1.AdditionalParam `json:"additional_params"`
@@ -79,6 +76,10 @@ type Time struct {
 
 // swagger:parameters AddDBService
 type AddDBServiceReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// Add new db service
 	// in:body
 	DBService *DBService `json:"db_service" validate:"required"`
@@ -180,10 +181,10 @@ type ListDBServiceReq struct {
 	// in:query
 	// Multiple of ["MySQL","OceanBaseMySQL"], default is [""]
 	FilterByDBType string `query:"filter_by_db_type" json:"filter_by_db_type"`
-	// filter by db service namespace uid
-	// only the sys user can use an empty namespace value, which means lookup from all namespaces
-	// in:query
-	FilterByNamespaceUid string `query:"filter_by_namespace_uid" json:"filter_by_namespace_uid"`
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 }
 
 // swagger:enum DBServiceOrderByField
@@ -218,8 +219,8 @@ type ListDBService struct {
 	Desc string `json:"desc"`
 	// DB source
 	Source string `json:"source"`
-	// DB namespace uid
-	NamespaceUID string `json:"namespace_uid"`
+	// DB project uid
+	ProjectUID string `json:"project_uid"`
 	// sqle config
 	SQLEConfig *SQLEConfig `json:"sqle_config"`
 	// auth config
