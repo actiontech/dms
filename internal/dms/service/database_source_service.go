@@ -12,15 +12,15 @@ import (
 func (d *DMSService) ListDatabaseSourceService(ctx context.Context, req *v1.ListDatabaseSourceServicesReq, currentUserUid string) (reply *v1.ListDatabaseSourceServicesReply, err error) {
 	conditions := make([]pkgConst.FilterCondition, 0)
 
-	if req.NamespaceId != "" {
+	if req.ProjectUid != "" {
 		conditions = append(conditions, pkgConst.FilterCondition{
 			Field:    string(biz.DatabaseSourceServiceFieldNamespaceUID),
 			Operator: pkgConst.FilterOperatorEqual,
-			Value:    req.NamespaceId,
+			Value:    req.ProjectUid,
 		})
 	}
 
-	services, err := d.DatabaseSourceServiceUsecase.ListDatabaseSourceServices(ctx, conditions, req.NamespaceId, currentUserUid)
+	services, err := d.DatabaseSourceServiceUsecase.ListDatabaseSourceServices(ctx, conditions, req.ProjectUid, currentUserUid)
 	if nil != err {
 		return nil, err
 	}
@@ -28,16 +28,16 @@ func (d *DMSService) ListDatabaseSourceService(ctx context.Context, req *v1.List
 	ret := make([]*v1.ListDatabaseSourceService, 0, len(services))
 	for _, service := range services {
 		item := &v1.ListDatabaseSourceService{
-			UID: service.UID,
+			UID:        service.UID,
+			ProjectUid: service.NamespaceUID,
 			DatabaseSourceService: v1.DatabaseSourceService{
-				Name:         service.Name,
-				Source:       service.Source,
-				Version:      service.Version,
-				URL:          service.URL,
-				DbType:       service.DbType.String(),
-				CronExpress:  service.CronExpress,
-				NamespaceUID: service.NamespaceUID,
-				SQLEConfig:   d.buildReplySqleConfig(service.SQLEConfig),
+				Name:        service.Name,
+				Source:      service.Source,
+				Version:     service.Version,
+				URL:         service.URL,
+				DbType:      service.DbType.String(),
+				CronExpress: service.CronExpress,
+				SQLEConfig:  d.buildReplySqleConfig(service.SQLEConfig),
 			},
 			LastSyncErr:         service.LastSyncErr,
 			LastSyncSuccessTime: service.LastSyncSuccessTime,
@@ -74,22 +74,22 @@ func (d *DMSService) buildReplySqleConfig(params *biz.SQLEConfig) *v1.SQLEConfig
 }
 
 func (d *DMSService) GetDatabaseSourceService(ctx context.Context, req *v1.GetDatabaseSourceServiceReq, currentUserUid string) (reply *v1.GetDatabaseSourceServiceReply, err error) {
-	service, err := d.DatabaseSourceServiceUsecase.GetDatabaseSourceService(ctx, req.DatabaseSourceServiceUid, req.NamespaceId, currentUserUid)
+	service, err := d.DatabaseSourceServiceUsecase.GetDatabaseSourceService(ctx, req.DatabaseSourceServiceUid, req.ProjectUid, currentUserUid)
 	if nil != err {
 		return nil, err
 	}
 
 	item := &v1.GetDatabaseSourceService{
-		UID: service.UID,
+		UID:        service.UID,
+		ProjectUid: service.NamespaceUID,
 		DatabaseSourceService: v1.DatabaseSourceService{
-			Name:         service.Name,
-			Source:       service.Source,
-			Version:      service.Version,
-			URL:          service.URL,
-			DbType:       service.DbType.String(),
-			CronExpress:  service.CronExpress,
-			NamespaceUID: service.NamespaceUID,
-			SQLEConfig:   d.buildReplySqleConfig(service.SQLEConfig),
+			Name:        service.Name,
+			Source:      service.Source,
+			Version:     service.Version,
+			URL:         service.URL,
+			DbType:      service.DbType.String(),
+			CronExpress: service.CronExpress,
+			SQLEConfig:  d.buildReplySqleConfig(service.SQLEConfig),
 		},
 	}
 
@@ -113,7 +113,7 @@ func (d *DMSService) AddDatabaseSourceService(ctx context.Context, req *v1.AddDa
 		URL:          req.DatabaseSourceService.URL,
 		DbType:       dbType,
 		CronExpress:  req.DatabaseSourceService.CronExpress,
-		NamespaceUID: req.DatabaseSourceService.NamespaceUID,
+		NamespaceUID: req.ProjectUid,
 		SQLEConfig:   d.buildSQLEConfig(req.DatabaseSourceService.SQLEConfig),
 	}
 
@@ -164,7 +164,7 @@ func (d *DMSService) UpdateDatabaseSourceService(ctx context.Context, req *v1.Up
 		URL:          req.DatabaseSourceService.URL,
 		DbType:       dbType,
 		CronExpress:  req.DatabaseSourceService.CronExpress,
-		NamespaceUID: req.DatabaseSourceService.NamespaceUID,
+		NamespaceUID: req.ProjectUid,
 		SQLEConfig:   d.buildSQLEConfig(req.DatabaseSourceService.SQLEConfig),
 	}
 

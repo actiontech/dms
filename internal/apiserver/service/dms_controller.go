@@ -208,7 +208,7 @@ func (d *DMSController) CheckDBServiceIsConnectableById(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/database_source_services dms ListDatabaseSourceServices
+// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services dms ListDatabaseSourceServices
 //
 // List database source service.
 //
@@ -233,7 +233,7 @@ func (d *DMSController) ListDatabaseSourceServices(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/database_source_services/{database_source_service_uid} dms GetDatabaseSourceService
+// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} dms GetDatabaseSourceService
 //
 // Get database source service.
 //
@@ -258,7 +258,7 @@ func (d *DMSController) GetDatabaseSourceService(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/database_source_services dms AddDatabaseSourceService
+// swagger:route POST /v1/dms/projects/{project_uid}/database_source_services dms AddDatabaseSourceService
 //
 // Add database source service.
 //
@@ -285,7 +285,7 @@ func (d *DMSController) AddDatabaseSourceService(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PUT /v1/dms/database_source_services/{database_source_service_uid} dms UpdateDatabaseSourceService
+// swagger:route PUT /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} dms UpdateDatabaseSourceService
 //
 // update database source service.
 //
@@ -310,7 +310,7 @@ func (d *DMSController) UpdateDatabaseSourceService(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route DELETE /v1/dms/database_source_services/{database_source_service_uid} dms DeleteDatabaseSourceService
+// swagger:route DELETE /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} dms DeleteDatabaseSourceService
 //
 // Delete database source service.
 //
@@ -332,6 +332,47 @@ func (d *DMSController) DeleteDatabaseSourceService(c echo.Context) error {
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
+	return NewOkResp(c)
+}
+
+// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services/tips dms ListDatabaseSourceServiceTips
+//
+// List database source service tips.
+//
+//	responses:
+//	  200: body:ListDatabaseSourceServiceTipsReply
+//	  default: body:GenericResp
+func (d *DMSController) ListDatabaseSourceServiceTips(c echo.Context) error {
+	reply, err := d.DMS.ListDatabaseSourceServiceTips(c.Request().Context())
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route POST /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid}/sync dms SyncDatabaseSourceService
+//
+// Sync database source service.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) SyncDatabaseSourceService(c echo.Context) error {
+	req := &aV1.SyncDatabaseSourceServiceReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	err = d.DMS.SyncDatabaseSourceService(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
 	return NewOkResp(c)
 }
 
@@ -392,47 +433,6 @@ func (d *DMSController) Personalization(c echo.Context) error {
 	}
 
 	err = d.DMS.Personalization(c.Request().Context(), req)
-	if nil != err {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-
-	return NewOkResp(c)
-}
-
-// swagger:route GET /v1/dms/database_source_services/tips dms ListDatabaseSourceServiceTips
-//
-// List database source service tips.
-//
-//	responses:
-//	  200: body:ListDatabaseSourceServiceTipsReply
-//	  default: body:GenericResp
-func (d *DMSController) ListDatabaseSourceServiceTips(c echo.Context) error {
-	reply, err := d.DMS.ListDatabaseSourceServiceTips(c.Request().Context())
-	if nil != err {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-	return NewOkRespWithReply(c, reply)
-}
-
-// swagger:route POST /v1/dms/database_source_services/{database_source_service_uid}/sync dms SyncDatabaseSourceService
-//
-// Sync database source service.
-//
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
-func (d *DMSController) SyncDatabaseSourceService(c echo.Context) error {
-	req := &aV1.SyncDatabaseSourceServiceReq{}
-	err := bindAndValidateReq(c, req)
-	if nil != err {
-		return NewErrResp(c, err, apiError.BadRequestErr)
-	}
-	// get current user id
-	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-	err = d.DMS.SyncDatabaseSourceService(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
