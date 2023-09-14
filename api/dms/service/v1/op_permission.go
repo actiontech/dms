@@ -13,8 +13,8 @@ const (
 	OpRangeTypeUnknown OpRangeType = "unknown"
 	// 全局权限: 该权限只能被用户使用
 	OpRangeTypeGlobal OpRangeType = "global"
-	// 空间权限: 该权限只能被成员使用
-	OpRangeTypeNamespace OpRangeType = "namespace"
+	// 项目权限: 该权限只能被成员使用
+	OpRangeTypeProject OpRangeType = "project"
 	// 空间内的数据源权限: 该权限只能被成员使用
 	OpRangeTypeDBService OpRangeType = "db_service"
 )
@@ -23,8 +23,8 @@ func ParseOpRangeType(typ string) (OpRangeType, error) {
 	switch typ {
 	case string(OpRangeTypeDBService):
 		return OpRangeTypeDBService, nil
-	case string(OpRangeTypeNamespace):
-		return OpRangeTypeNamespace, nil
+	case string(OpRangeTypeProject):
+		return OpRangeTypeProject, nil
 	case string(OpRangeTypeGlobal):
 		return OpRangeTypeGlobal, nil
 	default:
