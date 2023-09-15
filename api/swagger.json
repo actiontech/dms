@@ -906,7 +906,7 @@
         }
       }
     },
-    "/v1/dms/db_services/driver_option": {
+    "/v1/dms/db_services/driver_options": {
       "get": {
         "tags": [
           "dms"
@@ -3551,7 +3551,7 @@
           "x-go-name": "Msg"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
+      "x-go-package": "github.com/actiontech/dms/api/base/v1"
     },
     "GetBasicInfoReply": {
       "type": "object",
@@ -5904,7 +5904,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCurrentUser": {
       "type": "object",
