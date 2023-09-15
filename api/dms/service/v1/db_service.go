@@ -113,6 +113,10 @@ func (u *AddDBServiceReply) String() string {
 
 // swagger:parameters CheckDBServiceIsConnectable
 type CheckDBServiceIsConnectableReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// check db_service is connectable
 	// in:body
 	DBService dmsCommonV1.CheckDbConnectable `json:"db_service"`
@@ -135,6 +139,10 @@ type CheckDBServiceIsConnectableReply struct {
 
 // swagger:parameters CheckDBServiceIsConnectableById
 type CheckDBServiceIsConnectableByIdReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// db service uid
 	// in:path
 	DBServiceUid string `param:"db_service_uid" json:"db_service_uid" validate:"required"`
@@ -142,6 +150,10 @@ type CheckDBServiceIsConnectableByIdReq struct {
 
 // swagger:parameters DelDBService
 type DelDBServiceReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// db service uid
 	// in:path
 	DBServiceUid string `param:"db_service_uid" json:"db_service_uid" validate:"required"`
@@ -152,6 +164,14 @@ func (u *DelDBServiceReq) String() string {
 		return "DelDBServiceReq{nil}"
 	}
 	return fmt.Sprintf("DelDBServiceReq{Uid:%s}", u.DBServiceUid)
+}
+
+// swagger:parameters ListDBServiceDriverOption
+type ListDBServiceDriverOptionReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 }
 
 // swagger:parameters ListDBServices
@@ -274,6 +294,10 @@ type ListDBServiceReply struct {
 
 // swagger:parameters UpdateDBService
 type UpdateDBServiceReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// db_service_uid
 	// Required: true
 	// in:path
