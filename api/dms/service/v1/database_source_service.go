@@ -154,6 +154,14 @@ type ListDatabaseSourceServiceTipsReply struct {
 	base.GenericResp
 }
 
+// swagger:parameters ListDatabaseSourceServiceTips
+type ListDatabaseSourceServiceTipsReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+}
+
 // swagger:parameters SyncDatabaseSourceService
 type SyncDatabaseSourceServiceReq struct {
 	// project id
