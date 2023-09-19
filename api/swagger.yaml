@@ -103,7 +103,7 @@ definitions:
                 x-go-name: Payload
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    AddNamespaceReply:
+    AddProjectReply:
         properties:
             code:
                 description: code
@@ -115,10 +115,10 @@ definitions:
                 type: string
                 x-go-name: Msg
             payload:
-                description: Add Namespace reply
+                description: Add Project reply
                 properties:
                     uid:
-                        description: Namespace UID
+                        description: Project UID
                         type: string
                         x-go-name: Uid
                 type: object
@@ -423,10 +423,6 @@ definitions:
                 description: Service name
                 type: string
                 x-go-name: Name
-            namespace_uid:
-                description: DB Service namespace id
-                type: string
-                x-go-name: NamespaceUID
             password:
                 description: DB Service admin password
                 type: string
@@ -450,7 +446,6 @@ definitions:
             - password
             - business
             - maintenance_times
-            - namespace_uid
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DMSProxyTarget:
@@ -545,10 +540,6 @@ definitions:
                 example: dmp
                 type: string
                 x-go-name: Name
-            namespace_uid:
-                description: namespace id
-                type: string
-                x-go-name: NamespaceUID
             source:
                 description: source
                 example: actiontech-dmp
@@ -573,7 +564,6 @@ definitions:
             - url
             - db_type
             - cron_express
-            - namespace_uid
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DelDBServicePreCheckReply:
@@ -675,10 +665,9 @@ definitions:
                 example: dmp
                 type: string
                 x-go-name: Name
-            namespace_uid:
-                description: namespace id
+            project_uid:
                 type: string
-                x-go-name: NamespaceUID
+                x-go-name: ProjectUid
             source:
                 description: source
                 example: actiontech-dmp
@@ -706,7 +695,6 @@ definitions:
             - url
             - db_type
             - cron_express
-            - namespace_uid
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetDatabaseSourceServiceReply:
@@ -769,10 +757,10 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetMemberGroup:
         properties:
-            is_namespace_admin:
-                description: Whether the member has namespace admin permission
+            is_project_admin:
+                description: Whether the member has project admin permission
                 type: boolean
-                x-go-name: IsNamespaceAdmin
+                x-go-name: IsProjectAdmin
             name:
                 type: string
                 x-go-name: Name
@@ -1261,10 +1249,6 @@ definitions:
                 description: db service name
                 type: string
                 x-go-name: Name
-            namespace_uid:
-                description: DB namespace uid
-                type: string
-                x-go-name: NamespaceUID
             password:
                 description: db service admin encrypted password
                 type: string
@@ -1273,6 +1257,10 @@ definitions:
                 description: db service port
                 type: string
                 x-go-name: Port
+            project_uid:
+                description: DB project uid
+                type: string
+                x-go-name: ProjectUID
             source:
                 description: DB source
                 type: string
@@ -1364,10 +1352,9 @@ definitions:
                 example: dmp
                 type: string
                 x-go-name: Name
-            namespace_uid:
-                description: namespace id
+            project_uid:
                 type: string
-                x-go-name: NamespaceUID
+                x-go-name: ProjectUid
             source:
                 description: source
                 example: actiontech-dmp
@@ -1395,7 +1382,6 @@ definitions:
             - url
             - db_type
             - cron_express
-            - namespace_uid
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListDatabaseSourceServiceTipsReply:
@@ -1445,10 +1431,10 @@ definitions:
     ListMember:
         description: A dms member
         properties:
-            is_namespace_admin:
-                description: Whether the member has namespace admin permission
+            is_project_admin:
+                description: Whether the member has project admin permission
                 type: boolean
-                x-go-name: IsNamespaceAdmin
+                x-go-name: IsProjectAdmin
             role_with_op_ranges:
                 description: member op permission
                 items:
@@ -1465,10 +1451,10 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberGroup:
         properties:
-            is_namespace_admin:
-                description: Whether the member has namespace admin permission
+            is_project_admin:
+                description: Whether the member has project admin permission
                 type: boolean
-                x-go-name: IsNamespaceAdmin
+                x-go-name: IsProjectAdmin
             name:
                 type: string
                 x-go-name: Name
@@ -1551,18 +1537,18 @@ definitions:
                     op permission range type, only support db service now
                     unknown OpRangeTypeUnknown
                     global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
-                    namespace OpRangeTypeNamespace  空间权限: 该权限只能被成员使用
+                    project OpRangeTypeProject  项目权限: 该权限只能被成员使用
                     db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
                 enum:
                     - unknown
                     - global
-                    - namespace
+                    - project
                     - db_service
                 type: string
                 x-go-enum-desc: |-
                     unknown OpRangeTypeUnknown
                     global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
-                    namespace OpRangeTypeNamespace  空间权限: 该权限只能被成员使用
+                    project OpRangeTypeProject  项目权限: 该权限只能被成员使用
                     db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
                 x-go-name: OpRangeType
             range_uids:
@@ -1579,7 +1565,7 @@ definitions:
         description: A dms member for internal
         properties:
             is_admin:
-                description: is member namespace admin, admin has all permissions
+                description: is member project admin, admin has all permissions
                 type: boolean
                 x-go-name: IsAdmin
             member_op_permission_list:
@@ -1619,61 +1605,6 @@ definitions:
                 x-go-name: Payload
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    ListNamespace:
-        description: A dms namespace
-        properties:
-            archived:
-                description: namespace is archived
-                type: boolean
-                x-go-name: Archived
-            create_time:
-                description: create time
-                format: date-time
-                type: string
-                x-go-name: CreateTime
-            create_user:
-                $ref: '#/definitions/UidWithName'
-            desc:
-                description: namespace desc
-                type: string
-                x-go-name: Desc
-            name:
-                description: namespace name
-                type: string
-                x-go-name: Name
-            uid:
-                description: namespace uid
-                type: string
-                x-go-name: NamespaceUid
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    ListNamespaceReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            msg:
-                description: message
-                type: string
-                x-go-name: Msg
-            payload:
-                description: List namespace reply
-                properties:
-                    namespaces:
-                        items:
-                            $ref: '#/definitions/ListNamespace'
-                        type: array
-                        x-go-name: Namespaces
-                    total:
-                        format: int64
-                        type: integer
-                        x-go-name: Total
-                type: object
-                x-go-name: Payload
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ListOpPermission:
         description: A dms op permission
         properties:
@@ -1686,13 +1617,13 @@ definitions:
                 enum:
                     - unknown
                     - global
-                    - namespace
+                    - project
                     - db_service
                 type: string
                 x-go-enum-desc: |-
                     unknown OpRangeTypeUnknown
                     global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
-                    namespace OpRangeTypeNamespace  空间权限: 该权限只能被成员使用
+                    project OpRangeTypeProject  项目权限: 该权限只能被成员使用
                     db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
                 x-go-name: RangeType
         type: object
@@ -1724,6 +1655,61 @@ definitions:
                 x-go-name: Payload
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListProject:
+        description: A dms Project
+        properties:
+            archived:
+                description: Project is archived
+                type: boolean
+                x-go-name: Archived
+            create_time:
+                description: create time
+                format: date-time
+                type: string
+                x-go-name: CreateTime
+            create_user:
+                $ref: '#/definitions/UidWithName'
+            desc:
+                description: Project desc
+                type: string
+                x-go-name: Desc
+            name:
+                description: Project name
+                type: string
+                x-go-name: Name
+            uid:
+                description: Project uid
+                type: string
+                x-go-name: ProjectUid
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    ListProjectReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            msg:
+                description: message
+                type: string
+                x-go-name: Msg
+            payload:
+                description: List Project reply
+                properties:
+                    projects:
+                        items:
+                            $ref: '#/definitions/ListProject'
+                        type: array
+                        x-go-name: Projects
+                    total:
+                        format: int64
+                        type: integer
+                        x-go-name: Total
+                type: object
+                x-go-name: Payload
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ListRole:
         description: A dms role
         properties:
@@ -1970,14 +1956,10 @@ definitions:
     Member:
         description: A member
         properties:
-            is_namespace_admin:
-                description: Whether the member has namespace admin permission
+            is_project_admin:
+                description: Whether the member has project admin permission
                 type: boolean
-                x-go-name: IsNamespaceAdmin
-            namespace_uid:
-                description: namespace uid
-                type: string
-                x-go-name: NamespaceUid
+                x-go-name: IsProjectAdmin
             role_with_op_ranges:
                 description: member role with op ranges
                 items:
@@ -1990,23 +1972,18 @@ definitions:
                 x-go-name: UserUid
         required:
             - user_uid
-            - namespace_uid
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     MemberGroup:
         properties:
-            is_namespace_admin:
-                description: Whether the member has namespace admin permission
+            is_project_admin:
+                description: Whether the member has project admin permission
                 type: boolean
-                x-go-name: IsNamespaceAdmin
+                x-go-name: IsProjectAdmin
             name:
                 description: member group name
                 type: string
                 x-go-name: Name
-            namespace_uid:
-                description: namespace uid
-                type: string
-                x-go-name: NamespaceUid
             role_with_op_ranges:
                 description: member role with op ranges
                 items:
@@ -2022,7 +1999,6 @@ definitions:
         required:
             - name
             - user_uids
-            - namespace_uid
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     MemberRoleWithOpRange:
@@ -2032,18 +2008,18 @@ definitions:
                     op permission range type, only support db service now
                     unknown OpRangeTypeUnknown
                     global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
-                    namespace OpRangeTypeNamespace  空间权限: 该权限只能被成员使用
+                    project OpRangeTypeProject  项目权限: 该权限只能被成员使用
                     db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
                 enum:
                     - unknown
                     - global
-                    - namespace
+                    - project
                     - db_service
                 type: string
                 x-go-enum-desc: |-
                     unknown OpRangeTypeUnknown
                     global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
-                    namespace OpRangeTypeNamespace  空间权限: 该权限只能被成员使用
+                    project OpRangeTypeProject  项目权限: 该权限只能被成员使用
                     db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
                 x-go-name: OpRangeType
             range_uids:
@@ -2056,19 +2032,6 @@ definitions:
                 description: role uid
                 type: string
                 x-go-name: RoleUID
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    Namespace:
-        description: A Namespace
-        properties:
-            desc:
-                description: namespace desc
-                type: string
-                x-go-name: Desc
-            name:
-                description: namespace name
-                type: string
-                x-go-name: Name
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     Notification:
@@ -2248,6 +2211,19 @@ definitions:
                 x-go-name: OperateDataResourceHandleUrl
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    Project:
+        description: A Project
+        properties:
+            desc:
+                description: project desc
+                type: string
+                x-go-name: Desc
+            name:
+                description: project name
+                type: string
+                x-go-name: Name
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     RegisterDMSPluginReply:
         properties:
             code:
@@ -2526,7 +2502,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCurrentUser:
         properties:
             email:
@@ -2651,10 +2627,10 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateMember:
         properties:
-            is_namespace_admin:
-                description: Whether the member has namespace admin permission
+            is_project_admin:
+                description: Whether the member has project admin permission
                 type: boolean
-                x-go-name: IsNamespaceAdmin
+                x-go-name: IsProjectAdmin
             role_with_op_ranges:
                 description: member role with op ranges
                 items:
@@ -2665,14 +2641,10 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateMemberGroup:
         properties:
-            is_namespace_admin:
-                description: Whether the member has namespace admin permission
+            is_project_admin:
+                description: Whether the member has project admin permission
                 type: boolean
-                x-go-name: IsNamespaceAdmin
-            namespace_uid:
-                description: namespace uid
-                type: string
-                x-go-name: NamespaceUid
+                x-go-name: IsProjectAdmin
             role_with_op_ranges:
                 description: member role with op ranges
                 items:
@@ -2687,13 +2659,12 @@ definitions:
                 x-go-name: UserUids
         required:
             - user_uids
-            - namespace_uid
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    UpdateNamespace:
+    UpdateProject:
         properties:
             desc:
-                description: Namespace desc
+                description: Project desc
                 type: string
                 x-go-name: Desc
         type: object
@@ -3297,830 +3268,6 @@ paths:
             summary: test wechat configuration.
             tags:
                 - dms
-    /v1/dms/database_source_services:
-        get:
-            operationId: ListDatabaseSourceServices
-            parameters:
-                - description: |-
-                    filter by db service namespace uid
-                    only the sys user can use an empty namespace value, which means lookup from all namespaces
-                  in: query
-                  name: namespace_id
-                  type: string
-                  x-go-name: NamespaceId
-            responses:
-                "200":
-                    description: ListDatabaseSourceServicesReply
-                    schema:
-                        $ref: '#/definitions/ListDatabaseSourceServicesReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: List database source service.
-            tags:
-                - dms
-        post:
-            operationId: AddDatabaseSourceService
-            parameters:
-                - description: add database source service
-                  in: body
-                  name: database_source_service
-                  schema:
-                    $ref: '#/definitions/DatabaseSourceService'
-                  x-go-name: DatabaseSourceService
-            responses:
-                "200":
-                    description: AddDatabaseSourceServiceReply
-                    schema:
-                        $ref: '#/definitions/AddDatabaseSourceServiceReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: Add database source service.
-            tags:
-                - dms
-    /v1/dms/database_source_services/{database_source_service_uid}:
-        delete:
-            operationId: DeleteDatabaseSourceService
-            parameters:
-                - in: path
-                  name: database_source_service_uid
-                  required: true
-                  type: string
-                  x-go-name: DatabaseSourceServiceUid
-            responses:
-                "200":
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: Delete database source service.
-            tags:
-                - dms
-        get:
-            operationId: GetDatabaseSourceService
-            parameters:
-                - in: path
-                  name: database_source_service_uid
-                  required: true
-                  type: string
-                  x-go-name: DatabaseSourceServiceUid
-                - description: |-
-                    filter by db service namespace uid
-                    only the sys user can use an empty namespace value, which means lookup from all namespaces
-                  in: query
-                  name: namespace_id
-                  type: string
-                  x-go-name: NamespaceId
-            responses:
-                "200":
-                    description: GetDatabaseSourceServiceReply
-                    schema:
-                        $ref: '#/definitions/GetDatabaseSourceServiceReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: Get database source service.
-            tags:
-                - dms
-        put:
-            operationId: UpdateDatabaseSourceService
-            parameters:
-                - in: path
-                  name: database_source_service_uid
-                  required: true
-                  type: string
-                  x-go-name: DatabaseSourceServiceUid
-                - description: update database source service
-                  in: body
-                  name: database_source_service
-                  schema:
-                    $ref: '#/definitions/DatabaseSourceService'
-                  x-go-name: DatabaseSourceService
-            responses:
-                "200":
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: update database source service.
-            tags:
-                - dms
-    /v1/dms/database_source_services/{database_source_service_uid}/sync:
-        post:
-            operationId: SyncDatabaseSourceService
-            parameters:
-                - in: path
-                  name: database_source_service_uid
-                  required: true
-                  type: string
-                  x-go-name: DatabaseSourceServiceUid
-            responses:
-                "200":
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: Sync database source service.
-            tags:
-                - dms
-    /v1/dms/database_source_services/tips:
-        get:
-            operationId: ListDatabaseSourceServiceTips
-            responses:
-                "200":
-                    description: ListDatabaseSourceServiceTipsReply
-                    schema:
-                        $ref: '#/definitions/ListDatabaseSourceServiceTipsReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: List database source service tips.
-            tags:
-                - dms
-    /v1/dms/db_services:
-        get:
-            operationId: ListDBServices
-            parameters:
-                - description: the maximum count of db service to be returned
-                  format: uint32
-                  in: query
-                  name: page_size
-                  required: true
-                  type: integer
-                  x-go-name: PageSize
-                - description: the offset of users to be returned, default is 0
-                  format: uint32
-                  in: query
-                  name: page_index
-                  type: integer
-                  x-go-name: PageIndex
-                - description: |-
-                    Multiple of ["name"], default is ["name"]
-                    name DBServiceOrderByName
-                  enum:
-                    - name
-                  in: query
-                  name: order_by
-                  type: string
-                  x-go-enum-desc: name DBServiceOrderByName
-                  x-go-name: OrderBy
-                - description: the db service business name
-                  in: query
-                  name: filter_by_business
-                  type: string
-                  x-go-name: FilterByBusiness
-                - description: the db service host
-                  in: query
-                  name: filter_by_host
-                  type: string
-                  x-go-name: FilterByHost
-                - description: the db service uid
-                  in: query
-                  name: filter_by_uid
-                  type: string
-                  x-go-name: FilterByUID
-                - description: the db service port
-                  in: query
-                  name: filter_by_port
-                  type: string
-                  x-go-name: FilterByPort
-                - description: the db service db type
-                  in: query
-                  name: filter_by_db_type
-                  type: string
-                  x-go-name: FilterByDBType
-                - description: |-
-                    filter by db service namespace uid
-                    only the sys user can use an empty namespace value, which means lookup from all namespaces
-                  in: query
-                  name: filter_by_namespace_uid
-                  type: string
-                  x-go-name: FilterByNamespaceUid
-            responses:
-                "200":
-                    description: ListDBServiceReply
-                    schema:
-                        $ref: '#/definitions/ListDBServiceReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: List db service.
-            tags:
-                - dms
-        post:
-            operationId: AddDBService
-            parameters:
-                - description: Add new db service
-                  in: body
-                  name: db_service
-                  schema:
-                    $ref: '#/definitions/DBService'
-                  x-go-name: DBService
-            responses:
-                "200":
-                    description: AddDBServiceReply
-                    schema:
-                        $ref: '#/definitions/AddDBServiceReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: Add DB Service.
-            tags:
-                - dms
-    /v1/dms/db_services/{db_service_uid}:
-        delete:
-            operationId: DelDBService
-            parameters:
-                - description: db service uid
-                  in: path
-                  name: db_service_uid
-                  required: true
-                  type: string
-                  x-go-name: DBServiceUid
-            responses:
-                "200":
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: Delete a DB Service.
-            tags:
-                - dms
-        put:
-            operationId: UpdateDBService
-            parameters:
-                - description: db_service_uid
-                  in: path
-                  name: db_service_uid
-                  required: true
-                  type: string
-                  x-go-name: DBServiceUid
-                - description: Update a DB service
-                  in: body
-                  name: db_service
-                  schema:
-                    $ref: '#/definitions/UpdateDBService'
-                  x-go-name: DBService
-            responses:
-                "200":
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: update a DB Service.
-            tags:
-                - dms
-    /v1/dms/db_services/{db_service_uid}/connection:
-        post:
-            operationId: CheckDBServiceIsConnectableById
-            parameters:
-                - description: db service uid
-                  in: path
-                  name: db_service_uid
-                  required: true
-                  type: string
-                  x-go-name: DBServiceUid
-            responses:
-                "200":
-                    description: CheckDBServiceIsConnectableReply
-                    schema:
-                        $ref: '#/definitions/CheckDBServiceIsConnectableReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: check if the db_service is connectable.
-            tags:
-                - dms
-    /v1/dms/db_services/connection:
-        post:
-            operationId: CheckDBServiceIsConnectable
-            parameters:
-                - description: check db_service is connectable
-                  in: body
-                  name: db_service
-                  schema:
-                    $ref: '#/definitions/CheckDbConnectable'
-                  x-go-name: DBService
-            responses:
-                "200":
-                    description: CheckDBServiceIsConnectableReply
-                    schema:
-                        $ref: '#/definitions/CheckDBServiceIsConnectableReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: check if the db_service is connectable.
-            tags:
-                - dms
-    /v1/dms/db_services/driver_options:
-        get:
-            operationId: ListDBServiceDriverOption
-            responses:
-                "200":
-                    description: ListDBServiceDriverOptionReply
-                    schema:
-                        $ref: '#/definitions/ListDBServiceDriverOptionReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: List db service driver option.
-            tags:
-                - dms
-    /v1/dms/member_groups:
-        get:
-            operationId: ListMemberGroups
-            parameters:
-                - description: the maximum count of member to be returned
-                  format: uint32
-                  in: query
-                  name: page_size
-                  required: true
-                  type: integer
-                  x-go-name: PageSize
-                - description: the offset of members to be returned, default is 0
-                  format: uint32
-                  in: query
-                  name: page_index
-                  type: integer
-                  x-go-name: PageIndex
-                - description: |-
-                    Multiple of ["name"], default is ["name"]
-                    name MemberGroupOrderByName
-                  enum:
-                    - name
-                  in: query
-                  name: order_by
-                  type: string
-                  x-go-enum-desc: name MemberGroupOrderByName
-                  x-go-name: OrderBy
-                - description: filter the user group name
-                  in: query
-                  name: filter_by_name
-                  type: string
-                  x-go-name: FilterByName
-                - description: the member namespace uid
-                  in: query
-                  name: namespace_uid
-                  required: true
-                  type: string
-                  x-go-name: NamespaceUid
-            responses:
-                "200":
-                    description: ListMemberGroupsReply
-                    schema:
-                        $ref: '#/definitions/ListMemberGroupsReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: List member group, for front page.
-            tags:
-                - dms
-        post:
-            operationId: AddMemberGroup
-            parameters:
-                - description: Add new member group
-                  in: body
-                  name: member_group
-                  schema:
-                    $ref: '#/definitions/MemberGroup'
-                  x-go-name: MemberGroup
-            responses:
-                "200":
-                    description: AddMemberGroupReply
-                    schema:
-                        $ref: '#/definitions/AddMemberGroupReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: Add member group.
-            tags:
-                - dms
-    /v1/dms/member_groups/{member_group_uid}:
-        delete:
-            operationId: DeleteMemberGroup
-            parameters:
-                - description: filter by db service namespace uid
-                  in: query
-                  name: namespace_id
-                  type: string
-                  x-go-name: NamespaceId
-                - description: member group id
-                  in: path
-                  name: member_group_uid
-                  required: true
-                  type: string
-                  x-go-name: MemberGroupUid
-            responses:
-                "200":
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: delete member group, for front page.
-            tags:
-                - dms
-        get:
-            operationId: GetMemberGroup
-            parameters:
-                - description: Member group id
-                  in: path
-                  name: member_group_uid
-                  required: true
-                  type: string
-                  x-go-name: MemberGroupUid
-                - description: |-
-                    filter by db service namespace uid
-                    only the sys user can use an empty namespace value, which means lookup from all namespaces
-                  in: query
-                  name: namespace_id
-                  type: string
-                  x-go-name: NamespaceId
-            responses:
-                "200":
-                    description: GetMemberGroupReply
-                    schema:
-                        $ref: '#/definitions/GetMemberGroupReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: Get member group, for front page.
-            tags:
-                - dms
-        put:
-            operationId: UpdateMemberGroup
-            parameters:
-                - description: Member group id
-                  in: path
-                  name: member_group_uid
-                  required: true
-                  type: string
-                  x-go-name: MemberGroupUid
-                - description: Update a member group
-                  in: body
-                  name: member_group
-                  schema:
-                    $ref: '#/definitions/UpdateMemberGroup'
-                  x-go-name: MemberGroup
-            responses:
-                "200":
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: update member group, for front page.
-            tags:
-                - dms
-    /v1/dms/members:
-        get:
-            operationId: ListMembers
-            parameters:
-                - description: the maximum count of member to be returned
-                  format: uint32
-                  in: query
-                  name: page_size
-                  required: true
-                  type: integer
-                  x-go-name: PageSize
-                - description: the offset of members to be returned, default is 0
-                  format: uint32
-                  in: query
-                  name: page_index
-                  type: integer
-                  x-go-name: PageIndex
-                - description: |-
-                    Multiple of ["name"], default is ["name"]
-                    user_uid MemberOrderByUserUid
-                  enum:
-                    - user_uid
-                  in: query
-                  name: order_by
-                  type: string
-                  x-go-enum-desc: user_uid MemberOrderByUserUid
-                  x-go-name: OrderBy
-                - description: filter the member user uid
-                  in: query
-                  name: filter_by_user_uid
-                  type: string
-                  x-go-name: FilterByUserUid
-                - description: the member namespace uid
-                  in: query
-                  name: namespace_uid
-                  required: true
-                  type: string
-                  x-go-name: NamespaceUid
-            responses:
-                "200":
-                    description: ListMemberReply
-                    schema:
-                        $ref: '#/definitions/ListMemberReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: List member, for front page.
-            tags:
-                - dms
-        post:
-            operationId: AddMember
-            parameters:
-                - description: Add new member
-                  in: body
-                  name: member
-                  schema:
-                    $ref: '#/definitions/Member'
-                  x-go-name: Member
-            responses:
-                "200":
-                    description: AddMemberReply
-                    schema:
-                        $ref: '#/definitions/AddMemberReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: Add member.
-            tags:
-                - dms
-    /v1/dms/members/{member_uid}:
-        delete:
-            operationId: DelMember
-            parameters:
-                - description: member uid
-                  in: path
-                  name: member_uid
-                  required: true
-                  type: string
-                  x-go-name: MemberUid
-            responses:
-                "200":
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: Delete a member.
-            tags:
-                - dms
-        put:
-            operationId: UpdateMember
-            parameters:
-                - description: Member uid
-                  in: path
-                  name: member_uid
-                  required: true
-                  type: string
-                  x-go-name: MemberUid
-                - description: Update a member
-                  in: body
-                  name: member
-                  schema:
-                    $ref: '#/definitions/UpdateMember'
-                  x-go-name: Member
-            responses:
-                "200":
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: Update a member.
-            tags:
-                - dms
-    /v1/dms/members/internal:
-        get:
-            operationId: ListMembersForInternal
-            parameters:
-                - description: the maximum count of member to be returned
-                  format: uint32
-                  in: query
-                  name: page_size
-                  required: true
-                  type: integer
-                  x-go-name: PageSize
-                - description: the offset of members to be returned, default is 0
-                  format: uint32
-                  in: query
-                  name: page_index
-                  type: integer
-                  x-go-name: PageIndex
-                - description: the member namespace uid
-                  in: query
-                  name: namespace_uid
-                  type: string
-                  x-go-name: NamespaceUid
-            responses:
-                "200":
-                    description: ListMembersForInternalReply
-                    schema:
-                        $ref: '#/definitions/ListMembersForInternalReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: List members, for internal backend service.
-            tags:
-                - dms
-    /v1/dms/namespaces:
-        get:
-            operationId: ListNamespaces
-            parameters:
-                - description: the maximum count of namespace to be returned
-                  format: uint32
-                  in: query
-                  name: page_size
-                  required: true
-                  type: integer
-                  x-go-name: PageSize
-                - description: the offset of namespaces to be returned, default is 0
-                  format: uint32
-                  in: query
-                  name: page_index
-                  type: integer
-                  x-go-name: PageIndex
-                - description: |-
-                    Multiple of ["name"], default is ["name"]
-                    name NamespaceOrderByName
-                  enum:
-                    - name
-                  in: query
-                  name: order_by
-                  type: string
-                  x-go-enum-desc: name NamespaceOrderByName
-                  x-go-name: OrderBy
-                - description: filter the namespace name
-                  in: query
-                  name: filter_by_name
-                  type: string
-                  x-go-name: FilterByName
-                - description: filter the namespace UID
-                  in: query
-                  name: filter_by_uid
-                  type: string
-                  x-go-name: FilterByUID
-            responses:
-                "200":
-                    description: ListNamespaceReply
-                    schema:
-                        $ref: '#/definitions/ListNamespaceReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: List namespaces.
-            tags:
-                - dms
-        post:
-            operationId: AddNamespace
-            parameters:
-                - description: Add new Namespace
-                  in: body
-                  name: namespace
-                  schema:
-                    $ref: '#/definitions/Namespace'
-                  x-go-name: Namespace
-            responses:
-                "200":
-                    description: AddNamespaceReply
-                    schema:
-                        $ref: '#/definitions/AddNamespaceReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: Add namespaces.
-            tags:
-                - dms
-    /v1/dms/namespaces/{namespace_uid}:
-        delete:
-            description: Delete a Namespace
-            operationId: DelNamespace
-            parameters:
-                - description: namespace uid
-                  in: path
-                  name: namespace_uid
-                  required: true
-                  type: string
-                  x-go-name: NamespaceUid
-            responses:
-                "200":
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            tags:
-                - dms
-        put:
-            operationId: UpdateNamespace
-            parameters:
-                - description: Namespace uid
-                  in: path
-                  name: namespace_uid
-                  required: true
-                  type: string
-                  x-go-name: NamespaceUid
-                - description: Update a namespace
-                  in: body
-                  name: namespace
-                  schema:
-                    $ref: '#/definitions/UpdateNamespace'
-                  x-go-name: Namespace
-            responses:
-                "200":
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: update a Namespace.
-            tags:
-                - dms
-    /v1/dms/namespaces/{namespace_uid}/archive:
-        put:
-            operationId: ArchiveNamespace
-            parameters:
-                - description: Namespace uid
-                  in: path
-                  name: namespace_uid
-                  required: true
-                  type: string
-                  x-go-name: NamespaceUid
-            responses:
-                "200":
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: Archive a Namespace.
-            tags:
-                - dms
-    /v1/dms/namespaces/{namespace_uid}/unarchive:
-        put:
-            operationId: UnarchiveNamespace
-            parameters:
-                - description: Namespace uid
-                  in: path
-                  name: namespace_uid
-                  required: true
-                  type: string
-                  x-go-name: NamespaceUid
-            responses:
-                "200":
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: Unarchive a Namespace.
-            tags:
-                - dms
     /v1/dms/notifications:
         post:
             operationId: Notification
@@ -4305,6 +3452,926 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: Register dms plugin.
+            tags:
+                - dms
+    /v1/dms/projects:
+        get:
+            operationId: ListProjects
+            parameters:
+                - description: the maximum count of Project to be returned
+                  format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of Projects to be returned, default is 0
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - description: |-
+                    Multiple of ["name"], default is ["name"]
+                    name ProjectOrderByName
+                  enum:
+                    - name
+                  in: query
+                  name: order_by
+                  type: string
+                  x-go-enum-desc: name ProjectOrderByName
+                  x-go-name: OrderBy
+                - description: filter the Project name
+                  in: query
+                  name: filter_by_name
+                  type: string
+                  x-go-name: FilterByName
+                - description: filter the Project UID
+                  in: query
+                  name: filter_by_uid
+                  type: string
+                  x-go-name: FilterByUID
+            responses:
+                "200":
+                    description: ListProjectReply
+                    schema:
+                        $ref: '#/definitions/ListProjectReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List projects.
+            tags:
+                - dms
+        post:
+            operationId: AddProject
+            parameters:
+                - description: Add new Project
+                  in: body
+                  name: project
+                  schema:
+                    $ref: '#/definitions/Project'
+                  x-go-name: Project
+            responses:
+                "200":
+                    description: AddProjectReply
+                    schema:
+                        $ref: '#/definitions/AddProjectReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Add project.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}:
+        delete:
+            description: Delete a project
+            operationId: DelProject
+            parameters:
+                - description: project uid
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            tags:
+                - dms
+        put:
+            operationId: UpdateProject
+            parameters:
+                - description: Project uid
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: Update a project
+                  in: body
+                  name: project
+                  schema:
+                    $ref: '#/definitions/UpdateProject'
+                  x-go-name: Project
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: update a project.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/archive:
+        put:
+            operationId: ArchiveProject
+            parameters:
+                - description: Project uid
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Archive a project.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/database_source_services:
+        get:
+            operationId: ListDatabaseSourceServices
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: ListDatabaseSourceServicesReply
+                    schema:
+                        $ref: '#/definitions/ListDatabaseSourceServicesReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List database source service.
+            tags:
+                - dms
+        post:
+            operationId: AddDatabaseSourceService
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: add database source service
+                  in: body
+                  name: database_source_service
+                  schema:
+                    $ref: '#/definitions/DatabaseSourceService'
+                  x-go-name: DatabaseSourceService
+            responses:
+                "200":
+                    description: AddDatabaseSourceServiceReply
+                    schema:
+                        $ref: '#/definitions/AddDatabaseSourceServiceReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Add database source service.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid}:
+        delete:
+            operationId: DeleteDatabaseSourceService
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - in: path
+                  name: database_source_service_uid
+                  required: true
+                  type: string
+                  x-go-name: DatabaseSourceServiceUid
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Delete database source service.
+            tags:
+                - dms
+        get:
+            operationId: GetDatabaseSourceService
+            parameters:
+                - in: path
+                  name: database_source_service_uid
+                  required: true
+                  type: string
+                  x-go-name: DatabaseSourceServiceUid
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: GetDatabaseSourceServiceReply
+                    schema:
+                        $ref: '#/definitions/GetDatabaseSourceServiceReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get database source service.
+            tags:
+                - dms
+        put:
+            operationId: UpdateDatabaseSourceService
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - in: path
+                  name: database_source_service_uid
+                  required: true
+                  type: string
+                  x-go-name: DatabaseSourceServiceUid
+                - description: update database source service
+                  in: body
+                  name: database_source_service
+                  schema:
+                    $ref: '#/definitions/DatabaseSourceService'
+                  x-go-name: DatabaseSourceService
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: update database source service.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid}/sync:
+        post:
+            operationId: SyncDatabaseSourceService
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - in: path
+                  name: database_source_service_uid
+                  required: true
+                  type: string
+                  x-go-name: DatabaseSourceServiceUid
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Sync database source service.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/database_source_services/tips:
+        get:
+            operationId: ListDatabaseSourceServiceTips
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: ListDatabaseSourceServiceTipsReply
+                    schema:
+                        $ref: '#/definitions/ListDatabaseSourceServiceTipsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List database source service tips.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/db_services:
+        get:
+            operationId: ListDBServices
+            parameters:
+                - description: the maximum count of db service to be returned
+                  format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of users to be returned, default is 0
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - description: |-
+                    Multiple of ["name"], default is ["name"]
+                    name DBServiceOrderByName
+                  enum:
+                    - name
+                  in: query
+                  name: order_by
+                  type: string
+                  x-go-enum-desc: name DBServiceOrderByName
+                  x-go-name: OrderBy
+                - description: the db service business name
+                  in: query
+                  name: filter_by_business
+                  type: string
+                  x-go-name: FilterByBusiness
+                - description: the db service host
+                  in: query
+                  name: filter_by_host
+                  type: string
+                  x-go-name: FilterByHost
+                - description: the db service uid
+                  in: query
+                  name: filter_by_uid
+                  type: string
+                  x-go-name: FilterByUID
+                - description: the db service port
+                  in: query
+                  name: filter_by_port
+                  type: string
+                  x-go-name: FilterByPort
+                - description: the db service db type
+                  in: query
+                  name: filter_by_db_type
+                  type: string
+                  x-go-name: FilterByDBType
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: ListDBServiceReply
+                    schema:
+                        $ref: '#/definitions/ListDBServiceReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List db service.
+            tags:
+                - dms
+        post:
+            operationId: AddDBService
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: Add new db service
+                  in: body
+                  name: db_service
+                  schema:
+                    $ref: '#/definitions/DBService'
+                  x-go-name: DBService
+            responses:
+                "200":
+                    description: AddDBServiceReply
+                    schema:
+                        $ref: '#/definitions/AddDBServiceReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Add DB Service.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/db_services/{db_service_uid}:
+        delete:
+            operationId: DelDBService
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: db service uid
+                  in: path
+                  name: db_service_uid
+                  required: true
+                  type: string
+                  x-go-name: DBServiceUid
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Delete a DB Service.
+            tags:
+                - dms
+        put:
+            operationId: UpdateDBService
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: db_service_uid
+                  in: path
+                  name: db_service_uid
+                  required: true
+                  type: string
+                  x-go-name: DBServiceUid
+                - description: Update a DB service
+                  in: body
+                  name: db_service
+                  schema:
+                    $ref: '#/definitions/UpdateDBService'
+                  x-go-name: DBService
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: update a DB Service.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/db_services/{db_service_uid}/connection:
+        post:
+            operationId: CheckDBServiceIsConnectableById
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: db service uid
+                  in: path
+                  name: db_service_uid
+                  required: true
+                  type: string
+                  x-go-name: DBServiceUid
+            responses:
+                "200":
+                    description: CheckDBServiceIsConnectableReply
+                    schema:
+                        $ref: '#/definitions/CheckDBServiceIsConnectableReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: check if the db_service is connectable.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/db_services/connection:
+        post:
+            operationId: CheckDBServiceIsConnectable
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: check db_service is connectable
+                  in: body
+                  name: db_service
+                  schema:
+                    $ref: '#/definitions/CheckDbConnectable'
+                  x-go-name: DBService
+            responses:
+                "200":
+                    description: CheckDBServiceIsConnectableReply
+                    schema:
+                        $ref: '#/definitions/CheckDBServiceIsConnectableReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: check if the db_service is connectable.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/db_services/driver_options:
+        get:
+            operationId: ListDBServiceDriverOption
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: ListDBServiceDriverOptionReply
+                    schema:
+                        $ref: '#/definitions/ListDBServiceDriverOptionReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List db service driver option.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/member_groups:
+        get:
+            operationId: ListMemberGroups
+            parameters:
+                - description: the maximum count of member to be returned
+                  format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of members to be returned, default is 0
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - description: |-
+                    Multiple of ["name"], default is ["name"]
+                    name MemberGroupOrderByName
+                  enum:
+                    - name
+                  in: query
+                  name: order_by
+                  type: string
+                  x-go-enum-desc: name MemberGroupOrderByName
+                  x-go-name: OrderBy
+                - description: filter the user group name
+                  in: query
+                  name: filter_by_name
+                  type: string
+                  x-go-name: FilterByName
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: ListMemberGroupsReply
+                    schema:
+                        $ref: '#/definitions/ListMemberGroupsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List member group, for front page.
+            tags:
+                - dms
+        post:
+            operationId: AddMemberGroup
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: Add new member group
+                  in: body
+                  name: member_group
+                  schema:
+                    $ref: '#/definitions/MemberGroup'
+                  x-go-name: MemberGroup
+            responses:
+                "200":
+                    description: AddMemberGroupReply
+                    schema:
+                        $ref: '#/definitions/AddMemberGroupReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Add member group.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/member_groups/{member_group_uid}:
+        delete:
+            operationId: DeleteMemberGroup
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: member group id
+                  in: path
+                  name: member_group_uid
+                  required: true
+                  type: string
+                  x-go-name: MemberGroupUid
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: delete member group, for front page.
+            tags:
+                - dms
+        get:
+            operationId: GetMemberGroup
+            parameters:
+                - description: Member group id
+                  in: path
+                  name: member_group_uid
+                  required: true
+                  type: string
+                  x-go-name: MemberGroupUid
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: GetMemberGroupReply
+                    schema:
+                        $ref: '#/definitions/GetMemberGroupReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get member group, for front page.
+            tags:
+                - dms
+        put:
+            operationId: UpdateMemberGroup
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: Member group id
+                  in: path
+                  name: member_group_uid
+                  required: true
+                  type: string
+                  x-go-name: MemberGroupUid
+                - description: Update a member group
+                  in: body
+                  name: member_group
+                  schema:
+                    $ref: '#/definitions/UpdateMemberGroup'
+                  x-go-name: MemberGroup
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: update member group, for front page.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/members:
+        get:
+            operationId: ListMembers
+            parameters:
+                - description: the maximum count of member to be returned
+                  format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of members to be returned, default is 0
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - description: |-
+                    Multiple of ["name"], default is ["name"]
+                    user_uid MemberOrderByUserUid
+                  enum:
+                    - user_uid
+                  in: query
+                  name: order_by
+                  type: string
+                  x-go-enum-desc: user_uid MemberOrderByUserUid
+                  x-go-name: OrderBy
+                - description: filter the member user uid
+                  in: query
+                  name: filter_by_user_uid
+                  type: string
+                  x-go-name: FilterByUserUid
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: ListMemberReply
+                    schema:
+                        $ref: '#/definitions/ListMemberReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List member, for front page.
+            tags:
+                - dms
+        post:
+            operationId: AddMember
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: Add new member
+                  in: body
+                  name: member
+                  schema:
+                    $ref: '#/definitions/Member'
+                  x-go-name: Member
+            responses:
+                "200":
+                    description: AddMemberReply
+                    schema:
+                        $ref: '#/definitions/AddMemberReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Add member.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/members/{member_uid}:
+        delete:
+            operationId: DelMember
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: member uid
+                  in: path
+                  name: member_uid
+                  required: true
+                  type: string
+                  x-go-name: MemberUid
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Delete a member.
+            tags:
+                - dms
+        put:
+            operationId: UpdateMember
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: Member uid
+                  in: path
+                  name: member_uid
+                  required: true
+                  type: string
+                  x-go-name: MemberUid
+                - description: Update a member
+                  in: body
+                  name: member
+                  schema:
+                    $ref: '#/definitions/UpdateMember'
+                  x-go-name: Member
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Update a member.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/members/internal:
+        get:
+            operationId: ListMembersForInternal
+            parameters:
+                - description: the maximum count of member to be returned
+                  format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of members to be returned, default is 0
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: ListMembersForInternalReply
+                    schema:
+                        $ref: '#/definitions/ListMembersForInternalReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List members, for internal backend service.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/unarchive:
+        put:
+            operationId: UnarchiveProject
+            parameters:
+                - description: Project uid
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Unarchive a project.
             tags:
                 - dms
     /v1/dms/proxy:

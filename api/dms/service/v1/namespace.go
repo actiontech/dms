@@ -6,33 +6,33 @@ import (
 	base "github.com/actiontech/dms/api/base/v1"
 )
 
-// A Namespace
-type Namespace struct {
-	// namespace name
+// A Project
+type Project struct {
+	// project name
 	Name string `json:"name"`
-	// namespace desc
+	// project desc
 	Desc string `json:"desc"`
 }
 
-// swagger:parameters AddNamespace
-type AddNamespaceReq struct {
-	// Add new Namespace
+// swagger:parameters AddProject
+type AddProjectReq struct {
+	// Add new Project
 	// in:body
-	Namespace *Namespace `json:"namespace" validate:"required"`
+	Project *Project `json:"project" validate:"required"`
 }
 
-func (u *AddNamespaceReq) String() string {
+func (u *AddProjectReq) String() string {
 	if u == nil {
-		return "AddNamespaceReq{nil}"
+		return "AddProjectReq{nil}"
 	}
-	return fmt.Sprintf("AddNamespaceReq{NamespaceName:%s}", u.Namespace.Name)
+	return fmt.Sprintf("AddProjectReq{ProjectName:%s}", u.Project.Name)
 }
 
-// swagger:model AddNamespaceReply
-type AddNamespaceReply struct {
-	// Add Namespace reply
+// swagger:model AddProjectReply
+type AddProjectReply struct {
+	// Add Project reply
 	Payload struct {
-		// Namespace UID
+		// Project UID
 		Uid string `json:"uid"`
 	} `json:"payload"`
 
@@ -40,65 +40,65 @@ type AddNamespaceReply struct {
 	base.GenericResp
 }
 
-func (u *AddNamespaceReply) String() string {
+func (u *AddProjectReply) String() string {
 	if u == nil {
-		return "AddNamespaceReply{nil}"
+		return "AddProjectReply{nil}"
 	}
-	return fmt.Sprintf("AddNamespaceReply{Uid:%s}", u.Payload.Uid)
+	return fmt.Sprintf("AddProjectReply{Uid:%s}", u.Payload.Uid)
 }
 
-// swagger:parameters DelNamespace
-type DelNamespaceReq struct {
-	// namespace uid
+// swagger:parameters DelProject
+type DelProjectReq struct {
+	// project uid
 	// in:path
-	NamespaceUid string `param:"namespace_uid" json:"namespace_uid" validate:"required"`
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 }
 
-func (u *DelNamespaceReq) String() string {
+func (u *DelProjectReq) String() string {
 	if u == nil {
-		return "DelNamespaceReq{nil}"
+		return "DelProjectReq{nil}"
 	}
-	return fmt.Sprintf("DelNamespaceReq{Uid:%s}", u.NamespaceUid)
+	return fmt.Sprintf("DelProjectReq{Uid:%s}", u.ProjectUid)
 }
 
-type UpdateNamespace struct {
-	// Namespace desc
+type UpdateProject struct {
+	// Project desc
 	Desc *string `json:"desc"`
 }
 
-// swagger:parameters UpdateNamespace
-type UpdateNamespaceReq struct {
-	// Namespace uid
+// swagger:parameters UpdateProject
+type UpdateProjectReq struct {
+	// Project uid
 	// Required: true
 	// in:path
-	NamespaceUid string `param:"namespace_uid" json:"namespace_uid" validate:"required"`
-	// Update a namespace
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	// Update a project
 	// in:body
-	Namespace *UpdateNamespace `json:"namespace" validate:"required"`
+	Project *UpdateProject `json:"project" validate:"required"`
 }
 
-func (u *UpdateNamespaceReq) String() string {
+func (u *UpdateProjectReq) String() string {
 	if u == nil {
-		return "UpdateNamespaceReq{nil}"
+		return "UpdateProjectReq{nil}"
 	}
-	if u.Namespace == nil {
-		return "UpdateNamespaceReq{Namespace:nil}"
+	if u.Project == nil {
+		return "UpdateProjectReq{Project:nil}"
 	}
-	return fmt.Sprintf("UpdateNamespaceReq{Uid:%s}", u.NamespaceUid)
+	return fmt.Sprintf("UpdateProjectReq{Uid:%s}", u.ProjectUid)
 }
 
-// swagger:parameters ArchiveNamespace
-type ArchiveNamespaceReq struct {
-	// Namespace uid
+// swagger:parameters ArchiveProject
+type ArchiveProjectReq struct {
+	// Project uid
 	// Required: true
 	// in:path
-	NamespaceUid string `param:"namespace_uid" json:"namespace_uid" validate:"required"`
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 }
 
-// swagger:parameters UnarchiveNamespace
-type UnarchiveNamespaceReq struct {
-	// Namespace uid
+// swagger:parameters UnarchiveProject
+type UnarchiveProjectReq struct {
+	// Project uid
 	// Required: true
 	// in:path
-	NamespaceUid string `param:"namespace_uid" json:"namespace_uid" validate:"required"`
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 }

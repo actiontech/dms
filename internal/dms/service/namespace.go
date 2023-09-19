@@ -15,15 +15,10 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-func (d *DMSService) ListNamespaces(ctx context.Context, req *dmsCommonV1.ListNamespaceReq, currentUserUid string) (reply *dmsCommonV1.ListNamespaceReply, err error) {
-	d.log.Infof("ListNamespaces.req=%v", req)
-	defer func() {
-		d.log.Infof("ListNamespaces.req=%v;reply=%v;error=%v", req, reply, err)
-	}()
-
+func (d *DMSService) ListNamespaces(ctx context.Context, req *dmsCommonV1.ListProjectReq, currentUserUid string) (reply *dmsCommonV1.ListProjectReply, err error) {
 	var orderBy biz.NamespaceField
 	switch req.OrderBy {
-	case dmsCommonV1.NamespaceOrderByName:
+	case dmsCommonV1.ProjectOrderByName:
 		orderBy = biz.NamespaceFieldName
 	default:
 		orderBy = biz.NamespaceFieldName
@@ -57,14 +52,14 @@ func (d *DMSService) ListNamespaces(ctx context.Context, req *dmsCommonV1.ListNa
 		return nil, err
 	}
 
-	ret := make([]*dmsCommonV1.ListNamespace, len(namespaces))
+	ret := make([]*dmsCommonV1.ListProject, len(namespaces))
 	for i, n := range namespaces {
-		ret[i] = &dmsCommonV1.ListNamespace{
-			NamespaceUid: n.UID,
-			Name:         n.Name,
-			Archived:     (n.Status == biz.NamespaceStatusArchived),
-			Desc:         n.Desc,
-			CreateTime:   strfmt.DateTime(n.CreateTime),
+		ret[i] = &dmsCommonV1.ListProject{
+			ProjectUid: n.UID,
+			Name:       n.Name,
+			Archived:   (n.Status == biz.NamespaceStatusArchived),
+			Desc:       n.Desc,
+			CreateTime: strfmt.DateTime(n.CreateTime),
 		}
 		user, err := d.UserUsecase.GetUser(ctx, n.CreateUserUID)
 		if err != nil {
@@ -78,20 +73,15 @@ func (d *DMSService) ListNamespaces(ctx context.Context, req *dmsCommonV1.ListNa
 
 	}
 
-	return &dmsCommonV1.ListNamespaceReply{
+	return &dmsCommonV1.ListProjectReply{
 		Payload: struct {
-			Namespaces []*dmsCommonV1.ListNamespace `json:"namespaces"`
-			Total      int64                        `json:"total"`
-		}{Namespaces: ret, Total: total},
+			Projects []*dmsCommonV1.ListProject `json:"projects"`
+			Total    int64                      `json:"total"`
+		}{Projects: ret, Total: total},
 	}, nil
 }
 
-func (d *DMSService) AddNamespace(ctx context.Context, currentUserUid string, req *dmsV1.AddNamespaceReq) (reply *dmsV1.AddNamespaceReply, err error) {
-	d.log.Infof("AddNamespaces.req=%v", req)
-	defer func() {
-		d.log.Infof("AddNamespaces.req=%v;reply=%v;error=%v", req, reply, err)
-	}()
-
+func (d *DMSService) AddNamespace(ctx context.Context, currentUserUid string, req *dmsV1.AddProjectReq) (reply *dmsV1.AddProjectReply, err error) {
 	// check
 	{
 		// check current user has enough permission
@@ -101,17 +91,17 @@ func (d *DMSService) AddNamespace(ctx context.Context, currentUserUid string, re
 			return nil, fmt.Errorf("current user can't create namespace")
 		}
 
-		// check namespace is exist
-		_, err := d.NamespaceUsecase.GetNamespaceByName(ctx, req.Namespace.Name)
+		// check project is exist
+		_, err := d.NamespaceUsecase.GetNamespaceByName(ctx, req.Project.Name)
 		if err == nil {
-			return nil, fmt.Errorf("namespace %v is exist", req.Namespace.Name)
+			return nil, fmt.Errorf("namespace %v is exist", req.Project.Name)
 		}
 		if !errors.Is(err, pkgErr.ErrStorageNoData) {
 			return nil, fmt.Errorf("failed to get namespace by name: %w", err)
 		}
 	}
 
-	namespace, err := biz.NewNamespace(currentUserUid, req.Namespace.Name, req.Namespace.Desc)
+	namespace, err := biz.NewNamespace(currentUserUid, req.Project.Name, req.Project.Desc)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +110,7 @@ func (d *DMSService) AddNamespace(ctx context.Context, currentUserUid string, re
 		return nil, fmt.Errorf("create  namespace failed: %w", err)
 	}
 
-	return &dmsV1.AddNamespaceReply{
+	return &dmsV1.AddProjectReply{
 		Payload: struct {
 			//  namespace UID
 			Uid string `json:"uid"`
@@ -128,13 +118,8 @@ func (d *DMSService) AddNamespace(ctx context.Context, currentUserUid string, re
 	}, nil
 }
 
-func (d *DMSService) DeleteNamespace(ctx context.Context, currentUserUid string, req *dmsV1.DelNamespaceReq) (err error) {
-	d.log.Infof("DeleteNamespace.req=%v", req)
-	defer func() {
-		d.log.Infof("DeleteNamespace.req=%v;error=%v", req, err)
-	}()
-
-	err = d.NamespaceUsecase.DeleteNamespace(ctx, currentUserUid, req.NamespaceUid)
+func (d *DMSService) DeleteNamespace(ctx context.Context, currentUserUid string, req *dmsV1.DelProjectReq) (err error) {
+	err = d.NamespaceUsecase.DeleteNamespace(ctx, currentUserUid, req.ProjectUid)
 	if err != nil {
 		return fmt.Errorf("delete  namespace failed: %w", err)
 	}
@@ -142,13 +127,8 @@ func (d *DMSService) DeleteNamespace(ctx context.Context, currentUserUid string,
 	return nil
 }
 
-func (d *DMSService) UpdateNamespaceDesc(ctx context.Context, currentUserUid string, req *dmsV1.UpdateNamespaceReq) (err error) {
-	d.log.Infof("UpdateNamespaceDesc.req=%v", req)
-	defer func() {
-		d.log.Infof("UpdateNamespaceDesc.req=%v;error=%v", req, err)
-	}()
-
-	err = d.NamespaceUsecase.UpdateNamespaceDesc(ctx, currentUserUid, req.NamespaceUid, req.Namespace.Desc)
+func (d *DMSService) UpdateNamespaceDesc(ctx context.Context, currentUserUid string, req *dmsV1.UpdateProjectReq) (err error) {
+	err = d.NamespaceUsecase.UpdateNamespaceDesc(ctx, currentUserUid, req.ProjectUid, req.Project.Desc)
 	if err != nil {
 		return fmt.Errorf("update namespace failed: %w", err)
 	}
@@ -156,13 +136,8 @@ func (d *DMSService) UpdateNamespaceDesc(ctx context.Context, currentUserUid str
 	return nil
 }
 
-func (d *DMSService) ArchivedNamespace(ctx context.Context, currentUserUid string, req *dmsV1.ArchiveNamespaceReq) (err error) {
-	d.log.Infof("ArchivedNamespace.req=%v", req)
-	defer func() {
-		d.log.Infof("ArchivedNamespace.req=%v;error=%v", req, err)
-	}()
-
-	err = d.NamespaceUsecase.ArchivedNamespace(ctx, currentUserUid, req.NamespaceUid, true)
+func (d *DMSService) ArchivedNamespace(ctx context.Context, currentUserUid string, req *dmsV1.ArchiveProjectReq) (err error) {
+	err = d.NamespaceUsecase.ArchivedNamespace(ctx, currentUserUid, req.ProjectUid, true)
 	if err != nil {
 		return fmt.Errorf("archived namespace failed: %w", err)
 	}
@@ -170,13 +145,8 @@ func (d *DMSService) ArchivedNamespace(ctx context.Context, currentUserUid strin
 	return nil
 }
 
-func (d *DMSService) UnarchiveNamespace(ctx context.Context, currentUserUid string, req *dmsV1.UnarchiveNamespaceReq) (err error) {
-	d.log.Infof("UnarchiveNamespace.req=%v", req)
-	defer func() {
-		d.log.Infof("UnarchiveNamespace.req=%v;error=%v", req, err)
-	}()
-
-	err = d.NamespaceUsecase.ArchivedNamespace(ctx, currentUserUid, req.NamespaceUid, false)
+func (d *DMSService) UnarchiveNamespace(ctx context.Context, currentUserUid string, req *dmsV1.UnarchiveProjectReq) (err error) {
+	err = d.NamespaceUsecase.ArchivedNamespace(ctx, currentUserUid, req.ProjectUid, false)
 	if err != nil {
 		return fmt.Errorf("unarchive namespace failed: %w", err)
 	}

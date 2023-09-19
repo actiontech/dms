@@ -565,7 +565,7 @@ func convertBizOpRangeType(bizOpRangeTyp biz.OpRangeType) (typ dmsV1.OpRangeType
 	case biz.OpRangeTypeGlobal:
 		typ = dmsV1.OpRangeTypeGlobal
 	case biz.OpRangeTypeNamespace:
-		typ = dmsV1.OpRangeTypeNamespace
+		typ = dmsV1.OpRangeTypeProject
 	case biz.OpRangeTypeDBService:
 		typ = dmsV1.OpRangeTypeDBService
 	default:
