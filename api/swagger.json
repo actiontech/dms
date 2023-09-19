@@ -1436,7 +1436,7 @@
         }
       }
     },
-    "/v1/dms/projects/{project_uid}/db_services/driver_option": {
+    "/v1/dms/projects/{project_uid}/db_services/driver_options": {
       "get": {
         "tags": [
           "dms"

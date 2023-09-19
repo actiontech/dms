@@ -116,7 +116,7 @@ func (d *DMSController) ListDBServiceDriverOption(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route DELETE /v1/dms/db_services/{db_service_uid} dms DelDBService
+// swagger:route DELETE /v1/dms/projects/{project_uid}/db_services/{db_service_uid} dms DelDBService
 //
 // Delete a DB Service.
 //
@@ -141,7 +141,7 @@ func (a *DMSController) DelDBService(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/db_services/{db_service_uid} dms UpdateDBService
+// swagger:route PUT /v1/dms/projects/{project_uid}/db_services/{db_service_uid} dms UpdateDBService
 //
 // update a DB Service.
 //
@@ -166,7 +166,7 @@ func (a *DMSController) UpdateDBService(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/db_services/connection dms CheckDBServiceIsConnectable
+// swagger:route POST /v1/dms/projects/{project_uid}/db_services/connection dms CheckDBServiceIsConnectable
 //
 // check if the db_service is connectable.
 //
@@ -187,7 +187,7 @@ func (d *DMSController) CheckDBServiceIsConnectable(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/db_services/{db_service_uid}/connection dms CheckDBServiceIsConnectableById
+// swagger:route POST /v1/dms/projects/{project_uid}/db_services/{db_service_uid}/connection dms CheckDBServiceIsConnectableById
 //
 // check if the db_service is connectable.
 //
