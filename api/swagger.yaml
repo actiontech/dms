@@ -3992,7 +3992,7 @@ paths:
             summary: check if the db_service is connectable.
             tags:
                 - dms
-    /v1/dms/projects/{project_uid}/db_services/driver_option:
+    /v1/dms/projects/{project_uid}/db_services/driver_options:
         get:
             operationId: ListDBServiceDriverOption
             parameters:
