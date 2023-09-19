@@ -60,8 +60,7 @@ func ListMembersInNamespace(ctx context.Context, dmsAddr string, req dmsV1.ListM
 
 	reply := &dmsV1.ListMembersForInternalReply{}
 
-	url := fmt.Sprintf("%v%v?page_size=%v&page_index=%v&namespace_uid=%v",
-		dmsAddr, dmsV1.GetListMembersForInternalRouter(), req.PageSize, req.PageIndex, req.NamespaceUid)
+	url := fmt.Sprintf("%v%v?page_size=%v&page_index=%v", dmsAddr, dmsV1.GetListMembersForInternalRouter(req.ProjectUid), req.PageSize, req.PageIndex)
 
 	if err := pkgHttp.Get(ctx, url, header, nil, reply); err != nil {
 		return nil, 0, fmt.Errorf("failed to get member from %v: %v", url, err)

@@ -40,7 +40,7 @@ func (s *APIServer) initRouter() error {
 		dbServiceV1.POST("/connection", s.DMSController.CheckDBServiceIsConnectable)
 		dbServiceV1.POST("/:db_service_uid/connection", s.DMSController.CheckDBServiceIsConnectableById)
 
-		DatabaseSourceServiceV1 := v1.Group("/dms/database_source_services")
+		DatabaseSourceServiceV1 := v1.Group("/dms/projects/:project_uid/database_source_services")
 		DatabaseSourceServiceV1.GET("/tips", s.DMSController.ListDatabaseSourceServiceTips)
 		DatabaseSourceServiceV1.POST("/:database_source_service_uid/sync", s.DMSController.SyncDatabaseSourceService)
 		DatabaseSourceServiceV1.GET("", s.DMSController.ListDatabaseSourceServices)
@@ -82,7 +82,7 @@ func (s *APIServer) initRouter() error {
 		memberV1.DELETE("/:member_uid", s.DMSController.DelMember)
 		memberV1.PUT("/:member_uid", s.DMSController.UpdateMember)
 
-		memberGroupV1 := v1.Group("/dms/member_groups")
+		memberGroupV1 := v1.Group("/dms/projects/:project_uid/member_groups")
 		memberGroupV1.GET("", s.DMSController.ListMemberGroups)
 		memberGroupV1.GET("/:member_group_uid", s.DMSController.GetMemberGroup)
 		memberGroupV1.POST("", s.DMSController.AddMemberGroup)
@@ -92,13 +92,13 @@ func (s *APIServer) initRouter() error {
 		opPermissionV1 := v1.Group("/dms/op_permissions")
 		opPermissionV1.GET("", s.DMSController.ListOpPermissions)
 
-		namespaceV1 := v1.Group(dmsV1.NamespaceRouterGroup)
-		namespaceV1.GET("", s.DMSController.ListNamespaces)
-		namespaceV1.POST("", s.DMSController.AddNamespace)
-		namespaceV1.DELETE("/:namespace_uid", s.DMSController.DelNamespace)
-		namespaceV1.PUT("/:namespace_uid", s.DMSController.UpdateNamespace)
-		namespaceV1.PUT("/:namespace_uid/archive", s.DMSController.ArchiveNamespace)
-		namespaceV1.PUT("/:namespace_uid/unarchive", s.DMSController.UnarchiveNamespace)
+		projectV1 := v1.Group(dmsV1.ProjectRouterGroup)
+		projectV1.GET("", s.DMSController.ListProjects)
+		projectV1.POST("", s.DMSController.AddProject)
+		projectV1.DELETE("/:project_uid", s.DMSController.DelProject)
+		projectV1.PUT("/:project_uid", s.DMSController.UpdateProject)
+		projectV1.PUT("/:project_uid/archive", s.DMSController.ArchiveProject)
+		projectV1.PUT("/:project_uid/unarchive", s.DMSController.UnarchiveProject)
 
 		// oauth2 interface does not require login authentication
 		oauth2V1 := v1.Group("/dms/oauth2")
