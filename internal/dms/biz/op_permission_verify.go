@@ -100,7 +100,7 @@ func (o *OpPermissionVerifyUsecase) GetUserNamespaceOpPermission(ctx context.Con
 	return namespaceOpPermissionWithOpRange, nil
 }
 
-func (o *OpPermissionVerifyUsecase) GetUserManagerNamespace(ctx context.Context, namespaceWithOpPermissions []NamespaceOpPermissionWithOpRange) (userBindNamespaces []dmsCommonV1.UserBindNamespace) {
+func (o *OpPermissionVerifyUsecase) GetUserManagerNamespace(ctx context.Context, namespaceWithOpPermissions []NamespaceOpPermissionWithOpRange) (userBindNamespaces []dmsCommonV1.UserBindProject) {
 
 	/* 结果如下，需要去重
 	+--------+---------+-------------------+---------------+---------------------+
@@ -111,11 +111,11 @@ func (o *OpPermissionVerifyUsecase) GetUserManagerNamespace(ctx context.Context,
 	| 700300 |	default| 700002	 		   | namespace	   |	700300			 |
 	+--------+---------+-------------------+---------------+---------------------+
 	*/
-	mapIdUserBindNamespace := make(map[string]dmsCommonV1.UserBindNamespace, 0)
+	mapIdUserBindNamespace := make(map[string]dmsCommonV1.UserBindProject, 0)
 	for _, namespaceWithOpPermission := range namespaceWithOpPermissions {
 		n, ok := mapIdUserBindNamespace[namespaceWithOpPermission.NamespaceUid]
 		if !ok {
-			mapIdUserBindNamespace[namespaceWithOpPermission.NamespaceUid] = dmsCommonV1.UserBindNamespace{NamespaceID: namespaceWithOpPermission.NamespaceUid, NamespaceName: namespaceWithOpPermission.NamespaceName, IsManager: namespaceWithOpPermission.OpPermissionWithOpRange.OpPermissionUID == pkgConst.UIDOfOpPermissionNamespaceAdmin}
+			mapIdUserBindNamespace[namespaceWithOpPermission.NamespaceUid] = dmsCommonV1.UserBindProject{ProjectID: namespaceWithOpPermission.NamespaceUid, ProjectName: namespaceWithOpPermission.NamespaceName, IsManager: namespaceWithOpPermission.OpPermissionWithOpRange.OpPermissionUID == pkgConst.UIDOfOpPermissionNamespaceAdmin}
 		} else {
 			// 有一个权限为空间管理员即可
 			n.IsManager = mapIdUserBindNamespace[namespaceWithOpPermission.NamespaceUid].IsManager || (namespaceWithOpPermission.OpPermissionWithOpRange.OpPermissionUID == pkgConst.UIDOfOpPermissionNamespaceAdmin)

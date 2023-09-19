@@ -380,12 +380,12 @@ func (d *DMSService) GetUserOpPermission(ctx context.Context, req *dmsCommonV1.G
 		d.log.Infof("GetUserOpPermission.req=%v;error=%v", req, err)
 	}()
 
-	isAdmin, err := d.OpPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, req.UserUid, req.UserOpPermission.NamespaceUid)
+	isAdmin, err := d.OpPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, req.UserUid, req.UserOpPermission.ProjectUid)
 	if err != nil {
 		return nil, fmt.Errorf("check user admin error: %v", err)
 	}
 
-	permissions, err := d.OpPermissionVerifyUsecase.GetUserOpPermissionInNamespace(ctx, req.UserUid, req.UserOpPermission.NamespaceUid)
+	permissions, err := d.OpPermissionVerifyUsecase.GetUserOpPermissionInNamespace(ctx, req.UserUid, req.UserOpPermission.ProjectUid)
 	if err != nil {
 		return nil, fmt.Errorf("get user op permission error: %v", err)
 	}
@@ -494,7 +494,7 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 	}
 	dmsCommonUser.IsAdmin = isAdmin
 	// 获取管理空间
-	userBindNamespaces := make([]dmsCommonV1.UserBindNamespace, 0)
+	userBindNamespaces := make([]dmsCommonV1.UserBindProject, 0)
 	if !isAdmin {
 		namespaceWithOpPermissions, err := d.OpPermissionVerifyUsecase.GetUserNamespaceOpPermission(ctx, u.GetUID())
 		if err != nil {
@@ -516,10 +516,10 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 			return nil, err
 		}
 		for _, namespace := range namespaces {
-			userBindNamespaces = append(userBindNamespaces, dmsCommonV1.UserBindNamespace{NamespaceID: namespace.UID, NamespaceName: namespace.Name, IsManager: true})
+			userBindNamespaces = append(userBindNamespaces, dmsCommonV1.UserBindProject{ProjectID: namespace.UID, ProjectName: namespace.Name, IsManager: true})
 		}
 	}
-	dmsCommonUser.UserBindNamespaces = userBindNamespaces
+	dmsCommonUser.UserBindProjects = userBindNamespaces
 
 	reply = &dmsCommonV1.GetUserReply{
 		Payload: struct {
@@ -540,9 +540,9 @@ func convertBizOpPermission(opPermissionUid string) (apiOpPermissionTyp dmsCommo
 	case pkgConst.UIDOfOpPermissionAuthDBServiceData:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeAuthDBServiceData
 	case pkgConst.UIDOfOpPermissionNamespaceAdmin:
-		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeNamespaceAdmin
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeProjectAdmin
 	case pkgConst.UIDOfOpPermissionCreateNamespace:
-		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeCreateNamespace
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeCreateProject
 	case pkgConst.UIDOfOpPermissionExecuteWorkflow:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeExecuteWorkflow
 	case pkgConst.UIDOfOpPermissionViewOthersWorkflow:
