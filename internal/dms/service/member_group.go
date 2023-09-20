@@ -26,11 +26,11 @@ func (d *DMSService) ListMemberGroups(ctx context.Context, req *dmsV1.ListMember
 			Value:    req.FilterByName,
 		})
 	}
-	if req.NamespaceUid != "" {
+	if req.ProjectUid != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
-			Field:    string(biz.MemberGroupFieldNamespaceUID),
+			Field:    string(biz.MemberGroupFieldProjectUID),
 			Operator: pkgConst.FilterOperatorEqual,
-			Value:    req.NamespaceUid,
+			Value:    req.ProjectUid,
 		})
 	}
 
@@ -41,16 +41,16 @@ func (d *DMSService) ListMemberGroups(ctx context.Context, req *dmsV1.ListMember
 		FilterBy:     filterBy,
 	}
 
-	memberGroups, total, err := d.MemberGroupUsecase.ListMemberGroups(ctx, listOption, req.NamespaceUid)
+	memberGroups, total, err := d.MemberGroupUsecase.ListMemberGroups(ctx, listOption, req.ProjectUid)
 	if nil != err {
 		return nil, err
 	}
 
 	ret := make([]*dmsV1.ListMemberGroup, 0, len(memberGroups))
 	for _, memberGroup := range memberGroups {
-		isAdmin, err := d.MemberGroupUsecase.IsMemberGroupNamespaceAdmin(ctx, memberGroup.UID)
+		isAdmin, err := d.MemberGroupUsecase.IsMemberGroupProjectAdmin(ctx, memberGroup.UID)
 		if err != nil {
-			return nil, fmt.Errorf("check member group is namespace admin failed: %v", err)
+			return nil, fmt.Errorf("check member group is project admin failed: %v", err)
 		}
 
 		users := make([]dmsV1.UidWithName, 0, len(memberGroup.Users))
@@ -69,7 +69,7 @@ func (d *DMSService) ListMemberGroups(ctx context.Context, req *dmsV1.ListMember
 		item := &dmsV1.ListMemberGroup{
 			Name:             memberGroup.Name,
 			Uid:              memberGroup.UID,
-			IsNamespaceAdmin: isAdmin,
+			IsProjectAdmin:   isAdmin,
 			Users:            users,
 			RoleWithOpRanges: roleWithOpRanges,
 		}
@@ -90,7 +90,7 @@ func (d *DMSService) buildMemberGroupRoleWithOpRanges(ctx context.Context, roleW
 
 	// 遍历成员的角色&权限范围用于展示
 	for _, r := range roleWithOpRanges {
-		if r.RoleUID == pkgConst.UIDOfRoleNamespaceAdmin {
+		if r.RoleUID == pkgConst.UIDOfRoleProjectAdmin {
 			continue
 		}
 
@@ -117,7 +117,7 @@ func (d *DMSService) buildMemberGroupRoleWithOpRanges(ctx context.Context, roleW
 				}
 				rangeUidWithNames = append(rangeUidWithNames, dmsV1.UidWithName{Uid: dbService.GetUID(), Name: dbService.Name})
 			// 成员目前只支持配置数据源范围的权限
-			case biz.OpRangeTypeNamespace, biz.OpRangeTypeGlobal:
+			case biz.OpRangeTypeProject, biz.OpRangeTypeGlobal:
 				//return nil, fmt.Errorf("member currently only support the db service op range type, but got type: %v", r.OpRangeType)
 			default:
 				return nil, fmt.Errorf("unsupported op range type: %v", r.OpRangeType)
@@ -135,14 +135,14 @@ func (d *DMSService) buildMemberGroupRoleWithOpRanges(ctx context.Context, roleW
 }
 
 func (d *DMSService) GetMemberGroup(ctx context.Context, req *dmsV1.GetMemberGroupReq) (reply *dmsV1.GetMemberGroupReply, err error) {
-	memberGroup, err := d.MemberGroupUsecase.GetMemberGroup(ctx, req.MemberGroupUid, req.NamespaceId)
+	memberGroup, err := d.MemberGroupUsecase.GetMemberGroup(ctx, req.MemberGroupUid, req.ProjectUid)
 	if err != nil {
 		return nil, err
 	}
 
-	isAdmin, err := d.MemberGroupUsecase.IsMemberGroupNamespaceAdmin(ctx, memberGroup.UID)
+	isAdmin, err := d.MemberGroupUsecase.IsMemberGroupProjectAdmin(ctx, memberGroup.UID)
 	if err != nil {
-		return nil, fmt.Errorf("check member group is namespace admin failed: %v", err)
+		return nil, fmt.Errorf("check member group is project admin failed: %v", err)
 	}
 
 	users := make([]dmsV1.UidWithName, 0, len(memberGroup.Users))
@@ -161,7 +161,7 @@ func (d *DMSService) GetMemberGroup(ctx context.Context, req *dmsV1.GetMemberGro
 	ret := &dmsV1.GetMemberGroup{
 		Name:             memberGroup.Name,
 		Uid:              memberGroup.UID,
-		IsNamespaceAdmin: isAdmin,
+		IsProjectAdmin:   isAdmin,
 		Users:            users,
 		RoleWithOpRanges: roleWithOpRanges,
 	}
@@ -192,9 +192,9 @@ func (d *DMSService) AddMemberGroup(ctx context.Context, currentUserUid string, 
 	}
 
 	params := &biz.MemberGroup{
-		IsNamespaceAdmin: req.MemberGroup.IsNamespaceAdmin,
+		IsProjectAdmin:   req.MemberGroup.IsProjectAdmin,
 		Name:             req.MemberGroup.Name,
-		NamespaceUID:     req.MemberGroup.NamespaceUid,
+		ProjectUID:       req.ProjectUid,
 		UserUids:         req.MemberGroup.UserUids,
 		RoleWithOpRanges: roles,
 	}
@@ -229,8 +229,8 @@ func (d *DMSService) UpdateMemberGroup(ctx context.Context, currentUserUid strin
 
 	params := &biz.MemberGroup{
 		UID:              req.MemberGroupUid,
-		IsNamespaceAdmin: req.MemberGroup.IsNamespaceAdmin,
-		NamespaceUID:     req.MemberGroup.NamespaceUid,
+		IsProjectAdmin:   req.MemberGroup.IsProjectAdmin,
+		ProjectUID:       req.ProjectUid,
 		UserUids:         req.MemberGroup.UserUids,
 		RoleWithOpRanges: roles,
 	}
@@ -244,7 +244,7 @@ func (d *DMSService) UpdateMemberGroup(ctx context.Context, currentUserUid strin
 }
 
 func (d *DMSService) DeleteMemberGroup(ctx context.Context, currentUserUid string, req *dmsV1.DeleteMemberGroupReq) (err error) {
-	if err = d.MemberGroupUsecase.DeleteMemberGroup(ctx, currentUserUid, req.MemberGroupUid, req.NamespaceId); err != nil {
+	if err = d.MemberGroupUsecase.DeleteMemberGroup(ctx, currentUserUid, req.MemberGroupUid, req.ProjectUid); err != nil {
 		return fmt.Errorf("delete member group failed: %v", err)
 	}
 

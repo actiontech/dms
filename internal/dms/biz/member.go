@@ -14,7 +14,7 @@ type Member struct {
 	Base
 
 	UID              string
-	NamespaceUID     string
+	ProjectUID       string
 	UserUID          string
 	RoleWithOpRanges []MemberRoleWithOpRange
 }
@@ -29,7 +29,7 @@ type MemberRoleWithOpRange struct {
 	RangeUIDs   []string    // Range描述操作权限的权限范围，如涉及哪些数据源
 }
 
-func newMember(userUid, namespaceUid string, opPermissions []MemberRoleWithOpRange) (*Member, error) {
+func newMember(userUid, projectUid string, opPermissions []MemberRoleWithOpRange) (*Member, error) {
 
 	uid, err := pkgRand.GenStrUid()
 	if err != nil {
@@ -38,7 +38,7 @@ func newMember(userUid, namespaceUid string, opPermissions []MemberRoleWithOpRan
 
 	return &Member{
 		UID:              uid,
-		NamespaceUID:     namespaceUid,
+		ProjectUID:       projectUid,
 		UserUID:          userUid,
 		RoleWithOpRanges: opPermissions,
 	}, nil
@@ -61,7 +61,7 @@ type MemberUsecase struct {
 	roleUsecase               *RoleUsecase
 	dbServiceUsecase          *DBServiceUsecase
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
-	namespaceUsecase          *NamespaceUsecase
+	projectUsecase            *ProjectUsecase
 	log                       *utilLog.Helper
 }
 
@@ -70,7 +70,7 @@ func NewMemberUsecase(log utilLog.Logger, tx TransactionGenerator, repo MemberRe
 	roleUsecase *RoleUsecase,
 	dbServiceUsecase *DBServiceUsecase,
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase,
-	namespaceUsecase *NamespaceUsecase) *MemberUsecase {
+	projectUsecase *ProjectUsecase) *MemberUsecase {
 	return &MemberUsecase{
 		tx:                        tx,
 		repo:                      repo,
@@ -78,24 +78,24 @@ func NewMemberUsecase(log utilLog.Logger, tx TransactionGenerator, repo MemberRe
 		roleUsecase:               roleUsecase,
 		dbServiceUsecase:          dbServiceUsecase,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
-		namespaceUsecase:          namespaceUsecase,
+		projectUsecase:            projectUsecase,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.member")),
 	}
 }
 
-func (m *MemberUsecase) CreateMember(ctx context.Context, currentUserUid string, memberUserUid string, namespaceUid string, isNamespaceAdmin bool,
+func (m *MemberUsecase) CreateMember(ctx context.Context, currentUserUid string, memberUserUid string, projectUid string, isProjectAdmin bool,
 	roleAndOpRanges []MemberRoleWithOpRange) (memberUid string, err error) {
 	// check
 	{
-		// 检查空间是否归档/删除
-		if err := m.namespaceUsecase.isNamespaceActive(ctx, namespaceUid); err != nil {
+		// 检查项目是否归档/删除
+		if err := m.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
 			return "", fmt.Errorf("create member error: %v", err)
 		}
-		// 检查当前用户有空间管理员权限
-		if isAdmin, err := m.opPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, currentUserUid, namespaceUid); err != nil {
-			return "", fmt.Errorf("check user is namespace admin failed: %v", err)
+		// 检查当前用户有项目管理员权限
+		if isAdmin, err := m.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, projectUid); err != nil {
+			return "", fmt.Errorf("check user is project admin failed: %v", err)
 		} else if !isAdmin {
-			return "", fmt.Errorf("user is not namespace admin")
+			return "", fmt.Errorf("user is not project admin")
 		}
 
 		// 检查成员用户存在
@@ -109,7 +109,7 @@ func (m *MemberUsecase) CreateMember(ctx context.Context, currentUserUid string,
 			return "", err
 		}
 
-		// 检查空间内成员之间的用户不同
+		// 检查项目内成员之间的用户不同
 		if _, total, err := m.ListMember(ctx, &ListMembersOption{
 			PageNumber:   0,
 			LimitPerPage: 10,
@@ -120,26 +120,26 @@ func (m *MemberUsecase) CreateMember(ctx context.Context, currentUserUid string,
 					Value:    memberUserUid,
 				},
 				{
-					Field:    string(MemberFieldNamespaceUID),
+					Field:    string(MemberFieldProjectUID),
 					Operator: pkgConst.FilterOperatorEqual,
-					Value:    namespaceUid,
+					Value:    projectUid,
 				},
 			},
-		}, namespaceUid); err != nil {
+		}, projectUid); err != nil {
 			return "", fmt.Errorf("check member exist failed: %v", err)
 		} else if total > 0 {
-			return "", fmt.Errorf("user already in namespace")
+			return "", fmt.Errorf("user already in project")
 		}
 	}
 
-	member, err := newMember(memberUserUid, namespaceUid, roleAndOpRanges)
+	member, err := newMember(memberUserUid, projectUid, roleAndOpRanges)
 	if err != nil {
 		return "", fmt.Errorf("new member failed: %v", err)
 	}
 
-	// 如果是空间管理员，则自动添加内置的空间管理员角色
-	if isNamespaceAdmin {
-		m.FixMemberWithNamespaceAdmin(ctx, member, namespaceUid)
+	// 如果是项目管理员，则自动添加内置的项目管理员角色
+	if isProjectAdmin {
+		m.FixMemberWithProjectAdmin(ctx, member, projectUid)
 	}
 
 	tx := m.tx.BeginTX(ctx)
@@ -160,13 +160,13 @@ func (m *MemberUsecase) CreateMember(ctx context.Context, currentUserUid string,
 
 }
 
-// AddUserToNamespaceAdmin 将指定用户加入空间成员，并赋予空间管理员权限
-func (m *MemberUsecase) AddUserToNamespaceAdminMember(ctx context.Context, userUid string, namespaceUid string) (memberUid string, err error) {
+// AddUserToProjectAdmin 将指定用户加入项目成员，并赋予项目管理员权限
+func (m *MemberUsecase) AddUserToProjectAdminMember(ctx context.Context, userUid string, projectUid string) (memberUid string, err error) {
 	// check
 	{
-		// 检查空间是否归档/删除
-		if err := m.namespaceUsecase.isNamespaceActive(ctx, namespaceUid); err != nil {
-			return "", fmt.Errorf("add user to namespace admin member error: %v", err)
+		// 检查项目是否归档/删除
+		if err := m.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
+			return "", fmt.Errorf("add user to project admin member error: %v", err)
 		}
 		// 如果已存在则报错
 		if _, total, err := m.ListMember(ctx, &ListMembersOption{
@@ -179,19 +179,19 @@ func (m *MemberUsecase) AddUserToNamespaceAdminMember(ctx context.Context, userU
 					Value:    userUid,
 				},
 				{
-					Field:    string(MemberFieldNamespaceUID),
+					Field:    string(MemberFieldProjectUID),
 					Operator: pkgConst.FilterOperatorEqual,
-					Value:    namespaceUid,
+					Value:    projectUid,
 				},
 			},
-		}, namespaceUid); err != nil {
+		}, projectUid); err != nil {
 			return "", fmt.Errorf("check member exist failed: %v", err)
 		} else if total > 0 {
-			return "", fmt.Errorf("user already in namespace")
+			return "", fmt.Errorf("user already in project")
 		}
 	}
 
-	member, err := newMember(userUid, namespaceUid, []MemberRoleWithOpRange{m.GetNamespaceAdminRoleWithOpRange(namespaceUid)})
+	member, err := newMember(userUid, projectUid, []MemberRoleWithOpRange{m.GetProjectAdminRoleWithOpRange(projectUid)})
 	if err != nil {
 		return "", fmt.Errorf("new member failed: %v", err)
 	}
@@ -232,7 +232,7 @@ func (m *MemberUsecase) CheckRoleAndOpRanges(ctx context.Context, roleAndOpRange
 					return fmt.Errorf("db service not exist")
 				}
 			// 角色目前与成员绑定，只支持配置数据源范围的权限
-			case OpRangeTypeNamespace, OpRangeTypeGlobal:
+			case OpRangeTypeProject, OpRangeTypeGlobal:
 				return fmt.Errorf("role currently only support the db service op range type, but got type: %v", op.RangeType)
 			default:
 				return fmt.Errorf("unsupported range type: %v", op.RangeType)
@@ -242,30 +242,30 @@ func (m *MemberUsecase) CheckRoleAndOpRanges(ctx context.Context, roleAndOpRange
 	return nil
 }
 
-func (m *MemberUsecase) IsMemberNamespaceAdmin(ctx context.Context, memberUid string) (bool, error) {
+func (m *MemberUsecase) IsMemberProjectAdmin(ctx context.Context, memberUid string) (bool, error) {
 	member, err := m.repo.GetMember(ctx, memberUid)
 	if err != nil {
 		return false, fmt.Errorf("get member failed: %v", err)
 	}
 
 	for _, r := range member.RoleWithOpRanges {
-		if r.RoleUID == pkgConst.UIDOfRoleNamespaceAdmin {
+		if r.RoleUID == pkgConst.UIDOfRoleProjectAdmin {
 			return true, nil
 		}
 	}
 	return false, nil
 }
 
-// FixMemberWithNamespaceAdmin 自动修改成员的角色和操作权限范围，如果是空间管理员，则自动添加内置的空间管理员角色
-func (m *MemberUsecase) FixMemberWithNamespaceAdmin(ctx context.Context, member *Member, namespaceUid string) {
-	member.RoleWithOpRanges = append(member.RoleWithOpRanges, m.GetNamespaceAdminRoleWithOpRange(namespaceUid))
+// FixMemberWithProjectAdmin 自动修改成员的角色和操作权限范围，如果是项目管理员，则自动添加内置的项目管理员角色
+func (m *MemberUsecase) FixMemberWithProjectAdmin(ctx context.Context, member *Member, projectUid string) {
+	member.RoleWithOpRanges = append(member.RoleWithOpRanges, m.GetProjectAdminRoleWithOpRange(projectUid))
 }
 
-func (m *MemberUsecase) GetNamespaceAdminRoleWithOpRange(namespaceUid string) MemberRoleWithOpRange {
+func (m *MemberUsecase) GetProjectAdminRoleWithOpRange(projectUid string) MemberRoleWithOpRange {
 	return MemberRoleWithOpRange{
-		RoleUID:     pkgConst.UIDOfRoleNamespaceAdmin,
-		OpRangeType: OpRangeTypeNamespace,
-		RangeUIDs:   []string{namespaceUid},
+		RoleUID:     pkgConst.UIDOfRoleProjectAdmin,
+		OpRangeType: OpRangeTypeProject,
+		RangeUIDs:   []string{projectUid},
 	}
 }
 
@@ -284,9 +284,9 @@ type ListMembersOption struct {
 	FilterBy     []pkgConst.FilterCondition
 }
 
-func (m *MemberUsecase) ListMember(ctx context.Context, option *ListMembersOption, namespaceUid string) (members []*Member, total int64, err error) {
-	// 检查空间是否归档/删除
-	if err := m.namespaceUsecase.isNamespaceActive(ctx, namespaceUid); err != nil {
+func (m *MemberUsecase) ListMember(ctx context.Context, option *ListMembersOption, projectUid string) (members []*Member, total int64, err error) {
+	// 检查项目是否归档/删除
+	if err := m.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
 		return nil, 0, fmt.Errorf("list member error: %v", err)
 	}
 	members, total, err = m.repo.ListMembers(ctx, option)
@@ -305,19 +305,19 @@ func (m *MemberUsecase) CheckMemberExist(ctx context.Context, memberUids []strin
 	return m.repo.CheckMemberExist(ctx, memberUids)
 }
 
-func (m *MemberUsecase) UpdateMember(ctx context.Context, currentUserUid, updateMemberUid, namespaceUid string, isNamespaceAdmin bool,
+func (m *MemberUsecase) UpdateMember(ctx context.Context, currentUserUid, updateMemberUid, projectUid string, isProjectAdmin bool,
 	roleAndOpRanges []MemberRoleWithOpRange) error {
 	// check
 	{
-		// 检查空间是否归档/删除
-		if err := m.namespaceUsecase.isNamespaceActive(ctx, namespaceUid); err != nil {
+		// 检查项目是否归档/删除
+		if err := m.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
 			return fmt.Errorf("update member error: %v", err)
 		}
-		// 检查当前用户有空间管理员权限
-		if isAdmin, err := m.opPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, currentUserUid, namespaceUid); err != nil {
-			return fmt.Errorf("check user is namespace admin failed: %v", err)
+		// 检查当前用户有项目管理员权限
+		if isAdmin, err := m.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, projectUid); err != nil {
+			return fmt.Errorf("check user is project admin failed: %v", err)
 		} else if !isAdmin {
-			return fmt.Errorf("user is not namespace admin")
+			return fmt.Errorf("user is not project admin")
 		}
 
 		if err := m.CheckRoleAndOpRanges(ctx, roleAndOpRanges); err != nil {
@@ -331,9 +331,9 @@ func (m *MemberUsecase) UpdateMember(ctx context.Context, currentUserUid, update
 	}
 	member.RoleWithOpRanges = roleAndOpRanges
 
-	// 如果是空间管理员，则自动添加内置的空间管理员角色
-	if isNamespaceAdmin {
-		m.FixMemberWithNamespaceAdmin(ctx, member, namespaceUid)
+	// 如果是项目管理员，则自动添加内置的项目管理员角色
+	if isProjectAdmin {
+		m.FixMemberWithProjectAdmin(ctx, member, projectUid)
 	}
 
 	tx := m.tx.BeginTX(ctx)
@@ -360,16 +360,16 @@ func (m *MemberUsecase) DelMember(ctx context.Context, currentUserUid, memberUid
 		if err != nil {
 			return fmt.Errorf("get member failed: %v", err)
 		}
-		// 检查空间是否归档/删除
-		if err := m.namespaceUsecase.isNamespaceActive(ctx, member.NamespaceUID); err != nil {
+		// 检查项目是否归档/删除
+		if err := m.projectUsecase.isProjectActive(ctx, member.ProjectUID); err != nil {
 			return fmt.Errorf("delete member error: %v", err)
 		}
 
-		// 检查当前用户有空间管理员权限
-		if isAdmin, err := m.opPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, currentUserUid, member.NamespaceUID); err != nil {
-			return fmt.Errorf("check user is namespace admin failed: %v", err)
+		// 检查当前用户有项目管理员权限
+		if isAdmin, err := m.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, member.ProjectUID); err != nil {
+			return fmt.Errorf("check user is project admin failed: %v", err)
 		} else if !isAdmin {
-			return fmt.Errorf("user is not namespace admin")
+			return fmt.Errorf("user is not project admin")
 		}
 	}
 

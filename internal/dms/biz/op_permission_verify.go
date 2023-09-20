@@ -12,13 +12,13 @@ import (
 )
 
 type OpPermissionVerifyRepo interface {
-	IsUserHasOpPermissionInNamespace(ctx context.Context, userUid, namespaceUid, opPermissionUid string) (has bool, err error)
-	GetUserOpPermissionInNamespace(ctx context.Context, userUid, namespaceUid string) (opPermissionWithOpRanges []OpPermissionWithOpRange, err error)
+	IsUserHasOpPermissionInProject(ctx context.Context, userUid, projectUid, opPermissionUid string) (has bool, err error)
+	GetUserOpPermissionInProject(ctx context.Context, userUid, projectUid string) (opPermissionWithOpRanges []OpPermissionWithOpRange, err error)
 	GetUserOpPermission(ctx context.Context, userUid string) (opPermissionWithOpRanges []OpPermissionWithOpRange, err error)
 	GetUserGlobalOpPermission(ctx context.Context, userUid string) (opPermissions []*OpPermission, err error)
-	GetUserNamespaceWithOpPermissions(ctx context.Context, userUid string) (namespaceWithPermission []NamespaceOpPermissionWithOpRange, err error)
-	ListUsersOpPermissionInNamespace(ctx context.Context, namespaceUid string, opt *ListMembersOpPermissionOption) (items []ListMembersOpPermissionItem, total int64, err error)
-	GetUserNamespace(ctx context.Context, userUid string) (namespaces []*Namespace, err error)
+	GetUserProjectWithOpPermissions(ctx context.Context, userUid string) (projectWithPermission []ProjectOpPermissionWithOpRange, err error)
+	ListUsersOpPermissionInProject(ctx context.Context, projectUid string, opt *ListMembersOpPermissionOption) (items []ListMembersOpPermissionItem, total int64, err error)
+	GetUserProject(ctx context.Context, userUid string) (projects []*Project, err error)
 }
 
 type OpPermissionVerifyUsecase struct {
@@ -35,16 +35,16 @@ func NewOpPermissionVerifyUsecase(log utilLog.Logger, tx TransactionGenerator, r
 	}
 }
 
-func (o *OpPermissionVerifyUsecase) IsUserNamespaceAdmin(ctx context.Context, userUid, namespaceUid string) (bool, error) {
+func (o *OpPermissionVerifyUsecase) IsUserProjectAdmin(ctx context.Context, userUid, projectUid string) (bool, error) {
 	// 内置用户admin和sys拥有所有权限
 	switch userUid {
 	case pkgConst.UIDOfUserAdmin, pkgConst.UIDOfUserSys:
 		return true, nil
 	default:
 	}
-	has, err := o.repo.IsUserHasOpPermissionInNamespace(ctx, userUid, namespaceUid, pkgConst.UIDOfOpPermissionNamespaceAdmin)
+	has, err := o.repo.IsUserHasOpPermissionInProject(ctx, userUid, projectUid, pkgConst.UIDOfOpPermissionProjectAdmin)
 	if err != nil {
-		return false, fmt.Errorf("failed to check user is namespace admin: %v", err)
+		return false, fmt.Errorf("failed to check user is project admin: %v", err)
 	}
 	return has, nil
 }
@@ -65,11 +65,11 @@ type OpPermissionWithOpRange struct {
 	RangeUIDs       []string    // Range描述操作权限的权限范围，如涉及哪些数据源
 }
 
-func (o *OpPermissionVerifyUsecase) GetUserOpPermissionInNamespace(ctx context.Context, userUid, namespaceUid string) ([]OpPermissionWithOpRange, error) {
+func (o *OpPermissionVerifyUsecase) GetUserOpPermissionInProject(ctx context.Context, userUid, projectUid string) ([]OpPermissionWithOpRange, error) {
 
-	opPermissionWithOpRanges, err := o.repo.GetUserOpPermissionInNamespace(ctx, userUid, namespaceUid)
+	opPermissionWithOpRanges, err := o.repo.GetUserOpPermissionInProject(ctx, userUid, projectUid)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get user op permission in namespace: %v", err)
+		return nil, fmt.Errorf("failed to get user op permission in project: %v", err)
 	}
 
 	return opPermissionWithOpRanges, nil
@@ -78,29 +78,29 @@ func (o *OpPermissionVerifyUsecase) GetUserOpPermissionInNamespace(ctx context.C
 func (o *OpPermissionVerifyUsecase) GetUserOpPermission(ctx context.Context, userUid string) ([]OpPermissionWithOpRange, error) {
 	opPermissionWithOpRanges, err := o.repo.GetUserOpPermission(ctx, userUid)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get user op permission in namespace: %v", err)
+		return nil, fmt.Errorf("failed to get user op permission in project: %v", err)
 	}
 
 	return opPermissionWithOpRanges, nil
 }
 
-type NamespaceOpPermissionWithOpRange struct {
-	NamespaceUid            string
-	NamespaceName           string
+type ProjectOpPermissionWithOpRange struct {
+	ProjectUid              string
+	ProjectName             string
 	OpPermissionWithOpRange OpPermissionWithOpRange
 }
 
-func (o *OpPermissionVerifyUsecase) GetUserNamespaceOpPermission(ctx context.Context, userUid string) ([]NamespaceOpPermissionWithOpRange, error) {
+func (o *OpPermissionVerifyUsecase) GetUserProjectOpPermission(ctx context.Context, userUid string) ([]ProjectOpPermissionWithOpRange, error) {
 
-	namespaceOpPermissionWithOpRange, err := o.repo.GetUserNamespaceWithOpPermissions(ctx, userUid)
+	projectOpPermissionWithOpRange, err := o.repo.GetUserProjectWithOpPermissions(ctx, userUid)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get user namespace with op permission : %v", err)
+		return nil, fmt.Errorf("failed to get user project with op permission : %v", err)
 	}
 
-	return namespaceOpPermissionWithOpRange, nil
+	return projectOpPermissionWithOpRange, nil
 }
 
-func (o *OpPermissionVerifyUsecase) GetUserManagerNamespace(ctx context.Context, namespaceWithOpPermissions []NamespaceOpPermissionWithOpRange) (userBindNamespaces []dmsCommonV1.UserBindNamespace) {
+func (o *OpPermissionVerifyUsecase) GetUserManagerProject(ctx context.Context, projectWithOpPermissions []ProjectOpPermissionWithOpRange) (userBindProjects []dmsCommonV1.UserBindProject) {
 
 	/* 结果如下，需要去重
 	+--------+---------+-------------------+---------------+---------------------+
@@ -108,29 +108,29 @@ func (o *OpPermissionVerifyUsecase) GetUserManagerNamespace(ctx context.Context,
 	+--------+---------+-------------------+---------------+---------------------+
 	| 700300 | default | 700003            | db_service    | 1650760484527280128 |
 	+--------+---------+-------------------+---------------+---------------------+
-	| 700300 |	default| 700002	 		   | namespace	   |	700300			 |
+	| 700300 |	default| 700002	 		   | project	   |	700300			 |
 	+--------+---------+-------------------+---------------+---------------------+
 	*/
-	mapIdUserBindNamespace := make(map[string]dmsCommonV1.UserBindNamespace, 0)
-	for _, namespaceWithOpPermission := range namespaceWithOpPermissions {
-		n, ok := mapIdUserBindNamespace[namespaceWithOpPermission.NamespaceUid]
+	mapIdUserBindProject := make(map[string]dmsCommonV1.UserBindProject, 0)
+	for _, projectWithOpPermission := range projectWithOpPermissions {
+		n, ok := mapIdUserBindProject[projectWithOpPermission.ProjectUid]
 		if !ok {
-			mapIdUserBindNamespace[namespaceWithOpPermission.NamespaceUid] = dmsCommonV1.UserBindNamespace{NamespaceID: namespaceWithOpPermission.NamespaceUid, NamespaceName: namespaceWithOpPermission.NamespaceName, IsManager: namespaceWithOpPermission.OpPermissionWithOpRange.OpPermissionUID == pkgConst.UIDOfOpPermissionNamespaceAdmin}
+			mapIdUserBindProject[projectWithOpPermission.ProjectUid] = dmsCommonV1.UserBindProject{ProjectID: projectWithOpPermission.ProjectUid, ProjectName: projectWithOpPermission.ProjectName, IsManager: projectWithOpPermission.OpPermissionWithOpRange.OpPermissionUID == pkgConst.UIDOfOpPermissionProjectAdmin}
 		} else {
-			// 有一个权限为空间管理员即可
-			n.IsManager = mapIdUserBindNamespace[namespaceWithOpPermission.NamespaceUid].IsManager || (namespaceWithOpPermission.OpPermissionWithOpRange.OpPermissionUID == pkgConst.UIDOfOpPermissionNamespaceAdmin)
-			mapIdUserBindNamespace[namespaceWithOpPermission.NamespaceUid] = n
+			// 有一个权限为项目管理员即可
+			n.IsManager = mapIdUserBindProject[projectWithOpPermission.ProjectUid].IsManager || (projectWithOpPermission.OpPermissionWithOpRange.OpPermissionUID == pkgConst.UIDOfOpPermissionProjectAdmin)
+			mapIdUserBindProject[projectWithOpPermission.ProjectUid] = n
 		}
 	}
 
-	for _, userBindNamespace := range mapIdUserBindNamespace {
-		userBindNamespaces = append(userBindNamespaces, userBindNamespace)
+	for _, userBindProject := range mapIdUserBindProject {
+		userBindProjects = append(userBindProjects, userBindProject)
 	}
 
-	return userBindNamespaces
+	return userBindProjects
 }
 
-func (o *OpPermissionVerifyUsecase) CanCreateNamespace(ctx context.Context, userUid string) (bool, error) {
+func (o *OpPermissionVerifyUsecase) CanCreateProject(ctx context.Context, userUid string) (bool, error) {
 	// user admin has all op permission
 	isUserDMSAdmin, err := o.IsUserDMSAdmin(ctx, userUid)
 	if err != nil {
@@ -145,7 +145,7 @@ func (o *OpPermissionVerifyUsecase) CanCreateNamespace(ctx context.Context, user
 		return false, fmt.Errorf("failed to get user global op permission : %v", err)
 	}
 	for _, opPermission := range opPermissions {
-		if opPermission.UID == pkgConst.UIDOfOpPermissionCreateNamespace {
+		if opPermission.UID == pkgConst.UIDOfOpPermissionCreateProject {
 			return true, nil
 		}
 	}
@@ -164,22 +164,22 @@ type ListMembersOpPermissionItem struct {
 	OpPermissions []OpPermissionWithOpRange
 }
 
-func (o *OpPermissionVerifyUsecase) ListUsersOpPermissionInNamespace(ctx context.Context, namespaceUid string, opt *ListMembersOpPermissionOption) ([]ListMembersOpPermissionItem, int64, error) {
+func (o *OpPermissionVerifyUsecase) ListUsersOpPermissionInProject(ctx context.Context, projectUid string, opt *ListMembersOpPermissionOption) ([]ListMembersOpPermissionItem, int64, error) {
 
-	items, total, err := o.repo.ListUsersOpPermissionInNamespace(ctx, namespaceUid, opt)
+	items, total, err := o.repo.ListUsersOpPermissionInProject(ctx, projectUid, opt)
 	if err != nil {
-		return nil, 0, fmt.Errorf("failed to list members op permission in namespace: %v", err)
+		return nil, 0, fmt.Errorf("failed to list members op permission in project: %v", err)
 	}
 
 	return items, total, nil
 }
 
-func (o *OpPermissionVerifyUsecase) GetUserNamespace(ctx context.Context, userUid string) ([]*Namespace, error) {
+func (o *OpPermissionVerifyUsecase) GetUserProject(ctx context.Context, userUid string) ([]*Project, error) {
 
-	namespaces, err := o.repo.GetUserNamespace(ctx, userUid)
+	projects, err := o.repo.GetUserProject(ctx, userUid)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get user namespace with op permission : %v", err)
+		return nil, fmt.Errorf("failed to get user project with op permission : %v", err)
 	}
 
-	return namespaces, nil
+	return projects, nil
 }

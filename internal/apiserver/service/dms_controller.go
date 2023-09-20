@@ -50,7 +50,7 @@ func (a *DMSController) Shutdown() error {
 	return nil
 }
 
-// swagger:route POST /v1/dms/db_services dms AddDBService
+// swagger:route POST /v1/dms/projects/{project_uid}/db_services dms AddDBService
 //
 // Add DB Service.
 //
@@ -77,7 +77,7 @@ func (d *DMSController) AddDBService(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/db_services dms ListDBServices
+// swagger:route GET /v1/dms/projects/{project_uid}/db_services dms ListDBServices
 //
 // List db service.
 //
@@ -101,7 +101,7 @@ func (d *DMSController) ListDBServices(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/db_services/driver_options dms ListDBServiceDriverOption
+// swagger:route GET /v1/dms/projects/{project_uid}/db_services/driver_options dms ListDBServiceDriverOption
 //
 // List db service driver option.
 //
@@ -116,7 +116,7 @@ func (d *DMSController) ListDBServiceDriverOption(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route DELETE /v1/dms/db_services/{db_service_uid} dms DelDBService
+// swagger:route DELETE /v1/dms/projects/{project_uid}/db_services/{db_service_uid} dms DelDBService
 //
 // Delete a DB Service.
 //
@@ -141,7 +141,7 @@ func (a *DMSController) DelDBService(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/db_services/{db_service_uid} dms UpdateDBService
+// swagger:route PUT /v1/dms/projects/{project_uid}/db_services/{db_service_uid} dms UpdateDBService
 //
 // update a DB Service.
 //
@@ -166,7 +166,7 @@ func (a *DMSController) UpdateDBService(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/db_services/connection dms CheckDBServiceIsConnectable
+// swagger:route POST /v1/dms/projects/{project_uid}/db_services/connection dms CheckDBServiceIsConnectable
 //
 // check if the db_service is connectable.
 //
@@ -187,7 +187,7 @@ func (d *DMSController) CheckDBServiceIsConnectable(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/db_services/{db_service_uid}/connection dms CheckDBServiceIsConnectableById
+// swagger:route POST /v1/dms/projects/{project_uid}/db_services/{db_service_uid}/connection dms CheckDBServiceIsConnectableById
 //
 // check if the db_service is connectable.
 //
@@ -208,7 +208,7 @@ func (d *DMSController) CheckDBServiceIsConnectableById(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/database_source_services dms ListDatabaseSourceServices
+// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services dms ListDatabaseSourceServices
 //
 // List database source service.
 //
@@ -233,7 +233,7 @@ func (d *DMSController) ListDatabaseSourceServices(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/database_source_services/{database_source_service_uid} dms GetDatabaseSourceService
+// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} dms GetDatabaseSourceService
 //
 // Get database source service.
 //
@@ -258,7 +258,7 @@ func (d *DMSController) GetDatabaseSourceService(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/database_source_services dms AddDatabaseSourceService
+// swagger:route POST /v1/dms/projects/{project_uid}/database_source_services dms AddDatabaseSourceService
 //
 // Add database source service.
 //
@@ -285,7 +285,7 @@ func (d *DMSController) AddDatabaseSourceService(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PUT /v1/dms/database_source_services/{database_source_service_uid} dms UpdateDatabaseSourceService
+// swagger:route PUT /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} dms UpdateDatabaseSourceService
 //
 // update database source service.
 //
@@ -310,7 +310,7 @@ func (d *DMSController) UpdateDatabaseSourceService(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route DELETE /v1/dms/database_source_services/{database_source_service_uid} dms DeleteDatabaseSourceService
+// swagger:route DELETE /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} dms DeleteDatabaseSourceService
 //
 // Delete database source service.
 //
@@ -332,6 +332,47 @@ func (d *DMSController) DeleteDatabaseSourceService(c echo.Context) error {
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
+	return NewOkResp(c)
+}
+
+// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services/tips dms ListDatabaseSourceServiceTips
+//
+// List database source service tips.
+//
+//	responses:
+//	  200: body:ListDatabaseSourceServiceTipsReply
+//	  default: body:GenericResp
+func (d *DMSController) ListDatabaseSourceServiceTips(c echo.Context) error {
+	reply, err := d.DMS.ListDatabaseSourceServiceTips(c.Request().Context())
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route POST /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid}/sync dms SyncDatabaseSourceService
+//
+// Sync database source service.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) SyncDatabaseSourceService(c echo.Context) error {
+	req := &aV1.SyncDatabaseSourceServiceReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	err = d.DMS.SyncDatabaseSourceService(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
 	return NewOkResp(c)
 }
 
@@ -392,47 +433,6 @@ func (d *DMSController) Personalization(c echo.Context) error {
 	}
 
 	err = d.DMS.Personalization(c.Request().Context(), req)
-	if nil != err {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-
-	return NewOkResp(c)
-}
-
-// swagger:route GET /v1/dms/database_source_services/tips dms ListDatabaseSourceServiceTips
-//
-// List database source service tips.
-//
-//	responses:
-//	  200: body:ListDatabaseSourceServiceTipsReply
-//	  default: body:GenericResp
-func (d *DMSController) ListDatabaseSourceServiceTips(c echo.Context) error {
-	reply, err := d.DMS.ListDatabaseSourceServiceTips(c.Request().Context())
-	if nil != err {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-	return NewOkRespWithReply(c, reply)
-}
-
-// swagger:route POST /v1/dms/database_source_services/{database_source_service_uid}/sync dms SyncDatabaseSourceService
-//
-// Sync database source service.
-//
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
-func (d *DMSController) SyncDatabaseSourceService(c echo.Context) error {
-	req := &aV1.SyncDatabaseSourceServiceReq{}
-	err := bindAndValidateReq(c, req)
-	if nil != err {
-		return NewErrResp(c, err, apiError.BadRequestErr)
-	}
-	// get current user id
-	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-	err = d.DMS.SyncDatabaseSourceService(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -885,7 +885,7 @@ func (d *DMSController) ListRoles(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/members dms AddMember
+// swagger:route POST /v1/dms/projects/{project_uid}/members dms AddMember
 //
 // Add member.
 //
@@ -912,7 +912,7 @@ func (d *DMSController) AddMember(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/members dms ListMembers
+// swagger:route GET /v1/dms/projects/{project_uid}/members dms ListMembers
 //
 // List member, for front page.
 //
@@ -933,7 +933,7 @@ func (d *DMSController) ListMembers(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/members/internal dms ListMembersForInternal
+// swagger:route GET /v1/dms/projects/{project_uid}/members/internal dms ListMembersForInternal
 //
 // List members, for internal backend service.
 //
@@ -954,7 +954,7 @@ func (d *DMSController) ListMembersForInternal(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PUT /v1/dms/members/{member_uid} dms UpdateMember
+// swagger:route PUT /v1/dms/projects/{project_uid}/members/{member_uid} dms UpdateMember
 //
 // Update a member.
 //
@@ -981,7 +981,7 @@ func (d *DMSController) UpdateMember(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route DELETE /v1/dms/members/{member_uid} dms DelMember
+// swagger:route DELETE /v1/dms/projects/{project_uid}/members/{member_uid} dms DelMember
 //
 // Delete a member.
 //
@@ -1008,7 +1008,7 @@ func (a *DMSController) DelMember(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/member_groups dms ListMemberGroups
+// swagger:route GET /v1/dms/projects/{project_uid}/member_groups dms ListMemberGroups
 //
 // List member group, for front page.
 //
@@ -1029,7 +1029,7 @@ func (d *DMSController) ListMemberGroups(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/member_groups/{member_group_uid} dms GetMemberGroup
+// swagger:route GET /v1/dms/projects/{project_uid}/member_groups/{member_group_uid} dms GetMemberGroup
 //
 // Get member group, for front page.
 //
@@ -1050,7 +1050,7 @@ func (d *DMSController) GetMemberGroup(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/member_groups dms AddMemberGroup
+// swagger:route POST /v1/dms/projects/{project_uid}/member_groups dms AddMemberGroup
 //
 // Add member group.
 //
@@ -1077,7 +1077,7 @@ func (d *DMSController) AddMemberGroup(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PUT /v1/dms/member_groups/{member_group_uid} dms UpdateMemberGroup
+// swagger:route PUT /v1/dms/projects/{project_uid}/member_groups/{member_group_uid} dms UpdateMemberGroup
 //
 // update member group, for front page.
 //
@@ -1105,7 +1105,7 @@ func (d *DMSController) UpdateMemberGroup(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route DELETE  /v1/dms/member_groups/{member_group_uid} dms DeleteMemberGroup
+// swagger:route DELETE  /v1/dms/projects/{project_uid}/member_groups/{member_group_uid} dms DeleteMemberGroup
 //
 // delete member group, for front page.
 //
@@ -1154,15 +1154,15 @@ func (d *DMSController) ListOpPermissions(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/namespaces dms ListNamespaces
+// swagger:route GET /v1/dms/projects dms ListProjects
 //
-// List namespaces.
+// List projects.
 //
 //	responses:
-//	  200: body:ListNamespaceReply
+//	  200: body:ListProjectReply
 //	  default: body:GenericResp
-func (d *DMSController) ListNamespaces(c echo.Context) error {
-	req := new(dmsV1.ListNamespaceReq)
+func (d *DMSController) ListProjects(c echo.Context) error {
+	req := new(dmsV1.ListProjectReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
@@ -1174,22 +1174,22 @@ func (d *DMSController) ListNamespaces(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	reply, err := d.DMS.ListNamespaces(c.Request().Context(), req, currentUserUid)
+	reply, err := d.DMS.ListProjects(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/namespaces dms AddNamespace
+// swagger:route POST /v1/dms/projects dms AddProject
 //
-// Add namespaces.
+// Add project.
 //
 //	responses:
-//	  200: body:AddNamespaceReply
+//	  200: body:AddProjectReply
 //	  default: body:GenericResp
-func (d *DMSController) AddNamespace(c echo.Context) error {
-	req := new(aV1.AddNamespaceReq)
+func (d *DMSController) AddProject(c echo.Context) error {
+	req := new(aV1.AddProjectReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
@@ -1200,22 +1200,22 @@ func (d *DMSController) AddNamespace(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	reply, err := d.DMS.AddNamespace(c.Request().Context(), currentUserUid, req)
+	reply, err := d.DMS.AddProject(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route DELETE /v1/dms/namespaces/{namespace_uid} dms DelNamespace
+// swagger:route DELETE /v1/dms/projects/{project_uid} dms DelProject
 //
-// Delete a Namespace
+// Delete a project
 //
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (a *DMSController) DelNamespace(c echo.Context) error {
-	req := &aV1.DelNamespaceReq{}
+func (a *DMSController) DelProject(c echo.Context) error {
+	req := &aV1.DelProjectReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
@@ -1225,22 +1225,22 @@ func (a *DMSController) DelNamespace(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	err = a.DMS.DeleteNamespace(c.Request().Context(), currentUserUid, req)
+	err = a.DMS.DeleteProject(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/namespaces/{namespace_uid} dms UpdateNamespace
+// swagger:route PUT /v1/dms/projects/{project_uid} dms UpdateProject
 //
-// update a Namespace.
+// update a project.
 //
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (a *DMSController) UpdateNamespace(c echo.Context) error {
-	req := &aV1.UpdateNamespaceReq{}
+func (a *DMSController) UpdateProject(c echo.Context) error {
+	req := &aV1.UpdateProjectReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
@@ -1250,22 +1250,22 @@ func (a *DMSController) UpdateNamespace(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	err = a.DMS.UpdateNamespaceDesc(c.Request().Context(), currentUserUid, req)
+	err = a.DMS.UpdateProjectDesc(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/namespaces/{namespace_uid}/archive dms ArchiveNamespace
+// swagger:route PUT /v1/dms/projects/{project_uid}/archive dms ArchiveProject
 //
-// Archive a Namespace.
+// Archive a project.
 //
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (a *DMSController) ArchiveNamespace(c echo.Context) error {
-	req := &aV1.ArchiveNamespaceReq{}
+func (a *DMSController) ArchiveProject(c echo.Context) error {
+	req := &aV1.ArchiveProjectReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
@@ -1276,22 +1276,22 @@ func (a *DMSController) ArchiveNamespace(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = a.DMS.ArchivedNamespace(c.Request().Context(), currentUserUid, req)
+	err = a.DMS.ArchivedProject(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/namespaces/{namespace_uid}/unarchive dms UnarchiveNamespace
+// swagger:route PUT /v1/dms/projects/{project_uid}/unarchive dms UnarchiveProject
 //
-// Unarchive a Namespace.
+// Unarchive a project.
 //
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (a *DMSController) UnarchiveNamespace(c echo.Context) error {
-	req := &aV1.UnarchiveNamespaceReq{}
+func (a *DMSController) UnarchiveProject(c echo.Context) error {
+	req := &aV1.UnarchiveProjectReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
@@ -1302,7 +1302,7 @@ func (a *DMSController) UnarchiveNamespace(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = a.DMS.UnarchiveNamespace(c.Request().Context(), currentUserUid, req)
+	err = a.DMS.UnarchiveProject(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}

@@ -15,56 +15,51 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-func (d *DMSService) ListNamespaces(ctx context.Context, req *dmsCommonV1.ListNamespaceReq, currentUserUid string) (reply *dmsCommonV1.ListNamespaceReply, err error) {
-	d.log.Infof("ListNamespaces.req=%v", req)
-	defer func() {
-		d.log.Infof("ListNamespaces.req=%v;reply=%v;error=%v", req, reply, err)
-	}()
-
-	var orderBy biz.NamespaceField
+func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV1.ListProjectReq, currentUserUid string) (reply *dmsCommonV1.ListProjectReply, err error) {
+	var orderBy biz.ProjectField
 	switch req.OrderBy {
-	case dmsCommonV1.NamespaceOrderByName:
-		orderBy = biz.NamespaceFieldName
+	case dmsCommonV1.ProjectOrderByName:
+		orderBy = biz.ProjectFieldName
 	default:
-		orderBy = biz.NamespaceFieldName
+		orderBy = biz.ProjectFieldName
 	}
 
 	filterBy := make([]pkgConst.FilterCondition, 0)
 	if req.FilterByName != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
-			Field:    string(biz.NamespaceFieldName),
+			Field:    string(biz.ProjectFieldName),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByName,
 		})
 	}
 	if req.FilterByUID != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
-			Field:    string(biz.NamespaceFieldUID),
+			Field:    string(biz.ProjectFieldUID),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByUID,
 		})
 	}
 
-	listOption := &biz.ListNamespacesOption{
+	listOption := &biz.ListProjectsOption{
 		PageNumber:   req.PageIndex,
 		LimitPerPage: req.PageSize,
 		OrderBy:      orderBy,
 		FilterBy:     filterBy,
 	}
 
-	namespaces, total, err := d.NamespaceUsecase.ListNamespace(ctx, listOption, currentUserUid)
+	projects, total, err := d.ProjectUsecase.ListProject(ctx, listOption, currentUserUid)
 	if nil != err {
 		return nil, err
 	}
 
-	ret := make([]*dmsCommonV1.ListNamespace, len(namespaces))
-	for i, n := range namespaces {
-		ret[i] = &dmsCommonV1.ListNamespace{
-			NamespaceUid: n.UID,
-			Name:         n.Name,
-			Archived:     (n.Status == biz.NamespaceStatusArchived),
-			Desc:         n.Desc,
-			CreateTime:   strfmt.DateTime(n.CreateTime),
+	ret := make([]*dmsCommonV1.ListProject, len(projects))
+	for i, n := range projects {
+		ret[i] = &dmsCommonV1.ListProject{
+			ProjectUid: n.UID,
+			Name:       n.Name,
+			Archived:   (n.Status == biz.ProjectStatusArchived),
+			Desc:       n.Desc,
+			CreateTime: strfmt.DateTime(n.CreateTime),
 		}
 		user, err := d.UserUsecase.GetUser(ctx, n.CreateUserUID)
 		if err != nil {
@@ -78,107 +73,82 @@ func (d *DMSService) ListNamespaces(ctx context.Context, req *dmsCommonV1.ListNa
 
 	}
 
-	return &dmsCommonV1.ListNamespaceReply{
+	return &dmsCommonV1.ListProjectReply{
 		Payload: struct {
-			Namespaces []*dmsCommonV1.ListNamespace `json:"namespaces"`
-			Total      int64                        `json:"total"`
-		}{Namespaces: ret, Total: total},
+			Projects []*dmsCommonV1.ListProject `json:"projects"`
+			Total    int64                      `json:"total"`
+		}{Projects: ret, Total: total},
 	}, nil
 }
 
-func (d *DMSService) AddNamespace(ctx context.Context, currentUserUid string, req *dmsV1.AddNamespaceReq) (reply *dmsV1.AddNamespaceReply, err error) {
-	d.log.Infof("AddNamespaces.req=%v", req)
-	defer func() {
-		d.log.Infof("AddNamespaces.req=%v;reply=%v;error=%v", req, reply, err)
-	}()
-
+func (d *DMSService) AddProject(ctx context.Context, currentUserUid string, req *dmsV1.AddProjectReq) (reply *dmsV1.AddProjectReply, err error) {
 	// check
 	{
 		// check current user has enough permission
-		if canCreateNamespace, err := d.OpPermissionVerifyUsecase.CanCreateNamespace(ctx, currentUserUid); err != nil {
+		if canCreateProject, err := d.OpPermissionVerifyUsecase.CanCreateProject(ctx, currentUserUid); err != nil {
 			return nil, err
-		} else if !canCreateNamespace {
-			return nil, fmt.Errorf("current user can't create namespace")
+		} else if !canCreateProject {
+			return nil, fmt.Errorf("current user can't create project")
 		}
 
-		// check namespace is exist
-		_, err := d.NamespaceUsecase.GetNamespaceByName(ctx, req.Namespace.Name)
+		// check project is exist
+		_, err := d.ProjectUsecase.GetProjectByName(ctx, req.Project.Name)
 		if err == nil {
-			return nil, fmt.Errorf("namespace %v is exist", req.Namespace.Name)
+			return nil, fmt.Errorf("project %v is exist", req.Project.Name)
 		}
 		if !errors.Is(err, pkgErr.ErrStorageNoData) {
-			return nil, fmt.Errorf("failed to get namespace by name: %w", err)
+			return nil, fmt.Errorf("failed to get project by name: %w", err)
 		}
 	}
 
-	namespace, err := biz.NewNamespace(currentUserUid, req.Namespace.Name, req.Namespace.Desc)
+	project, err := biz.NewProject(currentUserUid, req.Project.Name, req.Project.Desc)
 	if err != nil {
 		return nil, err
 	}
-	err = d.NamespaceUsecase.CreateNamespace(ctx, namespace, currentUserUid)
+	err = d.ProjectUsecase.CreateProject(ctx, project, currentUserUid)
 	if err != nil {
-		return nil, fmt.Errorf("create  namespace failed: %w", err)
+		return nil, fmt.Errorf("create  project failed: %w", err)
 	}
 
-	return &dmsV1.AddNamespaceReply{
+	return &dmsV1.AddProjectReply{
 		Payload: struct {
-			//  namespace UID
+			//  project UID
 			Uid string `json:"uid"`
-		}{Uid: namespace.UID},
+		}{Uid: project.UID},
 	}, nil
 }
 
-func (d *DMSService) DeleteNamespace(ctx context.Context, currentUserUid string, req *dmsV1.DelNamespaceReq) (err error) {
-	d.log.Infof("DeleteNamespace.req=%v", req)
-	defer func() {
-		d.log.Infof("DeleteNamespace.req=%v;error=%v", req, err)
-	}()
-
-	err = d.NamespaceUsecase.DeleteNamespace(ctx, currentUserUid, req.NamespaceUid)
+func (d *DMSService) DeleteProject(ctx context.Context, currentUserUid string, req *dmsV1.DelProjectReq) (err error) {
+	err = d.ProjectUsecase.DeleteProject(ctx, currentUserUid, req.ProjectUid)
 	if err != nil {
-		return fmt.Errorf("delete  namespace failed: %w", err)
+		return fmt.Errorf("delete  project failed: %w", err)
 	}
 
 	return nil
 }
 
-func (d *DMSService) UpdateNamespaceDesc(ctx context.Context, currentUserUid string, req *dmsV1.UpdateNamespaceReq) (err error) {
-	d.log.Infof("UpdateNamespaceDesc.req=%v", req)
-	defer func() {
-		d.log.Infof("UpdateNamespaceDesc.req=%v;error=%v", req, err)
-	}()
-
-	err = d.NamespaceUsecase.UpdateNamespaceDesc(ctx, currentUserUid, req.NamespaceUid, req.Namespace.Desc)
+func (d *DMSService) UpdateProjectDesc(ctx context.Context, currentUserUid string, req *dmsV1.UpdateProjectReq) (err error) {
+	err = d.ProjectUsecase.UpdateProjectDesc(ctx, currentUserUid, req.ProjectUid, req.Project.Desc)
 	if err != nil {
-		return fmt.Errorf("update namespace failed: %w", err)
+		return fmt.Errorf("update project failed: %w", err)
 	}
 
 	return nil
 }
 
-func (d *DMSService) ArchivedNamespace(ctx context.Context, currentUserUid string, req *dmsV1.ArchiveNamespaceReq) (err error) {
-	d.log.Infof("ArchivedNamespace.req=%v", req)
-	defer func() {
-		d.log.Infof("ArchivedNamespace.req=%v;error=%v", req, err)
-	}()
-
-	err = d.NamespaceUsecase.ArchivedNamespace(ctx, currentUserUid, req.NamespaceUid, true)
+func (d *DMSService) ArchivedProject(ctx context.Context, currentUserUid string, req *dmsV1.ArchiveProjectReq) (err error) {
+	err = d.ProjectUsecase.ArchivedProject(ctx, currentUserUid, req.ProjectUid, true)
 	if err != nil {
-		return fmt.Errorf("archived namespace failed: %w", err)
+		return fmt.Errorf("archived project failed: %w", err)
 	}
 
 	return nil
 }
 
-func (d *DMSService) UnarchiveNamespace(ctx context.Context, currentUserUid string, req *dmsV1.UnarchiveNamespaceReq) (err error) {
-	d.log.Infof("UnarchiveNamespace.req=%v", req)
-	defer func() {
-		d.log.Infof("UnarchiveNamespace.req=%v;error=%v", req, err)
-	}()
-
-	err = d.NamespaceUsecase.ArchivedNamespace(ctx, currentUserUid, req.NamespaceUid, false)
+func (d *DMSService) UnarchiveProject(ctx context.Context, currentUserUid string, req *dmsV1.UnarchiveProjectReq) (err error) {
+	err = d.ProjectUsecase.ArchivedProject(ctx, currentUserUid, req.ProjectUid, false)
 	if err != nil {
-		return fmt.Errorf("unarchive namespace failed: %w", err)
+		return fmt.Errorf("unarchive project failed: %w", err)
 	}
 
 	return nil

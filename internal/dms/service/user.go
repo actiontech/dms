@@ -380,12 +380,12 @@ func (d *DMSService) GetUserOpPermission(ctx context.Context, req *dmsCommonV1.G
 		d.log.Infof("GetUserOpPermission.req=%v;error=%v", req, err)
 	}()
 
-	isAdmin, err := d.OpPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, req.UserUid, req.UserOpPermission.NamespaceUid)
+	isAdmin, err := d.OpPermissionVerifyUsecase.IsUserProjectAdmin(ctx, req.UserUid, req.UserOpPermission.ProjectUid)
 	if err != nil {
 		return nil, fmt.Errorf("check user admin error: %v", err)
 	}
 
-	permissions, err := d.OpPermissionVerifyUsecase.GetUserOpPermissionInNamespace(ctx, req.UserUid, req.UserOpPermission.NamespaceUid)
+	permissions, err := d.OpPermissionVerifyUsecase.GetUserOpPermissionInProject(ctx, req.UserUid, req.UserOpPermission.ProjectUid)
 	if err != nil {
 		return nil, fmt.Errorf("get user op permission error: %v", err)
 	}
@@ -493,33 +493,33 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 		return nil, fmt.Errorf("failed to check user is dms admin")
 	}
 	dmsCommonUser.IsAdmin = isAdmin
-	// 获取管理空间
-	userBindNamespaces := make([]dmsCommonV1.UserBindNamespace, 0)
+	// 获取管理项目
+	userBindProjects := make([]dmsCommonV1.UserBindProject, 0)
 	if !isAdmin {
-		namespaceWithOpPermissions, err := d.OpPermissionVerifyUsecase.GetUserNamespaceOpPermission(ctx, u.GetUID())
+		projectWithOpPermissions, err := d.OpPermissionVerifyUsecase.GetUserProjectOpPermission(ctx, u.GetUID())
 		if err != nil {
-			return nil, fmt.Errorf("failed to get user namespace with op permission")
+			return nil, fmt.Errorf("failed to get user project with op permission")
 		}
-		userBindNamespaces = d.OpPermissionVerifyUsecase.GetUserManagerNamespace(ctx, namespaceWithOpPermissions)
+		userBindProjects = d.OpPermissionVerifyUsecase.GetUserManagerProject(ctx, projectWithOpPermissions)
 	} else {
-		namespaces, _, err := d.NamespaceUsecase.ListNamespace(ctx, &biz.ListNamespacesOption{
+		projects, _, err := d.ProjectUsecase.ListProject(ctx, &biz.ListProjectsOption{
 			PageNumber:   1,
 			LimitPerPage: 999,
 			FilterBy: []pkgConst.FilterCondition{
 				{
-					Field:    string(biz.NamespaceFieldStatus),
+					Field:    string(biz.ProjectFieldStatus),
 					Operator: pkgConst.FilterOperatorEqual,
-					Value:    biz.NamespaceStatusActive,
+					Value:    biz.ProjectStatusActive,
 				}},
 		}, u.UID)
 		if err != nil {
 			return nil, err
 		}
-		for _, namespace := range namespaces {
-			userBindNamespaces = append(userBindNamespaces, dmsCommonV1.UserBindNamespace{NamespaceID: namespace.UID, NamespaceName: namespace.Name, IsManager: true})
+		for _, project := range projects {
+			userBindProjects = append(userBindProjects, dmsCommonV1.UserBindProject{ProjectID: project.UID, ProjectName: project.Name, IsManager: true})
 		}
 	}
-	dmsCommonUser.UserBindNamespaces = userBindNamespaces
+	dmsCommonUser.UserBindProjects = userBindProjects
 
 	reply = &dmsCommonV1.GetUserReply{
 		Payload: struct {
@@ -539,10 +539,10 @@ func convertBizOpPermission(opPermissionUid string) (apiOpPermissionTyp dmsCommo
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeAuditWorkflow
 	case pkgConst.UIDOfOpPermissionAuthDBServiceData:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeAuthDBServiceData
-	case pkgConst.UIDOfOpPermissionNamespaceAdmin:
-		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeNamespaceAdmin
-	case pkgConst.UIDOfOpPermissionCreateNamespace:
-		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeCreateNamespace
+	case pkgConst.UIDOfOpPermissionProjectAdmin:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeProjectAdmin
+	case pkgConst.UIDOfOpPermissionCreateProject:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeCreateProject
 	case pkgConst.UIDOfOpPermissionExecuteWorkflow:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeExecuteWorkflow
 	case pkgConst.UIDOfOpPermissionViewOthersWorkflow:
@@ -564,8 +564,8 @@ func convertBizOpRangeType(bizOpRangeTyp biz.OpRangeType) (typ dmsV1.OpRangeType
 	switch bizOpRangeTyp {
 	case biz.OpRangeTypeGlobal:
 		typ = dmsV1.OpRangeTypeGlobal
-	case biz.OpRangeTypeNamespace:
-		typ = dmsV1.OpRangeTypeNamespace
+	case biz.OpRangeTypeProject:
+		typ = dmsV1.OpRangeTypeProject
 	case biz.OpRangeTypeDBService:
 		typ = dmsV1.OpRangeTypeDBService
 	default:

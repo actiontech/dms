@@ -26,18 +26,18 @@ type ListMemberGroupsReq struct {
 	// filter the user group name
 	// in:query
 	FilterByName string `query:"filter_by_name" json:"filter_by_name"`
-	// the member namespace uid
-	// in:query
+	// project id
 	// Required: true
-	NamespaceUid string `query:"namespace_uid" json:"namespace_uid" validate:"required"`
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 }
 
 type ListMemberGroup struct {
 	Name string `json:"name"`
 	// member uid
 	Uid string `json:"uid"`
-	// Whether the member has namespace admin permission
-	IsNamespaceAdmin bool `json:"is_namespace_admin"`
+	// Whether the member has project admin permission
+	IsProjectAdmin bool `json:"is_project_admin"`
 	// member user
 	Users []UidWithName `json:"users"`
 	// member op permission
@@ -62,8 +62,8 @@ type GetMemberGroup struct {
 	Uid string `json:"uid"`
 	// member user
 	Users []UidWithName `json:"users"`
-	// Whether the member has namespace admin permission
-	IsNamespaceAdmin bool `json:"is_namespace_admin"`
+	// Whether the member has project admin permission
+	IsProjectAdmin bool `json:"is_project_admin"`
 	// member op permission
 	RoleWithOpRanges []ListMemberRoleWithOpRange `json:"role_with_op_ranges"`
 }
@@ -74,10 +74,10 @@ type GetMemberGroupReq struct {
 	// Required: true
 	// in:path
 	MemberGroupUid string `param:"member_group_uid" json:"member_group_uid" validate:"required"`
-	// filter by db service namespace uid
-	// only the sys user can use an empty namespace value, which means lookup from all namespaces
-	// in:query
-	NamespaceId string `query:"namespace_id" json:"namespace_id"`
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 }
 
 // swagger:model GetMemberGroupReply
@@ -98,17 +98,18 @@ type MemberGroup struct {
 	// member user uid
 	// Required: true
 	UserUids []string `json:"user_uids" validate:"required"`
-	// Whether the member has namespace admin permission
-	IsNamespaceAdmin bool `json:"is_namespace_admin"`
-	// namespace uid
-	// Required: true
-	NamespaceUid string `json:"namespace_uid" validate:"required"`
+	// Whether the member has project admin permission
+	IsProjectAdmin bool `json:"is_project_admin"`
 	// member role with op ranges
 	RoleWithOpRanges []MemberRoleWithOpRange `json:"role_with_op_ranges"`
 }
 
 // swagger:parameters AddMemberGroup
 type AddMemberGroupReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// Add new member group
 	// in:body
 	MemberGroup MemberGroup `json:"member_group" validate:"required"`
@@ -130,17 +131,18 @@ type UpdateMemberGroup struct {
 	// member user uid
 	// Required: true
 	UserUids []string `json:"user_uids" validate:"required"`
-	// Whether the member has namespace admin permission
-	IsNamespaceAdmin bool `json:"is_namespace_admin"`
-	// namespace uid
-	// Required: true
-	NamespaceUid string `json:"namespace_uid" validate:"required"`
+	// Whether the member has project admin permission
+	IsProjectAdmin bool `json:"is_project_admin"`
 	// member role with op ranges
 	RoleWithOpRanges []MemberRoleWithOpRange `json:"role_with_op_ranges"`
 }
 
 // swagger:parameters UpdateMemberGroup
 type UpdateMemberGroupReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// Member group id
 	// Required: true
 	// in:path
@@ -152,9 +154,10 @@ type UpdateMemberGroupReq struct {
 
 // swagger:parameters DeleteMemberGroup
 type DeleteMemberGroupReq struct {
-	// filter by db service namespace uid
-	// in:query
-	NamespaceId string `query:"namespace_id" json:"namespace_id" validate:"required"`
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// member group id
 	// in:path
 	MemberGroupUid string `param:"member_group_uid" json:"member_group_uid" validate:"required"`
