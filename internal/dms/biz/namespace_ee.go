@@ -13,7 +13,7 @@ import (
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
 
-func (d *NamespaceUsecase) CreateNamespace(ctx context.Context, namespace *Namespace, createUserUID string) (err error) {
+func (d *ProjectUsecase) CreateProject(ctx context.Context, project *Project, createUserUID string) (err error) {
 	tx := d.tx.BeginTX(ctx)
 	defer func() {
 		if err != nil {
@@ -21,152 +21,152 @@ func (d *NamespaceUsecase) CreateNamespace(ctx context.Context, namespace *Names
 		}
 	}()
 
-	err = d.repo.SaveNamespace(tx, namespace)
+	err = d.repo.SaveProject(tx, project)
 	if err != nil {
-		return fmt.Errorf("save namespaces failed: %v", err)
+		return fmt.Errorf("save projects failed: %v", err)
 	}
 
 	// 默认将admin用户加入空间成员，并且为管理员
-	_, err = d.memberUsecase.AddUserToNamespaceAdminMember(tx, pkgConst.UIDOfUserAdmin, namespace.UID)
+	_, err = d.memberUsecase.AddUserToProjectAdminMember(tx, pkgConst.UIDOfUserAdmin, project.UID)
 	if err != nil {
-		return fmt.Errorf("add admin to namespaces failed: %v", err)
+		return fmt.Errorf("add admin to projects failed: %v", err)
 	}
 	// 非admin用户创建时,默认将空间创建人加入空间成员，并且为管理员
 	if createUserUID != pkgConst.UIDOfUserAdmin {
-		_, err = d.memberUsecase.AddUserToNamespaceAdminMember(tx, createUserUID, namespace.UID)
+		_, err = d.memberUsecase.AddUserToProjectAdminMember(tx, createUserUID, project.UID)
 		if err != nil {
-			return fmt.Errorf("add create user to namespaces failed: %v", err)
+			return fmt.Errorf("add create user to projects failed: %v", err)
 		}
 	}
 
 	if err := tx.Commit(d.log); err != nil {
 		return fmt.Errorf("commit tx failed: %v", err)
 	}
-	// plugin handle after create namespace
-	err = d.pluginUsecase.OperateDataResourceHandle(ctx, namespace.UID, dmsV1.DataResourceTypeNamespace, dmsV1.OperationTypeCreate, dmsV1.OperationTimingAfter)
+	// plugin handle after create project
+	err = d.pluginUsecase.OperateDataResourceHandle(ctx, project.UID, dmsV1.DataResourceTypeProject, dmsV1.OperationTypeCreate, dmsV1.OperationTimingAfter)
 	if err != nil {
-		return fmt.Errorf("plugin handle after create namespace failed: %v", err)
+		return fmt.Errorf("plugin handle after create project failed: %v", err)
 	}
 
 	return nil
 }
 
-func (d *NamespaceUsecase) GetNamespaceByName(ctx context.Context, namespaceName string) (*Namespace, error) {
-	return d.repo.GetNamespaceByName(ctx, namespaceName)
+func (d *ProjectUsecase) GetProjectByName(ctx context.Context, projectName string) (*Project, error) {
+	return d.repo.GetProjectByName(ctx, projectName)
 }
 
-func (d *NamespaceUsecase) UpdateNamespaceDesc(ctx context.Context, currentUserUid, namespaceUid string, desc *string) (err error) {
-	if err := d.checkUserCanUpdateNamespace(ctx, currentUserUid, namespaceUid); err != nil {
-		return fmt.Errorf("user can't update namespace: %v", err)
+func (d *ProjectUsecase) UpdateProjectDesc(ctx context.Context, currentUserUid, projectUid string, desc *string) (err error) {
+	if err := d.checkUserCanUpdateProject(ctx, currentUserUid, projectUid); err != nil {
+		return fmt.Errorf("user can't update project: %v", err)
 	}
 
-	namespace, err := d.repo.GetNamespace(ctx, namespaceUid)
+	project, err := d.repo.GetProject(ctx, projectUid)
 	if err != nil {
-		return fmt.Errorf("get namespace err: %v", err)
+		return fmt.Errorf("get project err: %v", err)
 	}
 
 	if desc != nil {
-		namespace.Desc = *desc
+		project.Desc = *desc
 	}
 
-	err = d.repo.UpdateNamespace(ctx, namespace)
+	err = d.repo.UpdateProject(ctx, project)
 	if err != nil {
-		return fmt.Errorf("update namespaces desc failed: %v", err)
+		return fmt.Errorf("update projects desc failed: %v", err)
 	}
 
 	return nil
 }
 
-func (d *NamespaceUsecase) ArchivedNamespace(ctx context.Context, currentUserUid, namespaceUid string, archived bool) (err error) {
-	if err := d.checkUserCanUpdateNamespace(ctx, currentUserUid, namespaceUid); err != nil {
-		return fmt.Errorf("user can't update namespace: %v", err)
+func (d *ProjectUsecase) ArchivedProject(ctx context.Context, currentUserUid, projectUid string, archived bool) (err error) {
+	if err := d.checkUserCanUpdateProject(ctx, currentUserUid, projectUid); err != nil {
+		return fmt.Errorf("user can't update project: %v", err)
 	}
 
-	namespace, err := d.repo.GetNamespace(ctx, namespaceUid)
+	project, err := d.repo.GetProject(ctx, projectUid)
 	if err != nil {
-		return fmt.Errorf("get namespace err: %v", err)
+		return fmt.Errorf("get project err: %v", err)
 	}
 
 	// 调整空间状态
-	var status NamespaceStatus
+	var status ProjectStatus
 	if archived {
-		status = NamespaceStatusArchived
+		status = ProjectStatusArchived
 	} else {
-		status = NamespaceStatusActive
+		status = ProjectStatusActive
 	}
-	if status == namespace.Status {
-		return fmt.Errorf("can't operate namespace current status is %v", status)
+	if status == project.Status {
+		return fmt.Errorf("can't operate project current status is %v", status)
 	}
-	namespace.Status = status
+	project.Status = status
 
-	// plugin check before delete namespace
-	err = d.pluginUsecase.OperateDataResourceHandle(ctx, namespaceUid, dmsV1.DataResourceTypeNamespace, dmsV1.OperationTypeDelete, dmsV1.OperationTimingTypeBefore)
+	// plugin check before delete project
+	err = d.pluginUsecase.OperateDataResourceHandle(ctx, projectUid, dmsV1.DataResourceTypeProject, dmsV1.OperationTypeDelete, dmsV1.OperationTimingTypeBefore)
 	if err != nil {
-		return fmt.Errorf("check before delete namespace failed: %v", err)
+		return fmt.Errorf("check before delete project failed: %v", err)
 	}
 
-	err = d.repo.UpdateNamespace(ctx, namespace)
+	err = d.repo.UpdateProject(ctx, project)
 	if err != nil {
-		return fmt.Errorf("update namespaces status failed: %v", err)
+		return fmt.Errorf("update projects status failed: %v", err)
 	}
 
 	return nil
 }
 
-func (d *NamespaceUsecase) DeleteNamespace(ctx context.Context, currentUserUid, namespaceUid string) (err error) {
+func (d *ProjectUsecase) DeleteProject(ctx context.Context, currentUserUid, projectUid string) (err error) {
 	// check
 	{
-		// namespace admin can delete namespace
-		isAdmin, err := d.opPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, currentUserUid, namespaceUid)
+		// project admin can delete project
+		isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, projectUid)
 		if err != nil {
-			return fmt.Errorf("check user namespace admin error: %v", err)
+			return fmt.Errorf("check user project admin error: %v", err)
 		}
 		if !isAdmin {
-			return fmt.Errorf("user can't update namespace")
+			return fmt.Errorf("user can't update project")
 		}
 
-		// plugin check before delete namespace
-		err = d.pluginUsecase.OperateDataResourceHandle(ctx, namespaceUid, dmsV1.DataResourceTypeNamespace, dmsV1.OperationTypeDelete, dmsV1.OperationTimingTypeBefore)
+		// plugin check before delete project
+		err = d.pluginUsecase.OperateDataResourceHandle(ctx, projectUid, dmsV1.DataResourceTypeProject, dmsV1.OperationTypeDelete, dmsV1.OperationTimingTypeBefore)
 		if err != nil {
-			return fmt.Errorf("check before delete namespace failed: %v", err)
+			return fmt.Errorf("check before delete project failed: %v", err)
 		}
 
 	}
-	err = d.repo.DelNamespace(ctx, namespaceUid)
+	err = d.repo.DelProject(ctx, projectUid)
 	if err != nil {
 		return err
 	}
-	// plugin clean unused data after delete namespace
-	err = d.pluginUsecase.OperateDataResourceHandle(ctx, namespaceUid, dmsV1.DataResourceTypeNamespace, dmsV1.OperationTypeDelete, dmsV1.OperationTimingAfter)
+	// plugin clean unused data after delete project
+	err = d.pluginUsecase.OperateDataResourceHandle(ctx, projectUid, dmsV1.DataResourceTypeProject, dmsV1.OperationTypeDelete, dmsV1.OperationTimingAfter)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (d *NamespaceUsecase) checkUserCanUpdateNamespace(ctx context.Context, currentUserUid, namespaceUid string) error {
-	// namespace admin can update namespace
-	isAdmin, err := d.opPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, currentUserUid, namespaceUid)
+func (d *ProjectUsecase) checkUserCanUpdateProject(ctx context.Context, currentUserUid, projectUid string) error {
+	// project admin can update project
+	isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, projectUid)
 	if err != nil {
-		return fmt.Errorf("check user namespace admin error: %v", err)
+		return fmt.Errorf("check user project admin error: %v", err)
 	}
 	if !isAdmin {
-		return fmt.Errorf("user can't update namespace")
+		return fmt.Errorf("user can't update project")
 	}
 	return nil
 }
 
-func (d *NamespaceUsecase) isNamespaceActive(ctx context.Context, namespaceUid string) error {
-	namespace, err := d.GetNamespace(ctx, namespaceUid)
+func (d *ProjectUsecase) isProjectActive(ctx context.Context, projectUid string) error {
+	project, err := d.GetProject(ctx, projectUid)
 	if err != nil {
 		if errors.Is(err, pkgErr.ErrStorageNoData) {
-			return pkgErr.WrapStorageErr(d.log, fmt.Errorf("namespace not exist"))
+			return pkgErr.WrapStorageErr(d.log, fmt.Errorf("project not exist"))
 		}
 		return err
 	}
 
-	if namespace.Status != NamespaceStatusActive {
-		return fmt.Errorf("namespace status is : %v", namespace.Status)
+	if project.Status != ProjectStatusActive {
+		return fmt.Errorf("project status is : %v", project.Status)
 	}
 	return nil
 }
