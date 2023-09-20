@@ -65,7 +65,7 @@ func initRole() []*Role {
 	return []*Role{
 		{
 			UID:  pkgConst.UIDOfRoleProjectAdmin,
-			Name: "空间管理员",
+			Name: "项目管理员",
 			Desc: "project admin",
 		},
 		{
@@ -223,7 +223,7 @@ func (d *RoleUsecase) InsureOpPermissionsToRole(ctx context.Context, opPermissio
 }
 
 func (d *RoleUsecase) ListRole(ctx context.Context, option *ListRolesOption) (roles []*Role, total int64, err error) {
-	// DMS-125：空间管理员为内置角色，不对外展示
+	// DMS-125：项目管理员为内置角色，不对外展示
 	option.FilterBy = append(option.FilterBy, pkgConst.FilterCondition{
 		Field:    string(RoleFieldUID),
 		Operator: pkgConst.FilterOperatorNotEqual,

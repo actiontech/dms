@@ -1538,7 +1538,7 @@ definitions:
                     unknown OpRangeTypeUnknown
                     global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
                     project OpRangeTypeProject  项目权限: 该权限只能被成员使用
-                    db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
+                    db_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用
                 enum:
                     - unknown
                     - global
@@ -1549,7 +1549,7 @@ definitions:
                     unknown OpRangeTypeUnknown
                     global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
                     project OpRangeTypeProject  项目权限: 该权限只能被成员使用
-                    db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
+                    db_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用
                 x-go-name: OpRangeType
             range_uids:
                 description: op range uids
@@ -1624,7 +1624,7 @@ definitions:
                     unknown OpRangeTypeUnknown
                     global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
                     project OpRangeTypeProject  项目权限: 该权限只能被成员使用
-                    db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
+                    db_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用
                 x-go-name: RangeType
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
@@ -2009,7 +2009,7 @@ definitions:
                     unknown OpRangeTypeUnknown
                     global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
                     project OpRangeTypeProject  项目权限: 该权限只能被成员使用
-                    db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
+                    db_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用
                 enum:
                     - unknown
                     - global
@@ -2020,7 +2020,7 @@ definitions:
                     unknown OpRangeTypeUnknown
                     global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
                     project OpRangeTypeProject  项目权限: 该权限只能被成员使用
-                    db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
+                    db_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用
                 x-go-name: OpRangeType
             range_uids:
                 description: op range uids

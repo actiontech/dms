@@ -74,7 +74,7 @@ type ListMemberGroupsOption struct {
 }
 
 func (m *MemberGroupUsecase) ListMemberGroups(ctx context.Context, option *ListMemberGroupsOption, projectUid string) ([]*MemberGroup, int64, error) {
-	// 检查空间是否归档/删除
+	// 检查项目是否归档/删除
 	if err := m.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
 		return nil, 0, fmt.Errorf("list member groups error: %v", err)
 	}
@@ -102,7 +102,7 @@ func (m *MemberGroupUsecase) IsMemberGroupProjectAdmin(ctx context.Context, memb
 }
 
 func (m *MemberGroupUsecase) GetMemberGroup(ctx context.Context, memberGroupUid, projectUid string) (*MemberGroup, error) {
-	// 检查空间是否归档/删除
+	// 检查项目是否归档/删除
 	if err := m.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
 		return nil, fmt.Errorf("get member groups error: %v", err)
 	}
@@ -139,11 +139,11 @@ func (m *MemberGroupUsecase) CreateMemberGroup(ctx context.Context, currentUserU
 }
 
 func (m *MemberGroupUsecase) checkMemberGroupBeforeUpsert(ctx context.Context, currentUserUid string, mg *MemberGroup) error {
-	// 检查空间是否归档/删除
+	// 检查项目是否归档/删除
 	if err := m.projectUsecase.isProjectActive(ctx, mg.ProjectUID); err != nil {
 		return fmt.Errorf("create member error: %v", err)
 	}
-	// 检查当前用户有空间管理员权限
+	// 检查当前用户有项目管理员权限
 	if isAdmin, err := m.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, mg.ProjectUID); err != nil {
 		return fmt.Errorf("check user is project admin failed: %v", err)
 	} else if !isAdmin {
@@ -193,11 +193,11 @@ func (m *MemberGroupUsecase) UpdateMemberGroup(ctx context.Context, currentUserU
 func (m *MemberGroupUsecase) DeleteMemberGroup(ctx context.Context, currentUserUid, memberGroupUid, projectUid string) (err error) {
 	// check
 	{
-		// 检查空间是否归档/删除
+		// 检查项目是否归档/删除
 		if err := m.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
 			return fmt.Errorf("update member error: %v", err)
 		}
-		// 检查当前用户有空间管理员权限
+		// 检查当前用户有项目管理员权限
 		if isAdmin, err := m.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, projectUid); err != nil {
 			return fmt.Errorf("check user is project admin failed: %v", err)
 		} else if !isAdmin {

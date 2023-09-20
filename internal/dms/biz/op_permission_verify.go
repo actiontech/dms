@@ -117,7 +117,7 @@ func (o *OpPermissionVerifyUsecase) GetUserManagerProject(ctx context.Context, p
 		if !ok {
 			mapIdUserBindProject[projectWithOpPermission.ProjectUid] = dmsCommonV1.UserBindProject{ProjectID: projectWithOpPermission.ProjectUid, ProjectName: projectWithOpPermission.ProjectName, IsManager: projectWithOpPermission.OpPermissionWithOpRange.OpPermissionUID == pkgConst.UIDOfOpPermissionProjectAdmin}
 		} else {
-			// 有一个权限为空间管理员即可
+			// 有一个权限为项目管理员即可
 			n.IsManager = mapIdUserBindProject[projectWithOpPermission.ProjectUid].IsManager || (projectWithOpPermission.OpPermissionWithOpRange.OpPermissionUID == pkgConst.UIDOfOpPermissionProjectAdmin)
 			mapIdUserBindProject[projectWithOpPermission.ProjectUid] = n
 		}

@@ -109,11 +109,11 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) 
 				return nil, fmt.Errorf("check member is project admin failed: %v", err)
 			}
 
-			// 如果是空间管理员project admin，则表示拥有该空间的所有权限
+			// 如果是项目管理员project admin，则表示拥有该项目的所有权限
 			if isAdmin {
 				ret[i].IsProjectAdmin = true
 
-				// 如果不是空间管理员project admin，则展示具体的权限范围
+				// 如果不是项目管理员project admin，则展示具体的权限范围
 			} else {
 				// 获取权限范围类型
 				opRangeTyp, err := dmsV1.ParseOpRangeType(r.OpRangeType.String())
