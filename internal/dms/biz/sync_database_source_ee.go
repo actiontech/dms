@@ -103,9 +103,9 @@ func (d dmpManager) SyncDatabaseSource(ctx context.Context, params *DatabaseSour
 			Value:    params.Source,
 		},
 		{
-			Field:    string(DatabaseSourceServiceFieldNamespaceUID),
+			Field:    string(DatabaseSourceServiceFieldProjectUID),
 			Operator: pkgConst.FilterOperatorEqual,
-			Value:    params.NamespaceUID,
+			Value:    params.ProjectUID,
 		},
 	}
 
@@ -139,7 +139,7 @@ func (d dmpManager) SyncDatabaseSource(ctx context.Context, params *DatabaseSour
 		}
 		// 业务为空不支持同步
 		if len(businessArr) == 0 {
-			serviceUsecase.namespaceUsecase.log.Warnf("can not get business from remote: %s, port %s", item.DataSrcSip, item.DataSrcPort)
+			serviceUsecase.projectUsecase.log.Warnf("can not get business from remote: %s, port %s", item.DataSrcSip, item.DataSrcPort)
 			continue
 		}
 
@@ -155,7 +155,7 @@ func (d dmpManager) SyncDatabaseSource(ctx context.Context, params *DatabaseSour
 			AdminUser:     item.DataSrcUser,
 			AdminPassword: &password,
 			Business:      strings.Join(businessArr, ","),
-			NamespaceUID:  params.NamespaceUID,
+			ProjectUID:    params.ProjectUID,
 			Source:        string(pkgConst.DBServiceSourceNameDMP),
 		}
 

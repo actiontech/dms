@@ -12,15 +12,15 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
-func (d *DatabaseSourceServiceUsecase) ListDatabaseSourceServices(ctx context.Context, conditions []pkgConst.FilterCondition, namespaceId string, currentUserId string) ([]*DatabaseSourceServiceParams, error) {
+func (d *DatabaseSourceServiceUsecase) ListDatabaseSourceServices(ctx context.Context, conditions []pkgConst.FilterCondition, projectId string, currentUserId string) ([]*DatabaseSourceServiceParams, error) {
 	// 只允许系统用户查询所有数据源,同步数据到其他服务(provision)
 	// 检查空间是否归档/删除
-	if namespaceId != "" {
-		if err := d.namespaceUsecase.isNamespaceActive(ctx, namespaceId); err != nil {
+	if projectId != "" {
+		if err := d.projectUsecase.isProjectActive(ctx, projectId); err != nil {
 			return nil, fmt.Errorf("list database_source_service error: %v", err)
 		}
 	} else if currentUserId != pkgConst.UIDOfUserSys {
-		return nil, fmt.Errorf("list database_source_service error: namespace is empty")
+		return nil, fmt.Errorf("list database_source_service error: project is empty")
 	}
 
 	services, err := d.repo.ListDatabaseSourceServices(ctx, conditions)
@@ -31,14 +31,14 @@ func (d *DatabaseSourceServiceUsecase) ListDatabaseSourceServices(ctx context.Co
 	return services, nil
 }
 
-func (d *DatabaseSourceServiceUsecase) GetDatabaseSourceService(ctx context.Context, databaseSourceServiceId, namespaceId, currentUserId string) (*DatabaseSourceServiceParams, error) {
+func (d *DatabaseSourceServiceUsecase) GetDatabaseSourceService(ctx context.Context, databaseSourceServiceId, projectId, currentUserId string) (*DatabaseSourceServiceParams, error) {
 	// 检查空间是否归档/删除
-	if namespaceId != "" {
-		if err := d.namespaceUsecase.isNamespaceActive(ctx, namespaceId); err != nil {
+	if projectId != "" {
+		if err := d.projectUsecase.isProjectActive(ctx, projectId); err != nil {
 			return nil, fmt.Errorf("get database_source_service error: %v", err)
 		}
 	} else if currentUserId != pkgConst.UIDOfUserSys {
-		return nil, fmt.Errorf("get database_source_service error: namespace is empty")
+		return nil, fmt.Errorf("get database_source_service error: project is empty")
 	}
 
 	service, err := d.repo.GetDatabaseSourceServiceById(ctx, databaseSourceServiceId)
@@ -51,14 +51,14 @@ func (d *DatabaseSourceServiceUsecase) GetDatabaseSourceService(ctx context.Cont
 
 func (d *DatabaseSourceServiceUsecase) AddDatabaseSourceService(ctx context.Context, params *DatabaseSourceServiceParams, currentUserId string) (string, error) {
 	// 检查空间是否归档/删除
-	if err := d.namespaceUsecase.isNamespaceActive(ctx, params.NamespaceUID); err != nil {
+	if err := d.projectUsecase.isProjectActive(ctx, params.ProjectUID); err != nil {
 		return "", fmt.Errorf("create database_source_service error: %v", err)
 	}
 	// 检查当前用户有空间管理员权限
-	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, currentUserId, params.NamespaceUID); err != nil {
-		return "", fmt.Errorf("check user is namespace admin failed: %v", err)
+	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserId, params.ProjectUID); err != nil {
+		return "", fmt.Errorf("check user is project admin failed: %v", err)
 	} else if !isAdmin {
-		return "", fmt.Errorf("user is not namespace admin")
+		return "", fmt.Errorf("user is not project admin")
 	}
 
 	uid, err := pkgRand.GenStrUid()
@@ -78,14 +78,14 @@ func (d *DatabaseSourceServiceUsecase) AddDatabaseSourceService(ctx context.Cont
 
 func (d *DatabaseSourceServiceUsecase) UpdateDatabaseSourceService(ctx context.Context, databaseSourceServiceId string, params *DatabaseSourceServiceParams, currentUserId string) error {
 	// 检查空间是否归档/删除
-	if err := d.namespaceUsecase.isNamespaceActive(ctx, params.NamespaceUID); err != nil {
+	if err := d.projectUsecase.isProjectActive(ctx, params.ProjectUID); err != nil {
 		return fmt.Errorf("update database_source_service error: %v", err)
 	}
 	// 检查当前用户有空间管理员权限
-	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, currentUserId, params.NamespaceUID); err != nil {
-		return fmt.Errorf("check user is namespace admin failed: %v", err)
+	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserId, params.ProjectUID); err != nil {
+		return fmt.Errorf("check user is project admin failed: %v", err)
 	} else if !isAdmin {
-		return fmt.Errorf("user is not namespace admin")
+		return fmt.Errorf("user is not project admin")
 	}
 
 	databaseSourceService, err := d.repo.GetDatabaseSourceServiceById(ctx, databaseSourceServiceId)
@@ -98,7 +98,7 @@ func (d *DatabaseSourceServiceUsecase) UpdateDatabaseSourceService(ctx context.C
 	}
 
 	params.UID = databaseSourceServiceId
-	params.NamespaceUID = databaseSourceService.NamespaceUID
+	params.ProjectUID = databaseSourceService.ProjectUID
 	params.LastSyncErr = databaseSourceService.LastSyncErr
 	params.LastSyncSuccessTime = databaseSourceService.LastSyncSuccessTime
 
@@ -116,14 +116,14 @@ func (d *DatabaseSourceServiceUsecase) DeleteDatabaseSourceService(ctx context.C
 		return fmt.Errorf("get database_source_service failed: %v", err)
 	}
 	// 检查空间是否归档/删除
-	if err = d.namespaceUsecase.isNamespaceActive(ctx, databaseSourceService.NamespaceUID); err != nil {
+	if err = d.projectUsecase.isProjectActive(ctx, databaseSourceService.ProjectUID); err != nil {
 		return fmt.Errorf("delete database_source_service error: %v", err)
 	}
 	// 检查当前用户有空间管理员权限
-	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, currentUserId, databaseSourceService.NamespaceUID); err != nil {
-		return fmt.Errorf("check user is namespace admin failed: %v", err)
+	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserId, databaseSourceService.ProjectUID); err != nil {
+		return fmt.Errorf("check user is project admin failed: %v", err)
 	} else if !isAdmin {
-		return fmt.Errorf("user is not namespace admin")
+		return fmt.Errorf("user is not project admin")
 	}
 
 	//todo: currently only database_source_services data is deleted
@@ -152,14 +152,14 @@ func (d *DatabaseSourceServiceUsecase) SyncDatabaseSourceService(ctx context.Con
 		return fmt.Errorf("get database_source_service failed: %v", err)
 	}
 	// 检查空间是否归档/删除
-	if err = d.namespaceUsecase.isNamespaceActive(ctx, databaseSourceService.NamespaceUID); err != nil {
+	if err = d.projectUsecase.isProjectActive(ctx, databaseSourceService.ProjectUID); err != nil {
 		return fmt.Errorf("sync database_source_service error: %v", err)
 	}
 	// 检查当前用户有空间管理员权限
-	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, currentUserId, databaseSourceService.NamespaceUID); err != nil {
-		return fmt.Errorf("check user is namespace admin failed: %v", err)
+	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserId, databaseSourceService.ProjectUID); err != nil {
+		return fmt.Errorf("check user is project admin failed: %v", err)
 	} else if !isAdmin {
-		return fmt.Errorf("user is not namespace admin")
+		return fmt.Errorf("user is not project admin")
 	}
 
 	databaseSourceName, err := pkgConst.ParseDBServiceSource(databaseSourceService.Source)
