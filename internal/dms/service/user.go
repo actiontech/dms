@@ -493,7 +493,7 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 		return nil, fmt.Errorf("failed to check user is dms admin")
 	}
 	dmsCommonUser.IsAdmin = isAdmin
-	// 获取管理空间
+	// 获取管理项目
 	userBindProjects := make([]dmsCommonV1.UserBindProject, 0)
 	if !isAdmin {
 		projectWithOpPermissions, err := d.OpPermissionVerifyUsecase.GetUserProjectOpPermission(ctx, u.GetUID())

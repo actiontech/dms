@@ -15,7 +15,7 @@ const (
 	OpRangeTypeGlobal OpRangeType = "global"
 	// 项目权限: 该权限只能被成员使用
 	OpRangeTypeProject OpRangeType = "project"
-	// 空间内的数据源权限: 该权限只能被成员使用
+	// 项目内的数据源权限: 该权限只能被成员使用
 	OpRangeTypeDBService OpRangeType = "db_service"
 )
 

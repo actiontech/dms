@@ -233,7 +233,7 @@ func (o *OpPermissionVerifyRepo) ListUsersOpPermissionInProject(ctx context.Cont
 	var results []result
 	var permissionResults []result
 	if err := transaction(o.log, ctx, o.db, func(tx *gorm.DB) error {
-		// opt中的分页属性作用于空间内的成员，即opt.LimitPerPage表示返回opt.LimitPerPage个成员的权限
+		// opt中的分页属性作用于项目内的成员，即opt.LimitPerPage表示返回opt.LimitPerPage个成员的权限
 
 		// find result
 		{

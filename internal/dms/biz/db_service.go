@@ -160,11 +160,11 @@ type SQLQueryConfig struct {
 }
 
 func (d *DBServiceUsecase) CreateDBService(ctx context.Context, args *BizDBServiceArgs, currentUserUid string) (uid string, err error) {
-	// 检查空间是否归档/删除
+	// 检查项目是否归档/删除
 	if err := d.projectUsecase.isProjectActive(ctx, args.ProjectUID); err != nil {
 		return "", fmt.Errorf("create db service error: %v", err)
 	}
-	// 检查当前用户有空间管理员权限
+	// 检查当前用户有项目管理员权限
 	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, args.ProjectUID); err != nil {
 		return "", fmt.Errorf("check user is project admin failed: %v", err)
 	} else if !isAdmin {
@@ -193,7 +193,7 @@ type ListDBServicesOption struct {
 
 func (d *DBServiceUsecase) ListDBService(ctx context.Context, option *ListDBServicesOption, projectUid, currentUserUid string) (dbServices []*DBService, total int64, err error) {
 	// 只允许系统用户查询所有数据源,同步数据到其他服务(provision)
-	// 检查空间是否归档/删除
+	// 检查项目是否归档/删除
 	if projectUid != "" {
 		if err := d.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
 			return nil, 0, fmt.Errorf("list db service error: %v", err)
@@ -262,11 +262,11 @@ func (d *DBServiceUsecase) DelDBService(ctx context.Context, dbServiceUid, curre
 	if err != nil {
 		return fmt.Errorf("get db service failed: %v", err)
 	}
-	// 检查空间是否归档/删除
+	// 检查项目是否归档/删除
 	if err := d.projectUsecase.isProjectActive(ctx, ds.ProjectUID); err != nil {
 		return fmt.Errorf("delete db service error: %v", err)
 	}
-	// 检查当前用户有空间管理员权限
+	// 检查当前用户有项目管理员权限
 	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, ds.ProjectUID); err != nil {
 		return fmt.Errorf("check user is project admin failed: %v", err)
 	} else if !isAdmin {
@@ -297,11 +297,11 @@ func (d *DBServiceUsecase) UpdateDBService(ctx context.Context, dbServiceUid str
 	if err != nil {
 		return fmt.Errorf("get db service failed: %v", err)
 	}
-	// 检查空间是否归档/删除
+	// 检查项目是否归档/删除
 	if err := d.projectUsecase.isProjectActive(ctx, ds.ProjectUID); err != nil {
 		return fmt.Errorf("update db service error: %v", err)
 	}
-	// 检查当前用户有空间管理员权限
+	// 检查当前用户有项目管理员权限
 	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, ds.ProjectUID); err != nil {
 		return fmt.Errorf("check user is project admin failed: %v", err)
 	} else if !isAdmin {

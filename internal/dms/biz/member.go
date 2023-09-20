@@ -87,11 +87,11 @@ func (m *MemberUsecase) CreateMember(ctx context.Context, currentUserUid string,
 	roleAndOpRanges []MemberRoleWithOpRange) (memberUid string, err error) {
 	// check
 	{
-		// 检查空间是否归档/删除
+		// 检查项目是否归档/删除
 		if err := m.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
 			return "", fmt.Errorf("create member error: %v", err)
 		}
-		// 检查当前用户有空间管理员权限
+		// 检查当前用户有项目管理员权限
 		if isAdmin, err := m.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, projectUid); err != nil {
 			return "", fmt.Errorf("check user is project admin failed: %v", err)
 		} else if !isAdmin {
@@ -109,7 +109,7 @@ func (m *MemberUsecase) CreateMember(ctx context.Context, currentUserUid string,
 			return "", err
 		}
 
-		// 检查空间内成员之间的用户不同
+		// 检查项目内成员之间的用户不同
 		if _, total, err := m.ListMember(ctx, &ListMembersOption{
 			PageNumber:   0,
 			LimitPerPage: 10,
@@ -137,7 +137,7 @@ func (m *MemberUsecase) CreateMember(ctx context.Context, currentUserUid string,
 		return "", fmt.Errorf("new member failed: %v", err)
 	}
 
-	// 如果是空间管理员，则自动添加内置的空间管理员角色
+	// 如果是项目管理员，则自动添加内置的项目管理员角色
 	if isProjectAdmin {
 		m.FixMemberWithProjectAdmin(ctx, member, projectUid)
 	}
@@ -160,11 +160,11 @@ func (m *MemberUsecase) CreateMember(ctx context.Context, currentUserUid string,
 
 }
 
-// AddUserToProjectAdmin 将指定用户加入空间成员，并赋予空间管理员权限
+// AddUserToProjectAdmin 将指定用户加入项目成员，并赋予项目管理员权限
 func (m *MemberUsecase) AddUserToProjectAdminMember(ctx context.Context, userUid string, projectUid string) (memberUid string, err error) {
 	// check
 	{
-		// 检查空间是否归档/删除
+		// 检查项目是否归档/删除
 		if err := m.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
 			return "", fmt.Errorf("add user to project admin member error: %v", err)
 		}
@@ -256,7 +256,7 @@ func (m *MemberUsecase) IsMemberProjectAdmin(ctx context.Context, memberUid stri
 	return false, nil
 }
 
-// FixMemberWithProjectAdmin 自动修改成员的角色和操作权限范围，如果是空间管理员，则自动添加内置的空间管理员角色
+// FixMemberWithProjectAdmin 自动修改成员的角色和操作权限范围，如果是项目管理员，则自动添加内置的项目管理员角色
 func (m *MemberUsecase) FixMemberWithProjectAdmin(ctx context.Context, member *Member, projectUid string) {
 	member.RoleWithOpRanges = append(member.RoleWithOpRanges, m.GetProjectAdminRoleWithOpRange(projectUid))
 }
@@ -285,7 +285,7 @@ type ListMembersOption struct {
 }
 
 func (m *MemberUsecase) ListMember(ctx context.Context, option *ListMembersOption, projectUid string) (members []*Member, total int64, err error) {
-	// 检查空间是否归档/删除
+	// 检查项目是否归档/删除
 	if err := m.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
 		return nil, 0, fmt.Errorf("list member error: %v", err)
 	}
@@ -309,11 +309,11 @@ func (m *MemberUsecase) UpdateMember(ctx context.Context, currentUserUid, update
 	roleAndOpRanges []MemberRoleWithOpRange) error {
 	// check
 	{
-		// 检查空间是否归档/删除
+		// 检查项目是否归档/删除
 		if err := m.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
 			return fmt.Errorf("update member error: %v", err)
 		}
-		// 检查当前用户有空间管理员权限
+		// 检查当前用户有项目管理员权限
 		if isAdmin, err := m.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, projectUid); err != nil {
 			return fmt.Errorf("check user is project admin failed: %v", err)
 		} else if !isAdmin {
@@ -331,7 +331,7 @@ func (m *MemberUsecase) UpdateMember(ctx context.Context, currentUserUid, update
 	}
 	member.RoleWithOpRanges = roleAndOpRanges
 
-	// 如果是空间管理员，则自动添加内置的空间管理员角色
+	// 如果是项目管理员，则自动添加内置的项目管理员角色
 	if isProjectAdmin {
 		m.FixMemberWithProjectAdmin(ctx, member, projectUid)
 	}
@@ -360,12 +360,12 @@ func (m *MemberUsecase) DelMember(ctx context.Context, currentUserUid, memberUid
 		if err != nil {
 			return fmt.Errorf("get member failed: %v", err)
 		}
-		// 检查空间是否归档/删除
+		// 检查项目是否归档/删除
 		if err := m.projectUsecase.isProjectActive(ctx, member.ProjectUID); err != nil {
 			return fmt.Errorf("delete member error: %v", err)
 		}
 
-		// 检查当前用户有空间管理员权限
+		// 检查当前用户有项目管理员权限
 		if isAdmin, err := m.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, member.ProjectUID); err != nil {
 			return fmt.Errorf("check user is project admin failed: %v", err)
 		} else if !isAdmin {
