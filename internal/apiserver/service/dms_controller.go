@@ -1174,7 +1174,7 @@ func (d *DMSController) ListProjects(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	reply, err := d.DMS.ListNamespaces(c.Request().Context(), req, currentUserUid)
+	reply, err := d.DMS.ListProjects(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1200,7 +1200,7 @@ func (d *DMSController) AddProject(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	reply, err := d.DMS.AddNamespace(c.Request().Context(), currentUserUid, req)
+	reply, err := d.DMS.AddProject(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1225,7 +1225,7 @@ func (a *DMSController) DelProject(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	err = a.DMS.DeleteNamespace(c.Request().Context(), currentUserUid, req)
+	err = a.DMS.DeleteProject(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1250,7 +1250,7 @@ func (a *DMSController) UpdateProject(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	err = a.DMS.UpdateNamespaceDesc(c.Request().Context(), currentUserUid, req)
+	err = a.DMS.UpdateProjectDesc(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1276,7 +1276,7 @@ func (a *DMSController) ArchiveProject(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = a.DMS.ArchivedNamespace(c.Request().Context(), currentUserUid, req)
+	err = a.DMS.ArchivedProject(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1302,7 +1302,7 @@ func (a *DMSController) UnarchiveProject(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = a.DMS.UnarchiveNamespace(c.Request().Context(), currentUserUid, req)
+	err = a.DMS.UnarchiveProject(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}

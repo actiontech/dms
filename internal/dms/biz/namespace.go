@@ -13,15 +13,15 @@ import (
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 )
 
-type NamespaceStatus string
+type ProjectStatus string
 
 const (
-	NamespaceStatusArchived NamespaceStatus = "archived"
-	NamespaceStatusActive   NamespaceStatus = "active"
-	NamespaceStatusUnknown  NamespaceStatus = "unknown"
+	ProjectStatusArchived ProjectStatus = "archived"
+	ProjectStatusActive   ProjectStatus = "active"
+	ProjectStatusUnknown  ProjectStatus = "unknown"
 )
 
-type Namespace struct {
+type Project struct {
 	Base
 
 	UID           string
@@ -29,110 +29,110 @@ type Namespace struct {
 	Desc          string
 	CreateUserUID string
 	CreateTime    time.Time
-	Status        NamespaceStatus
+	Status        ProjectStatus
 }
 
-func NewNamespace(createUserUID, name, desc string) (*Namespace, error) {
+func NewProject(createUserUID, name, desc string) (*Project, error) {
 	uid, err := pkgRand.GenStrUid()
 	if err != nil {
 		return nil, err
 	}
-	return &Namespace{
+	return &Project{
 		UID:           uid,
 		Name:          name,
 		Desc:          desc,
-		Status:        NamespaceStatusActive,
+		Status:        ProjectStatusActive,
 		CreateUserUID: createUserUID,
 	}, nil
 }
 
-func initNamespaces() []*Namespace {
-	return []*Namespace{
+func initProjects() []*Project {
+	return []*Project{
 		{
-			UID:           pkgConst.UIDOfNamespaceDefault,
+			UID:           pkgConst.UIDOfProjectDefault,
 			Name:          "default",
-			Desc:          "default namespace",
-			Status:        NamespaceStatusActive,
+			Desc:          "default project",
+			Status:        ProjectStatusActive,
 			CreateUserUID: pkgConst.UIDOfUserAdmin,
 		},
 	}
 }
 
-type NamespaceRepo interface {
-	SaveNamespace(ctx context.Context, namespace *Namespace) error
-	ListNamespaces(ctx context.Context, opt *ListNamespacesOption, currentUserUID string) (namespaces []*Namespace, total int64, err error)
-	GetNamespace(ctx context.Context, namespaceUid string) (*Namespace, error)
-	GetNamespaceByName(ctx context.Context, namespaceName string) (*Namespace, error)
-	UpdateNamespace(ctx context.Context, u *Namespace) error
-	DelNamespace(ctx context.Context, namespaceUid string) error
+type ProjectRepo interface {
+	SaveProject(ctx context.Context, project *Project) error
+	ListProjects(ctx context.Context, opt *ListProjectsOption, currentUserUID string) (projects []*Project, total int64, err error)
+	GetProject(ctx context.Context, projectUid string) (*Project, error)
+	GetProjectByName(ctx context.Context, projectName string) (*Project, error)
+	UpdateProject(ctx context.Context, u *Project) error
+	DelProject(ctx context.Context, projectUid string) error
 }
 
-type NamespaceUsecase struct {
+type ProjectUsecase struct {
 	tx                        TransactionGenerator
-	repo                      NamespaceRepo
+	repo                      ProjectRepo
 	memberUsecase             *MemberUsecase
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	pluginUsecase             *PluginUsecase
 	log                       *utilLog.Helper
 }
 
-func NewNamespaceUsecase(log utilLog.Logger, tx TransactionGenerator, repo NamespaceRepo, memberUsecase *MemberUsecase,
-	opPermissionVerifyUsecase *OpPermissionVerifyUsecase, pluginUsecase *PluginUsecase) *NamespaceUsecase {
-	return &NamespaceUsecase{
+func NewProjectUsecase(log utilLog.Logger, tx TransactionGenerator, repo ProjectRepo, memberUsecase *MemberUsecase,
+	opPermissionVerifyUsecase *OpPermissionVerifyUsecase, pluginUsecase *PluginUsecase) *ProjectUsecase {
+	return &ProjectUsecase{
 		tx:                        tx,
 		repo:                      repo,
-		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.namespace")),
+		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.project")),
 		memberUsecase:             memberUsecase,
 		pluginUsecase:             pluginUsecase,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 	}
 }
 
-type ListNamespacesOption struct {
+type ListProjectsOption struct {
 	PageNumber   uint32
 	LimitPerPage uint32
-	OrderBy      NamespaceField
+	OrderBy      ProjectField
 	FilterBy     []pkgConst.FilterCondition
 }
 
-func (d *NamespaceUsecase) ListNamespace(ctx context.Context, option *ListNamespacesOption, currentUserUid string) (namespaces []*Namespace, total int64, err error) {
+func (d *ProjectUsecase) ListProject(ctx context.Context, option *ListProjectsOption, currentUserUid string) (projects []*Project, total int64, err error) {
 	// filter visible namespce space in advance
-	// user can only view his belonging namespace,sys user can view all namespace
+	// user can only view his belonging project,sys user can view all project
 	if currentUserUid != pkgConst.UIDOfUserSys {
-		namespaces, err := d.opPermissionVerifyUsecase.GetUserNamespace(ctx, currentUserUid)
+		projects, err := d.opPermissionVerifyUsecase.GetUserProject(ctx, currentUserUid)
 		if err != nil {
 			return nil, 0, err
 		}
 		canViewableId := make([]string, 0)
-		for _, namespace := range namespaces {
-			canViewableId = append(canViewableId, namespace.UID)
+		for _, project := range projects {
+			canViewableId = append(canViewableId, project.UID)
 		}
 		option.FilterBy = append(option.FilterBy, pkgConst.FilterCondition{
-			Field:    string(NamespaceFieldUID),
+			Field:    string(ProjectFieldUID),
 			Operator: pkgConst.FilterOperatorIn,
 			Value:    canViewableId,
 		})
 
 	}
 
-	namespaces, total, err = d.repo.ListNamespaces(ctx, option, currentUserUid)
+	projects, total, err = d.repo.ListProjects(ctx, option, currentUserUid)
 	if err != nil {
-		return nil, 0, fmt.Errorf("list namespaces failed: %v", err)
+		return nil, 0, fmt.Errorf("list projects failed: %v", err)
 	}
 
-	return namespaces, total, nil
+	return projects, total, nil
 }
 
-func (d *NamespaceUsecase) InitNamespaces(ctx context.Context) (err error) {
+func (d *ProjectUsecase) InitProjects(ctx context.Context) (err error) {
 	tx := d.tx.BeginTX(ctx)
 	defer func() {
 		if err != nil {
 			err = tx.RollbackWithError(d.log, err)
 		}
 	}()
-	for _, n := range initNamespaces() {
+	for _, n := range initProjects() {
 
-		_, err := d.GetNamespace(ctx, n.UID)
+		_, err := d.GetProject(ctx, n.UID)
 		// already exist
 		if err == nil {
 			continue
@@ -140,27 +140,27 @@ func (d *NamespaceUsecase) InitNamespaces(ctx context.Context) (err error) {
 
 		// error, return directly
 		if !errors.Is(err, pkgErr.ErrStorageNoData) {
-			return fmt.Errorf("failed to get namespace: %v", err)
+			return fmt.Errorf("failed to get project: %v", err)
 		}
 
 		// not exist, then create it.
-		err = d.repo.SaveNamespace(tx, n)
+		err = d.repo.SaveProject(tx, n)
 		if err != nil {
-			return fmt.Errorf("save namespaces failed: %v", err)
+			return fmt.Errorf("save projects failed: %v", err)
 		}
 
-		_, err = d.memberUsecase.AddUserToNamespaceAdminMember(tx, pkgConst.UIDOfUserAdmin, n.UID)
+		_, err = d.memberUsecase.AddUserToProjectAdminMember(tx, pkgConst.UIDOfUserAdmin, n.UID)
 		if err != nil {
-			return fmt.Errorf("add admin to namespaces failed: %v", err)
+			return fmt.Errorf("add admin to projects failed: %v", err)
 		}
 	}
 	if err := tx.Commit(d.log); err != nil {
 		return fmt.Errorf("commit tx failed: %v", err)
 	}
-	d.log.Debug("init namespace success")
+	d.log.Debug("init project success")
 	return nil
 }
 
-func (d *NamespaceUsecase) GetNamespace(ctx context.Context, namespaceUid string) (*Namespace, error) {
-	return d.repo.GetNamespace(ctx, namespaceUid)
+func (d *ProjectUsecase) GetProject(ctx context.Context, projectUid string) (*Project, error) {
+	return d.repo.GetProject(ctx, projectUid)
 }

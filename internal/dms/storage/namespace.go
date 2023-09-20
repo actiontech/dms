@@ -13,26 +13,26 @@ import (
 	"gorm.io/gorm"
 )
 
-var _ biz.NamespaceRepo = (*NamespaceRepo)(nil)
+var _ biz.ProjectRepo = (*ProjectRepo)(nil)
 
-type NamespaceRepo struct {
+type ProjectRepo struct {
 	*Storage
 	log *utilLog.Helper
 }
 
-func NewNamespaceRepo(log utilLog.Logger, s *Storage) *NamespaceRepo {
-	return &NamespaceRepo{Storage: s, log: utilLog.NewHelper(log, utilLog.WithMessageKey("storage.namespace"))}
+func NewProjectRepo(log utilLog.Logger, s *Storage) *ProjectRepo {
+	return &ProjectRepo{Storage: s, log: utilLog.NewHelper(log, utilLog.WithMessageKey("storage.project"))}
 }
 
-func (d *NamespaceRepo) SaveNamespace(ctx context.Context, u *biz.Namespace) error {
-	model, err := convertBizNamespace(u)
+func (d *ProjectRepo) SaveProject(ctx context.Context, u *biz.Project) error {
+	model, err := convertBizProject(u)
 	if err != nil {
-		return pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert biz namespace: %v", err))
+		return pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert biz project: %v", err))
 	}
 
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Create(model).Error; err != nil {
-			return fmt.Errorf("failed to save namespace: %v", err)
+			return fmt.Errorf("failed to save project: %v", err)
 		}
 		return nil
 	}); err != nil {
@@ -42,8 +42,8 @@ func (d *NamespaceRepo) SaveNamespace(ctx context.Context, u *biz.Namespace) err
 	return nil
 }
 
-func (d *NamespaceRepo) ListNamespaces(ctx context.Context, opt *biz.ListNamespacesOption, currentUserUid string) (namespaces []*biz.Namespace, total int64, err error) {
-	var models []*model.Namespace
+func (d *ProjectRepo) ListProjects(ctx context.Context, opt *biz.ListProjectsOption, currentUserUid string) (projects []*biz.Project, total int64, err error) {
+	var models []*model.Project
 
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 
@@ -55,18 +55,18 @@ func (d *NamespaceRepo) ListNamespaces(ctx context.Context, opt *biz.ListNamespa
 			}
 			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber)))))
 			if err := db.Find(&models).Error; err != nil {
-				return fmt.Errorf("failed to list namespaces: %v", err)
+				return fmt.Errorf("failed to list projects: %v", err)
 			}
 		}
 
 		// find total
 		{
-			db := tx.WithContext(ctx).Model(&model.Namespace{})
+			db := tx.WithContext(ctx).Model(&model.Project{})
 			for _, f := range opt.FilterBy {
 				db = gormWhere(db, f)
 			}
 			if err := db.Count(&total).Error; err != nil {
-				return fmt.Errorf("failed to count namespaces: %v", err)
+				return fmt.Errorf("failed to count projects: %v", err)
 			}
 		}
 		return nil
@@ -76,95 +76,95 @@ func (d *NamespaceRepo) ListNamespaces(ctx context.Context, opt *biz.ListNamespa
 
 	// convert model to biz
 	for _, model := range models {
-		ds, err := convertModelNamespace(model)
+		ds, err := convertModelProject(model)
 		if err != nil {
-			return nil, 0, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert model namespaces: %v", err))
+			return nil, 0, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert model projects: %v", err))
 		}
 		// ds.CreateUserName = model.UserName
-		namespaces = append(namespaces, ds)
+		projects = append(projects, ds)
 	}
-	return namespaces, total, nil
+	return projects, total, nil
 }
 
-func (d *NamespaceRepo) GetNamespace(ctx context.Context, namespaceUid string) (*biz.Namespace, error) {
-	var namespace *model.Namespace
+func (d *ProjectRepo) GetProject(ctx context.Context, projectUid string) (*biz.Project, error) {
+	var project *model.Project
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
-		if err := tx.First(&namespace, "uid = ?", namespaceUid).Error; err != nil {
-			return fmt.Errorf("failed to get namespace: %v", err)
+		if err := tx.First(&project, "uid = ?", projectUid).Error; err != nil {
+			return fmt.Errorf("failed to get project: %v", err)
 		}
 		return nil
 	}); err != nil {
 		return nil, err
 	}
 
-	ret, err := convertModelNamespace(namespace)
+	ret, err := convertModelProject(project)
 	if err != nil {
-		return nil, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert model namespace: %v", err))
+		return nil, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert model project: %v", err))
 	}
 	return ret, nil
 }
 
-func (d *NamespaceRepo) GetNamespaceByName(ctx context.Context, namespaceName string) (*biz.Namespace, error) {
-	var namespace *model.Namespace
+func (d *ProjectRepo) GetProjectByName(ctx context.Context, projectName string) (*biz.Project, error) {
+	var project *model.Project
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
-		if err := tx.First(&namespace, "name = ?", namespaceName).Error; err != nil {
-			return fmt.Errorf("failed to get namespace by name: %v", err)
+		if err := tx.First(&project, "name = ?", projectName).Error; err != nil {
+			return fmt.Errorf("failed to get project by name: %v", err)
 		}
 		return nil
 	}); err != nil {
 		return nil, err
 	}
 
-	ret, err := convertModelNamespace(namespace)
+	ret, err := convertModelProject(project)
 	if err != nil {
-		return nil, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert model namespace: %v", err))
+		return nil, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert model project: %v", err))
 	}
 	return ret, nil
 }
 
-func (d *NamespaceRepo) UpdateNamespace(ctx context.Context, u *biz.Namespace) error {
-	_, err := d.GetNamespace(ctx, u.UID)
+func (d *ProjectRepo) UpdateProject(ctx context.Context, u *biz.Project) error {
+	_, err := d.GetProject(ctx, u.UID)
 	if err != nil {
 		if errors.Is(err, pkgErr.ErrStorageNoData) {
-			return pkgErr.WrapStorageErr(d.log, fmt.Errorf("namespace not exist"))
+			return pkgErr.WrapStorageErr(d.log, fmt.Errorf("project not exist"))
 		}
 		return err
 	}
 
-	namespace, err := convertBizNamespace(u)
+	project, err := convertBizProject(u)
 	if err != nil {
-		return pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert biz namespace: %v", err))
+		return pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert biz project: %v", err))
 	}
 
 	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
-		if err := tx.WithContext(ctx).Model(&model.Namespace{}).Where("uid = ?", u.UID).Omit("created_at").Save(namespace).Error; err != nil {
-			return fmt.Errorf("failed to update namespace: %v", err)
+		if err := tx.WithContext(ctx).Model(&model.Project{}).Where("uid = ?", u.UID).Omit("created_at").Save(project).Error; err != nil {
+			return fmt.Errorf("failed to update project: %v", err)
 		}
 		return nil
 	})
 
 }
 
-func (d *NamespaceRepo) DelNamespace(ctx context.Context, namespaceUid string) error {
+func (d *ProjectRepo) DelProject(ctx context.Context, projectUid string) error {
 	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
-		if err := tx.WithContext(ctx).Where("uid = ?", namespaceUid).Delete(&model.Namespace{}).Error; err != nil {
-			return fmt.Errorf("failed to delete namespace: %v", err)
+		if err := tx.WithContext(ctx).Where("uid = ?", projectUid).Delete(&model.Project{}).Error; err != nil {
+			return fmt.Errorf("failed to delete project: %v", err)
 		}
 		return nil
 	})
 }
 
-func (d *NamespaceRepo) IsNamespaceActive(ctx context.Context, namespaceUid string) error {
-	namespace, err := d.GetNamespace(ctx, namespaceUid)
+func (d *ProjectRepo) IsProjectActive(ctx context.Context, projectUid string) error {
+	project, err := d.GetProject(ctx, projectUid)
 	if err != nil {
 		if errors.Is(err, pkgErr.ErrStorageNoData) {
-			return pkgErr.WrapStorageErr(d.log, fmt.Errorf("namespace not exist"))
+			return pkgErr.WrapStorageErr(d.log, fmt.Errorf("project not exist"))
 		}
 		return err
 	}
 
-	if namespace.Status != biz.NamespaceStatusActive {
-		return fmt.Errorf("namespace status is : %v", namespace.Status)
+	if project.Status != biz.ProjectStatusActive {
+		return fmt.Errorf("project status is : %v", project.Status)
 	}
 	return nil
 }

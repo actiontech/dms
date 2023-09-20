@@ -3677,7 +3677,7 @@
           "x-go-name": "Msg"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/base/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
     },
     "GetBasicInfoReply": {
       "type": "object",
@@ -4141,13 +4141,13 @@
           "type": "string",
           "x-go-name": "UserUid"
         },
-        "user_bind_namespaces": {
+        "user_bind_projects": {
           "description": "user bind name space",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/UserBindNamespace"
+            "$ref": "#/definitions/UserBindProject"
           },
-          "x-go-name": "UserBindNamespaces"
+          "x-go-name": "UserBindProjects"
         },
         "user_groups": {
           "description": "user groups",
@@ -4849,7 +4849,7 @@
       "type": "object",
       "properties": {
         "op_range_type": {
-          "description": "op permission range type, only support db service now\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用",
+          "description": "op permission range type, only support db service now\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "type": "string",
           "enum": [
             "unknown",
@@ -4857,7 +4857,7 @@
             "project",
             "db_service"
           ],
-          "x-go-enum-desc": "unknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用",
+          "x-go-enum-desc": "unknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "x-go-name": "OpRangeType"
         },
         "range_uids": {
@@ -4952,7 +4952,7 @@
             "project",
             "db_service"
           ],
-          "x-go-enum-desc": "unknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用",
+          "x-go-enum-desc": "unknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "x-go-name": "RangeType"
         }
       },
@@ -5412,7 +5412,7 @@
       "type": "object",
       "properties": {
         "op_range_type": {
-          "description": "op permission range type, only support db service now\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用",
+          "description": "op permission range type, only support db service now\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "type": "string",
           "enum": [
             "unknown",
@@ -5420,7 +5420,7 @@
             "project",
             "db_service"
           ],
-          "x-go-enum-desc": "unknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用",
+          "x-go-enum-desc": "unknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "x-go-name": "OpRangeType"
         },
         "range_uids": {
@@ -5534,12 +5534,12 @@
       "type": "object",
       "properties": {
         "op_permission_type": {
-          "description": "op permission type\nunknown OpPermissionTypeUnknown\ncreate_namespace OpPermissionTypeCreateNamespace  创建空间；创建空间的用户自动拥有该空间管理权限\nnamespace_admin OpPermissionTypeNamespaceAdmin  空间管理；拥有该权限的用户可以管理空间下的所有资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限",
+          "description": "op permission type\nunknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nproject_admin OpPermissionTypeProjectAdmin  项目管理；拥有该权限的用户可以管理项目下的所有资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限",
           "type": "string",
           "enum": [
             "unknown",
-            "create_namespace",
-            "namespace_admin",
+            "create_project",
+            "project_admin",
             "create_workflow",
             "audit_workflow",
             "auth_db_service_data",
@@ -5549,19 +5549,19 @@
             "save_audit_plan",
             "sql_query"
           ],
-          "x-go-enum-desc": "unknown OpPermissionTypeUnknown\ncreate_namespace OpPermissionTypeCreateNamespace  创建空间；创建空间的用户自动拥有该空间管理权限\nnamespace_admin OpPermissionTypeNamespaceAdmin  空间管理；拥有该权限的用户可以管理空间下的所有资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限",
+          "x-go-enum-desc": "unknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nproject_admin OpPermissionTypeProjectAdmin  项目管理；拥有该权限的用户可以管理项目下的所有资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限",
           "x-go-name": "OpPermissionType"
         },
         "range_type": {
-          "description": "object type of RangeUids\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nnamespace OpRangeTypeNamespace  空间权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用",
+          "description": "object type of RangeUids\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "type": "string",
           "enum": [
             "unknown",
             "global",
-            "namespace",
+            "project",
             "db_service"
           ],
-          "x-go-enum-desc": "unknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nnamespace OpRangeTypeNamespace  空间权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用",
+          "x-go-enum-desc": "unknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "x-go-name": "RangeType"
         },
         "range_uids": {
@@ -6014,7 +6014,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCurrentUser": {
       "type": "object",
@@ -6440,20 +6440,20 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
-    "UserBindNamespace": {
+    "UserBindProject": {
       "type": "object",
       "properties": {
         "is_manager": {
           "type": "boolean",
           "x-go-name": "IsManager"
         },
-        "namespace_id": {
+        "project_id": {
           "type": "string",
-          "x-go-name": "NamespaceID"
+          "x-go-name": "ProjectID"
         },
-        "namespace_name": {
+        "project_name": {
           "type": "string",
-          "x-go-name": "NamespaceName"
+          "x-go-name": "ProjectName"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -6489,10 +6489,10 @@
     "UserOpPermission": {
       "type": "object",
       "properties": {
-        "namespace_uid": {
-          "description": "uesr namespace uid",
+        "project_uid": {
+          "description": "uesr project uid",
           "type": "string",
-          "x-go-name": "NamespaceUid"
+          "x-go-name": "ProjectUid"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"

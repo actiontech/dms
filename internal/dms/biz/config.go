@@ -16,7 +16,7 @@ type DMSConfig struct {
 	NeedInitOpPermissions bool   `json:"need_init_op_permissions"`
 	NeedInitUsers         bool   `json:"need_init_users"`
 	NeedInitRoles         bool   `json:"need_init_roles"`
-	NeedInitNamespaces    bool   `json:"need_init_namespaces"`
+	NeedInitProjects      bool   `json:"need_init_projects"`
 }
 
 type DMSConfigRepo interface {
@@ -44,7 +44,7 @@ func (n *DMSConfigUseCase) GetDMSConfig(ctx context.Context) (*DMSConfig, error)
 				NeedInitOpPermissions: true,
 				NeedInitUsers:         true,
 				NeedInitRoles:         true,
-				NeedInitNamespaces:    true,
+				NeedInitProjects:      true,
 			}
 			if err := n.SaveDMSConfig(ctx, dms); nil != err {
 				return nil, err

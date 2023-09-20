@@ -628,7 +628,7 @@ definitions:
                 type: string
                 x-go-name: Msg
         type: object
-        x-go-package: github.com/actiontech/dms/api/base/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/base/v1
     GetBasicInfoReply:
         properties:
             code:
@@ -993,12 +993,12 @@ definitions:
                 description: user uid
                 type: string
                 x-go-name: UserUid
-            user_bind_namespaces:
+            user_bind_projects:
                 description: user bind name space
                 items:
-                    $ref: '#/definitions/UserBindNamespace'
+                    $ref: '#/definitions/UserBindProject'
                 type: array
-                x-go-name: UserBindNamespaces
+                x-go-name: UserBindProjects
             user_groups:
                 description: user groups
                 items:
@@ -1538,7 +1538,7 @@ definitions:
                     unknown OpRangeTypeUnknown
                     global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
                     project OpRangeTypeProject  项目权限: 该权限只能被成员使用
-                    db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
+                    db_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用
                 enum:
                     - unknown
                     - global
@@ -1549,7 +1549,7 @@ definitions:
                     unknown OpRangeTypeUnknown
                     global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
                     project OpRangeTypeProject  项目权限: 该权限只能被成员使用
-                    db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
+                    db_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用
                 x-go-name: OpRangeType
             range_uids:
                 description: op range uids
@@ -1624,7 +1624,7 @@ definitions:
                     unknown OpRangeTypeUnknown
                     global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
                     project OpRangeTypeProject  项目权限: 该权限只能被成员使用
-                    db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
+                    db_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用
                 x-go-name: RangeType
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
@@ -2009,7 +2009,7 @@ definitions:
                     unknown OpRangeTypeUnknown
                     global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
                     project OpRangeTypeProject  项目权限: 该权限只能被成员使用
-                    db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
+                    db_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用
                 enum:
                     - unknown
                     - global
@@ -2020,7 +2020,7 @@ definitions:
                     unknown OpRangeTypeUnknown
                     global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
                     project OpRangeTypeProject  项目权限: 该权限只能被成员使用
-                    db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
+                    db_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用
                 x-go-name: OpRangeType
             range_uids:
                 description: op range uids
@@ -2107,8 +2107,8 @@ definitions:
                 description: |-
                     op permission type
                     unknown OpPermissionTypeUnknown
-                    create_namespace OpPermissionTypeCreateNamespace  创建空间；创建空间的用户自动拥有该空间管理权限
-                    namespace_admin OpPermissionTypeNamespaceAdmin  空间管理；拥有该权限的用户可以管理空间下的所有资源
+                    create_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限
+                    project_admin OpPermissionTypeProjectAdmin  项目管理；拥有该权限的用户可以管理项目下的所有资源
                     create_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单
                     audit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单
                     auth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限
@@ -2119,8 +2119,8 @@ definitions:
                     sql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限
                 enum:
                     - unknown
-                    - create_namespace
-                    - namespace_admin
+                    - create_project
+                    - project_admin
                     - create_workflow
                     - audit_workflow
                     - auth_db_service_data
@@ -2132,8 +2132,8 @@ definitions:
                 type: string
                 x-go-enum-desc: |-
                     unknown OpPermissionTypeUnknown
-                    create_namespace OpPermissionTypeCreateNamespace  创建空间；创建空间的用户自动拥有该空间管理权限
-                    namespace_admin OpPermissionTypeNamespaceAdmin  空间管理；拥有该权限的用户可以管理空间下的所有资源
+                    create_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限
+                    project_admin OpPermissionTypeProjectAdmin  项目管理；拥有该权限的用户可以管理项目下的所有资源
                     create_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单
                     audit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单
                     auth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限
@@ -2148,19 +2148,19 @@ definitions:
                     object type of RangeUids
                     unknown OpRangeTypeUnknown
                     global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
-                    namespace OpRangeTypeNamespace  空间权限: 该权限只能被成员使用
-                    db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
+                    project OpRangeTypeProject  项目权限: 该权限只能被成员使用
+                    db_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用
                 enum:
                     - unknown
                     - global
-                    - namespace
+                    - project
                     - db_service
                 type: string
                 x-go-enum-desc: |-
                     unknown OpRangeTypeUnknown
                     global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
-                    namespace OpRangeTypeNamespace  空间权限: 该权限只能被成员使用
-                    db_service OpRangeTypeDBService  空间内的数据源权限: 该权限只能被成员使用
+                    project OpRangeTypeProject  项目权限: 该权限只能被成员使用
+                    db_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用
                 x-go-name: RangeType
             range_uids:
                 description: object uids, object type is defined by RangeType
@@ -2502,7 +2502,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateCurrentUser:
         properties:
             email:
@@ -2829,17 +2829,17 @@ definitions:
             - name
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    UserBindNamespace:
+    UserBindProject:
         properties:
             is_manager:
                 type: boolean
                 x-go-name: IsManager
-            namespace_id:
+            project_id:
                 type: string
-                x-go-name: NamespaceID
-            namespace_name:
+                x-go-name: ProjectID
+            project_name:
                 type: string
-                x-go-name: NamespaceName
+                x-go-name: ProjectName
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UserGroup:
@@ -2865,10 +2865,10 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UserOpPermission:
         properties:
-            namespace_uid:
-                description: uesr namespace uid
+            project_uid:
+                description: uesr project uid
                 type: string
-                x-go-name: NamespaceUid
+                x-go-name: ProjectUid
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     WeChatConfigurationResData:

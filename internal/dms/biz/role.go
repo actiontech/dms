@@ -64,9 +64,9 @@ func (u *Role) GetUID() string {
 func initRole() []*Role {
 	return []*Role{
 		{
-			UID:  pkgConst.UIDOfRoleNamespaceAdmin,
-			Name: "空间管理员",
-			Desc: "namespace admin",
+			UID:  pkgConst.UIDOfRoleProjectAdmin,
+			Name: "项目管理员",
+			Desc: "project admin",
 		},
 		{
 			UID:  pkgConst.UIDOfRoleSQLEAdmin,
@@ -145,8 +145,8 @@ func (d *RoleUsecase) InitRoles(ctx context.Context) (err error) {
 
 		roleId := r.GetUID()
 		switch roleId {
-		case pkgConst.UIDOfRoleNamespaceAdmin:
-			if err = d.InsureOpPermissionsToRole(ctx, []string{pkgConst.UIDOfOpPermissionNamespaceAdmin}, roleId); err != nil {
+		case pkgConst.UIDOfRoleProjectAdmin:
+			if err = d.InsureOpPermissionsToRole(ctx, []string{pkgConst.UIDOfOpPermissionProjectAdmin}, roleId); err != nil {
 				return fmt.Errorf("insure op permissions in role failed: %v", err)
 			}
 		case pkgConst.UIDOfRoleSQLEAdmin:
@@ -223,11 +223,11 @@ func (d *RoleUsecase) InsureOpPermissionsToRole(ctx context.Context, opPermissio
 }
 
 func (d *RoleUsecase) ListRole(ctx context.Context, option *ListRolesOption) (roles []*Role, total int64, err error) {
-	// DMS-125：空间管理员为内置角色，不对外展示
+	// DMS-125：项目管理员为内置角色，不对外展示
 	option.FilterBy = append(option.FilterBy, pkgConst.FilterCondition{
 		Field:    string(RoleFieldUID),
 		Operator: pkgConst.FilterOperatorNotEqual,
-		Value:    pkgConst.UIDOfRoleNamespaceAdmin,
+		Value:    pkgConst.UIDOfRoleProjectAdmin,
 	})
 	roles, total, err = d.repo.ListRoles(ctx, option)
 	if err != nil {

@@ -13,7 +13,7 @@ func EnvPrepare(ctx context.Context, logger utilLog.Logger,
 	opPermissionUsecase *OpPermissionUsecase,
 	userUsecase *UserUsecase,
 	roleUsecase *RoleUsecase,
-	namespaceUsecase *NamespaceUsecase) (err error) {
+	projectUsecase *ProjectUsecase) (err error) {
 	log := utilLog.NewHelper(logger, utilLog.WithMessageKey("biz.prepare"))
 	// 开启事务
 	tx := transaction.BeginTX(ctx)
@@ -58,11 +58,11 @@ func EnvPrepare(ctx context.Context, logger utilLog.Logger,
 				return fmt.Errorf("failed to update dms config: %v", err)
 			}
 		}
-		if dmsConfig.NeedInitNamespaces {
-			if err := namespaceUsecase.InitNamespaces(tx); nil != err {
+		if dmsConfig.NeedInitProjects {
+			if err := projectUsecase.InitProjects(tx); nil != err {
 				return err
 			}
-			dmsConfig.NeedInitNamespaces = false
+			dmsConfig.NeedInitProjects = false
 			if err := config.UpdateDMSConfig(tx, dmsConfig); nil != err {
 				return fmt.Errorf("failed to update dms config: %v", err)
 			}
