@@ -32,7 +32,7 @@ func (o OpRangeType) String() string {
 
 const (
 	OpRangeTypeGlobal    OpRangeType = "global"
-	OpRangeTypeNamespace OpRangeType = "namespace"
+	OpRangeTypeProject   OpRangeType = "project"
 	OpRangeTypeDBService OpRangeType = "db_service"
 )
 
@@ -40,8 +40,8 @@ func ParseOpRangeType(t string) (OpRangeType, error) {
 	switch t {
 	case OpRangeTypeGlobal.String():
 		return OpRangeTypeGlobal, nil
-	case OpRangeTypeNamespace.String():
-		return OpRangeTypeNamespace, nil
+	case OpRangeTypeProject.String():
+		return OpRangeTypeProject, nil
 	case OpRangeTypeDBService.String():
 		return OpRangeTypeDBService, nil
 	default:
@@ -52,15 +52,15 @@ func ParseOpRangeType(t string) (OpRangeType, error) {
 func initOpPermission() []*OpPermission {
 	return []*OpPermission{
 		{
-			UID:       pkgConst.UIDOfOpPermissionCreateNamespace,
+			UID:       pkgConst.UIDOfOpPermissionCreateProject,
 			Name:      "创建空间",
 			RangeType: OpRangeTypeGlobal,
 			Desc:      "创建空间；创建空间的用户自动拥有该空间管理权限",
 		},
 		{
-			UID:       pkgConst.UIDOfOpPermissionNamespaceAdmin,
+			UID:       pkgConst.UIDOfOpPermissionProjectAdmin,
 			Name:      "空间管理",
-			RangeType: OpRangeTypeNamespace,
+			RangeType: OpRangeTypeProject,
 			Desc:      "空间管理；拥有该权限的用户可以管理空间下的所有资源",
 		},
 		{
@@ -223,7 +223,7 @@ func (d *OpPermissionUsecase) ListMemberOpPermissions(ctx context.Context, opt *
 	opt.FilterBy = append(opt.FilterBy, pkgConst.FilterCondition{
 		Field:    string(OpPermissionFieldRangeType),
 		Operator: pkgConst.FilterOperatorNotEqual,
-		Value:    OpRangeTypeNamespace,
+		Value:    OpRangeTypeProject,
 	})
 
 	ops, total, err = d.repo.ListOpPermissions(ctx, opt)

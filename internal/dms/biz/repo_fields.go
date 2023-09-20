@@ -25,7 +25,7 @@ type MemberRoleOpRangeField string
 
 type ModelField string
 
-type NamespaceField string
+type ProjectField string
 
 type Oauth2ConfigurationField string
 
@@ -71,7 +71,7 @@ const (
 	DBServiceFieldBusiness          DBServiceField = "business"
 	DBServiceFieldAdditionalParams  DBServiceField = "additionalparams"
 	DBServiceFieldSource            DBServiceField = "source"
-	DBServiceFieldNamespaceUID      DBServiceField = "namespace_uid"
+	DBServiceFieldProjectUID        DBServiceField = "project_uid"
 	DBServiceFieldMaintenancePeriod DBServiceField = "maintenanceperiod"
 	DBServiceFieldExtraParameters   DBServiceField = "extraparameters"
 )
@@ -81,7 +81,7 @@ const (
 	DMSConfigFieldNeedInitOpPermissions DMSConfigField = "need_init_op_permissions"
 	DMSConfigFieldNeedInitUsers         DMSConfigField = "need_init_users"
 	DMSConfigFieldNeedInitRoles         DMSConfigField = "need_init_roles"
-	DMSConfigFieldNeedInitNamespaces    DMSConfigField = "need_init_namespaces"
+	DMSConfigFieldNeedInitProjects      DMSConfigField = "need_init_projects"
 )
 
 const (
@@ -91,7 +91,7 @@ const (
 	DatabaseSourceServiceFieldVersion             DatabaseSourceServiceField = "version"
 	DatabaseSourceServiceFieldURL                 DatabaseSourceServiceField = "url"
 	DatabaseSourceServiceFieldDbType              DatabaseSourceServiceField = "dbtype"
-	DatabaseSourceServiceFieldNamespaceUID        DatabaseSourceServiceField = "namespace_uid"
+	DatabaseSourceServiceFieldProjectUID          DatabaseSourceServiceField = "project_uid"
 	DatabaseSourceServiceFieldCronExpress         DatabaseSourceServiceField = "cron_express"
 	DatabaseSourceServiceFieldLastSyncErr         DatabaseSourceServiceField = "last_sync_err"
 	DatabaseSourceServiceFieldLastSyncSuccessTime DatabaseSourceServiceField = "last_sync_success_time"
@@ -123,14 +123,14 @@ const (
 const (
 	MemberFieldUID              MemberField = "uid"
 	MemberFieldUserUID          MemberField = "user_uid"
-	MemberFieldNamespaceUID     MemberField = "namespace_uid"
+	MemberFieldProjectUID       MemberField = "project_uid"
 	MemberFieldRoleWithOpRanges MemberField = "rolewithopranges"
 )
 
 const (
 	MemberGroupFieldUID              MemberGroupField = "uid"
 	MemberGroupFieldName             MemberGroupField = "name"
-	MemberGroupFieldNamespaceUID     MemberGroupField = "namespace_uid"
+	MemberGroupFieldProjectUID       MemberGroupField = "project_uid"
 	MemberGroupFieldUsers            MemberGroupField = "users"
 	MemberGroupFieldRoleWithOpRanges MemberGroupField = "rolewithopranges"
 )
@@ -154,11 +154,11 @@ const (
 )
 
 const (
-	NamespaceFieldUID           NamespaceField = "uid"
-	NamespaceFieldName          NamespaceField = "name"
-	NamespaceFieldDesc          NamespaceField = "desc"
-	NamespaceFieldCreateUserUID NamespaceField = "create_user_uid"
-	NamespaceFieldStatus        NamespaceField = "status"
+	ProjectFieldUID           ProjectField = "uid"
+	ProjectFieldName          ProjectField = "name"
+	ProjectFieldDesc          ProjectField = "desc"
+	ProjectFieldCreateUserUID ProjectField = "create_user_uid"
+	ProjectFieldStatus        ProjectField = "status"
 )
 
 const (

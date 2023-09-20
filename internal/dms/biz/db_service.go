@@ -42,7 +42,7 @@ type DBService struct {
 	EncryptedAdminPassword string
 	Business               string
 	AdditionalParams       pkgParams.Params
-	NamespaceUID           string
+	ProjectUID             string
 	MaintenancePeriod      pkgPeriods.Periods
 	Source                 string
 
@@ -83,7 +83,7 @@ func newDBService(args *BizDBServiceArgs) (*DBService, error) {
 		AdminUser:         args.AdminUser,
 		AdminPassword:     *args.AdminPassword,
 		AdditionalParams:  args.AdditionalParams,
-		NamespaceUID:      args.NamespaceUID,
+		ProjectUID:        args.ProjectUID,
 		Business:          args.Business,
 		Source:            args.Source,
 		MaintenancePeriod: args.MaintenancePeriod,
@@ -120,15 +120,15 @@ type DBServiceUsecase struct {
 	dmsProxyTargetRepo        ProxyTargetRepo
 	pluginUsecase             *PluginUsecase
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
-	namespaceUsecase          *NamespaceUsecase
+	projectUsecase            *ProjectUsecase
 }
 
-func NewDBServiceUsecase(repo DBServiceRepo, pluginUsecase *PluginUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, namespaceUsecase *NamespaceUsecase, proxyTargetRepo ProxyTargetRepo) *DBServiceUsecase {
+func NewDBServiceUsecase(repo DBServiceRepo, pluginUsecase *PluginUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo) *DBServiceUsecase {
 	return &DBServiceUsecase{
 		repo:                      repo,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 		pluginUsecase:             pluginUsecase,
-		namespaceUsecase:          namespaceUsecase,
+		projectUsecase:            projectUsecase,
 		dmsProxyTargetRepo:        proxyTargetRepo,
 	}
 }
@@ -144,7 +144,7 @@ type BizDBServiceArgs struct {
 	Business          string
 	Source            string
 	AdditionalParams  pkgParams.Params
-	NamespaceUID      string
+	ProjectUID        string
 	MaintenancePeriod pkgPeriods.Periods
 	// sqle config
 	RuleTemplateName string
@@ -161,14 +161,14 @@ type SQLQueryConfig struct {
 
 func (d *DBServiceUsecase) CreateDBService(ctx context.Context, args *BizDBServiceArgs, currentUserUid string) (uid string, err error) {
 	// 检查空间是否归档/删除
-	if err := d.namespaceUsecase.isNamespaceActive(ctx, args.NamespaceUID); err != nil {
+	if err := d.projectUsecase.isProjectActive(ctx, args.ProjectUID); err != nil {
 		return "", fmt.Errorf("create db service error: %v", err)
 	}
 	// 检查当前用户有空间管理员权限
-	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, currentUserUid, args.NamespaceUID); err != nil {
-		return "", fmt.Errorf("check user is namespace admin failed: %v", err)
+	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, args.ProjectUID); err != nil {
+		return "", fmt.Errorf("check user is project admin failed: %v", err)
 	} else if !isAdmin {
-		return "", fmt.Errorf("user is not namespace admin")
+		return "", fmt.Errorf("user is not project admin")
 	}
 
 	ds, err := newDBService(args)
@@ -191,15 +191,15 @@ type ListDBServicesOption struct {
 	FilterBy     []pkgConst.FilterCondition
 }
 
-func (d *DBServiceUsecase) ListDBService(ctx context.Context, option *ListDBServicesOption, namespaceUid, currentUserUid string) (dbServices []*DBService, total int64, err error) {
+func (d *DBServiceUsecase) ListDBService(ctx context.Context, option *ListDBServicesOption, projectUid, currentUserUid string) (dbServices []*DBService, total int64, err error) {
 	// 只允许系统用户查询所有数据源,同步数据到其他服务(provision)
 	// 检查空间是否归档/删除
-	if namespaceUid != "" {
-		if err := d.namespaceUsecase.isNamespaceActive(ctx, namespaceUid); err != nil {
+	if projectUid != "" {
+		if err := d.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
 			return nil, 0, fmt.Errorf("list db service error: %v", err)
 		}
 	} else if currentUserUid != pkgConst.UIDOfUserSys {
-		return nil, 0, fmt.Errorf("list db service error: namespace is empty")
+		return nil, 0, fmt.Errorf("list db service error: project is empty")
 	}
 	services, total, err := d.repo.ListDBServices(ctx, option)
 	if err != nil {
@@ -236,7 +236,7 @@ func (d *DBServiceUsecase) GetActiveDBServices(ctx context.Context, dbServiceIds
 	}
 
 	for _, service := range services {
-		if err = d.namespaceUsecase.isNamespaceActive(ctx, service.NamespaceUID); err == nil {
+		if err = d.projectUsecase.isProjectActive(ctx, service.ProjectUID); err == nil {
 			dbServices = append(dbServices, service)
 		}
 	}
@@ -263,14 +263,14 @@ func (d *DBServiceUsecase) DelDBService(ctx context.Context, dbServiceUid, curre
 		return fmt.Errorf("get db service failed: %v", err)
 	}
 	// 检查空间是否归档/删除
-	if err := d.namespaceUsecase.isNamespaceActive(ctx, ds.NamespaceUID); err != nil {
+	if err := d.projectUsecase.isProjectActive(ctx, ds.ProjectUID); err != nil {
 		return fmt.Errorf("delete db service error: %v", err)
 	}
 	// 检查当前用户有空间管理员权限
-	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, currentUserUid, ds.NamespaceUID); err != nil {
-		return fmt.Errorf("check user is namespace admin failed: %v", err)
+	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, ds.ProjectUID); err != nil {
+		return fmt.Errorf("check user is project admin failed: %v", err)
 	} else if !isAdmin {
-		return fmt.Errorf("user is not namespace admin")
+		return fmt.Errorf("user is not project admin")
 	}
 
 	// 调用其他服务对数据源进行预检查
@@ -298,14 +298,14 @@ func (d *DBServiceUsecase) UpdateDBService(ctx context.Context, dbServiceUid str
 		return fmt.Errorf("get db service failed: %v", err)
 	}
 	// 检查空间是否归档/删除
-	if err := d.namespaceUsecase.isNamespaceActive(ctx, ds.NamespaceUID); err != nil {
+	if err := d.projectUsecase.isProjectActive(ctx, ds.ProjectUID); err != nil {
 		return fmt.Errorf("update db service error: %v", err)
 	}
 	// 检查当前用户有空间管理员权限
-	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, currentUserUid, ds.NamespaceUID); err != nil {
-		return fmt.Errorf("check user is namespace admin failed: %v", err)
+	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, ds.ProjectUID); err != nil {
+		return fmt.Errorf("check user is project admin failed: %v", err)
 	} else if !isAdmin {
-		return fmt.Errorf("user is not namespace admin")
+		return fmt.Errorf("user is not project admin")
 	}
 
 	// check
