@@ -178,7 +178,7 @@ func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceRe
 		AdminPassword:     &req.DBService.Password,
 		Business:          req.DBService.Business,
 		MaintenancePeriod: d.convertMaintenanceTimeToPeriod(req.DBService.MaintenanceTimes),
-		NamespaceUID:      req.ProjectUid,
+		ProjectUID:        req.ProjectUid,
 		AdditionalParams:  additionalParams,
 	}
 
@@ -295,7 +295,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsV1.ListDBServic
 
 	if req.ProjectUid != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
-			Field:    string(biz.DBServiceFieldNamespaceUID),
+			Field:    string(biz.DBServiceFieldProjectUID),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.ProjectUid,
 		})
@@ -331,7 +331,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsV1.ListDBServic
 			MaintenanceTimes: d.convertPeriodToMaintenanceTime(u.MaintenancePeriod),
 			Desc:             u.Desc,
 			Source:           u.Source,
-			ProjectUID:       u.NamespaceUID,
+			ProjectUID:       u.ProjectUID,
 			// TODO 从provision获取
 			// LastSyncDataResult: "TODO",
 			// LastSyncDataTime:"".

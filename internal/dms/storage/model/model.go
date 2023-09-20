@@ -23,7 +23,7 @@ func GetAllModels() []interface{} {
 		MemberRoleOpRange{},
 		MemberGroup{},
 		MemberGroupRoleOpRange{},
-		Namespace{},
+		Project{},
 		ProxyTarget{},
 		Plugin{},
 		Oauth2Configuration{},
@@ -57,7 +57,7 @@ type DBService struct {
 	Business          string          `json:"business" gorm:"column:business; not null" example:"this is a business"`
 	AdditionalParams  params.Params   `json:"additional_params" gorm:"type:text"`
 	Source            string          `json:"source" gorm:"not null"`
-	NamespaceUID      string          `json:"namespace_uid" gorm:"column:namespace_uid"`
+	ProjectUID        string          `json:"project_uid" gorm:"column:project_uid"`
 	MaintenancePeriod periods.Periods `json:"maintenance_period" gorm:"type:text"`
 	ExtraParameters   ExtraParameters `json:"extra_parameters" gorm:"TYPE:json"`
 }
@@ -135,13 +135,13 @@ type DMSConfig struct {
 	NeedInitOpPermissions bool `json:"need_init_op_permissions" gorm:"column:need_init_op_permissions"`
 	NeedInitUsers         bool `json:"need_init_users" gorm:"column:need_init_users"`
 	NeedInitRoles         bool `json:"need_init_roles" gorm:"column:need_init_roles"`
-	NeedInitNamespaces    bool `json:"need_init_namespaces" gorm:"column:need_init_namespaces"`
+	NeedInitProjects      bool `json:"need_init_projects" gorm:"column:need_init_projects"`
 }
 
 type Member struct {
 	Model
 	UserUID          string              `json:"user_uid" gorm:"column:user_uid"`
-	NamespaceUID     string              `json:"namespace_uid" gorm:"column:namespace_uid"`
+	ProjectUID       string              `json:"project_uid" gorm:"column:project_uid"`
 	RoleWithOpRanges []MemberRoleOpRange `json:"role_with_op_ranges" gorm:"foreignKey:MemberUID;references:UID"`
 }
 
@@ -159,7 +159,7 @@ func (mg *MemberRoleOpRange) AfterSave(tx *gorm.DB) error {
 type MemberGroup struct {
 	Model
 	Name             string                   `json:"name" gorm:"size:200;uniqueIndex"`
-	NamespaceUID     string                   `json:"namespace_uid" gorm:"column:namespace_uid"`
+	ProjectUID       string                   `json:"project_uid" gorm:"column:project_uid"`
 	Users            []*User                  `gorm:"many2many:member_group_users"`
 	RoleWithOpRanges []MemberGroupRoleOpRange `json:"role_with_op_ranges" gorm:"foreignKey:MemberGroupUID;references:UID"`
 }
@@ -175,7 +175,7 @@ func (mg *MemberGroupRoleOpRange) AfterSave(tx *gorm.DB) error {
 	return tx.Delete(&MemberGroupRoleOpRange{}, "member_group_uid IS NULL").Error
 }
 
-type Namespace struct {
+type Project struct {
 	Model
 	Name          string `json:"name" gorm:"column:name"`
 	Desc          string `json:"desc" gorm:"column:desc"`
@@ -300,12 +300,12 @@ type CloudbeaverConnectionCache struct {
 
 type DatabaseSourceService struct {
 	Model
-	Name         string `json:"name" gorm:"size:200;not null;uniqueIndex" example:""`
-	Source       string `json:"source" gorm:"not null"`
-	Version      string `json:"version" gorm:"not null"`
-	URL          string `json:"url" gorm:"not null"`
-	DbType       string `json:"db_type" gorm:"not null"`
-	NamespaceUID string `json:"namespace_uid" gorm:"column:namespace_uid"`
+	Name       string `json:"name" gorm:"size:200;not null;uniqueIndex" example:""`
+	Source     string `json:"source" gorm:"not null"`
+	Version    string `json:"version" gorm:"not null"`
+	URL        string `json:"url" gorm:"not null"`
+	DbType     string `json:"db_type" gorm:"not null"`
+	ProjectUID string `json:"project_uid" gorm:"column:project_uid"`
 	// Cron表达式
 	CronExpress         string          `json:"cron_express" gorm:"column:cron_express; not null"`
 	LastSyncErr         string          `json:"last_sync_err" gorm:"column:last_sync_err"`

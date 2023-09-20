@@ -32,7 +32,7 @@ func (o OpRangeType) String() string {
 
 const (
 	OpRangeTypeGlobal    OpRangeType = "global"
-	OpRangeTypeNamespace OpRangeType = "namespace"
+	OpRangeTypeProject   OpRangeType = "project"
 	OpRangeTypeDBService OpRangeType = "db_service"
 )
 
@@ -40,8 +40,8 @@ func ParseOpRangeType(t string) (OpRangeType, error) {
 	switch t {
 	case OpRangeTypeGlobal.String():
 		return OpRangeTypeGlobal, nil
-	case OpRangeTypeNamespace.String():
-		return OpRangeTypeNamespace, nil
+	case OpRangeTypeProject.String():
+		return OpRangeTypeProject, nil
 	case OpRangeTypeDBService.String():
 		return OpRangeTypeDBService, nil
 	default:
@@ -52,16 +52,16 @@ func ParseOpRangeType(t string) (OpRangeType, error) {
 func initOpPermission() []*OpPermission {
 	return []*OpPermission{
 		{
-			UID:       pkgConst.UIDOfOpPermissionCreateNamespace,
-			Name:      "创建空间",
+			UID:       pkgConst.UIDOfOpPermissionCreateProject,
+			Name:      "创建项目",
 			RangeType: OpRangeTypeGlobal,
-			Desc:      "创建空间；创建空间的用户自动拥有该空间管理权限",
+			Desc:      "创建项目；创建项目的用户自动拥有该项目管理权限",
 		},
 		{
-			UID:       pkgConst.UIDOfOpPermissionNamespaceAdmin,
-			Name:      "空间管理",
-			RangeType: OpRangeTypeNamespace,
-			Desc:      "空间管理；拥有该权限的用户可以管理空间下的所有资源",
+			UID:       pkgConst.UIDOfOpPermissionProjectAdmin,
+			Name:      "项目管理",
+			RangeType: OpRangeTypeProject,
+			Desc:      "项目管理；拥有该权限的用户可以管理项目下的所有资源",
 		},
 		{
 			UID:       pkgConst.UIDOfOpPermissionCreateWorkflow,
@@ -212,18 +212,18 @@ func (d *OpPermissionUsecase) ListUserOpPermissions(ctx context.Context, opt *Li
 }
 
 func (d *OpPermissionUsecase) ListMemberOpPermissions(ctx context.Context, opt *ListOpPermissionsOption) (ops []*OpPermission, total int64, err error) {
-	// 成员属于空间，只能被赋予非全局权限
+	// 成员属于项目，只能被赋予非全局权限
 	opt.FilterBy = append(opt.FilterBy, pkgConst.FilterCondition{
 		Field:    string(OpPermissionFieldRangeType),
 		Operator: pkgConst.FilterOperatorNotEqual,
 		Value:    OpRangeTypeGlobal,
 	})
 
-	// 设置成员权限时，有单独的“空间管理权限”选项代表空间权限，所以这里不返回空间权限
+	// 设置成员权限时，有单独的“项目管理权限”选项代表项目权限，所以这里不返回项目权限
 	opt.FilterBy = append(opt.FilterBy, pkgConst.FilterCondition{
 		Field:    string(OpPermissionFieldRangeType),
 		Operator: pkgConst.FilterOperatorNotEqual,
-		Value:    OpRangeTypeNamespace,
+		Value:    OpRangeTypeProject,
 	})
 
 	ops, total, err = d.repo.ListOpPermissions(ctx, opt)

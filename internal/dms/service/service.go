@@ -23,7 +23,7 @@ type DMSService struct {
 	MemberUsecase                *biz.MemberUsecase
 	MemberGroupUsecase           *biz.MemberGroupUsecase
 	OpPermissionVerifyUsecase    *biz.OpPermissionVerifyUsecase
-	NamespaceUsecase             *biz.NamespaceUsecase
+	ProjectUsecase               *biz.ProjectUsecase
 	DmsProxyUsecase              *biz.DmsProxyUsecase
 	Oauth2ConfigurationUsecase   *biz.Oauth2ConfigurationUsecase
 	LDAPConfigurationUsecase     *biz.LDAPConfigurationUsecase
@@ -59,13 +59,13 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.Options) (*DMSServic
 	// 预定义解决usecase循环依赖问题
 	memberUsecase := biz.MemberUsecase{}
 
-	namespaceRepo := storage.NewNamespaceRepo(logger, st)
-	namespaceUsecase := biz.NewNamespaceUsecase(logger, tx, namespaceRepo, &memberUsecase, opPermissionVerifyUsecase, pluginUseCase)
+	projectRepo := storage.NewProjectRepo(logger, st)
+	projectUsecase := biz.NewProjectUsecase(logger, tx, projectRepo, &memberUsecase, opPermissionVerifyUsecase, pluginUseCase)
 	dbServiceRepo := storage.NewDBServiceRepo(logger, st)
 	dmsProxyTargetRepo := storage.NewProxyTargetRepo(logger, st)
-	dbServiceUseCase := biz.NewDBServiceUsecase(dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, namespaceUsecase, dmsProxyTargetRepo)
+	dbServiceUseCase := biz.NewDBServiceUsecase(dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo)
 	databaseSourceServiceRepo := storage.NewDatabaseSourceServiceRepo(logger, st)
-	databaseSourceServiceUsecase := biz.NewDatabaseSourceServiceUsecase(logger, databaseSourceServiceRepo, opPermissionVerifyUsecase, namespaceUsecase, dbServiceUseCase)
+	databaseSourceServiceUsecase := biz.NewDatabaseSourceServiceUsecase(logger, databaseSourceServiceRepo, opPermissionVerifyUsecase, projectUsecase, dbServiceUseCase)
 	ldapConfigurationRepo := storage.NewLDAPConfigurationRepo(logger, st)
 	ldapConfigurationUsecase := biz.NewLDAPConfigurationUsecase(logger, tx, ldapConfigurationRepo)
 	userRepo := storage.NewUserRepo(logger, st)
@@ -79,9 +79,9 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.Options) (*DMSServic
 	roleUsecase := biz.NewRoleUsecase(logger, tx, roleRepo, opPermissionRepo, memberRepo, pluginUseCase, opPermissionVerifyUsecase)
 	dmsConfigRepo := storage.NewDMSConfigRepo(logger, st)
 	dmsConfigUsecase := biz.NewDMSConfigUseCase(logger, dmsConfigRepo)
-	memberUsecase = *biz.NewMemberUsecase(logger, tx, memberRepo, userUsecase, roleUsecase, dbServiceUseCase, opPermissionVerifyUsecase, namespaceUsecase)
+	memberUsecase = *biz.NewMemberUsecase(logger, tx, memberRepo, userUsecase, roleUsecase, dbServiceUseCase, opPermissionVerifyUsecase, projectUsecase)
 	memberGroupRepo := storage.NewMemberGroupRepo(logger, st)
-	memberGroupUsecase := biz.NewMemberGroupUsecase(logger, tx, memberGroupRepo, userUsecase, roleUsecase, dbServiceUseCase, opPermissionVerifyUsecase, namespaceUsecase, &memberUsecase)
+	memberGroupUsecase := biz.NewMemberGroupUsecase(logger, tx, memberGroupRepo, userUsecase, roleUsecase, dbServiceUseCase, opPermissionVerifyUsecase, projectUsecase, &memberUsecase)
 	dmsProxyUsecase, err := biz.NewDmsProxyUsecase(logger, dmsProxyTargetRepo, opts.APIServiceOpts.HTTP.Port)
 	oauth2ConfigurationRepo := storage.NewOauth2ConfigurationRepo(logger, st)
 	oauth2ConfigurationUsecase := biz.NewOauth2ConfigurationUsecase(logger, tx, oauth2ConfigurationRepo, userUsecase)
@@ -112,7 +112,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.Options) (*DMSServic
 		MemberUsecase:                &memberUsecase,
 		MemberGroupUsecase:           memberGroupUsecase,
 		OpPermissionVerifyUsecase:    opPermissionVerifyUsecase,
-		NamespaceUsecase:             namespaceUsecase,
+		ProjectUsecase:               projectUsecase,
 		DmsProxyUsecase:              dmsProxyUsecase,
 		Oauth2ConfigurationUsecase:   oauth2ConfigurationUsecase,
 		LDAPConfigurationUsecase:     ldapConfigurationUsecase,
@@ -132,7 +132,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.Options) (*DMSServic
 	// init notification
 	biz.Init(smtpConfigurationUsecase, wechatConfigurationUsecase, imConfigurationUsecase)
 	// init env
-	if err := biz.EnvPrepare(context.TODO(), logger, tx, dmsConfigUsecase, opPermissionUsecase, userUsecase, roleUsecase, namespaceUsecase); nil != err {
+	if err := biz.EnvPrepare(context.TODO(), logger, tx, dmsConfigUsecase, opPermissionUsecase, userUsecase, roleUsecase, projectUsecase); nil != err {
 		return nil, fmt.Errorf("failed to prepare env: %v", err)
 	}
 	s.log.Debug("env prepared")

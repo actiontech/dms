@@ -4,8 +4,8 @@ import "fmt"
 
 // internel build-in uid
 const (
-	UIDOfOpPermissionCreateNamespace     = "700001"
-	UIDOfOpPermissionNamespaceAdmin      = "700002"
+	UIDOfOpPermissionCreateProject       = "700001"
+	UIDOfOpPermissionProjectAdmin        = "700002"
 	UIDOfOpPermissionCreateWorkflow      = "700003"
 	UIDOfOpPermissionAuditWorkflow       = "700004"
 	UIDOfOpPermissionAuthDBServiceData   = "700005"
@@ -20,9 +20,9 @@ const (
 	UIDOfUserAdmin = "700200"
 	UIDOfUserSys   = "700201"
 
-	UIDOfNamespaceDefault = "700300"
+	UIDOfProjectDefault = "700300"
 
-	UIDOfRoleNamespaceAdmin = "700400"
+	UIDOfRoleProjectAdmin   = "700400"
 	UIDOfRoleSQLEAdmin      = "700401"
 	UIDOfRoleProvisionAdmin = "700402"
 )

@@ -51,10 +51,10 @@ func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.Options) (*C
 	// 预定义解决usecase循环依赖问题
 	memberUsecase := &biz.MemberUsecase{}
 	dmsProxyTargetRepo := storage.NewProxyTargetRepo(logger, st)
-	namespaceRepo := storage.NewNamespaceRepo(logger, st)
-	namespaceUsecase := biz.NewNamespaceUsecase(logger, tx, namespaceRepo, memberUsecase, opPermissionVerifyUsecase, pluginUseCase)
+	projectRepo := storage.NewProjectRepo(logger, st)
+	projectUsecase := biz.NewProjectUsecase(logger, tx, projectRepo, memberUsecase, opPermissionVerifyUsecase, pluginUseCase)
 	dbServiceRepo := storage.NewDBServiceRepo(logger, st)
-	dbServiceUseCase := biz.NewDBServiceUsecase(dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, namespaceUsecase, dmsProxyTargetRepo)
+	dbServiceUseCase := biz.NewDBServiceUsecase(dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo)
 
 	ldapConfigurationRepo := storage.NewLDAPConfigurationRepo(logger, st)
 	ldapConfigurationUsecase := biz.NewLDAPConfigurationUsecase(logger, tx, ldapConfigurationRepo)

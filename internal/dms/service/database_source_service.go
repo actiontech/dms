@@ -14,7 +14,7 @@ func (d *DMSService) ListDatabaseSourceService(ctx context.Context, req *v1.List
 
 	if req.ProjectUid != "" {
 		conditions = append(conditions, pkgConst.FilterCondition{
-			Field:    string(biz.DatabaseSourceServiceFieldNamespaceUID),
+			Field:    string(biz.DatabaseSourceServiceFieldProjectUID),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.ProjectUid,
 		})
@@ -29,7 +29,7 @@ func (d *DMSService) ListDatabaseSourceService(ctx context.Context, req *v1.List
 	for _, service := range services {
 		item := &v1.ListDatabaseSourceService{
 			UID:        service.UID,
-			ProjectUid: service.NamespaceUID,
+			ProjectUid: service.ProjectUID,
 			DatabaseSourceService: v1.DatabaseSourceService{
 				Name:        service.Name,
 				Source:      service.Source,
@@ -81,7 +81,7 @@ func (d *DMSService) GetDatabaseSourceService(ctx context.Context, req *v1.GetDa
 
 	item := &v1.GetDatabaseSourceService{
 		UID:        service.UID,
-		ProjectUid: service.NamespaceUID,
+		ProjectUid: service.ProjectUID,
 		DatabaseSourceService: v1.DatabaseSourceService{
 			Name:        service.Name,
 			Source:      service.Source,
@@ -107,14 +107,14 @@ func (d *DMSService) AddDatabaseSourceService(ctx context.Context, req *v1.AddDa
 	}
 
 	databaseSourceParams := &biz.DatabaseSourceServiceParams{
-		Name:         req.DatabaseSourceService.Name,
-		Source:       req.DatabaseSourceService.Source,
-		Version:      req.DatabaseSourceService.Version,
-		URL:          req.DatabaseSourceService.URL,
-		DbType:       dbType,
-		CronExpress:  req.DatabaseSourceService.CronExpress,
-		NamespaceUID: req.ProjectUid,
-		SQLEConfig:   d.buildSQLEConfig(req.DatabaseSourceService.SQLEConfig),
+		Name:        req.DatabaseSourceService.Name,
+		Source:      req.DatabaseSourceService.Source,
+		Version:     req.DatabaseSourceService.Version,
+		URL:         req.DatabaseSourceService.URL,
+		DbType:      dbType,
+		CronExpress: req.DatabaseSourceService.CronExpress,
+		ProjectUID:  req.ProjectUid,
+		SQLEConfig:  d.buildSQLEConfig(req.DatabaseSourceService.SQLEConfig),
 	}
 
 	uid, err := d.DatabaseSourceServiceUsecase.AddDatabaseSourceService(ctx, databaseSourceParams, currentUserId)
@@ -158,14 +158,14 @@ func (d *DMSService) UpdateDatabaseSourceService(ctx context.Context, req *v1.Up
 	}
 
 	databaseSourceParams := &biz.DatabaseSourceServiceParams{
-		Name:         req.DatabaseSourceService.Name,
-		Source:       req.DatabaseSourceService.Source,
-		Version:      req.DatabaseSourceService.Version,
-		URL:          req.DatabaseSourceService.URL,
-		DbType:       dbType,
-		CronExpress:  req.DatabaseSourceService.CronExpress,
-		NamespaceUID: req.ProjectUid,
-		SQLEConfig:   d.buildSQLEConfig(req.DatabaseSourceService.SQLEConfig),
+		Name:        req.DatabaseSourceService.Name,
+		Source:      req.DatabaseSourceService.Source,
+		Version:     req.DatabaseSourceService.Version,
+		URL:         req.DatabaseSourceService.URL,
+		DbType:      dbType,
+		CronExpress: req.DatabaseSourceService.CronExpress,
+		ProjectUID:  req.ProjectUid,
+		SQLEConfig:  d.buildSQLEConfig(req.DatabaseSourceService.SQLEConfig),
 	}
 
 	err = d.DatabaseSourceServiceUsecase.UpdateDatabaseSourceService(ctx, req.DatabaseSourceServiceUid, databaseSourceParams, currentUserId)
