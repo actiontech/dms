@@ -3677,7 +3677,7 @@
           "x-go-name": "Msg"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/base/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
     },
     "GetBasicInfoReply": {
       "type": "object",
