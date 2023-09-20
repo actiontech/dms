@@ -12,10 +12,10 @@ import (
 type MemberGroup struct {
 	Base
 
-	IsNamespaceAdmin bool
+	IsProjectAdmin   bool
 	UID              string
 	Name             string
-	NamespaceUID     string
+	ProjectUID       string
 	UserUids         []string
 	Users            []UserIdWithName
 	RoleWithOpRanges []MemberRoleWithOpRange
@@ -41,7 +41,7 @@ type MemberGroupUsecase struct {
 	roleUsecase               *RoleUsecase
 	dbServiceUsecase          *DBServiceUsecase
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
-	namespaceUsecase          *NamespaceUsecase
+	projectUsecase            *ProjectUsecase
 	memberUsecase             *MemberUsecase
 	log                       *utilLog.Helper
 }
@@ -51,7 +51,7 @@ func NewMemberGroupUsecase(log utilLog.Logger, tx TransactionGenerator, repo Mem
 	roleUsecase *RoleUsecase,
 	dbServiceUsecase *DBServiceUsecase,
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase,
-	namespaceUsecase *NamespaceUsecase,
+	projectUsecase *ProjectUsecase,
 	memberUsecase *MemberUsecase) *MemberGroupUsecase {
 	return &MemberGroupUsecase{
 		tx:                        tx,
@@ -60,7 +60,7 @@ func NewMemberGroupUsecase(log utilLog.Logger, tx TransactionGenerator, repo Mem
 		roleUsecase:               roleUsecase,
 		dbServiceUsecase:          dbServiceUsecase,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
-		namespaceUsecase:          namespaceUsecase,
+		projectUsecase:            projectUsecase,
 		memberUsecase:             memberUsecase,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.member_group")),
 	}
@@ -73,9 +73,9 @@ type ListMemberGroupsOption struct {
 	FilterBy     []pkgConst.FilterCondition
 }
 
-func (m *MemberGroupUsecase) ListMemberGroups(ctx context.Context, option *ListMemberGroupsOption, namespaceUid string) ([]*MemberGroup, int64, error) {
+func (m *MemberGroupUsecase) ListMemberGroups(ctx context.Context, option *ListMemberGroupsOption, projectUid string) ([]*MemberGroup, int64, error) {
 	// 检查空间是否归档/删除
-	if err := m.namespaceUsecase.isNamespaceActive(ctx, namespaceUid); err != nil {
+	if err := m.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
 		return nil, 0, fmt.Errorf("list member groups error: %v", err)
 	}
 	members, total, err := m.repo.ListMemberGroups(ctx, option)
@@ -86,14 +86,14 @@ func (m *MemberGroupUsecase) ListMemberGroups(ctx context.Context, option *ListM
 	return members, total, nil
 }
 
-func (m *MemberGroupUsecase) IsMemberGroupNamespaceAdmin(ctx context.Context, memberGroupUid string) (bool, error) {
+func (m *MemberGroupUsecase) IsMemberGroupProjectAdmin(ctx context.Context, memberGroupUid string) (bool, error) {
 	member, err := m.repo.GetMemberGroup(ctx, memberGroupUid)
 	if err != nil {
 		return false, fmt.Errorf("get member group failed: %v", err)
 	}
 
 	for _, r := range member.RoleWithOpRanges {
-		if r.RoleUID == pkgConst.UIDOfRoleNamespaceAdmin {
+		if r.RoleUID == pkgConst.UIDOfRoleProjectAdmin {
 			return true, nil
 		}
 	}
@@ -101,9 +101,9 @@ func (m *MemberGroupUsecase) IsMemberGroupNamespaceAdmin(ctx context.Context, me
 	return false, nil
 }
 
-func (m *MemberGroupUsecase) GetMemberGroup(ctx context.Context, memberGroupUid, namespaceUid string) (*MemberGroup, error) {
+func (m *MemberGroupUsecase) GetMemberGroup(ctx context.Context, memberGroupUid, projectUid string) (*MemberGroup, error) {
 	// 检查空间是否归档/删除
-	if err := m.namespaceUsecase.isNamespaceActive(ctx, namespaceUid); err != nil {
+	if err := m.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
 		return nil, fmt.Errorf("get member groups error: %v", err)
 	}
 
@@ -122,11 +122,11 @@ func (m *MemberGroupUsecase) CreateMemberGroup(ctx context.Context, currentUserU
 	}
 	mg.UID = uid
 
-	if mg.IsNamespaceAdmin {
+	if mg.IsProjectAdmin {
 		mg.RoleWithOpRanges = append(mg.RoleWithOpRanges, MemberRoleWithOpRange{
-			RoleUID:     pkgConst.UIDOfRoleNamespaceAdmin,
-			OpRangeType: OpRangeTypeNamespace,
-			RangeUIDs:   []string{mg.NamespaceUID},
+			RoleUID:     pkgConst.UIDOfRoleProjectAdmin,
+			OpRangeType: OpRangeTypeProject,
+			RangeUIDs:   []string{mg.ProjectUID},
 		})
 	}
 
@@ -140,14 +140,14 @@ func (m *MemberGroupUsecase) CreateMemberGroup(ctx context.Context, currentUserU
 
 func (m *MemberGroupUsecase) checkMemberGroupBeforeUpsert(ctx context.Context, currentUserUid string, mg *MemberGroup) error {
 	// 检查空间是否归档/删除
-	if err := m.namespaceUsecase.isNamespaceActive(ctx, mg.NamespaceUID); err != nil {
+	if err := m.projectUsecase.isProjectActive(ctx, mg.ProjectUID); err != nil {
 		return fmt.Errorf("create member error: %v", err)
 	}
 	// 检查当前用户有空间管理员权限
-	if isAdmin, err := m.opPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, currentUserUid, mg.NamespaceUID); err != nil {
-		return fmt.Errorf("check user is namespace admin failed: %v", err)
+	if isAdmin, err := m.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, mg.ProjectUID); err != nil {
+		return fmt.Errorf("check user is project admin failed: %v", err)
 	} else if !isAdmin {
-		return fmt.Errorf("user is not namespace admin")
+		return fmt.Errorf("user is not project admin")
 	}
 
 	// 检查成员组成员用户存在
@@ -166,16 +166,16 @@ func (m *MemberGroupUsecase) UpdateMemberGroup(ctx context.Context, currentUserU
 		return fmt.Errorf("update member group error: %v", err)
 	}
 
-	memberGroup, err := m.GetMemberGroup(ctx, mg.UID, mg.NamespaceUID)
+	memberGroup, err := m.GetMemberGroup(ctx, mg.UID, mg.ProjectUID)
 	if err != nil {
 		return err
 	}
 
-	if mg.IsNamespaceAdmin {
+	if mg.IsProjectAdmin {
 		mg.RoleWithOpRanges = append(mg.RoleWithOpRanges, MemberRoleWithOpRange{
-			RoleUID:     pkgConst.UIDOfRoleNamespaceAdmin,
-			OpRangeType: OpRangeTypeNamespace,
-			RangeUIDs:   []string{mg.NamespaceUID},
+			RoleUID:     pkgConst.UIDOfRoleProjectAdmin,
+			OpRangeType: OpRangeTypeProject,
+			RangeUIDs:   []string{mg.ProjectUID},
 		})
 	}
 
@@ -190,18 +190,18 @@ func (m *MemberGroupUsecase) UpdateMemberGroup(ctx context.Context, currentUserU
 	return nil
 }
 
-func (m *MemberGroupUsecase) DeleteMemberGroup(ctx context.Context, currentUserUid, memberGroupUid, namespaceUid string) (err error) {
+func (m *MemberGroupUsecase) DeleteMemberGroup(ctx context.Context, currentUserUid, memberGroupUid, projectUid string) (err error) {
 	// check
 	{
 		// 检查空间是否归档/删除
-		if err := m.namespaceUsecase.isNamespaceActive(ctx, namespaceUid); err != nil {
+		if err := m.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
 			return fmt.Errorf("update member error: %v", err)
 		}
 		// 检查当前用户有空间管理员权限
-		if isAdmin, err := m.opPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, currentUserUid, namespaceUid); err != nil {
-			return fmt.Errorf("check user is namespace admin failed: %v", err)
+		if isAdmin, err := m.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, projectUid); err != nil {
+			return fmt.Errorf("check user is project admin failed: %v", err)
 		} else if !isAdmin {
-			return fmt.Errorf("user is not namespace admin")
+			return fmt.Errorf("user is not project admin")
 		}
 	}
 

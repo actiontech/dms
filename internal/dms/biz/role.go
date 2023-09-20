@@ -64,9 +64,9 @@ func (u *Role) GetUID() string {
 func initRole() []*Role {
 	return []*Role{
 		{
-			UID:  pkgConst.UIDOfRoleNamespaceAdmin,
+			UID:  pkgConst.UIDOfRoleProjectAdmin,
 			Name: "空间管理员",
-			Desc: "namespace admin",
+			Desc: "project admin",
 		},
 		{
 			UID:  pkgConst.UIDOfRoleSQLEAdmin,
@@ -145,8 +145,8 @@ func (d *RoleUsecase) InitRoles(ctx context.Context) (err error) {
 
 		roleId := r.GetUID()
 		switch roleId {
-		case pkgConst.UIDOfRoleNamespaceAdmin:
-			if err = d.InsureOpPermissionsToRole(ctx, []string{pkgConst.UIDOfOpPermissionNamespaceAdmin}, roleId); err != nil {
+		case pkgConst.UIDOfRoleProjectAdmin:
+			if err = d.InsureOpPermissionsToRole(ctx, []string{pkgConst.UIDOfOpPermissionProjectAdmin}, roleId); err != nil {
 				return fmt.Errorf("insure op permissions in role failed: %v", err)
 			}
 		case pkgConst.UIDOfRoleSQLEAdmin:
@@ -227,7 +227,7 @@ func (d *RoleUsecase) ListRole(ctx context.Context, option *ListRolesOption) (ro
 	option.FilterBy = append(option.FilterBy, pkgConst.FilterCondition{
 		Field:    string(RoleFieldUID),
 		Operator: pkgConst.FilterOperatorNotEqual,
-		Value:    pkgConst.UIDOfRoleNamespaceAdmin,
+		Value:    pkgConst.UIDOfRoleProjectAdmin,
 	})
 	roles, total, err = d.repo.ListRoles(ctx, option)
 	if err != nil {

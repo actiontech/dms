@@ -11,11 +11,11 @@ import (
 
 var errNotDatabaseSourceService = errors.New("database source service related functions are enterprise version functions")
 
-func (d *DatabaseSourceServiceUsecase) ListDatabaseSourceServices(ctx context.Context, conditions []pkgConst.FilterCondition, namespaceId string, currentUserId string) ([]*DatabaseSourceServiceParams, error) {
+func (d *DatabaseSourceServiceUsecase) ListDatabaseSourceServices(ctx context.Context, conditions []pkgConst.FilterCondition, projectId string, currentUserId string) ([]*DatabaseSourceServiceParams, error) {
 	return nil, errNotDatabaseSourceService
 }
 
-func (d *DatabaseSourceServiceUsecase) GetDatabaseSourceService(ctx context.Context, databaseSourceServiceId, namespaceId, currentUserId string) (*DatabaseSourceServiceParams, error) {
+func (d *DatabaseSourceServiceUsecase) GetDatabaseSourceService(ctx context.Context, databaseSourceServiceId, projectId, currentUserId string) (*DatabaseSourceServiceParams, error) {
 	return nil, errNotDatabaseSourceService
 }
 

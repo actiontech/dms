@@ -23,18 +23,18 @@ type DatabaseSourceServiceUsecase struct {
 	log                       *utilLog.Helper
 	repo                      DatabaseSourceServiceRepo
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
-	namespaceUsecase          *NamespaceUsecase
+	projectUsecase            *ProjectUsecase
 	dbServiceUsecase          *DBServiceUsecase
 	cron                      *cron.Cron
 	lastSyncTime              time.Time
 }
 
-func NewDatabaseSourceServiceUsecase(log utilLog.Logger, repo DatabaseSourceServiceRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, namespaceUsecase *NamespaceUsecase, dbServiceUsecase *DBServiceUsecase) *DatabaseSourceServiceUsecase {
+func NewDatabaseSourceServiceUsecase(log utilLog.Logger, repo DatabaseSourceServiceRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, dbServiceUsecase *DBServiceUsecase) *DatabaseSourceServiceUsecase {
 	return &DatabaseSourceServiceUsecase{
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.database_source_service")),
 		repo:                      repo,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
-		namespaceUsecase:          namespaceUsecase,
+		projectUsecase:            projectUsecase,
 		dbServiceUsecase:          dbServiceUsecase,
 	}
 }
@@ -47,7 +47,7 @@ type DatabaseSourceServiceParams struct {
 	URL                 string          `json:"url"`
 	DbType              pkgConst.DBType `json:"db_type"`
 	CronExpress         string          `json:"cron_express"`
-	NamespaceUID        string          `json:"namespace_uid"`
+	ProjectUID          string          `json:"project_uid"`
 	LastSyncErr         string          `json:"last_sync_err"`
 	LastSyncSuccessTime *time.Time      `json:"last_sync_success_time"`
 	AdditionalParams    pkgParams.Params

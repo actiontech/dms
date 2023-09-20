@@ -43,7 +43,7 @@ func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
 		AdditionalParams:  ds.AdditionalParams,
 		Source:            ds.Source,
 		MaintenancePeriod: ds.MaintenancePeriod,
-		NamespaceUID:      ds.NamespaceUID,
+		ProjectUID:        ds.ProjectUID,
 	}
 	{
 		// add sqle config
@@ -92,7 +92,7 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 		Business:               ds.Business,
 		AdditionalParams:       ds.AdditionalParams,
 		Source:                 ds.Source,
-		NamespaceUID:           ds.NamespaceUID,
+		ProjectUID:             ds.ProjectUID,
 	}
 	{
 		modelSqleConfig := ds.ExtraParameters.SqleConfig
@@ -122,15 +122,15 @@ func convertModelDatabaseSourceService(m *model.DatabaseSourceService) (*biz.Dat
 	}
 
 	ret := &biz.DatabaseSourceServiceParams{
-		UID:          m.UID,
-		Name:         m.Name,
-		Source:       m.Source,
-		Version:      m.Version,
-		URL:          m.URL,
-		DbType:       dbType,
-		CronExpress:  m.CronExpress,
-		NamespaceUID: m.NamespaceUID,
-		LastSyncErr:  m.LastSyncErr,
+		UID:         m.UID,
+		Name:        m.Name,
+		Source:      m.Source,
+		Version:     m.Version,
+		URL:         m.URL,
+		DbType:      dbType,
+		CronExpress: m.CronExpress,
+		ProjectUID:  m.ProjectUID,
+		LastSyncErr: m.LastSyncErr,
 	}
 
 	if m.LastSyncSuccessTime != nil {
@@ -203,14 +203,14 @@ func convertBizCloudbeaverConnection(u *biz.CloudbeaverConnection) *model.Cloudb
 
 func convertBizDatabaseSourceService(u *biz.DatabaseSourceServiceParams) *model.DatabaseSourceService {
 	m := &model.DatabaseSourceService{
-		Model:        model.Model{UID: u.UID},
-		Name:         u.Name,
-		Source:       u.Source,
-		Version:      u.Version,
-		URL:          u.URL,
-		DbType:       u.DbType.String(),
-		CronExpress:  u.CronExpress,
-		NamespaceUID: u.NamespaceUID,
+		Model:       model.Model{UID: u.UID},
+		Name:        u.Name,
+		Source:      u.Source,
+		Version:     u.Version,
+		URL:         u.URL,
+		DbType:      u.DbType.String(),
+		CronExpress: u.CronExpress,
+		ProjectUID:  u.ProjectUID,
 	}
 
 	// add sqle config
@@ -362,7 +362,7 @@ func convertModelMemberGroup(mg *model.MemberGroup) (*biz.MemberGroup, error) {
 	return &biz.MemberGroup{
 		Base:             convertBase(mg.Model),
 		UID:              mg.UID,
-		NamespaceUID:     mg.NamespaceUID,
+		ProjectUID:       mg.ProjectUID,
 		Name:             mg.Name,
 		Users:            users,
 		RoleWithOpRanges: roles,
@@ -426,7 +426,7 @@ func convertBizDMSConfig(u *biz.DMSConfig) (*model.DMSConfig, error) {
 		NeedInitOpPermissions: u.NeedInitOpPermissions,
 		NeedInitUsers:         u.NeedInitUsers,
 		NeedInitRoles:         u.NeedInitRoles,
-		NeedInitNamespaces:    u.NeedInitNamespaces,
+		NeedInitProjects:      u.NeedInitProjects,
 	}, nil
 }
 
@@ -437,7 +437,7 @@ func convertModelDMSConfig(u *model.DMSConfig) (*biz.DMSConfig, error) {
 		NeedInitOpPermissions: u.NeedInitOpPermissions,
 		NeedInitUsers:         u.NeedInitUsers,
 		NeedInitRoles:         u.NeedInitRoles,
-		NeedInitNamespaces:    u.NeedInitNamespaces,
+		NeedInitProjects:      u.NeedInitProjects,
 	}, nil
 }
 
@@ -457,7 +457,7 @@ func convertBizMember(m *biz.Member) (*model.Member, error) {
 			UID: m.UID,
 		},
 		UserUID:          m.UserUID,
-		NamespaceUID:     m.NamespaceUID,
+		ProjectUID:       m.ProjectUID,
 		RoleWithOpRanges: roles,
 	}, nil
 }
@@ -484,7 +484,7 @@ func convertBizMemberGroup(m *biz.MemberGroup) *model.MemberGroup {
 			CreatedAt: m.CreatedAt,
 		},
 		Name:             m.Name,
-		NamespaceUID:     m.NamespaceUID,
+		ProjectUID:       m.ProjectUID,
 		RoleWithOpRanges: roles,
 		Users:            users,
 	}
@@ -506,7 +506,7 @@ func convertModelMember(m *model.Member) (*biz.Member, error) {
 	return &biz.Member{
 		Base:             convertBase(m.Model),
 		UID:              m.UID,
-		NamespaceUID:     m.NamespaceUID,
+		ProjectUID:       m.ProjectUID,
 		UserUID:          m.UserUID,
 		RoleWithOpRanges: roles,
 	}, nil
@@ -520,8 +520,8 @@ func convertModelRangeUIDs(uids string) []string {
 	return strings.Split(uids, ",")
 }
 
-func convertBizNamespace(m *biz.Namespace) (*model.Namespace, error) {
-	return &model.Namespace{
+func convertBizProject(m *biz.Project) (*model.Project, error) {
+	return &model.Project{
 		Model: model.Model{
 			UID: m.UID,
 		},
@@ -532,26 +532,26 @@ func convertBizNamespace(m *biz.Namespace) (*model.Namespace, error) {
 	}, nil
 }
 
-func convertModelNamespace(m *model.Namespace) (*biz.Namespace, error) {
-	return &biz.Namespace{
+func convertModelProject(m *model.Project) (*biz.Project, error) {
+	return &biz.Project{
 		Base:          convertBase(m.Model),
 		UID:           m.UID,
 		Name:          m.Name,
 		Desc:          m.Desc,
-		Status:        convertModelNamespaceStatus(m.Status),
+		Status:        convertModelProjectStatus(m.Status),
 		CreateUserUID: m.CreateUserUID,
 		CreateTime:    m.CreatedAt,
 	}, nil
 }
 
-func convertModelNamespaceStatus(status string) biz.NamespaceStatus {
+func convertModelProjectStatus(status string) biz.ProjectStatus {
 	switch status {
-	case string(biz.NamespaceStatusActive):
-		return biz.NamespaceStatusActive
-	case string(biz.NamespaceStatusArchived):
-		return biz.NamespaceStatusArchived
+	case string(biz.ProjectStatusActive):
+		return biz.ProjectStatusActive
+	case string(biz.ProjectStatusArchived):
+		return biz.ProjectStatusArchived
 	default:
-		return biz.NamespaceStatusUnknown
+		return biz.ProjectStatusUnknown
 	}
 }
 

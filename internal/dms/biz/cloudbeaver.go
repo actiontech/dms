@@ -494,13 +494,13 @@ func (cu *CloudbeaverUsecase) connectManagement(ctx context.Context, cloudbeaver
 			return err
 		}
 
-		namespaceIdMap := map[string]struct{}{}
+		projectIdMap := map[string]struct{}{}
 		dbServiceIdMap := map[string]struct{}{}
 		for _, opPermission := range opPermissions {
-			// namespace permission
-			if opPermission.OpRangeType == OpRangeTypeNamespace && opPermission.OpPermissionUID == constant.UIDOfOpPermissionNamespaceAdmin {
+			// project permission
+			if opPermission.OpRangeType == OpRangeTypeProject && opPermission.OpPermissionUID == constant.UIDOfOpPermissionProjectAdmin {
 				for _, rangeUid := range opPermission.RangeUIDs {
-					namespaceIdMap[rangeUid] = struct{}{}
+					projectIdMap[rangeUid] = struct{}{}
 				}
 			}
 
@@ -514,7 +514,7 @@ func (cu *CloudbeaverUsecase) connectManagement(ctx context.Context, cloudbeaver
 
 		var lastActiveDBServices []*DBService
 		for _, activeDBService := range activeDBServices {
-			if _, ok := namespaceIdMap[activeDBService.NamespaceUID]; ok {
+			if _, ok := projectIdMap[activeDBService.ProjectUID]; ok {
 				lastActiveDBServices = append(lastActiveDBServices, activeDBService)
 				continue
 			}
@@ -552,17 +552,17 @@ func (cu *CloudbeaverUsecase) connectManagement(ctx context.Context, cloudbeaver
 func (cu *CloudbeaverUsecase) createConnection(ctx context.Context, activeDBServices []*DBService) error {
 	dbServiceIds := make([]string, 0, len(activeDBServices))
 	dbServiceMap := map[string]*DBService{}
-	namespaceMap := map[string]string{}
+	projectMap := map[string]string{}
 	for _, service := range activeDBServices {
 		dbServiceIds = append(dbServiceIds, service.UID)
 		dbServiceMap[service.UID] = service
 
-		namespace, err := cu.dbServiceUsecase.namespaceUsecase.GetNamespace(ctx, service.NamespaceUID)
+		project, err := cu.dbServiceUsecase.projectUsecase.GetProject(ctx, service.ProjectUID)
 		if err != nil {
-			namespaceMap[service.UID] = "unknown"
-			cu.log.Errorf("get db service namespace %s failed, err: %v", service.NamespaceUID, err)
+			projectMap[service.UID] = "unknown"
+			cu.log.Errorf("get db service project %s failed, err: %v", service.ProjectUID, err)
 		} else {
-			namespaceMap[service.UID] = namespace.Name
+			projectMap[service.UID] = project.Name
 		}
 	}
 
@@ -599,13 +599,13 @@ func (cu *CloudbeaverUsecase) createConnection(ctx context.Context, activeDBServ
 
 	// 同步实例连接信息
 	for _, dbServiceId := range createConnection {
-		if err = cu.createCloudbeaverConnection(ctx, cloudbeaverClient, dbServiceMap[dbServiceId], namespaceMap[dbServiceId]); err != nil {
+		if err = cu.createCloudbeaverConnection(ctx, cloudbeaverClient, dbServiceMap[dbServiceId], projectMap[dbServiceId]); err != nil {
 			cu.log.Errorf("create dnServerId %s connection failed: %v", dbServiceId, err)
 		}
 	}
 
 	for _, dbServiceId := range updateConnection {
-		if err = cu.updateCloudbeaverConnection(ctx, cloudbeaverClient, cloudbeaverConnectionMap[dbServiceId].CloudbeaverConnectionID, dbServiceMap[dbServiceId], namespaceMap[dbServiceId]); err != nil {
+		if err = cu.updateCloudbeaverConnection(ctx, cloudbeaverClient, cloudbeaverConnectionMap[dbServiceId].CloudbeaverConnectionID, dbServiceMap[dbServiceId], projectMap[dbServiceId]); err != nil {
 			cu.log.Errorf("update dnServerId %s to connection failed: %v", dbServiceId, err)
 		}
 	}
@@ -678,8 +678,8 @@ func (cu *CloudbeaverUsecase) bindUserAccessConnection(ctx context.Context, clou
 	return rootClient.Run(ctx, cloudbeaverConnReq, nil)
 }
 
-func (cu *CloudbeaverUsecase) createCloudbeaverConnection(ctx context.Context, client *cloudbeaver.Client, dbService *DBService, namespace string) error {
-	params, err := cu.GenerateCloudbeaverConnectionParams(dbService, namespace)
+func (cu *CloudbeaverUsecase) createCloudbeaverConnection(ctx context.Context, client *cloudbeaver.Client, dbService *DBService, project string) error {
+	params, err := cu.GenerateCloudbeaverConnectionParams(dbService, project)
 	if err != nil {
 		return fmt.Errorf("%s unsupported", dbService.DBType)
 	}
@@ -706,8 +706,8 @@ func (cu *CloudbeaverUsecase) createCloudbeaverConnection(ctx context.Context, c
 }
 
 // UpdateCloudbeaverConnection 更新完毕后会同步缓存
-func (cu *CloudbeaverUsecase) updateCloudbeaverConnection(ctx context.Context, client *cloudbeaver.Client, cloudbeaverConnectionId string, dbService *DBService, namespace string) error {
-	params, err := cu.GenerateCloudbeaverConnectionParams(dbService, namespace)
+func (cu *CloudbeaverUsecase) updateCloudbeaverConnection(ctx context.Context, client *cloudbeaver.Client, cloudbeaverConnectionId string, dbService *DBService, project string) error {
+	params, err := cu.GenerateCloudbeaverConnectionParams(dbService, project)
 	if err != nil {
 		return fmt.Errorf("%s unsupported", dbService.DBType)
 	}
@@ -738,10 +738,10 @@ func (cu *CloudbeaverUsecase) updateCloudbeaverConnection(ctx context.Context, c
 	})
 }
 
-func (cu *CloudbeaverUsecase) generateCommonCloudbeaverConfigParams(dbService *DBService, namespace string) map[string]interface{} {
+func (cu *CloudbeaverUsecase) generateCommonCloudbeaverConfigParams(dbService *DBService, project string) map[string]interface{} {
 	return map[string]interface{}{
 		"configurationType": "MANUAL",
-		"name":              fmt.Sprintf("%v: %v", namespace, dbService.Name),
+		"name":              fmt.Sprintf("%v: %v", project, dbService.Name),
 		"template":          false,
 		"host":              dbService.Host,
 		"port":              dbService.Port,
@@ -756,9 +756,9 @@ func (cu *CloudbeaverUsecase) generateCommonCloudbeaverConfigParams(dbService *D
 	}
 }
 
-func (cu *CloudbeaverUsecase) GenerateCloudbeaverConnectionParams(dbService *DBService, namespace string) (map[string]interface{}, error) {
+func (cu *CloudbeaverUsecase) GenerateCloudbeaverConnectionParams(dbService *DBService, project string) (map[string]interface{}, error) {
 	var err error
-	config := cu.generateCommonCloudbeaverConfigParams(dbService, namespace)
+	config := cu.generateCommonCloudbeaverConfigParams(dbService, project)
 
 	switch dbService.DBType {
 	case constant.DBTypeMySQL:

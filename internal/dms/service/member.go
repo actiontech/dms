@@ -67,7 +67,7 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) 
 	}
 	if req.ProjectUid != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
-			Field:    string(biz.MemberFieldNamespaceUID),
+			Field:    string(biz.MemberFieldProjectUID),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.ProjectUid,
 		})
@@ -104,16 +104,16 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) 
 				return nil, fmt.Errorf("get role failed: %v", err)
 			}
 
-			isAdmin, err := d.MemberUsecase.IsMemberNamespaceAdmin(ctx, m.GetUID())
+			isAdmin, err := d.MemberUsecase.IsMemberProjectAdmin(ctx, m.GetUID())
 			if err != nil {
-				return nil, fmt.Errorf("check member is namespace admin failed: %v", err)
+				return nil, fmt.Errorf("check member is project admin failed: %v", err)
 			}
 
-			// 如果是空间管理员namespace admin，则表示拥有该空间的所有权限
+			// 如果是空间管理员project admin，则表示拥有该空间的所有权限
 			if isAdmin {
 				ret[i].IsProjectAdmin = true
 
-				// 如果不是空间管理员namespace admin，则展示具体的权限范围
+				// 如果不是空间管理员project admin，则展示具体的权限范围
 			} else {
 				// 获取权限范围类型
 				opRangeTyp, err := dmsV1.ParseOpRangeType(r.OpRangeType.String())
@@ -132,7 +132,7 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) 
 						}
 						rangeUidWithNames = append(rangeUidWithNames, dmsV1.UidWithName{Uid: dbService.GetUID(), Name: dbService.Name})
 					// 成员目前只支持配置数据源范围的权限
-					case biz.OpRangeTypeNamespace, biz.OpRangeTypeGlobal:
+					case biz.OpRangeTypeProject, biz.OpRangeTypeGlobal:
 						return nil, fmt.Errorf("member currently only support the db service op range type, but got type: %v", r.OpRangeType)
 					default:
 						return nil, fmt.Errorf("unsupported op range type: %v", r.OpRangeType)
@@ -176,7 +176,7 @@ func (d *DMSService) UpdateMember(ctx context.Context, currentUserUid string, re
 		})
 	}
 
-	if err = d.MemberUsecase.UpdateMember(ctx, currentUserUid, req.MemberUid, pkgConst.UIDOfNamespaceDefault, /*暂时只支持默认namespace*/
+	if err = d.MemberUsecase.UpdateMember(ctx, currentUserUid, req.MemberUid, pkgConst.UIDOfProjectDefault, /*暂时只支持默认project*/
 		req.Member.IsProjectAdmin, roles); nil != err {
 		return fmt.Errorf("update member failed: %v", err)
 	}
@@ -203,7 +203,7 @@ func (d *DMSService) ListMembersForInternal(ctx context.Context, req *dmsCommonV
 		LimitPerPage: req.PageSize,
 	}
 
-	members, total, err := d.OpPermissionVerifyUsecase.ListUsersOpPermissionInNamespace(ctx, req.ProjectUid, listOption)
+	members, total, err := d.OpPermissionVerifyUsecase.ListUsersOpPermissionInProject(ctx, req.ProjectUid, listOption)
 	if nil != err {
 		return nil, err
 	}
@@ -239,9 +239,9 @@ func (d *DMSService) ListMembersForInternal(ctx context.Context, req *dmsCommonV
 			})
 		}
 
-		isAdmin, err := d.OpPermissionVerifyUsecase.IsUserNamespaceAdmin(ctx, m.UserUid, req.ProjectUid)
+		isAdmin, err := d.OpPermissionVerifyUsecase.IsUserProjectAdmin(ctx, m.UserUid, req.ProjectUid)
 		if err != nil {
-			return nil, fmt.Errorf("check user namespace admin error: %v", err)
+			return nil, fmt.Errorf("check user project admin error: %v", err)
 		}
 
 		ret[i] = &dmsCommonV1.ListMembersForInternalItem{

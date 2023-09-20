@@ -23,7 +23,7 @@ func NewOpPermissionVerifyRepo(log utilLog.Logger, s *Storage) *OpPermissionVeri
 	return &OpPermissionVerifyRepo{Storage: s, log: utilLog.NewHelper(log, utilLog.WithMessageKey("storage.op_permission_verify"))}
 }
 
-func (o *OpPermissionVerifyRepo) IsUserHasOpPermissionInNamespace(ctx context.Context, userUid, namespaceUid, opPermissionUid string) (has bool, err error) {
+func (o *OpPermissionVerifyRepo) IsUserHasOpPermissionInProject(ctx context.Context, userUid, projectUid, opPermissionUid string) (has bool, err error) {
 	var count int64
 	var memberGroupCount int64
 	if err := transaction(o.log, ctx, o.db, func(tx *gorm.DB) error {
@@ -31,19 +31,19 @@ func (o *OpPermissionVerifyRepo) IsUserHasOpPermissionInNamespace(ctx context.Co
 		SELECT 
 		    count(*) 
 		FROM members AS m 
-		JOIN member_role_op_ranges AS r ON m.uid=r.member_uid AND m.user_uid=? AND m.namespace_uid=? 
-		JOIN role_op_permissions AS p ON r.role_uid = p.role_uid AND p.op_permission_uid = ?`, userUid, namespaceUid, opPermissionUid).Count(&count).Error; err != nil {
-			return fmt.Errorf("failed to check user has op permission in namespace: %v", err)
+		JOIN member_role_op_ranges AS r ON m.uid=r.member_uid AND m.user_uid=? AND m.project_uid=? 
+		JOIN role_op_permissions AS p ON r.role_uid = p.role_uid AND p.op_permission_uid = ?`, userUid, projectUid, opPermissionUid).Count(&count).Error; err != nil {
+			return fmt.Errorf("failed to check user has op permission in project: %v", err)
 		}
 
 		if err := tx.WithContext(ctx).Raw(`
 		SELECT 
     		count(*) 
 		FROM member_groups AS mg
-		JOIN member_group_users AS mgu ON mg.uid = mgu.member_group_uid and mgu.user_uid = ? AND mg.namespace_uid = ? 
+		JOIN member_group_users AS mgu ON mg.uid = mgu.member_group_uid and mgu.user_uid = ? AND mg.project_uid = ? 
 		JOIN member_group_role_op_ranges AS mgrop ON mg.uid = mgrop.member_group_uid 
-		JOIN role_op_permissions AS rop ON mgrop.role_uid = rop.role_uid AND rop.op_permission_uid = ?`, userUid, namespaceUid, opPermissionUid).Count(&memberGroupCount).Error; err != nil {
-			return fmt.Errorf("failed to check user has op permission in namespace: %v", err)
+		JOIN role_op_permissions AS rop ON mgrop.role_uid = rop.role_uid AND rop.op_permission_uid = ?`, userUid, projectUid, opPermissionUid).Count(&memberGroupCount).Error; err != nil {
+			return fmt.Errorf("failed to check user has op permission in project: %v", err)
 		}
 
 		return nil
@@ -52,7 +52,7 @@ func (o *OpPermissionVerifyRepo) IsUserHasOpPermissionInNamespace(ctx context.Co
 	}
 	return count > 0 || memberGroupCount > 0, nil
 }
-func (o *OpPermissionVerifyRepo) GetUserNamespaceWithOpPermissions(ctx context.Context, userUid string) (namespaceWithPermission []biz.NamespaceOpPermissionWithOpRange, err error) {
+func (o *OpPermissionVerifyRepo) GetUserProjectWithOpPermissions(ctx context.Context, userUid string) (projectWithPermission []biz.ProjectOpPermissionWithOpRange, err error) {
 	var ret []struct {
 		Uid             string
 		Name            string
@@ -64,8 +64,8 @@ func (o *OpPermissionVerifyRepo) GetUserNamespaceWithOpPermissions(ctx context.C
 		if err := tx.WithContext(ctx).Raw(`
 		SELECT 
 		    n.uid, n.name, p.op_permission_uid, r.op_range_type, r.range_uids 
-		FROM namespaces AS n
-		JOIN members AS m ON n.uid = m.namespace_uid
+		FROM projects AS n
+		JOIN members AS m ON n.uid = m.project_uid
 		JOIN users AS u ON m.user_uid = u.uid AND u.uid = ?
 		LEFT JOIN member_role_op_ranges AS r ON m.uid=r.member_uid
 		LEFT JOIN role_op_permissions AS p ON r.role_uid = p.role_uid
@@ -73,30 +73,30 @@ func (o *OpPermissionVerifyRepo) GetUserNamespaceWithOpPermissions(ctx context.C
 		UNION
 		SELECT 
 			distinct n.uid, n.name, rop.op_permission_uid, mgrop.op_range_type, mgrop.range_uids 
-		FROM namespaces AS n
-		JOIN member_groups AS mg ON n.uid = mg.namespace_uid
+		FROM projects AS n
+		JOIN member_groups AS mg ON n.uid = mg.project_uid
 		JOIN member_group_users AS mgu ON mg.uid = mgu.member_group_uid
 		JOIN users AS u ON mgu.user_uid = u.uid AND u.uid = ?
 		LEFT JOIN member_group_role_op_ranges AS mgrop ON mg.uid=mgrop.member_group_uid
 		LEFT JOIN role_op_permissions AS rop ON mgrop.role_uid = rop.role_uid
 		WHERE n.status = 'active'
 	`, userUid, userUid).Find(&ret).Error; err != nil {
-			return fmt.Errorf("failed to find user op permission with namespace: %v", err)
+			return fmt.Errorf("failed to find user op permission with project: %v", err)
 		}
 		return nil
 	}); err != nil {
 		return nil, err
 	}
-	namespaceWithPermission = make([]biz.NamespaceOpPermissionWithOpRange, 0, len(ret))
+	projectWithPermission = make([]biz.ProjectOpPermissionWithOpRange, 0, len(ret))
 	for _, r := range ret {
 		typ, err := biz.ParseOpRangeType(r.OpRangeType)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse op range type: %v", err)
 		}
 
-		namespaceWithPermission = append(namespaceWithPermission, biz.NamespaceOpPermissionWithOpRange{
-			NamespaceUid:  r.Uid,
-			NamespaceName: r.Name,
+		projectWithPermission = append(projectWithPermission, biz.ProjectOpPermissionWithOpRange{
+			ProjectUid:  r.Uid,
+			ProjectName: r.Name,
 			OpPermissionWithOpRange: biz.OpPermissionWithOpRange{
 				OpPermissionUID: r.OpPermissionUid,
 				OpRangeType:     typ,
@@ -104,10 +104,10 @@ func (o *OpPermissionVerifyRepo) GetUserNamespaceWithOpPermissions(ctx context.C
 			},
 		})
 	}
-	return namespaceWithPermission, nil
+	return projectWithPermission, nil
 }
 
-func (o *OpPermissionVerifyRepo) GetUserOpPermissionInNamespace(ctx context.Context, userUid, namespaceUid string) (opPermissionWithOpRanges []biz.OpPermissionWithOpRange, err error) {
+func (o *OpPermissionVerifyRepo) GetUserOpPermissionInProject(ctx context.Context, userUid, projectUid string) (opPermissionWithOpRanges []biz.OpPermissionWithOpRange, err error) {
 	type result struct {
 		OpPermissionUid string
 		OpRangeType     string
@@ -119,7 +119,7 @@ func (o *OpPermissionVerifyRepo) GetUserOpPermissionInNamespace(ctx context.Cont
 		SELECT 
 		    p.op_permission_uid, r.op_range_type, r.range_uids 
 		FROM members AS m 
-		JOIN member_role_op_ranges AS r ON m.uid=r.member_uid AND m.user_uid=? AND m.namespace_uid=? 
+		JOIN member_role_op_ranges AS r ON m.uid=r.member_uid AND m.user_uid=? AND m.project_uid=? 
 		JOIN role_op_permissions AS p ON r.role_uid = p.role_uid
 		UNION 
 		SELECT
@@ -128,8 +128,8 @@ func (o *OpPermissionVerifyRepo) GetUserOpPermissionInNamespace(ctx context.Cont
 		JOIN member_group_users mgu ON mg.uid = mgu.member_group_uid
 		JOIN member_group_role_op_ranges mgror ON mgu.member_group_uid = mgror.member_group_uid
 		JOIN role_op_permissions rop ON mgror.role_uid = rop.role_uid
-		WHERE mg.namespace_uid = ? and mgu.user_uid = ?`, userUid, namespaceUid, namespaceUid, userUid).Scan(&results).Error; err != nil {
-			return fmt.Errorf("failed to get user op permission in namespace: %v", err)
+		WHERE mg.project_uid = ? and mgu.user_uid = ?`, userUid, projectUid, projectUid, userUid).Scan(&results).Error; err != nil {
+			return fmt.Errorf("failed to get user op permission in project: %v", err)
 		}
 		return nil
 	}); err != nil {
@@ -222,7 +222,7 @@ func (o *OpPermissionVerifyRepo) GetUserGlobalOpPermission(ctx context.Context, 
 	return opPermissions, nil
 }
 
-func (o *OpPermissionVerifyRepo) ListUsersOpPermissionInNamespace(ctx context.Context, namespaceUid string, opt *biz.ListMembersOpPermissionOption) (items []biz.ListMembersOpPermissionItem, total int64, err error) {
+func (o *OpPermissionVerifyRepo) ListUsersOpPermissionInProject(ctx context.Context, projectUid string, opt *biz.ListMembersOpPermissionOption) (items []biz.ListMembersOpPermissionItem, total int64, err error) {
 	type result struct {
 		UserUid         string
 		UserName        string
@@ -242,17 +242,17 @@ func (o *OpPermissionVerifyRepo) ListUsersOpPermissionInNamespace(ctx context.Co
 				SELECT 
 					m.user_uid, u.name AS user_name 
 				FROM
-					members AS m JOIN users AS u ON m.user_uid = u.uid AND m.namespace_uid = ?
+					members AS m JOIN users AS u ON m.user_uid = u.uid AND m.project_uid = ?
 				UNION
 				SELECT 
 					DISTINCT u.uid AS user_uid, u.name AS user_name
 				FROM 
 					member_groups AS mg
-					JOIN member_group_users mgu on mg.uid = mgu.member_group_uid AND mg.namespace_uid = ?
+					JOIN member_group_users mgu on mg.uid = mgu.member_group_uid AND mg.project_uid = ?
 					JOIN users AS u ON mgu.user_uid = u.uid
 			) TEMP ORDER BY user_uid LIMIT ? OFFSET ?`,
-				namespaceUid, namespaceUid, opt.LimitPerPage, opt.LimitPerPage*(uint32(fixPageIndices(opt.PageNumber)))).Scan(&results).Error; err != nil {
-				return fmt.Errorf("failed to list user op permission in namespace: %v", err)
+				projectUid, projectUid, opt.LimitPerPage, opt.LimitPerPage*(uint32(fixPageIndices(opt.PageNumber)))).Scan(&results).Error; err != nil {
+				return fmt.Errorf("failed to list user op permission in project: %v", err)
 			}
 		}
 
@@ -263,16 +263,16 @@ func (o *OpPermissionVerifyRepo) ListUsersOpPermissionInNamespace(ctx context.Co
 				SELECT 
 					m.user_uid, u.name AS user_name
 				FROM members AS m 
-				JOIN users AS u ON m.user_uid = u.uid AND m.namespace_uid=?
+				JOIN users AS u ON m.user_uid = u.uid AND m.project_uid=?
 				UNION
 				SELECT 
 					DISTINCT u.uid AS user_uid, u.name AS user_name 
 				FROM member_groups AS mg
-				JOIN member_group_users mgu on mg.uid = mgu.member_group_uid AND mg.namespace_uid = ?
+				JOIN member_group_users mgu on mg.uid = mgu.member_group_uid AND mg.project_uid = ?
 				JOIN users AS u ON mgu.user_uid = u.uid
 			) TEMP`,
-				namespaceUid, namespaceUid).Scan(&total).Error; err != nil {
-				return fmt.Errorf("failed to list total user op permission in namespace: %v", err)
+				projectUid, projectUid).Scan(&total).Error; err != nil {
+				return fmt.Errorf("failed to list total user op permission in project: %v", err)
 			}
 		}
 
@@ -287,7 +287,7 @@ func (o *OpPermissionVerifyRepo) ListUsersOpPermissionInNamespace(ctx context.Co
 				SELECT 
 					m.user_uid, p.op_permission_uid, r.op_range_type, r.range_uids 
 				FROM members AS m 
-				JOIN member_role_op_ranges AS r ON m.uid=r.member_uid AND m.user_uid in (?) AND m.namespace_uid=? 
+				JOIN member_role_op_ranges AS r ON m.uid=r.member_uid AND m.user_uid in (?) AND m.project_uid=? 
 				JOIN role_op_permissions AS p ON r.role_uid = p.role_uid
 				UNION 
 				SELECT
@@ -296,8 +296,8 @@ func (o *OpPermissionVerifyRepo) ListUsersOpPermissionInNamespace(ctx context.Co
 				JOIN member_group_users mgu ON mg.uid = mgu.member_group_uid
 				JOIN member_group_role_op_ranges mgror ON mgu.member_group_uid = mgror.member_group_uid
 				JOIN role_op_permissions rop ON mgror.role_uid = rop.role_uid
-				WHERE mg.namespace_uid = ? and mgu.user_uid in (?)`, userIds, namespaceUid, namespaceUid, userIds).Scan(&permissionResults).Error; err != nil {
-					return fmt.Errorf("failed to get user op permission in namespace: %v", err)
+				WHERE mg.project_uid = ? and mgu.user_uid in (?)`, userIds, projectUid, projectUid, userIds).Scan(&permissionResults).Error; err != nil {
+					return fmt.Errorf("failed to get user op permission in project: %v", err)
 				}
 			}
 		}
@@ -344,26 +344,26 @@ func (o *OpPermissionVerifyRepo) ListUsersOpPermissionInNamespace(ctx context.Co
 	return items, total, nil
 }
 
-func (d *OpPermissionVerifyRepo) GetUserNamespace(ctx context.Context, userUid string) (namespaces []*biz.Namespace, err error) {
-	var models []*model.Namespace
+func (d *OpPermissionVerifyRepo) GetUserProject(ctx context.Context, userUid string) (projects []*biz.Project, err error) {
+	var models []*model.Project
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Raw(`
 			SELECT 
 			n.*
 		FROM
-			namespaces n
-			JOIN members m ON n.uid = m.namespace_uid
+			projects n
+			JOIN members m ON n.uid = m.project_uid
 			JOIN users u ON m.user_uid = u.uid AND u.uid = ?
 		UNION
 		SELECT 
 			DISTINCT n.*
 		FROM 
-			namespaces n
-			JOIN member_groups mg on n.uid = mg.namespace_uid
+			projects n
+			JOIN member_groups mg on n.uid = mg.project_uid
 			JOIN member_group_users mgu ON mgu.member_group_uid = mg.uid
 			JOIN users u ON mgu.user_uid = u.uid AND u.uid = ?
 			`, userUid, userUid).Scan(&models).Error; err != nil {
-			return fmt.Errorf("failed to list user namespace: %v", err)
+			return fmt.Errorf("failed to list user project: %v", err)
 		}
 		return nil
 	}); err != nil {
@@ -371,11 +371,11 @@ func (d *OpPermissionVerifyRepo) GetUserNamespace(ctx context.Context, userUid s
 	}
 	// convert model to biz
 	for _, model := range models {
-		ds, err := convertModelNamespace(model)
+		ds, err := convertModelProject(model)
 		if err != nil {
-			return nil, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert model namespaces: %v", err))
+			return nil, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert model projects: %v", err))
 		}
-		namespaces = append(namespaces, ds)
+		projects = append(projects, ds)
 	}
-	return namespaces, nil
+	return projects, nil
 }
