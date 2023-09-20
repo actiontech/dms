@@ -47,7 +47,7 @@ type Model struct {
 
 type DBService struct {
 	Model
-	Name              string          `json:"name" gorm:"size:200;not null;uniqueIndex" example:""`
+	Name              string          `json:"name" gorm:"size:200;not null;index:project_uid_name,unique" example:""`
 	DBType            string          `json:"db_type" gorm:"column:db_type; not null" example:"mysql"`
 	Host              string          `json:"host" gorm:"column:db_host; not null" example:"10.10.10.10"`
 	Port              string          `json:"port" gorm:"column:db_port; not null" example:"3306"`
@@ -57,7 +57,7 @@ type DBService struct {
 	Business          string          `json:"business" gorm:"column:business; not null" example:"this is a business"`
 	AdditionalParams  params.Params   `json:"additional_params" gorm:"type:text"`
 	Source            string          `json:"source" gorm:"not null"`
-	ProjectUID        string          `json:"project_uid" gorm:"column:project_uid"`
+	ProjectUID        string          `json:"project_uid" gorm:"column:project_uid;index:project_uid_name,unique"`
 	MaintenancePeriod periods.Periods `json:"maintenance_period" gorm:"type:text"`
 	ExtraParameters   ExtraParameters `json:"extra_parameters" gorm:"TYPE:json"`
 }
@@ -140,8 +140,8 @@ type DMSConfig struct {
 
 type Member struct {
 	Model
-	UserUID          string              `json:"user_uid" gorm:"column:user_uid"`
-	ProjectUID       string              `json:"project_uid" gorm:"column:project_uid"`
+	UserUID          string              `json:"user_uid" gorm:"column:user_uid;index:project_user_id,unique"`
+	ProjectUID       string              `json:"project_uid" gorm:"column:project_uid;index:project_user_id,unique"`
 	RoleWithOpRanges []MemberRoleOpRange `json:"role_with_op_ranges" gorm:"foreignKey:MemberUID;references:UID"`
 }
 
@@ -158,8 +158,8 @@ func (mg *MemberRoleOpRange) AfterSave(tx *gorm.DB) error {
 
 type MemberGroup struct {
 	Model
-	Name             string                   `json:"name" gorm:"size:200;uniqueIndex"`
-	ProjectUID       string                   `json:"project_uid" gorm:"column:project_uid"`
+	Name             string                   `json:"name" gorm:"size:200;index:project_uid_name,unique"`
+	ProjectUID       string                   `json:"project_uid" gorm:"column:project_uid;index:project_uid_name,unique"`
 	Users            []*User                  `gorm:"many2many:member_group_users"`
 	RoleWithOpRanges []MemberGroupRoleOpRange `json:"role_with_op_ranges" gorm:"foreignKey:MemberGroupUID;references:UID"`
 }
@@ -177,7 +177,7 @@ func (mg *MemberGroupRoleOpRange) AfterSave(tx *gorm.DB) error {
 
 type Project struct {
 	Model
-	Name          string `json:"name" gorm:"column:name"`
+	Name          string `json:"name" gorm:"column:name;index:name,unique"`
 	Desc          string `json:"desc" gorm:"column:desc"`
 	CreateUserUID string `json:"create_user_uid" gorm:"column:create_user_uid"`
 	Status        string `gorm:"default:'active'"`
@@ -300,12 +300,12 @@ type CloudbeaverConnectionCache struct {
 
 type DatabaseSourceService struct {
 	Model
-	Name       string `json:"name" gorm:"size:200;not null;uniqueIndex" example:""`
+	Name       string `json:"name" gorm:"size:200;not null;index:project_uid_name,unique" example:""`
 	Source     string `json:"source" gorm:"not null"`
 	Version    string `json:"version" gorm:"not null"`
 	URL        string `json:"url" gorm:"not null"`
 	DbType     string `json:"db_type" gorm:"not null"`
-	ProjectUID string `json:"project_uid" gorm:"column:project_uid"`
+	ProjectUID string `json:"project_uid" gorm:"column:project_uid;index:project_uid_name,unique"`
 	// Cron表达式
 	CronExpress         string          `json:"cron_express" gorm:"column:cron_express; not null"`
 	LastSyncErr         string          `json:"last_sync_err" gorm:"column:last_sync_err"`
