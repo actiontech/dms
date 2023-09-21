@@ -13,6 +13,7 @@ import (
 	"github.com/actiontech/dms/internal/apiserver/service"
 	dmsConf "github.com/actiontech/dms/internal/dms/conf"
 	pkgLog "github.com/actiontech/dms/internal/pkg/log"
+	"github.com/actiontech/dms/pkg/dms-common/pkg/http"
 	"github.com/actiontech/dms/pkg/rand"
 
 	utilIo "github.com/actiontech/dms/pkg/dms-common/pkg/io"
@@ -48,6 +49,11 @@ func run(logger utilLog.Logger) error {
 	err = rand.InitSnowflake(opts.NodeOpts.NodeNo)
 	if nil != err {
 		return fmt.Errorf("failed to Init snowflake: %v", err)
+	}
+
+	// reset jwt singing key, default dms token
+	if err = http.ResetJWTSigningKeyAndDefaultToken(opts.SecretKey); err != nil {
+		return err
 	}
 
 	server, err := service.NewAPIServer(logger, opts)

@@ -9,7 +9,7 @@ import (
 )
 
 func TestGenJwtToken(t *testing.T) {
-	token, err := GenJwtToken("999999")
+	token, err := GenJwtToken(WithUserId("999999"))
 	if err != nil {
 		t.Errorf("failed to sign the token: %v", err)
 	}
