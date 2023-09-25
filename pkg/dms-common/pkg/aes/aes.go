@@ -40,9 +40,6 @@ func ResetAesSecretKey(secret string) error {
 }
 
 func (e *encryptor) SetAesSecretKey(key []byte) (err error) {
-	e.mutex.Lock()
-	defer e.mutex.Unlock()
-
 	origKey := e.SecretKey
 	e.SecretKey = key
 	origData := "test"
