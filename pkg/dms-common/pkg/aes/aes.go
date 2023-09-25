@@ -31,6 +31,14 @@ func NewEncryptor(key []byte) *encryptor {
 	}
 }
 
+func ResetAesSecretKey(secret string) error {
+	if secret == "" {
+		return nil
+	}
+
+	return std.SetAesSecretKey([]byte(secret))
+}
+
 func (e *encryptor) SetAesSecretKey(key []byte) (err error) {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
