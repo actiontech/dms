@@ -13,6 +13,7 @@ import (
 	"github.com/actiontech/dms/internal/apiserver/service"
 	dmsConf "github.com/actiontech/dms/internal/dms/conf"
 	pkgLog "github.com/actiontech/dms/internal/pkg/log"
+	"github.com/actiontech/dms/pkg/dms-common/pkg/aes"
 	"github.com/actiontech/dms/pkg/dms-common/pkg/http"
 	"github.com/actiontech/dms/pkg/rand"
 
@@ -53,6 +54,11 @@ func run(logger utilLog.Logger) error {
 
 	// reset jwt singing key, default dms token
 	if err = http.ResetJWTSigningKeyAndDefaultToken(opts.SecretKey); err != nil {
+		return err
+	}
+
+	// reset aes secret key
+	if err = aes.ResetAesSecretKey(opts.SecretKey); err != nil {
 		return err
 	}
 
