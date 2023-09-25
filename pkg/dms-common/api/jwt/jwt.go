@@ -44,6 +44,12 @@ func WithUserId(userId string) CustomClaimFunc {
 	}
 }
 
+func WithUserName(name string) CustomClaimFunc {
+	return func(claims jwt.MapClaims) {
+		claims["name"] = name
+	}
+}
+
 func WithAuditPlanName(name string) CustomClaimFunc {
 	return func(claims jwt.MapClaims) {
 		claims["apn"] = name
@@ -105,7 +111,7 @@ func ParseAuditPlanName(tokenStr string) (string, error) {
 		return "", jwt.NewValidationError("unknown token", jwt.ValidationErrorClaimsInvalid)
 	}
 
-	return fmt.Sprintf("%v", auditPlanName), nil
+	return auditPlanName.(string), nil
 }
 
 func GetUserFromContext(c EchoContextGetter) (uid int64, err error) {
