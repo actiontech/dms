@@ -28,24 +28,24 @@ func ResetJWTSigningKeyAndDefaultToken(val string) error {
 		return err
 	}
 
+	// reset jwt singing key
+	v1.ResetJWTSigningKey(val)
+
 	// expire time: 50 years later
-	token, err := jwt.GenJwtToken(jwt.WithUserId(uid), jwt.WithExpiredTime(time.Hour*24*365*50))
+	token, err := jwt.GenJwtToken(jwt.WithUserId(uid), jwt.WithExpiredTime(time.Hour*24))
 	if err != nil {
 		return err
 	}
 
-	// reset jwt singing key
-	v1.ResetJWTSigningKey(val)
-
 	// reset default dms token
-	ResetDefaultDMSToken(token)
+	resetDefaultDMSToken(token)
 
 	return nil
 }
 
-func ResetDefaultDMSToken(token string) {
+func resetDefaultDMSToken(token string) {
 	if token != "" {
-		DefaultDMSToken = token
+		DefaultDMSToken = fmt.Sprintf("Bearer %s", token)
 	}
 }
 
