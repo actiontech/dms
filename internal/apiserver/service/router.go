@@ -190,6 +190,7 @@ func (s *APIServer) installMiddleware() error {
 			logger := log.NewHelper(log.With(pkgLog.NewKLogWrapper(s.logger), "middleware", "jwt"))
 			if strings.HasSuffix(c.Request().RequestURI, dmsV1.SessionRouterGroup) ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/oauth2" /* TODO 使用统一方法skip */) ||
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/personalization/logo") ||
 				!strings.HasPrefix(c.Request().RequestURI, dmsV1.CurrentGroupVersion) {
 				logger.Debugf("skipper url jwt check: %v", c.Request().RequestURI)
 				return true

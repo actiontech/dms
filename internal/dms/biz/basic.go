@@ -77,6 +77,9 @@ func (d *BasicUsecase) GetBasicInfo(ctx context.Context) (*BasicInfo, error) {
 
 	if basicConfig.Title != "" {
 		ret.Title = basicConfig.Title
+	}
+
+	if len(basicConfig.Logo) > 0 {
 		ret.LogoUrl = "/v1/dms/static/logo"
 	}
 
