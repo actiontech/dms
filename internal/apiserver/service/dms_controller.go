@@ -465,7 +465,7 @@ func (a *DMSController) AddSession(c echo.Context) error {
 	}
 
 	// Create token with claims
-	token, err := jwt.GenJwtToken(reply.Payload.UserUid)
+	token, err := jwt.GenJwtToken(jwt.WithUserId(reply.Payload.UserUid))
 	if nil != err {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
