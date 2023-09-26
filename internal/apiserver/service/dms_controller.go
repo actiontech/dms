@@ -418,14 +418,14 @@ func (d *DMSController) GetStaticLogo(c echo.Context) error {
 //	  200: body:GenericResp
 //	  default: body:GenericResp
 func (d *DMSController) Personalization(c echo.Context) error {
+	req := &aV1.PersonalizationReq{}
+
 	fileHeader, err := c.FormFile("file")
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
+	if err != nil && !errors.Is(err, http.ErrMissingFile) {
+		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	req := &aV1.PersonalizationReq{
-		File: fileHeader,
-	}
+	req.File = fileHeader
 
 	err = bindAndValidateReq(c, req)
 	if nil != err {
