@@ -32,7 +32,7 @@ func ResetJWTSigningKeyAndDefaultToken(val string) error {
 	v1.ResetJWTSigningKey(val)
 
 	// expire time: 50 years later
-	token, err := jwt.GenJwtToken(jwt.WithUserId(uid), jwt.WithExpiredTime(time.Hour*24))
+	token, err := jwt.GenJwtToken(jwt.WithUserId(uid), jwt.WithExpiredTime(time.Hour*24*365*50))
 	if err != nil {
 		return err
 	}
