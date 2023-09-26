@@ -70,7 +70,7 @@ func WithExpiredTime(duration time.Duration) CustomClaimFunc {
 }
 
 func ParseUidFromJwtTokenStr(tokenStr string) (uid string, err error) {
-	token, err := parseClaim(tokenStr)
+	token, err := parseJwtTokenStr(tokenStr)
 	if err != nil {
 		return "", err
 	}
@@ -83,7 +83,7 @@ func ParseUidFromJwtTokenStr(tokenStr string) (uid string, err error) {
 	return userId, nil
 }
 
-func parseClaim(tokenStr string) (*jwt.Token, error) {
+func parseJwtTokenStr(tokenStr string) (*jwt.Token, error) {
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		if signMethod256, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrSignatureInvalid
@@ -103,7 +103,7 @@ func parseClaim(tokenStr string) (*jwt.Token, error) {
 
 // ParseAuditPlanName used by echo middleware which only verify api request to audit plan related.
 func ParseAuditPlanName(tokenStr string) (string, error) {
-	token, err := parseClaim(tokenStr)
+	token, err := parseJwtTokenStr(tokenStr)
 	if err != nil {
 		return "", err
 	}
