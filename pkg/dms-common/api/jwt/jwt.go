@@ -18,10 +18,17 @@ type EchoContextGetter interface {
 
 type CustomClaimFunc func(claims jwt.MapClaims)
 
+const (
+	JWTUserId        = "uid"
+	JWTUsername      = "name"
+	JWTExpiredTime   = "exp"
+	JWTAuditPlanName = "apn"
+)
+
 func GenJwtToken(customClaims ...CustomClaimFunc) (tokenStr string, err error) {
 	var mapClaims = jwt.MapClaims{
-		"iss": "actiontech dms",
-		"exp": jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+		"iss":          "actiontech dms",
+		JWTExpiredTime: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 	}
 
 	for _, claimFunc := range customClaims {
@@ -40,41 +47,32 @@ func GenJwtToken(customClaims ...CustomClaimFunc) (tokenStr string, err error) {
 
 func WithUserId(userId string) CustomClaimFunc {
 	return func(claims jwt.MapClaims) {
-		claims["uid"] = userId
+		claims[JWTUserId] = userId
 	}
 }
 
 func WithUserName(name string) CustomClaimFunc {
 	return func(claims jwt.MapClaims) {
-		claims["name"] = name
+		claims[JWTUsername] = name
 	}
 }
 
 func WithAuditPlanName(name string) CustomClaimFunc {
 	return func(claims jwt.MapClaims) {
-		claims["apn"] = name
+		claims[JWTAuditPlanName] = name
 	}
 }
 
 func WithExpiredTime(duration time.Duration) CustomClaimFunc {
 	return func(claims jwt.MapClaims) {
-		claims["exp"] = jwt.NewNumericDate(time.Now().Add(duration))
+		claims[JWTExpiredTime] = jwt.NewNumericDate(time.Now().Add(duration))
 	}
 }
 
 func ParseUidFromJwtTokenStr(tokenStr string) (uid string, err error) {
-	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-		if signMethod256, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, jwt.ErrSignatureInvalid
-		} else if signMethod256 != jwt.SigningMethodHS256 {
-			return nil, jwt.ErrSignatureInvalid
-		}
-
-		return dmsCommonV1.JwtSigningKey, nil
-	})
-
+	token, err := parseClaim(tokenStr)
 	if err != nil {
-		return "", fmt.Errorf("parse token failed: %v", err)
+		return "", err
 	}
 
 	userId, err := ParseUserUidStrFromToken(token)
@@ -85,8 +83,7 @@ func ParseUidFromJwtTokenStr(tokenStr string) (uid string, err error) {
 	return userId, nil
 }
 
-// ParseAuditPlanName used by echo middleware which only verify api request to audit plan related.
-func ParseAuditPlanName(tokenStr string) (string, error) {
+func parseClaim(tokenStr string) (*jwt.Token, error) {
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		if signMethod256, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrSignatureInvalid
@@ -98,20 +95,30 @@ func ParseAuditPlanName(tokenStr string) (string, error) {
 	})
 
 	if err != nil {
-		return "", fmt.Errorf("parse token failed: %v", err)
+		return nil, fmt.Errorf("parse token failed: %v", err)
+	}
+
+	return token, nil
+}
+
+// ParseAuditPlanName used by echo middleware which only verify api request to audit plan related.
+func ParseAuditPlanName(tokenStr string) (string, error) {
+	token, err := parseClaim(tokenStr)
+	if err != nil {
+		return "", err
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return "", jwt.NewValidationError("unknown token", jwt.ValidationErrorClaimsInvalid)
+		return "", fmt.Errorf("failed to convert token claims to jwt")
 	}
 
-	auditPlanName, ok := claims["apn"]
+	auditPlanName, ok := claims[JWTAuditPlanName]
 	if !ok {
 		return "", jwt.NewValidationError("unknown token", jwt.ValidationErrorClaimsInvalid)
 	}
 
-	return auditPlanName.(string), nil
+	return fmt.Sprintf("%v", auditPlanName), nil
 }
 
 func GetUserFromContext(c EchoContextGetter) (uid int64, err error) {
@@ -171,7 +178,8 @@ func ParseUserUidStrFromToken(token *jwt.Token) (uid string, err error) {
 	if !ok {
 		return "", fmt.Errorf("failed to convert token claims to jwt")
 	}
-	uidStr := fmt.Sprintf("%v", claims["uid"])
+
+	uidStr := fmt.Sprintf("%v", claims[JWTUserId])
 	if uidStr == "" {
 		return "", fmt.Errorf("failed to parse user id: empty uid")
 	}
@@ -183,7 +191,7 @@ func ParseUserUidStrFromTokenWithOldJwt(token *jwtOld.Token) (uid string, err er
 	if !ok {
 		return "", fmt.Errorf("failed to convert token claims to jwt")
 	}
-	uidStr := fmt.Sprintf("%v", claims["uid"])
+	uidStr := fmt.Sprintf("%v", claims[JWTUserId])
 	if uidStr == "" {
 		return "", fmt.Errorf("failed to parse user id: empty uid")
 	}
