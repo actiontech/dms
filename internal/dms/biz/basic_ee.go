@@ -26,26 +26,28 @@ const (
 )
 
 func (d *BasicUsecase) Personalization(ctx context.Context, params *BasicConfigParams) error {
-	if params.File.Size > MaxLogoSize {
-		return fmt.Errorf("image size exceeds %dKB", MaxLogoSize)
-	}
+	if params.File != nil {
+		if params.File.Size > MaxLogoSize {
+			return fmt.Errorf("image size exceeds %dKB", MaxLogoSize)
+		}
 
-	file, err := params.File.Open()
-	if err != nil {
-		return err
-	}
-	defer file.Close()
+		file, err := params.File.Open()
+		if err != nil {
+			return err
+		}
+		defer file.Close()
 
-	buff, err := io.ReadAll(file)
-	if err != nil {
-		return err
-	}
+		fileBytes, err := io.ReadAll(file)
+		if err != nil {
+			return err
+		}
 
-	if !d.IsImage(http.DetectContentType(buff)) {
-		return errors.New("supports only (jpg, jpeg, png, gif) images")
-	}
+		if !d.IsImage(http.DetectContentType(fileBytes)) {
+			return errors.New("supports only (jpg, jpeg, png, gif) images")
+		}
 
-	params.Logo = buff
+		params.Logo = fileBytes
+	}
 
 	basicConfig, err := d.basicConfigRepo.GetBasicConfig(ctx)
 	if err != nil {
@@ -62,6 +64,13 @@ func (d *BasicUsecase) Personalization(ctx context.Context, params *BasicConfigP
 	} else {
 		params.UID = basicConfig.UID
 		params.CreatedAt = basicConfig.CreatedAt
+	}
+
+	if params.Title == "" {
+		params.Title = basicConfig.Title
+	}
+	if len(params.Logo) == 0 {
+		params.Logo = basicConfig.Logo
 	}
 
 	return d.basicConfigRepo.SaveBasicConfig(ctx, params)
