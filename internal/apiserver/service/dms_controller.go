@@ -421,13 +421,11 @@ func (d *DMSController) Personalization(c echo.Context) error {
 	req := &aV1.PersonalizationReq{}
 
 	fileHeader, err := c.FormFile("file")
-	if err != nil {
-		if errors.Is(err, http.ErrMissingFile) {
-			return NewErrResp(c, err, apiError.BadRequestErr)
-		}
-	} else {
-		req.File = fileHeader
+	if err != nil && !errors.Is(err, http.ErrMissingFile) {
+		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
+
+	req.File = fileHeader
 
 	err = bindAndValidateReq(c, req)
 	if nil != err {
