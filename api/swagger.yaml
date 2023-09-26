@@ -371,10 +371,12 @@ definitions:
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ComponentNameWithVersion:
         properties:
-            Name:
+            name:
                 type: string
-            Version:
+                x-go-name: Name
+            version:
                 type: string
+                x-go-name: Version
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DBService:
@@ -3397,13 +3399,11 @@ paths:
                 - description: title
                   in: formData
                   name: title
-                  required: true
                   type: string
                   x-go-name: Title
                 - description: file upload
                   in: formData
                   name: file
-                  required: true
                   type: file
                   x-go-name: File
             responses:
