@@ -14,6 +14,7 @@ type Options struct {
 	DMSServiceOpts  *dmsConf.Options `yaml:"dms"`
 	CloudbeaverOpts *CloudbeaverOpts `yaml:"cloudbeaver"`
 	NodeOpts        *NodeOpts        `yaml:"node"`
+	SecretKey       string           `yaml:"secret_key"`
 }
 
 type APIServerOpts struct {
