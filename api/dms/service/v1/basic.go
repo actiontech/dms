@@ -7,8 +7,8 @@ import (
 )
 
 type ComponentNameWithVersion struct {
-	Name    string
-	Version string
+	Name    string `json:"name"`
+	Version string `json:"version"`
 }
 type BasicInfo struct {
 	LogoUrl    string                     `json:"logo_url"`
@@ -35,13 +35,13 @@ type GetStaticLogoReply struct {
 // swagger:parameters Personalization
 type PersonalizationReq struct {
 	// title
-	// Required: true
+	// Required: false
 	// in: formData
-	Title string `json:"title" form:"title" validate:"required"`
+	Title string `json:"title" form:"title"`
 
 	// file upload
-	// Required: true
+	// Required: false
 	// in: formData
 	// swagger:file
-	File *multipart.FileHeader `json:"file" form:"file" validate:"required"`
+	File *multipart.FileHeader `json:"file" form:"file"`
 }
