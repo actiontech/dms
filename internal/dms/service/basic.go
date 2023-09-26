@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	v1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
@@ -44,6 +45,10 @@ func (d *DMSService) GetStaticLogo(ctx context.Context) (*v1.GetStaticLogoReply,
 }
 
 func (d *DMSService) Personalization(ctx context.Context, req *v1.PersonalizationReq) error {
+	if req.Title == "" && req.File == nil {
+		return errors.New("one of the parameters title, logo is required")
+	}
+
 	params := &biz.BasicConfigParams{
 		Title: req.Title,
 		File:  req.File,
