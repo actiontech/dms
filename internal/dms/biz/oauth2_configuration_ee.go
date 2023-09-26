@@ -156,7 +156,7 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 
 	// the user has successfully logged in at the third party, and the token can be returned directly
 	if exist {
-		token, err := jwt.GenJwtToken(user.GetUID())
+		token, err := jwt.GenJwtToken(jwt.WithUserId(user.GetUID()))
 		if nil != err {
 			return "", err
 		}
@@ -256,7 +256,7 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 		if err != nil {
 			return "", err
 		}
-		return jwt.GenJwtToken(uid)
+		return jwt.GenJwtToken(jwt.WithUserId(uid))
 	} else {
 		// check password
 		if user.Password != password {
@@ -284,6 +284,6 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 				return "", err
 			}
 		}
-		return jwt.GenJwtToken(user.UID)
+		return jwt.GenJwtToken(jwt.WithUserId(user.UID))
 	}
 }
