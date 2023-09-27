@@ -3,7 +3,7 @@ package v1
 import (
 	"fmt"
 
-	base "github.com/actiontech/dms/api/base/v1"
+	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	"github.com/go-openapi/strfmt"
@@ -95,10 +95,10 @@ func (u *AddDBServiceReq) String() string {
 // swagger:model AddDBServiceReply
 type AddDBServiceReply struct {
 	// Add db service reply
-	Payload struct {
+	Data struct {
 		// db service UID
 		Uid string `json:"uid"`
-	} `json:"payload"`
+	} `json:"data"`
 
 	// Generic reply
 	base.GenericResp
@@ -108,7 +108,7 @@ func (u *AddDBServiceReply) String() string {
 	if u == nil {
 		return "AddDBServiceReply{nil}"
 	}
-	return fmt.Sprintf("AddDBServiceReply{Uid:%s}", u.Payload.Uid)
+	return fmt.Sprintf("AddDBServiceReply{Uid:%s}", u.Data.Uid)
 }
 
 // swagger:parameters CheckDBServiceIsConnectable
@@ -130,9 +130,7 @@ type CheckDBServiceIsConnectableReplyItem struct {
 
 // swagger:model CheckDBServiceIsConnectableReply
 type CheckDBServiceIsConnectableReply struct {
-	Payload struct {
-		Connections []CheckDBServiceIsConnectableReplyItem `json:"connections"`
-	} `json:"payload"`
+	Data []CheckDBServiceIsConnectableReplyItem `json:"data"`
 
 	base.GenericResp
 }
@@ -283,10 +281,8 @@ type AuthSyncConfig struct {
 // swagger:model ListDBServiceReply
 type ListDBServiceReply struct {
 	// List db service reply
-	Payload struct {
-		DBServices []*ListDBService `json:"db_services"`
-		Total      int64            `json:"total"`
-	} `json:"payload"`
+	Data  []*ListDBService `json:"data"`
+	Total int64            `json:"total_nums"`
 
 	// Generic reply
 	base.GenericResp
@@ -351,10 +347,10 @@ type UpdateDBService struct {
 // swagger:model UpdateDBServiceReply
 type UpdateDBServiceReply struct {
 	// update db service reply
-	Payload struct {
+	Data struct {
 		// db service UID
 		Uid string `json:"uid"`
-	} `json:"payload"`
+	} `json:"data"`
 
 	// Generic reply
 	base.GenericResp
@@ -364,7 +360,7 @@ func (u *UpdateDBServiceReply) String() string {
 	if u == nil {
 		return "UpdateDBServiceReply{nil}"
 	}
-	return fmt.Sprintf("UpdateDBServiceReply{Uid:%s}", u.Payload.Uid)
+	return fmt.Sprintf("UpdateDBServiceReply{Uid:%s}", u.Data.Uid)
 }
 
 type DatabaseDriverAdditionalParam struct {
@@ -383,9 +379,7 @@ type DatabaseDriverOption struct {
 // swagger:model ListDBServiceDriverOptionReply
 type ListDBServiceDriverOptionReply struct {
 	// List db service reply
-	Payload struct {
-		DatabaseDriverOptions []*DatabaseDriverOption `json:"database_driver_options"`
-	} `json:"payload"`
+	Data []*DatabaseDriverOption `json:"data"`
 
 	// Generic reply
 	base.GenericResp

@@ -1,6 +1,6 @@
 package v1
 
-import base "github.com/actiontech/dms/api/base/v1"
+import base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 
 type GetOauth2ConfigurationResData struct {
 	EnableOauth2    bool     `json:"enable_oauth2"`
@@ -17,9 +17,8 @@ type GetOauth2ConfigurationResData struct {
 
 // swagger:model GetOauth2ConfigurationResDataReply
 type GetOauth2ConfigurationReply struct {
-	Payload struct {
-		Data GetOauth2ConfigurationResData `json:"data"`
-	} `json:"payload"`
+	Data GetOauth2ConfigurationResData `json:"data"`
+
 	// Generic reply
 	base.GenericResp
 }
@@ -46,9 +45,8 @@ type Oauth2Configuration struct {
 
 // swagger:model GetOauth2TipsReply
 type GetOauth2TipsReply struct {
-	Payload struct {
-		Data GetOauth2TipsResData `json:"data"`
-	} `json:"payload"`
+	Data GetOauth2TipsResData `json:"data"`
+
 	// Generic reply
 	base.GenericResp
 }
@@ -67,9 +65,8 @@ type BindOauth2UserReq struct {
 
 // swagger:model BindOauth2UserReply
 type BindOauth2UserReply struct {
-	Payload struct {
-		Data BindOauth2UserResData `json:"data"`
-	} `json:"payload"`
+	Data BindOauth2UserResData `json:"data"`
+
 	// Generic reply
 	base.GenericResp
 }
@@ -86,9 +83,8 @@ type Oauth2CallbackReq struct {
 
 // swagger:model GetLDAPConfigurationResDataReply
 type GetLDAPConfigurationReply struct {
-	Payload struct {
-		Data LDAPConfigurationResData `json:"data"`
-	} `json:"payload"`
+	Data LDAPConfigurationResData `json:"data"`
+
 	// Generic reply
 	base.GenericResp
 }
@@ -125,9 +121,8 @@ type LDAPConfiguration struct {
 
 // swagger:model GetSMTPConfigurationReply
 type GetSMTPConfigurationReply struct {
-	Payload struct {
-		Data SMTPConfigurationResData `json:"data"`
-	} `json:"payload"`
+	Data SMTPConfigurationResData `json:"data"`
+
 	// Generic reply
 	base.GenericResp
 }
@@ -169,9 +164,8 @@ type TestSMTPConfiguration struct {
 
 // swagger:model TestSMTPConfigurationReply
 type TestSMTPConfigurationReply struct {
-	Payload struct {
-		Data TestSMTPConfigurationResData `json:"data"`
-	} `json:"payload"`
+	Data TestSMTPConfigurationResData `json:"data"`
+
 	// Generic reply
 	base.GenericResp
 }
@@ -183,9 +177,8 @@ type TestSMTPConfigurationResData struct {
 
 // swagger:model GetWeChatConfigurationReply
 type GetWeChatConfigurationReply struct {
-	Payload struct {
-		Data WeChatConfigurationResData `json:"data"`
-	} `json:"payload"`
+	Data WeChatConfigurationResData `json:"data"`
+
 	// Generic reply
 	base.GenericResp
 }
@@ -227,9 +220,8 @@ type TestWeChatConfiguration struct {
 
 // swagger:model TestWeChatConfigurationReply
 type TestWeChatConfigurationReply struct {
-	Payload struct {
-		Data TestWeChatConfigurationResData `json:"data"`
-	} `json:"payload"`
+	Data TestWeChatConfigurationResData `json:"data"`
+
 	// Generic reply
 	base.GenericResp
 }
@@ -241,9 +233,8 @@ type TestWeChatConfigurationResData struct {
 
 // swagger:model GetFeishuConfigurationReply
 type GetFeishuConfigurationReply struct {
-	Payload struct {
-		Data FeishuConfigurationResData `json:"data"`
-	} `json:"payload"`
+	Data FeishuConfigurationResData `json:"data"`
+
 	// Generic reply
 	base.GenericResp
 }
@@ -288,9 +279,8 @@ type TestFeishuConfiguration struct {
 
 // swagger:model TestFeishuConfigurationReply
 type TestFeishuConfigurationReply struct {
-	Payload struct {
-		Data TestFeishuConfigurationResData `json:"data"`
-	} `json:"payload"`
+	Data TestFeishuConfigurationResData `json:"data"`
+
 	// Generic reply
 	base.GenericResp
 }
@@ -302,9 +292,8 @@ type TestFeishuConfigurationResData struct {
 
 // swagger:model GetWebHookConfigurationReply
 type GetWebHookConfigurationReply struct {
-	Payload struct {
-		Data WebHookConfigurationData `json:"data"`
-	} `json:"payload"`
+	Data WebHookConfigurationData `json:"data"`
+
 	// Generic reply
 	base.GenericResp
 }
@@ -327,9 +316,8 @@ type UpdateWebHookConfigurationReq struct {
 
 // swagger:model TestWebHookConfigurationReply
 type TestWebHookConfigurationReply struct {
-	Payload struct {
-		Data TestWebHookConfigurationResData `json:"data"`
-	} `json:"payload"`
+	Data TestWebHookConfigurationResData `json:"data"`
+
 	// Generic reply
 	base.GenericResp
 }

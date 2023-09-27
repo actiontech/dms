@@ -169,7 +169,7 @@ func (p *PluginUsecase) CallAddDBServicePreCheck(ctx context.Context, url string
 		return err
 	}
 	if reply.Code != 0 {
-		return fmt.Errorf("reply code(%v) error: %v", reply.Code, reply.Msg)
+		return fmt.Errorf("reply code(%v) error: %v", reply.Code, reply.Message)
 	}
 
 	return nil
@@ -192,7 +192,7 @@ func (p *PluginUsecase) CallDelDBServicePreCheck(ctx context.Context, url string
 		return err
 	}
 	if reply.Code != 0 {
-		return fmt.Errorf("reply code(%v) error: %v", reply.Code, reply.Msg)
+		return fmt.Errorf("reply code(%v) error: %v", reply.Code, reply.Message)
 	}
 
 	return nil
@@ -215,7 +215,7 @@ func (p *PluginUsecase) CallDelUserPreCheck(ctx context.Context, url string, use
 		return err
 	}
 	if reply.Code != 0 {
-		return fmt.Errorf("reply code(%v) error: %v", reply.Code, reply.Msg)
+		return fmt.Errorf("reply code(%v) error: %v", reply.Code, reply.Message)
 	}
 
 	return nil
@@ -237,7 +237,7 @@ func (p *PluginUsecase) CallDelUserGroupPreCheck(ctx context.Context, url string
 		return err
 	}
 	if reply.Code != 0 {
-		return fmt.Errorf("reply code(%v) error: %v", reply.Code, reply.Msg)
+		return fmt.Errorf("reply code(%v) error: %v", reply.Code, reply.Message)
 	}
 
 	return nil
@@ -259,7 +259,7 @@ func (p *PluginUsecase) CallOperateDataResourceHandle(ctx context.Context, url s
 		return err
 	}
 	if reply.Code != 0 {
-		return fmt.Errorf("reply code(%v) error: %v", reply.Code, reply.Msg)
+		return fmt.Errorf("reply code(%v) error: %v", reply.Code, reply.Message)
 	}
 
 	return nil

@@ -27,9 +27,7 @@ func (d *DMSService) GetBasicInfo(ctx context.Context) (reply *v1.GetBasicInfoRe
 	}
 
 	return &v1.GetBasicInfoReply{
-		Payload: struct {
-			BasicInfo *v1.BasicInfo `json:"basic_info"`
-		}{ret},
+		Data: ret,
 	}, nil
 }
 

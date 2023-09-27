@@ -3,7 +3,7 @@ package v1
 import (
 	"fmt"
 
-	base "github.com/actiontech/dms/api/base/v1"
+	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 )
 
 // A Project
@@ -31,10 +31,10 @@ func (u *AddProjectReq) String() string {
 // swagger:model AddProjectReply
 type AddProjectReply struct {
 	// Add Project reply
-	Payload struct {
+	Data struct {
 		// Project UID
 		Uid string `json:"uid"`
-	} `json:"payload"`
+	} `json:"data"`
 
 	// Generic reply
 	base.GenericResp
@@ -44,7 +44,7 @@ func (u *AddProjectReply) String() string {
 	if u == nil {
 		return "AddProjectReply{nil}"
 	}
-	return fmt.Sprintf("AddProjectReply{Uid:%s}", u.Payload.Uid)
+	return fmt.Sprintf("AddProjectReply{Uid:%s}", u.Data.Uid)
 }
 
 // swagger:parameters DelProject

@@ -26,9 +26,9 @@ import (
 	"fmt"
 	"net/http"
 
-	bV1 "github.com/actiontech/dms/api/base/v1"
 	"github.com/actiontech/dms/internal/apiserver/conf"
 	apiError "github.com/actiontech/dms/internal/apiserver/pkg/error"
+	bV1 "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 
 	utilConf "github.com/actiontech/dms/pkg/dms-common/pkg/config"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
@@ -73,7 +73,7 @@ func (s *APIServer) RunHttpServer(logger utilLog.Logger) error {
 }
 
 func NewErrResp(c echo.Context, err error, code apiError.ErrorCode) error {
-	return c.JSON(http.StatusOK, bV1.GenericResp{Code: int(code), Msg: err.Error()})
+	return c.JSON(http.StatusOK, bV1.GenericResp{Code: int(code), Message: err.Error()})
 }
 
 func NewOkRespWithReply(c echo.Context, reply bV1.GenericResper) error {
@@ -82,7 +82,7 @@ func NewOkRespWithReply(c echo.Context, reply bV1.GenericResper) error {
 }
 
 func NewOkResp(c echo.Context) error {
-	return c.JSON(http.StatusOK, bV1.GenericResp{Code: int(apiError.StatusOK), Msg: "OK"})
+	return c.JSON(http.StatusOK, bV1.GenericResp{Code: int(apiError.StatusOK), Message: "OK"})
 }
 
 func bindAndValidateReq(c echo.Context, i interface{}) error {

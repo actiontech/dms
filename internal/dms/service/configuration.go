@@ -23,30 +23,22 @@ func (d *DMSService) GetOauth2Configuration(ctx context.Context) (reply *dmsV1.G
 	}
 	if !exist {
 		return &dmsV1.GetOauth2ConfigurationReply{
-			Payload: struct {
-				Data dmsV1.GetOauth2ConfigurationResData `json:"data"`
-			}{
-				Data: dmsV1.GetOauth2ConfigurationResData{},
-			},
+			Data: dmsV1.GetOauth2ConfigurationResData{},
 		}, nil
 	}
 
 	return &dmsV1.GetOauth2ConfigurationReply{
-		Payload: struct {
-			Data dmsV1.GetOauth2ConfigurationResData `json:"data"`
-		}{
-			Data: dmsV1.GetOauth2ConfigurationResData{
-				EnableOauth2:    oauth2C.EnableOauth2,
-				ClientID:        oauth2C.ClientID,
-				ClientHost:      oauth2C.ClientHost,
-				ServerAuthUrl:   oauth2C.ServerAuthUrl,
-				ServerTokenUrl:  oauth2C.ServerTokenUrl,
-				ServerUserIdUrl: oauth2C.ServerUserIdUrl,
-				Scopes:          oauth2C.Scopes,
-				AccessTokenTag:  oauth2C.AccessTokenTag,
-				UserIdTag:       oauth2C.UserIdTag,
-				LoginTip:        oauth2C.LoginTip,
-			},
+		Data: dmsV1.GetOauth2ConfigurationResData{
+			EnableOauth2:    oauth2C.EnableOauth2,
+			ClientID:        oauth2C.ClientID,
+			ClientHost:      oauth2C.ClientHost,
+			ServerAuthUrl:   oauth2C.ServerAuthUrl,
+			ServerTokenUrl:  oauth2C.ServerTokenUrl,
+			ServerUserIdUrl: oauth2C.ServerUserIdUrl,
+			Scopes:          oauth2C.Scopes,
+			AccessTokenTag:  oauth2C.AccessTokenTag,
+			UserIdTag:       oauth2C.UserIdTag,
+			LoginTip:        oauth2C.LoginTip,
 		},
 	}, nil
 }
@@ -63,22 +55,14 @@ func (d *DMSService) GetOauth2ConfigurationTip(ctx context.Context) (reply *dmsV
 	}
 	if !exist {
 		return &dmsV1.GetOauth2TipsReply{
-			Payload: struct {
-				Data dmsV1.GetOauth2TipsResData `json:"data"`
-			}{
-				Data: dmsV1.GetOauth2TipsResData{},
-			},
+			Data: dmsV1.GetOauth2TipsResData{},
 		}, nil
 	}
 
 	return &dmsV1.GetOauth2TipsReply{
-		Payload: struct {
-			Data dmsV1.GetOauth2TipsResData `json:"data"`
-		}{
-			Data: dmsV1.GetOauth2TipsResData{
-				EnableOauth2: oauth2C.EnableOauth2,
-				LoginTip:     oauth2C.LoginTip,
-			},
+		Data: dmsV1.GetOauth2TipsResData{
+			EnableOauth2: oauth2C.EnableOauth2,
+			LoginTip:     oauth2C.LoginTip,
 		},
 	}, nil
 }
@@ -132,11 +116,7 @@ func (d *DMSService) BindOauth2User(ctx context.Context, bindOauth2User *dmsV1.B
 		return nil, err
 	}
 	return &dmsV1.BindOauth2UserReply{
-		Payload: struct {
-			Data dmsV1.BindOauth2UserResData `json:"data"`
-		}{
-			Data: dmsV1.BindOauth2UserResData{Token: token},
-		},
+		Data: dmsV1.BindOauth2UserResData{Token: token},
 	}, nil
 }
 
@@ -152,28 +132,20 @@ func (d *DMSService) GetLDAPConfiguration(ctx context.Context) (reply *dmsV1.Get
 	}
 	if !exist {
 		return &dmsV1.GetLDAPConfigurationReply{
-			Payload: struct {
-				Data dmsV1.LDAPConfigurationResData `json:"data"`
-			}{
-				Data: dmsV1.LDAPConfigurationResData{},
-			},
+			Data: dmsV1.LDAPConfigurationResData{},
 		}, nil
 	}
 
 	return &dmsV1.GetLDAPConfigurationReply{
-		Payload: struct {
-			Data dmsV1.LDAPConfigurationResData `json:"data"`
-		}{
-			Data: dmsV1.LDAPConfigurationResData{
-				EnableLdap:          ldapConfiguration.Enable,
-				EnableSSL:           ldapConfiguration.EnableSSL,
-				LdapServerHost:      ldapConfiguration.Host,
-				LdapServerPort:      ldapConfiguration.Port,
-				LdapConnectDn:       ldapConfiguration.ConnectDn,
-				LdapSearchBaseDn:    ldapConfiguration.BaseDn,
-				LdapUserNameRdnKey:  ldapConfiguration.UserNameRdnKey,
-				LdapUserEmailRdnKey: ldapConfiguration.UserEmailRdnKey,
-			},
+		Data: dmsV1.LDAPConfigurationResData{
+			EnableLdap:          ldapConfiguration.Enable,
+			EnableSSL:           ldapConfiguration.EnableSSL,
+			LdapServerHost:      ldapConfiguration.Host,
+			LdapServerPort:      ldapConfiguration.Port,
+			LdapConnectDn:       ldapConfiguration.ConnectDn,
+			LdapSearchBaseDn:    ldapConfiguration.BaseDn,
+			LdapUserNameRdnKey:  ldapConfiguration.UserNameRdnKey,
+			LdapUserEmailRdnKey: ldapConfiguration.UserEmailRdnKey,
 		},
 	}, nil
 }
@@ -203,25 +175,17 @@ func (d *DMSService) GetSMTPConfiguration(ctx context.Context) (reply *dmsV1.Get
 	}
 	if !exist {
 		return &dmsV1.GetSMTPConfigurationReply{
-			Payload: struct {
-				Data dmsV1.SMTPConfigurationResData `json:"data"`
-			}{
-				Data: dmsV1.SMTPConfigurationResData{},
-			},
+			Data: dmsV1.SMTPConfigurationResData{},
 		}, nil
 	}
 
 	return &dmsV1.GetSMTPConfigurationReply{
-		Payload: struct {
-			Data dmsV1.SMTPConfigurationResData `json:"data"`
-		}{
-			Data: dmsV1.SMTPConfigurationResData{
-				EnableSMTPNotify: smtpConfiguration.EnableSMTPNotify,
-				Host:             smtpConfiguration.Host,
-				Port:             smtpConfiguration.Port,
-				Username:         smtpConfiguration.Username,
-				IsSkipVerify:     smtpConfiguration.IsSkipVerify,
-			},
+		Data: dmsV1.SMTPConfigurationResData{
+			EnableSMTPNotify: smtpConfiguration.EnableSMTPNotify,
+			Host:             smtpConfiguration.Host,
+			Port:             smtpConfiguration.Port,
+			Username:         smtpConfiguration.Username,
+			IsSkipVerify:     smtpConfiguration.IsSkipVerify,
 		},
 	}, nil
 }
@@ -252,13 +216,9 @@ func (d *DMSService) TestSMTPConfiguration(ctx context.Context, req *dmsV1.TestS
 	}
 
 	return &dmsV1.TestSMTPConfigurationReply{
-		Payload: struct {
-			Data dmsV1.TestSMTPConfigurationResData `json:"data"`
-		}{
-			Data: dmsV1.TestSMTPConfigurationResData{
-				IsSMTPSendNormal: isSMTPSendNormal,
-				SendErrorMessage: sendErrorMessage,
-			},
+		Data: dmsV1.TestSMTPConfigurationResData{
+			IsSMTPSendNormal: isSMTPSendNormal,
+			SendErrorMessage: sendErrorMessage,
 		},
 	}, nil
 }
@@ -275,25 +235,17 @@ func (d *DMSService) GetWeChatConfiguration(ctx context.Context) (reply *dmsV1.G
 	}
 	if !exist {
 		return &dmsV1.GetWeChatConfigurationReply{
-			Payload: struct {
-				Data dmsV1.WeChatConfigurationResData `json:"data"`
-			}{
-				Data: dmsV1.WeChatConfigurationResData{},
-			},
+			Data: dmsV1.WeChatConfigurationResData{},
 		}, nil
 	}
 
 	return &dmsV1.GetWeChatConfigurationReply{
-		Payload: struct {
-			Data dmsV1.WeChatConfigurationResData `json:"data"`
-		}{
-			Data: dmsV1.WeChatConfigurationResData{
-				EnableWeChatNotify: wechatConfiguration.EnableWeChatNotify,
-				CorpID:             wechatConfiguration.CorpID,
-				AgentID:            wechatConfiguration.AgentID,
-				SafeEnabled:        wechatConfiguration.SafeEnabled,
-				ProxyIP:            wechatConfiguration.ProxyIP,
-			},
+		Data: dmsV1.WeChatConfigurationResData{
+			EnableWeChatNotify: wechatConfiguration.EnableWeChatNotify,
+			CorpID:             wechatConfiguration.CorpID,
+			AgentID:            wechatConfiguration.AgentID,
+			SafeEnabled:        wechatConfiguration.SafeEnabled,
+			ProxyIP:            wechatConfiguration.ProxyIP,
 		},
 	}, nil
 }
@@ -323,13 +275,9 @@ func (d *DMSService) TestWeChatConfiguration(ctx context.Context, req *dmsV1.Tes
 	}
 
 	return &dmsV1.TestWeChatConfigurationReply{
-		Payload: struct {
-			Data dmsV1.TestWeChatConfigurationResData `json:"data"`
-		}{
-			Data: dmsV1.TestWeChatConfigurationResData{
-				IsWeChatSendNormal: isWeChatSendNormal,
-				SendErrorMessage:   sendErrorMessage,
-			},
+		Data: dmsV1.TestWeChatConfigurationResData{
+			IsWeChatSendNormal: isWeChatSendNormal,
+			SendErrorMessage:   sendErrorMessage,
 		},
 	}, nil
 }
@@ -346,22 +294,13 @@ func (d *DMSService) GetFeishuConfiguration(ctx context.Context) (reply *dmsV1.G
 	}
 	if !exist {
 		return &dmsV1.GetFeishuConfigurationReply{
-			Payload: struct {
-				Data dmsV1.FeishuConfigurationResData `json:"data"`
-			}{
-				Data: dmsV1.FeishuConfigurationResData{},
-			},
+			Data: dmsV1.FeishuConfigurationResData{},
 		}, nil
 	}
-
 	return &dmsV1.GetFeishuConfigurationReply{
-		Payload: struct {
-			Data dmsV1.FeishuConfigurationResData `json:"data"`
-		}{
-			Data: dmsV1.FeishuConfigurationResData{
-				AppID:                       feishuConfiguration.AppKey,
-				IsFeishuNotificationEnabled: feishuConfiguration.IsEnable,
-			},
+		Data: dmsV1.FeishuConfigurationResData{
+			AppID:                       feishuConfiguration.AppKey,
+			IsFeishuNotificationEnabled: feishuConfiguration.IsEnable,
 		},
 	}, nil
 }
@@ -407,13 +346,9 @@ func (d *DMSService) TestFeishuConfiguration(ctx context.Context, req *dmsV1.Tes
 	}
 
 	return &dmsV1.TestFeishuConfigurationReply{
-		Payload: struct {
-			Data dmsV1.TestFeishuConfigurationResData `json:"data"`
-		}{
-			Data: dmsV1.TestFeishuConfigurationResData{
-				IsMessageSentNormally: isFeishuSendNormal,
-				ErrorMessage:          sendErrorMessage,
-			},
+		Data: dmsV1.TestFeishuConfigurationResData{
+			IsMessageSentNormally: isFeishuSendNormal,
+			ErrorMessage:          sendErrorMessage,
 		},
 	}, nil
 }
@@ -430,25 +365,17 @@ func (d *DMSService) GetWebHookConfiguration(ctx context.Context) (reply *dmsV1.
 	}
 	if !exist {
 		return &dmsV1.GetWebHookConfigurationReply{
-			Payload: struct {
-				Data dmsV1.WebHookConfigurationData `json:"data"`
-			}{
-				Data: dmsV1.WebHookConfigurationData{},
-			},
+			Data: dmsV1.WebHookConfigurationData{},
 		}, nil
 	}
 
 	return &dmsV1.GetWebHookConfigurationReply{
-		Payload: struct {
-			Data dmsV1.WebHookConfigurationData `json:"data"`
-		}{
-			Data: dmsV1.WebHookConfigurationData{
-				Enable:               &webhookConfiguration.Enable,
-				MaxRetryTimes:        &webhookConfiguration.MaxRetryTimes,
-				RetryIntervalSeconds: &webhookConfiguration.RetryIntervalSeconds,
-				Token:                &webhookConfiguration.Token,
-				URL:                  &webhookConfiguration.URL,
-			},
+		Data: dmsV1.WebHookConfigurationData{
+			Enable:               &webhookConfiguration.Enable,
+			MaxRetryTimes:        &webhookConfiguration.MaxRetryTimes,
+			RetryIntervalSeconds: &webhookConfiguration.RetryIntervalSeconds,
+			Token:                &webhookConfiguration.Token,
+			URL:                  &webhookConfiguration.URL,
 		},
 	}, nil
 }
@@ -478,13 +405,9 @@ func (d *DMSService) TestWebHookConfiguration(ctx context.Context) (reply *dmsV1
 	}
 
 	return &dmsV1.TestWebHookConfigurationReply{
-		Payload: struct {
-			Data dmsV1.TestWebHookConfigurationResData `json:"data"`
-		}{
-			Data: dmsV1.TestWebHookConfigurationResData{
-				IsMessageSentNormally: isWebHookSendNormal,
-				SendErrorMessage:      sendErrorMessage,
-			},
+		Data: dmsV1.TestWebHookConfigurationResData{
+			IsMessageSentNormally: isWebHookSendNormal,
+			SendErrorMessage:      sendErrorMessage,
 		},
 	}, nil
 }
