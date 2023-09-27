@@ -359,28 +359,18 @@ func (d *DMSService) GetWebHookConfiguration(ctx context.Context) (reply *dmsV1.
 		return nil, err
 	}
 	if !exist {
-		var enable bool
-		var maxRetryTimes, retryIntervalSeconds int
-		var token, url string
-
 		return &dmsV1.GetWebHookConfigurationReply{
-			Data: dmsV1.WebHookConfigurationData{
-				Enable:               &enable,
-				MaxRetryTimes:        &maxRetryTimes,
-				RetryIntervalSeconds: &retryIntervalSeconds,
-				URL:                  &url,
-				Token:                &token,
-			},
+			Data: dmsV1.GetWebHookConfigurationReplyItem{},
 		}, nil
 	}
 
 	return &dmsV1.GetWebHookConfigurationReply{
-		Data: dmsV1.WebHookConfigurationData{
-			Enable:               &webhookConfiguration.Enable,
-			MaxRetryTimes:        &webhookConfiguration.MaxRetryTimes,
-			RetryIntervalSeconds: &webhookConfiguration.RetryIntervalSeconds,
-			Token:                &webhookConfiguration.Token,
-			URL:                  &webhookConfiguration.URL,
+		Data: dmsV1.GetWebHookConfigurationReplyItem{
+			Enable:               webhookConfiguration.Enable,
+			MaxRetryTimes:        webhookConfiguration.MaxRetryTimes,
+			RetryIntervalSeconds: webhookConfiguration.RetryIntervalSeconds,
+			Token:                webhookConfiguration.Token,
+			URL:                  webhookConfiguration.URL,
 		},
 	}, nil
 }
