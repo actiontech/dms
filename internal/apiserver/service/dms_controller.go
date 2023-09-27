@@ -460,18 +460,18 @@ func (a *DMSController) AddSession(c echo.Context) error {
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	if reply.Payload.VerifyFailedMsg != "" {
-		return NewErrResp(c, errors.New(reply.Payload.VerifyFailedMsg), apiError.BadRequestErr)
+	if reply.Data.VerifyFailedMsg != "" {
+		return NewErrResp(c, errors.New(reply.Data.VerifyFailedMsg), apiError.BadRequestErr)
 	}
 
 	// Create token with claims
-	token, err := jwt.GenJwtToken(jwt.WithUserId(reply.Payload.UserUid))
+	token, err := jwt.GenJwtToken(jwt.WithUserId(reply.Data.UserUid))
 	if nil != err {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
 
 	err = a.DMS.AfterUserLogin(c.Request().Context(), &aV1.AfterUserLoginReq{
-		UserUid: reply.Payload.UserUid,
+		UserUid: reply.Data.UserUid,
 	})
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
@@ -485,7 +485,7 @@ func (a *DMSController) AddSession(c echo.Context) error {
 	})
 
 	return NewOkRespWithReply(c, &aV1.AddSessionReply{
-		Payload: struct {
+		Data: struct {
 			Token string `json:"token"`
 		}{
 			Token: token,

@@ -9,10 +9,10 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     AddDBServiceReply:
@@ -22,11 +22,7 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
-                description: message
-                type: string
-                x-go-name: Msg
-            payload:
+            data:
                 description: Add db service reply
                 properties:
                     uid:
@@ -34,7 +30,11 @@ definitions:
                         type: string
                         x-go-name: Uid
                 type: object
-                x-go-name: Payload
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddDatabaseSourceServiceReply:
@@ -44,11 +44,7 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
-                description: message
-                type: string
-                x-go-name: Msg
-            payload:
+            data:
                 description: add database source service reply
                 properties:
                     uid:
@@ -56,7 +52,11 @@ definitions:
                         type: string
                         x-go-name: Uid
                 type: object
-                x-go-name: Payload
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddMemberGroupReply:
@@ -66,11 +66,7 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
-                description: message
-                type: string
-                x-go-name: Msg
-            payload:
+            data:
                 description: Add member group reply
                 properties:
                     id:
@@ -78,7 +74,11 @@ definitions:
                         type: string
                         x-go-name: Id
                 type: object
-                x-go-name: Payload
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddMemberReply:
@@ -88,11 +88,7 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
-                description: message
-                type: string
-                x-go-name: Msg
-            payload:
+            data:
                 description: Add member reply
                 properties:
                     uid:
@@ -100,7 +96,11 @@ definitions:
                         type: string
                         x-go-name: Uid
                 type: object
-                x-go-name: Payload
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddProjectReply:
@@ -110,11 +110,7 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
-                description: message
-                type: string
-                x-go-name: Msg
-            payload:
+            data:
                 description: Add Project reply
                 properties:
                     uid:
@@ -122,7 +118,11 @@ definitions:
                         type: string
                         x-go-name: Uid
                 type: object
-                x-go-name: Payload
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddRoleReply:
@@ -132,11 +132,7 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
-                description: message
-                type: string
-                x-go-name: Msg
-            payload:
+            data:
                 description: Add role reply
                 properties:
                     uid:
@@ -144,7 +140,11 @@ definitions:
                         type: string
                         x-go-name: Uid
                 type: object
-                x-go-name: Payload
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddSession:
@@ -170,11 +170,7 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
-                description: message
-                type: string
-                x-go-name: Msg
-            payload:
+            data:
                 description: Add user reply
                 properties:
                     token:
@@ -182,7 +178,11 @@ definitions:
                         type: string
                         x-go-name: Token
                 type: object
-                x-go-name: Payload
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddUserGroupReply:
@@ -192,11 +192,7 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
-                description: message
-                type: string
-                x-go-name: Msg
-            payload:
+            data:
                 description: Add user group reply
                 properties:
                     uid:
@@ -204,7 +200,11 @@ definitions:
                         type: string
                         x-go-name: Uid
                 type: object
-                x-go-name: Payload
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddUserReply:
@@ -214,11 +214,7 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
-                description: message
-                type: string
-                x-go-name: Msg
-            payload:
+            data:
                 description: Add user reply
                 properties:
                     uid:
@@ -226,7 +222,11 @@ definitions:
                         type: string
                         x-go-name: Uid
                 type: object
-                x-go-name: Payload
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AdditionalParam:
@@ -274,16 +274,12 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                $ref: '#/definitions/BindOauth2UserResData'
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                properties:
-                    data:
-                        $ref: '#/definitions/BindOauth2UserResData'
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     BindOauth2UserResData:
@@ -300,19 +296,15 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                items:
+                    $ref: '#/definitions/CheckDBServiceIsConnectableReplyItem'
+                type: array
+                x-go-name: Data
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                properties:
-                    connections:
-                        items:
-                            $ref: '#/definitions/CheckDBServiceIsConnectableReplyItem'
-                        type: array
-                        x-go-name: Connections
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CheckDBServiceIsConnectableReplyItem:
@@ -575,10 +567,10 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     DelUserGroupPreCheckReply:
@@ -588,10 +580,10 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     DelUserPreCheckReply:
@@ -601,10 +593,10 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     FeishuConfigurationResData:
@@ -625,10 +617,10 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/base/v1
     GetBasicInfoReply:
@@ -638,16 +630,12 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                $ref: '#/definitions/BasicInfo'
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                properties:
-                    basic_info:
-                        $ref: '#/definitions/BasicInfo'
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetDatabaseSourceService:
@@ -706,16 +694,12 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                $ref: '#/definitions/GetDatabaseSourceService'
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                properties:
-                    database_source_service:
-                        $ref: '#/definitions/GetDatabaseSourceService'
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetFeishuConfigurationReply:
@@ -725,16 +709,12 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                $ref: '#/definitions/FeishuConfigurationResData'
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                properties:
-                    data:
-                        $ref: '#/definitions/FeishuConfigurationResData'
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetLDAPConfigurationResDataReply:
@@ -744,16 +724,12 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                $ref: '#/definitions/LDAPConfigurationResData'
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                properties:
-                    data:
-                        $ref: '#/definitions/LDAPConfigurationResData'
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
         type: object
         x-go-name: GetLDAPConfigurationReply
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
@@ -791,17 +767,12 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                $ref: '#/definitions/GetMemberGroup'
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                description: List member reply
-                properties:
-                    member_group:
-                        $ref: '#/definitions/GetMemberGroup'
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetOauth2ConfigurationResData:
@@ -847,16 +818,12 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                $ref: '#/definitions/GetOauth2ConfigurationResData'
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                properties:
-                    data:
-                        $ref: '#/definitions/GetOauth2ConfigurationResData'
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
         type: object
         x-go-name: GetOauth2ConfigurationReply
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
@@ -867,16 +834,12 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                $ref: '#/definitions/GetOauth2TipsResData'
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                properties:
-                    data:
-                        $ref: '#/definitions/GetOauth2TipsResData'
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetOauth2TipsResData:
@@ -896,16 +859,12 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                $ref: '#/definitions/SMTPConfigurationResData'
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                properties:
-                    data:
-                        $ref: '#/definitions/SMTPConfigurationResData'
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetSQLQueryConfigurationReply:
@@ -915,11 +874,7 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
-                description: message
-                type: string
-                x-go-name: Msg
-            payload:
+            data:
                 properties:
                     enable_sql_query:
                         type: boolean
@@ -928,7 +883,11 @@ definitions:
                         type: string
                         x-go-name: SQLQueryRootURI
                 type: object
-                x-go-name: Payload
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetUser:
@@ -1020,11 +979,7 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
-                description: message
-                type: string
-                x-go-name: Msg
-            payload:
+            data:
                 description: Get user reply
                 properties:
                     name:
@@ -1036,7 +991,11 @@ definitions:
                         type: string
                         x-go-name: UserUid
                 type: object
-                x-go-name: Payload
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetUserOpPermissionReply:
@@ -1046,15 +1005,12 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
-                description: message
-                type: string
-                x-go-name: Msg
-            payload:
-                description: user op permission reply
+            data:
+                description: |-
+                    user op permission reply
+                    is user admin, admin has all permissions
                 properties:
                     is_admin:
-                        description: is user admin, admin has all permissions
                         type: boolean
                         x-go-name: IsAdmin
                     op_permission_list:
@@ -1064,7 +1020,11 @@ definitions:
                         type: array
                         x-go-name: OpPermissionList
                 type: object
-                x-go-name: Payload
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GetUserReply:
@@ -1074,17 +1034,12 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                $ref: '#/definitions/GetUser'
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                description: Get user reply
-                properties:
-                    user:
-                        $ref: '#/definitions/GetUser'
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GetWeChatConfigurationReply:
@@ -1094,16 +1049,12 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                $ref: '#/definitions/WeChatConfigurationResData'
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                properties:
-                    data:
-                        $ref: '#/definitions/WeChatConfigurationResData'
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetWebHookConfigurationReply:
@@ -1113,16 +1064,12 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                $ref: '#/definitions/WebHookConfigurationData'
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                properties:
-                    data:
-                        $ref: '#/definitions/WebHookConfigurationData'
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     IPluginDBService:
@@ -1286,20 +1233,16 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                description: List db service reply
+                items:
+                    $ref: '#/definitions/DatabaseDriverOption'
+                type: array
+                x-go-name: Data
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                description: List db service reply
-                properties:
-                    database_driver_options:
-                        items:
-                            $ref: '#/definitions/DatabaseDriverOption'
-                        type: array
-                        x-go-name: DatabaseDriverOptions
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListDBServiceReply:
@@ -1309,24 +1252,20 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                description: List db service reply
+                items:
+                    $ref: '#/definitions/ListDBService'
+                type: array
+                x-go-name: Data
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                description: List db service reply
-                properties:
-                    db_services:
-                        items:
-                            $ref: '#/definitions/ListDBService'
-                        type: array
-                        x-go-name: DBServices
-                    total:
-                        format: int64
-                        type: integer
-                        x-go-name: Total
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListDatabaseSourceService:
@@ -1393,19 +1332,15 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                items:
+                    $ref: '#/definitions/DatabaseSource'
+                type: array
+                x-go-name: Data
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                properties:
-                    database_sources:
-                        items:
-                            $ref: '#/definitions/DatabaseSource'
-                        type: array
-                        x-go-name: DatabaseSources
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListDatabaseSourceServicesReply:
@@ -1415,19 +1350,15 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                items:
+                    $ref: '#/definitions/ListDatabaseSourceService'
+                type: array
+                x-go-name: Data
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                properties:
-                    database_source_services:
-                        items:
-                            $ref: '#/definitions/ListDatabaseSourceService'
-                        type: array
-                        x-go-name: DatabaseSourceServices
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMember:
@@ -1485,24 +1416,20 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                description: List member reply
+                items:
+                    $ref: '#/definitions/ListMemberGroup'
+                type: array
+                x-go-name: Data
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                description: List member reply
-                properties:
-                    member_groups:
-                        items:
-                            $ref: '#/definitions/ListMemberGroup'
-                        type: array
-                        x-go-name: MemberGroups
-                    total:
-                        format: int64
-                        type: integer
-                        x-go-name: Total
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberReply:
@@ -1512,24 +1439,20 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                description: List member reply
+                items:
+                    $ref: '#/definitions/ListMember'
+                type: array
+                x-go-name: Data
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                description: List member reply
-                properties:
-                    members:
-                        items:
-                            $ref: '#/definitions/ListMember'
-                        type: array
-                        x-go-name: Members
-                    total:
-                        format: int64
-                        type: integer
-                        x-go-name: Total
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberRoleWithOpRange:
@@ -1587,24 +1510,20 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                description: List member reply
+                items:
+                    $ref: '#/definitions/ListMembersForInternalItem'
+                type: array
+                x-go-name: Data
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                description: List member reply
-                properties:
-                    members:
-                        items:
-                            $ref: '#/definitions/ListMembersForInternalItem'
-                        type: array
-                        x-go-name: Members
-                    total:
-                        format: int64
-                        type: integer
-                        x-go-name: Total
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ListOpPermission:
@@ -1637,24 +1556,20 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                description: List op_permission reply
+                items:
+                    $ref: '#/definitions/ListOpPermission'
+                type: array
+                x-go-name: Data
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                description: List op_permission reply
-                properties:
-                    op_permissions:
-                        items:
-                            $ref: '#/definitions/ListOpPermission'
-                        type: array
-                        x-go-name: OpPermissions
-                    total:
-                        format: int64
-                        type: integer
-                        x-go-name: Total
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListProject:
@@ -1692,24 +1607,20 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                description: List project reply
+                items:
+                    $ref: '#/definitions/ListProject'
+                type: array
+                x-go-name: Data
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                description: List Project reply
-                properties:
-                    projects:
-                        items:
-                            $ref: '#/definitions/ListProject'
-                        type: array
-                        x-go-name: Projects
-                    total:
-                        format: int64
-                        type: integer
-                        x-go-name: Total
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ListRole:
@@ -1758,24 +1669,20 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                description: List role reply
+                items:
+                    $ref: '#/definitions/ListRole'
+                type: array
+                x-go-name: Data
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                description: List role reply
-                properties:
-                    roles:
-                        items:
-                            $ref: '#/definitions/ListRole'
-                        type: array
-                        x-go-name: Roles
-                    total:
-                        format: int64
-                        type: integer
-                        x-go-name: Total
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListUser:
@@ -1900,24 +1807,20 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                description: List user reply
+                items:
+                    $ref: '#/definitions/ListUserGroup'
+                type: array
+                x-go-name: Data
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                description: List user reply
-                properties:
-                    total:
-                        format: int64
-                        type: integer
-                        x-go-name: Total
-                    user_groups:
-                        items:
-                            $ref: '#/definitions/ListUserGroup'
-                        type: array
-                        x-go-name: UserGroups
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListUserReply:
@@ -1927,24 +1830,20 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                description: List user reply
+                items:
+                    $ref: '#/definitions/ListUser'
+                type: array
+                x-go-name: Data
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                description: List user reply
-                properties:
-                    total:
-                        format: int64
-                        type: integer
-                        x-go-name: Total
-                    users:
-                        items:
-                            $ref: '#/definitions/ListUser'
-                        type: array
-                        x-go-name: Users
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     MaintenanceTime:
@@ -2058,10 +1957,10 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     Oauth2Configuration:
@@ -2179,10 +2078,10 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     Plugin:
@@ -2233,10 +2132,10 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     RegisterDMSProxyTargetReply:
@@ -2246,10 +2145,10 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     Role:
@@ -2357,16 +2256,12 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                $ref: '#/definitions/TestFeishuConfigurationResData'
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                properties:
-                    data:
-                        $ref: '#/definitions/TestFeishuConfigurationResData'
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     TestFeishuConfigurationResData:
@@ -2393,16 +2288,12 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                $ref: '#/definitions/TestSMTPConfigurationResData'
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                properties:
-                    data:
-                        $ref: '#/definitions/TestSMTPConfigurationResData'
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     TestSMTPConfigurationResData:
@@ -2429,16 +2320,12 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                $ref: '#/definitions/TestWeChatConfigurationResData'
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                properties:
-                    data:
-                        $ref: '#/definitions/TestWeChatConfigurationResData'
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     TestWeChatConfigurationResData:
@@ -2458,16 +2345,12 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            data:
+                $ref: '#/definitions/TestWebHookConfigurationResData'
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
-            payload:
-                properties:
-                    data:
-                        $ref: '#/definitions/TestWebHookConfigurationResData'
-                type: object
-                x-go-name: Payload
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     TestWebHookConfigurationResData:
@@ -2504,7 +2387,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCurrentUser:
         properties:
             email:
@@ -2599,11 +2482,7 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
-                description: message
-                type: string
-                x-go-name: Msg
-            payload:
+            data:
                 description: update db service reply
                 properties:
                     uid:
@@ -2611,7 +2490,11 @@ definitions:
                         type: string
                         x-go-name: Uid
                 type: object
-                x-go-name: Payload
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateFeishuConfiguration:
@@ -2922,10 +2805,10 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
-            msg:
+            message:
                 description: message
                 type: string
-                x-go-name: Msg
+                x-go-name: Message
         type: object
         x-go-name: WebHooksSendMessageReply
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
@@ -4892,7 +4775,7 @@ responses:
                 description: code
                 format: int64
                 type: integer
-            msg:
+            message:
                 description: message
                 type: string
     GetStaticLogoReply:

@@ -3,7 +3,7 @@ package v1
 import (
 	"fmt"
 
-	base "github.com/actiontech/dms/api/base/v1"
+	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 )
 
 // A member
@@ -47,10 +47,10 @@ func (u *AddMemberReq) String() string {
 // swagger:model AddMemberReply
 type AddMemberReply struct {
 	// Add member reply
-	Payload struct {
+	Data struct {
 		// member UID
 		Uid string `json:"uid"`
-	} `json:"payload"`
+	} `json:"data"`
 
 	// Generic reply
 	base.GenericResp
@@ -60,7 +60,7 @@ func (u *AddMemberReply) String() string {
 	if u == nil {
 		return "AddMemberReply{nil}"
 	}
-	return fmt.Sprintf("AddMemberReply{Uid:%s}", u.Payload.Uid)
+	return fmt.Sprintf("AddMemberReply{Uid:%s}", u.Data.Uid)
 }
 
 // swagger:parameters ListMembers
@@ -115,10 +115,8 @@ type ListMember struct {
 // swagger:model ListMemberReply
 type ListMemberReply struct {
 	// List member reply
-	Payload struct {
-		Members []*ListMember `json:"members"`
-		Total   int64         `json:"total"`
-	} `json:"payload"`
+	Data  []*ListMember `json:"data"`
+	Total int64         `json:"total_nums"`
 
 	// Generic reply
 	base.GenericResp

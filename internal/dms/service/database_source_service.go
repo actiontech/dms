@@ -47,9 +47,7 @@ func (d *DMSService) ListDatabaseSourceService(ctx context.Context, req *v1.List
 	}
 
 	return &v1.ListDatabaseSourceServicesReply{
-		Payload: struct {
-			DatabaseSourceServices []*v1.ListDatabaseSourceService `json:"database_source_services"`
-		}{DatabaseSourceServices: ret},
+		Data: ret,
 	}, nil
 }
 
@@ -94,9 +92,7 @@ func (d *DMSService) GetDatabaseSourceService(ctx context.Context, req *v1.GetDa
 	}
 
 	return &v1.GetDatabaseSourceServiceReply{
-		Payload: struct {
-			DatabaseSourceService *v1.GetDatabaseSourceService `json:"database_source_service"`
-		}{DatabaseSourceService: item},
+		Data: item,
 	}, nil
 }
 
@@ -123,7 +119,7 @@ func (d *DMSService) AddDatabaseSourceService(ctx context.Context, req *v1.AddDa
 	}
 
 	return &v1.AddDatabaseSourceServiceReply{
-		Payload: struct {
+		Data: struct {
 			Uid string `json:"uid"`
 		}{Uid: uid},
 	}, nil
@@ -205,9 +201,7 @@ func (d *DMSService) ListDatabaseSourceServiceTips(ctx context.Context) (*v1.Lis
 	}
 
 	return &v1.ListDatabaseSourceServiceTipsReply{
-		Payload: struct {
-			DatabaseSources []*v1.DatabaseSource `json:"database_sources"`
-		}{ret},
+		Data: ret,
 	}, nil
 }
 
