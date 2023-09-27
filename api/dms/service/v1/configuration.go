@@ -40,7 +40,8 @@ type Oauth2Configuration struct {
 	Scopes          *[]string `json:"scopes"`
 	AccessTokenTag  *string   `json:"access_token_tag"`
 	UserIdTag       *string   `json:"user_id_tag"`
-	LoginTip        *string   `json:"login_tip"`
+	// Maximum: 28
+	LoginTip *string `json:"login_tip" validate:"max=28"`
 }
 
 // swagger:model GetOauth2TipsReply
@@ -290,9 +291,18 @@ type TestFeishuConfigurationResData struct {
 	ErrorMessage          string `json:"error_message,omitempty"`
 }
 
+type GetWebHookConfigurationReplyItem struct {
+	Enable bool `json:"enable" description:"是否启用"`
+	// minlength(3) maxlength(100)
+	MaxRetryTimes        int    `json:"max_retry_times" description:"最大重试次数"`
+	RetryIntervalSeconds int    `json:"retry_interval_seconds" description:"请求重试间隔"`
+	Token                string `json:"token" description:"token 令牌"`
+	URL                  string `json:"url" description:"回调API URL"`
+}
+
 // swagger:model GetWebHookConfigurationReply
 type GetWebHookConfigurationReply struct {
-	Data WebHookConfigurationData `json:"data"`
+	Data GetWebHookConfigurationReplyItem `json:"data"`
 
 	// Generic reply
 	base.GenericResp

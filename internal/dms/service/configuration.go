@@ -354,28 +354,23 @@ func (d *DMSService) TestFeishuConfiguration(ctx context.Context, req *dmsV1.Tes
 }
 
 func (d *DMSService) GetWebHookConfiguration(ctx context.Context) (reply *dmsV1.GetWebHookConfigurationReply, err error) {
-	d.log.Infof("GetWebHookConfiguration")
-	defer func() {
-		d.log.Infof("GetWebHookConfiguration.reply=%v;error=%v", reply, err)
-	}()
-
 	webhookConfiguration, exist, err := d.WebHookConfigurationUsecase.GetWebHookConfiguration(ctx)
 	if err != nil {
 		return nil, err
 	}
 	if !exist {
 		return &dmsV1.GetWebHookConfigurationReply{
-			Data: dmsV1.WebHookConfigurationData{},
+			Data: dmsV1.GetWebHookConfigurationReplyItem{},
 		}, nil
 	}
 
 	return &dmsV1.GetWebHookConfigurationReply{
-		Data: dmsV1.WebHookConfigurationData{
-			Enable:               &webhookConfiguration.Enable,
-			MaxRetryTimes:        &webhookConfiguration.MaxRetryTimes,
-			RetryIntervalSeconds: &webhookConfiguration.RetryIntervalSeconds,
-			Token:                &webhookConfiguration.Token,
-			URL:                  &webhookConfiguration.URL,
+		Data: dmsV1.GetWebHookConfigurationReplyItem{
+			Enable:               webhookConfiguration.Enable,
+			MaxRetryTimes:        webhookConfiguration.MaxRetryTimes,
+			RetryIntervalSeconds: webhookConfiguration.RetryIntervalSeconds,
+			Token:                webhookConfiguration.Token,
+			URL:                  webhookConfiguration.URL,
 		},
 	}, nil
 }
