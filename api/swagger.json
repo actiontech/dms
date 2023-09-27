@@ -4224,12 +4224,41 @@
           "x-go-name": "Code"
         },
         "data": {
-          "$ref": "#/definitions/WebHookConfigurationData"
+          "$ref": "#/definitions/GetWebHookConfigurationReplyItem"
         },
         "message": {
           "description": "message",
           "type": "string",
           "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetWebHookConfigurationReplyItem": {
+      "type": "object",
+      "properties": {
+        "enable": {
+          "type": "boolean",
+          "x-go-name": "Enable"
+        },
+        "max_retry_times": {
+          "description": "minlength(3) maxlength(100)",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "MaxRetryTimes"
+        },
+        "retry_interval_seconds": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RetryIntervalSeconds"
+        },
+        "token": {
+          "type": "string",
+          "x-go-name": "Token"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
