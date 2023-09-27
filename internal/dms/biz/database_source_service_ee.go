@@ -187,7 +187,7 @@ func (d *DatabaseSourceServiceUsecase) SyncDatabaseSourceService(ctx context.Con
 		return fmt.Errorf("update sync database source err: %v, sync err: %v", err, syncErr)
 	}
 
-	return nil
+	return syncErr
 }
 
 func (d *DatabaseSourceServiceUsecase) RestartSyncDatabaseSourceService() {
