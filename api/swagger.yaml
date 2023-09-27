@@ -1065,11 +1065,33 @@ definitions:
                 type: integer
                 x-go-name: Code
             data:
-                $ref: '#/definitions/WebHookConfigurationData'
+                $ref: '#/definitions/GetWebHookConfigurationReplyItem'
             message:
                 description: message
                 type: string
                 x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetWebHookConfigurationReplyItem:
+        properties:
+            enable:
+                type: boolean
+                x-go-name: Enable
+            max_retry_times:
+                description: minlength(3) maxlength(100)
+                format: int64
+                type: integer
+                x-go-name: MaxRetryTimes
+            retry_interval_seconds:
+                format: int64
+                type: integer
+                x-go-name: RetryIntervalSeconds
+            token:
+                type: string
+                x-go-name: Token
+            url:
+                type: string
+                x-go-name: URL
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     IPluginDBService:
