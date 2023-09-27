@@ -36,7 +36,7 @@ func (d *DMSService) AddMember(ctx context.Context, currentUserUid string, req *
 	}
 
 	return &dmsV1.AddMemberReply{
-		Payload: struct {
+		Data: struct {
 			// member UID
 			Uid string `json:"uid"`
 		}{Uid: uid},
@@ -149,11 +149,10 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) 
 	}
 
 	return &dmsV1.ListMemberReply{
-		Payload: struct {
-			Members []*dmsV1.ListMember `json:"members"`
-			Total   int64               `json:"total"`
-		}{Members: ret, Total: total},
-	}, nil
+			Data:  ret,
+			Total: total,
+		},
+		nil
 }
 
 func (d *DMSService) UpdateMember(ctx context.Context, currentUserUid string, req *dmsV1.UpdateMemberReq) (err error) {
@@ -252,9 +251,6 @@ func (d *DMSService) ListMembersForInternal(ctx context.Context, req *dmsCommonV
 	}
 
 	return &dmsCommonV1.ListMembersForInternalReply{
-		Payload: struct {
-			Members []*dmsCommonV1.ListMembersForInternalItem `json:"members"`
-			Total   int64                                     `json:"total"`
-		}{Members: ret, Total: total},
+		Data: ret, Total: total,
 	}, nil
 }

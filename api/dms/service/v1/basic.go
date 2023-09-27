@@ -2,8 +2,7 @@ package v1
 
 import (
 	"mime/multipart"
-
-	base "github.com/actiontech/dms/api/base/v1"
+	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 )
 
 type ComponentNameWithVersion struct {
@@ -18,9 +17,7 @@ type BasicInfo struct {
 
 // swagger:model GetBasicInfoReply
 type GetBasicInfoReply struct {
-	Payload struct {
-		BasicInfo *BasicInfo `json:"basic_info"`
-	} `json:"payload"`
+	Data *BasicInfo `json:"data"`
 	// Generic reply
 	base.GenericResp
 }

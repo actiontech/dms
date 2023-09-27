@@ -3,7 +3,7 @@ package v1
 import (
 	"fmt"
 
-	base "github.com/actiontech/dms/api/base/v1"
+	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 )
 
 // A role
@@ -34,10 +34,10 @@ func (u *AddRoleReq) String() string {
 // swagger:model AddRoleReply
 type AddRoleReply struct {
 	// Add role reply
-	Payload struct {
+	Data struct {
 		// role UID
 		Uid string `json:"uid"`
-	} `json:"payload"`
+	} `json:"data"`
 
 	// Generic reply
 	base.GenericResp
@@ -47,7 +47,7 @@ func (u *AddRoleReply) String() string {
 	if u == nil {
 		return "AddRoleReply{nil}"
 	}
-	return fmt.Sprintf("AddRoleReply{Uid:%s}", u.Payload.Uid)
+	return fmt.Sprintf("AddRoleReply{Uid:%s}", u.Data.Uid)
 }
 
 // swagger:parameters DelRole
@@ -105,10 +105,8 @@ type ListRole struct {
 // swagger:model ListRoleReply
 type ListRoleReply struct {
 	// List role reply
-	Payload struct {
-		Roles []*ListRole `json:"roles"`
-		Total int64       `json:"total"`
-	} `json:"payload"`
+	Data  []*ListRole `json:"data"`
+	Total int64       `json:"total_nums"`
 
 	// Generic reply
 	base.GenericResp

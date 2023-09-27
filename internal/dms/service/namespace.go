@@ -74,10 +74,7 @@ func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV1.ListProj
 	}
 
 	return &dmsCommonV1.ListProjectReply{
-		Payload: struct {
-			Projects []*dmsCommonV1.ListProject `json:"projects"`
-			Total    int64                      `json:"total"`
-		}{Projects: ret, Total: total},
+		Data:  ret, Total: total,
 	}, nil
 }
 
@@ -111,7 +108,7 @@ func (d *DMSService) AddProject(ctx context.Context, currentUserUid string, req 
 	}
 
 	return &dmsV1.AddProjectReply{
-		Payload: struct {
+		Data: struct {
 			//  project UID
 			Uid string `json:"uid"`
 		}{Uid: project.UID},
