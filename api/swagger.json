@@ -5349,6 +5349,7 @@
         },
         "login_tip": {
           "type": "string",
+          "maximum": 28,
           "x-go-name": "LoginTip"
         },
         "scopes": {
