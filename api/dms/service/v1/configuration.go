@@ -40,7 +40,8 @@ type Oauth2Configuration struct {
 	Scopes          *[]string `json:"scopes"`
 	AccessTokenTag  *string   `json:"access_token_tag"`
 	UserIdTag       *string   `json:"user_id_tag"`
-	LoginTip        *string   `json:"login_tip" validate:"max=28"`
+	// Maximum: 28
+	LoginTip *string `json:"login_tip" validate:"max=28"`
 }
 
 // swagger:model GetOauth2TipsReply

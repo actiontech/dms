@@ -1981,6 +1981,7 @@ definitions:
                 type: boolean
                 x-go-name: EnableOauth2
             login_tip:
+                maximum: 28
                 type: string
                 x-go-name: LoginTip
             scopes:
