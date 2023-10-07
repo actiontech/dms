@@ -47,7 +47,7 @@ func run(logger utilLog.Logger) error {
 	if nil != err {
 		return fmt.Errorf("failed to read options: %v", err)
 	}
-	err = rand.InitSnowflake(opts.NodeOpts.NodeNo)
+	err = rand.InitSnowflake(opts.ID)
 	if nil != err {
 		return fmt.Errorf("failed to Init snowflake: %v", err)
 	}

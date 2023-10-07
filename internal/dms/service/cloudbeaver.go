@@ -18,7 +18,7 @@ type CloudbeaverService struct {
 	log                *utilLog.Helper
 }
 
-func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.Options) (*CloudbeaverService, error) {
+func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) (*CloudbeaverService, error) {
 	cfg := biz.CloudbeaverCfg{
 		EnableHttps:   opts.CloudbeaverOpts.EnableHttps,
 		Host:          opts.CloudbeaverOpts.Host,
@@ -29,12 +29,12 @@ func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.Options) (*C
 
 	// todo: because cloudbeaver required userUsecase, optimisation may be needed here
 	st, err := storage.NewStorage(logger, &storage.StorageConfig{
-		User:     opts.DMSServiceOpts.Data.Database.UserName,
-		Password: opts.DMSServiceOpts.Data.Database.Password,
-		Host:     opts.DMSServiceOpts.Data.Database.Host,
-		Port:     opts.DMSServiceOpts.Data.Database.Port,
-		Schema:   opts.DMSServiceOpts.Data.Database.Database,
-		Debug:    opts.DMSServiceOpts.Data.Database.Debug,
+		User:     opts.ServiceOpts.Database.UserName,
+		Password: opts.ServiceOpts.Database.Password,
+		Host:     opts.ServiceOpts.Database.Host,
+		Port:     opts.ServiceOpts.Database.Port,
+		Schema:   opts.ServiceOpts.Database.Database,
+		Debug:    opts.ServiceOpts.Database.Debug,
 	})
 	if nil != err {
 		return nil, fmt.Errorf("failed to new data: %v", err)
