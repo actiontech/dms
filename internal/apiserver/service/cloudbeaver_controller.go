@@ -17,7 +17,7 @@ type CloudbeaverController struct {
 	shutdownCallback func() error
 }
 
-func NewCloudbeaverController(logger utilLog.Logger, opts *conf.Options) (*CloudbeaverController, error) {
+func NewCloudbeaverController(logger utilLog.Logger, opts *conf.DMSOptions) (*CloudbeaverController, error) {
 	cloudbeaverService, err := service.NewAndInitCloudbeaverService(logger, opts)
 	if nil != err {
 		return nil, fmt.Errorf("failed to init cloudbeaver service: %v", err)
