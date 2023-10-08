@@ -1,22 +1,20 @@
-api:
-  http:
+dms:
+  id: 1
+  api:
     addr: 0.0.0.0
     port: 7601
-dms:
-  data:
+  service:
     database:
       username: root
       password: 123
-      host: 172.41.134.4
+      host: 127.0.0.1
       port: 3306
       database: dms
       debug: true
-node:
-  nodeno: 1
-cloudbeaver:
-  enable_https: false
-  host: 172.41.134.5
-  port: 8978
-  admin_user: administrator
-  admin_password: 123456
-secret_key:
+  cloudbeaver:
+    enable_https: false
+    host: 172.41.134.5
+    port: 8978
+    admin_user: administrator
+    admin_password: 123456
+  secret_key:

@@ -1,27 +1,19 @@
 package conf
 
 import (
-	"fmt"
-
-	dmsConf "github.com/actiontech/dms/internal/dms/conf"
-
+	dmsCommonConf "github.com/actiontech/dms/pkg/dms-common/conf"
 	utilConf "github.com/actiontech/dms/pkg/dms-common/pkg/config"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 )
 
 type Options struct {
-	APIServiceOpts  *APIServerOpts   `yaml:"api"`
-	DMSServiceOpts  *dmsConf.Options `yaml:"dms"`
-	CloudbeaverOpts *CloudbeaverOpts `yaml:"cloudbeaver"`
-	NodeOpts        *NodeOpts        `yaml:"node"`
-	SecretKey       string           `yaml:"secret_key"`
+	DMS DMSOptions `yaml:"dms" validate:"required"`
 }
 
-type APIServerOpts struct {
-	HTTP struct {
-		Addr string `yaml:"addr" validate:"required"`
-		Port int    `yaml:"port" validate:"required"`
-	} `yaml:"http"`
+type DMSOptions struct {
+	dmsCommonConf.BaseOptions `yaml:",inline"`
+	CloudbeaverOpts           *CloudbeaverOpts `yaml:"cloudbeaver"`
+	ServiceOpts               *ServiceOptions  `yaml:"service"`
 }
 
 type CloudbeaverOpts struct {
@@ -32,23 +24,22 @@ type CloudbeaverOpts struct {
 	AdminPassword string `yaml:"admin_password"`
 }
 
-type NodeOpts struct {
-	NodeNo int64 `yaml:"nodeno" validate:"required"`
+type ServiceOptions struct {
+	Database struct {
+		UserName string `yaml:"username" `
+		Password string `yaml:"password" `
+		Host     string `yaml:"host" validate:"required"`
+		Port     string `yaml:"port" validate:"required"`
+		Database string `yaml:"database" validate:"required"`
+		Debug    bool   `yaml:"debug"`
+	} `yaml:"database"`
 }
 
-func ReadOptions(log utilLog.Logger, path string) (*Options, error) {
+func ReadOptions(log utilLog.Logger, path string) (*DMSOptions, error) {
 	var opts Options
 	if err := utilConf.ParseYamlFile(log, path, &opts); err != nil {
 		return nil, err
 	}
 
-	return &opts, nil
-}
-
-func (o *Options) GetAPIServer() *APIServerOpts {
-	return o.APIServiceOpts
-}
-
-func (api *APIServerOpts) GetHTTPAddr() string {
-	return fmt.Sprintf("%v:%v", api.HTTP.Addr, api.HTTP.Port)
+	return &opts.DMS, nil
 }

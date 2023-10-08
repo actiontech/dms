@@ -35,14 +35,14 @@ type DMSService struct {
 	shutdownCallback             func() error
 }
 
-func NewAndInitDMSService(logger utilLog.Logger, opts *conf.Options) (*DMSService, error) {
+func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSService, error) {
 	st, err := storage.NewStorage(logger, &storage.StorageConfig{
-		User:     opts.DMSServiceOpts.Data.Database.UserName,
-		Password: opts.DMSServiceOpts.Data.Database.Password,
-		Host:     opts.DMSServiceOpts.Data.Database.Host,
-		Port:     opts.DMSServiceOpts.Data.Database.Port,
-		Schema:   opts.DMSServiceOpts.Data.Database.Database,
-		Debug:    opts.DMSServiceOpts.Data.Database.Debug,
+		User:     opts.ServiceOpts.Database.UserName,
+		Password: opts.ServiceOpts.Database.Password,
+		Host:     opts.ServiceOpts.Database.Host,
+		Port:     opts.ServiceOpts.Database.Port,
+		Schema:   opts.ServiceOpts.Database.Database,
+		Debug:    opts.ServiceOpts.Database.Debug,
 	})
 	if nil != err {
 		return nil, fmt.Errorf("failed to new data: %v", err)
@@ -82,7 +82,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.Options) (*DMSServic
 	memberUsecase = *biz.NewMemberUsecase(logger, tx, memberRepo, userUsecase, roleUsecase, dbServiceUseCase, opPermissionVerifyUsecase, projectUsecase)
 	memberGroupRepo := storage.NewMemberGroupRepo(logger, st)
 	memberGroupUsecase := biz.NewMemberGroupUsecase(logger, tx, memberGroupRepo, userUsecase, roleUsecase, dbServiceUseCase, opPermissionVerifyUsecase, projectUsecase, &memberUsecase)
-	dmsProxyUsecase, err := biz.NewDmsProxyUsecase(logger, dmsProxyTargetRepo, opts.APIServiceOpts.HTTP.Port)
+	dmsProxyUsecase, err := biz.NewDmsProxyUsecase(logger, dmsProxyTargetRepo, opts.APIServiceOpts.Port)
 	oauth2ConfigurationRepo := storage.NewOauth2ConfigurationRepo(logger, st)
 	oauth2ConfigurationUsecase := biz.NewOauth2ConfigurationUsecase(logger, tx, oauth2ConfigurationRepo, userUsecase)
 	smtpConfigurationRepo := storage.NewSMTPConfigurationRepo(logger, st)
