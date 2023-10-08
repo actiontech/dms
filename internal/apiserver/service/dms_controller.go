@@ -26,7 +26,7 @@ type DMSController struct {
 	shutdownCallback func() error
 }
 
-func NewDMSController(logger utilLog.Logger, opts *conf.Options) (*DMSController, error) {
+func NewDMSController(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSController, error) {
 	dmsService, err := service.NewAndInitDMSService(logger, opts)
 	if nil != err {
 		return nil, fmt.Errorf("failed to init dms service: %v", err)
