@@ -41,11 +41,11 @@ type APIServer struct {
 	// more controllers
 
 	echo   *echo.Echo
-	opts   *conf.Options
+	opts   *conf.DMSOptions
 	logger utilLog.Logger
 }
 
-func NewAPIServer(logger utilLog.Logger, opts *conf.Options) (*APIServer, error) {
+func NewAPIServer(logger utilLog.Logger, opts *conf.DMSOptions) (*APIServer, error) {
 	return &APIServer{
 		logger: logger,
 		opts:   opts,
