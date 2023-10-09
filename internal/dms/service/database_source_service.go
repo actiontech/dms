@@ -7,6 +7,7 @@ import (
 	v1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
 
 func (d *DMSService) ListDatabaseSourceService(ctx context.Context, req *v1.ListDatabaseSourceServicesReq, currentUserUid string) (reply *v1.ListDatabaseSourceServicesReply, err error) {
@@ -51,18 +52,18 @@ func (d *DMSService) ListDatabaseSourceService(ctx context.Context, req *v1.List
 	}, nil
 }
 
-func (d *DMSService) buildReplySqleConfig(params *biz.SQLEConfig) *v1.SQLEConfig {
+func (d *DMSService) buildReplySqleConfig(params *biz.SQLEConfig) *dmsCommonV1.SQLEConfig {
 	if params == nil {
 		return nil
 	}
 
-	sqlConfig := &v1.SQLEConfig{
+	sqlConfig := &dmsCommonV1.SQLEConfig{
 		RuleTemplateName: params.RuleTemplateName,
 		RuleTemplateID:   params.RuleTemplateID,
-		SQLQueryConfig:   &v1.SQLQueryConfig{},
+		SQLQueryConfig:   &dmsCommonV1.SQLQueryConfig{},
 	}
 	if params.SQLQueryConfig != nil {
-		sqlConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel = v1.SQLAllowQueryAuditLevel(params.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel)
+		sqlConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel = dmsCommonV1.SQLAllowQueryAuditLevel(params.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel)
 		sqlConfig.SQLQueryConfig.AuditEnabled = params.SQLQueryConfig.AuditEnabled
 		sqlConfig.SQLQueryConfig.MaxPreQueryRows = params.SQLQueryConfig.MaxPreQueryRows
 		sqlConfig.SQLQueryConfig.QueryTimeoutSecond = params.SQLQueryConfig.QueryTimeoutSecond
@@ -125,7 +126,7 @@ func (d *DMSService) AddDatabaseSourceService(ctx context.Context, req *v1.AddDa
 	}, nil
 }
 
-func (d *DMSService) buildSQLEConfig(params *v1.SQLEConfig) *biz.SQLEConfig {
+func (d *DMSService) buildSQLEConfig(params *dmsCommonV1.SQLEConfig) *biz.SQLEConfig {
 	if params == nil {
 		return nil
 	}
