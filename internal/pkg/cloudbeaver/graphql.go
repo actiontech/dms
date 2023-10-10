@@ -81,7 +81,7 @@ type ContextKey string
 const (
 	UsernamePrefix               = "dms-"
 	SQLEProxyAddrName ContextKey = "sqle_addr"
-	SQLEProxyName                = "sqle-api"
+	SQLEProxyName                = "sqle"
 )
 
 func GenerateCloudbeaverUserId(name string) string {
