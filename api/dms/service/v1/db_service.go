@@ -6,27 +6,7 @@ import (
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
-	"github.com/go-openapi/strfmt"
 )
-
-// swagger:enum DBType
-type DBType string
-
-const (
-	DBTypeMySQL          DBType = "MySQL"
-	DBTypeOceanBaseMySQL DBType = "OceanBaseMySQL"
-)
-
-func ParseDBType(s string) (DBType, error) {
-	switch s {
-	case string(DBTypeMySQL):
-		return DBTypeMySQL, nil
-	case string(DBTypeOceanBaseMySQL):
-		return DBTypeOceanBaseMySQL, nil
-	default:
-		return "", fmt.Errorf("invalid db type: %s", s)
-	}
-}
 
 // A db service
 type DBService struct {
@@ -35,7 +15,7 @@ type DBService struct {
 	Name string `json:"name" validate:"required"`
 	// Service DB type
 	// Required: true
-	DBType DBType `json:"db_type" validate:"required"`
+	DBType dmsCommonV1.DBType `json:"db_type" validate:"required"`
 	// DB Service Host
 	// Required: true
 	Host string `json:"host" validate:"required,ip_addr|uri|hostname|hostname_rfc1123"`
@@ -54,24 +34,14 @@ type DBService struct {
 	// DB Service maintenance time
 	// empty value means that maintenance time is unlimited
 	// Required: true
-	MaintenanceTimes []*MaintenanceTime `json:"maintenance_times"`
+	MaintenanceTimes []*dmsCommonV1.MaintenanceTime `json:"maintenance_times"`
 	// DB Service Custom connection parameters
 	// Required: false
 	AdditionalParams []*dmsCommonV1.AdditionalParam `json:"additional_params"`
 	// Service description
 	Desc string `json:"desc"`
 	// SQLE config
-	SQLEConfig *SQLEConfig `json:"sqle_config"`
-}
-
-type MaintenanceTime struct {
-	MaintenanceStartTime *Time `json:"maintenance_start_time"`
-	MaintenanceStopTime  *Time `json:"maintenance_stop_time"`
-}
-
-type Time struct {
-	Hour   int `json:"hour"`
-	Minute int `json:"minute"`
+	SQLEConfig *dmsCommonV1.SQLEConfig `json:"sqle_config"`
 }
 
 // swagger:parameters AddDBService
@@ -172,122 +142,6 @@ type ListDBServiceDriverOptionReq struct {
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 }
 
-// swagger:parameters ListDBServices
-type ListDBServiceReq struct {
-	// the maximum count of db service to be returned
-	// in:query
-	// Required: true
-	PageSize uint32 `query:"page_size" json:"page_size" validate:"required"`
-	// the offset of users to be returned, default is 0
-	// in:query
-	PageIndex uint32 `query:"page_index" json:"page_index"`
-	// Multiple of ["name"], default is ["name"]
-	// in:query
-	OrderBy DBServiceOrderByField `query:"order_by" json:"order_by"`
-	// the db service business name
-	// in:query
-	FilterByBusiness string `query:"filter_by_business" json:"filter_by_business"`
-	// the db service host
-	// in:query
-	FilterByHost string `query:"filter_by_host" json:"filter_by_host"`
-	// the db service uid
-	FilterByUID string `query:"filter_by_uid" json:"filter_by_uid"`
-	// the db service port
-	// in:query
-	FilterByPort string `query:"filter_by_port" json:"filter_by_port"`
-	// the db service db type
-	// in:query
-	// Multiple of ["MySQL","OceanBaseMySQL"], default is [""]
-	FilterByDBType string `query:"filter_by_db_type" json:"filter_by_db_type"`
-	// project id
-	// Required: true
-	// in:path
-	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-}
-
-// swagger:enum DBServiceOrderByField
-type DBServiceOrderByField string
-
-const (
-	DBServiceOrderByName DBServiceOrderByField = "name"
-)
-
-// A dms db Service
-type ListDBService struct {
-	// db service uid
-	DBServiceUid string `json:"uid"`
-	// db service name
-	Name string `json:"name"`
-	// Multiple of ["MySQL"], default is ["MySQL"]
-	// db service DB type
-	DBType DBType `json:"db_type"`
-	// db service host
-	Host string `json:"host"`
-	// db service port
-	Port string `json:"port"`
-	// db service admin user
-	User string `json:"user"`
-	// db service admin encrypted password
-	Password string `json:"password"`
-	// the db service business name
-	Business string `json:"business"`
-	// DB Service maintenance time
-	MaintenanceTimes []*MaintenanceTime `json:"maintenance_times"`
-	// DB desc
-	Desc string `json:"desc"`
-	// DB source
-	Source string `json:"source"`
-	// DB project uid
-	ProjectUID string `json:"project_uid"`
-	// sqle config
-	SQLEConfig *SQLEConfig `json:"sqle_config"`
-	// auth config
-	AuthConfig *AuthSyncConfig `json:"auth_config"`
-}
-
-type SQLEConfig struct {
-	// DB Service rule template name
-	RuleTemplateName string `json:"rule_template_name"`
-	// DB Service rule template id
-	RuleTemplateID string `json:"rule_template_id"`
-	// DB Service SQL query config
-	SQLQueryConfig *SQLQueryConfig `json:"sql_query_config"`
-}
-
-// swagger:enum SQLAllowQueryAuditLevel
-type SQLAllowQueryAuditLevel string
-
-const (
-	AuditLevelNormal SQLAllowQueryAuditLevel = "normal"
-	AuditLevelNotice SQLAllowQueryAuditLevel = "notice"
-	AuditLevelWarn   SQLAllowQueryAuditLevel = "warn"
-	AuditLevelError  SQLAllowQueryAuditLevel = "error"
-)
-
-type SQLQueryConfig struct {
-	MaxPreQueryRows                  int                     `json:"max_pre_query_rows" example:"100"`
-	QueryTimeoutSecond               int                     `json:"query_timeout_second" example:"10"`
-	AuditEnabled                     bool                    `json:"audit_enabled" example:"false"`
-	AllowQueryWhenLessThanAuditLevel SQLAllowQueryAuditLevel `json:"allow_query_when_less_than_audit_level" enums:"normal,notice,warn,error" valid:"omitempty,oneof=normal notice warn error " example:"error"`
-}
-
-type AuthSyncConfig struct {
-	// last sync data result
-	LastSyncDataResult string `json:"last_sync_data_result"`
-	// last sync data time
-	LastSyncDataTime strfmt.DateTime `json:"last_sync_data_time"`
-}
-
-// swagger:model ListDBServiceReply
-type ListDBServiceReply struct {
-	// List db service reply
-	Data  []*ListDBService `json:"data"`
-	Total int64            `json:"total_nums"`
-
-	// Generic reply
-	base.GenericResp
-}
-
 // swagger:parameters UpdateDBService
 type UpdateDBServiceReq struct {
 	// project id
@@ -317,7 +171,7 @@ func (u *UpdateDBServiceReq) String() string {
 type UpdateDBService struct {
 	// Service DB type
 	// Required: true
-	DBType DBType `json:"db_type" validate:"required"`
+	DBType dmsCommonV1.DBType `json:"db_type" validate:"required"`
 	// DB Service Host
 	// Required: true
 	Host string `json:"host" validate:"required,ip_addr|uri|hostname|hostname_rfc1123"`
@@ -334,14 +188,14 @@ type UpdateDBService struct {
 	Business string `json:"business" validate:"required"`
 	// DB Service maintenance time
 	// Required: true
-	MaintenanceTimes []*MaintenanceTime `json:"maintenance_times"`
+	MaintenanceTimes []*dmsCommonV1.MaintenanceTime `json:"maintenance_times"`
 	// DB Service Custom connection parameters
 	// Required: false
 	AdditionalParams []*dmsCommonV1.AdditionalParam `json:"additional_params"`
 	// Service description
 	Desc *string `json:"desc"`
 	// SQLE config
-	SQLEConfig *SQLEConfig `json:"sqle_config"`
+	SQLEConfig *dmsCommonV1.SQLEConfig `json:"sqle_config"`
 }
 
 // swagger:model UpdateDBServiceReply

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
 
 // swagger:parameters ListDatabaseSourceServices
@@ -83,7 +84,7 @@ type DatabaseSourceService struct {
 	// example: 0 0 * * *
 	CronExpress string `json:"cron_express" validate:"required"`
 	// SQLE config
-	SQLEConfig *SQLEConfig `json:"sqle_config"`
+	SQLEConfig *dmsCommonV1.SQLEConfig `json:"sqle_config"`
 }
 
 // swagger:parameters AddDatabaseSourceService
