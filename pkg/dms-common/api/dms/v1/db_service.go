@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
-	"github.com/go-openapi/strfmt"
 )
 
 type CheckDbConnectable struct {
@@ -136,8 +135,6 @@ type ListDBService struct {
 	ProjectUID string `json:"project_uid"`
 	// sqle config
 	SQLEConfig *SQLEConfig `json:"sqle_config"`
-	// auth config
-	AuthConfig *AuthSyncConfig `json:"auth_config"`
 }
 
 type SQLEConfig struct {
@@ -164,13 +161,6 @@ type SQLQueryConfig struct {
 	QueryTimeoutSecond               int                     `json:"query_timeout_second" example:"10"`
 	AuditEnabled                     bool                    `json:"audit_enabled" example:"false"`
 	AllowQueryWhenLessThanAuditLevel SQLAllowQueryAuditLevel `json:"allow_query_when_less_than_audit_level" enums:"normal,notice,warn,error" valid:"omitempty,oneof=normal notice warn error " example:"error"`
-}
-
-type AuthSyncConfig struct {
-	// last sync data result
-	LastSyncDataResult string `json:"last_sync_data_result"`
-	// last sync data time
-	LastSyncDataTime strfmt.DateTime `json:"last_sync_data_time"`
 }
 
 // swagger:model ListDBServiceReply
