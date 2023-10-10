@@ -9,8 +9,11 @@ type BaseOptions struct {
 }
 
 type APIServerOpts struct {
-	Addr string `yaml:"addr" validate:"required"`
-	Port int    `yaml:"port" validate:"required"`
+	Addr         string `yaml:"addr" validate:"required"`
+	Port         int    `yaml:"port" validate:"required"`
+	EnableHttps  bool   `yaml:"enable_https"`
+	CertFilePath string `yaml:"cert_file_path"`
+	KeyFilePath  string `yaml:"key_file_path"`
 }
 
 func (o *BaseOptions) GetAPIServer() *APIServerOpts {
