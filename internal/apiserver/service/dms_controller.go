@@ -85,7 +85,7 @@ func (d *DMSController) AddDBService(c echo.Context) error {
 //	  200: body:ListDBServiceReply
 //	  default: body:GenericResp
 func (d *DMSController) ListDBServices(c echo.Context) error {
-	req := new(aV1.ListDBServiceReq)
+	req := new(dmsV1.ListDBServiceReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)

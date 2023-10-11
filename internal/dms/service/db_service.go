@@ -42,9 +42,9 @@ func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV1.UpdateDBSer
 
 	var dbType pkgConst.DBType
 	switch req.DBService.DBType {
-	case dmsV1.DBTypeMySQL:
+	case dmsCommonV1.DBTypeMySQL:
 		dbType = pkgConst.DBTypeMySQL
-	case dmsV1.DBTypeOceanBaseMySQL:
+	case dmsCommonV1.DBTypeOceanBaseMySQL:
 		dbType = pkgConst.DBTypeOceanBaseMySQL
 	default:
 		return fmt.Errorf("invalid db type: %s", req.DBService.DBType)
@@ -152,9 +152,9 @@ func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceRe
 	// TODO 预期这里不做校验，从dms同步出去的数据自行判断数据源类型是否支持
 	var dbType pkgConst.DBType
 	switch req.DBService.DBType {
-	case dmsV1.DBTypeMySQL:
+	case dmsCommonV1.DBTypeMySQL:
 		dbType = pkgConst.DBTypeMySQL
-	case dmsV1.DBTypeOceanBaseMySQL:
+	case dmsCommonV1.DBTypeOceanBaseMySQL:
 		dbType = pkgConst.DBTypeOceanBaseMySQL
 	default:
 		return nil, fmt.Errorf("invalid db type: %s", req.DBService.DBType)
@@ -208,7 +208,7 @@ func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceRe
 	}, nil
 }
 
-func (d *DMSService) convertMaintenanceTimeToPeriod(mt []*dmsV1.MaintenanceTime) periods.Periods {
+func (d *DMSService) convertMaintenanceTimeToPeriod(mt []*dmsCommonV1.MaintenanceTime) periods.Periods {
 	ps := make(periods.Periods, len(mt))
 	for i, time := range mt {
 		ps[i] = &periods.Period{
@@ -221,15 +221,15 @@ func (d *DMSService) convertMaintenanceTimeToPeriod(mt []*dmsV1.MaintenanceTime)
 	return ps
 }
 
-func (d *DMSService) convertPeriodToMaintenanceTime(p periods.Periods) []*dmsV1.MaintenanceTime {
-	periods := make([]*dmsV1.MaintenanceTime, len(p))
+func (d *DMSService) convertPeriodToMaintenanceTime(p periods.Periods) []*dmsCommonV1.MaintenanceTime {
+	periods := make([]*dmsCommonV1.MaintenanceTime, len(p))
 	for i, time := range p {
-		periods[i] = &dmsV1.MaintenanceTime{
-			MaintenanceStartTime: &dmsV1.Time{
+		periods[i] = &dmsCommonV1.MaintenanceTime{
+			MaintenanceStartTime: &dmsCommonV1.Time{
 				Hour:   time.StartHour,
 				Minute: time.StartMinute,
 			},
-			MaintenanceStopTime: &dmsV1.Time{
+			MaintenanceStopTime: &dmsCommonV1.Time{
 				Hour:   time.EndHour,
 				Minute: time.EndMinute,
 			},
@@ -238,7 +238,7 @@ func (d *DMSService) convertPeriodToMaintenanceTime(p periods.Periods) []*dmsV1.
 	return periods
 }
 
-func (d *DMSService) ListDBServices(ctx context.Context, req *dmsV1.ListDBServiceReq, currentUserUid string) (reply *dmsV1.ListDBServiceReply, err error) {
+func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDBServiceReq, currentUserUid string) (reply *dmsCommonV1.ListDBServiceReply, err error) {
 	d.log.Infof("ListDBServices.req=%v", req)
 	defer func() {
 		d.log.Infof("ListDBServices.req=%v;reply=%v;error=%v", req, reply, err)
@@ -246,7 +246,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsV1.ListDBServic
 
 	var orderBy biz.DBServiceField
 	switch req.OrderBy {
-	case dmsV1.DBServiceOrderByName:
+	case dmsCommonV1.DBServiceOrderByName:
 		orderBy = biz.DBServiceFieldName
 	default:
 		orderBy = biz.DBServiceFieldName
@@ -313,16 +313,16 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsV1.ListDBServic
 		return nil, err
 	}
 
-	ret := make([]*dmsV1.ListDBService, len(service))
+	ret := make([]*dmsCommonV1.ListDBService, len(service))
 	for i, u := range service {
 		password, err := pkgAes.AesEncrypt(u.AdminPassword)
 		if err != nil {
 			return nil, fmt.Errorf("failed to encrypt password: %w", err)
 		}
-		ret[i] = &dmsV1.ListDBService{
+		ret[i] = &dmsCommonV1.ListDBService{
 			DBServiceUid:     u.GetUID(),
 			Name:             u.Name,
-			DBType:           dmsV1.DBType(u.DBType),
+			DBType:           dmsCommonV1.DBType(u.DBType),
 			Host:             u.Host,
 			Port:             u.Port,
 			User:             u.AdminUser,
@@ -337,13 +337,13 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsV1.ListDBServic
 			// LastSyncDataTime:"".
 		}
 		if u.SQLEConfig != nil {
-			sqlConfig := &dmsV1.SQLEConfig{
+			sqlConfig := &dmsCommonV1.SQLEConfig{
 				RuleTemplateName: u.SQLEConfig.RuleTemplateName,
 				RuleTemplateID:   u.SQLEConfig.RuleTemplateID,
-				SQLQueryConfig:   &dmsV1.SQLQueryConfig{},
+				SQLQueryConfig:   &dmsCommonV1.SQLQueryConfig{},
 			}
 			if u.SQLEConfig.SQLQueryConfig != nil {
-				sqlConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel = dmsV1.SQLAllowQueryAuditLevel(u.SQLEConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel)
+				sqlConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel = dmsCommonV1.SQLAllowQueryAuditLevel(u.SQLEConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel)
 				sqlConfig.SQLQueryConfig.AuditEnabled = u.SQLEConfig.SQLQueryConfig.AuditEnabled
 				sqlConfig.SQLQueryConfig.MaxPreQueryRows = u.SQLEConfig.SQLQueryConfig.MaxPreQueryRows
 				sqlConfig.SQLQueryConfig.QueryTimeoutSecond = u.SQLEConfig.SQLQueryConfig.QueryTimeoutSecond
@@ -352,7 +352,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsV1.ListDBServic
 		}
 	}
 
-	return &dmsV1.ListDBServiceReply{
+	return &dmsCommonV1.ListDBServiceReply{
 		Data:  ret,
 		Total: total,
 	}, nil
