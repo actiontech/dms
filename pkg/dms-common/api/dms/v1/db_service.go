@@ -33,8 +33,10 @@ type CheckDbConnectable struct {
 }
 
 type AdditionalParam struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Name        string `json:"name"`
+	Value       string `json:"value"`
+	Description string `json:"description" example:"参数项中文名" form:"description"`
+	Type        string `json:"type" example:"int" form:"type"`
 }
 
 // swagger:parameters ListDBServices
@@ -139,6 +141,8 @@ type ListDBService struct {
 	ProjectUID string `json:"project_uid"`
 	// sqle config
 	SQLEConfig *SQLEConfig `json:"sqle_config"`
+	// DB Service Custom connection parameters
+	AdditionalParams []*AdditionalParam `json:"additional_params"`
 }
 
 type SQLEConfig struct {
