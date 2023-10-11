@@ -80,7 +80,7 @@ func (d *BasicUsecase) GetBasicInfo(ctx context.Context) (*BasicInfo, error) {
 	}
 
 	if len(basicConfig.Logo) > 0 {
-		ret.LogoUrl = "/v1/dms/static/logo"
+		ret.LogoUrl = "/v1/dms/personalization/logo"
 	}
 
 	return ret, nil
