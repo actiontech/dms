@@ -277,6 +277,14 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 		})
 	}
 
+	if req.FilterByName != "" {
+		filterBy = append(filterBy, pkgConst.FilterCondition{
+			Field:    string(biz.DBServiceFieldName),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    req.FilterByName,
+		})
+	}
+
 	if req.FilterByPort != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldPort),
