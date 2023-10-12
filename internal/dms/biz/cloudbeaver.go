@@ -487,6 +487,11 @@ func (cu *CloudbeaverUsecase) connectManagement(ctx context.Context, cloudbeaver
 		return err
 	}
 
+	activeDBServices, err = ResetDbServiceByAuth(ctx, activeDBServices)
+	if err != nil {
+		return err
+	}
+
 	var dbServiceIds []string
 	if isAdmin, _ := cu.opPermissionVerifyUsecase.IsUserDMSAdmin(ctx, dmsUser.UID); !isAdmin {
 		opPermissions, err := cu.opPermissionVerifyUsecase.GetUserOpPermission(ctx, dmsUser.UID)
@@ -750,8 +755,8 @@ func (cu *CloudbeaverUsecase) generateCommonCloudbeaverConfigParams(dbService *D
 		"authModelId":       "native",
 		"saveCredentials":   true,
 		"credentials": map[string]interface{}{
-			"userName":     dbService.AdminUser,
-			"userPassword": dbService.AdminPassword,
+			"userName":     dbService.User,
+			"userPassword": dbService.Password,
 		},
 	}
 }
@@ -833,7 +838,7 @@ func (cu *CloudbeaverUsecase) fillOceanBaseParams(inst *DBService, config map[st
 	if !ok {
 		return errors.New("assert oceanbase connection params failed")
 	}
-	credentialConfig["userName"] = fmt.Sprintf("%v@%v", inst.AdminUser, tenant)
+	credentialConfig["userName"] = fmt.Sprintf("%v@%v", inst.User, tenant)
 	config["credentials"] = credentialConfig
 	return nil
 }
