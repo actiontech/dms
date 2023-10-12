@@ -90,7 +90,7 @@ func (p *PluginUsecase) AddDBServicePreCheck(ctx context.Context, ds *DBService)
 		DBType:   dbTyp,
 		Host:     ds.Host,
 		Port:     ds.Port,
-		User:     ds.AdminUser,
+		User:     ds.User,
 		Business: ds.Business,
 	}
 	if ds.SQLEConfig != nil {
