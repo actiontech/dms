@@ -33,8 +33,10 @@ type CheckDbConnectable struct {
 }
 
 type AdditionalParam struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Name        string `json:"name"`
+	Value       string `json:"value"`
+	Description string `json:"description" example:"参数项中文名" form:"description"`
+	Type        string `json:"type" example:"int" form:"type"`
 }
 
 // swagger:parameters ListDBServices
@@ -56,7 +58,11 @@ type ListDBServiceReq struct {
 	// in:query
 	FilterByHost string `query:"filter_by_host" json:"filter_by_host"`
 	// the db service uid
+	// in:query
 	FilterByUID string `query:"filter_by_uid" json:"filter_by_uid"`
+	// the db service name
+	// in:query
+	FilterByName string `query:"filter_by_name" json:"filter_by_name"`
 	// the db service port
 	// in:query
 	FilterByPort string `query:"filter_by_port" json:"filter_by_port"`
@@ -135,6 +141,8 @@ type ListDBService struct {
 	ProjectUID string `json:"project_uid"`
 	// sqle config
 	SQLEConfig *SQLEConfig `json:"sqle_config"`
+	// DB Service Custom connection parameters
+	AdditionalParams []*AdditionalParam `json:"additional_params"`
 }
 
 type SQLEConfig struct {

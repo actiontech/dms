@@ -231,27 +231,20 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AdditionalParam:
         properties:
+            description:
+                type: string
+                x-go-name: Description
             name:
                 type: string
                 x-go-name: Name
+            type:
+                type: string
+                x-go-name: Type
             value:
                 type: string
                 x-go-name: Value
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    AuthSyncConfig:
-        properties:
-            last_sync_data_result:
-                description: last sync data result
-                type: string
-                x-go-name: LastSyncDataResult
-            last_sync_data_time:
-                description: last sync data time
-                format: date-time
-                type: string
-                x-go-name: LastSyncDataTime
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     BasicInfo:
         properties:
             components:
@@ -1182,8 +1175,12 @@ definitions:
     ListDBService:
         description: A dms db Service
         properties:
-            auth_config:
-                $ref: '#/definitions/AuthSyncConfig'
+            additional_params:
+                description: DB Service Custom connection parameters
+                items:
+                    $ref: '#/definitions/AdditionalParam'
+                type: array
+                x-go-name: AdditionalParams
             business:
                 description: the db service business name
                 type: string
@@ -1247,7 +1244,7 @@ definitions:
                 type: string
                 x-go-name: User
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ListDBServiceDriverOptionReply:
         properties:
             code:
@@ -1289,7 +1286,7 @@ definitions:
                 type: integer
                 x-go-name: Total
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ListDatabaseSourceService:
         properties:
             cron_express:
@@ -1875,7 +1872,7 @@ definitions:
             maintenance_stop_time:
                 $ref: '#/definitions/Time'
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     Member:
         description: A member
         properties:
@@ -2227,7 +2224,7 @@ definitions:
             sql_query_config:
                 $ref: '#/definitions/SQLQueryConfig'
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     SQLQueryConfig:
         properties:
             allow_query_when_less_than_audit_level:
@@ -2255,7 +2252,7 @@ definitions:
                 type: integer
                 x-go-name: QueryTimeoutSecond
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     TestFeishuConfiguration:
         properties:
             account:
@@ -2397,7 +2394,7 @@ definitions:
                 type: integer
                 x-go-name: Minute
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     TriggerEventType:
         type: string
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
@@ -2410,7 +2407,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateCurrentUser:
         properties:
             email:
@@ -3726,6 +3723,11 @@ paths:
                   name: filter_by_uid
                   type: string
                   x-go-name: FilterByUID
+                - description: the db service name
+                  in: query
+                  name: filter_by_name
+                  type: string
+                  x-go-name: FilterByName
                 - description: the db service port
                   in: query
                   name: filter_by_port

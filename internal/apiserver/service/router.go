@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/actiontech/dms/internal/dms/biz"
 	pkgLog "github.com/actiontech/dms/internal/pkg/log"
 
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -22,7 +23,7 @@ func (s *APIServer) initRouter() error {
 	// DMS RESTful resource
 	{
 		v1.GET("/dms/basic_info", s.DMSController.GetBasicInfo)
-		v1.GET("/dms/personalization/logo", s.DMSController.GetStaticLogo)
+		v1.GET(biz.PersonalizationUrl, s.DMSController.GetStaticLogo)
 		v1.POST("/dms/personalization", s.DMSController.Personalization)
 
 		dmsProxyV1 := v1.Group(dmsV1.ProxyRouterGroup)

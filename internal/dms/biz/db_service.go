@@ -31,20 +31,19 @@ type SQLEConfig struct {
 type DBService struct {
 	Base
 
-	UID                    string
-	Name                   string
-	Desc                   string
-	DBType                 pkgConst.DBType
-	Host                   string
-	Port                   string
-	AdminUser              string
-	AdminPassword          string
-	EncryptedAdminPassword string
-	Business               string
-	AdditionalParams       pkgParams.Params
-	ProjectUID             string
-	MaintenancePeriod      pkgPeriods.Periods
-	Source                 string
+	UID               string
+	Name              string
+	Desc              string
+	DBType            pkgConst.DBType
+	Host              string
+	Port              string
+	User              string
+	Password          string
+	Business          string
+	AdditionalParams  pkgParams.Params
+	ProjectUID        string
+	MaintenancePeriod pkgPeriods.Periods
+	Source            string
 
 	// sqle config
 	SQLEConfig *SQLEConfig
@@ -80,8 +79,8 @@ func newDBService(args *BizDBServiceArgs) (*DBService, error) {
 		DBType:            args.DBType,
 		Host:              args.Host,
 		Port:              args.Port,
-		AdminUser:         args.AdminUser,
-		AdminPassword:     *args.AdminPassword,
+		User:              args.User,
+		Password:          *args.Password,
 		AdditionalParams:  args.AdditionalParams,
 		ProjectUID:        args.ProjectUID,
 		Business:          args.Business,
@@ -139,8 +138,8 @@ type BizDBServiceArgs struct {
 	DBType            pkgConst.DBType
 	Host              string
 	Port              string
-	AdminUser         string
-	AdminPassword     *string
+	User              string
+	Password          *string
 	Business          string
 	Source            string
 	AdditionalParams  pkgParams.Params
@@ -254,7 +253,7 @@ func (d *DBServiceUsecase) GetDBServiceFingerprint(dbService *DBService) string 
     "password":"%s",
     "params":"%v"
 }
-`, dbService.UID, dbService.Host, dbService.Port, dbService.AdminUser, aes.Md5(dbService.AdminPassword), dbService.AdditionalParams)
+`, dbService.UID, dbService.Host, dbService.Port, dbService.User, aes.Md5(dbService.Password), dbService.AdditionalParams)
 }
 
 func (d *DBServiceUsecase) DelDBService(ctx context.Context, dbServiceUid, currentUserUid string) (err error) {
@@ -315,7 +314,7 @@ func (d *DBServiceUsecase) UpdateDBService(ctx context.Context, dbServiceUid str
 		}
 
 		if updateDBService.Host == "" || updateDBService.Port == "" ||
-			updateDBService.AdminUser == "" || updateDBService.Business == "" {
+			updateDBService.User == "" || updateDBService.Business == "" {
 			return fmt.Errorf("db service's host,port,user,business can't be empty")
 		}
 	}
@@ -324,16 +323,16 @@ func (d *DBServiceUsecase) UpdateDBService(ctx context.Context, dbServiceUid str
 		if updateDBService.Desc != nil {
 			ds.Desc = *updateDBService.Desc
 		}
-		if updateDBService.AdminPassword != nil {
-			if *updateDBService.AdminPassword == "" {
+		if updateDBService.Password != nil {
+			if *updateDBService.Password == "" {
 				return fmt.Errorf("password can't be empty")
 			}
-			ds.AdminPassword = *updateDBService.AdminPassword
+			ds.Password = *updateDBService.Password
 		}
 
 		ds.Host = updateDBService.Host
 		ds.Port = updateDBService.Port
-		ds.AdminUser = updateDBService.AdminUser
+		ds.User = updateDBService.User
 		ds.Business = updateDBService.Business
 		ds.AdditionalParams = updateDBService.AdditionalParams
 		ds.MaintenancePeriod = updateDBService.MaintenancePeriod

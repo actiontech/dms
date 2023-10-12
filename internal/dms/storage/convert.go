@@ -24,7 +24,7 @@ func convertBase(o model.Model) biz.Base {
 }
 
 func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
-	encrypted, err := pkgAes.AesEncrypt(ds.AdminPassword)
+	encrypted, err := pkgAes.AesEncrypt(ds.Password)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encrypt password: %w", err)
 	}
@@ -37,7 +37,7 @@ func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
 		DBType:            ds.DBType.String(),
 		Host:              ds.Host,
 		Port:              ds.Port,
-		User:              ds.AdminUser,
+		User:              ds.User,
 		Password:          encrypted,
 		Business:          ds.Business,
 		AdditionalParams:  ds.AdditionalParams,
@@ -78,21 +78,20 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 		return nil, fmt.Errorf("failed to parse db type: %v", err)
 	}
 	dbService := &biz.DBService{
-		Base:                   convertBase(ds.Model),
-		UID:                    ds.UID,
-		Name:                   ds.Name,
-		Desc:                   ds.Desc,
-		DBType:                 dbType,
-		Host:                   ds.Host,
-		Port:                   ds.Port,
-		AdminUser:              ds.User,
-		AdminPassword:          decrypted,
-		EncryptedAdminPassword: ds.Password,
-		MaintenancePeriod:      ds.MaintenancePeriod,
-		Business:               ds.Business,
-		AdditionalParams:       ds.AdditionalParams,
-		Source:                 ds.Source,
-		ProjectUID:             ds.ProjectUID,
+		Base:              convertBase(ds.Model),
+		UID:               ds.UID,
+		Name:              ds.Name,
+		Desc:              ds.Desc,
+		DBType:            dbType,
+		Host:              ds.Host,
+		Port:              ds.Port,
+		User:              ds.User,
+		Password:          decrypted,
+		MaintenancePeriod: ds.MaintenancePeriod,
+		Business:          ds.Business,
+		AdditionalParams:  ds.AdditionalParams,
+		Source:            ds.Source,
+		ProjectUID:        ds.ProjectUID,
 	}
 	{
 		modelSqleConfig := ds.ExtraParameters.SqleConfig

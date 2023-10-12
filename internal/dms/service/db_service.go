@@ -54,8 +54,8 @@ func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV1.UpdateDBSer
 		Desc:              req.DBService.Desc,
 		Host:              req.DBService.Host,
 		Port:              req.DBService.Port,
-		AdminUser:         req.DBService.User,
-		AdminPassword:     req.DBService.Password,
+		User:              req.DBService.User,
+		Password:          req.DBService.Password,
 		Business:          req.DBService.Business,
 		MaintenancePeriod: d.convertMaintenanceTimeToPeriod(req.DBService.MaintenanceTimes),
 		AdditionalParams:  additionalParams,
@@ -117,10 +117,10 @@ func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *d
 
 	checkDbConnectableParams := dmsCommonV1.CheckDbConnectable{
 		DBType:           dbService.DBType.String(),
-		User:             dbService.AdminUser,
+		User:             dbService.User,
 		Host:             dbService.Host,
 		Port:             dbService.Port,
-		Password:         dbService.AdminPassword,
+		Password:         dbService.Password,
 		AdditionalParams: additionParams,
 	}
 
@@ -174,8 +174,8 @@ func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceRe
 		DBType:            dbType,
 		Host:              req.DBService.Host,
 		Port:              req.DBService.Port,
-		AdminUser:         req.DBService.User,
-		AdminPassword:     &req.DBService.Password,
+		User:              req.DBService.User,
+		Password:          &req.DBService.Password,
 		Business:          req.DBService.Business,
 		MaintenancePeriod: d.convertMaintenanceTimeToPeriod(req.DBService.MaintenanceTimes),
 		ProjectUID:        req.ProjectUid,
@@ -277,6 +277,14 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 		})
 	}
 
+	if req.FilterByName != "" {
+		filterBy = append(filterBy, pkgConst.FilterCondition{
+			Field:    string(biz.DBServiceFieldName),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    req.FilterByName,
+		})
+	}
+
 	if req.FilterByPort != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldPort),
@@ -315,7 +323,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 
 	ret := make([]*dmsCommonV1.ListDBService, len(service))
 	for i, u := range service {
-		password, err := pkgAes.AesEncrypt(u.AdminPassword)
+		password, err := pkgAes.AesEncrypt(u.Password)
 		if err != nil {
 			return nil, fmt.Errorf("failed to encrypt password: %w", err)
 		}
@@ -325,7 +333,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 			DBType:           dmsCommonV1.DBType(u.DBType),
 			Host:             u.Host,
 			Port:             u.Port,
-			User:             u.AdminUser,
+			User:             u.User,
 			Password:         password,
 			Business:         u.Business,
 			MaintenanceTimes: d.convertPeriodToMaintenanceTime(u.MaintenancePeriod),
@@ -336,6 +344,20 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 			// LastSyncDataResult: "TODO",
 			// LastSyncDataTime:"".
 		}
+
+		if u.AdditionalParams != nil {
+			additionalParams := make([]*dmsCommonV1.AdditionalParam, 0, len(u.AdditionalParams))
+			for _, item := range u.AdditionalParams {
+				additionalParams = append(additionalParams, &dmsCommonV1.AdditionalParam{
+					Name:        item.Key,
+					Value:       item.Value,
+					Description: item.Desc,
+					Type:        string(item.Type),
+				})
+			}
+			ret[i].AdditionalParams = additionalParams
+		}
+
 		if u.SQLEConfig != nil {
 			sqlConfig := &dmsCommonV1.SQLEConfig{
 				RuleTemplateName: u.SQLEConfig.RuleTemplateName,
