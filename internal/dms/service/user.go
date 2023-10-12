@@ -499,12 +499,6 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 		projects, _, err := d.ProjectUsecase.ListProject(ctx, &biz.ListProjectsOption{
 			PageNumber:   1,
 			LimitPerPage: 999,
-			FilterBy: []pkgConst.FilterCondition{
-				{
-					Field:    string(biz.ProjectFieldStatus),
-					Operator: pkgConst.FilterOperatorEqual,
-					Value:    biz.ProjectStatusActive,
-				}},
 		}, u.UID)
 		if err != nil {
 			return nil, err
