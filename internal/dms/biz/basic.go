@@ -2,9 +2,11 @@ package biz
 
 import (
 	"context"
+	"fmt"
 	"mime/multipart"
 
 	"github.com/actiontech/dms/internal/dms/conf"
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 )
 
@@ -46,7 +48,8 @@ type BasicInfo struct {
 }
 
 const (
-	componentDMSName = "dms"
+	componentDMSName   = "dms"
+	PersonalizationUrl = "/dms/personalization/logo"
 )
 
 func (d *BasicUsecase) GetBasicInfo(ctx context.Context) (*BasicInfo, error) {
@@ -80,7 +83,7 @@ func (d *BasicUsecase) GetBasicInfo(ctx context.Context) (*BasicInfo, error) {
 	}
 
 	if len(basicConfig.Logo) > 0 {
-		ret.LogoUrl = "/v1/dms/personalization/logo"
+		ret.LogoUrl = fmt.Sprintf("%s%s", dmsCommonV1.CurrentGroupVersion, PersonalizationUrl)
 	}
 
 	return ret, nil
