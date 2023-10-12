@@ -147,16 +147,16 @@ func (d dmpManager) SyncDatabaseSource(ctx context.Context, params *DatabaseSour
 
 		desc := fmt.Sprintf("sync dmp database source: %v", item.Tags)
 		dbServiceParams := &BizDBServiceArgs{
-			Name:          item.DataSrcID,
-			Desc:          &desc,
-			DBType:        params.DbType,
-			Host:          item.DataSrcSip,
-			Port:          item.DataSrcPort,
-			AdminUser:     item.DataSrcUser,
-			AdminPassword: &password,
-			Business:      strings.Join(businessArr, ","),
-			ProjectUID:    params.ProjectUID,
-			Source:        string(pkgConst.DBServiceSourceNameDMP),
+			Name:       item.DataSrcID,
+			Desc:       &desc,
+			DBType:     params.DbType,
+			Host:       item.DataSrcSip,
+			Port:       item.DataSrcPort,
+			User:       item.DataSrcUser,
+			Password:   &password,
+			Business:   strings.Join(businessArr, ","),
+			ProjectUID: params.ProjectUID,
+			Source:     string(pkgConst.DBServiceSourceNameDMP),
 		}
 
 		sqleConfig := params.SQLEConfig
@@ -180,7 +180,7 @@ func (d dmpManager) SyncDatabaseSource(ctx context.Context, params *DatabaseSour
 		} else {
 			remainDBServiceSourceMap[sourceId] = dbService.UID
 			// update
-			if dbService.Host != item.DataSrcSip || dbService.Port != item.DataSrcPort || dbService.AdminUser != item.DataSrcUser || dbService.AdminPassword != password {
+			if dbService.Host != item.DataSrcSip || dbService.Port != item.DataSrcPort || dbService.User != item.DataSrcUser || dbService.Password != password {
 				err = serviceUsecase.dbServiceUsecase.UpdateDBService(ctx, dbService.UID, dbServiceParams, currentUserId)
 			}
 		}
