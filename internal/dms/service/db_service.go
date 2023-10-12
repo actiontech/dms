@@ -277,6 +277,14 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 		})
 	}
 
+	if req.FilterByName != "" {
+		filterBy = append(filterBy, pkgConst.FilterCondition{
+			Field:    string(biz.DBServiceFieldName),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    req.FilterByName,
+		})
+	}
+
 	if req.FilterByPort != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldPort),
@@ -336,6 +344,20 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 			// LastSyncDataResult: "TODO",
 			// LastSyncDataTime:"".
 		}
+
+		if u.AdditionalParams != nil {
+			additionalParams := make([]*dmsCommonV1.AdditionalParam, 0, len(u.AdditionalParams))
+			for _, item := range u.AdditionalParams {
+				additionalParams = append(additionalParams, &dmsCommonV1.AdditionalParam{
+					Name:        item.Key,
+					Value:       item.Value,
+					Description: item.Desc,
+					Type:        string(item.Type),
+				})
+			}
+			ret[i].AdditionalParams = additionalParams
+		}
+
 		if u.SQLEConfig != nil {
 			sqlConfig := &dmsCommonV1.SQLEConfig{
 				RuleTemplateName: u.SQLEConfig.RuleTemplateName,
