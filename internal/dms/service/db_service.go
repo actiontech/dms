@@ -9,7 +9,6 @@ import (
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	pkgAes "github.com/actiontech/dms/pkg/dms-common/pkg/aes"
-	"github.com/actiontech/dms/pkg/params"
 	"github.com/actiontech/dms/pkg/periods"
 )
 
@@ -32,7 +31,10 @@ func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV1.UpdateDBSer
 		d.log.Infof("UpdateDBService.req=%v;error=%v", req, err)
 	}()
 
-	additionalParams := params.AdditionalParameter[string(req.DBService.DBType)]
+	additionalParams, err := d.DBServiceUsecase.GetDriverParamsByDBType(ctx, req.DBService.DBType)
+	if err != nil {
+		return err
+	}
 	for _, additionalParam := range req.DBService.AdditionalParams {
 		err = additionalParams.SetParamValue(additionalParam.Name, additionalParam.Value)
 		if err != nil {
@@ -140,7 +142,7 @@ func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceRe
 		d.log.Infof("AddDBServices.req=%v;reply=%v;error=%v", req, reply, err)
 	}()
 
-	additionalParams := params.AdditionalParameter[string(req.DBService.DBType)]
+	additionalParams, err := d.DBServiceUsecase.GetDriverParamsByDBType(ctx, req.DBService.DBType)
 	for _, additionalParam := range req.DBService.AdditionalParams {
 		err = additionalParams.SetParamValue(additionalParam.Name, additionalParam.Value)
 		if err != nil {
