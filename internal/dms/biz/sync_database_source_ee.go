@@ -78,7 +78,11 @@ func (d dmpManager) SyncDatabaseSource(ctx context.Context, params *DatabaseSour
 		return fmt.Errorf("dmp version %s not supported", params.Version)
 	}
 
-	dmpFilterType := d.getDmpFilterType(params.DbType)
+	dbType, err := pkgConst.ParseDBType(params.DbType)
+	if err != nil {
+		return err
+	}
+	dmpFilterType := d.getDmpFilterType(dbType)
 
 	url := fmt.Sprintf("%s/v3/support/data_sources?filter_by_type=%s", params.URL, dmpFilterType)
 
