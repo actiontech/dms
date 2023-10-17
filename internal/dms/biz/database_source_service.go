@@ -40,16 +40,16 @@ func NewDatabaseSourceServiceUsecase(log utilLog.Logger, repo DatabaseSourceServ
 }
 
 type DatabaseSourceServiceParams struct {
-	UID                 string          `json:"uid"`
-	Name                string          `json:"name"`
-	Source              string          `json:"source"`
-	Version             string          `json:"version"`
-	URL                 string          `json:"url"`
-	DbType              pkgConst.DBType `json:"db_type"`
-	CronExpress         string          `json:"cron_express"`
-	ProjectUID          string          `json:"project_uid"`
-	LastSyncErr         string          `json:"last_sync_err"`
-	LastSyncSuccessTime *time.Time      `json:"last_sync_success_time"`
+	UID                 string     `json:"uid"`
+	Name                string     `json:"name"`
+	Source              string     `json:"source"`
+	Version             string     `json:"version"`
+	URL                 string     `json:"url"`
+	DbType              string     `json:"db_type"`
+	CronExpress         string     `json:"cron_express"`
+	ProjectUID          string     `json:"project_uid"`
+	LastSyncErr         string     `json:"last_sync_err"`
+	LastSyncSuccessTime *time.Time `json:"last_sync_success_time"`
 	AdditionalParams    pkgParams.Params
 	SQLEConfig          *SQLEConfig
 }

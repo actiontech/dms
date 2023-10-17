@@ -3376,13 +3376,8 @@
           "x-go-name": "Business"
         },
         "db_type": {
-          "description": "Service DB type\nMySQL DBTypeMySQL\nOceanBaseMySQL DBTypeOceanBaseMySQL",
+          "description": "Service DB type",
           "type": "string",
-          "enum": [
-            "MySQL",
-            "OceanBaseMySQL"
-          ],
-          "x-go-enum-desc": "MySQL DBTypeMySQL\nOceanBaseMySQL DBTypeOceanBaseMySQL",
           "x-go-name": "DBType"
         },
         "desc": {
@@ -4268,12 +4263,7 @@
           "type": "string"
         },
         "DBType": {
-          "type": "string",
-          "enum": [
-            "MySQL",
-            "OceanBaseMySQL"
-          ],
-          "x-go-enum-desc": "MySQL IPluginDBTypeDBTypeMySQL\nOceanBaseMySQL IPluginDBTypeDBTypeOceanBaseMySQL"
+          "type": "string"
         },
         "Host": {
           "type": "string"
@@ -4394,13 +4384,8 @@
           "x-go-name": "Business"
         },
         "db_type": {
-          "description": "Multiple of [\"MySQL\"], default is [\"MySQL\"]\ndb service DB type\nMySQL DBTypeMySQL\nOceanBaseMySQL DBTypeOceanBaseMySQL",
+          "description": "db service DB type",
           "type": "string",
-          "enum": [
-            "MySQL",
-            "OceanBaseMySQL"
-          ],
-          "x-go-enum-desc": "MySQL DBTypeMySQL\nOceanBaseMySQL DBTypeOceanBaseMySQL",
           "x-go-name": "DBType"
         },
         "desc": {
@@ -5870,7 +5855,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCurrentUser": {
       "type": "object",
@@ -5929,13 +5914,8 @@
           "x-go-name": "Business"
         },
         "db_type": {
-          "description": "Service DB type\nMySQL DBTypeMySQL\nOceanBaseMySQL DBTypeOceanBaseMySQL",
+          "description": "Service DB type",
           "type": "string",
-          "enum": [
-            "MySQL",
-            "OceanBaseMySQL"
-          ],
-          "x-go-enum-desc": "MySQL DBTypeMySQL\nOceanBaseMySQL DBTypeOceanBaseMySQL",
           "x-go-name": "DBType"
         },
         "desc": {

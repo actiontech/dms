@@ -36,7 +36,7 @@ func (d *DMSService) ListDatabaseSourceService(ctx context.Context, req *v1.List
 				Source:      service.Source,
 				Version:     service.Version,
 				URL:         service.URL,
-				DbType:      service.DbType.String(),
+				DbType:      service.DbType,
 				CronExpress: service.CronExpress,
 				SQLEConfig:  d.buildReplySqleConfig(service.SQLEConfig),
 			},
@@ -86,7 +86,7 @@ func (d *DMSService) GetDatabaseSourceService(ctx context.Context, req *v1.GetDa
 			Source:      service.Source,
 			Version:     service.Version,
 			URL:         service.URL,
-			DbType:      service.DbType.String(),
+			DbType:      service.DbType,
 			CronExpress: service.CronExpress,
 			SQLEConfig:  d.buildReplySqleConfig(service.SQLEConfig),
 		},
@@ -98,17 +98,13 @@ func (d *DMSService) GetDatabaseSourceService(ctx context.Context, req *v1.GetDa
 }
 
 func (d *DMSService) AddDatabaseSourceService(ctx context.Context, req *v1.AddDatabaseSourceServiceReq, currentUserId string) (reply *v1.AddDatabaseSourceServiceReply, err error) {
-	dbType, err := pkgConst.ParseDBType(req.DatabaseSourceService.DbType)
-	if err != nil {
-		return nil, err
-	}
 
 	databaseSourceParams := &biz.DatabaseSourceServiceParams{
 		Name:        req.DatabaseSourceService.Name,
 		Source:      req.DatabaseSourceService.Source,
 		Version:     req.DatabaseSourceService.Version,
 		URL:         req.DatabaseSourceService.URL,
-		DbType:      dbType,
+		DbType:      req.DatabaseSourceService.DbType,
 		CronExpress: req.DatabaseSourceService.CronExpress,
 		ProjectUID:  req.ProjectUid,
 		SQLEConfig:  d.buildSQLEConfig(req.DatabaseSourceService.SQLEConfig),
@@ -149,23 +145,19 @@ func (d *DMSService) buildSQLEConfig(params *dmsCommonV1.SQLEConfig) *biz.SQLECo
 }
 
 func (d *DMSService) UpdateDatabaseSourceService(ctx context.Context, req *v1.UpdateDatabaseSourceServiceReq, currentUserId string) error {
-	dbType, err := pkgConst.ParseDBType(req.DatabaseSourceService.DbType)
-	if err != nil {
-		return err
-	}
 
 	databaseSourceParams := &biz.DatabaseSourceServiceParams{
 		Name:        req.DatabaseSourceService.Name,
 		Source:      req.DatabaseSourceService.Source,
 		Version:     req.DatabaseSourceService.Version,
 		URL:         req.DatabaseSourceService.URL,
-		DbType:      dbType,
+		DbType:      req.DatabaseSourceService.DbType,
 		CronExpress: req.DatabaseSourceService.CronExpress,
 		ProjectUID:  req.ProjectUid,
 		SQLEConfig:  d.buildSQLEConfig(req.DatabaseSourceService.SQLEConfig),
 	}
 
-	err = d.DatabaseSourceServiceUsecase.UpdateDatabaseSourceService(ctx, req.DatabaseSourceServiceUid, databaseSourceParams, currentUserId)
+	err := d.DatabaseSourceServiceUsecase.UpdateDatabaseSourceService(ctx, req.DatabaseSourceServiceUid, databaseSourceParams, currentUserId)
 	if err != nil {
 		return fmt.Errorf("update database_source_service failed: %w", err)
 	}
@@ -208,8 +200,9 @@ func (d *DMSService) ListDatabaseSourceServiceTips(ctx context.Context) (*v1.Lis
 
 func (d *DMSService) SyncDatabaseSourceService(ctx context.Context, req *v1.SyncDatabaseSourceServiceReq, currentUserId string) (err error) {
 	err = d.DatabaseSourceServiceUsecase.SyncDatabaseSourceService(ctx, req.DatabaseSourceServiceUid, currentUserId)
-	if err != nil {
-		return fmt.Errorf("sync database_source_service failed: %w", err)
+	if err != nil {	
+		d.log.Errorf("sync database_source_service failed: %w", err)
+		return fmt.Errorf("sync database_source_service failed")
 	}
 
 	return nil
