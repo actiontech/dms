@@ -159,7 +159,7 @@ func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceRe
 		Business:          req.DBService.Business,
 		MaintenancePeriod: d.convertMaintenanceTimeToPeriod(req.DBService.MaintenanceTimes),
 		ProjectUID:        req.ProjectUid,
-		Source:            "",
+		Source:            string(pkgConst.DBServiceSourceNameSQLE),
 		AdditionalParams:  additionalParams,
 	}
 
