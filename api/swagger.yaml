@@ -378,17 +378,8 @@ definitions:
                 type: string
                 x-go-name: Business
             db_type:
-                description: |-
-                    Service DB type
-                    MySQL DBTypeMySQL
-                    OceanBaseMySQL DBTypeOceanBaseMySQL
-                enum:
-                    - MySQL
-                    - OceanBaseMySQL
+                description: Service DB type
                 type: string
-                x-go-enum-desc: |-
-                    MySQL DBTypeMySQL
-                    OceanBaseMySQL DBTypeOceanBaseMySQL
                 x-go-name: DBType
             desc:
                 description: Service description
@@ -1092,13 +1083,7 @@ definitions:
             Business:
                 type: string
             DBType:
-                enum:
-                    - MySQL
-                    - OceanBaseMySQL
                 type: string
-                x-go-enum-desc: |-
-                    MySQL IPluginDBTypeDBTypeMySQL
-                    OceanBaseMySQL IPluginDBTypeDBTypeOceanBaseMySQL
             Host:
                 type: string
             Name:
@@ -1186,18 +1171,8 @@ definitions:
                 type: string
                 x-go-name: Business
             db_type:
-                description: |-
-                    Multiple of ["MySQL"], default is ["MySQL"]
-                    db service DB type
-                    MySQL DBTypeMySQL
-                    OceanBaseMySQL DBTypeOceanBaseMySQL
-                enum:
-                    - MySQL
-                    - OceanBaseMySQL
+                description: db service DB type
                 type: string
-                x-go-enum-desc: |-
-                    MySQL DBTypeMySQL
-                    OceanBaseMySQL DBTypeOceanBaseMySQL
                 x-go-name: DBType
             desc:
                 description: DB desc
@@ -2407,7 +2382,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCurrentUser:
         properties:
             email:
@@ -2446,17 +2421,8 @@ definitions:
                 type: string
                 x-go-name: Business
             db_type:
-                description: |-
-                    Service DB type
-                    MySQL DBTypeMySQL
-                    OceanBaseMySQL DBTypeOceanBaseMySQL
-                enum:
-                    - MySQL
-                    - OceanBaseMySQL
+                description: Service DB type
                 type: string
-                x-go-enum-desc: |-
-                    MySQL DBTypeMySQL
-                    OceanBaseMySQL DBTypeOceanBaseMySQL
                 x-go-name: DBType
             desc:
                 description: Service description
