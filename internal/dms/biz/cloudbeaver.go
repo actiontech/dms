@@ -765,7 +765,11 @@ func (cu *CloudbeaverUsecase) GenerateCloudbeaverConnectionParams(dbService *DBS
 	var err error
 	config := cu.generateCommonCloudbeaverConfigParams(dbService, project)
 
-	switch dbService.DBType {
+	dbType, err := constant.ParseDBType(dbService.DBType)
+	if err != nil {
+		return nil, err
+	}
+	switch dbType {
 	case constant.DBTypeMySQL:
 		err = cu.fillMySQLParams(config)
 	case constant.DBTypePostgreSQL:

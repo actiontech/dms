@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/actiontech/dms/internal/dms/biz"
-	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/dms/storage/model"
 	"github.com/labstack/echo/v4/middleware"
 
@@ -34,7 +33,7 @@ func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
 		},
 		Name:              ds.Name,
 		Desc:              ds.Desc,
-		DBType:            ds.DBType.String(),
+		DBType:            ds.DBType,
 		Host:              ds.Host,
 		Port:              ds.Port,
 		User:              ds.User,
@@ -73,16 +72,13 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to decrypt password: %v", err)
 	}
-	dbType, err := pkgConst.ParseDBType(ds.DBType)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse db type: %v", err)
-	}
+
 	dbService := &biz.DBService{
 		Base:              convertBase(ds.Model),
 		UID:               ds.UID,
 		Name:              ds.Name,
 		Desc:              ds.Desc,
-		DBType:            dbType,
+		DBType:            ds.DBType,
 		Host:              ds.Host,
 		Port:              ds.Port,
 		User:              ds.User,
@@ -115,10 +111,6 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 }
 
 func convertModelDatabaseSourceService(m *model.DatabaseSourceService) (*biz.DatabaseSourceServiceParams, error) {
-	dbType, err := pkgConst.ParseDBType(m.DbType)
-	if err != nil {
-		return nil, err
-	}
 
 	ret := &biz.DatabaseSourceServiceParams{
 		UID:         m.UID,
@@ -126,7 +118,7 @@ func convertModelDatabaseSourceService(m *model.DatabaseSourceService) (*biz.Dat
 		Source:      m.Source,
 		Version:     m.Version,
 		URL:         m.URL,
-		DbType:      dbType,
+		DbType:      m.DbType,
 		CronExpress: m.CronExpress,
 		ProjectUID:  m.ProjectUID,
 		LastSyncErr: m.LastSyncErr,
@@ -207,7 +199,7 @@ func convertBizDatabaseSourceService(u *biz.DatabaseSourceServiceParams) *model.
 		Source:      u.Source,
 		Version:     u.Version,
 		URL:         u.URL,
-		DbType:      u.DbType.String(),
+		DbType:      u.DbType,
 		CronExpress: u.CronExpress,
 		ProjectUID:  u.ProjectUID,
 	}

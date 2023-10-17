@@ -81,13 +81,9 @@ func (p *PluginUsecase) RegisterPlugin(ctx context.Context, plugin *Plugin, curr
 }
 
 func (p *PluginUsecase) AddDBServicePreCheck(ctx context.Context, ds *DBService) error {
-	dbTyp, err := dmsV1.ParseIPluginDBType(ds.DBType.String())
-	if err != nil {
-		return fmt.Errorf("parse db type failed: %v", err)
-	}
 	dbService := &dmsV1.IPluginDBService{
 		Name:     ds.Name,
-		DBType:   dbTyp,
+		DBType:   ds.DBType,
 		Host:     ds.Host,
 		Port:     ds.Port,
 		User:     ds.User,

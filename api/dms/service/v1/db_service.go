@@ -15,7 +15,7 @@ type DBService struct {
 	Name string `json:"name" validate:"required"`
 	// Service DB type
 	// Required: true
-	DBType dmsCommonV1.DBType `json:"db_type" validate:"required"`
+	DBType string `json:"db_type" validate:"required"`
 	// DB Service Host
 	// Required: true
 	Host string `json:"host" validate:"required,ip_addr|uri|hostname|hostname_rfc1123"`
@@ -171,7 +171,7 @@ func (u *UpdateDBServiceReq) String() string {
 type UpdateDBService struct {
 	// Service DB type
 	// Required: true
-	DBType dmsCommonV1.DBType `json:"db_type" validate:"required"`
+	DBType string `json:"db_type" validate:"required"`
 	// DB Service Host
 	// Required: true
 	Host string `json:"host" validate:"required,ip_addr|uri|hostname|hostname_rfc1123"`
