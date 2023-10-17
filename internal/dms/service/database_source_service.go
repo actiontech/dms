@@ -200,8 +200,9 @@ func (d *DMSService) ListDatabaseSourceServiceTips(ctx context.Context) (*v1.Lis
 
 func (d *DMSService) SyncDatabaseSourceService(ctx context.Context, req *v1.SyncDatabaseSourceServiceReq, currentUserId string) (err error) {
 	err = d.DatabaseSourceServiceUsecase.SyncDatabaseSourceService(ctx, req.DatabaseSourceServiceUid, currentUserId)
-	if err != nil {
-		return fmt.Errorf("sync database_source_service failed: %w", err)
+	if err != nil {	
+		d.log.Errorf("sync database_source_service failed: %w", err)
+		return fmt.Errorf("sync database_source_service failed")
 	}
 
 	return nil
