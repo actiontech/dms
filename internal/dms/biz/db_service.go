@@ -34,7 +34,7 @@ type DBService struct {
 	UID               string
 	Name              string
 	Desc              string
-	DBType            pkgConst.DBType
+	DBType            string
 	Host              string
 	Port              string
 	User              string
@@ -135,7 +135,7 @@ func NewDBServiceUsecase(repo DBServiceRepo, pluginUsecase *PluginUsecase, opPer
 type BizDBServiceArgs struct {
 	Name              string
 	Desc              *string
-	DBType            pkgConst.DBType
+	DBType            string
 	Host              string
 	Port              string
 	User              string

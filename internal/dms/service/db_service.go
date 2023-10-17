@@ -40,17 +40,8 @@ func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV1.UpdateDBSer
 		}
 	}
 
-	var dbType pkgConst.DBType
-	switch req.DBService.DBType {
-	case dmsCommonV1.DBTypeMySQL:
-		dbType = pkgConst.DBTypeMySQL
-	case dmsCommonV1.DBTypeOceanBaseMySQL:
-		dbType = pkgConst.DBTypeOceanBaseMySQL
-	default:
-		return fmt.Errorf("invalid db type: %s", req.DBService.DBType)
-	}
 	args := &biz.BizDBServiceArgs{
-		DBType:            dbType,
+		DBType:            req.DBService.DBType,
 		Desc:              req.DBService.Desc,
 		Host:              req.DBService.Host,
 		Port:              req.DBService.Port,
@@ -116,7 +107,7 @@ func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *d
 	}
 
 	checkDbConnectableParams := dmsCommonV1.CheckDbConnectable{
-		DBType:           dbService.DBType.String(),
+		DBType:           dbService.DBType,
 		User:             dbService.User,
 		Host:             dbService.Host,
 		Port:             dbService.Port,
@@ -149,17 +140,6 @@ func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceRe
 		d.log.Infof("AddDBServices.req=%v;reply=%v;error=%v", req, reply, err)
 	}()
 
-	// TODO 预期这里不做校验，从dms同步出去的数据自行判断数据源类型是否支持
-	var dbType pkgConst.DBType
-	switch req.DBService.DBType {
-	case dmsCommonV1.DBTypeMySQL:
-		dbType = pkgConst.DBTypeMySQL
-	case dmsCommonV1.DBTypeOceanBaseMySQL:
-		dbType = pkgConst.DBTypeOceanBaseMySQL
-	default:
-		return nil, fmt.Errorf("invalid db type: %s", req.DBService.DBType)
-	}
-
 	additionalParams := params.AdditionalParameter[string(req.DBService.DBType)]
 	for _, additionalParam := range req.DBService.AdditionalParams {
 		err = additionalParams.SetParamValue(additionalParam.Name, additionalParam.Value)
@@ -171,7 +151,7 @@ func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceRe
 	args := &biz.BizDBServiceArgs{
 		Name:              req.DBService.Name,
 		Desc:              &req.DBService.Desc,
-		DBType:            dbType,
+		DBType:            req.DBService.DBType,
 		Host:              req.DBService.Host,
 		Port:              req.DBService.Port,
 		User:              req.DBService.User,
@@ -179,6 +159,7 @@ func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceRe
 		Business:          req.DBService.Business,
 		MaintenancePeriod: d.convertMaintenanceTimeToPeriod(req.DBService.MaintenanceTimes),
 		ProjectUID:        req.ProjectUid,
+		Source:            "",
 		AdditionalParams:  additionalParams,
 	}
 
@@ -330,7 +311,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 		ret[i] = &dmsCommonV1.ListDBService{
 			DBServiceUid:     u.GetUID(),
 			Name:             u.Name,
-			DBType:           dmsCommonV1.DBType(u.DBType),
+			DBType:           u.DBType,
 			Host:             u.Host,
 			Port:             u.Port,
 			User:             u.User,
@@ -340,9 +321,6 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 			Desc:             u.Desc,
 			Source:           u.Source,
 			ProjectUID:       u.ProjectUID,
-			// TODO 从provision获取
-			// LastSyncDataResult: "TODO",
-			// LastSyncDataTime:"".
 		}
 
 		if u.AdditionalParams != nil {
