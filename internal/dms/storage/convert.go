@@ -122,6 +122,7 @@ func convertModelDatabaseSourceService(m *model.DatabaseSourceService) (*biz.Dat
 		CronExpress: m.CronExpress,
 		ProjectUID:  m.ProjectUID,
 		LastSyncErr: m.LastSyncErr,
+		LastSyncSuccessTime: m.LastSyncSuccessTime,
 	}
 
 	if m.LastSyncSuccessTime != nil {
@@ -194,14 +195,16 @@ func convertBizCloudbeaverConnection(u *biz.CloudbeaverConnection) *model.Cloudb
 
 func convertBizDatabaseSourceService(u *biz.DatabaseSourceServiceParams) *model.DatabaseSourceService {
 	m := &model.DatabaseSourceService{
-		Model:       model.Model{UID: u.UID},
-		Name:        u.Name,
-		Source:      u.Source,
-		Version:     u.Version,
-		URL:         u.URL,
-		DbType:      u.DbType,
-		CronExpress: u.CronExpress,
-		ProjectUID:  u.ProjectUID,
+		Model:               model.Model{UID: u.UID},
+		Name:                u.Name,
+		Source:              u.Source,
+		Version:             u.Version,
+		URL:                 u.URL,
+		DbType:              u.DbType,
+		CronExpress:         u.CronExpress,
+		ProjectUID:          u.ProjectUID,
+		LastSyncErr:         u.LastSyncErr,
+		LastSyncSuccessTime: u.LastSyncSuccessTime,
 	}
 
 	// add sqle config
