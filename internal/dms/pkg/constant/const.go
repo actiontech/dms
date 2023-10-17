@@ -79,8 +79,9 @@ const (
 type DBServiceSourceName string
 
 const (
-	DBServiceSourceNameDMP DBServiceSourceName = "Actiontech DMP"
-	DBServiceSourceNameDMS DBServiceSourceName = "Actiontech DMS"
+	DBServiceSourceNameDMP  DBServiceSourceName = "Actiontech DMP"
+	DBServiceSourceNameDMS  DBServiceSourceName = "Actiontech DMS"
+	DBServiceSourceNameSQLE DBServiceSourceName = "SQLE"
 )
 
 func ParseDBServiceSource(s string) (DBServiceSourceName, error) {
@@ -89,6 +90,8 @@ func ParseDBServiceSource(s string) (DBServiceSourceName, error) {
 		return DBServiceSourceNameDMP, nil
 	case string(DBServiceSourceNameDMS):
 		return DBServiceSourceNameDMS, nil
+	case string(DBServiceSourceNameSQLE):
+		return DBServiceSourceNameSQLE, nil
 	default:
 		return "", fmt.Errorf("invalid data object source name: %s", s)
 	}
