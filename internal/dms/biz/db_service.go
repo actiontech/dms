@@ -34,7 +34,7 @@ type DBService struct {
 	UID               string
 	Name              string
 	Desc              string
-	DBType            pkgConst.DBType
+	DBType            string
 	Host              string
 	Port              string
 	User              string
@@ -135,7 +135,7 @@ func NewDBServiceUsecase(repo DBServiceRepo, pluginUsecase *PluginUsecase, opPer
 type BizDBServiceArgs struct {
 	Name              string
 	Desc              *string
-	DBType            pkgConst.DBType
+	DBType            string
 	Host              string
 	Port              string
 	User              string
@@ -226,6 +226,20 @@ func (d *DBServiceUsecase) ListDBServiceDriverOption(ctx context.Context) ([]dat
 	}
 
 	return driver.Driver, nil
+}
+
+func (d *DBServiceUsecase) GetDriverParamsByDBType(ctx context.Context, dbType string) (pkgParams.Params, error) {
+	databaseOptions, err := d.ListDBServiceDriverOption(ctx)
+	if err != nil {
+		return nil, err
+	}
+	for _, driverOptions := range databaseOptions {
+		if driverOptions.DbType == dbType {
+			return driverOptions.Params, nil
+		}
+
+	}
+	return nil, fmt.Errorf("db type %v is not support", dbType)
 }
 
 func (d *DBServiceUsecase) GetActiveDBServices(ctx context.Context, dbServiceIds []string) (dbServices []*DBService, err error) {
