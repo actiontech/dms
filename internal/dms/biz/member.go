@@ -285,10 +285,6 @@ type ListMembersOption struct {
 }
 
 func (m *MemberUsecase) ListMember(ctx context.Context, option *ListMembersOption, projectUid string) (members []*Member, total int64, err error) {
-	// 检查项目是否归档/删除
-	if err := m.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
-		return nil, 0, fmt.Errorf("list member error: %v", err)
-	}
 	members, total, err = m.repo.ListMembers(ctx, option)
 	if err != nil {
 		return nil, 0, fmt.Errorf("list members failed: %v", err)

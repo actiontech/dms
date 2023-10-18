@@ -74,10 +74,6 @@ type ListMemberGroupsOption struct {
 }
 
 func (m *MemberGroupUsecase) ListMemberGroups(ctx context.Context, option *ListMemberGroupsOption, projectUid string) ([]*MemberGroup, int64, error) {
-	// 检查项目是否归档/删除
-	if err := m.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
-		return nil, 0, fmt.Errorf("list member groups error: %v", err)
-	}
 	members, total, err := m.repo.ListMemberGroups(ctx, option)
 	if err != nil {
 		return nil, 0, fmt.Errorf("list member groups failed: %v", err)
