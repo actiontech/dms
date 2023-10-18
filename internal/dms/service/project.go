@@ -74,7 +74,7 @@ func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV1.ListProj
 	}
 
 	return &dmsCommonV1.ListProjectReply{
-		Data:  ret, Total: total,
+		Data: ret, Total: total,
 	}, nil
 }
 

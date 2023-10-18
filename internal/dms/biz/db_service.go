@@ -193,11 +193,7 @@ type ListDBServicesOption struct {
 func (d *DBServiceUsecase) ListDBService(ctx context.Context, option *ListDBServicesOption, projectUid, currentUserUid string) (dbServices []*DBService, total int64, err error) {
 	// 只允许系统用户查询所有数据源,同步数据到其他服务(provision)
 	// 检查项目是否归档/删除
-	if projectUid != "" {
-		if err := d.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
-			return nil, 0, fmt.Errorf("list db service error: %v", err)
-		}
-	} else if currentUserUid != pkgConst.UIDOfUserSys {
+	if projectUid == "" && currentUserUid != pkgConst.UIDOfUserSys {
 		return nil, 0, fmt.Errorf("list db service error: project is empty")
 	}
 	services, total, err := d.repo.ListDBServices(ctx, option)
