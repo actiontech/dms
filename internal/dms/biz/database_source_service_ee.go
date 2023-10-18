@@ -15,11 +15,7 @@ import (
 func (d *DatabaseSourceServiceUsecase) ListDatabaseSourceServices(ctx context.Context, conditions []pkgConst.FilterCondition, projectId string, currentUserId string) ([]*DatabaseSourceServiceParams, error) {
 	// 只允许系统用户查询所有数据源,同步数据到其他服务(provision)
 	// 检查空间是否归档/删除
-	if projectId != "" {
-		if err := d.projectUsecase.isProjectActive(ctx, projectId); err != nil {
-			return nil, fmt.Errorf("list database_source_service error: %v", err)
-		}
-	} else if currentUserId != pkgConst.UIDOfUserSys {
+	if projectId == "" && currentUserId != pkgConst.UIDOfUserSys {
 		return nil, fmt.Errorf("list database_source_service error: project is empty")
 	}
 
