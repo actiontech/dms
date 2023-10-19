@@ -54,7 +54,7 @@ install:
 	GOOS=$(GOOS) GOARCH=$(GOARCH) go build $(GO_BUILD_FLAGS) ${LDFLAGS} -tags $(GO_BUILD_TAGS) -o ./bin/dms ./internal/apiserver/cmd/server/main.go
 
 docker_install:
-	$(DOCKER) run -v $(shell pwd):/universe --rm $(GO_COMPILER_IMAGE) sh -c "cd /universe && make install $(MAKEFLAGS)"
+	$(DOCKER) run -v $(shell pwd):/universe --rm $(GO_COMPILER_IMAGE) sh -c "cd /universe && git config --global --add safe.directory /universe && make install $(MAKEFLAGS)"
 
 docker_rpm: docker_install
 	$(DOCKER) run -v $(shell pwd):/universe/dms --user root --rm -e VERBOSE=1 $(RPM_BUILD_IMAGE) sh -c "(mkdir -p /root/rpmbuild/SOURCES >/dev/null 2>&1);cd /root/rpmbuild/SOURCES; \
