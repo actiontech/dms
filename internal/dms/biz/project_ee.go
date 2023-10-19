@@ -78,6 +78,9 @@ func (d *ProjectUsecase) UpdateProjectDesc(ctx context.Context, currentUserUid, 
 }
 
 func (d *ProjectUsecase) ArchivedProject(ctx context.Context, currentUserUid, projectUid string, archived bool) (err error) {
+	if projectUid == pkgConst.UIDOfProjectDefault {
+		return fmt.Errorf("default project is not allow to archive")
+	}
 	if err := d.checkUserCanUpdateProject(ctx, currentUserUid, projectUid); err != nil {
 		return fmt.Errorf("user can't update project: %v", err)
 	}
@@ -116,6 +119,9 @@ func (d *ProjectUsecase) ArchivedProject(ctx context.Context, currentUserUid, pr
 func (d *ProjectUsecase) DeleteProject(ctx context.Context, currentUserUid, projectUid string) (err error) {
 	// check
 	{
+		if projectUid == pkgConst.UIDOfProjectDefault {
+			return fmt.Errorf("default project is not allow to delete")
+		}
 		// project admin can delete project
 		isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, projectUid)
 		if err != nil {
