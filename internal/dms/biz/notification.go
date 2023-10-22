@@ -76,8 +76,9 @@ func (n *EmailNotifier) Notify(ctx context.Context, notificationSubject, notific
 
 	port, _ := strconv.Atoi(smtpC.Port)
 	dialer := gomail.NewDialer(smtpC.Host, port, smtpC.Username, smtpC.Password)
-	dialer.TLSConfig = &tls.Config{InsecureSkipVerify: smtpC.IsSkipVerify}
-
+	if smtpC.IsSkipVerify {
+		dialer.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+	}
 	if err := dialer.DialAndSend(message); err != nil {
 		return fmt.Errorf("send email to %v error: %v", emails, err)
 	}
