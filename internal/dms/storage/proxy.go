@@ -109,10 +109,9 @@ func (d *ProxyTargetRepo) GetProxyTargetByName(ctx context.Context, name string)
 
 	var target model.ProxyTarget
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
-
-		// find targets
-		if err := tx.WithContext(ctx).Where(&model.ProxyTarget{Name: name}).Find(&target).Error; err != nil {
-			return fmt.Errorf("failed to list proxy target: %v", err)
+		// get targets
+		if err := tx.First(&target, "name = ?", name).Error; err != nil {
+			return fmt.Errorf("failed to get proxy target: %v", err)
 		}
 
 		return nil
