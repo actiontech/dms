@@ -440,8 +440,8 @@ func (d *WebHookConfigurationUsecase) TestWebHookConfiguration(ctx context.Conte
 	if !webhookC.Enable {
 		return fmt.Errorf("webhook notice is not enabled")
 	}
-	// TODO 测试webhook配置可用性
-	return err
+
+	return d.webhookSendRequest(ctx, "hello")
 }
 
 func (d *WebHookConfigurationUsecase) SendWebHookMessage(ctx context.Context, triggerEventType string /*TODO validate TriggerEventType*/, message string) error {
