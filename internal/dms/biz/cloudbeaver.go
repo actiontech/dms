@@ -97,7 +97,7 @@ func (cu *CloudbeaverUsecase) IsCloudbeaverConfigured() bool {
 
 var graphQLOnce = &sync.Once{}
 
-func (cu *CloudbeaverUsecase) initialGraphQL() {
+func (cu *CloudbeaverUsecase) initialGraphQL() error {
 	if cu.IsCloudbeaverConfigured() && cu.graphQl == nil {
 		graphQLOnce.Do(func() {
 			graphQl, err := cloudbeaver.NewGraphQL(cu.getGraphQLServerURI())
@@ -110,6 +110,12 @@ func (cu *CloudbeaverUsecase) initialGraphQL() {
 			cu.graphQl = graphQl
 		})
 	}
+
+	if cu.graphQl == nil {
+		return errors.New("invalid graphql client")
+	}
+
+	return nil
 }
 
 func (cu *CloudbeaverUsecase) getGraphQLServerURI() string {
@@ -142,7 +148,9 @@ func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 				return errors.New("get user name from token failed")
 			}
 
-			cu.initialGraphQL()
+			if err = cu.initialGraphQL(); err != nil {
+				return err
+			}
 
 			cloudbeaverSessionId := cu.getCloudbeaverSession(dmsUserId, dmsToken)
 			if cloudbeaverSessionId != "" {
