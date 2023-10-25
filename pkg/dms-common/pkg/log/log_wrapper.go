@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
-
 	"github.com/go-kratos/kratos/v2/log"
 	gormLog "gorm.io/gorm/logger"
 )
@@ -111,7 +109,7 @@ func formatId(id string) string {
 	return fmt.Sprintf("[%s] ", id)
 }
 
-func NewUtilLogWrapper(logger log.Logger) utilLog.Logger {
+func NewUtilLogWrapper(logger log.Logger) Logger {
 	return &UtilLogWrapper{logger: logger}
 }
 
@@ -119,20 +117,20 @@ type UtilLogWrapper struct {
 	logger log.Logger
 }
 
-func (l *UtilLogWrapper) Log(level utilLog.Level, keyvals ...interface{}) error {
+func (l *UtilLogWrapper) Log(level Level, keyvals ...interface{}) error {
 	var myLevel log.Level
 	switch level {
-	case utilLog.LevelDebug:
+	case LevelDebug:
 		myLevel = log.LevelDebug
-	case utilLog.LevelInfo:
+	case LevelInfo:
 		myLevel = log.LevelInfo
-	case utilLog.LevelWarn:
+	case LevelWarn:
 		myLevel = log.LevelWarn
-	case utilLog.LevelError:
+	case LevelError:
 		myLevel = log.LevelError
-	case utilLog.LevelFatal:
+	case LevelFatal:
 		myLevel = log.LevelFatal
-	case utilLog.LevelInfoDilute:
+	case LevelInfoDilute:
 		myLevel = log.LevelDebug
 	default:
 		myLevel = log.LevelDebug
@@ -188,30 +186,30 @@ func (h *gormLogWrapper) Info(ctx context.Context, format string, a ...interface
 }
 
 type kWrapper struct {
-	logger utilLog.Logger
+	logger Logger
 }
 
-func NewKLogWrapper(logger utilLog.Logger) *kWrapper {
+func NewKLogWrapper(logger Logger) *kWrapper {
 	return &kWrapper{
 		logger: logger,
 	}
 }
 
 func (k *kWrapper) Log(level log.Level, keyvals ...interface{}) error {
-	var l utilLog.Level
+	var l Level
 	switch level {
 	case log.LevelDebug:
-		l = utilLog.LevelDebug
+		l = LevelDebug
 	case log.LevelInfo:
-		l = utilLog.LevelInfo
+		l = LevelInfo
 	case log.LevelWarn:
-		l = utilLog.LevelWarn
+		l = LevelWarn
 	case log.LevelError:
-		l = utilLog.LevelError
+		l = LevelError
 	case log.LevelFatal:
-		l = utilLog.LevelFatal
+		l = LevelFatal
 	default:
-		l = utilLog.LevelDebug
+		l = LevelDebug
 	}
 	return k.logger.Log(l, keyvals...)
 }

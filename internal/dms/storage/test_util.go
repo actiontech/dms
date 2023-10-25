@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	pkgLog "github.com/actiontech/dms/internal/pkg/log"
+	pkgLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 
 	kLog "github.com/go-kratos/kratos/v2/log"
 )
