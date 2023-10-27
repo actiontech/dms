@@ -28,6 +28,7 @@ cp %{_builddir}/%{buildsubdir}/%{name}/build/logo/* $RPM_BUILD_ROOT/usr/local/%{
 cp %{_builddir}/%{buildsubdir}/%{name}/config.yaml $RPM_BUILD_ROOT/usr/local/%{name}/config.yaml
 cp -r %{_builddir}/%{buildsubdir}/%{name}/build/static/* $RPM_BUILD_ROOT/usr/local/%{name}/static/
 cp %{_builddir}/%{buildsubdir}/%{name}/build/scripts/init_start.sh $RPM_BUILD_ROOT/usr/local/%{name}/init_start.sh
+cp %{_builddir}/%{buildsubdir}/%{name}/build/scripts/upgrade.sh $RPM_BUILD_ROOT/usr/local/%{name}/upgrade.sh
 cp %{_builddir}/%{buildsubdir}/%{name}/bin/dms $RPM_BUILD_ROOT/usr/local/%{name}/dms
 
 %clean
@@ -196,4 +197,5 @@ fi
 /usr/local/%{name}/dms
 /usr/local/%{name}/config.yaml
 /usr/local/%{name}/init_start.sh
+/usr/local/%{name}/upgrade.sh
 /usr/local/%{name}/static/* 
