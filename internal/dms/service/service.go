@@ -63,7 +63,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	projectUsecase := biz.NewProjectUsecase(logger, tx, projectRepo, &memberUsecase, opPermissionVerifyUsecase, pluginUseCase)
 	dbServiceRepo := storage.NewDBServiceRepo(logger, st)
 	dmsProxyTargetRepo := storage.NewProxyTargetRepo(logger, st)
-	dbServiceUseCase := biz.NewDBServiceUsecase(dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo)
+	dbServiceUseCase := biz.NewDBServiceUsecase(dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, opts.DatabaseDriverOptions)
 	databaseSourceServiceRepo := storage.NewDatabaseSourceServiceRepo(logger, st)
 	databaseSourceServiceUsecase := biz.NewDatabaseSourceServiceUsecase(logger, databaseSourceServiceRepo, opPermissionVerifyUsecase, projectUsecase, dbServiceUseCase)
 	ldapConfigurationRepo := storage.NewLDAPConfigurationRepo(logger, st)
