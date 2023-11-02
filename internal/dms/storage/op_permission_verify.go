@@ -117,10 +117,11 @@ func (o *OpPermissionVerifyRepo) GetUserOpPermissionInProject(ctx context.Contex
 	if err := transaction(o.log, ctx, o.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Raw(`
 		SELECT 
-		    p.op_permission_uid, r.op_range_type, r.range_uids 
+		    p.op_permission_uid, mror.op_range_type, mror.range_uids 
 		FROM members AS m 
-		JOIN member_role_op_ranges AS r ON m.uid=r.member_uid AND m.user_uid=? AND m.project_uid=? 
-		JOIN role_op_permissions AS p ON r.role_uid = p.role_uid
+		JOIN member_role_op_ranges AS mror ON m.uid=mror.member_uid AND m.user_uid=? AND m.project_uid=? 
+		JOIN role_op_permissions AS p ON mror.role_uid = p.role_uid
+		JOIN roles AS r ON r.uid = p.role_uid AND r.stat = 0
 		UNION 
 		SELECT
 			DISTINCT rop.op_permission_uid, mgror.op_range_type, mgror.range_uids 
@@ -128,6 +129,7 @@ func (o *OpPermissionVerifyRepo) GetUserOpPermissionInProject(ctx context.Contex
 		JOIN member_group_users mgu ON mg.uid = mgu.member_group_uid
 		JOIN member_group_role_op_ranges mgror ON mgu.member_group_uid = mgror.member_group_uid
 		JOIN role_op_permissions rop ON mgror.role_uid = rop.role_uid
+		JOIN roles AS r ON r.uid = rop.role_uid AND r.stat = 0
 		WHERE mg.project_uid = ? and mgu.user_uid = ?`, userUid, projectUid, projectUid, userUid).Scan(&results).Error; err != nil {
 			return fmt.Errorf("failed to get user op permission in project: %v", err)
 		}
