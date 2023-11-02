@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/actiontech/dms/internal/apiserver/conf"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	v1Base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 	v1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
-	utilConf "github.com/actiontech/dms/pkg/dms-common/pkg/config"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 	pkgParams "github.com/actiontech/dms/pkg/params"
 	pkgPeriods "github.com/actiontech/dms/pkg/periods"
@@ -120,15 +120,17 @@ type DBServiceUsecase struct {
 	pluginUsecase             *PluginUsecase
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	projectUsecase            *ProjectUsecase
+	databaseDriverOptions     []conf.DatabaseDriverOption
 }
 
-func NewDBServiceUsecase(repo DBServiceRepo, pluginUsecase *PluginUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo) *DBServiceUsecase {
+func NewDBServiceUsecase(repo DBServiceRepo, pluginUsecase *PluginUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, databaseDriverOptions []conf.DatabaseDriverOption) *DBServiceUsecase {
 	return &DBServiceUsecase{
 		repo:                      repo,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 		pluginUsecase:             pluginUsecase,
 		projectUsecase:            projectUsecase,
 		dmsProxyTargetRepo:        proxyTargetRepo,
+		databaseDriverOptions:     databaseDriverOptions,
 	}
 }
 
@@ -203,25 +205,8 @@ func (d *DBServiceUsecase) ListDBService(ctx context.Context, option *ListDBServ
 	return services, total, nil
 }
 
-type databaseOption struct {
-	DbType   string           `json:"db_type"`
-	LogoPath string           `json:"logo_path"`
-	Params   pkgParams.Params `json:"params"`
-}
-
-type databaseDriver struct {
-	Driver []databaseOption `json:"driver"`
-}
-
-const DatabaseDriverOptionPath = "./database_driver_option.yaml"
-
-func (d *DBServiceUsecase) ListDBServiceDriverOption(ctx context.Context) ([]databaseOption, error) {
-	var driver databaseDriver
-	if err := utilConf.ParseYamlFile(d.pluginUsecase.logger, DatabaseDriverOptionPath, &driver); err != nil {
-		return nil, err
-	}
-
-	return driver.Driver, nil
+func (d *DBServiceUsecase) ListDBServiceDriverOption(ctx context.Context) ([]conf.DatabaseDriverOption, error) {
+	return d.databaseDriverOptions, nil
 }
 
 func (d *DBServiceUsecase) GetDriverParamsByDBType(ctx context.Context, dbType string) (pkgParams.Params, error) {

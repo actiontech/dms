@@ -54,7 +54,7 @@ func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) 
 	projectRepo := storage.NewProjectRepo(logger, st)
 	projectUsecase := biz.NewProjectUsecase(logger, tx, projectRepo, memberUsecase, opPermissionVerifyUsecase, pluginUseCase)
 	dbServiceRepo := storage.NewDBServiceRepo(logger, st)
-	dbServiceUseCase := biz.NewDBServiceUsecase(dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo)
+	dbServiceUseCase := biz.NewDBServiceUsecase(dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, opts.DatabaseDriverOptions)
 
 	ldapConfigurationRepo := storage.NewLDAPConfigurationRepo(logger, st)
 	ldapConfigurationUsecase := biz.NewLDAPConfigurationUsecase(logger, tx, ldapConfigurationRepo)

@@ -18,3 +18,7 @@ dms:
     admin_user: administrator
     admin_password: 123456
   secret_key:
+  database_driver_options:
+    - db_type: MySQL
+      logo_path: "/logo/mysql.png"
+      params:
