@@ -369,11 +369,6 @@ func (d *DMSService) ListUserGroups(ctx context.Context, req *dmsV1.ListUserGrou
 }
 
 func (d *DMSService) GetUserOpPermission(ctx context.Context, req *dmsCommonV1.GetUserOpPermissionReq) (reply *dmsCommonV1.GetUserOpPermissionReply, err error) {
-	d.log.Infof("GetUserOpPermission.req=%v", req)
-	defer func() {
-		d.log.Infof("GetUserOpPermission.req=%v;error=%v", req, err)
-	}()
-
 	isAdmin, err := d.OpPermissionVerifyUsecase.IsUserProjectAdmin(ctx, req.UserUid, req.UserOpPermission.ProjectUid)
 	if err != nil {
 		return nil, fmt.Errorf("check user admin error: %v", err)
@@ -384,7 +379,7 @@ func (d *DMSService) GetUserOpPermission(ctx context.Context, req *dmsCommonV1.G
 		return nil, fmt.Errorf("get user op permission error: %v", err)
 	}
 
-	var replyOpPermission []dmsCommonV1.OpPermissionItem
+	var replyOpPermission = make([]dmsCommonV1.OpPermissionItem, 0, len(permissions))
 	for _, p := range permissions {
 
 		opTyp, err := convertBizOpPermission(p.OpPermissionUID)
@@ -410,7 +405,6 @@ func (d *DMSService) GetUserOpPermission(ctx context.Context, req *dmsCommonV1.G
 			RangeType:        dmsCommonRangeTyp,
 			RangeUids:        p.RangeUIDs,
 		})
-
 	}
 
 	reply = &dmsCommonV1.GetUserOpPermissionReply{
