@@ -64,7 +64,7 @@ type CloudbeaverRepo interface {
 
 type CloudbeaverUsecase struct {
 	graphQl                   cloudbeaver.GraphQLImpl
-	cloudbeaverCfg            CloudbeaverCfg
+	cloudbeaverCfg            *CloudbeaverCfg
 	log                       *utilLog.Helper
 	userUsecase               *UserUsecase
 	dbServiceUsecase          *DBServiceUsecase
@@ -73,7 +73,7 @@ type CloudbeaverUsecase struct {
 	proxyTargetRepo           ProxyTargetRepo
 }
 
-func NewCloudbeaverUsecase(log utilLog.Logger, cfg CloudbeaverCfg, userUsecase *UserUsecase, dbServiceUsecase *DBServiceUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, cloudbeaverRepo CloudbeaverRepo, proxyTargetRepo ProxyTargetRepo) (cu *CloudbeaverUsecase) {
+func NewCloudbeaverUsecase(log utilLog.Logger, cfg *CloudbeaverCfg, userUsecase *UserUsecase, dbServiceUsecase *DBServiceUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, cloudbeaverRepo CloudbeaverRepo, proxyTargetRepo ProxyTargetRepo) (cu *CloudbeaverUsecase) {
 	cu = &CloudbeaverUsecase{
 		repo:                      cloudbeaverRepo,
 		proxyTargetRepo:           proxyTargetRepo,
@@ -92,6 +92,10 @@ func (cu *CloudbeaverUsecase) GetRootUri() string {
 }
 
 func (cu *CloudbeaverUsecase) IsCloudbeaverConfigured() bool {
+	if cu.cloudbeaverCfg == nil {
+		return false
+	}
+
 	return cu.cloudbeaverCfg.Host != "" && cu.cloudbeaverCfg.Port != "" && cu.cloudbeaverCfg.AdminUser != "" && cu.cloudbeaverCfg.AdminPassword != ""
 }
 
