@@ -58,13 +58,14 @@ type CloudbeaverConnection struct {
 type CloudbeaverRepo interface {
 	GetCloudbeaverUserByID(ctx context.Context, cloudbeaverUserId string) (*CloudbeaverUser, bool, error)
 	UpdateCloudbeaverUserCache(ctx context.Context, u *CloudbeaverUser) error
+	GetDbServiceIdByConnectionId(ctx context.Context, connectionId string) (string, error)
 	GetCloudbeaverConnectionByDMSDBServiceIds(ctx context.Context, dmsDBServiceIds []string) ([]*CloudbeaverConnection, error)
 	UpdateCloudbeaverConnectionCache(ctx context.Context, u *CloudbeaverConnection) error
 }
 
 type CloudbeaverUsecase struct {
 	graphQl                   cloudbeaver.GraphQLImpl
-	cloudbeaverCfg            CloudbeaverCfg
+	cloudbeaverCfg            *CloudbeaverCfg
 	log                       *utilLog.Helper
 	userUsecase               *UserUsecase
 	dbServiceUsecase          *DBServiceUsecase
@@ -73,7 +74,7 @@ type CloudbeaverUsecase struct {
 	proxyTargetRepo           ProxyTargetRepo
 }
 
-func NewCloudbeaverUsecase(log utilLog.Logger, cfg CloudbeaverCfg, userUsecase *UserUsecase, dbServiceUsecase *DBServiceUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, cloudbeaverRepo CloudbeaverRepo, proxyTargetRepo ProxyTargetRepo) (cu *CloudbeaverUsecase) {
+func NewCloudbeaverUsecase(log utilLog.Logger, cfg *CloudbeaverCfg, userUsecase *UserUsecase, dbServiceUsecase *DBServiceUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, cloudbeaverRepo CloudbeaverRepo, proxyTargetRepo ProxyTargetRepo) (cu *CloudbeaverUsecase) {
 	cu = &CloudbeaverUsecase{
 		repo:                      cloudbeaverRepo,
 		proxyTargetRepo:           proxyTargetRepo,
@@ -92,24 +93,26 @@ func (cu *CloudbeaverUsecase) GetRootUri() string {
 }
 
 func (cu *CloudbeaverUsecase) IsCloudbeaverConfigured() bool {
+	if cu.cloudbeaverCfg == nil {
+		return false
+	}
+
 	return cu.cloudbeaverCfg.Host != "" && cu.cloudbeaverCfg.Port != "" && cu.cloudbeaverCfg.AdminUser != "" && cu.cloudbeaverCfg.AdminPassword != ""
 }
 
-var graphQLOnce = &sync.Once{}
-
-func (cu *CloudbeaverUsecase) initialGraphQL() {
+func (cu *CloudbeaverUsecase) initialGraphQL() error {
 	if cu.IsCloudbeaverConfigured() && cu.graphQl == nil {
-		graphQLOnce.Do(func() {
-			graphQl, err := cloudbeaver.NewGraphQL(cu.getGraphQLServerURI())
-			if err != nil {
-				cu.log.Errorf("NewGraphQL err: %v", err)
+		graphQl, graphQlErr := cloudbeaver.NewGraphQL(cu.getGraphQLServerURI())
+		if graphQlErr != nil {
+			cu.log.Errorf("NewGraphQL err: %v", graphQlErr)
 
-				return
-			}
+			return fmt.Errorf("initial graphql client err: %v", graphQlErr)
+		}
 
-			cu.graphQl = graphQl
-		})
+		cu.graphQl = graphQl
 	}
+
+	return nil
 }
 
 func (cu *CloudbeaverUsecase) getGraphQLServerURI() string {
@@ -142,7 +145,9 @@ func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 				return errors.New("get user name from token failed")
 			}
 
-			cu.initialGraphQL()
+			if err = cu.initialGraphQL(); err != nil {
+				return err
+			}
 
 			cloudbeaverSessionId := cu.getCloudbeaverSession(dmsUserId, dmsToken)
 			if cloudbeaverSessionId != "" {
@@ -281,6 +286,18 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 			}
 
 			if cloudbeaverHandle.UseLocalHandler {
+				if params.OperationName == "asyncSqlExecuteQuery" {
+					isEnableSqlAudit, err := cu.isEnableSQLAudit(c.Request().Context(), params)
+					if err != nil {
+						cu.log.Error(err)
+						return err
+					}
+
+					if !isEnableSqlAudit {
+						return next(c)
+					}
+				}
+
 				params.ReadTime = graphql.TraceTiming{
 					Start: graphql.Now(),
 					End:   graphql.Now(),
@@ -349,6 +366,33 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 			return next(c)
 		}
 	}
+}
+
+func (cu *CloudbeaverUsecase) isEnableSQLAudit(ctx context.Context, params *graphql.RawParams) (bool, error) {
+	var connectionId interface{}
+	var connectionIdStr string
+	var ok bool
+
+	connectionId, ok = params.Variables["connectionId"]
+	if !ok {
+		return false, fmt.Errorf("missing connectionId in %s query", params.OperationName)
+	}
+
+	connectionIdStr, ok = connectionId.(string)
+	if !ok {
+		return false, fmt.Errorf("connectionId %s convert failed", connectionId)
+	}
+	dbServiceId, err := cu.repo.GetDbServiceIdByConnectionId(ctx, connectionIdStr)
+	if err != nil {
+		return false, err
+	}
+
+	dbService, err := cu.dbServiceUsecase.GetDBService(ctx, dbServiceId)
+	if err != nil {
+		return false, err
+	}
+
+	return dbService.SQLEConfig.SQLQueryConfig.AuditEnabled, nil
 }
 
 type ActiveUserQueryRes struct {
