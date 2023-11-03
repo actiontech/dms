@@ -100,24 +100,16 @@ func (cu *CloudbeaverUsecase) IsCloudbeaverConfigured() bool {
 	return cu.cloudbeaverCfg.Host != "" && cu.cloudbeaverCfg.Port != "" && cu.cloudbeaverCfg.AdminUser != "" && cu.cloudbeaverCfg.AdminPassword != ""
 }
 
-var graphQLOnce = &sync.Once{}
-
 func (cu *CloudbeaverUsecase) initialGraphQL() error {
 	if cu.IsCloudbeaverConfigured() && cu.graphQl == nil {
-		graphQLOnce.Do(func() {
-			graphQl, err := cloudbeaver.NewGraphQL(cu.getGraphQLServerURI())
-			if err != nil {
-				cu.log.Errorf("NewGraphQL err: %v", err)
+		graphQl, graphQlErr := cloudbeaver.NewGraphQL(cu.getGraphQLServerURI())
+		if graphQlErr != nil {
+			cu.log.Errorf("NewGraphQL err: %v", graphQlErr)
 
-				return
-			}
+			return fmt.Errorf("initial graphql client err: %v", graphQlErr)
+		}
 
-			cu.graphQl = graphQl
-		})
-	}
-
-	if cu.graphQl == nil {
-		return errors.New("invalid graphql client")
+		cu.graphQl = graphQl
 	}
 
 	return nil
