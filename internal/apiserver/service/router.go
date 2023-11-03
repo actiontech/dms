@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/actiontech/dms/internal/dms/biz"
-	pkgLog "github.com/actiontech/dms/internal/pkg/log"
+	pkgLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	commonLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"

@@ -52,6 +52,22 @@ func (cr *CloudbeaverRepo) UpdateCloudbeaverUserCache(ctx context.Context, u *bi
 	})
 }
 
+func (cr *CloudbeaverRepo) GetDbServiceIdByConnectionId(ctx context.Context, connectionId string) (string, error) {
+	var cloudbeaverConnection model.CloudbeaverConnectionCache
+	err := transaction(cr.log, ctx, cr.db, func(tx *gorm.DB) error {
+		if err := tx.Where("cloudbeaver_connection_id = ?", connectionId).First(&cloudbeaverConnection).Error; err != nil {
+			return fmt.Errorf("failed to get cloudbeaver db_service_id: %v", err)
+		}
+		return nil
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	return cloudbeaverConnection.DMSDBServiceID, nil
+}
+
 func (cr *CloudbeaverRepo) GetCloudbeaverConnectionByDMSDBServiceIds(ctx context.Context, dmsDBServiceIds []string) ([]*biz.CloudbeaverConnection, error) {
 	var cloudbeaverConnections []*model.CloudbeaverConnectionCache
 	err := transaction(cr.log, ctx, cr.db, func(tx *gorm.DB) error {

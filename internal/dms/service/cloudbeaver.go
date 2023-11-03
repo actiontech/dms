@@ -19,14 +19,6 @@ type CloudbeaverService struct {
 }
 
 func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) (*CloudbeaverService, error) {
-	cfg := biz.CloudbeaverCfg{
-		EnableHttps:   opts.CloudbeaverOpts.EnableHttps,
-		Host:          opts.CloudbeaverOpts.Host,
-		Port:          opts.CloudbeaverOpts.Port,
-		AdminUser:     opts.CloudbeaverOpts.AdminUser,
-		AdminPassword: opts.CloudbeaverOpts.AdminPassword,
-	}
-
 	// todo: because cloudbeaver required userUsecase, optimisation may be needed here
 	st, err := storage.NewStorage(logger, &storage.StorageConfig{
 		User:     opts.ServiceOpts.Database.UserName,
@@ -54,7 +46,7 @@ func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) 
 	projectRepo := storage.NewProjectRepo(logger, st)
 	projectUsecase := biz.NewProjectUsecase(logger, tx, projectRepo, memberUsecase, opPermissionVerifyUsecase, pluginUseCase)
 	dbServiceRepo := storage.NewDBServiceRepo(logger, st)
-	dbServiceUseCase := biz.NewDBServiceUsecase(dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo)
+	dbServiceUseCase := biz.NewDBServiceUsecase(dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, opts.DatabaseDriverOptions)
 
 	ldapConfigurationRepo := storage.NewLDAPConfigurationRepo(logger, st)
 	ldapConfigurationUsecase := biz.NewLDAPConfigurationUsecase(logger, tx, ldapConfigurationRepo)
@@ -63,6 +55,17 @@ func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) 
 	opPermissionRepo := storage.NewOpPermissionRepo(logger, st)
 	opPermissionUsecase := biz.NewOpPermissionUsecase(logger, tx, opPermissionRepo, pluginUseCase)
 	userUsecase := biz.NewUserUsecase(logger, tx, userRepo, userGroupRepo, pluginUseCase, opPermissionUsecase, opPermissionVerifyUsecase, ldapConfigurationUsecase)
+
+	var cfg *biz.CloudbeaverCfg
+	if opts.CloudbeaverOpts != nil {
+		cfg = &biz.CloudbeaverCfg{
+			EnableHttps:   opts.CloudbeaverOpts.EnableHttps,
+			Host:          opts.CloudbeaverOpts.Host,
+			Port:          opts.CloudbeaverOpts.Port,
+			AdminUser:     opts.CloudbeaverOpts.AdminUser,
+			AdminPassword: opts.CloudbeaverOpts.AdminPassword,
+		}
+	}
 
 	cloudbeaverRepo := storage.NewCloudbeaverRepo(logger, st)
 	cloudbeaverUsecase := biz.NewCloudbeaverUsecase(logger, cfg, userUsecase, dbServiceUseCase, opPermissionVerifyUsecase, cloudbeaverRepo, dmsProxyTargetRepo)

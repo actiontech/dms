@@ -6,9 +6,8 @@ import (
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	"github.com/actiontech/dms/internal/dms/storage/model"
-	pkgLog "github.com/actiontech/dms/internal/pkg/log"
 
-	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
+	pkgLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	gormLog "gorm.io/gorm/logger"
@@ -35,8 +34,8 @@ type StorageConfig struct {
 	Debug    bool // 暂时无用
 }
 
-func NewStorage(logger utilLog.Logger, conf *StorageConfig) (*Storage, error) {
-	log := utilLog.NewHelper(logger, utilLog.WithMessageKey("dms.storage"))
+func NewStorage(logger pkgLog.Logger, conf *StorageConfig) (*Storage, error) {
+	log := pkgLog.NewHelper(logger, pkgLog.WithMessageKey("dms.storage"))
 	log.Infof("connecting to storage, host: %s, port: %s, user: %s, schema: %s",
 		conf.Host, conf.Port, conf.User, conf.Schema)
 
@@ -58,8 +57,8 @@ func NewStorage(logger utilLog.Logger, conf *StorageConfig) (*Storage, error) {
 	return s, pkgErr.WrapStorageErr(log, err)
 }
 
-func (s *Storage) AutoMigrate(logger utilLog.Logger) error {
-	log := utilLog.NewHelper(logger, utilLog.WithMessageKey("dms.storage.AutoMigrate"))
+func (s *Storage) AutoMigrate(logger pkgLog.Logger) error {
+	log := pkgLog.NewHelper(logger, pkgLog.WithMessageKey("dms.storage.AutoMigrate"))
 	err := s.db.AutoMigrate(model.GetAllModels()...)
 	if err != nil {
 		return pkgErr.WrapStorageErr(log, err)

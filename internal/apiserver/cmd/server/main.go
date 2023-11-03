@@ -12,9 +12,9 @@ import (
 	"github.com/actiontech/dms/internal/apiserver/conf"
 	"github.com/actiontech/dms/internal/apiserver/service"
 	dmsConf "github.com/actiontech/dms/internal/dms/conf"
-	pkgLog "github.com/actiontech/dms/internal/pkg/log"
 	"github.com/actiontech/dms/pkg/dms-common/pkg/aes"
 	"github.com/actiontech/dms/pkg/dms-common/pkg/http"
+	pkgLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	"github.com/actiontech/dms/pkg/rand"
 
 	utilIo "github.com/actiontech/dms/pkg/dms-common/pkg/io"
