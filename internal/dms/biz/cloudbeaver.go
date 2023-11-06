@@ -531,7 +531,7 @@ func (cu *CloudbeaverUsecase) connectManagement(ctx context.Context, cloudbeaver
 		return err
 	}
 
-	activeDBServices, err = cu.ResetDbServiceByAuth(ctx, activeDBServices)
+	activeDBServices, err = cu.ResetDbServiceByAuth(ctx, activeDBServices, dmsUser.UID)
 	if err != nil {
 		return err
 	}
