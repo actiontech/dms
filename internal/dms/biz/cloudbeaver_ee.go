@@ -28,15 +28,15 @@ type ListDBAccountReply struct {
 	base.GenericResp
 }
 
-func (cu *CloudbeaverUsecase) ResetDbServiceByAuth(ctx context.Context, activeDBServices []*DBService) ([]*DBService, error) {
+func (cu *CloudbeaverUsecase) ResetDbServiceByAuth(ctx context.Context, activeDBServices []*DBService, userId string) ([]*DBService, error) {
 	proxyTarget, err := cu.proxyTargetRepo.GetProxyTargetByName(ctx, "provision")
 	if errors.Is(err, pkgErr.ErrStorageNoData) {
-		return activeDBServices,nil 
+		return activeDBServices, nil
 	}
 	if err != nil {
 		return nil, err
 	}
-	dbaccounts, err := cu.ListAuthDbAccount(ctx, proxyTarget.URL.String())
+	dbaccounts, err := cu.ListAuthDbAccount(ctx, proxyTarget.URL.String(), userId)
 	if err != nil {
 		return nil, err
 	}
@@ -55,14 +55,14 @@ func (cu *CloudbeaverUsecase) ResetDbServiceByAuth(ctx context.Context, activeDB
 	return ret, nil
 }
 
-func (cu *CloudbeaverUsecase) ListAuthDbAccount(ctx context.Context, url string) ([]*TempDBAccount, error) {
+func (cu *CloudbeaverUsecase) ListAuthDbAccount(ctx context.Context, url, userId string) ([]*TempDBAccount, error) {
 	header := map[string]string{
 		"Authorization": pkgHttp.DefaultDMSToken,
 	}
 
 	reply := &ListDBAccountReply{}
 
-	if err := pkgHttp.Get(ctx, fmt.Sprintf("%v/%v", url, "provision/v1/auth/dbaccounts?page_size=999&page_index=1"), header, nil, reply); err != nil {
+	if err := pkgHttp.Get(ctx, fmt.Sprintf("%v/provision/v1/auth/dbaccounts?page_size=999&page_index=1&owner_user_id=%s", url, userId), header, nil, reply); err != nil {
 		return nil, fmt.Errorf("failed to get db account from %v: %v", url, err)
 	}
 	if reply.Code != 0 {
