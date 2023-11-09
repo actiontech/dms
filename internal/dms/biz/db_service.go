@@ -178,11 +178,20 @@ func (d *DBServiceUsecase) CreateDBService(ctx context.Context, args *BizDBServi
 	}
 
 	// 调用其他服务对数据源进行预检查
-	if err := d.pluginUsecase.AddDBServicePreCheck(ctx, ds); err != nil {
+	if err = d.pluginUsecase.AddDBServicePreCheck(ctx, ds); err != nil {
 		return "", fmt.Errorf("precheck db service failed: %w", err)
 	}
 
-	return ds.UID, d.repo.SaveDBService(ctx, ds)
+	if err = d.repo.SaveDBService(ctx, ds); err != nil {
+		return "", err
+	}
+
+	err = d.pluginUsecase.OperateDataResourceHandle(ctx, ds.UID, dmsCommonV1.DataResourceTypeDBService, dmsCommonV1.OperationTypeCreate, dmsCommonV1.OperationTimingAfter)
+	if err != nil {
+		return "", fmt.Errorf("plugin handle after craete db_service err: %v", err)
+	}
+
+	return ds.UID, nil
 }
 
 type ListDBServicesOption struct {
@@ -275,6 +284,12 @@ func (d *DBServiceUsecase) DelDBService(ctx context.Context, dbServiceUid, curre
 	if err := d.repo.DelDBService(ctx, dbServiceUid); nil != err {
 		return fmt.Errorf("delete data service error: %v", err)
 	}
+
+	err = d.pluginUsecase.OperateDataResourceHandle(ctx, ds.UID, dmsCommonV1.DataResourceTypeDBService, dmsCommonV1.OperationTypeDelete, dmsCommonV1.OperationTimingAfter)
+	if err != nil {
+		return fmt.Errorf("plugin handle after delete db_service err: %v", err)
+	}
+
 	return nil
 }
 
@@ -346,6 +361,12 @@ func (d *DBServiceUsecase) UpdateDBService(ctx context.Context, dbServiceUid str
 	if err := d.repo.UpdateDBService(ctx, ds); nil != err {
 		return fmt.Errorf("update db service error: %v", err)
 	}
+
+	err = d.pluginUsecase.OperateDataResourceHandle(ctx, ds.UID, dmsCommonV1.DataResourceTypeDBService, dmsCommonV1.OperationTypeUpdate, dmsCommonV1.OperationTimingAfter)
+	if err != nil {
+		return fmt.Errorf("plugin handle after update db_service err: %v", err)
+	}
+
 	return nil
 }
 
