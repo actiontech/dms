@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/actiontech/dms/internal/dms/biz"
-	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
+	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	"github.com/actiontech/dms/internal/dms/storage/model"
 
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
@@ -48,9 +48,7 @@ func (d *DBServiceRepo) ListDBServices(ctx context.Context, opt *biz.ListDBServi
 		// find models
 		{
 			db := tx.WithContext(ctx).Order(opt.OrderBy)
-			for _, f := range opt.FilterBy {
-				db = gormWhere(db, f)
-			}
+			db = gormWheres(ctx, db, opt.FilterBy)
 			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber))))).Find(&models)
 			if err := db.Error; err != nil {
 				return fmt.Errorf("failed to list db service: %v", err)
@@ -60,9 +58,7 @@ func (d *DBServiceRepo) ListDBServices(ctx context.Context, opt *biz.ListDBServi
 		// find total
 		{
 			db := tx.WithContext(ctx).Model(&model.DBService{})
-			for _, f := range opt.FilterBy {
-				db = gormWhere(db, f)
-			}
+			db = gormWheres(ctx, db, opt.FilterBy)
 			if err := db.Count(&total).Error; err != nil {
 				return fmt.Errorf("failed to count db service: %v", err)
 			}

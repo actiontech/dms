@@ -59,9 +59,10 @@ const (
 )
 
 type FilterCondition struct {
-	Field    string
-	Operator FilterOperator
-	Value    interface{}
+	KeywordSearch bool
+	Field         string
+	Operator      FilterOperator
+	Value         interface{}
 }
 
 type FilterOperator string

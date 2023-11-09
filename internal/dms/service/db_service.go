@@ -239,7 +239,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 	if req.FilterByBusiness != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldBusiness),
-			Operator: pkgConst.FilterOperatorContains,
+			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByBusiness,
 		})
 	}
@@ -290,6 +290,21 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.ProjectUid,
 		})
+	}
+
+	if req.FuzzyKeyword != "" {
+		filterBy = append(filterBy, pkgConst.FilterCondition{
+			Field:         string(biz.DBServiceFieldPort),
+			Operator:      pkgConst.FilterOperatorContains,
+			Value:         req.FuzzyKeyword,
+			KeywordSearch: true,
+		}, pkgConst.FilterCondition{
+			Field:         string(biz.DBServiceFieldHost),
+			Operator:      pkgConst.FilterOperatorContains,
+			Value:         req.FuzzyKeyword,
+			KeywordSearch: true,
+		},
+		)
 	}
 
 	listOption := &biz.ListDBServicesOption{

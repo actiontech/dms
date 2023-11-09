@@ -3710,6 +3710,11 @@ paths:
                   required: true
                   type: string
                   x-go-name: ProjectUid
+                - description: the db service fuzzy keyword,include host/port
+                  in: query
+                  name: fuzzy_keyword
+                  type: string
+                  x-go-name: FuzzyKeyword
             responses:
                 "200":
                     description: ListDBServiceReply
