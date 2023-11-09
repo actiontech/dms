@@ -188,7 +188,7 @@ func (d *DBServiceUsecase) CreateDBService(ctx context.Context, args *BizDBServi
 
 	err = d.pluginUsecase.OperateDataResourceHandle(ctx, ds.UID, dmsCommonV1.DataResourceTypeDBService, dmsCommonV1.OperationTypeCreate, dmsCommonV1.OperationTimingAfter)
 	if err != nil {
-		return "", fmt.Errorf("plugin handle db_service err: %v", err)
+		return "", fmt.Errorf("plugin handle after craete db_service err: %v", err)
 	}
 
 	return ds.UID, nil
@@ -287,7 +287,7 @@ func (d *DBServiceUsecase) DelDBService(ctx context.Context, dbServiceUid, curre
 
 	err = d.pluginUsecase.OperateDataResourceHandle(ctx, ds.UID, dmsCommonV1.DataResourceTypeDBService, dmsCommonV1.OperationTypeDelete, dmsCommonV1.OperationTimingAfter)
 	if err != nil {
-		return fmt.Errorf("plugin handle db_service err: %v", err)
+		return fmt.Errorf("plugin handle after delete db_service err: %v", err)
 	}
 
 	return nil
@@ -364,7 +364,7 @@ func (d *DBServiceUsecase) UpdateDBService(ctx context.Context, dbServiceUid str
 
 	err = d.pluginUsecase.OperateDataResourceHandle(ctx, ds.UID, dmsCommonV1.DataResourceTypeDBService, dmsCommonV1.OperationTypeUpdate, dmsCommonV1.OperationTimingAfter)
 	if err != nil {
-		return fmt.Errorf("plugin handle db_service err: %v", err)
+		return fmt.Errorf("plugin handle after update db_service err: %v", err)
 	}
 
 	return nil
