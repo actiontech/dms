@@ -317,7 +317,7 @@ func (d *DMSService) ListUserGroups(ctx context.Context, req *dmsV1.ListUserGrou
 	if req.FilterByName != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.UserGroupFieldName),
-			Operator: pkgConst.FilterOperatorNotEqual,
+			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByName,
 		})
 	}
