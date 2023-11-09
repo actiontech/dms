@@ -73,7 +73,7 @@ func (d *DMSService) ListRoles(ctx context.Context, req *dmsV1.ListRoleReq) (rep
 	if req.FilterByName != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.RoleFieldName),
-			Operator: pkgConst.FilterOperatorContains,
+			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByName,
 		})
 	}

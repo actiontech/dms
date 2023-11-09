@@ -61,7 +61,7 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) 
 	if req.FilterByUserUid != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.MemberFieldUserUID),
-			Operator: pkgConst.FilterOperatorContains,
+			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByUserUid,
 		})
 	}

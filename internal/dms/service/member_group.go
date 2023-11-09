@@ -22,7 +22,7 @@ func (d *DMSService) ListMemberGroups(ctx context.Context, req *dmsV1.ListMember
 	if req.FilterByName != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.MemberGroupFieldName),
-			Operator: pkgConst.FilterOperatorContains,
+			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByName,
 		})
 	}
