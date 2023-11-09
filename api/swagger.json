@@ -1341,6 +1341,13 @@
             "name": "project_uid",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "FuzzyKeyword",
+            "description": "the db service fuzzy keyword,include host/port",
+            "name": "fuzzy_keyword",
+            "in": "query"
           }
         ],
         "responses": {

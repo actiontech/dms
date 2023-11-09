@@ -152,7 +152,7 @@ func (d *DMSService) ListUsers(ctx context.Context, req *dmsCommonV1.ListUserReq
 	if req.FilterByName != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.UserFieldName),
-			Operator: pkgConst.FilterOperatorContains,
+			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByName,
 		})
 	}
@@ -317,7 +317,7 @@ func (d *DMSService) ListUserGroups(ctx context.Context, req *dmsV1.ListUserGrou
 	if req.FilterByName != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.UserGroupFieldName),
-			Operator: pkgConst.FilterOperatorContains,
+			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByName,
 		})
 	}
