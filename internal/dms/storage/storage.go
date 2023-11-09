@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	"fmt"
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
@@ -69,8 +70,26 @@ func (s *Storage) AutoMigrate(logger pkgLog.Logger) error {
 func gormWhere(db *gorm.DB, condition pkgConst.FilterCondition) *gorm.DB {
 	if condition.Operator == pkgConst.FilterOperatorIsNull {
 		return db.Where(fmt.Sprintf("%s IS NULL", condition.Field))
+	} else if condition.Operator == pkgConst.FilterOperatorContains {
+		condition.Value = fmt.Sprintf("%%%s%%", condition.Value)
 	}
 	return db.Where(fmt.Sprintf("%s %s ?", condition.Field, condition.Operator), condition.Value)
+}
+
+func gormWheres(ctx context.Context, db *gorm.DB, conditions []pkgConst.FilterCondition) *gorm.DB {
+	fuzzyWhere := db.WithContext(ctx)
+	singleWhere := db.WithContext(ctx)
+
+	for _, condition := range conditions {
+		if condition.KeywordSearch {
+			// 模糊查询字段
+			fuzzyWhere = fuzzyWhere.Or(gormWhere(singleWhere, condition))
+		} else {
+			db = gormWhere(db, condition)
+		}
+	}
+	db = db.Where(fuzzyWhere)
+	return db
 }
 
 func fixPageIndices(page_number uint32) int {
