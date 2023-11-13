@@ -161,7 +161,7 @@ func (r *MutationResolverImpl) AuditSQL(ctx context.Context, sql string, connect
 	return true, nil, nil
 }
 
-func (r *MutationResolverImpl) AsyncSQLExecuteQuery(ctx context.Context, connectionID string, contextID string, sql string, resultID *string, filter *model.SQLDataFilter, dataFormat *model.ResultDataFormat) (*model.AsyncTaskInfo, error) {
+func (r *MutationResolverImpl) AsyncSQLExecuteQuery(ctx context.Context, projectID *string, connectionID string, contextID string, sql string, resultID *string, filter *model.SQLDataFilter, dataFormat *model.ResultDataFormat, readLogs *bool) (*model.AsyncTaskInfo, error) {
 	success, results, err := r.AuditSQL(ctx, sql, connectionID)
 	if err != nil {
 		return nil, err
