@@ -19,6 +19,9 @@ var (
 	Version2223 = CBVersion{
 		version: []int{22, 2, 3},
 	}
+	Version2321 = CBVersion{
+		version: []int{23, 2, 1},
+	}
 )
 
 // CloudBeaver 版本号格式一般为 X.X.X.X 格式,例如 '22.3.1.202212261505' , 其中前三位为版本号
@@ -69,7 +72,7 @@ type GraphQLImpl interface {
 	UpdateConnectionQuery() string
 	GetUserConnectionsQuery() string
 	SetUserConnectionsQuery() string
-	IsUserExistQuery() string
+	IsUserExistQuery(userId string) (string, map[string]interface{})
 	UpdatePasswordQuery() string
 	CreateUserQuery() string
 	GrantUserRoleQuery() string
@@ -139,7 +142,7 @@ query setConnections($userId: ID!, $connections: [ID!]!) {
 `
 }
 
-func (CloudBeaverV2215) IsUserExistQuery() string {
+func (CloudBeaverV2215) IsUserExistQuery(userId string) (string, map[string]interface{}) {
 	return `
 query getUserList(
 	$userId: ID
@@ -150,8 +153,7 @@ query getUserList(
 }
 fragment adminUserInfo on AdminUserInfo {
 	userId
-}
-`
+}`, map[string]interface{}{"userId": userId}
 }
 
 func (CloudBeaverV2215) UpdatePasswordQuery() string {
@@ -270,6 +272,40 @@ query serverConfig {
   }
 }`
 
+type CloudBeaverV2321 struct {
+	CloudBeaverV2221
+}
+
+func (CloudBeaverV2321) IsUserExistQuery(userId string) (string, map[string]interface{}) {
+
+	return `
+query getUserList(
+	$page: PageInput!
+	$filter: AdminUserFilterInput!
+){
+	listUsers(page: $page, filter: $filter) {
+		...adminUserInfo
+	}
+}
+fragment adminUserInfo on AdminUserInfo {
+	userId
+}
+`, map[string]interface{}{
+			"page":   map[string]interface{}{"offset": 0, "limit": 100},
+			"filter": map[string]interface{}{"userIdMask": userId, "enabledState": true},
+		}
+}
+
+func (CloudBeaverV2321) GetActiveUserQuery() string {
+	return `
+	query getActiveUser {
+  		user: activeUser {
+    		userId
+  		}
+	}
+`
+}
+
 func NewGraphQL(url string) (GraphQLImpl, error) {
 	client := NewGraphQlClient(url)
 	req := NewRequest(GraphQLConfigVersionQuery, map[string]interface{}{})
@@ -289,9 +325,12 @@ func NewGraphQL(url string) (GraphQLImpl, error) {
 		return nil, err
 	}
 
-	var queryGraphQL GraphQLImpl = CloudBeaverV2223{}
+	var queryGraphQL GraphQLImpl = CloudBeaverV2321{}
 
 	// QueryGQL 默认值是 CloudBeaverV2223{}
+	if version.LessThan(Version2321) {
+		queryGraphQL = CloudBeaverV2223{}
+	}
 	if version.LessThan(Version2223) {
 		queryGraphQL = CloudBeaverV2221{}
 	}
