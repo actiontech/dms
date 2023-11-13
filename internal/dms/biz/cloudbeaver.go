@@ -812,14 +812,18 @@ func (cu *CloudbeaverUsecase) GenerateCloudbeaverConnectionParams(dbService *DBS
 		return nil, err
 	}
 	switch dbType {
-	case constant.DBTypeMySQL:
+	case constant.DBTypeMySQL, constant.DBTypeTDSQLForInnoDB:
 		err = cu.fillMySQLParams(config)
+	case constant.DBTypeTiDB:
+		err = cu.fillTiDBParams(config)
 	case constant.DBTypePostgreSQL:
 		err = cu.fillPGSQLParams(config)
 	case constant.DBTypeSQLServer:
 		err = cu.fillMSSQLParams(config)
 	case constant.DBTypeOracle:
 		err = cu.fillOracleParams(dbService, config)
+	case constant.DBTypeDB2:
+		err = cu.fillDB2Params(dbService, config)
 	case constant.DBTypeOceanBaseMySQL:
 		err = cu.fillOceanBaseParams(dbService, config)
 	default:
@@ -835,6 +839,11 @@ func (cu *CloudbeaverUsecase) GenerateCloudbeaverConnectionParams(dbService *DBS
 
 func (cu *CloudbeaverUsecase) fillMySQLParams(config map[string]interface{}) error {
 	config["driverId"] = "mysql:mysql8"
+	return nil
+}
+
+func (cu *CloudbeaverUsecase) fillTiDBParams(config map[string]interface{}) error {
+	config["driverId"] = "mysql:tidb"
 	return nil
 }
 
@@ -867,6 +876,17 @@ func (cu *CloudbeaverUsecase) fillOracleParams(inst *DBService, config map[strin
 		"@dbeaver-sid-service@": "SID",
 		"oracle.logon-as":       "Normal",
 	}
+	return nil
+}
+
+func (cu *CloudbeaverUsecase) fillDB2Params(inst *DBService, config map[string]interface{}) error {
+	dbName := inst.AdditionalParams.GetParam("database_name")
+	if dbName == nil {
+		return fmt.Errorf("the database name of DB2 cannot be empty")
+	}
+
+	config["driverId"] = "db2:db2"
+	config["databaseName"] = dbName.Value
 	return nil
 }
 
