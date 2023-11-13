@@ -471,9 +471,7 @@ func (cu *CloudbeaverUsecase) createUserIfNotExist(ctx context.Context, cloudbea
 		return err
 	}
 
-	checkExistReq := cloudbeaver.NewRequest(cu.graphQl.IsUserExistQuery(), map[string]interface{}{
-		"userId": cloudbeaverUserId,
-	})
+	checkExistReq := cloudbeaver.NewRequest(cu.graphQl.IsUserExistQuery(cloudbeaverUserId))
 
 	cloudbeaverUserList := UserList{}
 	err = graphQLClient.Run(ctx, checkExistReq, &cloudbeaverUserList)
