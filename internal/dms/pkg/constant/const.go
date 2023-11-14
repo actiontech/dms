@@ -53,9 +53,12 @@ func ParseDBType(s string) (DBType, error) {
 const (
 	DBTypeMySQL          DBType = "MySQL"
 	DBTypePostgreSQL     DBType = "PostgreSQL"
+	DBTypeTiDB           DBType = "TiDB"
+	DBTypeDB2            DBType = "DB2"
 	DBTypeOracle         DBType = "Oracle"
 	DBTypeSQLServer      DBType = "SQLServer"
 	DBTypeOceanBaseMySQL DBType = "OceanBaseMySQL"
+	DBTypeTDSQLForInnoDB DBType = "TDSQL For InnoDB"
 )
 
 type FilterCondition struct {
