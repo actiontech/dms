@@ -3,7 +3,6 @@
 package resolver
 
 import (
-	"github.com/actiontech/dms/internal/pkg/cloudbeaver/model"
 	"bytes"
 	"context"
 	"errors"
@@ -15,6 +14,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
+	"github.com/actiontech/dms/internal/pkg/cloudbeaver/model"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -303,7 +303,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		AsyncReadDataFromContainer         func(childComplexity int, connectionID string, contextID string, containerNodePath string, resultID *string, filter *model.SQLDataFilter, dataFormat *model.ResultDataFormat) int
-		AsyncSQLExecuteQuery               func(childComplexity int, connectionID string, contextID string, sql string, resultID *string, filter *model.SQLDataFilter, dataFormat *model.ResultDataFormat) int
+		AsyncSQLExecuteQuery               func(childComplexity int, projectID *string, connectionID string, contextID string, sql string, resultID *string, filter *model.SQLDataFilter, dataFormat *model.ResultDataFormat, readLogs *bool) int
 		AsyncSQLExecuteResults             func(childComplexity int, taskID string) int
 		AsyncSQLExplainExecutionPlan       func(childComplexity int, connectionID string, contextID string, query string, configuration interface{}) int
 		AsyncSQLExplainExecutionPlanResult func(childComplexity int, taskID string) int
@@ -721,6 +721,7 @@ type ComplexityRoot struct {
 	}
 
 	UserInfo struct {
+		AuthRole                func(childComplexity int) int
 		AuthTokens              func(childComplexity int) int
 		ConfigurationParameters func(childComplexity int) int
 		DisplayName             func(childComplexity int) int
@@ -778,7 +779,7 @@ type MutationResolver interface {
 	SQLContextCreate(ctx context.Context, connectionID string, defaultCatalog *string, defaultSchema *string) (*model.SQLContextInfo, error)
 	SQLContextSetDefaults(ctx context.Context, connectionID string, contextID string, defaultCatalog *string, defaultSchema *string) (bool, error)
 	SQLContextDestroy(ctx context.Context, connectionID string, contextID string) (bool, error)
-	AsyncSQLExecuteQuery(ctx context.Context, connectionID string, contextID string, sql string, resultID *string, filter *model.SQLDataFilter, dataFormat *model.ResultDataFormat) (*model.AsyncTaskInfo, error)
+	AsyncSQLExecuteQuery(ctx context.Context, projectID *string, connectionID string, contextID string, sql string, resultID *string, filter *model.SQLDataFilter, dataFormat *model.ResultDataFormat, readLogs *bool) (*model.AsyncTaskInfo, error)
 	AsyncReadDataFromContainer(ctx context.Context, connectionID string, contextID string, containerNodePath string, resultID *string, filter *model.SQLDataFilter, dataFormat *model.ResultDataFormat) (*model.AsyncTaskInfo, error)
 	SQLResultClose(ctx context.Context, connectionID string, contextID string, resultID string) (bool, error)
 	UpdateResultsDataBatch(ctx context.Context, connectionID string, contextID string, resultsID string, updatedRows []*model.SQLResultRow, deletedRows []*model.SQLResultRow, addedRows []*model.SQLResultRow) (*model.SQLExecuteInfo, error)
@@ -2216,7 +2217,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.AsyncSQLExecuteQuery(childComplexity, args["connectionId"].(string), args["contextId"].(string), args["sql"].(string), args["resultId"].(*string), args["filter"].(*model.SQLDataFilter), args["dataFormat"].(*model.ResultDataFormat)), true
+		return e.complexity.Mutation.AsyncSQLExecuteQuery(childComplexity, args["projectId"].(*string), args["connectionId"].(string), args["contextId"].(string), args["sql"].(string), args["resultId"].(*string), args["filter"].(*model.SQLDataFilter), args["dataFormat"].(*model.ResultDataFormat), args["readLogs"].(*bool)), true
 
 	case "Mutation.asyncSqlExecuteResults":
 		if e.complexity.Mutation.AsyncSQLExecuteResults == nil {
@@ -4950,6 +4951,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UserAuthToken.UserID(childComplexity), true
 
+	case "UserInfo.authRole":
+		if e.complexity.UserInfo.AuthRole == nil {
+			break
+		}
+
+		return e.complexity.UserInfo.AuthRole(childComplexity), true
+
 	case "UserInfo.authTokens":
 		if e.complexity.UserInfo.AuthTokens == nil {
 			break
@@ -5439,6 +5447,10 @@ type UserInfo {
     # Human readable display name. It is taken from the first auth provider which was used for user login.
     displayName: String
 
+    # User auth role ID. Optional.
+    authRole: ID
+
+    # All authentication tokens used during current session
     authTokens: [UserAuthToken!]!
 
     linkedAuthProviders: [String!]!
@@ -5446,7 +5458,7 @@ type UserInfo {
     # User profile properties map
     metaParameters: Object!
 
-    # USer configuiraiton parameters
+    # USer configuration parameters
     configurationParameters: Object!
 }
 
@@ -6539,12 +6551,14 @@ extend type Mutation {
 
     # Execute SQL and return results
     asyncSqlExecuteQuery(
+        projectId: ID,
         connectionId: ID!,
         contextId: ID!,
         sql: String!,
         resultId: ID,
         filter: SQLDataFilter,
-        dataFormat: ResultDataFormat    # requested data format. May be ignored by server
+        dataFormat: ResultDataFormat,    # requested data format. May be ignored by server
+        readLogs: Boolean               # added 23.2.1
     ): AsyncTaskInfo!
 
     # Read data from table
@@ -6620,7 +6634,7 @@ func (ec *executionContext) field_DatabaseObjectInfo_properties_args(ctx context
 	var arg0 *model.ObjectPropertyFilter
 	if tmp, ok := rawArgs["filter"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-		arg0, err = ec.unmarshalOObjectPropertyFilter2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyFilter(ctx, tmp)
+		arg0, err = ec.unmarshalOObjectPropertyFilter2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyFilter(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -6671,7 +6685,7 @@ func (ec *executionContext) field_Mutation_asyncReadDataFromContainer_args(ctx c
 	var arg4 *model.SQLDataFilter
 	if tmp, ok := rawArgs["filter"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-		arg4, err = ec.unmarshalOSQLDataFilter2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLDataFilter(ctx, tmp)
+		arg4, err = ec.unmarshalOSQLDataFilter2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLDataFilter(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -6680,7 +6694,7 @@ func (ec *executionContext) field_Mutation_asyncReadDataFromContainer_args(ctx c
 	var arg5 *model.ResultDataFormat
 	if tmp, ok := rawArgs["dataFormat"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dataFormat"))
-		arg5, err = ec.unmarshalOResultDataFormat2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormat(ctx, tmp)
+		arg5, err = ec.unmarshalOResultDataFormat2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormat(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -6692,60 +6706,78 @@ func (ec *executionContext) field_Mutation_asyncReadDataFromContainer_args(ctx c
 func (ec *executionContext) field_Mutation_asyncSqlExecuteQuery_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["connectionId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("connectionId"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+	var arg0 *string
+	if tmp, ok := rawArgs["projectId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
+		arg0, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["connectionId"] = arg0
+	args["projectId"] = arg0
 	var arg1 string
-	if tmp, ok := rawArgs["contextId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("contextId"))
+	if tmp, ok := rawArgs["connectionId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("connectionId"))
 		arg1, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["contextId"] = arg1
+	args["connectionId"] = arg1
 	var arg2 string
+	if tmp, ok := rawArgs["contextId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("contextId"))
+		arg2, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["contextId"] = arg2
+	var arg3 string
 	if tmp, ok := rawArgs["sql"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sql"))
-		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		arg3, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["sql"] = arg2
-	var arg3 *string
+	args["sql"] = arg3
+	var arg4 *string
 	if tmp, ok := rawArgs["resultId"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resultId"))
-		arg3, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
+		arg4, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["resultId"] = arg3
-	var arg4 *model.SQLDataFilter
+	args["resultId"] = arg4
+	var arg5 *model.SQLDataFilter
 	if tmp, ok := rawArgs["filter"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-		arg4, err = ec.unmarshalOSQLDataFilter2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLDataFilter(ctx, tmp)
+		arg5, err = ec.unmarshalOSQLDataFilter2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLDataFilter(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["filter"] = arg4
-	var arg5 *model.ResultDataFormat
+	args["filter"] = arg5
+	var arg6 *model.ResultDataFormat
 	if tmp, ok := rawArgs["dataFormat"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dataFormat"))
-		arg5, err = ec.unmarshalOResultDataFormat2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormat(ctx, tmp)
+		arg6, err = ec.unmarshalOResultDataFormat2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormat(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["dataFormat"] = arg5
+	args["dataFormat"] = arg6
+	var arg7 *bool
+	if tmp, ok := rawArgs["readLogs"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("readLogs"))
+		arg7, err = ec.unmarshalOBoolean2ᚖbool(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["readLogs"] = arg7
 	return args, nil
 }
 
@@ -6920,7 +6952,7 @@ func (ec *executionContext) field_Mutation_copyConnectionFromNode_args(ctx conte
 	var arg1 *model.ConnectionConfig
 	if tmp, ok := rawArgs["config"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("config"))
-		arg1, err = ec.unmarshalOConnectionConfig2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionConfig(ctx, tmp)
+		arg1, err = ec.unmarshalOConnectionConfig2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionConfig(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -6983,7 +7015,7 @@ func (ec *executionContext) field_Mutation_createConnection_args(ctx context.Con
 	var arg0 model.ConnectionConfig
 	if tmp, ok := rawArgs["config"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("config"))
-		arg0, err = ec.unmarshalNConnectionConfig2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionConfig(ctx, tmp)
+		arg0, err = ec.unmarshalNConnectionConfig2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionConfig(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7046,7 +7078,7 @@ func (ec *executionContext) field_Mutation_initConnection_args(ctx context.Conte
 	var arg2 []*model.NetworkHandlerConfigInput
 	if tmp, ok := rawArgs["networkCredentials"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("networkCredentials"))
-		arg2, err = ec.unmarshalONetworkHandlerConfigInput2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerConfigInputᚄ(ctx, tmp)
+		arg2, err = ec.unmarshalONetworkHandlerConfigInput2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerConfigInputᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7133,7 +7165,7 @@ func (ec *executionContext) field_Mutation_openConnection_args(ctx context.Conte
 	var arg0 model.ConnectionConfig
 	if tmp, ok := rawArgs["config"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("config"))
-		arg0, err = ec.unmarshalNConnectionConfig2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionConfig(ctx, tmp)
+		arg0, err = ec.unmarshalNConnectionConfig2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionConfig(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7199,7 +7231,7 @@ func (ec *executionContext) field_Mutation_readLobValue_args(ctx context.Context
 	var arg4 []*model.SQLResultRow
 	if tmp, ok := rawArgs["row"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("row"))
-		arg4, err = ec.unmarshalNSQLResultRow2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRowᚄ(ctx, tmp)
+		arg4, err = ec.unmarshalNSQLResultRow2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRowᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7355,7 +7387,7 @@ func (ec *executionContext) field_Mutation_setConnectionNavigatorSettings_args(c
 	var arg1 model.NavigatorSettingsInput
 	if tmp, ok := rawArgs["settings"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("settings"))
-		arg1, err = ec.unmarshalNNavigatorSettingsInput2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorSettingsInput(ctx, tmp)
+		arg1, err = ec.unmarshalNNavigatorSettingsInput2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorSettingsInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7526,7 +7558,7 @@ func (ec *executionContext) field_Mutation_testConnection_args(ctx context.Conte
 	var arg0 model.ConnectionConfig
 	if tmp, ok := rawArgs["config"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("config"))
-		arg0, err = ec.unmarshalNConnectionConfig2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionConfig(ctx, tmp)
+		arg0, err = ec.unmarshalNConnectionConfig2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionConfig(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7541,7 +7573,7 @@ func (ec *executionContext) field_Mutation_testNetworkHandler_args(ctx context.C
 	var arg0 model.NetworkHandlerConfigInput
 	if tmp, ok := rawArgs["config"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("config"))
-		arg0, err = ec.unmarshalNNetworkHandlerConfigInput2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerConfigInput(ctx, tmp)
+		arg0, err = ec.unmarshalNNetworkHandlerConfigInput2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerConfigInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7556,7 +7588,7 @@ func (ec *executionContext) field_Mutation_updateConnection_args(ctx context.Con
 	var arg0 model.ConnectionConfig
 	if tmp, ok := rawArgs["config"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("config"))
-		arg0, err = ec.unmarshalNConnectionConfig2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionConfig(ctx, tmp)
+		arg0, err = ec.unmarshalNConnectionConfig2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionConfig(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7598,7 +7630,7 @@ func (ec *executionContext) field_Mutation_updateResultsDataBatchScript_args(ctx
 	var arg3 []*model.SQLResultRow
 	if tmp, ok := rawArgs["updatedRows"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedRows"))
-		arg3, err = ec.unmarshalOSQLResultRow2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRowᚄ(ctx, tmp)
+		arg3, err = ec.unmarshalOSQLResultRow2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRowᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7607,7 +7639,7 @@ func (ec *executionContext) field_Mutation_updateResultsDataBatchScript_args(ctx
 	var arg4 []*model.SQLResultRow
 	if tmp, ok := rawArgs["deletedRows"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedRows"))
-		arg4, err = ec.unmarshalOSQLResultRow2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRowᚄ(ctx, tmp)
+		arg4, err = ec.unmarshalOSQLResultRow2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRowᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7616,7 +7648,7 @@ func (ec *executionContext) field_Mutation_updateResultsDataBatchScript_args(ctx
 	var arg5 []*model.SQLResultRow
 	if tmp, ok := rawArgs["addedRows"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("addedRows"))
-		arg5, err = ec.unmarshalOSQLResultRow2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRowᚄ(ctx, tmp)
+		arg5, err = ec.unmarshalOSQLResultRow2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRowᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7658,7 +7690,7 @@ func (ec *executionContext) field_Mutation_updateResultsDataBatch_args(ctx conte
 	var arg3 []*model.SQLResultRow
 	if tmp, ok := rawArgs["updatedRows"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedRows"))
-		arg3, err = ec.unmarshalOSQLResultRow2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRowᚄ(ctx, tmp)
+		arg3, err = ec.unmarshalOSQLResultRow2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRowᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7667,7 +7699,7 @@ func (ec *executionContext) field_Mutation_updateResultsDataBatch_args(ctx conte
 	var arg4 []*model.SQLResultRow
 	if tmp, ok := rawArgs["deletedRows"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedRows"))
-		arg4, err = ec.unmarshalOSQLResultRow2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRowᚄ(ctx, tmp)
+		arg4, err = ec.unmarshalOSQLResultRow2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRowᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7676,7 +7708,7 @@ func (ec *executionContext) field_Mutation_updateResultsDataBatch_args(ctx conte
 	var arg5 []*model.SQLResultRow
 	if tmp, ok := rawArgs["addedRows"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("addedRows"))
-		arg5, err = ec.unmarshalOSQLResultRow2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRowᚄ(ctx, tmp)
+		arg5, err = ec.unmarshalOSQLResultRow2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRowᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7835,7 +7867,7 @@ func (ec *executionContext) field_Query_configureServer_args(ctx context.Context
 	var arg0 model.ServerConfigInput
 	if tmp, ok := rawArgs["configuration"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("configuration"))
-		arg0, err = ec.unmarshalNServerConfigInput2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerConfigInput(ctx, tmp)
+		arg0, err = ec.unmarshalNServerConfigInput2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerConfigInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7904,7 +7936,7 @@ func (ec *executionContext) field_Query_copyConnectionConfiguration_args(ctx con
 	var arg1 *model.ConnectionConfig
 	if tmp, ok := rawArgs["config"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("config"))
-		arg1, err = ec.unmarshalOConnectionConfig2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionConfig(ctx, tmp)
+		arg1, err = ec.unmarshalOConnectionConfig2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionConfig(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7919,7 +7951,7 @@ func (ec *executionContext) field_Query_createConnectionConfiguration_args(ctx c
 	var arg0 model.ConnectionConfig
 	if tmp, ok := rawArgs["config"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("config"))
-		arg0, err = ec.unmarshalNConnectionConfig2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionConfig(ctx, tmp)
+		arg0, err = ec.unmarshalNConnectionConfig2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionConfig(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -8000,7 +8032,7 @@ func (ec *executionContext) field_Query_dataTransferExportDataFromContainer_args
 	var arg2 model.DataTransferParameters
 	if tmp, ok := rawArgs["parameters"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("parameters"))
-		arg2, err = ec.unmarshalNDataTransferParameters2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTransferParameters(ctx, tmp)
+		arg2, err = ec.unmarshalNDataTransferParameters2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTransferParameters(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -8042,7 +8074,7 @@ func (ec *executionContext) field_Query_dataTransferExportDataFromResults_args(c
 	var arg3 model.DataTransferParameters
 	if tmp, ok := rawArgs["parameters"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("parameters"))
-		arg3, err = ec.unmarshalNDataTransferParameters2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTransferParameters(ctx, tmp)
+		arg3, err = ec.unmarshalNDataTransferParameters2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTransferParameters(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -8717,7 +8749,7 @@ func (ec *executionContext) field_Query_setDefaultNavigatorSettings_args(ctx con
 	var arg0 model.NavigatorSettingsInput
 	if tmp, ok := rawArgs["settings"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("settings"))
-		arg0, err = ec.unmarshalNNavigatorSettingsInput2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorSettingsInput(ctx, tmp)
+		arg0, err = ec.unmarshalNNavigatorSettingsInput2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorSettingsInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -9125,7 +9157,7 @@ func (ec *executionContext) field_Query_updateConnectionConfiguration_args(ctx c
 	var arg1 model.ConnectionConfig
 	if tmp, ok := rawArgs["config"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("config"))
-		arg1, err = ec.unmarshalNConnectionConfig2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionConfig(ctx, tmp)
+		arg1, err = ec.unmarshalNConnectionConfig2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionConfig(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -9846,7 +9878,7 @@ func (ec *executionContext) _AdminConnectionGrantInfo_subjectType(ctx context.Co
 	}
 	res := resTmp.(model.AdminSubjectType)
 	fc.Result = res
-	return ec.marshalNAdminSubjectType2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminSubjectType(ctx, field.Selections, res)
+	return ec.marshalNAdminSubjectType2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminSubjectType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AdminConnectionGrantInfo_subjectType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10491,7 +10523,7 @@ func (ec *executionContext) _AdminRoleInfo_grantedConnections(ctx context.Contex
 	}
 	res := resTmp.([]*model.AdminConnectionGrantInfo)
 	fc.Result = res
-	return ec.marshalNAdminConnectionGrantInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminConnectionGrantInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNAdminConnectionGrantInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminConnectionGrantInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AdminRoleInfo_grantedConnections(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10765,7 +10797,7 @@ func (ec *executionContext) _AdminUserInfo_grantedConnections(ctx context.Contex
 	}
 	res := resTmp.([]*model.AdminConnectionGrantInfo)
 	fc.Result = res
-	return ec.marshalNAdminConnectionGrantInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminConnectionGrantInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNAdminConnectionGrantInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminConnectionGrantInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AdminUserInfo_grantedConnections(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10819,7 +10851,7 @@ func (ec *executionContext) _AdminUserInfo_origins(ctx context.Context, field gr
 	}
 	res := resTmp.([]*model.ObjectOrigin)
 	fc.Result = res
-	return ec.marshalNObjectOrigin2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectOriginᚄ(ctx, field.Selections, res)
+	return ec.marshalNObjectOrigin2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectOriginᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AdminUserInfo_origins(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -11132,7 +11164,7 @@ func (ec *executionContext) _AsyncTaskInfo_error(ctx context.Context, field grap
 	}
 	res := resTmp.(*model.ServerError)
 	fc.Result = res
-	return ec.marshalOServerError2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerError(ctx, field.Selections, res)
+	return ec.marshalOServerError2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerError(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AsyncTaskInfo_error(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -11185,7 +11217,7 @@ func (ec *executionContext) _AsyncTaskInfo_result(ctx context.Context, field gra
 	}
 	res := resTmp.(*model.SQLExecuteInfo)
 	fc.Result = res
-	return ec.marshalOSQLExecuteInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecuteInfo(ctx, field.Selections, res)
+	return ec.marshalOSQLExecuteInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecuteInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AsyncTaskInfo_result(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -11579,7 +11611,7 @@ func (ec *executionContext) _AuthCredentialInfo_encryption(ctx context.Context, 
 	}
 	res := resTmp.(*model.AuthCredentialEncryption)
 	fc.Result = res
-	return ec.marshalOAuthCredentialEncryption2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthCredentialEncryption(ctx, field.Selections, res)
+	return ec.marshalOAuthCredentialEncryption2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthCredentialEncryption(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuthCredentialInfo_encryption(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -11705,7 +11737,7 @@ func (ec *executionContext) _AuthInfo_authStatus(ctx context.Context, field grap
 	}
 	res := resTmp.(model.AuthStatus)
 	fc.Result = res
-	return ec.marshalNAuthStatus2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthStatus(ctx, field.Selections, res)
+	return ec.marshalNAuthStatus2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuthInfo_authStatus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -11746,7 +11778,7 @@ func (ec *executionContext) _AuthInfo_userTokens(ctx context.Context, field grap
 	}
 	res := resTmp.([]*model.UserAuthToken)
 	fc.Result = res
-	return ec.marshalOUserAuthToken2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐUserAuthTokenᚄ(ctx, field.Selections, res)
+	return ec.marshalOUserAuthToken2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐUserAuthTokenᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuthInfo_userTokens(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -12266,7 +12298,7 @@ func (ec *executionContext) _AuthProviderCredentialsProfile_credentialParameters
 	}
 	res := resTmp.([]*model.AuthCredentialInfo)
 	fc.Result = res
-	return ec.marshalNAuthCredentialInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthCredentialInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNAuthCredentialInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthCredentialInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuthProviderCredentialsProfile_credentialParameters(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -12583,7 +12615,7 @@ func (ec *executionContext) _AuthProviderInfo_configurations(ctx context.Context
 	}
 	res := resTmp.([]*model.AuthProviderConfiguration)
 	fc.Result = res
-	return ec.marshalOAuthProviderConfiguration2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderConfigurationᚄ(ctx, field.Selections, res)
+	return ec.marshalOAuthProviderConfiguration2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderConfigurationᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuthProviderInfo_configurations(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -12645,7 +12677,7 @@ func (ec *executionContext) _AuthProviderInfo_credentialProfiles(ctx context.Con
 	}
 	res := resTmp.([]*model.AuthProviderCredentialsProfile)
 	fc.Result = res
-	return ec.marshalNAuthProviderCredentialsProfile2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderCredentialsProfileᚄ(ctx, field.Selections, res)
+	return ec.marshalNAuthProviderCredentialsProfile2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderCredentialsProfileᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuthProviderInfo_credentialProfiles(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -13631,7 +13663,7 @@ func (ec *executionContext) _ConnectionInfo_connectionError(ctx context.Context,
 	}
 	res := resTmp.(*model.ServerError)
 	fc.Result = res
-	return ec.marshalOServerError2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerError(ctx, field.Selections, res)
+	return ec.marshalOServerError2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerError(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ConnectionInfo_connectionError(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -13769,7 +13801,7 @@ func (ec *executionContext) _ConnectionInfo_origin(ctx context.Context, field gr
 	}
 	res := resTmp.(*model.ObjectOrigin)
 	fc.Result = res
-	return ec.marshalNObjectOrigin2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectOrigin(ctx, field.Selections, res)
+	return ec.marshalNObjectOrigin2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectOrigin(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ConnectionInfo_origin(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -13912,7 +13944,7 @@ func (ec *executionContext) _ConnectionInfo_authProperties(ctx context.Context, 
 	}
 	res := resTmp.([]*model.ObjectPropertyInfo)
 	fc.Result = res
-	return ec.marshalNObjectPropertyInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNObjectPropertyInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ConnectionInfo_authProperties(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -14024,7 +14056,7 @@ func (ec *executionContext) _ConnectionInfo_networkHandlersConfig(ctx context.Co
 	}
 	res := resTmp.([]*model.NetworkHandlerConfig)
 	fc.Result = res
-	return ec.marshalNNetworkHandlerConfig2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerConfigᚄ(ctx, field.Selections, res)
+	return ec.marshalNNetworkHandlerConfig2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerConfigᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ConnectionInfo_networkHandlersConfig(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -14130,7 +14162,7 @@ func (ec *executionContext) _ConnectionInfo_navigatorSettings(ctx context.Contex
 	}
 	res := resTmp.(*model.NavigatorSettings)
 	fc.Result = res
-	return ec.marshalNNavigatorSettings2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorSettings(ctx, field.Selections, res)
+	return ec.marshalNNavigatorSettings2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorSettings(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ConnectionInfo_navigatorSettings(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -14190,7 +14222,7 @@ func (ec *executionContext) _ConnectionInfo_supportedDataFormats(ctx context.Con
 	}
 	res := resTmp.([]model.ResultDataFormat)
 	fc.Result = res
-	return ec.marshalNResultDataFormat2ᚕdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormatᚄ(ctx, field.Selections, res)
+	return ec.marshalNResultDataFormat2ᚕgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormatᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ConnectionInfo_supportedDataFormats(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -14565,7 +14597,7 @@ func (ec *executionContext) _DataTransferProcessorInfo_properties(ctx context.Co
 	}
 	res := resTmp.([]*model.ObjectPropertyInfo)
 	fc.Result = res
-	return ec.marshalOObjectPropertyInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfo(ctx, field.Selections, res)
+	return ec.marshalOObjectPropertyInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_DataTransferProcessorInfo_properties(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -15055,7 +15087,7 @@ func (ec *executionContext) _DatabaseAuthModel_properties(ctx context.Context, f
 	}
 	res := resTmp.([]*model.ObjectPropertyInfo)
 	fc.Result = res
-	return ec.marshalNObjectPropertyInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNObjectPropertyInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_DatabaseAuthModel_properties(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -15123,7 +15155,7 @@ func (ec *executionContext) _DatabaseCatalog_catalog(ctx context.Context, field 
 	}
 	res := resTmp.(*model.NavigatorNodeInfo)
 	fc.Result = res
-	return ec.marshalNNavigatorNodeInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorNodeInfo(ctx, field.Selections, res)
+	return ec.marshalNNavigatorNodeInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorNodeInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_DatabaseCatalog_catalog(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -15195,7 +15227,7 @@ func (ec *executionContext) _DatabaseCatalog_schemaList(ctx context.Context, fie
 	}
 	res := resTmp.([]*model.NavigatorNodeInfo)
 	fc.Result = res
-	return ec.marshalNNavigatorNodeInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorNodeInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNNavigatorNodeInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorNodeInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_DatabaseCatalog_schemaList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -15551,7 +15583,7 @@ func (ec *executionContext) _DatabaseObjectInfo_properties(ctx context.Context, 
 	}
 	res := resTmp.([]*model.ObjectPropertyInfo)
 	fc.Result = res
-	return ec.marshalOObjectPropertyInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfo(ctx, field.Selections, res)
+	return ec.marshalOObjectPropertyInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_DatabaseObjectInfo_properties(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -15917,7 +15949,7 @@ func (ec *executionContext) _DatabaseStructContainers_catalogList(ctx context.Co
 	}
 	res := resTmp.([]*model.DatabaseCatalog)
 	fc.Result = res
-	return ec.marshalNDatabaseCatalog2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseCatalogᚄ(ctx, field.Selections, res)
+	return ec.marshalNDatabaseCatalog2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseCatalogᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_DatabaseStructContainers_catalogList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -15967,7 +15999,7 @@ func (ec *executionContext) _DatabaseStructContainers_schemaList(ctx context.Con
 	}
 	res := resTmp.([]*model.NavigatorNodeInfo)
 	fc.Result = res
-	return ec.marshalNNavigatorNodeInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorNodeInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNNavigatorNodeInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorNodeInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_DatabaseStructContainers_schemaList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -17076,7 +17108,7 @@ func (ec *executionContext) _DriverInfo_driverProperties(ctx context.Context, fi
 	}
 	res := resTmp.([]*model.ObjectPropertyInfo)
 	fc.Result = res
-	return ec.marshalNObjectPropertyInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNObjectPropertyInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_DriverInfo_driverProperties(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -17188,7 +17220,7 @@ func (ec *executionContext) _DriverInfo_providerProperties(ctx context.Context, 
 	}
 	res := resTmp.([]*model.ObjectPropertyInfo)
 	fc.Result = res
-	return ec.marshalNObjectPropertyInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNObjectPropertyInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_DriverInfo_providerProperties(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -17657,7 +17689,7 @@ func (ec *executionContext) _Mutation_openSession(ctx context.Context, field gra
 	}
 	res := resTmp.(*model.SessionInfo)
 	fc.Result = res
-	return ec.marshalNSessionInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSessionInfo(ctx, field.Selections, res)
+	return ec.marshalNSessionInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSessionInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_openSession(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -17903,7 +17935,7 @@ func (ec *executionContext) _Mutation_createConnection(ctx context.Context, fiel
 	}
 	res := resTmp.(*model.ConnectionInfo)
 	fc.Result = res
-	return ec.marshalNConnectionInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
+	return ec.marshalNConnectionInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createConnection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18022,7 +18054,7 @@ func (ec *executionContext) _Mutation_updateConnection(ctx context.Context, fiel
 	}
 	res := resTmp.(*model.ConnectionInfo)
 	fc.Result = res
-	return ec.marshalNConnectionInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
+	return ec.marshalNConnectionInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_updateConnection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18196,7 +18228,7 @@ func (ec *executionContext) _Mutation_createConnectionFromTemplate(ctx context.C
 	}
 	res := resTmp.(*model.ConnectionInfo)
 	fc.Result = res
-	return ec.marshalNConnectionInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
+	return ec.marshalNConnectionInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createConnectionFromTemplate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18315,7 +18347,7 @@ func (ec *executionContext) _Mutation_createConnectionFolder(ctx context.Context
 	}
 	res := resTmp.(*model.ConnectionFolderInfo)
 	fc.Result = res
-	return ec.marshalNConnectionFolderInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionFolderInfo(ctx, field.Selections, res)
+	return ec.marshalNConnectionFolderInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionFolderInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createConnectionFolder(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18431,7 +18463,7 @@ func (ec *executionContext) _Mutation_copyConnectionFromNode(ctx context.Context
 	}
 	res := resTmp.(*model.ConnectionInfo)
 	fc.Result = res
-	return ec.marshalNConnectionInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
+	return ec.marshalNConnectionInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_copyConnectionFromNode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18550,7 +18582,7 @@ func (ec *executionContext) _Mutation_testConnection(ctx context.Context, field 
 	}
 	res := resTmp.(*model.ConnectionInfo)
 	fc.Result = res
-	return ec.marshalNConnectionInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
+	return ec.marshalNConnectionInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_testConnection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18669,7 +18701,7 @@ func (ec *executionContext) _Mutation_testNetworkHandler(ctx context.Context, fi
 	}
 	res := resTmp.(*model.NetworkEndpointInfo)
 	fc.Result = res
-	return ec.marshalNNetworkEndpointInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkEndpointInfo(ctx, field.Selections, res)
+	return ec.marshalNNetworkEndpointInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkEndpointInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_testNetworkHandler(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18738,7 +18770,7 @@ func (ec *executionContext) _Mutation_initConnection(ctx context.Context, field 
 	}
 	res := resTmp.(*model.ConnectionInfo)
 	fc.Result = res
-	return ec.marshalNConnectionInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
+	return ec.marshalNConnectionInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_initConnection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18857,7 +18889,7 @@ func (ec *executionContext) _Mutation_closeConnection(ctx context.Context, field
 	}
 	res := resTmp.(*model.ConnectionInfo)
 	fc.Result = res
-	return ec.marshalNConnectionInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
+	return ec.marshalNConnectionInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_closeConnection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18976,7 +19008,7 @@ func (ec *executionContext) _Mutation_setConnectionNavigatorSettings(ctx context
 	}
 	res := resTmp.(*model.ConnectionInfo)
 	fc.Result = res
-	return ec.marshalNConnectionInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
+	return ec.marshalNConnectionInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_setConnectionNavigatorSettings(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -19147,7 +19179,7 @@ func (ec *executionContext) _Mutation_asyncTaskInfo(ctx context.Context, field g
 	}
 	res := resTmp.(*model.AsyncTaskInfo)
 	fc.Result = res
-	return ec.marshalNAsyncTaskInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAsyncTaskInfo(ctx, field.Selections, res)
+	return ec.marshalNAsyncTaskInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAsyncTaskInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_asyncTaskInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -19218,7 +19250,7 @@ func (ec *executionContext) _Mutation_openConnection(ctx context.Context, field 
 	}
 	res := resTmp.(*model.ConnectionInfo)
 	fc.Result = res
-	return ec.marshalNConnectionInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
+	return ec.marshalNConnectionInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_openConnection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -19337,7 +19369,7 @@ func (ec *executionContext) _Mutation_asyncTaskStatus(ctx context.Context, field
 	}
 	res := resTmp.(*model.AsyncTaskInfo)
 	fc.Result = res
-	return ec.marshalNAsyncTaskInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAsyncTaskInfo(ctx, field.Selections, res)
+	return ec.marshalNAsyncTaskInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAsyncTaskInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_asyncTaskStatus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -19781,7 +19813,7 @@ func (ec *executionContext) _Mutation_sqlContextCreate(ctx context.Context, fiel
 	}
 	res := resTmp.(*model.SQLContextInfo)
 	fc.Result = res
-	return ec.marshalNSQLContextInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLContextInfo(ctx, field.Selections, res)
+	return ec.marshalNSQLContextInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLContextInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_sqlContextCreate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -19942,7 +19974,7 @@ func (ec *executionContext) _Mutation_asyncSqlExecuteQuery(ctx context.Context, 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AsyncSQLExecuteQuery(rctx, fc.Args["connectionId"].(string), fc.Args["contextId"].(string), fc.Args["sql"].(string), fc.Args["resultId"].(*string), fc.Args["filter"].(*model.SQLDataFilter), fc.Args["dataFormat"].(*model.ResultDataFormat))
+		return ec.resolvers.Mutation().AsyncSQLExecuteQuery(rctx, fc.Args["projectId"].(*string), fc.Args["connectionId"].(string), fc.Args["contextId"].(string), fc.Args["sql"].(string), fc.Args["resultId"].(*string), fc.Args["filter"].(*model.SQLDataFilter), fc.Args["dataFormat"].(*model.ResultDataFormat), fc.Args["readLogs"].(*bool))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19956,7 +19988,7 @@ func (ec *executionContext) _Mutation_asyncSqlExecuteQuery(ctx context.Context, 
 	}
 	res := resTmp.(*model.AsyncTaskInfo)
 	fc.Result = res
-	return ec.marshalNAsyncTaskInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAsyncTaskInfo(ctx, field.Selections, res)
+	return ec.marshalNAsyncTaskInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAsyncTaskInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_asyncSqlExecuteQuery(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -20027,7 +20059,7 @@ func (ec *executionContext) _Mutation_asyncReadDataFromContainer(ctx context.Con
 	}
 	res := resTmp.(*model.AsyncTaskInfo)
 	fc.Result = res
-	return ec.marshalNAsyncTaskInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAsyncTaskInfo(ctx, field.Selections, res)
+	return ec.marshalNAsyncTaskInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAsyncTaskInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_asyncReadDataFromContainer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -20153,7 +20185,7 @@ func (ec *executionContext) _Mutation_updateResultsDataBatch(ctx context.Context
 	}
 	res := resTmp.(*model.SQLExecuteInfo)
 	fc.Result = res
-	return ec.marshalNSQLExecuteInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecuteInfo(ctx, field.Selections, res)
+	return ec.marshalNSQLExecuteInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecuteInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_updateResultsDataBatch(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -20328,7 +20360,7 @@ func (ec *executionContext) _Mutation_asyncSqlExecuteResults(ctx context.Context
 	}
 	res := resTmp.(*model.SQLExecuteInfo)
 	fc.Result = res
-	return ec.marshalNSQLExecuteInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecuteInfo(ctx, field.Selections, res)
+	return ec.marshalNSQLExecuteInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecuteInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_asyncSqlExecuteResults(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -20399,7 +20431,7 @@ func (ec *executionContext) _Mutation_asyncSqlExplainExecutionPlan(ctx context.C
 	}
 	res := resTmp.(*model.AsyncTaskInfo)
 	fc.Result = res
-	return ec.marshalNAsyncTaskInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAsyncTaskInfo(ctx, field.Selections, res)
+	return ec.marshalNAsyncTaskInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAsyncTaskInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_asyncSqlExplainExecutionPlan(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -20470,7 +20502,7 @@ func (ec *executionContext) _Mutation_asyncSqlExplainExecutionPlanResult(ctx con
 	}
 	res := resTmp.(*model.SQLExecutionPlan)
 	fc.Result = res
-	return ec.marshalNSQLExecutionPlan2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecutionPlan(ctx, field.Selections, res)
+	return ec.marshalNSQLExecutionPlan2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecutionPlan(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_asyncSqlExplainExecutionPlanResult(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -20818,7 +20850,7 @@ func (ec *executionContext) _NavigatorNodeInfo_object(ctx context.Context, field
 	}
 	res := resTmp.(*model.DatabaseObjectInfo)
 	fc.Result = res
-	return ec.marshalODatabaseObjectInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseObjectInfo(ctx, field.Selections, res)
+	return ec.marshalODatabaseObjectInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseObjectInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_NavigatorNodeInfo_object(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -20924,7 +20956,7 @@ func (ec *executionContext) _NavigatorNodeInfo_nodeDetails(ctx context.Context, 
 	}
 	res := resTmp.([]*model.ObjectPropertyInfo)
 	fc.Result = res
-	return ec.marshalOObjectPropertyInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalOObjectPropertyInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_NavigatorNodeInfo_nodeDetails(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -21634,7 +21666,7 @@ func (ec *executionContext) _NetworkHandlerConfig_authType(ctx context.Context, 
 	}
 	res := resTmp.(model.NetworkHandlerAuthType)
 	fc.Result = res
-	return ec.marshalNNetworkHandlerAuthType2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerAuthType(ctx, field.Selections, res)
+	return ec.marshalNNetworkHandlerAuthType2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerAuthType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_NetworkHandlerConfig_authType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -22103,7 +22135,7 @@ func (ec *executionContext) _NetworkHandlerDescriptor_type(ctx context.Context, 
 	}
 	res := resTmp.(*model.NetworkHandlerType)
 	fc.Result = res
-	return ec.marshalONetworkHandlerType2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerType(ctx, field.Selections, res)
+	return ec.marshalONetworkHandlerType2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_NetworkHandlerDescriptor_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -22147,7 +22179,7 @@ func (ec *executionContext) _NetworkHandlerDescriptor_properties(ctx context.Con
 	}
 	res := resTmp.([]*model.ObjectPropertyInfo)
 	fc.Result = res
-	return ec.marshalNObjectPropertyInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNObjectPropertyInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_NetworkHandlerDescriptor_properties(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -22833,7 +22865,7 @@ func (ec *executionContext) _ObjectOrigin_details(ctx context.Context, field gra
 	}
 	res := resTmp.([]*model.ObjectPropertyInfo)
 	fc.Result = res
-	return ec.marshalOObjectPropertyInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalOObjectPropertyInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ObjectOrigin_details(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -23229,7 +23261,7 @@ func (ec *executionContext) _ObjectPropertyInfo_length(ctx context.Context, fiel
 	}
 	res := resTmp.(model.ObjectPropertyLength)
 	fc.Result = res
-	return ec.marshalNObjectPropertyLength2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyLength(ctx, field.Selections, res)
+	return ec.marshalNObjectPropertyLength2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyLength(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ObjectPropertyInfo_length(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -23704,7 +23736,7 @@ func (ec *executionContext) _Query_listUsers(ctx context.Context, field graphql.
 	}
 	res := resTmp.([]*model.AdminUserInfo)
 	fc.Result = res
-	return ec.marshalNAdminUserInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminUserInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNAdminUserInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminUserInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_listUsers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -23777,7 +23809,7 @@ func (ec *executionContext) _Query_listRoles(ctx context.Context, field graphql.
 	}
 	res := resTmp.([]*model.AdminRoleInfo)
 	fc.Result = res
-	return ec.marshalNAdminRoleInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminRoleInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNAdminRoleInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminRoleInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_listRoles(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -23846,7 +23878,7 @@ func (ec *executionContext) _Query_listPermissions(ctx context.Context, field gr
 	}
 	res := resTmp.([]*model.AdminPermissionInfo)
 	fc.Result = res
-	return ec.marshalNAdminPermissionInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminPermissionInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNAdminPermissionInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminPermissionInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_listPermissions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -23902,7 +23934,7 @@ func (ec *executionContext) _Query_createUser(ctx context.Context, field graphql
 	}
 	res := resTmp.(*model.AdminUserInfo)
 	fc.Result = res
-	return ec.marshalNAdminUserInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminUserInfo(ctx, field.Selections, res)
+	return ec.marshalNAdminUserInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminUserInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_createUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -24027,7 +24059,7 @@ func (ec *executionContext) _Query_createRole(ctx context.Context, field graphql
 	}
 	res := resTmp.(*model.AdminRoleInfo)
 	fc.Result = res
-	return ec.marshalNAdminRoleInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminRoleInfo(ctx, field.Selections, res)
+	return ec.marshalNAdminRoleInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminRoleInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_createRole(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -24096,7 +24128,7 @@ func (ec *executionContext) _Query_updateRole(ctx context.Context, field graphql
 	}
 	res := resTmp.(*model.AdminRoleInfo)
 	fc.Result = res
-	return ec.marshalNAdminRoleInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminRoleInfo(ctx, field.Selections, res)
+	return ec.marshalNAdminRoleInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminRoleInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_updateRole(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -24321,7 +24353,7 @@ func (ec *executionContext) _Query_setSubjectPermissions(ctx context.Context, fi
 	}
 	res := resTmp.([]*model.AdminPermissionInfo)
 	fc.Result = res
-	return ec.marshalNAdminPermissionInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminPermissionInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNAdminPermissionInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminPermissionInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_setSubjectPermissions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -24498,7 +24530,7 @@ func (ec *executionContext) _Query_allConnections(ctx context.Context, field gra
 	}
 	res := resTmp.([]*model.ConnectionInfo)
 	fc.Result = res
-	return ec.marshalNConnectionInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNConnectionInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_allConnections(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -24617,7 +24649,7 @@ func (ec *executionContext) _Query_searchConnections(ctx context.Context, field 
 	}
 	res := resTmp.([]*model.AdminConnectionSearchInfo)
 	fc.Result = res
-	return ec.marshalNAdminConnectionSearchInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminConnectionSearchInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNAdminConnectionSearchInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminConnectionSearchInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_searchConnections(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -24684,7 +24716,7 @@ func (ec *executionContext) _Query_createConnectionConfiguration(ctx context.Con
 	}
 	res := resTmp.(*model.ConnectionInfo)
 	fc.Result = res
-	return ec.marshalNConnectionInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
+	return ec.marshalNConnectionInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_createConnectionConfiguration(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -24803,7 +24835,7 @@ func (ec *executionContext) _Query_copyConnectionConfiguration(ctx context.Conte
 	}
 	res := resTmp.(*model.ConnectionInfo)
 	fc.Result = res
-	return ec.marshalNConnectionInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
+	return ec.marshalNConnectionInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_copyConnectionConfiguration(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -24922,7 +24954,7 @@ func (ec *executionContext) _Query_updateConnectionConfiguration(ctx context.Con
 	}
 	res := resTmp.(*model.ConnectionInfo)
 	fc.Result = res
-	return ec.marshalNConnectionInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
+	return ec.marshalNConnectionInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_updateConnectionConfiguration(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -25093,7 +25125,7 @@ func (ec *executionContext) _Query_getConnectionSubjectAccess(ctx context.Contex
 	}
 	res := resTmp.([]*model.AdminConnectionGrantInfo)
 	fc.Result = res
-	return ec.marshalNAdminConnectionGrantInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminConnectionGrantInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNAdminConnectionGrantInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminConnectionGrantInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_getConnectionSubjectAccess(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -25210,7 +25242,7 @@ func (ec *executionContext) _Query_getSubjectConnectionAccess(ctx context.Contex
 	}
 	res := resTmp.([]*model.AdminConnectionGrantInfo)
 	fc.Result = res
-	return ec.marshalNAdminConnectionGrantInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminConnectionGrantInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNAdminConnectionGrantInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminConnectionGrantInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_getSubjectConnectionAccess(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -25327,7 +25359,7 @@ func (ec *executionContext) _Query_listFeatureSets(ctx context.Context, field gr
 	}
 	res := resTmp.([]*model.WebFeatureSet)
 	fc.Result = res
-	return ec.marshalNWebFeatureSet2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐWebFeatureSetᚄ(ctx, field.Selections, res)
+	return ec.marshalNWebFeatureSet2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐWebFeatureSetᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_listFeatureSets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -25383,7 +25415,7 @@ func (ec *executionContext) _Query_listAuthProviderConfigurationParameters(ctx c
 	}
 	res := resTmp.([]*model.ObjectPropertyInfo)
 	fc.Result = res
-	return ec.marshalNObjectPropertyInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNObjectPropertyInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_listAuthProviderConfigurationParameters(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -25462,7 +25494,7 @@ func (ec *executionContext) _Query_listAuthProviderConfigurations(ctx context.Co
 	}
 	res := resTmp.([]*model.AdminAuthProviderConfiguration)
 	fc.Result = res
-	return ec.marshalNAdminAuthProviderConfiguration2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminAuthProviderConfigurationᚄ(ctx, field.Selections, res)
+	return ec.marshalNAdminAuthProviderConfiguration2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminAuthProviderConfigurationᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_listAuthProviderConfigurations(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -25547,7 +25579,7 @@ func (ec *executionContext) _Query_saveAuthProviderConfiguration(ctx context.Con
 	}
 	res := resTmp.(*model.AdminAuthProviderConfiguration)
 	fc.Result = res
-	return ec.marshalNAdminAuthProviderConfiguration2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminAuthProviderConfiguration(ctx, field.Selections, res)
+	return ec.marshalNAdminAuthProviderConfiguration2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminAuthProviderConfiguration(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_saveAuthProviderConfiguration(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -25681,7 +25713,7 @@ func (ec *executionContext) _Query_saveUserMetaParameter(ctx context.Context, fi
 	}
 	res := resTmp.(*model.ObjectPropertyInfo)
 	fc.Result = res
-	return ec.marshalNObjectPropertyInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfo(ctx, field.Selections, res)
+	return ec.marshalNObjectPropertyInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_saveUserMetaParameter(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -25992,7 +26024,7 @@ func (ec *executionContext) _Query_authLogin(ctx context.Context, field graphql.
 	}
 	res := resTmp.(*model.AuthInfo)
 	fc.Result = res
-	return ec.marshalNAuthInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthInfo(ctx, field.Selections, res)
+	return ec.marshalNAuthInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_authLogin(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -26057,7 +26089,7 @@ func (ec *executionContext) _Query_authUpdateStatus(ctx context.Context, field g
 	}
 	res := resTmp.(*model.AuthInfo)
 	fc.Result = res
-	return ec.marshalNAuthInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthInfo(ctx, field.Selections, res)
+	return ec.marshalNAuthInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_authUpdateStatus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -26171,7 +26203,7 @@ func (ec *executionContext) _Query_activeUser(ctx context.Context, field graphql
 	}
 	res := resTmp.(*model.UserInfo)
 	fc.Result = res
-	return ec.marshalOUserInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐUserInfo(ctx, field.Selections, res)
+	return ec.marshalOUserInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐUserInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_activeUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -26186,6 +26218,8 @@ func (ec *executionContext) fieldContext_Query_activeUser(ctx context.Context, f
 				return ec.fieldContext_UserInfo_userId(ctx, field)
 			case "displayName":
 				return ec.fieldContext_UserInfo_displayName(ctx, field)
+			case "authRole":
+				return ec.fieldContext_UserInfo_authRole(ctx, field)
 			case "authTokens":
 				return ec.fieldContext_UserInfo_authTokens(ctx, field)
 			case "linkedAuthProviders":
@@ -26229,7 +26263,7 @@ func (ec *executionContext) _Query_authProviders(ctx context.Context, field grap
 	}
 	res := resTmp.([]*model.AuthProviderInfo)
 	fc.Result = res
-	return ec.marshalNAuthProviderInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNAuthProviderInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_authProviders(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -26348,7 +26382,7 @@ func (ec *executionContext) _Query_listUserProfileProperties(ctx context.Context
 	}
 	res := resTmp.([]*model.ObjectPropertyInfo)
 	fc.Result = res
-	return ec.marshalNObjectPropertyInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNObjectPropertyInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_listUserProfileProperties(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -26416,7 +26450,7 @@ func (ec *executionContext) _Query_serverConfig(ctx context.Context, field graph
 	}
 	res := resTmp.(*model.ServerConfig)
 	fc.Result = res
-	return ec.marshalNServerConfig2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerConfig(ctx, field.Selections, res)
+	return ec.marshalNServerConfig2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerConfig(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_serverConfig(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -26522,7 +26556,7 @@ func (ec *executionContext) _Query_sessionState(ctx context.Context, field graph
 	}
 	res := resTmp.(*model.SessionInfo)
 	fc.Result = res
-	return ec.marshalNSessionInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSessionInfo(ctx, field.Selections, res)
+	return ec.marshalNSessionInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSessionInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_sessionState(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -26626,7 +26660,7 @@ func (ec *executionContext) _Query_driverList(ctx context.Context, field graphql
 	}
 	res := resTmp.([]*model.DriverInfo)
 	fc.Result = res
-	return ec.marshalNDriverInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDriverInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNDriverInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDriverInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_driverList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -26743,7 +26777,7 @@ func (ec *executionContext) _Query_authModels(ctx context.Context, field graphql
 	}
 	res := resTmp.([]*model.DatabaseAuthModel)
 	fc.Result = res
-	return ec.marshalNDatabaseAuthModel2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseAuthModelᚄ(ctx, field.Selections, res)
+	return ec.marshalNDatabaseAuthModel2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseAuthModelᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_authModels(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -26801,7 +26835,7 @@ func (ec *executionContext) _Query_networkHandlers(ctx context.Context, field gr
 	}
 	res := resTmp.([]*model.NetworkHandlerDescriptor)
 	fc.Result = res
-	return ec.marshalNNetworkHandlerDescriptor2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerDescriptorᚄ(ctx, field.Selections, res)
+	return ec.marshalNNetworkHandlerDescriptor2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerDescriptorᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_networkHandlers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -26861,7 +26895,7 @@ func (ec *executionContext) _Query_userConnections(ctx context.Context, field gr
 	}
 	res := resTmp.([]*model.ConnectionInfo)
 	fc.Result = res
-	return ec.marshalNConnectionInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNConnectionInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_userConnections(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -26980,7 +27014,7 @@ func (ec *executionContext) _Query_templateConnections(ctx context.Context, fiel
 	}
 	res := resTmp.([]*model.ConnectionInfo)
 	fc.Result = res
-	return ec.marshalNConnectionInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNConnectionInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_templateConnections(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -27088,7 +27122,7 @@ func (ec *executionContext) _Query_connectionFolders(ctx context.Context, field 
 	}
 	res := resTmp.([]*model.ConnectionFolderInfo)
 	fc.Result = res
-	return ec.marshalNConnectionFolderInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionFolderInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNConnectionFolderInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionFolderInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_connectionFolders(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -27149,7 +27183,7 @@ func (ec *executionContext) _Query_connectionState(ctx context.Context, field gr
 	}
 	res := resTmp.(*model.ConnectionInfo)
 	fc.Result = res
-	return ec.marshalNConnectionInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
+	return ec.marshalNConnectionInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_connectionState(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -27268,7 +27302,7 @@ func (ec *executionContext) _Query_connectionInfo(ctx context.Context, field gra
 	}
 	res := resTmp.(*model.ConnectionInfo)
 	fc.Result = res
-	return ec.marshalNConnectionInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
+	return ec.marshalNConnectionInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_connectionInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -27387,7 +27421,7 @@ func (ec *executionContext) _Query_readSessionLog(ctx context.Context, field gra
 	}
 	res := resTmp.([]*model.LogEntry)
 	fc.Result = res
-	return ec.marshalNLogEntry2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐLogEntryᚄ(ctx, field.Selections, res)
+	return ec.marshalNLogEntry2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐLogEntryᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_readSessionLog(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -27452,7 +27486,7 @@ func (ec *executionContext) _Query_dataTransferAvailableStreamProcessors(ctx con
 	}
 	res := resTmp.([]*model.DataTransferProcessorInfo)
 	fc.Result = res
-	return ec.marshalNDataTransferProcessorInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTransferProcessorInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNDataTransferProcessorInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTransferProcessorInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_dataTransferAvailableStreamProcessors(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -27520,7 +27554,7 @@ func (ec *executionContext) _Query_dataTransferExportDataFromContainer(ctx conte
 	}
 	res := resTmp.(*model.AsyncTaskInfo)
 	fc.Result = res
-	return ec.marshalNAsyncTaskInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAsyncTaskInfo(ctx, field.Selections, res)
+	return ec.marshalNAsyncTaskInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAsyncTaskInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_dataTransferExportDataFromContainer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -27591,7 +27625,7 @@ func (ec *executionContext) _Query_dataTransferExportDataFromResults(ctx context
 	}
 	res := resTmp.(*model.AsyncTaskInfo)
 	fc.Result = res
-	return ec.marshalNAsyncTaskInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAsyncTaskInfo(ctx, field.Selections, res)
+	return ec.marshalNAsyncTaskInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAsyncTaskInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_dataTransferExportDataFromResults(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -27772,7 +27806,7 @@ func (ec *executionContext) _Query_navNodeChildren(ctx context.Context, field gr
 	}
 	res := resTmp.([]*model.NavigatorNodeInfo)
 	fc.Result = res
-	return ec.marshalNNavigatorNodeInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorNodeInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNNavigatorNodeInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorNodeInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_navNodeChildren(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -27855,7 +27889,7 @@ func (ec *executionContext) _Query_navNodeParents(ctx context.Context, field gra
 	}
 	res := resTmp.([]*model.NavigatorNodeInfo)
 	fc.Result = res
-	return ec.marshalNNavigatorNodeInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorNodeInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNNavigatorNodeInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorNodeInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_navNodeParents(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -27938,7 +27972,7 @@ func (ec *executionContext) _Query_navNodeInfo(ctx context.Context, field graphq
 	}
 	res := resTmp.(*model.NavigatorNodeInfo)
 	fc.Result = res
-	return ec.marshalNNavigatorNodeInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorNodeInfo(ctx, field.Selections, res)
+	return ec.marshalNNavigatorNodeInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorNodeInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_navNodeInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -28073,7 +28107,7 @@ func (ec *executionContext) _Query_navGetStructContainers(ctx context.Context, f
 	}
 	res := resTmp.(*model.DatabaseStructContainers)
 	fc.Result = res
-	return ec.marshalNDatabaseStructContainers2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseStructContainers(ctx, field.Selections, res)
+	return ec.marshalNDatabaseStructContainers2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseStructContainers(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_navGetStructContainers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -28138,7 +28172,7 @@ func (ec *executionContext) _Query_rmListProjects(ctx context.Context, field gra
 	}
 	res := resTmp.([]*model.RMProject)
 	fc.Result = res
-	return ec.marshalNRMProject2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐRMProjectᚄ(ctx, field.Selections, res)
+	return ec.marshalNRMProject2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐRMProjectᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_rmListProjects(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -28196,7 +28230,7 @@ func (ec *executionContext) _Query_rmListResources(ctx context.Context, field gr
 	}
 	res := resTmp.([]*model.RMResource)
 	fc.Result = res
-	return ec.marshalNRMResource2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐRMResourceᚄ(ctx, field.Selections, res)
+	return ec.marshalNRMResource2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐRMResourceᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_rmListResources(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -28311,7 +28345,7 @@ func (ec *executionContext) _Query_sqlDialectInfo(ctx context.Context, field gra
 	}
 	res := resTmp.(*model.SQLDialectInfo)
 	fc.Result = res
-	return ec.marshalOSQLDialectInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLDialectInfo(ctx, field.Selections, res)
+	return ec.marshalOSQLDialectInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLDialectInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_sqlDialectInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -28390,7 +28424,7 @@ func (ec *executionContext) _Query_sqlListContexts(ctx context.Context, field gr
 	}
 	res := resTmp.([]*model.SQLContextInfo)
 	fc.Result = res
-	return ec.marshalNSQLContextInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLContextInfo(ctx, field.Selections, res)
+	return ec.marshalNSQLContextInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLContextInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_sqlListContexts(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -28452,7 +28486,7 @@ func (ec *executionContext) _Query_sqlCompletionProposals(ctx context.Context, f
 	}
 	res := resTmp.([]*model.SQLCompletionProposal)
 	fc.Result = res
-	return ec.marshalOSQLCompletionProposal2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLCompletionProposal(ctx, field.Selections, res)
+	return ec.marshalOSQLCompletionProposal2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLCompletionProposal(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_sqlCompletionProposals(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -28582,7 +28616,7 @@ func (ec *executionContext) _Query_sqlSupportedOperations(ctx context.Context, f
 	}
 	res := resTmp.([]*model.DataTypeLogicalOperation)
 	fc.Result = res
-	return ec.marshalNDataTypeLogicalOperation2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTypeLogicalOperationᚄ(ctx, field.Selections, res)
+	return ec.marshalNDataTypeLogicalOperation2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTypeLogicalOperationᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_sqlSupportedOperations(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -28645,7 +28679,7 @@ func (ec *executionContext) _Query_sqlEntityQueryGenerators(ctx context.Context,
 	}
 	res := resTmp.([]*model.SQLQueryGenerator)
 	fc.Result = res
-	return ec.marshalNSQLQueryGenerator2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLQueryGeneratorᚄ(ctx, field.Selections, res)
+	return ec.marshalNSQLQueryGenerator2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLQueryGeneratorᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_sqlEntityQueryGenerators(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -28773,7 +28807,7 @@ func (ec *executionContext) _Query_sqlParseScript(ctx context.Context, field gra
 	}
 	res := resTmp.(*model.SQLScriptInfo)
 	fc.Result = res
-	return ec.marshalNSQLScriptInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLScriptInfo(ctx, field.Selections, res)
+	return ec.marshalNSQLScriptInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLScriptInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_sqlParseScript(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -28832,7 +28866,7 @@ func (ec *executionContext) _Query_sqlParseQuery(ctx context.Context, field grap
 	}
 	res := resTmp.(*model.SQLScriptQuery)
 	fc.Result = res
-	return ec.marshalNSQLScriptQuery2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLScriptQuery(ctx, field.Selections, res)
+	return ec.marshalNSQLScriptQuery2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLScriptQuery(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_sqlParseQuery(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -30570,7 +30604,7 @@ func (ec *executionContext) _SQLExecuteInfo_results(ctx context.Context, field g
 	}
 	res := resTmp.([]*model.SQLQueryResults)
 	fc.Result = res
-	return ec.marshalNSQLQueryResults2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLQueryResultsᚄ(ctx, field.Selections, res)
+	return ec.marshalNSQLQueryResults2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLQueryResultsᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SQLExecuteInfo_results(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -30670,7 +30704,7 @@ func (ec *executionContext) _SQLExecutionPlan_nodes(ctx context.Context, field g
 	}
 	res := resTmp.([]*model.SQLExecutionPlanNode)
 	fc.Result = res
-	return ec.marshalNSQLExecutionPlanNode2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecutionPlanNodeᚄ(ctx, field.Selections, res)
+	return ec.marshalNSQLExecutionPlanNode2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecutionPlanNodeᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SQLExecutionPlan_nodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -31028,7 +31062,7 @@ func (ec *executionContext) _SQLExecutionPlanNode_properties(ctx context.Context
 	}
 	res := resTmp.([]*model.ObjectPropertyInfo)
 	fc.Result = res
-	return ec.marshalNObjectPropertyInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNObjectPropertyInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SQLExecutionPlanNode_properties(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -31433,7 +31467,7 @@ func (ec *executionContext) _SQLQueryResults_dataFormat(ctx context.Context, fie
 	}
 	res := resTmp.(*model.ResultDataFormat)
 	fc.Result = res
-	return ec.marshalOResultDataFormat2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormat(ctx, field.Selections, res)
+	return ec.marshalOResultDataFormat2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormat(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SQLQueryResults_dataFormat(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -31474,7 +31508,7 @@ func (ec *executionContext) _SQLQueryResults_resultSet(ctx context.Context, fiel
 	}
 	res := resTmp.(*model.SQLResultSet)
 	fc.Result = res
-	return ec.marshalOSQLResultSet2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultSet(ctx, field.Selections, res)
+	return ec.marshalOSQLResultSet2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultSet(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SQLQueryResults_resultSet(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -32115,7 +32149,7 @@ func (ec *executionContext) _SQLResultColumn_supportedOperations(ctx context.Con
 	}
 	res := resTmp.([]*model.DataTypeLogicalOperation)
 	fc.Result = res
-	return ec.marshalNDataTypeLogicalOperation2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTypeLogicalOperationᚄ(ctx, field.Selections, res)
+	return ec.marshalNDataTypeLogicalOperation2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTypeLogicalOperationᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SQLResultColumn_supportedOperations(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -32208,7 +32242,7 @@ func (ec *executionContext) _SQLResultSet_columns(ctx context.Context, field gra
 	}
 	res := resTmp.([]*model.SQLResultColumn)
 	fc.Result = res
-	return ec.marshalOSQLResultColumn2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultColumn(ctx, field.Selections, res)
+	return ec.marshalOSQLResultColumn2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultColumn(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SQLResultSet_columns(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -32457,7 +32491,7 @@ func (ec *executionContext) _SQLScriptInfo_queries(ctx context.Context, field gr
 	}
 	res := resTmp.([]*model.SQLScriptQuery)
 	fc.Result = res
-	return ec.marshalNSQLScriptQuery2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLScriptQueryᚄ(ctx, field.Selections, res)
+	return ec.marshalNSQLScriptQuery2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLScriptQueryᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SQLScriptInfo_queries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -33568,7 +33602,7 @@ func (ec *executionContext) _ServerConfig_supportedLanguages(ctx context.Context
 	}
 	res := resTmp.([]*model.ServerLanguage)
 	fc.Result = res
-	return ec.marshalNServerLanguage2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerLanguageᚄ(ctx, field.Selections, res)
+	return ec.marshalNServerLanguage2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerLanguageᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ServerConfig_supportedLanguages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -33617,7 +33651,7 @@ func (ec *executionContext) _ServerConfig_services(ctx context.Context, field gr
 	}
 	res := resTmp.([]*model.WebServiceConfig)
 	fc.Result = res
-	return ec.marshalOWebServiceConfig2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐWebServiceConfig(ctx, field.Selections, res)
+	return ec.marshalOWebServiceConfig2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐWebServiceConfig(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ServerConfig_services(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -33715,7 +33749,7 @@ func (ec *executionContext) _ServerConfig_productInfo(ctx context.Context, field
 	}
 	res := resTmp.(*model.ProductInfo)
 	fc.Result = res
-	return ec.marshalNProductInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐProductInfo(ctx, field.Selections, res)
+	return ec.marshalNProductInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐProductInfo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ServerConfig_productInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -33777,7 +33811,7 @@ func (ec *executionContext) _ServerConfig_defaultNavigatorSettings(ctx context.C
 	}
 	res := resTmp.(*model.NavigatorSettings)
 	fc.Result = res
-	return ec.marshalNNavigatorSettings2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorSettings(ctx, field.Selections, res)
+	return ec.marshalNNavigatorSettings2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorSettings(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ServerConfig_defaultNavigatorSettings(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -34086,7 +34120,7 @@ func (ec *executionContext) _ServerError_causedBy(ctx context.Context, field gra
 	}
 	res := resTmp.(*model.ServerError)
 	fc.Result = res
-	return ec.marshalOServerError2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerError(ctx, field.Selections, res)
+	return ec.marshalOServerError2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerError(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ServerError_causedBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -34523,7 +34557,7 @@ func (ec *executionContext) _SessionInfo_serverMessages(ctx context.Context, fie
 	}
 	res := resTmp.([]*model.ServerMessage)
 	fc.Result = res
-	return ec.marshalOServerMessage2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerMessage(ctx, field.Selections, res)
+	return ec.marshalOServerMessage2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerMessage(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SessionInfo_serverMessages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -34573,7 +34607,7 @@ func (ec *executionContext) _SessionInfo_connections(ctx context.Context, field 
 	}
 	res := resTmp.([]*model.ConnectionInfo)
 	fc.Result = res
-	return ec.marshalNConnectionInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalNConnectionInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SessionInfo_connections(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -34980,7 +35014,7 @@ func (ec *executionContext) _UserAuthToken_origin(ctx context.Context, field gra
 	}
 	res := resTmp.(*model.ObjectOrigin)
 	fc.Result = res
-	return ec.marshalNObjectOrigin2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectOrigin(ctx, field.Selections, res)
+	return ec.marshalNObjectOrigin2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectOrigin(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UserAuthToken_origin(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -35095,6 +35129,47 @@ func (ec *executionContext) fieldContext_UserInfo_displayName(ctx context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _UserInfo_authRole(ctx context.Context, field graphql.CollectedField, obj *model.UserInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserInfo_authRole(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AuthRole, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserInfo_authRole(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserInfo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _UserInfo_authTokens(ctx context.Context, field graphql.CollectedField, obj *model.UserInfo) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserInfo_authTokens(ctx, field)
 	if err != nil {
@@ -35123,7 +35198,7 @@ func (ec *executionContext) _UserInfo_authTokens(ctx context.Context, field grap
 	}
 	res := resTmp.([]*model.UserAuthToken)
 	fc.Result = res
-	return ec.marshalNUserAuthToken2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐUserAuthTokenᚄ(ctx, field.Selections, res)
+	return ec.marshalNUserAuthToken2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐUserAuthTokenᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UserInfo_authTokens(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -37604,7 +37679,7 @@ func (ec *executionContext) unmarshalInputConnectionConfig(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("networkHandlersConfig"))
-			it.NetworkHandlersConfig, err = ec.unmarshalONetworkHandlerConfigInput2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerConfigInputᚄ(ctx, v)
+			it.NetworkHandlersConfig, err = ec.unmarshalONetworkHandlerConfigInput2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerConfigInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -37688,7 +37763,7 @@ func (ec *executionContext) unmarshalInputDataTransferParameters(ctx context.Con
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-			it.Filter, err = ec.unmarshalOSQLDataFilter2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLDataFilter(ctx, v)
+			it.Filter, err = ec.unmarshalOSQLDataFilter2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLDataFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -37808,7 +37883,7 @@ func (ec *executionContext) unmarshalInputNetworkHandlerConfigInput(ctx context.
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("authType"))
-			it.AuthType, err = ec.unmarshalONetworkHandlerAuthType2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerAuthType(ctx, v)
+			it.AuthType, err = ec.unmarshalONetworkHandlerAuthType2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerAuthType(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -37944,7 +38019,7 @@ func (ec *executionContext) unmarshalInputSQLDataFilter(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("constraints"))
-			it.Constraints, err = ec.unmarshalOSQLDataFilterConstraint2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLDataFilterConstraint(ctx, v)
+			it.Constraints, err = ec.unmarshalOSQLDataFilterConstraint2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLDataFilterConstraint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -43557,6 +43632,10 @@ func (ec *executionContext) _UserInfo(ctx context.Context, sel ast.SelectionSet,
 
 			out.Values[i] = ec._UserInfo_displayName(ctx, field, obj)
 
+		case "authRole":
+
+			out.Values[i] = ec._UserInfo_authRole(ctx, field, obj)
+
 		case "authTokens":
 
 			out.Values[i] = ec._UserInfo_authTokens(ctx, field, obj)
@@ -44013,11 +44092,11 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNAdminAuthProviderConfiguration2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminAuthProviderConfiguration(ctx context.Context, sel ast.SelectionSet, v model.AdminAuthProviderConfiguration) graphql.Marshaler {
+func (ec *executionContext) marshalNAdminAuthProviderConfiguration2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminAuthProviderConfiguration(ctx context.Context, sel ast.SelectionSet, v model.AdminAuthProviderConfiguration) graphql.Marshaler {
 	return ec._AdminAuthProviderConfiguration(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAdminAuthProviderConfiguration2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminAuthProviderConfigurationᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminAuthProviderConfiguration) graphql.Marshaler {
+func (ec *executionContext) marshalNAdminAuthProviderConfiguration2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminAuthProviderConfigurationᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminAuthProviderConfiguration) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -44041,7 +44120,7 @@ func (ec *executionContext) marshalNAdminAuthProviderConfiguration2ᚕᚖdmsᚋi
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNAdminAuthProviderConfiguration2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminAuthProviderConfiguration(ctx, sel, v[i])
+			ret[i] = ec.marshalNAdminAuthProviderConfiguration2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminAuthProviderConfiguration(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -44061,7 +44140,7 @@ func (ec *executionContext) marshalNAdminAuthProviderConfiguration2ᚕᚖdmsᚋi
 	return ret
 }
 
-func (ec *executionContext) marshalNAdminAuthProviderConfiguration2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminAuthProviderConfiguration(ctx context.Context, sel ast.SelectionSet, v *model.AdminAuthProviderConfiguration) graphql.Marshaler {
+func (ec *executionContext) marshalNAdminAuthProviderConfiguration2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminAuthProviderConfiguration(ctx context.Context, sel ast.SelectionSet, v *model.AdminAuthProviderConfiguration) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -44071,7 +44150,7 @@ func (ec *executionContext) marshalNAdminAuthProviderConfiguration2ᚖdmsᚋinte
 	return ec._AdminAuthProviderConfiguration(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNAdminConnectionGrantInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminConnectionGrantInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminConnectionGrantInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNAdminConnectionGrantInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminConnectionGrantInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminConnectionGrantInfo) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -44095,7 +44174,7 @@ func (ec *executionContext) marshalNAdminConnectionGrantInfo2ᚕᚖdmsᚋinterna
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNAdminConnectionGrantInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminConnectionGrantInfo(ctx, sel, v[i])
+			ret[i] = ec.marshalNAdminConnectionGrantInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminConnectionGrantInfo(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -44115,7 +44194,7 @@ func (ec *executionContext) marshalNAdminConnectionGrantInfo2ᚕᚖdmsᚋinterna
 	return ret
 }
 
-func (ec *executionContext) marshalNAdminConnectionGrantInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminConnectionGrantInfo(ctx context.Context, sel ast.SelectionSet, v *model.AdminConnectionGrantInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNAdminConnectionGrantInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminConnectionGrantInfo(ctx context.Context, sel ast.SelectionSet, v *model.AdminConnectionGrantInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -44125,7 +44204,7 @@ func (ec *executionContext) marshalNAdminConnectionGrantInfo2ᚖdmsᚋinternal�
 	return ec._AdminConnectionGrantInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNAdminConnectionSearchInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminConnectionSearchInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminConnectionSearchInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNAdminConnectionSearchInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminConnectionSearchInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminConnectionSearchInfo) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -44149,7 +44228,7 @@ func (ec *executionContext) marshalNAdminConnectionSearchInfo2ᚕᚖdmsᚋintern
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNAdminConnectionSearchInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminConnectionSearchInfo(ctx, sel, v[i])
+			ret[i] = ec.marshalNAdminConnectionSearchInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminConnectionSearchInfo(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -44169,7 +44248,7 @@ func (ec *executionContext) marshalNAdminConnectionSearchInfo2ᚕᚖdmsᚋintern
 	return ret
 }
 
-func (ec *executionContext) marshalNAdminConnectionSearchInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminConnectionSearchInfo(ctx context.Context, sel ast.SelectionSet, v *model.AdminConnectionSearchInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNAdminConnectionSearchInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminConnectionSearchInfo(ctx context.Context, sel ast.SelectionSet, v *model.AdminConnectionSearchInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -44179,7 +44258,7 @@ func (ec *executionContext) marshalNAdminConnectionSearchInfo2ᚖdmsᚋinternal�
 	return ec._AdminConnectionSearchInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNAdminPermissionInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminPermissionInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminPermissionInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNAdminPermissionInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminPermissionInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminPermissionInfo) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -44203,7 +44282,7 @@ func (ec *executionContext) marshalNAdminPermissionInfo2ᚕᚖdmsᚋinternalᚋp
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNAdminPermissionInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminPermissionInfo(ctx, sel, v[i])
+			ret[i] = ec.marshalNAdminPermissionInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminPermissionInfo(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -44223,7 +44302,7 @@ func (ec *executionContext) marshalNAdminPermissionInfo2ᚕᚖdmsᚋinternalᚋp
 	return ret
 }
 
-func (ec *executionContext) marshalNAdminPermissionInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminPermissionInfo(ctx context.Context, sel ast.SelectionSet, v *model.AdminPermissionInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNAdminPermissionInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminPermissionInfo(ctx context.Context, sel ast.SelectionSet, v *model.AdminPermissionInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -44233,11 +44312,11 @@ func (ec *executionContext) marshalNAdminPermissionInfo2ᚖdmsᚋinternalᚋpkg�
 	return ec._AdminPermissionInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNAdminRoleInfo2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminRoleInfo(ctx context.Context, sel ast.SelectionSet, v model.AdminRoleInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNAdminRoleInfo2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminRoleInfo(ctx context.Context, sel ast.SelectionSet, v model.AdminRoleInfo) graphql.Marshaler {
 	return ec._AdminRoleInfo(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAdminRoleInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminRoleInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminRoleInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNAdminRoleInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminRoleInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminRoleInfo) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -44261,7 +44340,7 @@ func (ec *executionContext) marshalNAdminRoleInfo2ᚕᚖdmsᚋinternalᚋpkgᚋc
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNAdminRoleInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminRoleInfo(ctx, sel, v[i])
+			ret[i] = ec.marshalNAdminRoleInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminRoleInfo(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -44281,7 +44360,7 @@ func (ec *executionContext) marshalNAdminRoleInfo2ᚕᚖdmsᚋinternalᚋpkgᚋc
 	return ret
 }
 
-func (ec *executionContext) marshalNAdminRoleInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminRoleInfo(ctx context.Context, sel ast.SelectionSet, v *model.AdminRoleInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNAdminRoleInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminRoleInfo(ctx context.Context, sel ast.SelectionSet, v *model.AdminRoleInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -44291,21 +44370,21 @@ func (ec *executionContext) marshalNAdminRoleInfo2ᚖdmsᚋinternalᚋpkgᚋclou
 	return ec._AdminRoleInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNAdminSubjectType2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminSubjectType(ctx context.Context, v interface{}) (model.AdminSubjectType, error) {
+func (ec *executionContext) unmarshalNAdminSubjectType2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminSubjectType(ctx context.Context, v interface{}) (model.AdminSubjectType, error) {
 	var res model.AdminSubjectType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNAdminSubjectType2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminSubjectType(ctx context.Context, sel ast.SelectionSet, v model.AdminSubjectType) graphql.Marshaler {
+func (ec *executionContext) marshalNAdminSubjectType2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminSubjectType(ctx context.Context, sel ast.SelectionSet, v model.AdminSubjectType) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNAdminUserInfo2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminUserInfo(ctx context.Context, sel ast.SelectionSet, v model.AdminUserInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNAdminUserInfo2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminUserInfo(ctx context.Context, sel ast.SelectionSet, v model.AdminUserInfo) graphql.Marshaler {
 	return ec._AdminUserInfo(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAdminUserInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminUserInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminUserInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNAdminUserInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminUserInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminUserInfo) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -44329,7 +44408,7 @@ func (ec *executionContext) marshalNAdminUserInfo2ᚕᚖdmsᚋinternalᚋpkgᚋc
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNAdminUserInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminUserInfo(ctx, sel, v[i])
+			ret[i] = ec.marshalNAdminUserInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminUserInfo(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -44349,7 +44428,7 @@ func (ec *executionContext) marshalNAdminUserInfo2ᚕᚖdmsᚋinternalᚋpkgᚋc
 	return ret
 }
 
-func (ec *executionContext) marshalNAdminUserInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminUserInfo(ctx context.Context, sel ast.SelectionSet, v *model.AdminUserInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNAdminUserInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAdminUserInfo(ctx context.Context, sel ast.SelectionSet, v *model.AdminUserInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -44359,11 +44438,11 @@ func (ec *executionContext) marshalNAdminUserInfo2ᚖdmsᚋinternalᚋpkgᚋclou
 	return ec._AdminUserInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNAsyncTaskInfo2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAsyncTaskInfo(ctx context.Context, sel ast.SelectionSet, v model.AsyncTaskInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNAsyncTaskInfo2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAsyncTaskInfo(ctx context.Context, sel ast.SelectionSet, v model.AsyncTaskInfo) graphql.Marshaler {
 	return ec._AsyncTaskInfo(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAsyncTaskInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAsyncTaskInfo(ctx context.Context, sel ast.SelectionSet, v *model.AsyncTaskInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNAsyncTaskInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAsyncTaskInfo(ctx context.Context, sel ast.SelectionSet, v *model.AsyncTaskInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -44373,7 +44452,7 @@ func (ec *executionContext) marshalNAsyncTaskInfo2ᚖdmsᚋinternalᚋpkgᚋclou
 	return ec._AsyncTaskInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNAuthCredentialInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthCredentialInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AuthCredentialInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNAuthCredentialInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthCredentialInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AuthCredentialInfo) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -44397,7 +44476,7 @@ func (ec *executionContext) marshalNAuthCredentialInfo2ᚕᚖdmsᚋinternalᚋpk
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNAuthCredentialInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthCredentialInfo(ctx, sel, v[i])
+			ret[i] = ec.marshalNAuthCredentialInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthCredentialInfo(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -44417,7 +44496,7 @@ func (ec *executionContext) marshalNAuthCredentialInfo2ᚕᚖdmsᚋinternalᚋpk
 	return ret
 }
 
-func (ec *executionContext) marshalNAuthCredentialInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthCredentialInfo(ctx context.Context, sel ast.SelectionSet, v *model.AuthCredentialInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNAuthCredentialInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthCredentialInfo(ctx context.Context, sel ast.SelectionSet, v *model.AuthCredentialInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -44427,11 +44506,11 @@ func (ec *executionContext) marshalNAuthCredentialInfo2ᚖdmsᚋinternalᚋpkg�
 	return ec._AuthCredentialInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNAuthInfo2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthInfo(ctx context.Context, sel ast.SelectionSet, v model.AuthInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNAuthInfo2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthInfo(ctx context.Context, sel ast.SelectionSet, v model.AuthInfo) graphql.Marshaler {
 	return ec._AuthInfo(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAuthInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthInfo(ctx context.Context, sel ast.SelectionSet, v *model.AuthInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNAuthInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthInfo(ctx context.Context, sel ast.SelectionSet, v *model.AuthInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -44441,7 +44520,7 @@ func (ec *executionContext) marshalNAuthInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeav
 	return ec._AuthInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNAuthProviderConfiguration2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderConfiguration(ctx context.Context, sel ast.SelectionSet, v *model.AuthProviderConfiguration) graphql.Marshaler {
+func (ec *executionContext) marshalNAuthProviderConfiguration2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderConfiguration(ctx context.Context, sel ast.SelectionSet, v *model.AuthProviderConfiguration) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -44451,7 +44530,7 @@ func (ec *executionContext) marshalNAuthProviderConfiguration2ᚖdmsᚋinternal�
 	return ec._AuthProviderConfiguration(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNAuthProviderCredentialsProfile2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderCredentialsProfileᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AuthProviderCredentialsProfile) graphql.Marshaler {
+func (ec *executionContext) marshalNAuthProviderCredentialsProfile2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderCredentialsProfileᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AuthProviderCredentialsProfile) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -44475,7 +44554,7 @@ func (ec *executionContext) marshalNAuthProviderCredentialsProfile2ᚕᚖdmsᚋi
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNAuthProviderCredentialsProfile2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderCredentialsProfile(ctx, sel, v[i])
+			ret[i] = ec.marshalNAuthProviderCredentialsProfile2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderCredentialsProfile(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -44495,7 +44574,7 @@ func (ec *executionContext) marshalNAuthProviderCredentialsProfile2ᚕᚖdmsᚋi
 	return ret
 }
 
-func (ec *executionContext) marshalNAuthProviderCredentialsProfile2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderCredentialsProfile(ctx context.Context, sel ast.SelectionSet, v *model.AuthProviderCredentialsProfile) graphql.Marshaler {
+func (ec *executionContext) marshalNAuthProviderCredentialsProfile2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderCredentialsProfile(ctx context.Context, sel ast.SelectionSet, v *model.AuthProviderCredentialsProfile) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -44505,7 +44584,7 @@ func (ec *executionContext) marshalNAuthProviderCredentialsProfile2ᚖdmsᚋinte
 	return ec._AuthProviderCredentialsProfile(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNAuthProviderInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AuthProviderInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNAuthProviderInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AuthProviderInfo) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -44529,7 +44608,7 @@ func (ec *executionContext) marshalNAuthProviderInfo2ᚕᚖdmsᚋinternalᚋpkg�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNAuthProviderInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderInfo(ctx, sel, v[i])
+			ret[i] = ec.marshalNAuthProviderInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderInfo(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -44549,7 +44628,7 @@ func (ec *executionContext) marshalNAuthProviderInfo2ᚕᚖdmsᚋinternalᚋpkg�
 	return ret
 }
 
-func (ec *executionContext) marshalNAuthProviderInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderInfo(ctx context.Context, sel ast.SelectionSet, v *model.AuthProviderInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNAuthProviderInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderInfo(ctx context.Context, sel ast.SelectionSet, v *model.AuthProviderInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -44559,13 +44638,13 @@ func (ec *executionContext) marshalNAuthProviderInfo2ᚖdmsᚋinternalᚋpkgᚋc
 	return ec._AuthProviderInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNAuthStatus2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthStatus(ctx context.Context, v interface{}) (model.AuthStatus, error) {
+func (ec *executionContext) unmarshalNAuthStatus2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthStatus(ctx context.Context, v interface{}) (model.AuthStatus, error) {
 	var res model.AuthStatus
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNAuthStatus2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthStatus(ctx context.Context, sel ast.SelectionSet, v model.AuthStatus) graphql.Marshaler {
+func (ec *executionContext) marshalNAuthStatus2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthStatus(ctx context.Context, sel ast.SelectionSet, v model.AuthStatus) graphql.Marshaler {
 	return v
 }
 
@@ -44584,16 +44663,16 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalNConnectionConfig2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionConfig(ctx context.Context, v interface{}) (model.ConnectionConfig, error) {
+func (ec *executionContext) unmarshalNConnectionConfig2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionConfig(ctx context.Context, v interface{}) (model.ConnectionConfig, error) {
 	res, err := ec.unmarshalInputConnectionConfig(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNConnectionFolderInfo2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionFolderInfo(ctx context.Context, sel ast.SelectionSet, v model.ConnectionFolderInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNConnectionFolderInfo2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionFolderInfo(ctx context.Context, sel ast.SelectionSet, v model.ConnectionFolderInfo) graphql.Marshaler {
 	return ec._ConnectionFolderInfo(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNConnectionFolderInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionFolderInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ConnectionFolderInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNConnectionFolderInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionFolderInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ConnectionFolderInfo) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -44617,7 +44696,7 @@ func (ec *executionContext) marshalNConnectionFolderInfo2ᚕᚖdmsᚋinternalᚋ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNConnectionFolderInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionFolderInfo(ctx, sel, v[i])
+			ret[i] = ec.marshalNConnectionFolderInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionFolderInfo(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -44637,7 +44716,7 @@ func (ec *executionContext) marshalNConnectionFolderInfo2ᚕᚖdmsᚋinternalᚋ
 	return ret
 }
 
-func (ec *executionContext) marshalNConnectionFolderInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionFolderInfo(ctx context.Context, sel ast.SelectionSet, v *model.ConnectionFolderInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNConnectionFolderInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionFolderInfo(ctx context.Context, sel ast.SelectionSet, v *model.ConnectionFolderInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -44647,11 +44726,11 @@ func (ec *executionContext) marshalNConnectionFolderInfo2ᚖdmsᚋinternalᚋpkg
 	return ec._ConnectionFolderInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNConnectionInfo2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx context.Context, sel ast.SelectionSet, v model.ConnectionInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNConnectionInfo2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx context.Context, sel ast.SelectionSet, v model.ConnectionInfo) graphql.Marshaler {
 	return ec._ConnectionInfo(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNConnectionInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ConnectionInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNConnectionInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ConnectionInfo) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -44675,7 +44754,7 @@ func (ec *executionContext) marshalNConnectionInfo2ᚕᚖdmsᚋinternalᚋpkgᚋ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNConnectionInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, sel, v[i])
+			ret[i] = ec.marshalNConnectionInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -44695,7 +44774,7 @@ func (ec *executionContext) marshalNConnectionInfo2ᚕᚖdmsᚋinternalᚋpkgᚋ
 	return ret
 }
 
-func (ec *executionContext) marshalNConnectionInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx context.Context, sel ast.SelectionSet, v *model.ConnectionInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNConnectionInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionInfo(ctx context.Context, sel ast.SelectionSet, v *model.ConnectionInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -44705,12 +44784,12 @@ func (ec *executionContext) marshalNConnectionInfo2ᚖdmsᚋinternalᚋpkgᚋclo
 	return ec._ConnectionInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNDataTransferParameters2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTransferParameters(ctx context.Context, v interface{}) (model.DataTransferParameters, error) {
+func (ec *executionContext) unmarshalNDataTransferParameters2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTransferParameters(ctx context.Context, v interface{}) (model.DataTransferParameters, error) {
 	res, err := ec.unmarshalInputDataTransferParameters(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNDataTransferProcessorInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTransferProcessorInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.DataTransferProcessorInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNDataTransferProcessorInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTransferProcessorInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.DataTransferProcessorInfo) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -44734,7 +44813,7 @@ func (ec *executionContext) marshalNDataTransferProcessorInfo2ᚕᚖdmsᚋintern
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNDataTransferProcessorInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTransferProcessorInfo(ctx, sel, v[i])
+			ret[i] = ec.marshalNDataTransferProcessorInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTransferProcessorInfo(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -44754,7 +44833,7 @@ func (ec *executionContext) marshalNDataTransferProcessorInfo2ᚕᚖdmsᚋintern
 	return ret
 }
 
-func (ec *executionContext) marshalNDataTransferProcessorInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTransferProcessorInfo(ctx context.Context, sel ast.SelectionSet, v *model.DataTransferProcessorInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNDataTransferProcessorInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTransferProcessorInfo(ctx context.Context, sel ast.SelectionSet, v *model.DataTransferProcessorInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -44764,7 +44843,7 @@ func (ec *executionContext) marshalNDataTransferProcessorInfo2ᚖdmsᚋinternal�
 	return ec._DataTransferProcessorInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNDataTypeLogicalOperation2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTypeLogicalOperationᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.DataTypeLogicalOperation) graphql.Marshaler {
+func (ec *executionContext) marshalNDataTypeLogicalOperation2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTypeLogicalOperationᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.DataTypeLogicalOperation) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -44788,7 +44867,7 @@ func (ec *executionContext) marshalNDataTypeLogicalOperation2ᚕᚖdmsᚋinterna
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNDataTypeLogicalOperation2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTypeLogicalOperation(ctx, sel, v[i])
+			ret[i] = ec.marshalNDataTypeLogicalOperation2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTypeLogicalOperation(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -44808,7 +44887,7 @@ func (ec *executionContext) marshalNDataTypeLogicalOperation2ᚕᚖdmsᚋinterna
 	return ret
 }
 
-func (ec *executionContext) marshalNDataTypeLogicalOperation2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTypeLogicalOperation(ctx context.Context, sel ast.SelectionSet, v *model.DataTypeLogicalOperation) graphql.Marshaler {
+func (ec *executionContext) marshalNDataTypeLogicalOperation2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDataTypeLogicalOperation(ctx context.Context, sel ast.SelectionSet, v *model.DataTypeLogicalOperation) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -44818,7 +44897,7 @@ func (ec *executionContext) marshalNDataTypeLogicalOperation2ᚖdmsᚋinternal�
 	return ec._DataTypeLogicalOperation(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNDatabaseAuthModel2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseAuthModelᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.DatabaseAuthModel) graphql.Marshaler {
+func (ec *executionContext) marshalNDatabaseAuthModel2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseAuthModelᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.DatabaseAuthModel) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -44842,7 +44921,7 @@ func (ec *executionContext) marshalNDatabaseAuthModel2ᚕᚖdmsᚋinternalᚋpkg
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNDatabaseAuthModel2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseAuthModel(ctx, sel, v[i])
+			ret[i] = ec.marshalNDatabaseAuthModel2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseAuthModel(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -44862,7 +44941,7 @@ func (ec *executionContext) marshalNDatabaseAuthModel2ᚕᚖdmsᚋinternalᚋpkg
 	return ret
 }
 
-func (ec *executionContext) marshalNDatabaseAuthModel2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseAuthModel(ctx context.Context, sel ast.SelectionSet, v *model.DatabaseAuthModel) graphql.Marshaler {
+func (ec *executionContext) marshalNDatabaseAuthModel2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseAuthModel(ctx context.Context, sel ast.SelectionSet, v *model.DatabaseAuthModel) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -44872,7 +44951,7 @@ func (ec *executionContext) marshalNDatabaseAuthModel2ᚖdmsᚋinternalᚋpkgᚋ
 	return ec._DatabaseAuthModel(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNDatabaseCatalog2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseCatalogᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.DatabaseCatalog) graphql.Marshaler {
+func (ec *executionContext) marshalNDatabaseCatalog2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseCatalogᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.DatabaseCatalog) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -44896,7 +44975,7 @@ func (ec *executionContext) marshalNDatabaseCatalog2ᚕᚖdmsᚋinternalᚋpkg�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNDatabaseCatalog2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseCatalog(ctx, sel, v[i])
+			ret[i] = ec.marshalNDatabaseCatalog2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseCatalog(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -44916,7 +44995,7 @@ func (ec *executionContext) marshalNDatabaseCatalog2ᚕᚖdmsᚋinternalᚋpkg�
 	return ret
 }
 
-func (ec *executionContext) marshalNDatabaseCatalog2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseCatalog(ctx context.Context, sel ast.SelectionSet, v *model.DatabaseCatalog) graphql.Marshaler {
+func (ec *executionContext) marshalNDatabaseCatalog2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseCatalog(ctx context.Context, sel ast.SelectionSet, v *model.DatabaseCatalog) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -44926,11 +45005,11 @@ func (ec *executionContext) marshalNDatabaseCatalog2ᚖdmsᚋinternalᚋpkgᚋcl
 	return ec._DatabaseCatalog(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNDatabaseStructContainers2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseStructContainers(ctx context.Context, sel ast.SelectionSet, v model.DatabaseStructContainers) graphql.Marshaler {
+func (ec *executionContext) marshalNDatabaseStructContainers2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseStructContainers(ctx context.Context, sel ast.SelectionSet, v model.DatabaseStructContainers) graphql.Marshaler {
 	return ec._DatabaseStructContainers(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNDatabaseStructContainers2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseStructContainers(ctx context.Context, sel ast.SelectionSet, v *model.DatabaseStructContainers) graphql.Marshaler {
+func (ec *executionContext) marshalNDatabaseStructContainers2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseStructContainers(ctx context.Context, sel ast.SelectionSet, v *model.DatabaseStructContainers) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -44955,7 +45034,7 @@ func (ec *executionContext) marshalNDateTime2timeᚐTime(ctx context.Context, se
 	return res
 }
 
-func (ec *executionContext) marshalNDriverInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDriverInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.DriverInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNDriverInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDriverInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.DriverInfo) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -44979,7 +45058,7 @@ func (ec *executionContext) marshalNDriverInfo2ᚕᚖdmsᚋinternalᚋpkgᚋclou
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNDriverInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDriverInfo(ctx, sel, v[i])
+			ret[i] = ec.marshalNDriverInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDriverInfo(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -44999,7 +45078,7 @@ func (ec *executionContext) marshalNDriverInfo2ᚕᚖdmsᚋinternalᚋpkgᚋclou
 	return ret
 }
 
-func (ec *executionContext) marshalNDriverInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDriverInfo(ctx context.Context, sel ast.SelectionSet, v *model.DriverInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNDriverInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDriverInfo(ctx context.Context, sel ast.SelectionSet, v *model.DriverInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -45097,7 +45176,7 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) marshalNLogEntry2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐLogEntryᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.LogEntry) graphql.Marshaler {
+func (ec *executionContext) marshalNLogEntry2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐLogEntryᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.LogEntry) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -45121,7 +45200,7 @@ func (ec *executionContext) marshalNLogEntry2ᚕᚖdmsᚋinternalᚋpkgᚋcloudb
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNLogEntry2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐLogEntry(ctx, sel, v[i])
+			ret[i] = ec.marshalNLogEntry2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐLogEntry(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -45141,7 +45220,7 @@ func (ec *executionContext) marshalNLogEntry2ᚕᚖdmsᚋinternalᚋpkgᚋcloudb
 	return ret
 }
 
-func (ec *executionContext) marshalNLogEntry2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐLogEntry(ctx context.Context, sel ast.SelectionSet, v *model.LogEntry) graphql.Marshaler {
+func (ec *executionContext) marshalNLogEntry2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐLogEntry(ctx context.Context, sel ast.SelectionSet, v *model.LogEntry) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -45151,11 +45230,11 @@ func (ec *executionContext) marshalNLogEntry2ᚖdmsᚋinternalᚋpkgᚋcloudbeav
 	return ec._LogEntry(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNNavigatorNodeInfo2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorNodeInfo(ctx context.Context, sel ast.SelectionSet, v model.NavigatorNodeInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNNavigatorNodeInfo2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorNodeInfo(ctx context.Context, sel ast.SelectionSet, v model.NavigatorNodeInfo) graphql.Marshaler {
 	return ec._NavigatorNodeInfo(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNNavigatorNodeInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorNodeInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.NavigatorNodeInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNNavigatorNodeInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorNodeInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.NavigatorNodeInfo) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -45179,7 +45258,7 @@ func (ec *executionContext) marshalNNavigatorNodeInfo2ᚕᚖdmsᚋinternalᚋpkg
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNNavigatorNodeInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorNodeInfo(ctx, sel, v[i])
+			ret[i] = ec.marshalNNavigatorNodeInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorNodeInfo(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -45199,7 +45278,7 @@ func (ec *executionContext) marshalNNavigatorNodeInfo2ᚕᚖdmsᚋinternalᚋpkg
 	return ret
 }
 
-func (ec *executionContext) marshalNNavigatorNodeInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorNodeInfo(ctx context.Context, sel ast.SelectionSet, v *model.NavigatorNodeInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNNavigatorNodeInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorNodeInfo(ctx context.Context, sel ast.SelectionSet, v *model.NavigatorNodeInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -45209,7 +45288,7 @@ func (ec *executionContext) marshalNNavigatorNodeInfo2ᚖdmsᚋinternalᚋpkgᚋ
 	return ec._NavigatorNodeInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNNavigatorSettings2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorSettings(ctx context.Context, sel ast.SelectionSet, v *model.NavigatorSettings) graphql.Marshaler {
+func (ec *executionContext) marshalNNavigatorSettings2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorSettings(ctx context.Context, sel ast.SelectionSet, v *model.NavigatorSettings) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -45219,16 +45298,16 @@ func (ec *executionContext) marshalNNavigatorSettings2ᚖdmsᚋinternalᚋpkgᚋ
 	return ec._NavigatorSettings(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNNavigatorSettingsInput2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorSettingsInput(ctx context.Context, v interface{}) (model.NavigatorSettingsInput, error) {
+func (ec *executionContext) unmarshalNNavigatorSettingsInput2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNavigatorSettingsInput(ctx context.Context, v interface{}) (model.NavigatorSettingsInput, error) {
 	res, err := ec.unmarshalInputNavigatorSettingsInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNNetworkEndpointInfo2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkEndpointInfo(ctx context.Context, sel ast.SelectionSet, v model.NetworkEndpointInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNNetworkEndpointInfo2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkEndpointInfo(ctx context.Context, sel ast.SelectionSet, v model.NetworkEndpointInfo) graphql.Marshaler {
 	return ec._NetworkEndpointInfo(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNNetworkEndpointInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkEndpointInfo(ctx context.Context, sel ast.SelectionSet, v *model.NetworkEndpointInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNNetworkEndpointInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkEndpointInfo(ctx context.Context, sel ast.SelectionSet, v *model.NetworkEndpointInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -45238,17 +45317,17 @@ func (ec *executionContext) marshalNNetworkEndpointInfo2ᚖdmsᚋinternalᚋpkg�
 	return ec._NetworkEndpointInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNNetworkHandlerAuthType2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerAuthType(ctx context.Context, v interface{}) (model.NetworkHandlerAuthType, error) {
+func (ec *executionContext) unmarshalNNetworkHandlerAuthType2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerAuthType(ctx context.Context, v interface{}) (model.NetworkHandlerAuthType, error) {
 	var res model.NetworkHandlerAuthType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNNetworkHandlerAuthType2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerAuthType(ctx context.Context, sel ast.SelectionSet, v model.NetworkHandlerAuthType) graphql.Marshaler {
+func (ec *executionContext) marshalNNetworkHandlerAuthType2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerAuthType(ctx context.Context, sel ast.SelectionSet, v model.NetworkHandlerAuthType) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNNetworkHandlerConfig2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerConfigᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.NetworkHandlerConfig) graphql.Marshaler {
+func (ec *executionContext) marshalNNetworkHandlerConfig2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerConfigᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.NetworkHandlerConfig) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -45272,7 +45351,7 @@ func (ec *executionContext) marshalNNetworkHandlerConfig2ᚕᚖdmsᚋinternalᚋ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNNetworkHandlerConfig2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerConfig(ctx, sel, v[i])
+			ret[i] = ec.marshalNNetworkHandlerConfig2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerConfig(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -45292,7 +45371,7 @@ func (ec *executionContext) marshalNNetworkHandlerConfig2ᚕᚖdmsᚋinternalᚋ
 	return ret
 }
 
-func (ec *executionContext) marshalNNetworkHandlerConfig2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerConfig(ctx context.Context, sel ast.SelectionSet, v *model.NetworkHandlerConfig) graphql.Marshaler {
+func (ec *executionContext) marshalNNetworkHandlerConfig2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerConfig(ctx context.Context, sel ast.SelectionSet, v *model.NetworkHandlerConfig) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -45302,17 +45381,17 @@ func (ec *executionContext) marshalNNetworkHandlerConfig2ᚖdmsᚋinternalᚋpkg
 	return ec._NetworkHandlerConfig(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNNetworkHandlerConfigInput2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerConfigInput(ctx context.Context, v interface{}) (model.NetworkHandlerConfigInput, error) {
+func (ec *executionContext) unmarshalNNetworkHandlerConfigInput2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerConfigInput(ctx context.Context, v interface{}) (model.NetworkHandlerConfigInput, error) {
 	res, err := ec.unmarshalInputNetworkHandlerConfigInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNNetworkHandlerConfigInput2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerConfigInput(ctx context.Context, v interface{}) (*model.NetworkHandlerConfigInput, error) {
+func (ec *executionContext) unmarshalNNetworkHandlerConfigInput2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerConfigInput(ctx context.Context, v interface{}) (*model.NetworkHandlerConfigInput, error) {
 	res, err := ec.unmarshalInputNetworkHandlerConfigInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNNetworkHandlerDescriptor2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerDescriptorᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.NetworkHandlerDescriptor) graphql.Marshaler {
+func (ec *executionContext) marshalNNetworkHandlerDescriptor2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerDescriptorᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.NetworkHandlerDescriptor) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -45336,7 +45415,7 @@ func (ec *executionContext) marshalNNetworkHandlerDescriptor2ᚕᚖdmsᚋinterna
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNNetworkHandlerDescriptor2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerDescriptor(ctx, sel, v[i])
+			ret[i] = ec.marshalNNetworkHandlerDescriptor2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerDescriptor(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -45356,7 +45435,7 @@ func (ec *executionContext) marshalNNetworkHandlerDescriptor2ᚕᚖdmsᚋinterna
 	return ret
 }
 
-func (ec *executionContext) marshalNNetworkHandlerDescriptor2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerDescriptor(ctx context.Context, sel ast.SelectionSet, v *model.NetworkHandlerDescriptor) graphql.Marshaler {
+func (ec *executionContext) marshalNNetworkHandlerDescriptor2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerDescriptor(ctx context.Context, sel ast.SelectionSet, v *model.NetworkHandlerDescriptor) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -45413,7 +45492,7 @@ func (ec *executionContext) marshalNObject2ᚕinterface(ctx context.Context, sel
 	return ret
 }
 
-func (ec *executionContext) marshalNObjectOrigin2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectOriginᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ObjectOrigin) graphql.Marshaler {
+func (ec *executionContext) marshalNObjectOrigin2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectOriginᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ObjectOrigin) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -45437,7 +45516,7 @@ func (ec *executionContext) marshalNObjectOrigin2ᚕᚖdmsᚋinternalᚋpkgᚋcl
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNObjectOrigin2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectOrigin(ctx, sel, v[i])
+			ret[i] = ec.marshalNObjectOrigin2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectOrigin(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -45457,7 +45536,7 @@ func (ec *executionContext) marshalNObjectOrigin2ᚕᚖdmsᚋinternalᚋpkgᚋcl
 	return ret
 }
 
-func (ec *executionContext) marshalNObjectOrigin2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectOrigin(ctx context.Context, sel ast.SelectionSet, v *model.ObjectOrigin) graphql.Marshaler {
+func (ec *executionContext) marshalNObjectOrigin2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectOrigin(ctx context.Context, sel ast.SelectionSet, v *model.ObjectOrigin) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -45467,11 +45546,11 @@ func (ec *executionContext) marshalNObjectOrigin2ᚖdmsᚋinternalᚋpkgᚋcloud
 	return ec._ObjectOrigin(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNObjectPropertyInfo2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfo(ctx context.Context, sel ast.SelectionSet, v model.ObjectPropertyInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNObjectPropertyInfo2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfo(ctx context.Context, sel ast.SelectionSet, v model.ObjectPropertyInfo) graphql.Marshaler {
 	return ec._ObjectPropertyInfo(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNObjectPropertyInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ObjectPropertyInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNObjectPropertyInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ObjectPropertyInfo) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -45495,7 +45574,7 @@ func (ec *executionContext) marshalNObjectPropertyInfo2ᚕᚖdmsᚋinternalᚋpk
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNObjectPropertyInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfo(ctx, sel, v[i])
+			ret[i] = ec.marshalNObjectPropertyInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfo(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -45515,7 +45594,7 @@ func (ec *executionContext) marshalNObjectPropertyInfo2ᚕᚖdmsᚋinternalᚋpk
 	return ret
 }
 
-func (ec *executionContext) marshalNObjectPropertyInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfo(ctx context.Context, sel ast.SelectionSet, v *model.ObjectPropertyInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNObjectPropertyInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfo(ctx context.Context, sel ast.SelectionSet, v *model.ObjectPropertyInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -45525,17 +45604,17 @@ func (ec *executionContext) marshalNObjectPropertyInfo2ᚖdmsᚋinternalᚋpkg�
 	return ec._ObjectPropertyInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNObjectPropertyLength2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyLength(ctx context.Context, v interface{}) (model.ObjectPropertyLength, error) {
+func (ec *executionContext) unmarshalNObjectPropertyLength2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyLength(ctx context.Context, v interface{}) (model.ObjectPropertyLength, error) {
 	var res model.ObjectPropertyLength
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNObjectPropertyLength2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyLength(ctx context.Context, sel ast.SelectionSet, v model.ObjectPropertyLength) graphql.Marshaler {
+func (ec *executionContext) marshalNObjectPropertyLength2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyLength(ctx context.Context, sel ast.SelectionSet, v model.ObjectPropertyLength) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNProductInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐProductInfo(ctx context.Context, sel ast.SelectionSet, v *model.ProductInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNProductInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐProductInfo(ctx context.Context, sel ast.SelectionSet, v *model.ProductInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -45545,7 +45624,7 @@ func (ec *executionContext) marshalNProductInfo2ᚖdmsᚋinternalᚋpkgᚋcloudb
 	return ec._ProductInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNRMProject2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐRMProjectᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.RMProject) graphql.Marshaler {
+func (ec *executionContext) marshalNRMProject2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐRMProjectᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.RMProject) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -45569,7 +45648,7 @@ func (ec *executionContext) marshalNRMProject2ᚕᚖdmsᚋinternalᚋpkgᚋcloud
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNRMProject2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐRMProject(ctx, sel, v[i])
+			ret[i] = ec.marshalNRMProject2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐRMProject(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -45589,7 +45668,7 @@ func (ec *executionContext) marshalNRMProject2ᚕᚖdmsᚋinternalᚋpkgᚋcloud
 	return ret
 }
 
-func (ec *executionContext) marshalNRMProject2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐRMProject(ctx context.Context, sel ast.SelectionSet, v *model.RMProject) graphql.Marshaler {
+func (ec *executionContext) marshalNRMProject2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐRMProject(ctx context.Context, sel ast.SelectionSet, v *model.RMProject) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -45599,7 +45678,7 @@ func (ec *executionContext) marshalNRMProject2ᚖdmsᚋinternalᚋpkgᚋcloudbea
 	return ec._RMProject(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNRMResource2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐRMResourceᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.RMResource) graphql.Marshaler {
+func (ec *executionContext) marshalNRMResource2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐRMResourceᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.RMResource) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -45623,7 +45702,7 @@ func (ec *executionContext) marshalNRMResource2ᚕᚖdmsᚋinternalᚋpkgᚋclou
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNRMResource2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐRMResource(ctx, sel, v[i])
+			ret[i] = ec.marshalNRMResource2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐRMResource(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -45643,7 +45722,7 @@ func (ec *executionContext) marshalNRMResource2ᚕᚖdmsᚋinternalᚋpkgᚋclou
 	return ret
 }
 
-func (ec *executionContext) marshalNRMResource2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐRMResource(ctx context.Context, sel ast.SelectionSet, v *model.RMResource) graphql.Marshaler {
+func (ec *executionContext) marshalNRMResource2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐRMResource(ctx context.Context, sel ast.SelectionSet, v *model.RMResource) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -45653,17 +45732,17 @@ func (ec *executionContext) marshalNRMResource2ᚖdmsᚋinternalᚋpkgᚋcloudbe
 	return ec._RMResource(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNResultDataFormat2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormat(ctx context.Context, v interface{}) (model.ResultDataFormat, error) {
+func (ec *executionContext) unmarshalNResultDataFormat2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormat(ctx context.Context, v interface{}) (model.ResultDataFormat, error) {
 	var res model.ResultDataFormat
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNResultDataFormat2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormat(ctx context.Context, sel ast.SelectionSet, v model.ResultDataFormat) graphql.Marshaler {
+func (ec *executionContext) marshalNResultDataFormat2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormat(ctx context.Context, sel ast.SelectionSet, v model.ResultDataFormat) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) unmarshalNResultDataFormat2ᚕdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormatᚄ(ctx context.Context, v interface{}) ([]model.ResultDataFormat, error) {
+func (ec *executionContext) unmarshalNResultDataFormat2ᚕgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormatᚄ(ctx context.Context, v interface{}) ([]model.ResultDataFormat, error) {
 	var vSlice []interface{}
 	if v != nil {
 		vSlice = graphql.CoerceList(v)
@@ -45672,7 +45751,7 @@ func (ec *executionContext) unmarshalNResultDataFormat2ᚕdmsᚋinternalᚋpkg�
 	res := make([]model.ResultDataFormat, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNResultDataFormat2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormat(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNResultDataFormat2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormat(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -45680,7 +45759,7 @@ func (ec *executionContext) unmarshalNResultDataFormat2ᚕdmsᚋinternalᚋpkg�
 	return res, nil
 }
 
-func (ec *executionContext) marshalNResultDataFormat2ᚕdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormatᚄ(ctx context.Context, sel ast.SelectionSet, v []model.ResultDataFormat) graphql.Marshaler {
+func (ec *executionContext) marshalNResultDataFormat2ᚕgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormatᚄ(ctx context.Context, sel ast.SelectionSet, v []model.ResultDataFormat) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -45704,7 +45783,7 @@ func (ec *executionContext) marshalNResultDataFormat2ᚕdmsᚋinternalᚋpkgᚋc
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNResultDataFormat2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormat(ctx, sel, v[i])
+			ret[i] = ec.marshalNResultDataFormat2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormat(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -45724,11 +45803,11 @@ func (ec *executionContext) marshalNResultDataFormat2ᚕdmsᚋinternalᚋpkgᚋc
 	return ret
 }
 
-func (ec *executionContext) marshalNSQLContextInfo2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLContextInfo(ctx context.Context, sel ast.SelectionSet, v model.SQLContextInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNSQLContextInfo2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLContextInfo(ctx context.Context, sel ast.SelectionSet, v model.SQLContextInfo) graphql.Marshaler {
 	return ec._SQLContextInfo(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNSQLContextInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLContextInfo(ctx context.Context, sel ast.SelectionSet, v []*model.SQLContextInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNSQLContextInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLContextInfo(ctx context.Context, sel ast.SelectionSet, v []*model.SQLContextInfo) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -45752,7 +45831,7 @@ func (ec *executionContext) marshalNSQLContextInfo2ᚕᚖdmsᚋinternalᚋpkgᚋ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOSQLContextInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLContextInfo(ctx, sel, v[i])
+			ret[i] = ec.marshalOSQLContextInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLContextInfo(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -45766,7 +45845,7 @@ func (ec *executionContext) marshalNSQLContextInfo2ᚕᚖdmsᚋinternalᚋpkgᚋ
 	return ret
 }
 
-func (ec *executionContext) marshalNSQLContextInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLContextInfo(ctx context.Context, sel ast.SelectionSet, v *model.SQLContextInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNSQLContextInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLContextInfo(ctx context.Context, sel ast.SelectionSet, v *model.SQLContextInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -45776,11 +45855,11 @@ func (ec *executionContext) marshalNSQLContextInfo2ᚖdmsᚋinternalᚋpkgᚋclo
 	return ec._SQLContextInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSQLExecuteInfo2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecuteInfo(ctx context.Context, sel ast.SelectionSet, v model.SQLExecuteInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNSQLExecuteInfo2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecuteInfo(ctx context.Context, sel ast.SelectionSet, v model.SQLExecuteInfo) graphql.Marshaler {
 	return ec._SQLExecuteInfo(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNSQLExecuteInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecuteInfo(ctx context.Context, sel ast.SelectionSet, v *model.SQLExecuteInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNSQLExecuteInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecuteInfo(ctx context.Context, sel ast.SelectionSet, v *model.SQLExecuteInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -45790,11 +45869,11 @@ func (ec *executionContext) marshalNSQLExecuteInfo2ᚖdmsᚋinternalᚋpkgᚋclo
 	return ec._SQLExecuteInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSQLExecutionPlan2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecutionPlan(ctx context.Context, sel ast.SelectionSet, v model.SQLExecutionPlan) graphql.Marshaler {
+func (ec *executionContext) marshalNSQLExecutionPlan2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecutionPlan(ctx context.Context, sel ast.SelectionSet, v model.SQLExecutionPlan) graphql.Marshaler {
 	return ec._SQLExecutionPlan(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNSQLExecutionPlan2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecutionPlan(ctx context.Context, sel ast.SelectionSet, v *model.SQLExecutionPlan) graphql.Marshaler {
+func (ec *executionContext) marshalNSQLExecutionPlan2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecutionPlan(ctx context.Context, sel ast.SelectionSet, v *model.SQLExecutionPlan) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -45804,7 +45883,7 @@ func (ec *executionContext) marshalNSQLExecutionPlan2ᚖdmsᚋinternalᚋpkgᚋc
 	return ec._SQLExecutionPlan(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSQLExecutionPlanNode2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecutionPlanNodeᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.SQLExecutionPlanNode) graphql.Marshaler {
+func (ec *executionContext) marshalNSQLExecutionPlanNode2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecutionPlanNodeᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.SQLExecutionPlanNode) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -45828,7 +45907,7 @@ func (ec *executionContext) marshalNSQLExecutionPlanNode2ᚕᚖdmsᚋinternalᚋ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNSQLExecutionPlanNode2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecutionPlanNode(ctx, sel, v[i])
+			ret[i] = ec.marshalNSQLExecutionPlanNode2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecutionPlanNode(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -45848,7 +45927,7 @@ func (ec *executionContext) marshalNSQLExecutionPlanNode2ᚕᚖdmsᚋinternalᚋ
 	return ret
 }
 
-func (ec *executionContext) marshalNSQLExecutionPlanNode2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecutionPlanNode(ctx context.Context, sel ast.SelectionSet, v *model.SQLExecutionPlanNode) graphql.Marshaler {
+func (ec *executionContext) marshalNSQLExecutionPlanNode2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecutionPlanNode(ctx context.Context, sel ast.SelectionSet, v *model.SQLExecutionPlanNode) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -45858,7 +45937,7 @@ func (ec *executionContext) marshalNSQLExecutionPlanNode2ᚖdmsᚋinternalᚋpkg
 	return ec._SQLExecutionPlanNode(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSQLQueryGenerator2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLQueryGeneratorᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.SQLQueryGenerator) graphql.Marshaler {
+func (ec *executionContext) marshalNSQLQueryGenerator2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLQueryGeneratorᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.SQLQueryGenerator) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -45882,7 +45961,7 @@ func (ec *executionContext) marshalNSQLQueryGenerator2ᚕᚖdmsᚋinternalᚋpkg
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNSQLQueryGenerator2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLQueryGenerator(ctx, sel, v[i])
+			ret[i] = ec.marshalNSQLQueryGenerator2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLQueryGenerator(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -45902,7 +45981,7 @@ func (ec *executionContext) marshalNSQLQueryGenerator2ᚕᚖdmsᚋinternalᚋpkg
 	return ret
 }
 
-func (ec *executionContext) marshalNSQLQueryGenerator2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLQueryGenerator(ctx context.Context, sel ast.SelectionSet, v *model.SQLQueryGenerator) graphql.Marshaler {
+func (ec *executionContext) marshalNSQLQueryGenerator2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLQueryGenerator(ctx context.Context, sel ast.SelectionSet, v *model.SQLQueryGenerator) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -45912,7 +45991,7 @@ func (ec *executionContext) marshalNSQLQueryGenerator2ᚖdmsᚋinternalᚋpkgᚋ
 	return ec._SQLQueryGenerator(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSQLQueryResults2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLQueryResultsᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.SQLQueryResults) graphql.Marshaler {
+func (ec *executionContext) marshalNSQLQueryResults2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLQueryResultsᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.SQLQueryResults) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -45936,7 +46015,7 @@ func (ec *executionContext) marshalNSQLQueryResults2ᚕᚖdmsᚋinternalᚋpkg�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNSQLQueryResults2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLQueryResults(ctx, sel, v[i])
+			ret[i] = ec.marshalNSQLQueryResults2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLQueryResults(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -45956,7 +46035,7 @@ func (ec *executionContext) marshalNSQLQueryResults2ᚕᚖdmsᚋinternalᚋpkg�
 	return ret
 }
 
-func (ec *executionContext) marshalNSQLQueryResults2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLQueryResults(ctx context.Context, sel ast.SelectionSet, v *model.SQLQueryResults) graphql.Marshaler {
+func (ec *executionContext) marshalNSQLQueryResults2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLQueryResults(ctx context.Context, sel ast.SelectionSet, v *model.SQLQueryResults) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -45966,7 +46045,7 @@ func (ec *executionContext) marshalNSQLQueryResults2ᚖdmsᚋinternalᚋpkgᚋcl
 	return ec._SQLQueryResults(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNSQLResultRow2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRowᚄ(ctx context.Context, v interface{}) ([]*model.SQLResultRow, error) {
+func (ec *executionContext) unmarshalNSQLResultRow2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRowᚄ(ctx context.Context, v interface{}) ([]*model.SQLResultRow, error) {
 	var vSlice []interface{}
 	if v != nil {
 		vSlice = graphql.CoerceList(v)
@@ -45975,7 +46054,7 @@ func (ec *executionContext) unmarshalNSQLResultRow2ᚕᚖdmsᚋinternalᚋpkgᚋ
 	res := make([]*model.SQLResultRow, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNSQLResultRow2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRow(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNSQLResultRow2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRow(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -45983,16 +46062,16 @@ func (ec *executionContext) unmarshalNSQLResultRow2ᚕᚖdmsᚋinternalᚋpkgᚋ
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalNSQLResultRow2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRow(ctx context.Context, v interface{}) (*model.SQLResultRow, error) {
+func (ec *executionContext) unmarshalNSQLResultRow2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRow(ctx context.Context, v interface{}) (*model.SQLResultRow, error) {
 	res, err := ec.unmarshalInputSQLResultRow(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNSQLScriptInfo2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLScriptInfo(ctx context.Context, sel ast.SelectionSet, v model.SQLScriptInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNSQLScriptInfo2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLScriptInfo(ctx context.Context, sel ast.SelectionSet, v model.SQLScriptInfo) graphql.Marshaler {
 	return ec._SQLScriptInfo(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNSQLScriptInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLScriptInfo(ctx context.Context, sel ast.SelectionSet, v *model.SQLScriptInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNSQLScriptInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLScriptInfo(ctx context.Context, sel ast.SelectionSet, v *model.SQLScriptInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -46002,11 +46081,11 @@ func (ec *executionContext) marshalNSQLScriptInfo2ᚖdmsᚋinternalᚋpkgᚋclou
 	return ec._SQLScriptInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSQLScriptQuery2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLScriptQuery(ctx context.Context, sel ast.SelectionSet, v model.SQLScriptQuery) graphql.Marshaler {
+func (ec *executionContext) marshalNSQLScriptQuery2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLScriptQuery(ctx context.Context, sel ast.SelectionSet, v model.SQLScriptQuery) graphql.Marshaler {
 	return ec._SQLScriptQuery(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNSQLScriptQuery2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLScriptQueryᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.SQLScriptQuery) graphql.Marshaler {
+func (ec *executionContext) marshalNSQLScriptQuery2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLScriptQueryᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.SQLScriptQuery) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -46030,7 +46109,7 @@ func (ec *executionContext) marshalNSQLScriptQuery2ᚕᚖdmsᚋinternalᚋpkgᚋ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNSQLScriptQuery2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLScriptQuery(ctx, sel, v[i])
+			ret[i] = ec.marshalNSQLScriptQuery2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLScriptQuery(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -46050,7 +46129,7 @@ func (ec *executionContext) marshalNSQLScriptQuery2ᚕᚖdmsᚋinternalᚋpkgᚋ
 	return ret
 }
 
-func (ec *executionContext) marshalNSQLScriptQuery2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLScriptQuery(ctx context.Context, sel ast.SelectionSet, v *model.SQLScriptQuery) graphql.Marshaler {
+func (ec *executionContext) marshalNSQLScriptQuery2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLScriptQuery(ctx context.Context, sel ast.SelectionSet, v *model.SQLScriptQuery) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -46060,11 +46139,11 @@ func (ec *executionContext) marshalNSQLScriptQuery2ᚖdmsᚋinternalᚋpkgᚋclo
 	return ec._SQLScriptQuery(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNServerConfig2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerConfig(ctx context.Context, sel ast.SelectionSet, v model.ServerConfig) graphql.Marshaler {
+func (ec *executionContext) marshalNServerConfig2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerConfig(ctx context.Context, sel ast.SelectionSet, v model.ServerConfig) graphql.Marshaler {
 	return ec._ServerConfig(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNServerConfig2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerConfig(ctx context.Context, sel ast.SelectionSet, v *model.ServerConfig) graphql.Marshaler {
+func (ec *executionContext) marshalNServerConfig2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerConfig(ctx context.Context, sel ast.SelectionSet, v *model.ServerConfig) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -46074,12 +46153,12 @@ func (ec *executionContext) marshalNServerConfig2ᚖdmsᚋinternalᚋpkgᚋcloud
 	return ec._ServerConfig(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNServerConfigInput2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerConfigInput(ctx context.Context, v interface{}) (model.ServerConfigInput, error) {
+func (ec *executionContext) unmarshalNServerConfigInput2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerConfigInput(ctx context.Context, v interface{}) (model.ServerConfigInput, error) {
 	res, err := ec.unmarshalInputServerConfigInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNServerLanguage2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerLanguageᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ServerLanguage) graphql.Marshaler {
+func (ec *executionContext) marshalNServerLanguage2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerLanguageᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ServerLanguage) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -46103,7 +46182,7 @@ func (ec *executionContext) marshalNServerLanguage2ᚕᚖdmsᚋinternalᚋpkgᚋ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNServerLanguage2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerLanguage(ctx, sel, v[i])
+			ret[i] = ec.marshalNServerLanguage2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerLanguage(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -46123,7 +46202,7 @@ func (ec *executionContext) marshalNServerLanguage2ᚕᚖdmsᚋinternalᚋpkgᚋ
 	return ret
 }
 
-func (ec *executionContext) marshalNServerLanguage2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerLanguage(ctx context.Context, sel ast.SelectionSet, v *model.ServerLanguage) graphql.Marshaler {
+func (ec *executionContext) marshalNServerLanguage2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerLanguage(ctx context.Context, sel ast.SelectionSet, v *model.ServerLanguage) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -46133,11 +46212,11 @@ func (ec *executionContext) marshalNServerLanguage2ᚖdmsᚋinternalᚋpkgᚋclo
 	return ec._ServerLanguage(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSessionInfo2dmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSessionInfo(ctx context.Context, sel ast.SelectionSet, v model.SessionInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNSessionInfo2githubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSessionInfo(ctx context.Context, sel ast.SelectionSet, v model.SessionInfo) graphql.Marshaler {
 	return ec._SessionInfo(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNSessionInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSessionInfo(ctx context.Context, sel ast.SelectionSet, v *model.SessionInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNSessionInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSessionInfo(ctx context.Context, sel ast.SelectionSet, v *model.SessionInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -46246,7 +46325,7 @@ func (ec *executionContext) marshalNString2ᚕᚖstring(ctx context.Context, sel
 	return ret
 }
 
-func (ec *executionContext) marshalNUserAuthToken2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐUserAuthTokenᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.UserAuthToken) graphql.Marshaler {
+func (ec *executionContext) marshalNUserAuthToken2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐUserAuthTokenᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.UserAuthToken) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -46270,7 +46349,7 @@ func (ec *executionContext) marshalNUserAuthToken2ᚕᚖdmsᚋinternalᚋpkgᚋc
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNUserAuthToken2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐUserAuthToken(ctx, sel, v[i])
+			ret[i] = ec.marshalNUserAuthToken2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐUserAuthToken(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -46290,7 +46369,7 @@ func (ec *executionContext) marshalNUserAuthToken2ᚕᚖdmsᚋinternalᚋpkgᚋc
 	return ret
 }
 
-func (ec *executionContext) marshalNUserAuthToken2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐUserAuthToken(ctx context.Context, sel ast.SelectionSet, v *model.UserAuthToken) graphql.Marshaler {
+func (ec *executionContext) marshalNUserAuthToken2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐUserAuthToken(ctx context.Context, sel ast.SelectionSet, v *model.UserAuthToken) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -46300,7 +46379,7 @@ func (ec *executionContext) marshalNUserAuthToken2ᚖdmsᚋinternalᚋpkgᚋclou
 	return ec._UserAuthToken(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNWebFeatureSet2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐWebFeatureSetᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.WebFeatureSet) graphql.Marshaler {
+func (ec *executionContext) marshalNWebFeatureSet2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐWebFeatureSetᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.WebFeatureSet) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -46324,7 +46403,7 @@ func (ec *executionContext) marshalNWebFeatureSet2ᚕᚖdmsᚋinternalᚋpkgᚋc
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNWebFeatureSet2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐWebFeatureSet(ctx, sel, v[i])
+			ret[i] = ec.marshalNWebFeatureSet2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐWebFeatureSet(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -46344,7 +46423,7 @@ func (ec *executionContext) marshalNWebFeatureSet2ᚕᚖdmsᚋinternalᚋpkgᚋc
 	return ret
 }
 
-func (ec *executionContext) marshalNWebFeatureSet2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐWebFeatureSet(ctx context.Context, sel ast.SelectionSet, v *model.WebFeatureSet) graphql.Marshaler {
+func (ec *executionContext) marshalNWebFeatureSet2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐWebFeatureSet(ctx context.Context, sel ast.SelectionSet, v *model.WebFeatureSet) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -46607,7 +46686,7 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
-func (ec *executionContext) unmarshalOAuthCredentialEncryption2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthCredentialEncryption(ctx context.Context, v interface{}) (*model.AuthCredentialEncryption, error) {
+func (ec *executionContext) unmarshalOAuthCredentialEncryption2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthCredentialEncryption(ctx context.Context, v interface{}) (*model.AuthCredentialEncryption, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -46616,14 +46695,14 @@ func (ec *executionContext) unmarshalOAuthCredentialEncryption2ᚖdmsᚋinternal
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOAuthCredentialEncryption2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthCredentialEncryption(ctx context.Context, sel ast.SelectionSet, v *model.AuthCredentialEncryption) graphql.Marshaler {
+func (ec *executionContext) marshalOAuthCredentialEncryption2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthCredentialEncryption(ctx context.Context, sel ast.SelectionSet, v *model.AuthCredentialEncryption) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return v
 }
 
-func (ec *executionContext) marshalOAuthProviderConfiguration2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderConfigurationᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AuthProviderConfiguration) graphql.Marshaler {
+func (ec *executionContext) marshalOAuthProviderConfiguration2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderConfigurationᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AuthProviderConfiguration) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -46650,7 +46729,7 @@ func (ec *executionContext) marshalOAuthProviderConfiguration2ᚕᚖdmsᚋintern
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNAuthProviderConfiguration2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderConfiguration(ctx, sel, v[i])
+			ret[i] = ec.marshalNAuthProviderConfiguration2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐAuthProviderConfiguration(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -46696,7 +46775,7 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) unmarshalOConnectionConfig2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionConfig(ctx context.Context, v interface{}) (*model.ConnectionConfig, error) {
+func (ec *executionContext) unmarshalOConnectionConfig2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐConnectionConfig(ctx context.Context, v interface{}) (*model.ConnectionConfig, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -46704,7 +46783,7 @@ func (ec *executionContext) unmarshalOConnectionConfig2ᚖdmsᚋinternalᚋpkg�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalODatabaseObjectInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseObjectInfo(ctx context.Context, sel ast.SelectionSet, v *model.DatabaseObjectInfo) graphql.Marshaler {
+func (ec *executionContext) marshalODatabaseObjectInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐDatabaseObjectInfo(ctx context.Context, sel ast.SelectionSet, v *model.DatabaseObjectInfo) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -46813,7 +46892,7 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return res
 }
 
-func (ec *executionContext) unmarshalONetworkHandlerAuthType2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerAuthType(ctx context.Context, v interface{}) (*model.NetworkHandlerAuthType, error) {
+func (ec *executionContext) unmarshalONetworkHandlerAuthType2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerAuthType(ctx context.Context, v interface{}) (*model.NetworkHandlerAuthType, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -46822,14 +46901,14 @@ func (ec *executionContext) unmarshalONetworkHandlerAuthType2ᚖdmsᚋinternal�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalONetworkHandlerAuthType2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerAuthType(ctx context.Context, sel ast.SelectionSet, v *model.NetworkHandlerAuthType) graphql.Marshaler {
+func (ec *executionContext) marshalONetworkHandlerAuthType2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerAuthType(ctx context.Context, sel ast.SelectionSet, v *model.NetworkHandlerAuthType) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return v
 }
 
-func (ec *executionContext) unmarshalONetworkHandlerConfigInput2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerConfigInputᚄ(ctx context.Context, v interface{}) ([]*model.NetworkHandlerConfigInput, error) {
+func (ec *executionContext) unmarshalONetworkHandlerConfigInput2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerConfigInputᚄ(ctx context.Context, v interface{}) ([]*model.NetworkHandlerConfigInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -46841,7 +46920,7 @@ func (ec *executionContext) unmarshalONetworkHandlerConfigInput2ᚕᚖdmsᚋinte
 	res := make([]*model.NetworkHandlerConfigInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNNetworkHandlerConfigInput2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerConfigInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNNetworkHandlerConfigInput2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerConfigInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -46849,7 +46928,7 @@ func (ec *executionContext) unmarshalONetworkHandlerConfigInput2ᚕᚖdmsᚋinte
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalONetworkHandlerType2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerType(ctx context.Context, v interface{}) (*model.NetworkHandlerType, error) {
+func (ec *executionContext) unmarshalONetworkHandlerType2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerType(ctx context.Context, v interface{}) (*model.NetworkHandlerType, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -46858,7 +46937,7 @@ func (ec *executionContext) unmarshalONetworkHandlerType2ᚖdmsᚋinternalᚋpkg
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalONetworkHandlerType2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerType(ctx context.Context, sel ast.SelectionSet, v *model.NetworkHandlerType) graphql.Marshaler {
+func (ec *executionContext) marshalONetworkHandlerType2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐNetworkHandlerType(ctx context.Context, sel ast.SelectionSet, v *model.NetworkHandlerType) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -46945,7 +47024,7 @@ func (ec *executionContext) marshalOObject2ᚕᚕinterface(ctx context.Context, 
 	return ret
 }
 
-func (ec *executionContext) unmarshalOObjectPropertyFilter2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyFilter(ctx context.Context, v interface{}) (*model.ObjectPropertyFilter, error) {
+func (ec *executionContext) unmarshalOObjectPropertyFilter2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyFilter(ctx context.Context, v interface{}) (*model.ObjectPropertyFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -46953,7 +47032,7 @@ func (ec *executionContext) unmarshalOObjectPropertyFilter2ᚖdmsᚋinternalᚋp
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOObjectPropertyInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfo(ctx context.Context, sel ast.SelectionSet, v []*model.ObjectPropertyInfo) graphql.Marshaler {
+func (ec *executionContext) marshalOObjectPropertyInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfo(ctx context.Context, sel ast.SelectionSet, v []*model.ObjectPropertyInfo) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -46980,7 +47059,7 @@ func (ec *executionContext) marshalOObjectPropertyInfo2ᚕᚖdmsᚋinternalᚋpk
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOObjectPropertyInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfo(ctx, sel, v[i])
+			ret[i] = ec.marshalOObjectPropertyInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfo(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -46994,7 +47073,7 @@ func (ec *executionContext) marshalOObjectPropertyInfo2ᚕᚖdmsᚋinternalᚋpk
 	return ret
 }
 
-func (ec *executionContext) marshalOObjectPropertyInfo2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ObjectPropertyInfo) graphql.Marshaler {
+func (ec *executionContext) marshalOObjectPropertyInfo2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ObjectPropertyInfo) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -47021,7 +47100,7 @@ func (ec *executionContext) marshalOObjectPropertyInfo2ᚕᚖdmsᚋinternalᚋpk
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNObjectPropertyInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfo(ctx, sel, v[i])
+			ret[i] = ec.marshalNObjectPropertyInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfo(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -47041,14 +47120,14 @@ func (ec *executionContext) marshalOObjectPropertyInfo2ᚕᚖdmsᚋinternalᚋpk
 	return ret
 }
 
-func (ec *executionContext) marshalOObjectPropertyInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfo(ctx context.Context, sel ast.SelectionSet, v *model.ObjectPropertyInfo) graphql.Marshaler {
+func (ec *executionContext) marshalOObjectPropertyInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐObjectPropertyInfo(ctx context.Context, sel ast.SelectionSet, v *model.ObjectPropertyInfo) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._ObjectPropertyInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOResultDataFormat2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormat(ctx context.Context, v interface{}) (*model.ResultDataFormat, error) {
+func (ec *executionContext) unmarshalOResultDataFormat2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormat(ctx context.Context, v interface{}) (*model.ResultDataFormat, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -47057,14 +47136,14 @@ func (ec *executionContext) unmarshalOResultDataFormat2ᚖdmsᚋinternalᚋpkg�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOResultDataFormat2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormat(ctx context.Context, sel ast.SelectionSet, v *model.ResultDataFormat) graphql.Marshaler {
+func (ec *executionContext) marshalOResultDataFormat2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐResultDataFormat(ctx context.Context, sel ast.SelectionSet, v *model.ResultDataFormat) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return v
 }
 
-func (ec *executionContext) marshalOSQLCompletionProposal2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLCompletionProposal(ctx context.Context, sel ast.SelectionSet, v []*model.SQLCompletionProposal) graphql.Marshaler {
+func (ec *executionContext) marshalOSQLCompletionProposal2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLCompletionProposal(ctx context.Context, sel ast.SelectionSet, v []*model.SQLCompletionProposal) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -47091,7 +47170,7 @@ func (ec *executionContext) marshalOSQLCompletionProposal2ᚕᚖdmsᚋinternal�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOSQLCompletionProposal2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLCompletionProposal(ctx, sel, v[i])
+			ret[i] = ec.marshalOSQLCompletionProposal2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLCompletionProposal(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -47105,21 +47184,21 @@ func (ec *executionContext) marshalOSQLCompletionProposal2ᚕᚖdmsᚋinternal�
 	return ret
 }
 
-func (ec *executionContext) marshalOSQLCompletionProposal2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLCompletionProposal(ctx context.Context, sel ast.SelectionSet, v *model.SQLCompletionProposal) graphql.Marshaler {
+func (ec *executionContext) marshalOSQLCompletionProposal2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLCompletionProposal(ctx context.Context, sel ast.SelectionSet, v *model.SQLCompletionProposal) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._SQLCompletionProposal(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOSQLContextInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLContextInfo(ctx context.Context, sel ast.SelectionSet, v *model.SQLContextInfo) graphql.Marshaler {
+func (ec *executionContext) marshalOSQLContextInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLContextInfo(ctx context.Context, sel ast.SelectionSet, v *model.SQLContextInfo) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._SQLContextInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOSQLDataFilter2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLDataFilter(ctx context.Context, v interface{}) (*model.SQLDataFilter, error) {
+func (ec *executionContext) unmarshalOSQLDataFilter2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLDataFilter(ctx context.Context, v interface{}) (*model.SQLDataFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -47127,7 +47206,7 @@ func (ec *executionContext) unmarshalOSQLDataFilter2ᚖdmsᚋinternalᚋpkgᚋcl
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOSQLDataFilterConstraint2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLDataFilterConstraint(ctx context.Context, v interface{}) ([]*model.SQLDataFilterConstraint, error) {
+func (ec *executionContext) unmarshalOSQLDataFilterConstraint2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLDataFilterConstraint(ctx context.Context, v interface{}) ([]*model.SQLDataFilterConstraint, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -47139,7 +47218,7 @@ func (ec *executionContext) unmarshalOSQLDataFilterConstraint2ᚕᚖdmsᚋintern
 	res := make([]*model.SQLDataFilterConstraint, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalOSQLDataFilterConstraint2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLDataFilterConstraint(ctx, vSlice[i])
+		res[i], err = ec.unmarshalOSQLDataFilterConstraint2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLDataFilterConstraint(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -47147,7 +47226,7 @@ func (ec *executionContext) unmarshalOSQLDataFilterConstraint2ᚕᚖdmsᚋintern
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalOSQLDataFilterConstraint2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLDataFilterConstraint(ctx context.Context, v interface{}) (*model.SQLDataFilterConstraint, error) {
+func (ec *executionContext) unmarshalOSQLDataFilterConstraint2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLDataFilterConstraint(ctx context.Context, v interface{}) (*model.SQLDataFilterConstraint, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -47155,21 +47234,21 @@ func (ec *executionContext) unmarshalOSQLDataFilterConstraint2ᚖdmsᚋinternal�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOSQLDialectInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLDialectInfo(ctx context.Context, sel ast.SelectionSet, v *model.SQLDialectInfo) graphql.Marshaler {
+func (ec *executionContext) marshalOSQLDialectInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLDialectInfo(ctx context.Context, sel ast.SelectionSet, v *model.SQLDialectInfo) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._SQLDialectInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOSQLExecuteInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecuteInfo(ctx context.Context, sel ast.SelectionSet, v *model.SQLExecuteInfo) graphql.Marshaler {
+func (ec *executionContext) marshalOSQLExecuteInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLExecuteInfo(ctx context.Context, sel ast.SelectionSet, v *model.SQLExecuteInfo) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._SQLExecuteInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOSQLResultColumn2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultColumn(ctx context.Context, sel ast.SelectionSet, v []*model.SQLResultColumn) graphql.Marshaler {
+func (ec *executionContext) marshalOSQLResultColumn2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultColumn(ctx context.Context, sel ast.SelectionSet, v []*model.SQLResultColumn) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -47196,7 +47275,7 @@ func (ec *executionContext) marshalOSQLResultColumn2ᚕᚖdmsᚋinternalᚋpkg�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOSQLResultColumn2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultColumn(ctx, sel, v[i])
+			ret[i] = ec.marshalOSQLResultColumn2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultColumn(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -47210,14 +47289,14 @@ func (ec *executionContext) marshalOSQLResultColumn2ᚕᚖdmsᚋinternalᚋpkg�
 	return ret
 }
 
-func (ec *executionContext) marshalOSQLResultColumn2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultColumn(ctx context.Context, sel ast.SelectionSet, v *model.SQLResultColumn) graphql.Marshaler {
+func (ec *executionContext) marshalOSQLResultColumn2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultColumn(ctx context.Context, sel ast.SelectionSet, v *model.SQLResultColumn) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._SQLResultColumn(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOSQLResultRow2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRowᚄ(ctx context.Context, v interface{}) ([]*model.SQLResultRow, error) {
+func (ec *executionContext) unmarshalOSQLResultRow2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRowᚄ(ctx context.Context, v interface{}) ([]*model.SQLResultRow, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -47229,7 +47308,7 @@ func (ec *executionContext) unmarshalOSQLResultRow2ᚕᚖdmsᚋinternalᚋpkgᚋ
 	res := make([]*model.SQLResultRow, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNSQLResultRow2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRow(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNSQLResultRow2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultRow(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -47237,21 +47316,21 @@ func (ec *executionContext) unmarshalOSQLResultRow2ᚕᚖdmsᚋinternalᚋpkgᚋ
 	return res, nil
 }
 
-func (ec *executionContext) marshalOSQLResultSet2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultSet(ctx context.Context, sel ast.SelectionSet, v *model.SQLResultSet) graphql.Marshaler {
+func (ec *executionContext) marshalOSQLResultSet2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐSQLResultSet(ctx context.Context, sel ast.SelectionSet, v *model.SQLResultSet) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._SQLResultSet(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOServerError2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerError(ctx context.Context, sel ast.SelectionSet, v *model.ServerError) graphql.Marshaler {
+func (ec *executionContext) marshalOServerError2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerError(ctx context.Context, sel ast.SelectionSet, v *model.ServerError) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._ServerError(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOServerMessage2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerMessage(ctx context.Context, sel ast.SelectionSet, v []*model.ServerMessage) graphql.Marshaler {
+func (ec *executionContext) marshalOServerMessage2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerMessage(ctx context.Context, sel ast.SelectionSet, v []*model.ServerMessage) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -47278,7 +47357,7 @@ func (ec *executionContext) marshalOServerMessage2ᚕᚖdmsᚋinternalᚋpkgᚋc
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOServerMessage2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerMessage(ctx, sel, v[i])
+			ret[i] = ec.marshalOServerMessage2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerMessage(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -47292,7 +47371,7 @@ func (ec *executionContext) marshalOServerMessage2ᚕᚖdmsᚋinternalᚋpkgᚋc
 	return ret
 }
 
-func (ec *executionContext) marshalOServerMessage2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerMessage(ctx context.Context, sel ast.SelectionSet, v *model.ServerMessage) graphql.Marshaler {
+func (ec *executionContext) marshalOServerMessage2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐServerMessage(ctx context.Context, sel ast.SelectionSet, v *model.ServerMessage) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -47385,7 +47464,7 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalOUserAuthToken2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐUserAuthTokenᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.UserAuthToken) graphql.Marshaler {
+func (ec *executionContext) marshalOUserAuthToken2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐUserAuthTokenᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.UserAuthToken) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -47412,7 +47491,7 @@ func (ec *executionContext) marshalOUserAuthToken2ᚕᚖdmsᚋinternalᚋpkgᚋc
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNUserAuthToken2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐUserAuthToken(ctx, sel, v[i])
+			ret[i] = ec.marshalNUserAuthToken2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐUserAuthToken(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -47432,14 +47511,14 @@ func (ec *executionContext) marshalOUserAuthToken2ᚕᚖdmsᚋinternalᚋpkgᚋc
 	return ret
 }
 
-func (ec *executionContext) marshalOUserInfo2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐUserInfo(ctx context.Context, sel ast.SelectionSet, v *model.UserInfo) graphql.Marshaler {
+func (ec *executionContext) marshalOUserInfo2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐUserInfo(ctx context.Context, sel ast.SelectionSet, v *model.UserInfo) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._UserInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOWebServiceConfig2ᚕᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐWebServiceConfig(ctx context.Context, sel ast.SelectionSet, v []*model.WebServiceConfig) graphql.Marshaler {
+func (ec *executionContext) marshalOWebServiceConfig2ᚕᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐWebServiceConfig(ctx context.Context, sel ast.SelectionSet, v []*model.WebServiceConfig) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -47466,7 +47545,7 @@ func (ec *executionContext) marshalOWebServiceConfig2ᚕᚖdmsᚋinternalᚋpkg�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOWebServiceConfig2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐWebServiceConfig(ctx, sel, v[i])
+			ret[i] = ec.marshalOWebServiceConfig2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐWebServiceConfig(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -47480,7 +47559,7 @@ func (ec *executionContext) marshalOWebServiceConfig2ᚕᚖdmsᚋinternalᚋpkg�
 	return ret
 }
 
-func (ec *executionContext) marshalOWebServiceConfig2ᚖdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐWebServiceConfig(ctx context.Context, sel ast.SelectionSet, v *model.WebServiceConfig) graphql.Marshaler {
+func (ec *executionContext) marshalOWebServiceConfig2ᚖgithubᚗcomᚋactiontechᚋdmsᚋinternalᚋpkgᚋcloudbeaverᚋmodelᚐWebServiceConfig(ctx context.Context, sel ast.SelectionSet, v *model.WebServiceConfig) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
