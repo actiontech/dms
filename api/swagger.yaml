@@ -354,6 +354,19 @@ definitions:
             - password
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    CompanyNotice:
+        description: A companynotice
+        properties:
+            notice_str:
+                description: companynotice info
+                type: string
+                x-go-name: NoticeStr
+            read_by_current_user:
+                description: current user has been read
+                type: boolean
+                x-go-name: ReadByCurrentUser
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ComponentNameWithVersion:
         properties:
             name:
@@ -616,6 +629,21 @@ definitions:
                 x-go-name: Code
             data:
                 $ref: '#/definitions/BasicInfo'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetCompanyNoticeReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/CompanyNotice'
             message:
                 description: message
                 type: string
@@ -2382,6 +2410,15 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    UpdateCompanyNotice:
+        description: A companynotice
+        properties:
+            notice_str:
+                description: companynotice info
+                type: string
+                x-go-name: NoticeStr
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCurrentUser:
         properties:
@@ -2825,6 +2862,42 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: get basic info.
+            tags:
+                - dms
+    /v1/dms/company_notice:
+        get:
+            description: get company notice info
+            operationId: GetCompanyNotice
+            responses:
+                "200":
+                    description: GetCompanyNoticeReply
+                    schema:
+                        $ref: '#/definitions/GetCompanyNoticeReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            tags:
+                - dms
+        patch:
+            description: update company notice info
+            operationId: UpdateCompanyNotice
+            parameters:
+                - description: Update a companynotice
+                  in: body
+                  name: company_notice
+                  schema:
+                    $ref: '#/definitions/UpdateCompanyNotice'
+                  x-go-name: UpdateCompanyNotice
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
             tags:
                 - dms
     /v1/dms/configurations/feishu:
