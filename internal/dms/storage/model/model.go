@@ -36,6 +36,7 @@ func GetAllModels() []interface{} {
 		CloudbeaverConnectionCache{},
 		DatabaseSourceService{},
 		BasicConfig{},
+		CompanyNotice{},
 	}
 }
 
@@ -317,4 +318,9 @@ type BasicConfig struct {
 	Model
 	Logo  []byte `json:"logo" gorm:"type:mediumblob"`
 	Title string `json:"title" gorm:"size:100;not null;uniqueIndex" example:""`
+}
+
+type CompanyNotice struct {
+	Model
+	NoticeStr string `gorm:"type:mediumtext;comment:'企业公告'" json:"notice_str"`
 }
