@@ -40,6 +40,61 @@
         }
       }
     },
+    "/v1/dms/company_notice": {
+      "get": {
+        "description": "get company notice info",
+        "tags": [
+          "dms"
+        ],
+        "operationId": "GetCompanyNotice",
+        "responses": {
+          "200": {
+            "description": "GetCompanyNoticeReply",
+            "schema": {
+              "$ref": "#/definitions/GetCompanyNoticeReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "patch": {
+        "description": "update company notice info",
+        "tags": [
+          "dms"
+        ],
+        "operationId": "UpdateCompanyNotice",
+        "parameters": [
+          {
+            "x-go-name": "UpdateCompanyNotice",
+            "description": "Update a companynotice",
+            "name": "company_notice",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateCompanyNotice"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/configurations/feishu": {
       "get": {
         "tags": [
@@ -3341,6 +3396,23 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "CompanyNotice": {
+      "description": "A companynotice",
+      "type": "object",
+      "properties": {
+        "notice_str": {
+          "description": "companynotice info",
+          "type": "string",
+          "x-go-name": "NoticeStr"
+        },
+        "read_by_current_user": {
+          "description": "current user has been read",
+          "type": "boolean",
+          "x-go-name": "ReadByCurrentUser"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "ComponentNameWithVersion": {
       "type": "object",
       "properties": {
@@ -3678,6 +3750,26 @@
         },
         "data": {
           "$ref": "#/definitions/BasicInfo"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetCompanyNoticeReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/CompanyNotice"
         },
         "message": {
           "description": "message",
@@ -5860,6 +5952,18 @@
         "uid": {
           "type": "string",
           "x-go-name": "Uid"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "UpdateCompanyNotice": {
+      "description": "A companynotice",
+      "type": "object",
+      "properties": {
+        "notice_str": {
+          "description": "companynotice info",
+          "type": "string",
+          "x-go-name": "NoticeStr"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
