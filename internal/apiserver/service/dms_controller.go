@@ -1750,3 +1750,43 @@ func (d *DMSController) WebHookSendMessage(c echo.Context) error {
 	}
 	return NewOkResp(c)
 }
+
+// swagger:route GET /v1/dms/company_notice dms GetCompanyNotice
+//
+// get company notice info
+//
+//	responses:
+//	  200: body:GetCompanyNoticeReply
+//	  default: body:GenericResp
+func (d *DMSController) GetCompanyNotice(c echo.Context) error {
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	reply, err := d.DMS.GetCompanyNotice(c.Request().Context(), currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route PATCH /v1/dms/company_notice dms UpdateCompanyNotice
+//
+// update company notice info
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) UpdateCompanyNotice(c echo.Context) error {
+	req := new(aV1.UpdateCompanyNoticeReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	err = d.DMS.UpdateCompanyNotice(c.Request().Context(), req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	return NewOkResp(c)
+}
