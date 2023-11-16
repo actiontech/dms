@@ -837,3 +837,22 @@ func convertModelIMConfigType(_type string) biz.ImType {
 		return biz.ImTypeUnknow
 	}
 }
+
+func convertBizCompanyNotice(b *biz.CompanyNotice) (*model.CompanyNotice, error) {
+	return &model.CompanyNotice{
+		Model: model.Model{
+			UID: b.UID,
+		},
+		NoticeStr: b.NoticeStr,
+	}, nil
+}
+
+func convertModelCompanyNotice(m *model.CompanyNotice) (*biz.CompanyNotice, error) {
+
+	p := &biz.CompanyNotice{
+		Base:      convertBase(m.Model),
+		UID:       m.UID,
+		NoticeStr: m.NoticeStr,
+	}
+	return p, nil
+}
