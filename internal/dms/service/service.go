@@ -31,6 +31,7 @@ type DMSService struct {
 	WeChatConfigurationUsecase   *biz.WeChatConfigurationUsecase
 	WebHookConfigurationUsecase  *biz.WebHookConfigurationUsecase
 	IMConfigurationUsecase       *biz.IMConfigurationUsecase
+	CompanyNoticeUsecase         *biz.CompanyNoticeUsecase
 	log                          *utilLog.Helper
 	shutdownCallback             func() error
 }
@@ -85,6 +86,8 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	dmsProxyUsecase, err := biz.NewDmsProxyUsecase(logger, dmsProxyTargetRepo, opts.APIServiceOpts.Port)
 	oauth2ConfigurationRepo := storage.NewOauth2ConfigurationRepo(logger, st)
 	oauth2ConfigurationUsecase := biz.NewOauth2ConfigurationUsecase(logger, tx, oauth2ConfigurationRepo, userUsecase)
+	companyNoticeRepo := storage.NewCompanyNoticeRepo(logger, st)
+	companyNoticeRepoUsecase := biz.NewCompanyNoticeUsecase(logger, tx, companyNoticeRepo, userUsecase)
 	smtpConfigurationRepo := storage.NewSMTPConfigurationRepo(logger, st)
 	smtpConfigurationUsecase := biz.NewSMTPConfigurationUsecase(logger, tx, smtpConfigurationRepo)
 	wechatConfigurationRepo := storage.NewWeChatConfigurationRepo(logger, st)
@@ -120,6 +123,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		WeChatConfigurationUsecase:   wechatConfigurationUsecase,
 		WebHookConfigurationUsecase:  webhookConfigurationUsecase,
 		IMConfigurationUsecase:       imConfigurationUsecase,
+		CompanyNoticeUsecase:         companyNoticeRepoUsecase,
 		log:                          utilLog.NewHelper(logger, utilLog.WithMessageKey("dms.service")),
 		shutdownCallback: func() error {
 			if err := st.Close(); nil != err {

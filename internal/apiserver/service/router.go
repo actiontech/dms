@@ -56,7 +56,6 @@ func (s *APIServer) initRouter() error {
 		userV1.GET("/:user_uid", s.DMSController.GetUser)
 		userV1.DELETE("/:user_uid", s.DMSController.DelUser)
 		userV1.PUT("/:user_uid", s.DMSController.UpdateUser)
-		// userV1.DELETE("/batch", s.APIAdminController.DMSDelUserBatch)
 		userV1.GET(dmsV1.GetUserOpPermissionRouterWithoutPrefix(":user_uid"), s.DMSController.GetUserOpPermission)
 		userV1.PUT("", s.DMSController.UpdateCurrentUser)
 
@@ -107,6 +106,11 @@ func (s *APIServer) initRouter() error {
 		oauth2V1.GET("/link", s.DMSController.Oauth2Link)
 		oauth2V1.GET("/callback", s.DMSController.Oauth2Callback)
 		oauth2V1.POST("/user/bind", s.DMSController.BindOauth2User)
+
+		// company notice
+		companyNoticeV1 := v1.Group("/dms/company_notice")
+		companyNoticeV1.GET("", s.DMSController.GetCompanyNotice)
+		companyNoticeV1.PATCH("", s.DMSController.UpdateCompanyNotice) /* TODO AdminUserAllowed()*/
 
 		configurationV1 := v1.Group("/dms/configurations")
 		configurationV1.GET("/oauth2", s.DMSController.GetOauth2Configuration)          /* TODO AdminUserAllowed()*/
