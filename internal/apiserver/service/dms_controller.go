@@ -101,7 +101,7 @@ func (d *DMSController) ListDBServices(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/db_services/driver_options dms ListDBServiceDriverOption
+// swagger:route GET /v1/dms/db_services/driver_options dms ListDBServiceDriverOption
 //
 // List db service driver option.
 //

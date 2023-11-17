@@ -1510,16 +1510,6 @@
         ],
         "summary": "List db service driver option.",
         "operationId": "ListDBServiceDriverOption",
-        "parameters": [
-          {
-            "type": "string",
-            "x-go-name": "ProjectUid",
-            "description": "project id",
-            "name": "project_uid",
-            "in": "path",
-            "required": true
-          }
-        ],
         "responses": {
           "200": {
             "description": "ListDBServiceDriverOptionReply",

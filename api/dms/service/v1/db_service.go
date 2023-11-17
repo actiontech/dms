@@ -134,14 +134,6 @@ func (u *DelDBServiceReq) String() string {
 	return fmt.Sprintf("DelDBServiceReq{Uid:%s}", u.DBServiceUid)
 }
 
-// swagger:parameters ListDBServiceDriverOption
-type ListDBServiceDriverOptionReq struct {
-	// project id
-	// Required: true
-	// in:path
-	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-}
-
 // swagger:parameters UpdateDBService
 type UpdateDBServiceReq struct {
 	// project id
