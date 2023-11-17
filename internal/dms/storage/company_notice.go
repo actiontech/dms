@@ -22,8 +22,8 @@ type CompanyNoticeRepo struct {
 func NewCompanyNoticeRepo(log utilLog.Logger, s *Storage) *CompanyNoticeRepo {
 	return &CompanyNoticeRepo{Storage: s, log: utilLog.NewHelper(log, utilLog.WithMessageKey("storage.company_notice"))}
 }
-func (d *CompanyNoticeRepo) UpdateCompanyNotice(ctx context.Context, o2c *biz.CompanyNotice) error {
-	model, err := convertBizCompanyNotice(o2c)
+func (d *CompanyNoticeRepo) UpdateCompanyNotice(ctx context.Context, cn *biz.CompanyNotice) error {
+	model, err := convertBizCompanyNotice(cn)
 	if err != nil {
 		return pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert biz company notice: %w", err))
 	}
