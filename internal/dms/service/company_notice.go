@@ -7,15 +7,15 @@ import (
 )
 
 func (d *DMSService) GetCompanyNotice(ctx context.Context, currentUserUid string) (reply *dmsV1.GetCompanyNoticeReply, err error) {
-	companyNotice, exist, err := d.CompanyNoticeUsecase.GetCompanyNotice(ctx, currentUserUid)
+	companyNotice, read, err := d.CompanyNoticeUsecase.GetCompanyNotice(ctx, currentUserUid)
 	if err != nil {
 		return nil, err
 	}
-
-	data := dmsV1.CompanyNotice{}
-	if exist {
+	data := dmsV1.CompanyNotice{
+		ReadByCurrentUser: read,
+	}
+	if companyNotice != nil {
 		data.NoticeStr = companyNotice.NoticeStr
-		data.ReadByCurrentUser = companyNotice.ReadByCurrentUser
 	}
 	return &dmsV1.GetCompanyNoticeReply{
 		Data: data,
