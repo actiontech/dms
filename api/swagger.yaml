@@ -3947,13 +3947,6 @@ paths:
     /v1/dms/projects/{project_uid}/db_services/driver_options:
         get:
             operationId: ListDBServiceDriverOption
-            parameters:
-                - description: project id
-                  in: path
-                  name: project_uid
-                  required: true
-                  type: string
-                  x-go-name: ProjectUid
             responses:
                 "200":
                     description: ListDBServiceDriverOptionReply

@@ -25,6 +25,7 @@ func (s *APIServer) initRouter() error {
 		v1.GET("/dms/basic_info", s.DMSController.GetBasicInfo)
 		v1.GET(biz.PersonalizationUrl, s.DMSController.GetStaticLogo)
 		v1.POST("/dms/personalization", s.DMSController.Personalization)
+		v1.GET("/dms/db_services/driver_options", s.DMSController.ListDBServiceDriverOption)
 
 		dmsProxyV1 := v1.Group(dmsV1.ProxyRouterGroup)
 		dmsProxyV1.POST("", s.DMSController.RegisterDMSProxyTarget)
@@ -35,7 +36,7 @@ func (s *APIServer) initRouter() error {
 		dbServiceV1 := v1.Group(dmsV1.DBServiceRouterGroup)
 		dbServiceV1.POST("", s.DMSController.AddDBService)
 		dbServiceV1.GET("", s.DMSController.ListDBServices)
-		dbServiceV1.GET("/driver_options", s.DMSController.ListDBServiceDriverOption)
+
 		dbServiceV1.DELETE("/:db_service_uid", s.DMSController.DelDBService)
 		dbServiceV1.PUT("/:db_service_uid", s.DMSController.UpdateDBService)
 		dbServiceV1.POST("/connection", s.DMSController.CheckDBServiceIsConnectable)
