@@ -843,16 +843,18 @@ func convertBizCompanyNotice(b *biz.CompanyNotice) (*model.CompanyNotice, error)
 		Model: model.Model{
 			UID: b.UID,
 		},
-		NoticeStr: b.NoticeStr,
+		NoticeStr:   b.NoticeStr,
+		ReadUserIds: b.ReadUserIds,
 	}, nil
 }
 
 func convertModelCompanyNotice(m *model.CompanyNotice) (*biz.CompanyNotice, error) {
-
 	p := &biz.CompanyNotice{
-		Base:      convertBase(m.Model),
-		UID:       m.UID,
-		NoticeStr: m.NoticeStr,
+		Base:        convertBase(m.Model),
+		UID:         m.UID,
+		NoticeStr:   m.NoticeStr,
+		ReadUserIds: m.ReadUserIds,
 	}
+
 	return p, nil
 }

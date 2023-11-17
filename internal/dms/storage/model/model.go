@@ -322,5 +322,17 @@ type BasicConfig struct {
 
 type CompanyNotice struct {
 	Model
-	NoticeStr string `gorm:"type:mediumtext;comment:'企业公告'" json:"notice_str"`
+	NoticeStr   string    `gorm:"type:mediumtext;comment:'企业公告'" json:"notice_str"`
+	ReadUserIds ReadUsers `gorm:"type:longtext" json:"read_user_ids"`
+}
+
+type ReadUsers []string
+
+func (t *ReadUsers) Scan(value interface{}) error {
+	bytesValue, _ := value.([]byte)
+	return json.Unmarshal(bytesValue, t)
+}
+
+func (t ReadUsers) Value() (driver.Value, error) {
+	return json.Marshal(t)
 }

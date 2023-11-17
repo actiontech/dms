@@ -11,9 +11,9 @@ import (
 type CompanyNotice struct {
 	Base
 
-	UID               string
-	NoticeStr         string
-	ReadByCurrentUser bool
+	UID         string
+	NoticeStr   string
+	ReadUserIds []string
 }
 
 func initCompanyNotice() (*CompanyNotice, error) {
