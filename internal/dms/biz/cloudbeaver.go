@@ -433,6 +433,12 @@ func (cu *CloudbeaverUsecase) getCloudbeaverSession(dmsUserId, dmsToken string) 
 	return ""
 }
 
+func (cu *CloudbeaverUsecase) UnbindCBSession(token string) {
+	tokenMapMutex.Lock()
+	defer tokenMapMutex.Unlock()
+	delete(dmsUserIdCloudbeaverLoginMap, token)
+}
+
 func (cu *CloudbeaverUsecase) setCloudbeaverSession(dmsUserId, dmsToken, cloudbeaverSessionId string) {
 	tokenMapMutex.Lock()
 	defer tokenMapMutex.Unlock()
