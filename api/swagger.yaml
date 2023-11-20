@@ -2410,7 +2410,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -3212,6 +3212,21 @@ paths:
             summary: test wechat configuration.
             tags:
                 - dms
+    /v1/dms/db_services/driver_options:
+        get:
+            operationId: ListDBServiceDriverOption
+            responses:
+                "200":
+                    description: ListDBServiceDriverOptionReply
+                    schema:
+                        $ref: '#/definitions/ListDBServiceDriverOptionReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List db service driver option.
+            tags:
+                - dms
     /v1/dms/notifications:
         post:
             operationId: Notification
@@ -3942,21 +3957,6 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: check if the db_service is connectable.
-            tags:
-                - dms
-    /v1/dms/projects/{project_uid}/db_services/driver_options:
-        get:
-            operationId: ListDBServiceDriverOption
-            responses:
-                "200":
-                    description: ListDBServiceDriverOptionReply
-                    schema:
-                        $ref: '#/definitions/ListDBServiceDriverOptionReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: List db service driver option.
             tags:
                 - dms
     /v1/dms/projects/{project_uid}/member_groups:

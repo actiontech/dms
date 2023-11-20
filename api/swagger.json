@@ -573,6 +573,29 @@
         }
       }
     },
+    "/v1/dms/db_services/driver_options": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List db service driver option.",
+        "operationId": "ListDBServiceDriverOption",
+        "responses": {
+          "200": {
+            "description": "ListDBServiceDriverOptionReply",
+            "schema": {
+              "$ref": "#/definitions/ListDBServiceDriverOptionReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/notifications": {
       "post": {
         "tags": [
@@ -1492,29 +1515,6 @@
             "description": "CheckDBServiceIsConnectableReply",
             "schema": {
               "$ref": "#/definitions/CheckDBServiceIsConnectableReply"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      }
-    },
-    "/v1/dms/projects/{project_uid}/db_services/driver_options": {
-      "get": {
-        "tags": [
-          "dms"
-        ],
-        "summary": "List db service driver option.",
-        "operationId": "ListDBServiceDriverOption",
-        "responses": {
-          "200": {
-            "description": "ListDBServiceDriverOptionReply",
-            "schema": {
-              "$ref": "#/definitions/ListDBServiceDriverOptionReply"
             }
           },
           "default": {
@@ -5944,7 +5944,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
