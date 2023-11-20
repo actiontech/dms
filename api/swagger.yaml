@@ -4456,6 +4456,20 @@ paths:
             tags:
                 - dms
     /v1/dms/sessions:
+        delete:
+            operationId: DelSession
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: del a session.
+            tags:
+                - dms
         post:
             operationId: AddSession
             parameters:

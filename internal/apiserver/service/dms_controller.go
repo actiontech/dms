@@ -21,19 +21,21 @@ import (
 )
 
 type DMSController struct {
-	DMS *service.DMSService
+	DMS                *service.DMSService
+	CloudbeaverService *service.CloudbeaverService
 
 	shutdownCallback func() error
 }
 
-func NewDMSController(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSController, error) {
+func NewDMSController(logger utilLog.Logger, opts *conf.DMSOptions, cbService *service.CloudbeaverService) (*DMSController, error) {
 	dmsService, err := service.NewAndInitDMSService(logger, opts)
 	if nil != err {
 		return nil, fmt.Errorf("failed to init dms service: %v", err)
 	}
 	return &DMSController{
 		// log:   log.NewHelper(log.With(logger, "module", "controller/DMS")),
-		DMS: dmsService,
+		DMS:                dmsService,
+		CloudbeaverService: cbService,
 		shutdownCallback: func() error {
 			if err := dmsService.Shutdown(); err != nil {
 				return err
@@ -491,6 +493,25 @@ func (a *DMSController) AddSession(c echo.Context) error {
 			Token: token,
 		},
 	})
+}
+
+// swagger:route DELETE /v1/dms/sessions dms DelSession
+//
+// del a session.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (a *DMSController) DelSession(c echo.Context) error {
+	cookie, err := c.Cookie(constant.DMSToken)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	cookie.MaxAge = -1 // MaxAge<0 means delete cookie now
+	cookie.Path = "/"
+	c.SetCookie(cookie)
+	a.CloudbeaverService.Logout(cookie.Value)
+	return NewOkResp(c)
 }
 
 // swagger:route GET /v1/dms/sessions/user dms GetUserBySession
