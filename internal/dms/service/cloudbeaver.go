@@ -94,3 +94,7 @@ func (cs *CloudbeaverService) GetCloudbeaverConfiguration(ctx context.Context) (
 		},
 	}, nil
 }
+
+func (cs *CloudbeaverService) Logout(session string) {
+	cs.CloudbeaverUsecase.UnbindCBSession(session)
+}
