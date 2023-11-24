@@ -27,6 +27,7 @@ require (
 	github.com/vektah/gqlparser/v2 v2.5.1
 	gopkg.in/chanxuehong/wechat.v1 v1.0.0-20171118020122-aad7e298d1e7
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
+	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gorm.io/driver/mysql v1.4.7
 	gorm.io/gorm v1.24.3
 )
