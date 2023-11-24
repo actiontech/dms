@@ -63,7 +63,7 @@ chmod 440 /etc/security/limits.d/%{name}.conf
 
 grep systemd /proc/1/comm 1>/dev/null 2>&1
 if [ $? -eq 0 ]; then
-    sed -e "s|PIDFile=|PIDFile=$RPM_INSTALL_PREFIX\/dms.pid|g" -e "s|ExecStart=|ExecStart=$RPM_INSTALL_PREFIX\/dms -conf $RPM_INSTALL_PREFIX/config.yaml|g" -e "s|WorkingDirectory=|WorkingDirectory=$RPM_INSTALL_PREFIX|g" $RPM_INSTALL_PREFIX/service-file-template/dms.systemd > /lib/systemd/system/dms.service
+    sed -e "s|PIDFile=|PIDFile=$RPM_INSTALL_PREFIX\/dms.pid|g" -e "s|User=|User=actiontech-universe|g" -e "s|ExecStart=|ExecStart=$RPM_INSTALL_PREFIX\/dms -conf $RPM_INSTALL_PREFIX/config.yaml|g" -e "s|WorkingDirectory=|WorkingDirectory=$RPM_INSTALL_PREFIX|g" $RPM_INSTALL_PREFIX/service-file-template/dms.systemd > /lib/systemd/system/dms.service
 
     systemctl daemon-reload
     systemctl enable dms.service
