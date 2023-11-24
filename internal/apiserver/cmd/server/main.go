@@ -5,8 +5,10 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 
 	"github.com/actiontech/dms/internal/apiserver/conf"
@@ -21,6 +23,7 @@ import (
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	kLog "github.com/go-kratos/kratos/v2/log"
 	"golang.org/x/sync/errgroup"
+	rotate "gopkg.in/natefinch/lumberjack.v2"
 )
 
 // go build -ldflags "-X main.Version=x.y.z"
@@ -36,18 +39,14 @@ func init() {
 	dmsConf.Version = Version
 }
 
-func run(logger utilLog.Logger) error {
+func run(logger utilLog.Logger, opts *conf.DMSOptions) error {
 	log_ := utilLog.NewHelper(logger, utilLog.WithMessageKey(Name))
 
 	gctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	g, errCtx := errgroup.WithContext(gctx)
 
-	opts, err := conf.ReadOptions(logger, flagconf)
-	if nil != err {
-		return fmt.Errorf("failed to read options: %v", err)
-	}
-	err = rand.InitSnowflake(opts.ID)
+	err := rand.InitSnowflake(opts.ID)
 	if nil != err {
 		return fmt.Errorf("failed to Init snowflake: %v", err)
 	}
@@ -121,14 +120,27 @@ func run(logger utilLog.Logger) error {
 func main() {
 	flag.Parse()
 
-	logger := kLog.With(pkgLog.NewStdLogger(os.Stdout, pkgLog.LogTimeLayout),
+	initLogger := pkgLog.NewUtilLogWrapper(kLog.With(pkgLog.NewStdLogger(os.Stdout, pkgLog.LogTimeLayout),
+		"caller", kLog.DefaultCaller,
+	))
+
+	opts, err := conf.ReadOptions(initLogger, flagconf)
+	if nil != err {
+		log.Fatal(err)
+	}
+
+	logger := kLog.With(pkgLog.NewStdLogger(&rotate.Logger{
+		Filename:   filepath.Join(opts.ServiceOpts.Log.Path, "dms.log"),
+		MaxSize:    opts.ServiceOpts.Log.MaxSizeMB, // megabytes
+		MaxBackups: opts.ServiceOpts.Log.MaxBackupNumber,
+		LocalTime:  true,
+	}, pkgLog.LogTimeLayout),
 		"caller", kLog.DefaultCaller,
 	)
 
-	if err := run(pkgLog.NewUtilLogWrapper(logger)); nil != err {
+	if err := run(pkgLog.NewUtilLogWrapper(logger), opts); nil != err {
 		kLog.NewHelper(kLog.With(logger, "module", Name)).Fatalf("failed to run: %v", err)
 	}
-
 }
 
 func startPid(log utilLog.Logger, pidFile string) error {
