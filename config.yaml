@@ -11,6 +11,10 @@ dms:
       port: 3306
       database: dms
       debug: true
+    log:
+      path: logs
+      max_size_mb: 100
+      max_backup_number: 10
   cloudbeaver:
     enable_https: false
     host: 172.41.134.5

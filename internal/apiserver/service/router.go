@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/actiontech/dms/internal/dms/biz"
+	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	pkgLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -174,7 +175,8 @@ func (s *APIServer) installMiddleware() error {
 			return !strings.HasPrefix(c.Request().RequestURI, dmsV1.GroupV1)
 		},
 		Handler: func(context echo.Context, req []byte, reply []byte) {
-			commonLog.NewHelper(s.logger).Log(commonLog.LevelInfo, "middleware.uri", context.Request().RequestURI, "req", string(req), "reply", string(reply))
+			userUid, _ := jwt.GetUserUidStrFromContext(context)
+			commonLog.NewHelper(s.logger).Log(commonLog.LevelDebug, "middleware.uri", context.Request().RequestURI, "user_id", userUid, "req", string(req), "reply", string(reply))
 		},
 	}))
 
@@ -206,8 +208,6 @@ func (s *APIServer) installMiddleware() error {
 		}),
 		SigningKey: dmsV1.JwtSigningKey,
 	}))
-
-	s.echo.Use(ProcessRecordMiddleware(pkgLog.NewKLogWrapper(s.logger)))
 
 	s.echo.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
 		Skipper:  s.DMSController.DMS.DmsProxyUsecase.GetEchoProxySkipper(),
