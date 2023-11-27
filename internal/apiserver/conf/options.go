@@ -35,6 +35,12 @@ type ServiceOptions struct {
 		Database string `yaml:"database" validate:"required"`
 		Debug    bool   `yaml:"debug"`
 	} `yaml:"database"`
+	Log struct {
+		Level           string `yaml:"level"`
+		Path            string `yaml:"path"`
+		MaxSizeMB       int    `yaml:"max_size_mb"`
+		MaxBackupNumber int    `yaml:"max_backup_number"`
+	} `yaml:"log"`
 }
 
 type DatabaseDriverOption struct {
