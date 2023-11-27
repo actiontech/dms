@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/actiontech/dms/internal/dms/biz"
+	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	pkgLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -63,6 +64,7 @@ func (s *APIServer) initRouter() error {
 		sessionv1 := v1.Group(dmsV1.SessionRouterGroup)
 		sessionv1.POST("", s.DMSController.AddSession)
 		sessionv1.GET("/user", s.DMSController.GetUserBySession)
+		sessionv1.DELETE("", s.DMSController.DelSession)
 
 		userGroupV1 := v1.Group("/dms/user_groups")
 		userGroupV1.POST("", s.DMSController.AddUserGroup)
@@ -173,7 +175,8 @@ func (s *APIServer) installMiddleware() error {
 			return !strings.HasPrefix(c.Request().RequestURI, dmsV1.GroupV1)
 		},
 		Handler: func(context echo.Context, req []byte, reply []byte) {
-			commonLog.NewHelper(s.logger).Log(commonLog.LevelInfo, "middleware.uri", context.Request().RequestURI, "req", string(req), "reply", string(reply))
+			userUid, _ := jwt.GetUserUidStrFromContext(context)
+			commonLog.NewHelper(s.logger).Log(commonLog.LevelDebug, "middleware.uri", context.Request().RequestURI, "user_id", userUid, "req", string(req), "reply", string(reply))
 		},
 	}))
 
@@ -206,8 +209,6 @@ func (s *APIServer) installMiddleware() error {
 		SigningKey: dmsV1.JwtSigningKey,
 	}))
 
-	s.echo.Use(ProcessRecordMiddleware(pkgLog.NewKLogWrapper(s.logger)))
-
 	s.echo.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
 		Skipper:  s.DMSController.DMS.DmsProxyUsecase.GetEchoProxySkipper(),
 		Balancer: s.DMSController.DMS.DmsProxyUsecase.GetEchoProxyBalancer(),
@@ -218,20 +219,14 @@ func (s *APIServer) installMiddleware() error {
 
 func (s *APIServer) installController() error {
 
-	// authController, err := NewAuthController(pkgLog.NewKLogWrapper(s.logger), s.opts)
-	// if nil != err {
-	// 	return fmt.Errorf("failed to create authController: %v", err)
-	// }
-	// s.AuthController = authController
-
-	DMSController, err := NewDMSController(s.logger, s.opts)
-	if nil != err {
-		return fmt.Errorf("failed to create DMSController: %v", err)
-	}
-
 	cloudbeaverController, err := NewCloudbeaverController(s.logger, s.opts)
 	if nil != err {
 		return fmt.Errorf("failed to create CloudbeaverController: %v", err)
+	}
+
+	DMSController, err := NewDMSController(s.logger, s.opts, cloudbeaverController.CloudbeaverService)
+	if nil != err {
+		return fmt.Errorf("failed to create DMSController: %v", err)
 	}
 
 	s.DMSController = DMSController
