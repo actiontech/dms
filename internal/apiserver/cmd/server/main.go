@@ -129,14 +129,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	logger := kLog.With(pkgLog.NewStdLogger(&rotate.Logger{
+	logger := kLog.With(kLog.NewFilter(pkgLog.NewStdLogger(&rotate.Logger{
 		Filename:   filepath.Join(opts.ServiceOpts.Log.Path, "dms.log"),
 		MaxSize:    opts.ServiceOpts.Log.MaxSizeMB, // megabytes
 		MaxBackups: opts.ServiceOpts.Log.MaxBackupNumber,
 		LocalTime:  true,
-	}, pkgLog.LogTimeLayout),
-		"caller", kLog.DefaultCaller,
-	)
+	}, pkgLog.LogTimeLayout), kLog.FilterLevel(kLog.ParseLevel(opts.ServiceOpts.Log.Level))), "caller", kLog.DefaultCaller)
 
 	if err := run(pkgLog.NewUtilLogWrapper(logger), opts); nil != err {
 		kLog.NewHelper(kLog.With(logger, "module", Name)).Fatalf("failed to run: %v", err)

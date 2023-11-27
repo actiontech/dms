@@ -36,6 +36,7 @@ type ServiceOptions struct {
 		Debug    bool   `yaml:"debug"`
 	} `yaml:"database"`
 	Log struct {
+		Level           string `yaml:"level"`
 		Path            string `yaml:"path"`
 		MaxSizeMB       int    `yaml:"max_size_mb"`
 		MaxBackupNumber int    `yaml:"max_backup_number"`
