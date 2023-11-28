@@ -196,4 +196,7 @@ fi
 /usr/local/%{name}/dms
 /usr/local/%{name}/config.yaml
 /usr/local/%{name}/init_start.sh
-/usr/local/%{name}/static/* 
+/usr/local/%{name}/static/*
+
+
+%config /usr/local/%{name}/config.yaml
