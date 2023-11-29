@@ -276,9 +276,9 @@ func (d *DBServiceUsecase) DelDBService(ctx context.Context, dbServiceUid, curre
 		return fmt.Errorf("user is not project admin")
 	}
 
-	// 调用其他服务对数据源进行预检查
-	if err := d.pluginUsecase.DelDBServicePreCheck(ctx, ds.GetUID()); err != nil {
-		return fmt.Errorf("precheck del db service failed: %v", err)
+	err = d.pluginUsecase.OperateDataResourceHandle(ctx, ds.UID, dmsCommonV1.DataResourceTypeDBService, dmsCommonV1.OperationTypeDelete, dmsCommonV1.OperationTimingTypeBefore)
+	if err != nil {
+		return fmt.Errorf("plugin handle before delete db_service err: %v", err)
 	}
 
 	if err := d.repo.DelDBService(ctx, dbServiceUid); nil != err {
