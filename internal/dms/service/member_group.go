@@ -61,7 +61,7 @@ func (d *DMSService) ListMemberGroups(ctx context.Context, req *dmsV1.ListMember
 			})
 		}
 
-		roleWithOpRanges, err := d.buildMemberGroupRoleWithOpRanges(ctx, memberGroup.RoleWithOpRanges)
+		roleWithOpRanges, err := d.buildRoleWithOpRanges(ctx, memberGroup.RoleWithOpRanges)
 		if err != nil {
 			return nil, err
 		}
@@ -83,7 +83,7 @@ func (d *DMSService) ListMemberGroups(ctx context.Context, req *dmsV1.ListMember
 	}, nil
 }
 
-func (d *DMSService) buildMemberGroupRoleWithOpRanges(ctx context.Context, roleWithOpRanges []biz.MemberRoleWithOpRange) ([]dmsV1.ListMemberRoleWithOpRange, error) {
+func (d *DMSService) buildRoleWithOpRanges(ctx context.Context, roleWithOpRanges []biz.MemberRoleWithOpRange) ([]dmsV1.ListMemberRoleWithOpRange, error) {
 	ret := make([]dmsV1.ListMemberRoleWithOpRange, 0, len(roleWithOpRanges))
 
 	// 遍历成员的角色&权限范围用于展示
@@ -111,7 +111,8 @@ func (d *DMSService) buildMemberGroupRoleWithOpRanges(ctx context.Context, roleW
 			case biz.OpRangeTypeDBService:
 				dbService, err := d.DBServiceUsecase.GetDBService(ctx, uid)
 				if err != nil {
-					return nil, fmt.Errorf("get db service failed: %v", err)
+					d.log.Errorf("role with operate range db_service_uid: %s, err: %v", uid, err)
+					continue
 				}
 				rangeUidWithNames = append(rangeUidWithNames, dmsV1.UidWithName{Uid: dbService.GetUID(), Name: dbService.Name})
 			// 成员目前只支持配置数据源范围的权限
@@ -151,7 +152,7 @@ func (d *DMSService) GetMemberGroup(ctx context.Context, req *dmsV1.GetMemberGro
 		})
 	}
 
-	roleWithOpRanges, err := d.buildMemberGroupRoleWithOpRanges(ctx, memberGroup.RoleWithOpRanges)
+	roleWithOpRanges, err := d.buildRoleWithOpRanges(ctx, memberGroup.RoleWithOpRanges)
 	if err != nil {
 		return nil, err
 	}
