@@ -44,11 +44,6 @@ func (d *DMSService) AddMember(ctx context.Context, currentUserUid string, req *
 }
 
 func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) (reply *dmsV1.ListMemberReply, err error) {
-	d.log.Infof("ListMembers.req=%v", req)
-	defer func() {
-		d.log.Infof("ListMembers.req=%v;reply=%v;error=%v", req, reply, err)
-	}()
-
 	var orderBy biz.MemberField
 	switch req.OrderBy {
 	case dmsV1.MemberOrderByUserUid:
@@ -91,60 +86,16 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) 
 		if err != nil {
 			return nil, fmt.Errorf("get user failed: %v", err)
 		}
-		ret[i] = &dmsV1.ListMember{
-			MemberUid: m.GetUID(),
-			User:      dmsV1.UidWithName{Uid: user.GetUID(), Name: user.Name},
+
+		roleWithOpRanges, err := d.buildRoleWithOpRanges(ctx, m.RoleWithOpRanges)
+		if err != nil {
+			return nil, err
 		}
 
-		// 遍历成员的角色&权限范围用于展示
-		for _, r := range m.RoleWithOpRanges {
-			// 获取角色
-			role, err := d.RoleUsecase.GetRole(ctx, r.RoleUID)
-			if err != nil {
-				return nil, fmt.Errorf("get role failed: %v", err)
-			}
-
-			isAdmin, err := d.MemberUsecase.IsMemberProjectAdmin(ctx, m.GetUID())
-			if err != nil {
-				return nil, fmt.Errorf("check member is project admin failed: %v", err)
-			}
-
-			// 如果是项目管理员project admin，则表示拥有该项目的所有权限
-			if isAdmin {
-				ret[i].IsProjectAdmin = true
-
-				// 如果不是项目管理员project admin，则展示具体的权限范围
-			} else {
-				// 获取权限范围类型
-				opRangeTyp, err := dmsV1.ParseOpRangeType(r.OpRangeType.String())
-				if err != nil {
-					return nil, fmt.Errorf("parse op range type failed: %v", err)
-				}
-
-				// 获取权限范围
-				rangeUidWithNames := []dmsV1.UidWithName{}
-				for _, uid := range r.RangeUIDs {
-					switch r.OpRangeType {
-					case biz.OpRangeTypeDBService:
-						dbService, err := d.DBServiceUsecase.GetDBService(ctx, uid)
-						if err != nil {
-							return nil, fmt.Errorf("get db service failed: %v", err)
-						}
-						rangeUidWithNames = append(rangeUidWithNames, dmsV1.UidWithName{Uid: dbService.GetUID(), Name: dbService.Name})
-					// 成员目前只支持配置数据源范围的权限
-					case biz.OpRangeTypeProject, biz.OpRangeTypeGlobal:
-						return nil, fmt.Errorf("member currently only support the db service op range type, but got type: %v", r.OpRangeType)
-					default:
-						return nil, fmt.Errorf("unsupported op range type: %v", r.OpRangeType)
-					}
-				}
-
-				ret[i].RoleWithOpRanges = append(ret[i].RoleWithOpRanges, dmsV1.ListMemberRoleWithOpRange{
-					RoleUID:     dmsV1.UidWithName{Uid: role.GetUID(), Name: role.Name},
-					OpRangeType: opRangeTyp,
-					RangeUIDs:   rangeUidWithNames,
-				})
-			}
+		ret[i] = &dmsV1.ListMember{
+			MemberUid:        m.GetUID(),
+			User:             dmsV1.UidWithName{Uid: user.GetUID(), Name: user.Name},
+			RoleWithOpRanges: roleWithOpRanges,
 		}
 	}
 
