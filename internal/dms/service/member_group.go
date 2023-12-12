@@ -109,12 +109,13 @@ func (d *DMSService) buildRoleWithOpRanges(ctx context.Context, roleWithOpRanges
 		for _, uid := range r.RangeUIDs {
 			switch r.OpRangeType {
 			case biz.OpRangeTypeDBService:
-				dbService, err := d.DBServiceUsecase.GetDBService(ctx, uid)
-				if err != nil {
-					d.log.Errorf("role with operate range db_service_uid: %s, err: %v", uid, err)
-					continue
+				if uid != "" {
+					dbService, err := d.DBServiceUsecase.GetDBService(ctx, uid)
+					if err != nil {
+						return nil, fmt.Errorf("get db service failed: %v", err)
+					}
+					rangeUidWithNames = append(rangeUidWithNames, dmsV1.UidWithName{Uid: dbService.GetUID(), Name: dbService.Name})
 				}
-				rangeUidWithNames = append(rangeUidWithNames, dmsV1.UidWithName{Uid: dbService.GetUID(), Name: dbService.Name})
 			// 成员目前只支持配置数据源范围的权限
 			case biz.OpRangeTypeProject, biz.OpRangeTypeGlobal:
 				//return nil, fmt.Errorf("member currently only support the db service op range type, but got type: %v", r.OpRangeType)
