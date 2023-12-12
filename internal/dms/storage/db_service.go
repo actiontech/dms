@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
@@ -111,6 +112,47 @@ func (d *DBServiceRepo) DelDBService(ctx context.Context, dbServiceUid string) e
 		if err := tx.WithContext(ctx).Where("uid = ?", dbServiceUid).Delete(&model.DBService{}).Error; err != nil {
 			return pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to delete db service: %v", err))
 		}
+
+		var memberRoleItems []*model.MemberRoleOpRange
+		if err := tx.WithContext(ctx).Where("op_range_type = ? and find_in_set(?, range_uids)", "db_service", dbServiceUid).Find(&memberRoleItems).Error; err != nil {
+			return pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to find member_role_op_range err: %v", err))
+		}
+
+		for _, item := range memberRoleItems {
+			var dbServiceIds []string
+			for _, uid := range strings.Split(item.RangeUIDs, ",") {
+				if uid != dbServiceUid {
+					dbServiceIds = append(dbServiceIds, uid)
+				}
+			}
+
+			item.RangeUIDs = strings.Join(dbServiceIds, ",")
+
+			if err := tx.WithContext(ctx).Model(&model.MemberRoleOpRange{}).Where("member_uid = ? and role_uid = ? and op_range_type = ?", item.MemberUID, item.RoleUID, item.OpRangeType).Update("range_uids", item.RangeUIDs).Error; err != nil {
+				return pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to update member_role_op_range err: %v", err))
+			}
+		}
+
+		var memberGroupRoleItems []*model.MemberGroupRoleOpRange
+		if err := tx.WithContext(ctx).Where("op_range_type = ? and find_in_set(?, range_uids)", "db_service", dbServiceUid).Find(&memberGroupRoleItems).Error; err != nil {
+			return pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to find member_group_role_op_range err: %v", err))
+		}
+
+		for _, item := range memberGroupRoleItems {
+			var dbServiceIds []string
+			for _, uid := range strings.Split(item.RangeUIDs, ",") {
+				if uid != dbServiceUid {
+					dbServiceIds = append(dbServiceIds, uid)
+				}
+			}
+
+			item.RangeUIDs = strings.Join(dbServiceIds, ",")
+
+			if err := tx.WithContext(ctx).Model(&model.MemberGroupRoleOpRange{}).Where("member_group_uid = ? and role_uid = ? and op_range_type = ?", item.MemberGroupUID, item.RoleUID, item.OpRangeType).Update("range_uids", item.RangeUIDs).Error; err != nil {
+				return pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to update member_group_role_op_range err: %v", err))
+			}
+		}
+
 		return nil
 	})
 }
