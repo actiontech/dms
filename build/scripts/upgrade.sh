@@ -84,7 +84,7 @@ database="sqleback"
 # mysqldump -h "$s_host" -P "$s_port" -u"$s_user" -p"$s_pwd" sqle | mysql -h "$d_host" -P "$d_port" -u"$d_user" -p"$d_pwd" "$database";
 
 funMigrateDMS(){
-  mysql -h "$d_host" -P "$d_port" -u"$d_user" -p"$d_pwd" -e "
+  mysql -h "$d_host" -P "$d_port" -u"$d_user" -p"$d_pwd" -v -e "
   # 切换数据库到dms
   use dms;
 
@@ -167,7 +167,7 @@ funMigrateDMS(){
 }
 
 funMigrateSQLE(){
-  mysql -h "$d_host" -P "$d_port" -u"$d_user" -p"$d_pwd" -e "
+  mysql -h "$d_host" -P "$d_port" -u"$d_user" -p"$d_pwd" -v -e "
 
   # 切换数据库到sqle
   use sqle;
@@ -197,7 +197,8 @@ funMigrateSQLE(){
   insert ignore into ding_talk_instances select * from $database.ding_talk_instances;
 
   # import execute_sql_detail
-  insert ignore into execute_sql_detail select * from $database.execute_sql_detail;
+  # fix wrong sql: insert ignore into execute_sql_detail select * from $database.execute_sql_detail;
+  insert ignore into execute_sql_detail(id, created_at, updated_at, deleted_at, task_id, number, content, description, start_binlog_file, start_binlog_pos, end_binlog_file, end_binlog_pos, row_affects, exec_status, exec_result, \`schema\`, source_file, audit_status, audit_results, audit_fingerprint, audit_level) select id, created_at, updated_at, deleted_at, task_id, number, content, description, start_binlog_file, start_binlog_pos, end_binlog_file, end_binlog_pos, row_affects, exec_status, exec_result, \`schema\`, '' AS source_file, audit_status, audit_results, audit_fingerprint, audit_level from $database.execute_sql_detail;
 
   # import feishu_instances
   insert ignore into feishu_instances select * from $database.feishu_instances;
@@ -206,8 +207,8 @@ funMigrateSQLE(){
   insert ignore into operation_records select * from $database.operation_records;
 
   # import rollback_sql_detail
-  insert ignore into rollback_sql_detail select * from $database.rollback_sql_detail;
-
+  # fix wrong sql: insert ignore into rollback_sql_detail select * from $database.rollback_sql_detail;
+  insert ignore into rollback_sql_detail(id, created_at, updated_at, deleted_at, task_id, number, content, description, start_binlog_file, start_binlog_pos, end_binlog_file, end_binlog_pos, row_affects, exec_status, exec_result, \`schema\`, source_file, execute_sql_id) select id, created_at, updated_at, deleted_at, task_id, number, content, description, start_binlog_file, start_binlog_pos, end_binlog_file, end_binlog_pos, row_affects, exec_status, exec_result, \`schema\`, '' AS source_file, execute_sql_id from $database.rollback_sql_detail;
   # import rule_knowledge
   insert ignore into rule_knowledge select * from $database.rule_knowledge;
 
