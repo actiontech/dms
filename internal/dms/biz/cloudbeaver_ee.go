@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
@@ -40,15 +41,20 @@ func (cu *CloudbeaverUsecase) ResetDbServiceByAuth(ctx context.Context, activeDB
 	if err != nil {
 		return nil, err
 	}
+
 	ret := make([]*DBService, 0)
 	for _, activeDBService := range activeDBServices {
-		for _, dbaccount := range dbaccounts {
-			// use db account instead of admin account
-			if dbaccount.DbServiceUid == activeDBService.UID {
-				activeDBService.User = dbaccount.User
-				activeDBService.Password = dbaccount.Password
-				ret = append(ret, activeDBService)
+		if activeDBService.DBType == constant.DBTypeMySQL.String() {
+			for _, dbaccount := range dbaccounts {
+				// use db account instead of admin account
+				if dbaccount.DbServiceUid == activeDBService.UID {
+					activeDBService.User = dbaccount.User
+					activeDBService.Password = dbaccount.Password
+					ret = append(ret, activeDBService)
+				}
 			}
+		} else {
+			ret = append(ret, activeDBService)
 		}
 	}
 
