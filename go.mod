@@ -17,6 +17,7 @@ require (
 
 require (
 	github.com/99designs/gqlgen v0.17.20
+	github.com/DATA-DOG/go-sqlmock v1.5.1
 	github.com/go-ldap/ldap/v3 v3.4.5
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/iancoleman/strcase v0.3.0
