@@ -206,7 +206,8 @@ func (s *APIServer) installMiddleware() error {
 			}
 			return false
 		}),
-		SigningKey: dmsV1.JwtSigningKey,
+		SigningKey:  dmsV1.JwtSigningKey,
+		TokenLookup: "cookie:dms-token,header:Authorization:Bearer ", // tell the middleware where to get token: from cookie and header,
 	}))
 
 	s.echo.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
