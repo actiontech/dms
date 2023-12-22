@@ -37,10 +37,16 @@ func ParseDBType(s string) (DBType, error) {
 	switch s {
 	case "MySQL":
 		return DBTypeMySQL, nil
+	case "TDSQL For InnoDB":
+		return DBTypeTDSQLForInnoDB, nil
+	case "TiDB":
+		return DBTypeTiDB, nil
 	case "PostgreSQL":
 		return DBTypePostgreSQL, nil
 	case "Oracle":
 		return DBTypeOracle, nil
+	case "DB2":
+		return DBTypeDB2, nil
 	case "SQLServer":
 		return DBTypeSQLServer, nil
 	case "OceanBaseMySQL":
