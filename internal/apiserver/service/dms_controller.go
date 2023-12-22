@@ -3,6 +3,8 @@ package service
 import (
 	"errors"
 	"fmt"
+	"io"
+	"mime"
 	"net/http"
 	"time"
 
@@ -1810,4 +1812,115 @@ func (d *DMSController) UpdateCompanyNotice(c echo.Context) error {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
 	return NewOkResp(c)
+}
+
+// swagger:route GET /v1/dms/configurations/license dms GetLicense
+//
+// get license.
+//
+//	responses:
+//	  200: body:GetLicenseReply
+//	  default: body:GenericResp
+func (d *DMSController) GetLicense(c echo.Context) error {
+	reply, err := d.DMS.GetLicense(c.Request().Context())
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+const (
+	HardwareInfoFileName = "collected.infos"
+	LicenseFileParamKey  = "license_file"
+)
+
+// swagger:route GET /v1/dms/configurations/license/info dms GetLicenseInfo
+//
+// get generate license info.
+//
+//	responses:
+//	  200: file
+func (d *DMSController) GetLicenseInfo(c echo.Context) error {
+	data, err := d.DMS.GetLicenseInfo(c.Request().Context())
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	c.Response().Header().Set(echo.HeaderContentDisposition,
+		mime.FormatMediaType("attachment", map[string]string{"filename": HardwareInfoFileName}))
+
+	return c.Blob(http.StatusOK, echo.MIMEOctetStream, []byte(data))
+}
+
+// swagger:route POST /v1/dms/configurations/license dms SetLicense
+//
+// import license.
+//
+//	 Consumes:
+//	 - multipart/form-data
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) SetLicense(c echo.Context) error {
+	file, exist, err := ReadFileContent(c, LicenseFileParamKey)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	if !exist {
+		return NewErrResp(c, fmt.Errorf("upload file is not exist"), apiError.APIServerErr)
+	}
+	err = d.DMS.SetLicense(c.Request().Context(), file)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	return NewOkResp(c)
+}
+
+// swagger:route POST /v1/dms/configurations/license/check dms CheckLicense
+//
+// notify message.
+//
+//	 Consumes:
+//	 - multipart/form-data
+//
+//	responses:
+//	  200: body:CheckLicenseReply
+//	  default: body:GenericResp
+func (d *DMSController) CheckLicense(c echo.Context) error {
+	file, exist, err := ReadFileContent(c, LicenseFileParamKey)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	if !exist {
+		return NewErrResp(c, fmt.Errorf("upload file is not exist"), apiError.APIServerErr)
+	}
+
+	reply, err := d.DMS.CheckLicense(c.Request().Context(), file)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+
+	return NewOkRespWithReply(c, reply)
+}
+
+// ReadFileContent read content from http body by name if file exist,
+// the name is a http form data key, not file name.
+func ReadFileContent(c echo.Context, name string) (content string, fileExist bool, err error) {
+	file, err := c.FormFile(name)
+	if err == http.ErrMissingFile {
+		return "", false, nil
+	}
+	if err != nil {
+		return "", false, err
+	}
+	src, err := file.Open()
+	if err != nil {
+		return "", false, err
+	}
+	defer src.Close()
+	data, err := io.ReadAll(src)
+	if err != nil {
+		return "", false, err
+	}
+	return string(data), true, nil
 }

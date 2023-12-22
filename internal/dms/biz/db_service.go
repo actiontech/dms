@@ -49,6 +49,11 @@ type DBService struct {
 	SQLEConfig *SQLEConfig
 }
 
+type DBTypeCount struct {
+	DBType string `json:"db_type"`
+	Count  int64  `json:"count"`
+}
+
 func (d *DBService) GetUID() string {
 	return d.UID
 }
@@ -112,6 +117,7 @@ type DBServiceRepo interface {
 	GetDBServices(ctx context.Context, conditions []pkgConst.FilterCondition) (services []*DBService, err error)
 	CheckDBServiceExist(ctx context.Context, dbServiceUids []string) (exists bool, err error)
 	UpdateDBService(ctx context.Context, dbService *DBService) error
+	CountDBService(ctx context.Context) ([]DBTypeCount, error)
 }
 
 type DBServiceUsecase struct {
@@ -415,4 +421,12 @@ func (d *DBServiceUsecase) IsConnectable(ctx context.Context, params dmsCommonV1
 	wg.Wait()
 
 	return ret, nil
+}
+
+func (d *DBServiceUsecase) CountDBService(ctx context.Context) ([]DBTypeCount, error) {
+	counts, err := d.repo.CountDBService(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("count db services failed: %w", err)
+	}
+	return counts, nil
 }

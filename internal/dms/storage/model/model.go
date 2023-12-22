@@ -11,33 +11,31 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetAllModels() []interface{} {
-	return []interface{}{
-		DBService{},
-		User{},
-		UserGroup{},
-		Role{},
-		OpPermission{},
-		DMSConfig{},
-		Member{},
-		MemberRoleOpRange{},
-		MemberGroup{},
-		MemberGroupRoleOpRange{},
-		Project{},
-		ProxyTarget{},
-		Plugin{},
-		Oauth2Configuration{},
-		LDAPConfiguration{},
-		SMTPConfiguration{},
-		WebHookConfiguration{},
-		WeChatConfiguration{},
-		IMConfiguration{},
-		CloudbeaverUserCache{},
-		CloudbeaverConnectionCache{},
-		DatabaseSourceService{},
-		BasicConfig{},
-		CompanyNotice{},
-	}
+var AutoMigrateList = []interface{}{
+	DBService{},
+	User{},
+	UserGroup{},
+	Role{},
+	OpPermission{},
+	DMSConfig{},
+	Member{},
+	MemberRoleOpRange{},
+	MemberGroup{},
+	MemberGroupRoleOpRange{},
+	Project{},
+	ProxyTarget{},
+	Plugin{},
+	Oauth2Configuration{},
+	LDAPConfiguration{},
+	SMTPConfiguration{},
+	WebHookConfiguration{},
+	WeChatConfiguration{},
+	IMConfiguration{},
+	CloudbeaverUserCache{},
+	CloudbeaverConnectionCache{},
+	DatabaseSourceService{},
+	BasicConfig{},
+	CompanyNotice{},
 }
 
 type Model struct {

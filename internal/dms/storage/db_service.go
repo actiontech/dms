@@ -237,3 +237,28 @@ func (d *DBServiceRepo) UpdateDBService(ctx context.Context, dbService *biz.DBSe
 	})
 
 }
+
+func (d *DBServiceRepo) CountDBService(ctx context.Context) ([]biz.DBTypeCount, error) {
+	type Result struct {
+		DBType string `json:"db_type"`
+		Count  int64  `json:"count"`
+	}
+	var results []Result
+
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Model(&model.DBService{}).Select("db_type, count(*) as count").Group("db_type").Find(&results).Error; err != nil {
+			return fmt.Errorf("failed to count dbService: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	dbTypeCounts := make([]biz.DBTypeCount, len(results))
+	for _, result := range results {
+		dbTypeCounts = append(dbTypeCounts, biz.DBTypeCount{
+			DBType: result.DBType,
+			Count:  result.Count,
+		})
+	}
+	return dbTypeCounts, nil
+}
