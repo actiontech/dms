@@ -354,6 +354,27 @@ definitions:
             - password
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    CheckLicenseReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            content:
+                type: string
+                x-go-name: Content
+            license:
+                items:
+                    $ref: '#/definitions/LicenseItem'
+                type: array
+                x-go-name: License
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CompanyNotice:
         description: A companynotice
         properties:
@@ -744,6 +765,27 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-name: GetLDAPConfigurationReply
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetLicenseReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            content:
+                type: string
+                x-go-name: Content
+            license:
+                items:
+                    $ref: '#/definitions/LicenseItem'
+                type: array
+                x-go-name: License
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetMemberGroup:
         properties:
@@ -1183,6 +1225,19 @@ definitions:
             ldap_user_name_rdn_key:
                 type: string
                 x-go-name: LdapUserNameRdnKey
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    LicenseItem:
+        properties:
+            description:
+                type: string
+                x-go-name: Description
+            limit:
+                type: string
+                x-go-name: Limit
+            name:
+                type: string
+                x-go-name: Name
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListDBService:
@@ -2410,7 +2465,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -2992,6 +3047,75 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: Update ldap configuration.
+            tags:
+                - dms
+    /v1/dms/configurations/license:
+        get:
+            operationId: GetLicense
+            responses:
+                "200":
+                    description: GetLicenseReply
+                    schema:
+                        $ref: '#/definitions/GetLicenseReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: get license.
+            tags:
+                - dms
+        post:
+            consumes:
+                - multipart/form-data
+            operationId: SetLicense
+            parameters:
+                - description: license file.
+                  in: formData
+                  name: license_file
+                  type: file
+                  x-go-name: LicenseFile
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: import license.
+            tags:
+                - dms
+    /v1/dms/configurations/license/check:
+        post:
+            consumes:
+                - multipart/form-data
+            operationId: CheckLicense
+            parameters:
+                - description: license file.
+                  in: formData
+                  name: license_file
+                  type: file
+                  x-go-name: LicenseFile
+            responses:
+                "200":
+                    description: CheckLicenseReply
+                    schema:
+                        $ref: '#/definitions/CheckLicenseReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: notify message.
+            tags:
+                - dms
+    /v1/dms/configurations/license/info:
+        get:
+            operationId: GetLicenseInfo
+            responses:
+                "200":
+                    $ref: '#/responses/file'
+            summary: get generate license info.
             tags:
                 - dms
     /v1/dms/configurations/oauth2:
