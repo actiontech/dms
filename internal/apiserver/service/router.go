@@ -8,9 +8,9 @@ import (
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	pkgLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 
+	dmsMiddleware "github.com/actiontech/dms/internal/apiserver/middleware"
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	commonLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
-
 	echojwt "github.com/labstack/echo-jwt/v4"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -134,6 +134,11 @@ func (s *APIServer) initRouter() error {
 		configurationV1.POST("/webhook/test", s.DMSController.TestWebHookConfiguration) /* TODO AdminUserAllowed()*/
 		configurationV1.GET("/sql_query", s.CloudbeaverController.GetSQLQueryConfiguration)
 
+		configurationV1.GET("/license", s.DMSController.GetLicense)          /* TODO AdminUserAllowed()*/
+		configurationV1.POST("/license", s.DMSController.SetLicense)         /* TODO AdminUserAllowed()*/
+		configurationV1.GET("/license/info", s.DMSController.GetLicenseInfo) /* TODO AdminUserAllowed()*/
+		configurationV1.POST("/license/check", s.DMSController.CheckLicense) /* TODO AdminUserAllowed()*/
+
 		// notify
 		notificationV1 := v1.Group(dmsV1.NotificationRouterGroup)
 		notificationV1.POST("", s.DMSController.Notify) /* TODO AdminUserAllowed()*/
@@ -200,6 +205,7 @@ func (s *APIServer) installMiddleware() error {
 			if strings.HasSuffix(c.Request().RequestURI, dmsV1.SessionRouterGroup) ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/oauth2" /* TODO 使用统一方法skip */) ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/personalization/logo") ||
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/license" /* TODO 使用统一方法skip */) ||
 				!strings.HasPrefix(c.Request().RequestURI, dmsV1.CurrentGroupVersion) {
 				logger.Debugf("skipper url jwt check: %v", c.Request().RequestURI)
 				return true
@@ -214,6 +220,9 @@ func (s *APIServer) installMiddleware() error {
 		Balancer: s.DMSController.DMS.DmsProxyUsecase.GetEchoProxyBalancer(),
 		Rewrite:  s.DMSController.DMS.DmsProxyUsecase.GetEchoProxyRewrite(),
 	}))
+
+	s.echo.Use(dmsMiddleware.LicenseAdapter(s.DMSController.DMS.LicenseUsecase))
+
 	return nil
 }
 
