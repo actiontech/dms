@@ -13,12 +13,15 @@ import (
 
 	echojwt "github.com/labstack/echo-jwt/v4"
 
+	dmsApi "github.com/actiontech/dms/api"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 func (s *APIServer) initRouter() error {
+	s.echo.GET("/swagger/*", dmsApi.EchoWrapHandler())
+
 	v1 := s.echo.Group(dmsV1.CurrentGroupVersion)
 
 	// DMS RESTful resource
