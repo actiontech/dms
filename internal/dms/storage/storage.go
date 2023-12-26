@@ -60,7 +60,7 @@ func NewStorage(logger pkgLog.Logger, conf *StorageConfig) (*Storage, error) {
 
 func (s *Storage) AutoMigrate(logger pkgLog.Logger) error {
 	log := pkgLog.NewHelper(logger, pkgLog.WithMessageKey("dms.storage.AutoMigrate"))
-	err := s.db.AutoMigrate(model.GetAllModels()...)
+	err := s.db.AutoMigrate(model.AutoMigrateList...)
 	if err != nil {
 		return pkgErr.WrapStorageErr(log, err)
 	}

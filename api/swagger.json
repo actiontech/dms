@@ -239,6 +239,111 @@
         }
       }
     },
+    "/v1/dms/configurations/license": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "get license.",
+        "operationId": "GetLicense",
+        "responses": {
+          "200": {
+            "description": "GetLicenseReply",
+            "schema": {
+              "$ref": "#/definitions/GetLicenseReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "dms"
+        ],
+        "summary": "import license.",
+        "operationId": "SetLicense",
+        "parameters": [
+          {
+            "type": "file",
+            "x-go-name": "LicenseFile",
+            "description": "license file.",
+            "name": "license_file",
+            "in": "formData"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/license/check": {
+      "post": {
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "dms"
+        ],
+        "summary": "notify message.",
+        "operationId": "CheckLicense",
+        "parameters": [
+          {
+            "type": "file",
+            "x-go-name": "LicenseFile",
+            "description": "license file.",
+            "name": "license_file",
+            "in": "formData"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CheckLicenseReply",
+            "schema": {
+              "$ref": "#/definitions/CheckLicenseReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/license/info": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "get generate license info.",
+        "operationId": "GetLicenseInfo",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/file"
+          }
+        }
+      }
+    },
     "/v1/dms/configurations/oauth2": {
       "get": {
         "tags": [
@@ -3407,6 +3512,34 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "CheckLicenseReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "content": {
+          "type": "string",
+          "x-go-name": "Content"
+        },
+        "license": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LicenseItem"
+          },
+          "x-go-name": "License"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "CompanyNotice": {
       "description": "A companynotice",
       "type": "object",
@@ -3910,6 +4043,34 @@
         }
       },
       "x-go-name": "GetLDAPConfigurationReply",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetLicenseReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "content": {
+          "type": "string",
+          "x-go-name": "Content"
+        },
+        "license": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LicenseItem"
+          },
+          "x-go-name": "License"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetMemberGroup": {
@@ -4472,6 +4633,24 @@
         "ldap_user_name_rdn_key": {
           "type": "string",
           "x-go-name": "LdapUserNameRdnKey"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "LicenseItem": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "limit": {
+          "type": "string",
+          "x-go-name": "Limit"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -5965,7 +6144,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
