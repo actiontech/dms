@@ -21,6 +21,7 @@ require (
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/iancoleman/strcase v0.3.0
 	github.com/labstack/echo-jwt/v4 v4.1.0
+	github.com/moby/sys/mountinfo v0.5.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/stretchr/testify v1.8.2
 	github.com/ungerik/go-dry v0.0.0-20210209114055-a3e162a9e62e
@@ -77,7 +78,7 @@ require (
 	go.mongodb.org/mongo-driver v1.11.3 // indirect
 	golang.org/x/crypto v0.10.0 // indirect
 	golang.org/x/net v0.11.0 // indirect
-	golang.org/x/sys v0.9.0 // indirect
+	golang.org/x/sys v0.9.0
 	golang.org/x/text v0.10.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
