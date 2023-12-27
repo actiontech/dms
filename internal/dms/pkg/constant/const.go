@@ -47,9 +47,9 @@ func ParseDBType(s string) (DBType, error) {
 		return DBTypeOracle, nil
 	case "DB2":
 		return DBTypeDB2, nil
-	case "SQLServer":
+	case "SQL Server":
 		return DBTypeSQLServer, nil
-	case "OceanBaseMySQL":
+	case "OceanBase For MySQL":
 		return DBTypeOceanBaseMySQL, nil
 	default:
 		return "", fmt.Errorf("invalid db type: %s", s)
@@ -60,10 +60,10 @@ const (
 	DBTypeMySQL          DBType = "MySQL"
 	DBTypePostgreSQL     DBType = "PostgreSQL"
 	DBTypeTiDB           DBType = "TiDB"
-	DBTypeDB2            DBType = "DB2"
+	DBTypeSQLServer      DBType = "SQL Server"
 	DBTypeOracle         DBType = "Oracle"
-	DBTypeSQLServer      DBType = "SQLServer"
-	DBTypeOceanBaseMySQL DBType = "OceanBaseMySQL"
+	DBTypeDB2            DBType = "DB2"
+	DBTypeOceanBaseMySQL DBType = "OceanBase For MySQL"
 	DBTypeTDSQLForInnoDB DBType = "TDSQL For InnoDB"
 )
 
