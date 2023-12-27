@@ -4,23 +4,31 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/actiontech/dms/api"
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	pkgLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
+	echoSwagger "github.com/swaggo/echo-swagger"
 
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	commonLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 
-	echojwt "github.com/labstack/echo-jwt/v4"
-
-	dmsApi "github.com/actiontech/dms/api"
+	_ "github.com/actiontech/dms/api"
 	"github.com/go-kratos/kratos/v2/log"
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 func (s *APIServer) initRouter() error {
-	s.echo.GET("/swagger/*", dmsApi.EchoWrapHandler())
+	s.echo.GET("/swagger/*", echoSwagger.EchoWrapHandler(api.ConfigFunc...), func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			if strings.HasSuffix(c.Request().RequestURI, "") {
+
+			}
+			return nil
+		}
+	})
 
 	v1 := s.echo.Group(dmsV1.CurrentGroupVersion)
 
