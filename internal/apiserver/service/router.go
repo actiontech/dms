@@ -23,15 +23,12 @@ import (
 func (s *APIServer) initRouter() error {
 	s.echo.GET("/swagger/*", echoSwagger.EchoWrapHandler(api.ConfigFunc...), func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			if strings.HasSuffix(c.Request().RequestURI, "") {
-				for _, configF := range api.ConfigFunc {
-
+			for _, url := range api.Config.URLs {
+				if strings.HasSuffix(c.Request().RequestURI, url) {
+					api.Config.InstanceName = url
 				}
-				api.ConfigFunc = append(api.ConfigFunc, func(config *echoSwagger.Config) {
-
-				},
-				)
 			}
+			next(c)
 			return nil
 		}
 	})

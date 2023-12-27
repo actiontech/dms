@@ -61,9 +61,12 @@ func init() {
 	}
 }
 
+var Config *echoSwagger.Config
+
 var ConfigFunc []func(*echoSwagger.Config) = []func(*echoSwagger.Config){
 	func(config *echoSwagger.Config) {
 		config.URLs = []string{}
+		Config = config
 	},
 }
 
