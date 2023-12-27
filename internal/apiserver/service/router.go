@@ -28,8 +28,7 @@ func (s *APIServer) initRouter() error {
 					api.Config.InstanceName = url
 				}
 			}
-			next(c)
-			return nil
+			return next(c)
 		}
 	})
 
