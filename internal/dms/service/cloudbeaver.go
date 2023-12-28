@@ -8,6 +8,7 @@ import (
 	"github.com/actiontech/dms/internal/apiserver/conf"
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/internal/dms/storage"
+	dlpBiz "github.com/actiontech/dms/internal/dlp/biz"
 
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 )
@@ -55,6 +56,12 @@ func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) 
 	opPermissionRepo := storage.NewOpPermissionRepo(logger, st)
 	opPermissionUsecase := biz.NewOpPermissionUsecase(logger, tx, opPermissionRepo, pluginUseCase)
 	userUsecase := biz.NewUserUsecase(logger, tx, userRepo, userGroupRepo, pluginUseCase, opPermissionUsecase, opPermissionVerifyUsecase, ldapConfigurationUsecase)
+	dlpUseCase, err := dlpBiz.NewDataLossProtectionUseCase(logger)
+	if err != nil {
+		return nil, fmt.Errorf("failed to new dlp use case: %v", err)
+	}
+	dmsConfigRepo := storage.NewDMSConfigRepo(logger, st)
+	dmsConfigUseCase := biz.NewDMSConfigUseCase(logger, dmsConfigRepo)
 
 	var cfg *biz.CloudbeaverCfg
 	if opts.CloudbeaverOpts != nil {
@@ -68,7 +75,7 @@ func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) 
 	}
 
 	cloudbeaverRepo := storage.NewCloudbeaverRepo(logger, st)
-	cloudbeaverUsecase := biz.NewCloudbeaverUsecase(logger, cfg, userUsecase, dbServiceUseCase, opPermissionVerifyUsecase, cloudbeaverRepo, dmsProxyTargetRepo)
+	cloudbeaverUsecase := biz.NewCloudbeaverUsecase(logger, cfg, userUsecase, dbServiceUseCase, opPermissionVerifyUsecase, dmsConfigUseCase, dlpUseCase, cloudbeaverRepo, dmsProxyTargetRepo)
 	proxyUsecase := biz.NewCloudbeaverProxyUsecase(logger, cloudbeaverUsecase)
 
 	return &CloudbeaverService{
