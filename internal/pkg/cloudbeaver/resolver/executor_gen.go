@@ -576,6 +576,7 @@ type ComplexityRoot struct {
 	SQLExecuteInfo struct {
 		Duration      func(childComplexity int) int
 		FilterText    func(childComplexity int) int
+		FullQuery     func(childComplexity int) int
 		Results       func(childComplexity int) int
 		StatusMessage func(childComplexity int) int
 	}
@@ -4251,6 +4252,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SQLExecuteInfo.FilterText(childComplexity), true
 
+	case "SQLExecuteInfo.fullQuery":
+		if e.complexity.SQLExecuteInfo.FullQuery == nil {
+			break
+		}
+
+		return e.complexity.SQLExecuteInfo.FullQuery(childComplexity), true
+
 	case "SQLExecuteInfo.results":
 		if e.complexity.SQLExecuteInfo.Results == nil {
 			break
@@ -6420,6 +6428,10 @@ type SQLExecuteInfo {
     duration: Int!
     # Actual conditions applied to query
     filterText: String
+#    # original sql query without SQLDataFilter
+#    originalQuery: String
+    # Full query that was executed, contains all used filters
+    fullQuery: String
     # Results
     results: [ SQLQueryResults! ]!
 }
@@ -11234,6 +11246,8 @@ func (ec *executionContext) fieldContext_AsyncTaskInfo_result(ctx context.Contex
 				return ec.fieldContext_SQLExecuteInfo_duration(ctx, field)
 			case "filterText":
 				return ec.fieldContext_SQLExecuteInfo_filterText(ctx, field)
+			case "fullQuery":
+				return ec.fieldContext_SQLExecuteInfo_fullQuery(ctx, field)
 			case "results":
 				return ec.fieldContext_SQLExecuteInfo_results(ctx, field)
 			}
@@ -20202,6 +20216,8 @@ func (ec *executionContext) fieldContext_Mutation_updateResultsDataBatch(ctx con
 				return ec.fieldContext_SQLExecuteInfo_duration(ctx, field)
 			case "filterText":
 				return ec.fieldContext_SQLExecuteInfo_filterText(ctx, field)
+			case "fullQuery":
+				return ec.fieldContext_SQLExecuteInfo_fullQuery(ctx, field)
 			case "results":
 				return ec.fieldContext_SQLExecuteInfo_results(ctx, field)
 			}
@@ -20377,6 +20393,8 @@ func (ec *executionContext) fieldContext_Mutation_asyncSqlExecuteResults(ctx con
 				return ec.fieldContext_SQLExecuteInfo_duration(ctx, field)
 			case "filterText":
 				return ec.fieldContext_SQLExecuteInfo_filterText(ctx, field)
+			case "fullQuery":
+				return ec.fieldContext_SQLExecuteInfo_fullQuery(ctx, field)
 			case "results":
 				return ec.fieldContext_SQLExecuteInfo_results(ctx, field)
 			}
@@ -30564,6 +30582,47 @@ func (ec *executionContext) _SQLExecuteInfo_filterText(ctx context.Context, fiel
 }
 
 func (ec *executionContext) fieldContext_SQLExecuteInfo_filterText(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SQLExecuteInfo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SQLExecuteInfo_fullQuery(ctx context.Context, field graphql.CollectedField, obj *model.SQLExecuteInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SQLExecuteInfo_fullQuery(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FullQuery, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SQLExecuteInfo_fullQuery(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SQLExecuteInfo",
 		Field:      field,
@@ -42762,6 +42821,10 @@ func (ec *executionContext) _SQLExecuteInfo(ctx context.Context, sel ast.Selecti
 		case "filterText":
 
 			out.Values[i] = ec._SQLExecuteInfo_filterText(ctx, field, obj)
+
+		case "fullQuery":
+
+			out.Values[i] = ec._SQLExecuteInfo_fullQuery(ctx, field, obj)
 
 		case "results":
 
