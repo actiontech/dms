@@ -86,7 +86,7 @@ type UpdateUser struct {
 	// User wxid
 	WxID *string `json:"wxid"`
 	// User group uids
-	UserGroupUids *[]string `json:"user_group_uids" validate:"required"`
+	UserGroupUids *[]string `json:"user_group_uids"`
 	// User operation permission uids
 	OpPermissionUids *[]string `json:"op_permission_uids" validate:"required"`
 }
