@@ -97,6 +97,12 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) 
 			User:             dmsV1.UidWithName{Uid: user.GetUID(), Name: user.Name},
 			RoleWithOpRanges: roleWithOpRanges,
 		}
+
+		for _, r := range m.RoleWithOpRanges {
+			if r.RoleUID == pkgConst.UIDOfRoleProjectAdmin {
+				ret[i].IsProjectAdmin = true
+			}
+		}
 	}
 
 	return &dmsV1.ListMemberReply{
