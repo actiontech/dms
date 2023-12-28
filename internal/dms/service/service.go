@@ -44,7 +44,6 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		Port:        opts.ServiceOpts.Database.Port,
 		Schema:      opts.ServiceOpts.Database.Database,
 		AutoMigrate: opts.ServiceOpts.Database.AutoMigrate,
-		Debug:       opts.ServiceOpts.Database.Debug,
 	})
 	if nil != err {
 		return nil, fmt.Errorf("failed to new data: %v", err)
