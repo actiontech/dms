@@ -332,10 +332,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				}
 
 				g := resolver.NewExecutableSchema(resolver.Config{
-					Resolvers: &cloudbeaver.ResolverImpl{
-						Ctx:  c,
-						Next: cloudbeaverNext,
-					},
+					Resolvers: cloudbeaver.NewResolverImpl(c, cloudbeaverNext, cu.SQLExecuteResultsDLP),
 				})
 
 				exec := executor.New(g)
