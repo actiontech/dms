@@ -14,6 +14,8 @@ import (
 	"strings"
 	"sync"
 
+	dlpBiz "github.com/actiontech/dms/internal/dlp/biz"
+
 	"github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver/model"
@@ -70,17 +72,28 @@ type CloudbeaverUsecase struct {
 	userUsecase               *UserUsecase
 	dbServiceUsecase          *DBServiceUsecase
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
+	dmsConfigUseCase          *DMSConfigUseCase
+	dlpUseCase                *dlpBiz.DataLossProtectionUseCase
 	repo                      CloudbeaverRepo
 	proxyTargetRepo           ProxyTargetRepo
 }
 
-func NewCloudbeaverUsecase(log utilLog.Logger, cfg *CloudbeaverCfg, userUsecase *UserUsecase, dbServiceUsecase *DBServiceUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, cloudbeaverRepo CloudbeaverRepo, proxyTargetRepo ProxyTargetRepo) (cu *CloudbeaverUsecase) {
+func NewCloudbeaverUsecase(log utilLog.Logger, cfg *CloudbeaverCfg,
+	userUsecase *UserUsecase,
+	dbServiceUsecase *DBServiceUsecase,
+	opPermissionVerifyUsecase *OpPermissionVerifyUsecase,
+	dmsConfigUseCase *DMSConfigUseCase,
+	dlpUseCase *dlpBiz.DataLossProtectionUseCase,
+	cloudbeaverRepo CloudbeaverRepo,
+	proxyTargetRepo ProxyTargetRepo) (cu *CloudbeaverUsecase) {
 	cu = &CloudbeaverUsecase{
 		repo:                      cloudbeaverRepo,
 		proxyTargetRepo:           proxyTargetRepo,
 		userUsecase:               userUsecase,
 		dbServiceUsecase:          dbServiceUsecase,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
+		dmsConfigUseCase:          dmsConfigUseCase,
+		dlpUseCase:                dlpUseCase,
 		cloudbeaverCfg:            cfg,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.cloudbeaver")),
 	}
@@ -363,6 +376,10 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 			return next(c)
 		}
 	}
+}
+
+func (cu *CloudbeaverUsecase) IsEnableDataLossProtection(ctx context.Context) (bool, error) {
+	return cu.dmsConfigUseCase.IsEnableSQLResultsDataLossProtection(ctx)
 }
 
 func (cu *CloudbeaverUsecase) isEnableSQLAudit(ctx context.Context, params *graphql.RawParams) (bool, error) {
