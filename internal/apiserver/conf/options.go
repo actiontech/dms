@@ -28,12 +28,13 @@ type CloudbeaverOpts struct {
 
 type ServiceOptions struct {
 	Database struct {
-		UserName string `yaml:"username" `
-		Password string `yaml:"password" `
-		Host     string `yaml:"host" validate:"required"`
-		Port     string `yaml:"port" validate:"required"`
-		Database string `yaml:"database" validate:"required"`
-		Debug    bool   `yaml:"debug"`
+		UserName    string `yaml:"username" `
+		Password    string `yaml:"password" `
+		Host        string `yaml:"host" validate:"required"`
+		Port        string `yaml:"port" validate:"required"`
+		Database    string `yaml:"database" validate:"required"`
+		AutoMigrate bool   `yaml:"auto_migrate"`
+		Debug       bool   `yaml:"debug"`
 	} `yaml:"database"`
 	Log struct {
 		Level           string `yaml:"level"`

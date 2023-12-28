@@ -27,12 +27,13 @@ func (s *Storage) Close() error {
 }
 
 type StorageConfig struct {
-	User     string
-	Password string
-	Host     string
-	Port     string
-	Schema   string
-	Debug    bool // 暂时无用
+	User        string
+	Password    string
+	Host        string
+	Port        string
+	Schema      string
+	AutoMigrate bool
+	Debug       bool // 暂时无用
 }
 
 func NewStorage(logger pkgLog.Logger, conf *StorageConfig) (*Storage, error) {
@@ -50,9 +51,12 @@ func NewStorage(logger pkgLog.Logger, conf *StorageConfig) (*Storage, error) {
 	}
 
 	s := &Storage{db: db}
-	if err := s.AutoMigrate(logger); err != nil {
-		log.Errorf("auto migrate failed, error: %v", err)
-		return nil, pkgErr.WrapStorageErr(log, err)
+	if conf.AutoMigrate {
+		if err := s.AutoMigrate(logger); err != nil {
+			log.Errorf("auto migrate failed, error: %v", err)
+			return nil, pkgErr.WrapStorageErr(log, err)
+		}
+		log.Info("auto migrate dms tables")
 	}
 	log.Info("connected to storage")
 	return s, pkgErr.WrapStorageErr(log, err)
