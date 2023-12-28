@@ -38,12 +38,13 @@ type DMSService struct {
 
 func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSService, error) {
 	st, err := storage.NewStorage(logger, &storage.StorageConfig{
-		User:     opts.ServiceOpts.Database.UserName,
-		Password: opts.ServiceOpts.Database.Password,
-		Host:     opts.ServiceOpts.Database.Host,
-		Port:     opts.ServiceOpts.Database.Port,
-		Schema:   opts.ServiceOpts.Database.Database,
-		Debug:    opts.ServiceOpts.Database.Debug,
+		User:        opts.ServiceOpts.Database.UserName,
+		Password:    opts.ServiceOpts.Database.Password,
+		Host:        opts.ServiceOpts.Database.Host,
+		Port:        opts.ServiceOpts.Database.Port,
+		Schema:      opts.ServiceOpts.Database.Database,
+		AutoMigrate: opts.ServiceOpts.Database.AutoMigrate,
+		Debug:       opts.ServiceOpts.Database.Debug,
 	})
 	if nil != err {
 		return nil, fmt.Errorf("failed to new data: %v", err)
