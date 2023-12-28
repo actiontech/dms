@@ -311,6 +311,18 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					}
 				}
 
+				if params.OperationName == "getSqlExecuteTaskResults" {
+					isEnableDLP, err := cu.IsEnableDataLossProtection(c.Request().Context())
+					if err != nil {
+						cu.log.Error(err)
+						return err
+					}
+
+					if !isEnableDLP {
+						return next(c)
+					}
+				}
+
 				params.ReadTime = graphql.TraceTiming{
 					Start: graphql.Now(),
 					End:   graphql.Now(),
