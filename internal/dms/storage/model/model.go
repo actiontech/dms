@@ -131,10 +131,11 @@ type OpPermission struct {
 
 type DMSConfig struct {
 	Model
-	NeedInitOpPermissions bool `json:"need_init_op_permissions" gorm:"column:need_init_op_permissions"`
-	NeedInitUsers         bool `json:"need_init_users" gorm:"column:need_init_users"`
-	NeedInitRoles         bool `json:"need_init_roles" gorm:"column:need_init_roles"`
-	NeedInitProjects      bool `json:"need_init_projects" gorm:"column:need_init_projects"`
+	NeedInitOpPermissions                 bool `json:"need_init_op_permissions" gorm:"column:need_init_op_permissions"`
+	NeedInitUsers                         bool `json:"need_init_users" gorm:"column:need_init_users"`
+	NeedInitRoles                         bool `json:"need_init_roles" gorm:"column:need_init_roles"`
+	NeedInitProjects                      bool `json:"need_init_projects" gorm:"column:need_init_projects"`
+	EnableSQLResultSetsDataLossProtection bool `json:"enable_sql_result_sets_data_loss_protection" gorm:"column:enable_sql_result_sets_data_loss_protection"`
 }
 
 type Member struct {
