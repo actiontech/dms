@@ -100,10 +100,10 @@ func (d *DMSService) AddUser(ctx context.Context, currentUserUid string, req *dm
 }
 
 func (d *DMSService) UpdateUser(ctx context.Context, req *dmsV1.UpdateUserReq, currentUserUid string) (err error) {
-	d.log.Infof("UpdateUser.req=%v", req)
-	defer func() {
-		d.log.Infof("UpdateUser.req=%v;error=%v", req, err)
-	}()
+	/// TODO 当前保留了用户组概念，但暂时未有用户组实际应用场景.前端移除用户组相关功能，默认关联用户组为空
+	if req.User.UserGroupUids == nil {
+		req.User.UserGroupUids = &[]string{}
+	}
 
 	if err = d.UserUsecase.UpdateUser(ctx, currentUserUid, req.UserUid, *req.User.IsDisabled,
 		req.User.Password, req.User.Email, req.User.Phone, req.User.WxID, *req.User.UserGroupUids, *req.User.OpPermissionUids); nil != err {
