@@ -21,12 +21,13 @@ type CloudbeaverService struct {
 func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) (*CloudbeaverService, error) {
 	// todo: because cloudbeaver required userUsecase, optimisation may be needed here
 	st, err := storage.NewStorage(logger, &storage.StorageConfig{
-		User:     opts.ServiceOpts.Database.UserName,
-		Password: opts.ServiceOpts.Database.Password,
-		Host:     opts.ServiceOpts.Database.Host,
-		Port:     opts.ServiceOpts.Database.Port,
-		Schema:   opts.ServiceOpts.Database.Database,
-		Debug:    opts.ServiceOpts.Database.Debug,
+		User:        opts.ServiceOpts.Database.UserName,
+		Password:    opts.ServiceOpts.Database.Password,
+		Host:        opts.ServiceOpts.Database.Host,
+		Port:        opts.ServiceOpts.Database.Port,
+		Schema:      opts.ServiceOpts.Database.Database,
+		Debug:       opts.ServiceOpts.Database.Debug,
+		AutoMigrate: opts.ServiceOpts.Database.AutoMigrate,
 	})
 	if nil != err {
 		return nil, fmt.Errorf("failed to new data: %v", err)
