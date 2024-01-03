@@ -14,7 +14,7 @@ import (
 	"strings"
 	"sync"
 
-	dlpBiz "github.com/actiontech/dms/internal/dlp/biz"
+	maskBiz "github.com/actiontech/dms/internal/data_masking/biz"
 
 	"github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver"
@@ -73,7 +73,7 @@ type CloudbeaverUsecase struct {
 	dbServiceUsecase          *DBServiceUsecase
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	dmsConfigUseCase          *DMSConfigUseCase
-	dlpUseCase                *dlpBiz.DataLossProtectionUseCase
+	dataMaskingUseCase        *maskBiz.DataMaskingUseCase
 	repo                      CloudbeaverRepo
 	proxyTargetRepo           ProxyTargetRepo
 }
@@ -83,7 +83,7 @@ func NewCloudbeaverUsecase(log utilLog.Logger, cfg *CloudbeaverCfg,
 	dbServiceUsecase *DBServiceUsecase,
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase,
 	dmsConfigUseCase *DMSConfigUseCase,
-	dlpUseCase *dlpBiz.DataLossProtectionUseCase,
+	dataMaskingUseCase *maskBiz.DataMaskingUseCase,
 	cloudbeaverRepo CloudbeaverRepo,
 	proxyTargetRepo ProxyTargetRepo) (cu *CloudbeaverUsecase) {
 	cu = &CloudbeaverUsecase{
@@ -93,7 +93,7 @@ func NewCloudbeaverUsecase(log utilLog.Logger, cfg *CloudbeaverCfg,
 		dbServiceUsecase:          dbServiceUsecase,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 		dmsConfigUseCase:          dmsConfigUseCase,
-		dlpUseCase:                dlpUseCase,
+		dataMaskingUseCase:        dataMaskingUseCase,
 		cloudbeaverCfg:            cfg,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.cloudbeaver")),
 	}
@@ -312,13 +312,13 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				}
 
 				if params.OperationName == "getSqlExecuteTaskResults" {
-					isEnableDLP, err := cu.IsEnableDataLossProtection(c.Request().Context())
+					isEnableMasking, err := cu.IsEnableDataMasking(c.Request().Context())
 					if err != nil {
 						cu.log.Error(err)
 						return err
 					}
 
-					if !isEnableDLP {
+					if !isEnableMasking {
 						return next(c)
 					}
 				}
@@ -357,7 +357,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				}
 
 				g := resolver.NewExecutableSchema(resolver.Config{
-					Resolvers: cloudbeaver.NewResolverImpl(c, cloudbeaverNext, cu.SQLExecuteResultsDLP),
+					Resolvers: cloudbeaver.NewResolverImpl(c, cloudbeaverNext, cu.SQLExecuteResultsDataMasking),
 				})
 
 				exec := executor.New(g)
@@ -390,8 +390,8 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 	}
 }
 
-func (cu *CloudbeaverUsecase) IsEnableDataLossProtection(ctx context.Context) (bool, error) {
-	return cu.dmsConfigUseCase.IsEnableSQLResultsDataLossProtection(ctx)
+func (cu *CloudbeaverUsecase) IsEnableDataMasking(ctx context.Context) (bool, error) {
+	return cu.dmsConfigUseCase.IsEnableSQLResultsDataMasking(ctx)
 }
 
 func (cu *CloudbeaverUsecase) isEnableSQLAudit(ctx context.Context, params *graphql.RawParams) (bool, error) {

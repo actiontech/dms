@@ -416,23 +416,23 @@ func convertBizDMSConfig(u *biz.DMSConfig) (*model.DMSConfig, error) {
 		Model: model.Model{
 			UID: u.UID,
 		},
-		NeedInitOpPermissions:                 u.NeedInitOpPermissions,
-		NeedInitUsers:                         u.NeedInitUsers,
-		NeedInitRoles:                         u.NeedInitRoles,
-		NeedInitProjects:                      u.NeedInitProjects,
-		EnableSQLResultSetsDataLossProtection: u.EnableSQLResultSetsDataLossProtection,
+		NeedInitOpPermissions:          u.NeedInitOpPermissions,
+		NeedInitUsers:                  u.NeedInitUsers,
+		NeedInitRoles:                  u.NeedInitRoles,
+		NeedInitProjects:               u.NeedInitProjects,
+		EnableSQLResultSetsDataMasking: u.EnableSQLResultSetsDataMasking,
 	}, nil
 }
 
 func convertModelDMSConfig(u *model.DMSConfig) (*biz.DMSConfig, error) {
 	return &biz.DMSConfig{
-		Base:                                  convertBase(u.Model),
-		UID:                                   u.UID,
-		NeedInitOpPermissions:                 u.NeedInitOpPermissions,
-		NeedInitUsers:                         u.NeedInitUsers,
-		NeedInitRoles:                         u.NeedInitRoles,
-		NeedInitProjects:                      u.NeedInitProjects,
-		EnableSQLResultSetsDataLossProtection: u.EnableSQLResultSetsDataLossProtection,
+		Base:                           convertBase(u.Model),
+		UID:                            u.UID,
+		NeedInitOpPermissions:          u.NeedInitOpPermissions,
+		NeedInitUsers:                  u.NeedInitUsers,
+		NeedInitRoles:                  u.NeedInitRoles,
+		NeedInitProjects:               u.NeedInitProjects,
+		EnableSQLResultSetsDataMasking: u.EnableSQLResultSetsDataMasking,
 	}, nil
 }
 
