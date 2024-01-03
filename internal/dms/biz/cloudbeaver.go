@@ -540,7 +540,6 @@ func (cu *CloudbeaverUsecase) connectManagement(ctx context.Context, cloudbeaver
 		return err
 	}
 
-	var dbServiceIds []string
 	if isAdmin, _ := cu.opPermissionVerifyUsecase.IsUserDMSAdmin(ctx, dmsUser.UID); !isAdmin {
 		opPermissions, err := cu.opPermissionVerifyUsecase.GetUserOpPermission(ctx, dmsUser.UID)
 		if err != nil {
@@ -595,7 +594,7 @@ func (cu *CloudbeaverUsecase) connectManagement(ctx context.Context, cloudbeaver
 	if !exist {
 		return fmt.Errorf("cloudbeaver user: %s not eixst", cloudbeaverUserId)
 	}
-	if err = cu.grantAccessConnection(ctx, cloudbeaverUser, dmsUser, dbServiceIds); err != nil {
+	if err = cu.grantAccessConnection(ctx, cloudbeaverUser, dmsUser, activeDBServices); err != nil {
 		return err
 	}
 
@@ -666,11 +665,15 @@ func (cu *CloudbeaverUsecase) createConnection(ctx context.Context, activeDBServ
 	return nil
 }
 
-func (cu *CloudbeaverUsecase) grantAccessConnection(ctx context.Context, cloudbeaverUser *CloudbeaverUser, dmsUser *User, dbServiceIds []string) error {
+func (cu *CloudbeaverUsecase) grantAccessConnection(ctx context.Context, cloudbeaverUser *CloudbeaverUser, dmsUser *User, activeDBServices []*DBService) error {
 	if cloudbeaverUser.DMSFingerprint != cu.userUsecase.GetUserFingerprint(dmsUser) {
 		return fmt.Errorf("user information is not synchronized, unable to update connection information")
 	}
 
+	dbServiceIds := make([]string, 0, len(activeDBServices))
+	for _, dbService := range activeDBServices {
+		dbServiceIds = append(dbServiceIds, dbService.UID)
+	}
 	cloudbeaverConnections, err := cu.repo.GetCloudbeaverConnectionByDMSDBServiceIds(ctx, dbServiceIds)
 	if err != nil {
 		return err
