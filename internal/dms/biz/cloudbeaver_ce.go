@@ -12,7 +12,7 @@ func (cu *CloudbeaverUsecase) ResetDbServiceByAuth(ctx context.Context, activeDB
 	return activeDBServices, nil
 }
 
-// SQLExecuteResultsDLP 为DMS企业版的脱敏功能，捕获cloudbeaver返回的结果集，根据配置对结果集脱敏
-func (cu *CloudbeaverUsecase) SQLExecuteResultsDLP(ctx context.Context, result *model.SQLExecuteInfo) error {
+// SQLExecuteResultsDataMasking 为DMS企业版的脱敏功能，捕获cloudbeaver返回的结果集，根据配置对结果集脱敏
+func (cu *CloudbeaverUsecase) SQLExecuteResultsDataMasking(ctx context.Context, result *model.SQLExecuteInfo) error {
 	return nil
 }
