@@ -99,6 +99,22 @@ fragment DatabaseConnection on ConnectionInfo {
 `
 }
 
+func (CloudBeaverV2215) DeleteConnectionQuery() string {
+	return `
+mutation deleteConnection(
+  $projectId: ID!
+  $config: ConnectionConfig!
+) {
+  connection: createConnection(projectId: $projectId, config: $config) {
+    ...DatabaseConnection
+  }
+}
+fragment DatabaseConnection on ConnectionInfo {
+  id
+}
+`
+}
+
 func (CloudBeaverV2215) UpdateConnectionQuery() string {
 	return `
 mutation updateConnection(
