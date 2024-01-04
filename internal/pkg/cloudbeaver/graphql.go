@@ -23,12 +23,24 @@ type ResolverImpl struct {
 	*resolver.Resolver
 	Ctx  echo.Context
 	Next Next
+
+	// SQLExecuteResultsHandlerFn 为对SQL结果集的处理方法，具体处理逻辑为业务行为，由外部biz层定义后传入
+	SQLExecuteResultsHandlerFn SQLExecuteResultsHandler
+}
+
+func NewResolverImpl(ctx echo.Context, next Next, SQLExecuteResultsHandlerFn SQLExecuteResultsHandler) *ResolverImpl {
+	return &ResolverImpl{
+		Ctx:                        ctx,
+		Next:                       next,
+		SQLExecuteResultsHandlerFn: SQLExecuteResultsHandlerFn,
+	}
 }
 
 func (r *ResolverImpl) Mutation() resolver.MutationResolver {
 	return &MutationResolverImpl{
-		Ctx:  r.Ctx,
-		Next: r.Next,
+		Ctx:                        r.Ctx,
+		Next:                       r.Next,
+		SQLExecuteResultsHandlerFn: r.SQLExecuteResultsHandlerFn,
 	}
 }
 
@@ -40,10 +52,15 @@ func (r *ResolverImpl) Query() resolver.QueryResolver {
 	}
 }
 
+type SQLExecuteResultsHandler func(ctx context.Context, result *model.SQLExecuteInfo) error
+
 type MutationResolverImpl struct {
 	*resolver.MutationResolverImpl
 	Ctx  echo.Context
 	Next Next
+
+	// SQLExecuteResultsHandlerFn 为对SQL结果集的处理方法，具体处理逻辑为业务行为，由外部biz层定义后传入
+	SQLExecuteResultsHandlerFn SQLExecuteResultsHandler
 }
 
 type QueryResolverImpl struct {
@@ -206,6 +223,33 @@ func (r *MutationResolverImpl) AsyncSQLExecuteQuery(ctx context.Context, project
 	return nil, err
 }
 
+func (r *MutationResolverImpl) AsyncSQLExecuteResults(ctx context.Context, taskID string) (*model.SQLExecuteInfo, error) {
+
+	data, err := r.Next(r.Ctx)
+	if err != nil {
+		return nil, err
+	}
+	
+	resp := &struct {
+		Data struct {
+			Result *model.SQLExecuteInfo `json:"result"`
+		} `json:"data"`
+	}{}
+
+	err = json.Unmarshal(data, resp)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal sql execute info: %v", err)
+	}
+
+	if resp.Data.Result != nil {
+		if err := r.SQLExecuteResultsHandlerFn(ctx, resp.Data.Result); err != nil {
+			return nil, fmt.Errorf("failed to handle sql result: %v", err)
+		}
+	}
+
+	return resp.Data.Result, err
+}
+
 type gqlBehavior struct {
 	UseLocalHandler     bool
 	NeedModifyRemoteRes bool
@@ -227,6 +271,10 @@ var GraphQLHandlerRouters = map[string] /* gql operation name */ gqlBehavior{
 			}
 			return err
 		},
+	},
+	"getSqlExecuteTaskResults": {
+		UseLocalHandler:     true,
+		NeedModifyRemoteRes: true,
 	},
 	"getActiveUser": {
 		UseLocalHandler:     true,

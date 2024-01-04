@@ -497,6 +497,7 @@ type SQLExecuteInfo struct {
 	StatusMessage *string            `json:"statusMessage"`
 	Duration      int                `json:"duration"`
 	FilterText    *string            `json:"filterText"`
+	FullQuery     *string            `json:"fullQuery"`
 	Results       []*SQLQueryResults `json:"results"`
 }
 

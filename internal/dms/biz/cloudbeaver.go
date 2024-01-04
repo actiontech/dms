@@ -14,6 +14,8 @@ import (
 	"strings"
 	"sync"
 
+	maskBiz "github.com/actiontech/dms/internal/data_masking/biz"
+
 	"github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver/model"
@@ -70,17 +72,28 @@ type CloudbeaverUsecase struct {
 	userUsecase               *UserUsecase
 	dbServiceUsecase          *DBServiceUsecase
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
+	dmsConfigUseCase          *DMSConfigUseCase
+	dataMaskingUseCase        *maskBiz.DataMaskingUseCase
 	repo                      CloudbeaverRepo
 	proxyTargetRepo           ProxyTargetRepo
 }
 
-func NewCloudbeaverUsecase(log utilLog.Logger, cfg *CloudbeaverCfg, userUsecase *UserUsecase, dbServiceUsecase *DBServiceUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, cloudbeaverRepo CloudbeaverRepo, proxyTargetRepo ProxyTargetRepo) (cu *CloudbeaverUsecase) {
+func NewCloudbeaverUsecase(log utilLog.Logger, cfg *CloudbeaverCfg,
+	userUsecase *UserUsecase,
+	dbServiceUsecase *DBServiceUsecase,
+	opPermissionVerifyUsecase *OpPermissionVerifyUsecase,
+	dmsConfigUseCase *DMSConfigUseCase,
+	dataMaskingUseCase *maskBiz.DataMaskingUseCase,
+	cloudbeaverRepo CloudbeaverRepo,
+	proxyTargetRepo ProxyTargetRepo) (cu *CloudbeaverUsecase) {
 	cu = &CloudbeaverUsecase{
 		repo:                      cloudbeaverRepo,
 		proxyTargetRepo:           proxyTargetRepo,
 		userUsecase:               userUsecase,
 		dbServiceUsecase:          dbServiceUsecase,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
+		dmsConfigUseCase:          dmsConfigUseCase,
+		dataMaskingUseCase:        dataMaskingUseCase,
 		cloudbeaverCfg:            cfg,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.cloudbeaver")),
 	}
@@ -298,6 +311,18 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					}
 				}
 
+				if params.OperationName == "getSqlExecuteTaskResults" {
+					isEnableMasking, err := cu.IsEnableDataMasking(c.Request().Context())
+					if err != nil {
+						cu.log.Error(err)
+						return err
+					}
+
+					if !isEnableMasking {
+						return next(c)
+					}
+				}
+
 				params.ReadTime = graphql.TraceTiming{
 					Start: graphql.Now(),
 					End:   graphql.Now(),
@@ -332,10 +357,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				}
 
 				g := resolver.NewExecutableSchema(resolver.Config{
-					Resolvers: &cloudbeaver.ResolverImpl{
-						Ctx:  c,
-						Next: cloudbeaverNext,
-					},
+					Resolvers: cloudbeaver.NewResolverImpl(c, cloudbeaverNext, cu.SQLExecuteResultsDataMasking),
 				})
 
 				exec := executor.New(g)
@@ -366,6 +388,10 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 			return next(c)
 		}
 	}
+}
+
+func (cu *CloudbeaverUsecase) IsEnableDataMasking(ctx context.Context) (bool, error) {
+	return cu.dmsConfigUseCase.IsEnableSQLResultsDataMasking(ctx)
 }
 
 func (cu *CloudbeaverUsecase) isEnableSQLAudit(ctx context.Context, params *graphql.RawParams) (bool, error) {
