@@ -12,11 +12,12 @@ import (
 
 type DMSConfig struct {
 	Base
-	UID                   string `json:"uid"`
-	NeedInitOpPermissions bool   `json:"need_init_op_permissions"`
-	NeedInitUsers         bool   `json:"need_init_users"`
-	NeedInitRoles         bool   `json:"need_init_roles"`
-	NeedInitProjects      bool   `json:"need_init_projects"`
+	UID                            string `json:"uid"`
+	NeedInitOpPermissions          bool   `json:"need_init_op_permissions"`
+	NeedInitUsers                  bool   `json:"need_init_users"`
+	NeedInitRoles                  bool   `json:"need_init_roles"`
+	NeedInitProjects               bool   `json:"need_init_projects"`
+	EnableSQLResultSetsDataMasking bool   `json:"enable_sql_result_sets_data_masking"`
 }
 
 type DMSConfigRepo interface {
@@ -40,11 +41,12 @@ func (n *DMSConfigUseCase) GetDMSConfig(ctx context.Context) (*DMSConfig, error)
 		if errors.Is(err, pkgErr.ErrStorageNoData) {
 			// 如果没有找到，则直接初始化
 			dms := &DMSConfig{
-				UID:                   pkgConst.UIDOfDMSConfig,
-				NeedInitOpPermissions: true,
-				NeedInitUsers:         true,
-				NeedInitRoles:         true,
-				NeedInitProjects:      true,
+				UID:                            pkgConst.UIDOfDMSConfig,
+				NeedInitOpPermissions:          true,
+				NeedInitUsers:                  true,
+				NeedInitRoles:                  true,
+				NeedInitProjects:               true,
+				EnableSQLResultSetsDataMasking: false,
 			}
 			if err := n.SaveDMSConfig(ctx, dms); nil != err {
 				return nil, err
@@ -62,4 +64,12 @@ func (n *DMSConfigUseCase) SaveDMSConfig(ctx context.Context, dmsConfig *DMSConf
 
 func (n *DMSConfigUseCase) UpdateDMSConfig(ctx context.Context, dmsConfig *DMSConfig) error {
 	return n.repo.UpdateDMSConfig(ctx, dmsConfig)
+}
+
+func (n *DMSConfigUseCase) IsEnableSQLResultsDataMasking(ctx context.Context) (bool, error) {
+	conf, err := n.GetDMSConfig(ctx)
+	if nil != err {
+		return false, err
+	}
+	return conf.EnableSQLResultSetsDataMasking, nil
 }
