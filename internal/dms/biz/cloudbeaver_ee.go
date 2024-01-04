@@ -7,8 +7,10 @@ import (
 	"errors"
 	"fmt"
 
+	maskBiz "github.com/actiontech/dms/internal/data_masking/biz"
 	"github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
+	"github.com/actiontech/dms/internal/pkg/cloudbeaver/model"
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 )
@@ -76,4 +78,29 @@ func (cu *CloudbeaverUsecase) ListAuthDbAccount(ctx context.Context, url, userId
 	}
 
 	return reply.Data, nil
+}
+
+// SQLExecuteResultsDataMasking 为DMS企业版的脱敏功能，捕获cloudbeaver返回的结果集，根据配置对结果集脱敏
+func (cu *CloudbeaverUsecase) SQLExecuteResultsDataMasking(ctx context.Context, result *model.SQLExecuteInfo) error {
+	for _, r := range result.Results {
+		if r.ResultSet == nil {
+			continue
+		}
+		c := make([]*maskBiz.SqlResultColumn, len(r.ResultSet.Columns))
+		for i := range r.ResultSet.Columns {
+			c[i] = &maskBiz.SqlResultColumn{
+				Name: *r.ResultSet.Columns[i].Name,
+			}
+		}
+
+		params := maskBiz.NewMaskSqlExecuteResultParams(c)
+		for i := range r.ResultSet.Rows {
+			params.AddRows(r.ResultSet.Rows[i])
+		}
+
+		if err := cu.dataMaskingUseCase.MaskSqlExecuteResultByAutoDetection(params); nil != err {
+			return err
+		}
+	}
+	return nil
 }

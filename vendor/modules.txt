@@ -28,6 +28,15 @@ github.com/asaskevich/govalidator
 # github.com/bwmarrin/snowflake v0.3.0
 ## explicit
 github.com/bwmarrin/snowflake
+# github.com/bytedance/godlp v1.2.15
+## explicit; go 1.14
+github.com/bytedance/godlp
+github.com/bytedance/godlp/conf
+github.com/bytedance/godlp/detector
+github.com/bytedance/godlp/dlpheader
+github.com/bytedance/godlp/errlist
+github.com/bytedance/godlp/log
+github.com/bytedance/godlp/mask
 # github.com/chanxuehong/util v0.0.0-20200304121633-ca8141845b13
 ## explicit; go 1.13
 github.com/chanxuehong/util/security
@@ -355,6 +364,9 @@ gopkg.in/gomail.v2
 # gopkg.in/natefinch/lumberjack.v2 v2.0.0
 ## explicit
 gopkg.in/natefinch/lumberjack.v2
+# gopkg.in/yaml.v2 v2.4.0
+## explicit; go 1.15
+gopkg.in/yaml.v2
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
 gopkg.in/yaml.v3
