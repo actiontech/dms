@@ -860,3 +860,25 @@ func convertModelCompanyNotice(m *model.CompanyNotice) (*biz.CompanyNotice, erro
 
 	return p, nil
 }
+
+func convertModelClusterLeader(m *model.ClusterLeader) (*biz.ClusterLeader, error) {
+	return &biz.ClusterLeader{
+		Anchor:       m.Anchor,
+		ServerId:     m.ServerId,
+		LastSeenTime: m.LastSeenTime,
+	}, nil
+}
+
+func convertBizCLusterNodeInfo(b *biz.ClusterNodeInfo) *model.ClusterNodeInfo {
+	return &model.ClusterNodeInfo{
+		ServerId:     b.ServerId,
+		HardwareSign: b.HardwareSign,
+	}
+}
+
+func convertModelClusterNodeInfo(m *model.ClusterNodeInfo) (*biz.ClusterNodeInfo, error) {
+	return &biz.ClusterNodeInfo{
+		ServerId:     m.ServerId,
+		HardwareSign: m.HardwareSign,
+	}, nil
+}

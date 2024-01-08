@@ -36,6 +36,8 @@ var AutoMigrateList = []interface{}{
 	DatabaseSourceService{},
 	BasicConfig{},
 	CompanyNotice{},
+	ClusterLeader{},
+	ClusterNodeInfo{},
 }
 
 type Model struct {
@@ -334,4 +336,17 @@ func (t *ReadUsers) Scan(value interface{}) error {
 
 func (t ReadUsers) Value() (driver.Value, error) {
 	return json.Marshal(t)
+}
+
+type ClusterLeader struct {
+	Anchor       int       `gorm:"primary_key"` // 常量值，保证该表仅有一行不重复记录。无其他意义。
+	ServerId     string    `gorm:"not null"`
+	LastSeenTime time.Time `gorm:"not null"`
+}
+
+type ClusterNodeInfo struct {
+	ServerId     string    `json:"server_id" gorm:"primary_key"`
+	HardwareSign string    `json:"hardware_sign" gorm:"type:varchar(3000)"`
+	CreatedAt    time.Time `json:"created_at" gorm:"<-:create" example:"2018-10-21T16:40:23+08:00"`
+	UpdatedAt    time.Time `json:"updated_at" example:"2018-10-21T16:40:23+08:00"`
 }
