@@ -57,6 +57,20 @@ func (s *APIServer) RunHttpServer(logger utilLog.Logger) error {
 	if err := s.installController(); nil != err {
 		return fmt.Errorf("failed to install controller: %v", err)
 	}
+
+	if s.opts.EnableClusterMode {
+		if s.opts.ServerId == "" {
+			return fmt.Errorf("server id is required on cluster mode")
+		}
+
+		s.DMSController.DMS.ClusterUsecase.SetClusterMode(true)
+		if err := s.DMSController.DMS.ClusterUsecase.Join(s.opts.ServerId); err != nil {
+			return err
+		}
+
+		defer s.DMSController.DMS.ClusterUsecase.Leave()
+	}
+
 	if err := s.installMiddleware(); nil != err {
 		return fmt.Errorf("failed to install middleware: %v", err)
 	}

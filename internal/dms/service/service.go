@@ -33,6 +33,7 @@ type DMSService struct {
 	IMConfigurationUsecase       *biz.IMConfigurationUsecase
 	CompanyNoticeUsecase         *biz.CompanyNoticeUsecase
 	LicenseUsecase               *biz.LicenseUsecase
+	ClusterUsecase               *biz.ClusterUsecase
 	log                          *utilLog.Helper
 	shutdownCallback             func() error
 }
@@ -99,8 +100,10 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	imConfigurationUsecase := biz.NewIMConfigurationUsecase(logger, tx, imConfigurationRepo)
 	basicConfigRepo := storage.NewBasicConfigRepo(logger, st)
 	basicUsecase := biz.NewBasicInfoUsecase(logger, dmsProxyUsecase, basicConfigRepo)
+	clusterRepo := storage.NewClusterRepo(logger, st)
+	clusterUsecase := biz.NewClusterUsecase(logger, tx, clusterRepo)
 	licenseRepo := storage.NewLicenseRepo(logger, st)
-	LicenseUsecase := biz.NewLicenseUsecase(logger, tx, licenseRepo, userUsecase, dbServiceUseCase)
+	LicenseUsecase := biz.NewLicenseUsecase(logger, tx, licenseRepo, userUsecase, dbServiceUseCase, clusterUsecase)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to new dms proxy usecase: %v", err)
@@ -128,6 +131,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		IMConfigurationUsecase:       imConfigurationUsecase,
 		CompanyNoticeUsecase:         companyNoticeRepoUsecase,
 		LicenseUsecase:               LicenseUsecase,
+		ClusterUsecase:               clusterUsecase,
 		log:                          utilLog.NewHelper(logger, utilLog.WithMessageKey("dms.service")),
 		shutdownCallback: func() error {
 			if err := st.Close(); nil != err {
