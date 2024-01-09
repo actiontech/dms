@@ -47,3 +47,10 @@ type CheckLicenseReq struct {
 	// swagger:file
 	LicenseFile *bytes.Buffer `json:"license_file"`
 }
+
+// swagger:response GetLicenseInfoReply
+type GetLicenseInfoReply struct {
+	// swagger:file
+	// in:  body
+	File []byte
+}

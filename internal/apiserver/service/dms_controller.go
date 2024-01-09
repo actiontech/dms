@@ -1839,7 +1839,8 @@ const (
 // get generate license info.
 //
 //	responses:
-//	  200: file
+//	  200: GetLicenseInfoReply
+//	  default: body:GenericResp
 func (d *DMSController) GetLicenseInfo(c echo.Context) error {
 	data, err := d.DMS.GetLicenseInfo(c.Request().Context())
 	if err != nil {

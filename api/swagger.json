@@ -339,7 +339,13 @@
         "operationId": "GetLicenseInfo",
         "responses": {
           "200": {
-            "$ref": "#/responses/file"
+            "$ref": "#/responses/GetLicenseInfoReply"
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
           }
         }
       }
@@ -6144,7 +6150,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
@@ -6735,6 +6741,12 @@
           "type": "string",
           "description": "message"
         }
+      }
+    },
+    "GetLicenseInfoReply": {
+      "description": "",
+      "schema": {
+        "type": "file"
       }
     },
     "GetStaticLogoReply": {

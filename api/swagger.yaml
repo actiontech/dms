@@ -2465,7 +2465,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -3114,7 +3114,11 @@ paths:
             operationId: GetLicenseInfo
             responses:
                 "200":
-                    $ref: '#/responses/file'
+                    $ref: '#/responses/GetLicenseInfoReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
             summary: get generate license info.
             tags:
                 - dms
@@ -4978,6 +4982,10 @@ responses:
             message:
                 description: message
                 type: string
+    GetLicenseInfoReply:
+        description: ""
+        schema:
+            type: file
     GetStaticLogoReply:
         description: ""
         schema:
