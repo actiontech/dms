@@ -258,6 +258,10 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 		}
 		return jwt.GenJwtToken(jwt.WithUserId(uid))
 	} else {
+		// check user state
+		if user.Stat == UserStatDisable {
+			return "", fmt.Errorf("user %s not exist or can not login", userName)
+		}
 		// check password
 		if user.Password != password {
 			return "", pkgErr.ErrBeenBoundOrThePasswordIsWrong
