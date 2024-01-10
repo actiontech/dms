@@ -154,8 +154,13 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 	}
 	data.UserExist = exist
 
-	// the user has successfully logged in at the third party, and the token can be returned directly
+	// the user has successfully logged in at the third party, and the token can be returned directly after checking users'state
 	if exist {
+		if user.Stat == UserStatDisable {
+			err = fmt.Errorf("user %s not exist or can not login", user.Name)
+			data.Error = err.Error()
+			return data.generateQuery(uri), err
+		}
 		token, err := jwt.GenJwtToken(jwt.WithUserId(user.GetUID()))
 		if nil != err {
 			return "", err
@@ -258,6 +263,10 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 		}
 		return jwt.GenJwtToken(jwt.WithUserId(uid))
 	} else {
+		// check user state
+		if user.Stat == UserStatDisable {
+			return "", fmt.Errorf("user %s not exist or can not login", userName)
+		}
 		// check password
 		if user.Password != password {
 			return "", pkgErr.ErrBeenBoundOrThePasswordIsWrong
