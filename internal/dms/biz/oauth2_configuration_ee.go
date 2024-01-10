@@ -154,8 +154,13 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 	}
 	data.UserExist = exist
 
-	// the user has successfully logged in at the third party, and the token can be returned directly
+	// the user has successfully logged in at the third party, and the token can be returned directly after checking users'state
 	if exist {
+		if user.Stat == UserStatDisable {
+			err = fmt.Errorf("user %s not exist or can not login", user.Name)
+			data.Error = err.Error()
+			return data.generateQuery(uri), err
+		}
 		token, err := jwt.GenJwtToken(jwt.WithUserId(user.GetUID()))
 		if nil != err {
 			return "", err
