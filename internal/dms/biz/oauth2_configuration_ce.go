@@ -10,7 +10,7 @@ import (
 var errNotSupportOauth2 = errors.New("oauth2 related functions are enterprise version functions")
 
 func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Context, enableOauth2 *bool, clientID, clientKey, clientHost, serverAuthUrl, serverTokenUrl, serverUserIdUrl,
-	accessTokenTag, userIdTag, loginTip *string, scopes *[]string) error {
+	accessTokenTag, userIdTag, userWechatTag, userEmailTag, loginTip *string, scopes *[]string) error {
 
 	return errNotSupportOauth2
 }
@@ -23,8 +23,8 @@ func (d *Oauth2ConfigurationUsecase) GenOauth2LinkURI(ctx context.Context) (uri 
 	return "", errNotSupportOauth2
 }
 
-func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, state, code string) (string, error) {
-	return "", errNotSupportOauth2
+func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, state, code string) (string, string, error) {
+	return "", "", errNotSupportOauth2
 }
 
 func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2Token, userName, password string) (token string, err error) {
