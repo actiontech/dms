@@ -213,6 +213,8 @@ type Oauth2Configuration struct {
 	Scopes          string `json:"scopes" gorm:"size:255;column:scopes"`
 	AccessTokenTag  string `json:"access_token_tag" gorm:"size:255;column:access_token_tag"`
 	UserIdTag       string `json:"user_id_tag" gorm:"size:255;column:user_id_tag"`
+	UserWeChatTag   string `json:"user_wechat_tag" gorm:"size:255;column:user_wechat_tag"`
+	UserEmailTag    string `json:"user_email_tag" gorm:"size:255;column:user_email_tag"`
 	LoginTip        string `json:"login_tip" gorm:"size:255;column:login_tip; default:'使用第三方账户登录'"`
 }
 

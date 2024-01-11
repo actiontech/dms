@@ -39,6 +39,8 @@ func (d *DMSService) GetOauth2Configuration(ctx context.Context) (reply *dmsV1.G
 			AccessTokenTag:  oauth2C.AccessTokenTag,
 			UserIdTag:       oauth2C.UserIdTag,
 			LoginTip:        oauth2C.LoginTip,
+			UserEmailTag:    oauth2C.UserEmailTag,
+			UserWeChatTag:   oauth2C.UserWeChatTag,
 		},
 	}, nil
 }
@@ -73,10 +75,22 @@ func (d *DMSService) UpdateOauth2Configuration(ctx context.Context, req *dmsV1.O
 	}()
 
 	oauth2Configuration := req.Oauth2Configuration
-	return d.Oauth2ConfigurationUsecase.UpdateOauth2Configuration(ctx, oauth2Configuration.EnableOauth2,
-		oauth2Configuration.ClientID, oauth2Configuration.ClientKey, oauth2Configuration.ClientHost,
-		oauth2Configuration.ServerAuthUrl, oauth2Configuration.ServerTokenUrl, oauth2Configuration.ServerUserIdUrl,
-		oauth2Configuration.AccessTokenTag, oauth2Configuration.UserIdTag, oauth2Configuration.LoginTip, oauth2Configuration.Scopes)
+	return d.Oauth2ConfigurationUsecase.UpdateOauth2Configuration(
+		ctx,
+		oauth2Configuration.EnableOauth2,
+		oauth2Configuration.ClientID,
+		oauth2Configuration.ClientKey,
+		oauth2Configuration.ClientHost,
+		oauth2Configuration.ServerAuthUrl,
+		oauth2Configuration.ServerTokenUrl,
+		oauth2Configuration.ServerUserIdUrl,
+		oauth2Configuration.AccessTokenTag,
+		oauth2Configuration.UserIdTag,
+		oauth2Configuration.UserWeChatTag,
+		oauth2Configuration.UserEmailTag,
+		oauth2Configuration.LoginTip,
+		oauth2Configuration.Scopes,
+	)
 }
 
 func (d *DMSService) Oauth2Link(ctx context.Context) (uri string, err error) {
@@ -92,17 +106,18 @@ func (d *DMSService) Oauth2Link(ctx context.Context) (uri string, err error) {
 	return uri, nil
 }
 
-func (d *DMSService) Oauth2Callback(ctx context.Context, req *dmsV1.Oauth2CallbackReq) (uri string, err error) {
+// if redirect directly to SQLE, will return token, otherwise this parameter will be an empty string
+func (d *DMSService) Oauth2Callback(ctx context.Context, req *dmsV1.Oauth2CallbackReq) (uri string, token string, err error) {
 	d.log.Infof("Oauth2Callback")
 	defer func() {
 		d.log.Infof("Oauth2Callback;error=%v", err)
 	}()
 
-	uri, err = d.Oauth2ConfigurationUsecase.GenerateCallbackUri(ctx, req.State, req.Code)
+	uri, token, err = d.Oauth2ConfigurationUsecase.GenerateCallbackUri(ctx, req.State, req.Code)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
-	return uri, nil
+	return uri, token, nil
 }
 
 func (d *DMSService) BindOauth2User(ctx context.Context, bindOauth2User *dmsV1.BindOauth2UserReq) (reply *dmsV1.BindOauth2UserReply, err error) {
