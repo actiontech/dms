@@ -621,6 +621,8 @@ func convertBizOauth2Configuration(b *biz.Oauth2Configuration) (*model.Oauth2Con
 		AccessTokenTag:  b.AccessTokenTag,
 		UserIdTag:       b.UserIdTag,
 		LoginTip:        b.LoginTip,
+		UserWeChatTag:   b.UserWeChatTag,
+		UserEmailTag:    b.UserEmailTag,
 	}, nil
 }
 
@@ -648,6 +650,8 @@ func convertModelOauth2Configuration(m *model.Oauth2Configuration) (*biz.Oauth2C
 		AccessTokenTag:  m.AccessTokenTag,
 		UserIdTag:       m.UserIdTag,
 		LoginTip:        m.LoginTip,
+		UserWeChatTag:   m.UserWeChatTag,
+		UserEmailTag:    m.UserEmailTag,
 	}
 	return p, nil
 }

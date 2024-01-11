@@ -12,6 +12,8 @@ type GetOauth2ConfigurationResData struct {
 	Scopes          []string `json:"scopes"`
 	AccessTokenTag  string   `json:"access_token_tag"`
 	UserIdTag       string   `json:"user_id_tag"`
+	UserEmailTag    string   `json:"user_email_tag"`
+	UserWeChatTag   string   `json:"user_wechat_tag"`
 	LoginTip        string   `json:"login_tip"`
 }
 
@@ -40,6 +42,8 @@ type Oauth2Configuration struct {
 	Scopes          *[]string `json:"scopes"`
 	AccessTokenTag  *string   `json:"access_token_tag"`
 	UserIdTag       *string   `json:"user_id_tag"`
+	UserEmailTag    *string   `json:"user_email_tag"`
+	UserWeChatTag   *string   `json:"user_wechat_tag"`
 	// Maximum: 28
 	LoginTip *string `json:"login_tip" validate:"max=28"`
 }
