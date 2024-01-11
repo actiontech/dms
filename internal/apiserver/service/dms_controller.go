@@ -1455,9 +1455,17 @@ func (d *DMSController) Oauth2Callback(c echo.Context) error {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	uri, err := d.DMS.Oauth2Callback(c.Request().Context(), req)
+	uri, token, err := d.DMS.Oauth2Callback(c.Request().Context(), req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	if token != "" {
+		c.SetCookie(&http.Cookie{
+			Name:    constant.DMSToken,
+			Value:   token,
+			Path:    "/",
+			Expires: time.Now().Add(24 * time.Hour),
+		})
 	}
 	return c.Redirect(http.StatusFound, uri)
 }
@@ -1479,7 +1487,12 @@ func (d *DMSController) BindOauth2User(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
-
+	c.SetCookie(&http.Cookie{
+		Name:    constant.DMSToken,
+		Value:   reply.Data.Token,
+		Path:    "/",
+		Expires: time.Now().Add(24 * time.Hour),
+	})
 	return NewOkRespWithReply(c, reply)
 }
 
