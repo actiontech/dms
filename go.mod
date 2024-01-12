@@ -20,6 +20,7 @@ require (
 	github.com/go-ldap/ldap/v3 v3.4.5
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/iancoleman/strcase v0.3.0
+	github.com/json-iterator/go v1.1.12
 	github.com/labstack/echo-jwt/v4 v4.1.0
 	github.com/moby/sys/mountinfo v0.5.0
 	github.com/robfig/cron/v3 v3.0.1
@@ -43,6 +44,8 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
 	golang.org/x/mod v0.8.0 // indirect
