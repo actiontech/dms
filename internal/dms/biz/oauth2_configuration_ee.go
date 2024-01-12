@@ -168,9 +168,6 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 			return data.generateQuery(uri), "", err
 		}
 		dmsToken, err = jwt.GenJwtToken(jwt.WithUserId(user.GetUID()))
-		if nil != err {
-			return "", "", err
-		}
 		if err != nil {
 			data.Error = err.Error()
 			return data.generateQuery(uri), "", err
