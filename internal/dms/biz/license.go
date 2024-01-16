@@ -16,21 +16,23 @@ type LicenseRepo interface {
 }
 
 type LicenseUsecase struct {
-	tx          TransactionGenerator
-	repo        LicenseRepo
-	userUsecase *UserUsecase
-	DBService   *DBServiceUsecase
-	log         *utilLog.Helper
-	cron        *cron.Cron
+	tx             TransactionGenerator
+	repo           LicenseRepo
+	userUsecase    *UserUsecase
+	DBService      *DBServiceUsecase
+	log            *utilLog.Helper
+	cron           *cron.Cron
+	clusterUsecase *ClusterUsecase
 }
 
-func NewLicenseUsecase(log utilLog.Logger, tx TransactionGenerator, repo LicenseRepo, usecase *UserUsecase, serviceUsecase *DBServiceUsecase) *LicenseUsecase {
+func NewLicenseUsecase(log utilLog.Logger, tx TransactionGenerator, repo LicenseRepo, usecase *UserUsecase, serviceUsecase *DBServiceUsecase, clusterUsecase *ClusterUsecase) *LicenseUsecase {
 	lu := &LicenseUsecase{
-		tx:          tx,
-		repo:        repo,
-		log:         utilLog.NewHelper(log, utilLog.WithMessageKey("biz.license")),
-		userUsecase: usecase,
-		DBService:   serviceUsecase,
+		tx:             tx,
+		repo:           repo,
+		log:            utilLog.NewHelper(log, utilLog.WithMessageKey("biz.license")),
+		userUsecase:    usecase,
+		DBService:      serviceUsecase,
+		clusterUsecase: clusterUsecase,
 	}
 
 	lu.initial()

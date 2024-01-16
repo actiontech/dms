@@ -23,6 +23,8 @@ dms:
     admin_user: administrator
     admin_password: 123456
   secret_key:
+  server_id:
+  enable_cluster_mode: false
   database_driver_options:
     - db_type: MySQL
       logo_path: "/logo/mysql.png"
