@@ -44,6 +44,11 @@ PROJECT_VERSION = $(shell if [ "$$(git tag --points-at HEAD | tail -n1)" ]; then
 
 override RPM_NAME = $(PROJECT_NAME)-$(EDITION)-$(PROJECT_VERSION).$(RELEASE).$(OS_VERSION).$(RPMBUILD_TARGET).rpm
 
+ADDITIONAL_PROJECT_NAME ?=
+ifdef ADDITIONAL_PROJECT_NAME
+	override RPM_NAME := $(PROJECT_NAME)-$(ADDITIONAL_PROJECT_NAME)-$(EDITION)-$(PROJECT_VERSION).$(RELEASE).$(OS_VERSION).$(RPMBUILD_TARGET).rpm
+endif
+
 override FTP_PATH = ftp://$(RELEASE_FTPD_HOST)/actiontech-$(PROJECT_NAME)/$(EDITION)/$(RELEASE)/$(PROJECT_VERSION)/$(RPM_NAME)
 
 ############################### compiler ##################################
@@ -63,6 +68,58 @@ docker_rpm: docker_install
 	--define 'commit $(GIT_COMMIT)' --define 'os_version $(OS_VERSION)' --define 'project_name $(PROJECT_NAME)' \
 	--target $(RPMBUILD_TARGET)  -bb -vv --with qa /universe/dms/build/dms.spec >>/tmp/build.log 2>&1) && \
 	(cat /root/rpmbuild/RPMS/$(RPMBUILD_TARGET)/${PROJECT_NAME}-$(GIT_COMMIT)-$(OS_VERSION).$(RPMBUILD_TARGET).rpm) || (cat /tmp/build.log && exit 1)" > $(RPM_NAME) && \
+	md5sum $(RPM_NAME) > $(RPM_NAME).md5
+
+override PRE_DIR = $(dir $(CURDIR))
+
+dms_sqle_provision_rpm_pre: docker_install
+	rm -rf builddir
+
+	mkdir -p ./builddir/bin
+	mkdir -p ./builddir/config
+	mkdir -p ./builddir/static/logo
+	mkdir -p ./builddir/scripts
+	mkdir -p ./builddir/neo4j-community
+	mkdir -p ./builddir/lib
+
+	# 前端文件
+	cp -R ${PRE_DIR}dms-ui/packages/base/dist/* ./builddir/static/
+
+	# dms文件
+	cp ./bin/dms ./builddir/bin/dms
+	cp ./config.yaml ./builddir/config/dms.yaml
+	cp ./build/service-file-template/dms.systemd ./builddir/scripts/dms.systemd
+	cp ./build/scripts/dms_sqle_provision.sh ./builddir/scripts/init_start.sh
+	cp ./build/logo/* ./builddir/static/logo/
+
+	# provision文件
+	cp ${PRE_DIR}provision/bin/provision ./builddir/bin/provision
+	cp ${PRE_DIR}provision/build/service-file-template/neo4j.systemd ./builddir/scripts/neo4j.systemd
+	cp ${PRE_DIR}provision/build/service-file-template/provision.systemd ./builddir/scripts/provision.systemd
+	cp ${PRE_DIR}provision/config.yaml ./builddir/config/provision.yaml
+	cp -R ${PRE_DIR}provision/build/neo4j-community/* ./builddir/neo4j-community/
+	cp -R ${PRE_DIR}provision/lib/* ./builddir/lib/
+
+	# sqle文件
+	cp ${PRE_DIR}sqle/config.yaml.template ./builddir/config/sqle.yaml
+	cp ${PRE_DIR}sqle/bin/sqled ./builddir/bin/sqled
+	cp ${PRE_DIR}sqle/bin/scannerd ./builddir/bin/scannerd
+	cp ${PRE_DIR}sqle/scripts/sqled.systemd ./builddir/scripts/sqled.systemd
+
+	# 合并配置文件
+	touch ./builddir/config/config.yaml
+	cat ./builddir/config/dms.yaml >> ./builddir/config/config.yaml
+	cat ./builddir/config/sqle.yaml >> ./builddir/config/config.yaml
+	cat ./builddir/config/provision.yaml >> ./builddir/config/config.yaml
+	rm ./builddir/config/dms.yaml ./builddir/config/sqle.yaml ./builddir/config/provision.yaml
+
+# 本地打包需要先编译sqle,provision,dms-ui相关文件
+dms_sqle_provision_rpm: dms_sqle_provision_rpm_pre
+	$(DOCKER) run -v $(shell pwd):/universe/dms --user root --rm $(RPM_BUILD_IMAGE) sh -c "(mkdir -p /root/rpmbuild/SOURCES >/dev/null 2>&1);cd /root/rpmbuild/SOURCES; \
+	(tar zcf ${PROJECT_NAME}.tar.gz /universe/dms --transform 's/universe/${PROJECT_NAME}-$(GIT_COMMIT)/' > /tmp/build.log 2>&1) && \
+	(rpmbuild --define 'group_name $(RPM_USER_GROUP_NAME)' --define 'user_name $(RPM_USER_NAME)' --define 'commit $(GIT_COMMIT)' --define 'os_version $(OS_VERSION)' \
+	--target $(RPMBUILD_TARGET) --with qa -bb /universe/dms/build/dms_sqle_provision.spec >> /tmp/build.log 2>&1) && \
+	(cat ~/rpmbuild/RPMS/$(RPMBUILD_TARGET)/${PROJECT_NAME}-$(GIT_COMMIT)-qa.$(OS_VERSION).$(RPMBUILD_TARGET).rpm) || (cat /tmp/build.log && exit 1)" > $(RPM_NAME) && \
 	md5sum $(RPM_NAME) > $(RPM_NAME).md5
 
 upload_rpm:
