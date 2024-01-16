@@ -5,6 +5,7 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"time"
@@ -63,10 +64,34 @@ func (d *LicenseUsecase) GetLicense(ctx context.Context) (*v1.GetLicenseReply, e
 }
 
 func (d *LicenseUsecase) GetLicenseInfo(ctx context.Context) ([]byte, error) {
+	if d.clusterUsecase.IsClusterMode() {
+		nodes, err := d.clusterUsecase.repo.GetClusterNodes(ctx)
+		if err != nil {
+			return nil, err
+		}
+		var clusterHardwareSigns []license.ClusterHardwareSign
+		for _, node := range nodes {
+			if node.ServerId != "" && node.HardwareSign != "" {
+				clusterHardwareSigns = append(clusterHardwareSigns, license.ClusterHardwareSign{
+					Id:   node.ServerId,
+					Sign: node.HardwareSign,
+				})
+			}
+		}
+
+		hardwareSign, err := json.Marshal(clusterHardwareSigns)
+		if err != nil {
+			return nil, err
+		}
+
+		return hardwareSign, nil
+	}
+
 	hardwareSign, err := license.CollectHardwareInfo()
 	if err != nil {
 		return nil, license.ErrCollectLicenseInfo
 	}
+
 	return []byte(hardwareSign), nil
 }
 
@@ -285,6 +310,11 @@ func (d *LicenseUsecase) CheckCanCreateInstance(ctx context.Context, dbType stri
 }
 
 func (d *LicenseUsecase) initial() {
+	// 集群模式，只有leader节点需要执行定时任务
+	if d.clusterUsecase.IsClusterMode() && !d.clusterUsecase.IsLeader() {
+		return
+	}
+
 	if d.cron == nil {
 		d.cron = cron.New()
 	}
