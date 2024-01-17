@@ -289,6 +289,35 @@ definitions:
                 x-go-name: Value
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    AuditSQLResult:
+        properties:
+            audit_level:
+                type: string
+                x-go-name: AuditLevel
+            audit_result:
+                type: string
+                x-go-name: AuditResult
+            audit_status:
+                type: string
+                x-go-name: AuditStatus
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AuditTaskResult:
+        description: SQL审核结果
+        properties:
+            audit_level:
+                type: string
+                x-go-name: AuditLevel
+            pass_rate:
+                format: double
+                type: number
+                x-go-name: PassRate
+            score:
+                format: int32
+                type: integer
+                x-go-name: Score
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     BasicInfo:
         properties:
             components:
@@ -760,46 +789,32 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetDataExportTask:
         properties:
-            audit_level:
-                description: SQL审核结果
-                type: string
-                x-go-name: AuditLevel
+            audit_result:
+                $ref: '#/definitions/AuditTaskResult'
             db_info:
                 $ref: '#/definitions/TaskDBInfo'
-            exec_end_time:
+            export_end_time:
                 type: string
-                x-go-name: ExecEndTime
-            exec_start_time:
+                x-go-name: ExportEndTime
+            export_start_time:
                 type: string
-                x-go-name: ExecStartTime
-            execution_user_name:
-                type: string
-                x-go-name: ExecutionUserName
+                x-go-name: ExportStartTime
             file_name:
                 type: string
                 x-go-name: FileName
-            instance_name:
-                type: string
-                x-go-name: InstanceName
-            pass_rate:
-                format: double
-                type: number
-                x-go-name: PassRate
-            score:
-                format: int32
-                type: integer
-                x-go-name: Score
             status:
+                enum:
+                    - init
+                    - exporting
+                    - finish
+                    - failed
                 type: string
+                x-go-enum-desc: |-
+                    init StatusInit
+                    exporting StatusExporting
+                    finish StatusFinish
+                    failed StatusFailed
                 x-go-name: Status
-            task_pass_rate:
-                format: int64
-                type: integer
-                x-go-name: TaskPassRate
-            task_score:
-                format: int64
-                type: integer
-                x-go-name: TaskScore
             task_uid:
                 type: string
                 x-go-name: TaskUid
@@ -1546,27 +1561,14 @@ definitions:
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ListDataExportTaskSQL:
         properties:
-            audit_level:
-                type: string
-                x-go-name: AuditLevel
-            audit_result:
-                type: string
-                x-go-name: AuditResult
-            audit_status:
-                type: string
-                x-go-name: AuditStatus
+            audit_sql_result:
+                $ref: '#/definitions/AuditSQLResult'
             export_status:
                 type: string
                 x-go-name: ExportResult
-            file_name:
-                type: string
-                x-go-name: FileName
             sql:
                 type: string
                 x-go-name: ExportSQL
-            status:
-                type: string
-                x-go-name: ExportStatus
             uid:
                 type: string
                 x-go-name: ID
@@ -4116,6 +4118,33 @@ paths:
             summary: Add data_export task.
             tags:
                 - dms
+    /v1/dms/projects/{project_uid}/data_export_task/{data_export_task_uid}:
+        get:
+            operationId: GetDataExportTask
+            parameters:
+                - in: path
+                  name: data_export_task_uid
+                  required: true
+                  type: string
+                  x-go-name: DataExportTaskUid
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: GetDataExportTaskReply
+                    schema:
+                        $ref: '#/definitions/GetDataExportTaskReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get data_export task.
+            tags:
+                - dms
     /v1/dms/projects/{project_uid}/data_export_task_sqls:
         get:
             operationId: ListDataExportTaskSQLs
@@ -4270,33 +4299,6 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: Add data_export workflow.
-            tags:
-                - dms
-    /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_task_uid}:
-        get:
-            operationId: GetDataExportTask
-            parameters:
-                - in: path
-                  name: data_export_task_uid
-                  required: true
-                  type: string
-                  x-go-name: DataExportTaskUid
-                - description: project id
-                  in: path
-                  name: project_uid
-                  required: true
-                  type: string
-                  x-go-name: ProjectUid
-            responses:
-                "200":
-                    description: GetDataExportTaskReply
-                    schema:
-                        $ref: '#/definitions/GetDataExportTaskReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: Get data_export task.
             tags:
                 - dms
     /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid}:

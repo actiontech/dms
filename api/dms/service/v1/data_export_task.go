@@ -64,32 +64,33 @@ type TaskDBInfo struct {
 	DatabaseName string `json:"database_name"`
 }
 
+// swagger:enum DataExportTaskStatus
+type DataExportTaskStatus string
+
 // 导出任务状态常量
 const (
-	StatusExpired string = "已过期"
-	StatusFinish  string = "已完成"
-	StatusInit    string = "未导出"
-	StatusSuccess string = "导出成功"
-	StatusFailed  string = "导出失败"
+	StatusInit      DataExportTaskStatus = "init"
+	StatusExporting DataExportTaskStatus = "exporting"
+	StatusFinish    DataExportTaskStatus = "finish"
+	StatusFailed    DataExportTaskStatus = "failed"
 )
 
 type GetDataExportTask struct {
-	TaskUid string     `json:"task_uid"`
-	DBInfo  TaskDBInfo `json:"db_info"`
-	Status  string     `json:"status"`
+	TaskUid         string               `json:"task_uid"`
+	DBInfo          TaskDBInfo           `json:"db_info"`
+	Status          DataExportTaskStatus `json:"status"`
+	ExportStartTime string               `json:"export_start_time"`
+	ExportEndTime   string               `json:"export_end_time"`
+	FileName        string               `json:"file_name"` // 导出文件名
+	AuditResult     AuditTaskResult      `json:"audit_result"`
+	// 下载次数，进度、高级配置等
+}
 
-	InstanceName      string `json:"instance_name"`
-	ExecStartTime     string `json:"exec_start_time"`
-	ExecEndTime       string `json:"exec_end_time"`
-	TaskPassRate      int    `json:"task_pass_rate"`
-	TaskScore         int    `json:"task_score"`
-	ExecutionUserName string `json:"execution_user_name"`
-	// SQL审核结果
+// SQL审核结果
+type AuditTaskResult struct {
 	AuditLevel string  `json:"audit_level" enums:"normal,notice,warn,error,"`
 	Score      int32   `json:"score"`
 	PassRate   float64 `json:"pass_rate"`
-	FileName   string  `json:"file_name"` // 导出文件名
-	// 下载次数，进度等
 }
 
 // swagger:parameters ListDataExportTaskSQLs
@@ -116,15 +117,13 @@ type ListDataExportTaskSQLsReply struct {
 }
 
 type ListDataExportTaskSQL struct {
-	ID        string `json:"uid"`
-	FileName  string `json:"file_name"` // 导出文件名
-	ExportSQL string `json:"sql"`
-
-	ExportStatus string `json:"status"`        // 导出状态
-	ExportResult string `json:"export_status"` // 导出结果
-
+	ID             string         `json:"uid"`
+	ExportSQL      string         `json:"sql"`
+	ExportResult   string         `json:"export_status"` // 导出结果
+	AuditSQLResult AuditSQLResult `json:"audit_sql_result"`
+}
+type AuditSQLResult struct {
 	AuditLevel  string `json:"audit_level"`
 	AuditStatus string `json:"audit_status"`
 	AuditResult string `json:"audit_result"` // 审核结果
-
 }

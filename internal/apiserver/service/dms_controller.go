@@ -2153,7 +2153,7 @@ func (d *DMSController) AddDataExportTask(c echo.Context) error {
 	return NewOkRespWithReply(c, nil)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_task_uid} dms GetDataExportTask
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_task/{data_export_task_uid} dms GetDataExportTask
 //
 // Get data_export task.
 //
