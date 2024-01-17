@@ -109,19 +109,22 @@ type ListDataExportTaskSQLsReq struct {
 
 // swagger:model ListDataExportTaskSQLsReply
 type ListDataExportTaskSQLsReply struct {
-	Data  []*ListDataExportWorkflow `json:"data"`
-	Total int64                     `json:"total_nums"`
+	Data  []*ListDataExportTaskSQL `json:"data"`
+	Total int64                    `json:"total_nums"`
 	// Generic reply
 	base.GenericResp
 }
 
 type ListDataExportTaskSQL struct {
-	ID           string `json:"uid"`
-	SQL          string `json:"sql"`
-	CheckResults string `json:"results"`   // 审核结果
-	FileName     string `json:"file_name"` // 导出文件名
-	AuditResult  string `json:"audit_result"`
-	AuditLevel   string `json:"audit_level"`
-	AuditStatus  string `json:"audit_status"`
-	// 状态
+	ID        string `json:"uid"`
+	FileName  string `json:"file_name"` // 导出文件名
+	ExportSQL string `json:"sql"`
+
+	ExportStatus string `json:"status"`        // 导出状态
+	ExportResult string `json:"export_status"` // 导出结果
+
+	AuditLevel  string `json:"audit_level"`
+	AuditStatus string `json:"audit_status"`
+	AuditResult string `json:"audit_result"` // 审核结果
+
 }

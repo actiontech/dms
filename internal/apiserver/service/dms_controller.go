@@ -2124,6 +2124,84 @@ func (d *DMSController) ExecDataExportWorkflow(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// download
-// 数据源tips接口
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_task dms AddDataExportTask
 //
+// Add data_export task.
+//
+//	responses:
+//	  200: body:AddDataExportTaskReply
+//	  default: body:GenericResp
+func (d *DMSController) AddDataExportTask(c echo.Context) error {
+	req := new(aV1.AddDataExportTaskReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// get current user id
+	// currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	// if err != nil {
+	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
+	// }
+
+	// reply, err := d.DMS.AddDataExportTask(c.Request().Context(), req, currentUserUid)
+	// if nil != err {
+	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
+	// }
+	// return NewOkRespWithReply(c, reply)
+
+	return NewOkRespWithReply(c, nil)
+}
+
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_task_uid} dms GetDataExportTask
+//
+// Get data_export task.
+//
+//	responses:
+//	  200: body:GetDataExportTaskReply
+//	  default: body:GenericResp
+func (d *DMSController) GetDataExportTask(c echo.Context) error {
+	req := new(aV1.GetDataExportTaskReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	// if err != nil {
+	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
+	// }
+	// reply, err := d.DMS.GetDataExportTask(c.Request().Context(), req, currentUserUid)
+	// if nil != err {
+	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
+	// }
+	// return NewOkRespWithReply(c, reply)
+	return NewOkRespWithReply(c, nil)
+}
+
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_task_sqls dms ListDataExportTaskSQLs
+//
+// List data_export workflow.
+//
+//	responses:
+//	  200: body:ListDataExportTaskSQLsReply
+//	  default: body:GenericResp
+func (d *DMSController) ListDataExportTaskSQLs(c echo.Context) error {
+	req := new(aV1.ListDataExportTaskSQLsReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	// if err != nil {
+	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
+	// }
+	// reply, err := d.DMS.ListDataExportWorkflow(c.Request().Context(), req, currentUserUid)
+	// if nil != err {
+	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
+	// }
+	// return NewOkRespWithReply(c, reply)
+
+	return NewOkRespWithReply(c, nil)
+}
