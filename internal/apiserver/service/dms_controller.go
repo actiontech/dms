@@ -2073,15 +2073,15 @@ func (d *DMSController) RejectDataExportWorkflow(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid} dms UpdateDataExportWorkflow
+// swagger:route PUT /v1/dms/projects/{project_uid}/data_export_workflow dms CancelDataExportWorkflowReq
 //
-// update data_export workflow.
+// Cancel data export workflows.
 //
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (d *DMSController) UpdateDataExportWorkflow(c echo.Context) error {
-	req := &aV1.UpdateDataExportWorkflowReq{}
+func (d *DMSController) CancelDataExportWorkflow(c echo.Context) error {
+	req := &aV1.CancelDataExportWorkflowReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
@@ -2091,7 +2091,7 @@ func (d *DMSController) UpdateDataExportWorkflow(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	// err = d.DMS.UpdateDataExportWorkflow(c.Request().Context(), req, currentUserUid)
+	// err = d.DMS.CancelDataExportWorkflow(c.Request().Context(), req, currentUserUid)
 	// if nil != err {
 	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
 	// }

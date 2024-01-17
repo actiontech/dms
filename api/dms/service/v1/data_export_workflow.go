@@ -28,8 +28,8 @@ type DataExportWorkflow struct {
 	Desc string `json:"desc"`
 	// export task info
 	// Required: true
-	// example: export tasks
-	TaskIds []string `json:"task_ids" validate:"required"`
+	// example: [export_task_uid1,export_task_uid2]
+	TaskUids []string `json:"task_uids" validate:"required"`
 }
 
 // swagger:model AddDataExportWorkflowReply
@@ -37,7 +37,7 @@ type AddDataExportWorkflowReply struct {
 	// add data export workflow reply
 	Data struct {
 		// data export workflow UID
-		Uid string `json:"uid"`
+		Uid string `json:"export_data_workflow_uid"`
 	} `json:"data"`
 
 	// Generic reply
@@ -60,18 +60,24 @@ type ListDataExportWorkflowsReq struct {
 	// filter the status
 	// in:query
 	FilterByStatus string `query:"filter_by_status" json:"filter_by_status"`
-	// filter fuzzy key word
-	// in:query
-	FuzzyKeyword string `json:"fuzzy_keyword" query:"fuzzy_keyword"`
-	// filter workflow subject
-	// in:query
-	FilterBySubject string `json:"filter_subject" query:"filter_subject"`
-	// filter workflow id
-	// in:query
-	FilterByWorkflowID string `json:"filter_workflow_id" query:"filter_workflow_id"`
 	// filter create user id
 	// in:query
-	FilterByCreateUserId string `json:"filter_create_user_id" query:"filter_create_user_id"`
+	FilterByCreateUserUid string `json:"filter_create_user_uid" query:"filter_by_create_user_uid"`
+	// filter current assignee user id
+	// in:query
+	FilterCurrentStepAssigneeUserUid string `json:"filter_current_step_assignee_user_uid" query:"filter_current_step_assignee_user_uid"`
+	// filter db_service id
+	// in:query
+	FilterByDBServiceUid string `json:"filter_db_service_uid" query:"filter_by_db_service_uid"`
+	// filter create time from
+	// in:query
+	FilterCreateTimeFrom string `json:"filter_create_time_from" query:"filter_create_time_from"`
+	// filter create time end
+	// in:query
+	FilterCreateTimeTo string `json:"filter_create_time_to" query:"filter_create_time_to"`
+	// filter fuzzy key word for id/name
+	// in:query
+	FuzzyKeyword string `json:"fuzzy_keyword" query:"fuzzy_keyword"`
 }
 
 // swagger:model ListDataExportWorkflowsReply
@@ -83,29 +89,30 @@ type ListDataExportWorkflowsReply struct {
 }
 
 type ListDataExportWorkflow struct {
-	UID        string `json:"uid"`
-	ProjectUid string `json:"project_uid"`
+	ProjectUid   string                   `json:"project_uid"`
+	WorkflowID   string                   `json:"workflow_uid"`  // 数据导出工单ID
+	WorkflowName string                   `json:"workflow_name"` // 数据导出工单的名称
+	Description  string                   `json:"desc"`          // 数据导出工单的描述
+	Creater      UidWithName              `json:"creater"`       // 数据导出工单的创建人
+	CreatedAt    time.Time                `json:"created_at"`    // 数据导出工单的创建时间
+	ExportedAt   time.Time                `json:"exported_at"`   // 执行数据导出工单的时间
+	Status       DataExportWorkflowStatus `json:"status"`        // 数据导出工单的状态
 
-	WorkflowID               string        `json:"workflow_id"`   // 数据导出工单ID
-	WorkflowName             string        `json:"workflow_name"` // 数据导出工单的名称
-	Description              string        `json:"desc"`          // 数据导出工单的描述
-	Creater                  UidWithName   `json:"creater"`       // 数据导出工单的创建人
-	CreatedAt                time.Time     `json:"createdAt"`     // 数据导出工单的创建时间
-	ExportedAt               time.Time     `json:"exportedAt"`    // 执行数据导出工单的时间
+	CurrentStepAssigneeUsers []UidWithName `json:"current_step_assignee_user_list"` // 工单待操作人
 	CurrentStepType          string        `json:"current_step_type"`
-	CurrentStepAssigneeUsers []UidWithName `json:"current_step_assignee_user_name_list"`
-	Status                   string        `json:"status"` // 数据导出工单的状态
 }
 
-// 工单的状态常量
+// swagger:enum DataExportWorkflowStatus
+type DataExportWorkflowStatus string
+
 const (
-	StatusPending      string = "待审核"
-	StatusApproved     string = "审核通过"
-	StatusExporting    string = "正在执行"
-	StatusExportFailed string = "执行失败"
-	StatusExported     string = "执行成功"
-	StatusRejected     string = "已驳回"
-	StatusClosed       string = "已关闭"
+	DataExportWorkflowStatusWaitForApprove   DataExportWorkflowStatus = "wait_for_approve"
+	DataExportWorkflowStatusWaitForExecute   DataExportWorkflowStatus = "wait_for_execute"
+	DataExportWorkflowStatusWaitForExecuting DataExportWorkflowStatus = "executing"
+	DataExportWorkflowStatusRejeted          DataExportWorkflowStatus = "rejected"
+	DataExportWorkflowStatusCancel           DataExportWorkflowStatus = "cancel"
+	DataExportWorkflowStatusFailed           DataExportWorkflowStatus = "failed"
+	DataExportWorkflowStatusFinish           DataExportWorkflowStatus = "finish"
 )
 
 // swagger:parameters GetDataExportWorkflow
@@ -128,11 +135,10 @@ type GetDataExportWorkflowReply struct {
 }
 
 type GetDataExportWorkflow struct {
-	UID                   string           `json:"uid"`
 	Name                  string           `json:"workflow_name"`
-	WorkflowID            string           `json:"workflow_id"`
+	WorkflowID            string           `json:"workflow_uid"`
 	Desc                  string           `json:"desc,omitempty"`
-	CreateUser            string           `json:"create_user_name"`
+	CreateUser            UidWithName      `json:"create_user"`
 	CreateTime            *time.Time       `json:"create_time"`
 	ProjectUid            string           `json:"project_uid"`
 	WorkflowRecord        WorkflowRecord   `json:"workflow_record"`
@@ -140,25 +146,26 @@ type GetDataExportWorkflow struct {
 }
 
 type WorkflowRecord struct {
-	Tasks             []*Task         `json:"tasks"`
-	CurrentStepNumber uint            `json:"current_step_number,omitempty"`
-	Status            string          `json:"status" enums:"wait_for_audit,wait_for_execution,rejected,canceled,exec_failed,executing,finished"`
-	Steps             []*WorkflowStep `json:"workflow_step_list,omitempty"`
+	Tasks             []*Task                  `json:"tasks"`
+	CurrentStepNumber uint                     `json:"current_step_number,omitempty"`
+	Status            DataExportWorkflowStatus `json:"status"`
+	Steps             []*WorkflowStep          `json:"workflow_step_list,omitempty"`
 }
+
 type Task struct {
-	Id string `json:"task_id"`
+	Uid string `json:"task_uid"`
 }
 
 type WorkflowStep struct {
-	Id            uint       `json:"workflow_step_id,omitempty"`
-	Number        uint       `json:"number"`
-	Type          string     `json:"type"`
-	Desc          string     `json:"desc,omitempty"`
-	Users         []string   `json:"assignee_user_name_list,omitempty"`
-	OperationUser string     `json:"operation_user_name,omitempty"`
-	OperationTime *time.Time `json:"operation_time,omitempty"`
-	State         string     `json:"state,omitempty" enums:"initialized,approved,rejected"`
-	Reason        string     `json:"reason,omitempty"`
+	Id            uint          `json:"workflow_step_id,omitempty"`
+	Number        uint          `json:"number"`
+	Type          string        `json:"type"`
+	Desc          string        `json:"desc,omitempty"`
+	Users         []UidWithName `json:"assignee_user_list,omitempty"`
+	OperationUser UidWithName   `json:"operation_user,omitempty"`
+	OperationTime *time.Time    `json:"operation_time,omitempty"`
+	State         string        `json:"state,omitempty" `
+	Reason        string        `json:"reason,omitempty"`
 }
 
 // swagger:parameters ApproveDataExportWorkflow
@@ -194,17 +201,13 @@ type RejectDataExportWorkflowReq struct {
 	DataExportWorkflowUid string `param:"data_export_workflow_uid" json:"data_export_workflow_uid" validate:"required"`
 }
 
-// swagger:parameters UpdateDataExportWorkflow
-type UpdateDataExportWorkflowReq struct {
+// swagger:parameters CancelDataExportWorkflow
+type CancelDataExportWorkflowReq struct {
 	// project id
 	// Required: true
 	// in:path
 	ProjectUid string `param:"project_uid" validate:"required"`
 	// Required: true
-	// in:path
-	DataExportWorkflowUid string `param:"data_export_workflow_uid"  validate:"required"`
-	// desc
-	// Required: false
-	// example: transaction data export
-	Desc string `json:"desc"`
+	// in:body
+	DataExportWorkflowUids []string `param:"data_export_workflow_uids" json:"data_export_workflow_uids" validate:"required"`
 }
