@@ -43,7 +43,8 @@ func NewStorage(logger pkgLog.Logger, conf *StorageConfig) (*Storage, error) {
 
 	db, err := gorm.Open(mysql.Open(fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
 		conf.User, conf.Password, conf.Host, conf.Port, conf.Schema)), &gorm.Config{
-		Logger: pkgLog.NewGormLogWrapper(pkgLog.NewKLogWrapper(logger), gormLog.Info),
+		Logger:                                   pkgLog.NewGormLogWrapper(pkgLog.NewKLogWrapper(logger), gormLog.Info),
+		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {
 		log.Errorf("connect to storage failed, error: %v", err)
