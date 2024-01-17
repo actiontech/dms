@@ -310,16 +310,16 @@ func (d *LicenseUsecase) CheckCanCreateInstance(ctx context.Context, dbType stri
 }
 
 func (d *LicenseUsecase) initial() {
-	// 集群模式，只有leader节点需要执行定时任务
-	if d.clusterUsecase.IsClusterMode() && !d.clusterUsecase.IsLeader() {
-		return
-	}
-
 	if d.cron == nil {
 		d.cron = cron.New()
 	}
 
 	if _, err := d.cron.AddFunc("@hourly", func() {
+		// 集群模式，只有leader节点需要执行定时任务
+		if d.clusterUsecase.IsClusterMode() && !d.clusterUsecase.IsLeader() {
+			return
+		}
+
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
