@@ -60,15 +60,18 @@ type ListDataExportWorkflowsReq struct {
 	// filter the status
 	// in:query
 	FilterByStatus string `query:"filter_by_status" json:"filter_by_status"`
-	// filter the member user uid
+	// filter fuzzy key word
 	// in:query
 	FuzzyKeyword string `json:"fuzzy_keyword" query:"fuzzy_keyword"`
-	// FilterSubject                   string `json:"filter_subject" query:"filter_subject"`
-	// FilterWorkflowID                string `json:"filter_workflow_id" query:"filter_workflow_id"`
-	// FilterCreateTimeFrom            string `json:"filter_create_time_from" query:"filter_create_time_from"`
-	// FilterCreateTimeTo              string `json:"filter_create_time_to" query:"filter_create_time_to"`
-	// FilterCreateUserId              string `json:"filter_create_user_id" query:"filter_create_user_id"`
-
+	// filter workflow subject
+	// in:query
+	FilterBySubject string `json:"filter_subject" query:"filter_subject"`
+	// filter workflow id
+	// in:query
+	FilterByWorkflowID string `json:"filter_workflow_id" query:"filter_workflow_id"`
+	// filter create user id
+	// in:query
+	FilterByCreateUserId string `json:"filter_create_user_id" query:"filter_create_user_id"`
 }
 
 // swagger:model ListDataExportWorkflowsReply
@@ -83,15 +86,15 @@ type ListDataExportWorkflow struct {
 	UID        string `json:"uid"`
 	ProjectUid string `json:"project_uid"`
 
-	WorkflowID               string    `json:"workflow_id"`   // 数据导出工单ID
-	WorkflowName             string    `json:"workflow_name"` // 数据导出工单的名称
-	Description              string    `json:"desc"`          // 数据导出工单的描述
-	Creater                  User      `json:"creater"`       // 数据导出工单的创建人
-	CreatedAt                time.Time `json:"createdAt"`     // 数据导出工单的创建时间
-	ExportedAt               time.Time `json:"exportedAt"`    // 执行数据导出工单的时间
-	CurrentStepType          string    `json:"current_step_type"`
-	CurrentStepAssigneeUsers []User    `json:"current_step_assignee_user_name_list"`
-	Status                   string    `json:"status"` // 数据导出工单的状态
+	WorkflowID               string        `json:"workflow_id"`   // 数据导出工单ID
+	WorkflowName             string        `json:"workflow_name"` // 数据导出工单的名称
+	Description              string        `json:"desc"`          // 数据导出工单的描述
+	Creater                  UidWithName   `json:"creater"`       // 数据导出工单的创建人
+	CreatedAt                time.Time     `json:"createdAt"`     // 数据导出工单的创建时间
+	ExportedAt               time.Time     `json:"exportedAt"`    // 执行数据导出工单的时间
+	CurrentStepType          string        `json:"current_step_type"`
+	CurrentStepAssigneeUsers []UidWithName `json:"current_step_assignee_user_name_list"`
+	Status                   string        `json:"status"` // 数据导出工单的状态
 }
 
 // 工单的状态常量
@@ -103,11 +106,6 @@ const (
 	StatusExported     string = "执行成功"
 	StatusRejected     string = "已驳回"
 	StatusClosed       string = "已关闭"
-)
-
-// 导出任务状态常量
-const (
-	StatusExpired string = "已过期"
 )
 
 // swagger:parameters GetDataExportWorkflow
@@ -134,7 +132,6 @@ type GetDataExportWorkflow struct {
 	Name                  string           `json:"workflow_name"`
 	WorkflowID            string           `json:"workflow_id"`
 	Desc                  string           `json:"desc,omitempty"`
-	Mode                  string           `json:"mode" enums:"same_sqls,different_sqls"`
 	CreateUser            string           `json:"create_user_name"`
 	CreateTime            *time.Time       `json:"create_time"`
 	ProjectUid            string           `json:"project_uid"`
@@ -155,7 +152,7 @@ type Task struct {
 type WorkflowStep struct {
 	Id            uint       `json:"workflow_step_id,omitempty"`
 	Number        uint       `json:"number"`
-	Type          string     `json:"type" enums:"create_workflow,update_workflow,sql_review,sql_execute"`
+	Type          string     `json:"type"`
 	Desc          string     `json:"desc,omitempty"`
 	Users         []string   `json:"assignee_user_name_list,omitempty"`
 	OperationUser string     `json:"operation_user_name,omitempty"`
@@ -164,23 +161,8 @@ type WorkflowStep struct {
 	Reason        string     `json:"reason,omitempty"`
 }
 
-// swagger:parameters UpdateDataExportWorkflow
-type UpdateDataExportWorkflowReq struct {
-	// project id
-	// Required: true
-	// in:path
-	ProjectUid string `param:"project_uid" validate:"required"`
-	// Required: true
-	// in:path
-	DataExportWorkflowUid string `param:"data_export_workflow_uid"  validate:"required"`
-	// desc
-	// Required: false
-	// example: transaction data export
-	Desc string `json:"desc"`
-}
-
-// swagger:parameters ExecDataExportWorkflow
-type ExecDataExportWorkflowReq struct {
+// swagger:parameters ApproveDataExportWorkflow
+type ApproveDataExportWorkflowReq struct {
 	// project id
 	// Required: true
 	// in:path
@@ -190,8 +172,8 @@ type ExecDataExportWorkflowReq struct {
 	DataExportWorkflowUid string `param:"data_export_workflow_uid" json:"data_export_workflow_uid" validate:"required"`
 }
 
-// swagger:parameters ApproveDataExportWorkflow
-type ApproveDataExportWorkflowReq struct {
+// swagger:parameters ExecDataExportWorkflow
+type ExecDataExportWorkflowReq struct {
 	// project id
 	// Required: true
 	// in:path
@@ -210,4 +192,19 @@ type RejectDataExportWorkflowReq struct {
 	// Required: true
 	// in:path
 	DataExportWorkflowUid string `param:"data_export_workflow_uid" json:"data_export_workflow_uid" validate:"required"`
+}
+
+// swagger:parameters UpdateDataExportWorkflow
+type UpdateDataExportWorkflowReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" validate:"required"`
+	// Required: true
+	// in:path
+	DataExportWorkflowUid string `param:"data_export_workflow_uid"  validate:"required"`
+	// desc
+	// Required: false
+	// example: transaction data export
+	Desc string `json:"desc"`
 }
