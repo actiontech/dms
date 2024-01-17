@@ -74,9 +74,9 @@ const (
 )
 
 type GetDataExportTask struct {
-	TaskID string     `json:"task_id"`
-	DBInfo TaskDBInfo `json:"db_info"`
-	Status string     `json:"status"`
+	TaskUid string     `json:"task_uid"`
+	DBInfo  TaskDBInfo `json:"db_info"`
+	Status  string     `json:"status"`
 
 	InstanceName      string `json:"instance_name"`
 	ExecStartTime     string `json:"exec_start_time"`

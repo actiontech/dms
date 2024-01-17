@@ -209,5 +209,5 @@ type CancelDataExportWorkflowReq struct {
 	ProjectUid string `param:"project_uid" validate:"required"`
 	// Required: true
 	// in:body
-	DataExportWorkflowUids []string `param:"data_export_workflow_uids" json:"data_export_workflow_uids" validate:"required"`
+	DataExportWorkflowUids []string `json:"data_export_workflow_uids" validate:"required"`
 }

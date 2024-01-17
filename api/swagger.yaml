@@ -792,9 +792,6 @@ definitions:
             status:
                 type: string
                 x-go-name: Status
-            task_id:
-                type: string
-                x-go-name: TaskID
             task_pass_rate:
                 format: int64
                 type: integer
@@ -803,6 +800,9 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: TaskScore
+            task_uid:
+                type: string
+                x-go-name: TaskUid
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetDataExportTaskReply:
@@ -2815,7 +2815,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -4264,20 +4264,6 @@ paths:
             summary: Add data_export workflow.
             tags:
                 - dms
-        put:
-            operationId: CancelDataExportWorkflowReq
-            responses:
-                "200":
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: Cancel data export workflows.
-            tags:
-                - dms
     /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_task_uid}:
         get:
             operationId: GetDataExportTask
@@ -4411,6 +4397,35 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: Reject data_export workflow.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/data_export_workflow/cancel:
+        put:
+            operationId: CancelDataExportWorkflow
+            parameters:
+                - description: project id
+                  in: path
+                  name: ProjectUid
+                  required: true
+                  type: string
+                - in: body
+                  name: data_export_workflow_uids
+                  required: true
+                  schema:
+                    items:
+                        type: string
+                    type: array
+                  x-go-name: DataExportWorkflowUids
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Cancel data export workflows.
             tags:
                 - dms
     /v1/dms/projects/{project_uid}/database_source_services:

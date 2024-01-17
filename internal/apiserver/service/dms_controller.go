@@ -2073,7 +2073,7 @@ func (d *DMSController) RejectDataExportWorkflow(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/projects/{project_uid}/data_export_workflow dms CancelDataExportWorkflowReq
+// swagger:route PUT /v1/dms/projects/{project_uid}/data_export_workflow/cancel dms CancelDataExportWorkflow
 //
 // Cancel data export workflows.
 //

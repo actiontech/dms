@@ -1367,27 +1367,6 @@
           }
         }
       },
-      "put": {
-        "tags": [
-          "dms"
-        ],
-        "summary": "Cancel data export workflows.",
-        "operationId": "CancelDataExportWorkflowReq",
-        "responses": {
-          "200": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      },
       "post": {
         "tags": [
           "dms"
@@ -1418,6 +1397,50 @@
             "description": "AddDataExportWorkflowReply",
             "schema": {
               "$ref": "#/definitions/AddDataExportWorkflowReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/data_export_workflow/cancel": {
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Cancel data export workflows.",
+        "operationId": "CancelDataExportWorkflow",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "project id",
+            "name": "ProjectUid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "DataExportWorkflowUids",
+            "name": "data_export_workflow_uids",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
             }
           },
           "default": {
@@ -4543,10 +4566,6 @@
           "type": "string",
           "x-go-name": "Status"
         },
-        "task_id": {
-          "type": "string",
-          "x-go-name": "TaskID"
-        },
         "task_pass_rate": {
           "type": "integer",
           "format": "int64",
@@ -4556,6 +4575,10 @@
           "type": "integer",
           "format": "int64",
           "x-go-name": "TaskScore"
+        },
+        "task_uid": {
+          "type": "string",
+          "x-go-name": "TaskUid"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -7061,7 +7084,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
