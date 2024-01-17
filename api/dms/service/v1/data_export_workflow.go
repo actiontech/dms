@@ -59,7 +59,7 @@ type ListDataExportWorkflowsReq struct {
 	PageIndex uint32 `query:"page_index" json:"page_index"`
 	// filter the status
 	// in:query
-	FilterByStatus string `query:"filter_by_status" json:"filter_by_status"`
+	FilterByStatus DataExportWorkflowStatus `query:"filter_by_status" json:"filter_by_status"`
 	// filter create user id
 	// in:query
 	FilterByCreateUserUid string `json:"filter_create_user_uid" query:"filter_by_create_user_uid"`
@@ -89,14 +89,14 @@ type ListDataExportWorkflowsReply struct {
 }
 
 type ListDataExportWorkflow struct {
-	ProjectUid   string                   `json:"project_uid"`
-	WorkflowID   string                   `json:"workflow_uid"`  // 数据导出工单ID
-	WorkflowName string                   `json:"workflow_name"` // 数据导出工单的名称
-	Description  string                   `json:"desc"`          // 数据导出工单的描述
-	Creater      UidWithName              `json:"creater"`       // 数据导出工单的创建人
-	CreatedAt    time.Time                `json:"created_at"`    // 数据导出工单的创建时间
-	ExportedAt   time.Time                `json:"exported_at"`   // 执行数据导出工单的时间
-	Status       DataExportWorkflowStatus `json:"status"`        // 数据导出工单的状态
+	ProjectUid   string      `json:"project_uid"`
+	WorkflowID   string      `json:"workflow_uid"`  // 数据导出工单ID
+	WorkflowName string      `json:"workflow_name"` // 数据导出工单的名称
+	Description  string      `json:"desc"`          // 数据导出工单的描述
+	Creater      UidWithName `json:"creater"`       // 数据导出工单的创建人
+	CreatedAt    time.Time   `json:"created_at"`    // 数据导出工单的创建时间
+	ExportedAt   time.Time   `json:"exported_at"`   // 执行数据导出工单的时间
+	Status       string      `json:"status"`        // 数据导出工单的状态
 
 	CurrentStepAssigneeUsers []UidWithName `json:"current_step_assignee_user_list"` // 工单待操作人
 	CurrentStepType          string        `json:"current_step_type"`
