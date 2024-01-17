@@ -69,7 +69,7 @@ definitions:
             data:
                 description: add data export workflow reply
                 properties:
-                    uid:
+                    export_data_workflow_uid:
                         description: data export workflow UID
                         type: string
                         x-go-name: Uid
@@ -563,16 +563,16 @@ definitions:
                 example: d1
                 type: string
                 x-go-name: Name
-            task_ids:
+            task_uids:
                 description: export task info
-                example: export tasks
+                example: '[export_task_uid1,export_task_uid2]'
                 items:
                     type: string
                 type: array
-                x-go-name: TaskIds
+                x-go-name: TaskUids
         required:
             - name
-            - task_ids
+            - task_uids
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DatabaseDriverAdditionalParam:
@@ -826,21 +826,14 @@ definitions:
                 format: date-time
                 type: string
                 x-go-name: CreateTime
-            create_user_name:
-                type: string
-                x-go-name: CreateUser
+            create_user:
+                $ref: '#/definitions/UidWithName'
             desc:
                 type: string
                 x-go-name: Desc
             project_uid:
                 type: string
                 x-go-name: ProjectUid
-            uid:
-                type: string
-                x-go-name: UID
-            workflow_id:
-                type: string
-                x-go-name: WorkflowID
             workflow_name:
                 type: string
                 x-go-name: Name
@@ -851,6 +844,9 @@ definitions:
                     $ref: '#/definitions/WorkflowRecord'
                 type: array
                 x-go-name: WorkflowRecordHistory
+            workflow_uid:
+                type: string
+                x-go-name: WorkflowID
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetDataExportWorkflowReply:
@@ -1600,13 +1596,13 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListDataExportWorkflow:
         properties:
-            createdAt:
+            created_at:
                 format: date-time
                 type: string
                 x-go-name: CreatedAt
             creater:
                 $ref: '#/definitions/UidWithName'
-            current_step_assignee_user_name_list:
+            current_step_assignee_user_list:
                 items:
                     $ref: '#/definitions/UidWithName'
                 type: array
@@ -1617,7 +1613,7 @@ definitions:
             desc:
                 type: string
                 x-go-name: Description
-            exportedAt:
+            exported_at:
                 format: date-time
                 type: string
                 x-go-name: ExportedAt
@@ -1625,17 +1621,30 @@ definitions:
                 type: string
                 x-go-name: ProjectUid
             status:
+                enum:
+                    - wait_for_approve
+                    - wait_for_execute
+                    - executing
+                    - rejected
+                    - cancel
+                    - failed
+                    - finish
                 type: string
+                x-go-enum-desc: |-
+                    wait_for_approve DataExportWorkflowStatusWaitForApprove
+                    wait_for_execute DataExportWorkflowStatusWaitForExecute
+                    executing DataExportWorkflowStatusWaitForExecuting
+                    rejected DataExportWorkflowStatusRejeted
+                    cancel DataExportWorkflowStatusCancel
+                    failed DataExportWorkflowStatusFailed
+                    finish DataExportWorkflowStatusFinish
                 x-go-name: Status
-            uid:
-                type: string
-                x-go-name: UID
-            workflow_id:
-                type: string
-                x-go-name: WorkflowID
             workflow_name:
                 type: string
                 x-go-name: WorkflowName
+            workflow_uid:
+                type: string
+                x-go-name: WorkflowID
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListDataExportWorkflowsReply:
@@ -2634,9 +2643,9 @@ definitions:
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     Task:
         properties:
-            task_id:
+            task_uid:
                 type: string
-                x-go-name: Id
+                x-go-name: Uid
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     TaskDBInfo:
@@ -3247,7 +3256,23 @@ definitions:
                 type: integer
                 x-go-name: CurrentStepNumber
             status:
+                enum:
+                    - wait_for_approve
+                    - wait_for_execute
+                    - executing
+                    - rejected
+                    - cancel
+                    - failed
+                    - finish
                 type: string
+                x-go-enum-desc: |-
+                    wait_for_approve DataExportWorkflowStatusWaitForApprove
+                    wait_for_execute DataExportWorkflowStatusWaitForExecute
+                    executing DataExportWorkflowStatusWaitForExecuting
+                    rejected DataExportWorkflowStatusRejeted
+                    cancel DataExportWorkflowStatusCancel
+                    failed DataExportWorkflowStatusFailed
+                    finish DataExportWorkflowStatusFinish
                 x-go-name: Status
             tasks:
                 items:
@@ -3263,9 +3288,9 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     WorkflowStep:
         properties:
-            assignee_user_name_list:
+            assignee_user_list:
                 items:
-                    type: string
+                    $ref: '#/definitions/UidWithName'
                 type: array
                 x-go-name: Users
             desc:
@@ -3279,9 +3304,8 @@ definitions:
                 format: date-time
                 type: string
                 x-go-name: OperationTime
-            operation_user_name:
-                type: string
-                x-go-name: OperationUser
+            operation_user:
+                $ref: '#/definitions/UidWithName'
             reason:
                 type: string
                 x-go-name: Reason
@@ -4171,26 +4195,36 @@ paths:
                   name: filter_by_status
                   type: string
                   x-go-name: FilterByStatus
-                - description: filter fuzzy key word
+                - description: filter create user id
+                  in: query
+                  name: filter_create_user_uid
+                  type: string
+                  x-go-name: FilterByCreateUserUid
+                - description: filter current assignee user id
+                  in: query
+                  name: filter_current_step_assignee_user_uid
+                  type: string
+                  x-go-name: FilterCurrentStepAssigneeUserUid
+                - description: filter db_service id
+                  in: query
+                  name: filter_db_service_uid
+                  type: string
+                  x-go-name: FilterByDBServiceUid
+                - description: filter create time from
+                  in: query
+                  name: filter_create_time_from
+                  type: string
+                  x-go-name: FilterCreateTimeFrom
+                - description: filter create time end
+                  in: query
+                  name: filter_create_time_to
+                  type: string
+                  x-go-name: FilterCreateTimeTo
+                - description: filter fuzzy key word for id/name
                   in: query
                   name: fuzzy_keyword
                   type: string
                   x-go-name: FuzzyKeyword
-                - description: filter workflow subject
-                  in: query
-                  name: filter_subject
-                  type: string
-                  x-go-name: FilterBySubject
-                - description: filter workflow id
-                  in: query
-                  name: filter_workflow_id
-                  type: string
-                  x-go-name: FilterByWorkflowID
-                - description: filter create user id
-                  in: query
-                  name: filter_create_user_id
-                  type: string
-                  x-go-name: FilterByCreateUserId
             responses:
                 "200":
                     description: ListDataExportWorkflowsReply
@@ -4228,6 +4262,20 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: Add data_export workflow.
+            tags:
+                - dms
+        put:
+            operationId: CancelDataExportWorkflowReq
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Cancel data export workflows.
             tags:
                 - dms
     /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_task_uid}:
@@ -4282,36 +4330,6 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: Get data_export workflow.
-            tags:
-                - dms
-        put:
-            operationId: UpdateDataExportWorkflow
-            parameters:
-                - description: project id
-                  in: path
-                  name: ProjectUid
-                  required: true
-                  type: string
-                - in: path
-                  name: DataExportWorkflowUid
-                  required: true
-                  type: string
-                - description: desc
-                  example: transaction data export
-                  in: query
-                  name: desc
-                  type: string
-                  x-go-name: Desc
-            responses:
-                "200":
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: update data_export workflow.
             tags:
                 - dms
     /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid}/approve:

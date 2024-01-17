@@ -1311,30 +1311,44 @@
           },
           {
             "type": "string",
-            "x-go-name": "FuzzyKeyword",
-            "description": "filter fuzzy key word",
-            "name": "fuzzy_keyword",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "x-go-name": "FilterBySubject",
-            "description": "filter workflow subject",
-            "name": "filter_subject",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "x-go-name": "FilterByWorkflowID",
-            "description": "filter workflow id",
-            "name": "filter_workflow_id",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "x-go-name": "FilterByCreateUserId",
+            "x-go-name": "FilterByCreateUserUid",
             "description": "filter create user id",
-            "name": "filter_create_user_id",
+            "name": "filter_create_user_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterCurrentStepAssigneeUserUid",
+            "description": "filter current assignee user id",
+            "name": "filter_current_step_assignee_user_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByDBServiceUid",
+            "description": "filter db_service id",
+            "name": "filter_db_service_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterCreateTimeFrom",
+            "description": "filter create time from",
+            "name": "filter_create_time_from",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterCreateTimeTo",
+            "description": "filter create time end",
+            "name": "filter_create_time_to",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FuzzyKeyword",
+            "description": "filter fuzzy key word for id/name",
+            "name": "fuzzy_keyword",
             "in": "query"
           }
         ],
@@ -1343,6 +1357,27 @@
             "description": "ListDataExportWorkflowsReply",
             "schema": {
               "$ref": "#/definitions/ListDataExportWorkflowsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Cancel data export workflows.",
+        "operationId": "CancelDataExportWorkflowReq",
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
             }
           },
           "default": {
@@ -1463,50 +1498,6 @@
             "description": "GetDataExportWorkflowReply",
             "schema": {
               "$ref": "#/definitions/GetDataExportWorkflowReply"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "dms"
-        ],
-        "summary": "update data_export workflow.",
-        "operationId": "UpdateDataExportWorkflow",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "project id",
-            "name": "ProjectUid",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "DataExportWorkflowUid",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "example": "transaction data export",
-            "x-go-name": "Desc",
-            "description": "desc",
-            "name": "desc",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
             }
           },
           "default": {
@@ -3605,7 +3596,7 @@
           "description": "add data export workflow reply",
           "type": "object",
           "properties": {
-            "uid": {
+            "export_data_workflow_uid": {
               "description": "data export workflow UID",
               "type": "string",
               "x-go-name": "Uid"
@@ -4240,7 +4231,7 @@
       "type": "object",
       "required": [
         "name",
-        "task_ids"
+        "task_uids"
       ],
       "properties": {
         "desc": {
@@ -4255,14 +4246,14 @@
           "x-go-name": "Name",
           "example": "d1"
         },
-        "task_ids": {
+        "task_uids": {
           "description": "export task info",
           "type": "array",
           "items": {
             "type": "string"
           },
-          "x-go-name": "TaskIds",
-          "example": "export tasks"
+          "x-go-name": "TaskUids",
+          "example": "[export_task_uid1,export_task_uid2]"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -4597,9 +4588,8 @@
           "format": "date-time",
           "x-go-name": "CreateTime"
         },
-        "create_user_name": {
-          "type": "string",
-          "x-go-name": "CreateUser"
+        "create_user": {
+          "$ref": "#/definitions/UidWithName"
         },
         "desc": {
           "type": "string",
@@ -4608,14 +4598,6 @@
         "project_uid": {
           "type": "string",
           "x-go-name": "ProjectUid"
-        },
-        "uid": {
-          "type": "string",
-          "x-go-name": "UID"
-        },
-        "workflow_id": {
-          "type": "string",
-          "x-go-name": "WorkflowID"
         },
         "workflow_name": {
           "type": "string",
@@ -4630,6 +4612,10 @@
             "$ref": "#/definitions/WorkflowRecord"
           },
           "x-go-name": "WorkflowRecordHistory"
+        },
+        "workflow_uid": {
+          "type": "string",
+          "x-go-name": "WorkflowID"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -5600,7 +5586,7 @@
     "ListDataExportWorkflow": {
       "type": "object",
       "properties": {
-        "createdAt": {
+        "created_at": {
           "type": "string",
           "format": "date-time",
           "x-go-name": "CreatedAt"
@@ -5608,7 +5594,7 @@
         "creater": {
           "$ref": "#/definitions/UidWithName"
         },
-        "current_step_assignee_user_name_list": {
+        "current_step_assignee_user_list": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/UidWithName"
@@ -5623,7 +5609,7 @@
           "type": "string",
           "x-go-name": "Description"
         },
-        "exportedAt": {
+        "exported_at": {
           "type": "string",
           "format": "date-time",
           "x-go-name": "ExportedAt"
@@ -5634,19 +5620,25 @@
         },
         "status": {
           "type": "string",
+          "enum": [
+            "wait_for_approve",
+            "wait_for_execute",
+            "executing",
+            "rejected",
+            "cancel",
+            "failed",
+            "finish"
+          ],
+          "x-go-enum-desc": "wait_for_approve DataExportWorkflowStatusWaitForApprove\nwait_for_execute DataExportWorkflowStatusWaitForExecute\nexecuting DataExportWorkflowStatusWaitForExecuting\nrejected DataExportWorkflowStatusRejeted\ncancel DataExportWorkflowStatusCancel\nfailed DataExportWorkflowStatusFailed\nfinish DataExportWorkflowStatusFinish",
           "x-go-name": "Status"
-        },
-        "uid": {
-          "type": "string",
-          "x-go-name": "UID"
-        },
-        "workflow_id": {
-          "type": "string",
-          "x-go-name": "WorkflowID"
         },
         "workflow_name": {
           "type": "string",
           "x-go-name": "WorkflowName"
+        },
+        "workflow_uid": {
+          "type": "string",
+          "x-go-name": "WorkflowID"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -6837,9 +6829,9 @@
     "Task": {
       "type": "object",
       "properties": {
-        "task_id": {
+        "task_uid": {
           "type": "string",
-          "x-go-name": "Id"
+          "x-go-name": "Uid"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -7656,6 +7648,16 @@
         },
         "status": {
           "type": "string",
+          "enum": [
+            "wait_for_approve",
+            "wait_for_execute",
+            "executing",
+            "rejected",
+            "cancel",
+            "failed",
+            "finish"
+          ],
+          "x-go-enum-desc": "wait_for_approve DataExportWorkflowStatusWaitForApprove\nwait_for_execute DataExportWorkflowStatusWaitForExecute\nexecuting DataExportWorkflowStatusWaitForExecuting\nrejected DataExportWorkflowStatusRejeted\ncancel DataExportWorkflowStatusCancel\nfailed DataExportWorkflowStatusFailed\nfinish DataExportWorkflowStatusFinish",
           "x-go-name": "Status"
         },
         "tasks": {
@@ -7678,10 +7680,10 @@
     "WorkflowStep": {
       "type": "object",
       "properties": {
-        "assignee_user_name_list": {
+        "assignee_user_list": {
           "type": "array",
           "items": {
-            "type": "string"
+            "$ref": "#/definitions/UidWithName"
           },
           "x-go-name": "Users"
         },
@@ -7699,9 +7701,8 @@
           "format": "date-time",
           "x-go-name": "OperationTime"
         },
-        "operation_user_name": {
-          "type": "string",
-          "x-go-name": "OperationUser"
+        "operation_user": {
+          "$ref": "#/definitions/UidWithName"
         },
         "reason": {
           "type": "string",
