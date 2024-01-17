@@ -37,6 +37,50 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddDataExportTaskReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: add data export workflow reply
+                properties:
+                    uid:
+                        description: data export task UID
+                        type: string
+                        x-go-name: Uid
+                type: object
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddDataExportWorkflowReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: add data export workflow reply
+                properties:
+                    uid:
+                        description: data export workflow UID
+                        type: string
+                        x-go-name: Uid
+                type: object
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddDatabaseSourceServiceReply:
         properties:
             code:
@@ -488,6 +532,49 @@ definitions:
             - proxy_url_prefixs
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    DataExportTask:
+        properties:
+            database_name:
+                description: DB Service name
+                type: string
+                x-go-name: DatabaseName
+            db_service_uid:
+                description: DB Service uid
+                type: string
+                x-go-name: DBServiceUid
+            exec_sql:
+                description: The exported SQL statement executed. it's necessary when ExportType is SQL
+                type: string
+                x-go-name: ExecSQL
+        required:
+            - db_service_uid
+            - exec_sql
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DataExportWorkflow:
+        properties:
+            desc:
+                description: desc
+                example: transaction data export
+                type: string
+                x-go-name: Desc
+            name:
+                description: name
+                example: d1
+                type: string
+                x-go-name: Name
+            task_ids:
+                description: export task info
+                example: export tasks
+                items:
+                    type: string
+                type: array
+                x-go-name: TaskIds
+        required:
+            - name
+            - task_ids
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DatabaseDriverAdditionalParam:
         properties:
             description:
@@ -665,6 +752,116 @@ definitions:
                 x-go-name: Code
             data:
                 $ref: '#/definitions/CompanyNotice'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetDataExportTask:
+        properties:
+            audit_level:
+                description: SQL审核结果
+                type: string
+                x-go-name: AuditLevel
+            db_info:
+                $ref: '#/definitions/TaskDBInfo'
+            exec_end_time:
+                type: string
+                x-go-name: ExecEndTime
+            exec_start_time:
+                type: string
+                x-go-name: ExecStartTime
+            execution_user_name:
+                type: string
+                x-go-name: ExecutionUserName
+            file_name:
+                type: string
+                x-go-name: FileName
+            instance_name:
+                type: string
+                x-go-name: InstanceName
+            pass_rate:
+                format: double
+                type: number
+                x-go-name: PassRate
+            score:
+                format: int32
+                type: integer
+                x-go-name: Score
+            status:
+                type: string
+                x-go-name: Status
+            task_id:
+                type: string
+                x-go-name: TaskID
+            task_pass_rate:
+                format: int64
+                type: integer
+                x-go-name: TaskPassRate
+            task_score:
+                format: int64
+                type: integer
+                x-go-name: TaskScore
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetDataExportTaskReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/GetDataExportTask'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetDataExportWorkflow:
+        properties:
+            create_time:
+                format: date-time
+                type: string
+                x-go-name: CreateTime
+            create_user_name:
+                type: string
+                x-go-name: CreateUser
+            desc:
+                type: string
+                x-go-name: Desc
+            project_uid:
+                type: string
+                x-go-name: ProjectUid
+            uid:
+                type: string
+                x-go-name: UID
+            workflow_id:
+                type: string
+                x-go-name: WorkflowID
+            workflow_name:
+                type: string
+                x-go-name: Name
+            workflow_record:
+                $ref: '#/definitions/WorkflowRecord'
+            workflow_record_history:
+                items:
+                    $ref: '#/definitions/WorkflowRecord'
+                type: array
+                x-go-name: WorkflowRecordHistory
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetDataExportWorkflowReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/GetDataExportWorkflow'
             message:
                 description: message
                 type: string
@@ -860,9 +1057,15 @@ definitions:
             server_user_id_url:
                 type: string
                 x-go-name: ServerUserIdUrl
+            user_email_tag:
+                type: string
+                x-go-name: UserEmailTag
             user_id_tag:
                 type: string
                 x-go-name: UserIdTag
+            user_wechat_tag:
+                type: string
+                x-go-name: UserWeChatTag
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetOauth2ConfigurationResDataReply:
@@ -1345,6 +1548,118 @@ definitions:
                 x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    ListDataExportTaskSQL:
+        properties:
+            audit_level:
+                type: string
+                x-go-name: AuditLevel
+            audit_result:
+                type: string
+                x-go-name: AuditResult
+            audit_status:
+                type: string
+                x-go-name: AuditStatus
+            export_status:
+                type: string
+                x-go-name: ExportResult
+            file_name:
+                type: string
+                x-go-name: FileName
+            sql:
+                type: string
+                x-go-name: ExportSQL
+            status:
+                type: string
+                x-go-name: ExportStatus
+            uid:
+                type: string
+                x-go-name: ID
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListDataExportTaskSQLsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/ListDataExportTaskSQL'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListDataExportWorkflow:
+        properties:
+            createdAt:
+                format: date-time
+                type: string
+                x-go-name: CreatedAt
+            creater:
+                $ref: '#/definitions/UidWithName'
+            current_step_assignee_user_name_list:
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: CurrentStepAssigneeUsers
+            current_step_type:
+                type: string
+                x-go-name: CurrentStepType
+            desc:
+                type: string
+                x-go-name: Description
+            exportedAt:
+                format: date-time
+                type: string
+                x-go-name: ExportedAt
+            project_uid:
+                type: string
+                x-go-name: ProjectUid
+            status:
+                type: string
+                x-go-name: Status
+            uid:
+                type: string
+                x-go-name: UID
+            workflow_id:
+                type: string
+                x-go-name: WorkflowID
+            workflow_name:
+                type: string
+                x-go-name: WorkflowName
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListDataExportWorkflowsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/ListDataExportWorkflow'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListDatabaseSourceService:
         properties:
             cron_express:
@@ -2075,9 +2390,15 @@ definitions:
             server_user_id_url:
                 type: string
                 x-go-name: ServerUserIdUrl
+            user_email_tag:
+                type: string
+                x-go-name: UserEmailTag
             user_id_tag:
                 type: string
                 x-go-name: UserIdTag
+            user_wechat_tag:
+                type: string
+                x-go-name: UserWeChatTag
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     OpPermissionItem:
@@ -2311,6 +2632,26 @@ definitions:
                 x-go-name: QueryTimeoutSecond
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    Task:
+        properties:
+            task_id:
+                type: string
+                x-go-name: Id
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TaskDBInfo:
+        properties:
+            database_name:
+                type: string
+                x-go-name: DatabaseName
+            name:
+                type: string
+                x-go-name: Name
+            uid:
+                type: string
+                x-go-name: Uid
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     TestFeishuConfiguration:
         properties:
             account:
@@ -2465,7 +2806,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -2899,6 +3240,63 @@ definitions:
                 $ref: '#/definitions/TriggerEventType'
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    WorkflowRecord:
+        properties:
+            current_step_number:
+                format: uint64
+                type: integer
+                x-go-name: CurrentStepNumber
+            status:
+                type: string
+                x-go-name: Status
+            tasks:
+                items:
+                    $ref: '#/definitions/Task'
+                type: array
+                x-go-name: Tasks
+            workflow_step_list:
+                items:
+                    $ref: '#/definitions/WorkflowStep'
+                type: array
+                x-go-name: Steps
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    WorkflowStep:
+        properties:
+            assignee_user_name_list:
+                items:
+                    type: string
+                type: array
+                x-go-name: Users
+            desc:
+                type: string
+                x-go-name: Desc
+            number:
+                format: uint64
+                type: integer
+                x-go-name: Number
+            operation_time:
+                format: date-time
+                type: string
+                x-go-name: OperationTime
+            operation_user_name:
+                type: string
+                x-go-name: OperationUser
+            reason:
+                type: string
+                x-go-name: Reason
+            state:
+                type: string
+                x-go-name: State
+            type:
+                type: string
+                x-go-name: Type
+            workflow_step_id:
+                format: uint64
+                type: integer
+                x-go-name: Id
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
 info:
     description: Documentation of our dms API.
     title: dms api.
@@ -3678,6 +4076,323 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: Archive a project.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/data_export_task:
+        post:
+            operationId: AddDataExportTask
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: add data export workflow
+                  in: body
+                  name: data_export_workflow
+                  schema:
+                    items:
+                        $ref: '#/definitions/DataExportTask'
+                    type: array
+                  x-go-name: DataExportTask
+            responses:
+                "200":
+                    description: AddDataExportTaskReply
+                    schema:
+                        $ref: '#/definitions/AddDataExportTaskReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Add data_export task.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/data_export_task_sqls:
+        get:
+            operationId: ListDataExportTaskSQLs
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: the maximum count of member to be returned
+                  format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of members to be returned, default is 0
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+            responses:
+                "200":
+                    description: ListDataExportTaskSQLsReply
+                    schema:
+                        $ref: '#/definitions/ListDataExportTaskSQLsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List data_export workflow.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/data_export_workflow:
+        get:
+            operationId: ListDataExportWorkflows
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: the maximum count of member to be returned
+                  format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of members to be returned, default is 0
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - description: filter the status
+                  in: query
+                  name: filter_by_status
+                  type: string
+                  x-go-name: FilterByStatus
+                - description: filter fuzzy key word
+                  in: query
+                  name: fuzzy_keyword
+                  type: string
+                  x-go-name: FuzzyKeyword
+                - description: filter workflow subject
+                  in: query
+                  name: filter_subject
+                  type: string
+                  x-go-name: FilterBySubject
+                - description: filter workflow id
+                  in: query
+                  name: filter_workflow_id
+                  type: string
+                  x-go-name: FilterByWorkflowID
+                - description: filter create user id
+                  in: query
+                  name: filter_create_user_id
+                  type: string
+                  x-go-name: FilterByCreateUserId
+            responses:
+                "200":
+                    description: ListDataExportWorkflowsReply
+                    schema:
+                        $ref: '#/definitions/ListDataExportWorkflowsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List data_export workflow.
+            tags:
+                - dms
+        post:
+            operationId: AddDataExportWorkflow
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: add data export workflow
+                  in: body
+                  name: data_export_workflow
+                  schema:
+                    $ref: '#/definitions/DataExportWorkflow'
+                  x-go-name: DataExportWorkflow
+            responses:
+                "200":
+                    description: AddDataExportWorkflowReply
+                    schema:
+                        $ref: '#/definitions/AddDataExportWorkflowReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Add data_export workflow.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_task_uid}:
+        get:
+            operationId: GetDataExportTask
+            parameters:
+                - in: path
+                  name: data_export_task_uid
+                  required: true
+                  type: string
+                  x-go-name: DataExportTaskUid
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: GetDataExportTaskReply
+                    schema:
+                        $ref: '#/definitions/GetDataExportTaskReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get data_export task.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid}:
+        get:
+            operationId: GetDataExportWorkflow
+            parameters:
+                - in: path
+                  name: data_export_workflow_uid
+                  required: true
+                  type: string
+                  x-go-name: DataExportWorkflowUid
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: GetDataExportWorkflowReply
+                    schema:
+                        $ref: '#/definitions/GetDataExportWorkflowReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get data_export workflow.
+            tags:
+                - dms
+        put:
+            operationId: UpdateDataExportWorkflow
+            parameters:
+                - description: project id
+                  in: path
+                  name: ProjectUid
+                  required: true
+                  type: string
+                - in: path
+                  name: DataExportWorkflowUid
+                  required: true
+                  type: string
+                - description: desc
+                  example: transaction data export
+                  in: query
+                  name: desc
+                  type: string
+                  x-go-name: Desc
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: update data_export workflow.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid}/approve:
+        post:
+            operationId: ApproveDataExportWorkflow
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - in: path
+                  name: data_export_workflow_uid
+                  required: true
+                  type: string
+                  x-go-name: DataExportWorkflowUid
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Approve data_export workflow.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid}/exec:
+        post:
+            operationId: ExecDataExportWorkflow
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - in: path
+                  name: data_export_workflow_uid
+                  required: true
+                  type: string
+                  x-go-name: DataExportWorkflowUid
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: exec data_export workflow.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid}/reject:
+        post:
+            operationId: RejectDataExportWorkflow
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - in: path
+                  name: data_export_workflow_uid
+                  required: true
+                  type: string
+                  x-go-name: DataExportWorkflowUid
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Reject data_export workflow.
             tags:
                 - dms
     /v1/dms/projects/{project_uid}/database_source_services:

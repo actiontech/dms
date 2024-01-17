@@ -1174,6 +1174,470 @@
         }
       }
     },
+    "/v1/dms/projects/{project_uid}/data_export_task": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Add data_export task.",
+        "operationId": "AddDataExportTask",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "DataExportTask",
+            "description": "add data export workflow",
+            "name": "data_export_workflow",
+            "in": "body",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/DataExportTask"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddDataExportTaskReply",
+            "schema": {
+              "$ref": "#/definitions/AddDataExportTaskReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/data_export_task_sqls": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List data_export workflow.",
+        "operationId": "ListDataExportTaskSQLs",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of member to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of members to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListDataExportTaskSQLsReply",
+            "schema": {
+              "$ref": "#/definitions/ListDataExportTaskSQLsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/data_export_workflow": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List data_export workflow.",
+        "operationId": "ListDataExportWorkflows",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of member to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of members to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByStatus",
+            "description": "filter the status",
+            "name": "filter_by_status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FuzzyKeyword",
+            "description": "filter fuzzy key word",
+            "name": "fuzzy_keyword",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterBySubject",
+            "description": "filter workflow subject",
+            "name": "filter_subject",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByWorkflowID",
+            "description": "filter workflow id",
+            "name": "filter_workflow_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByCreateUserId",
+            "description": "filter create user id",
+            "name": "filter_create_user_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListDataExportWorkflowsReply",
+            "schema": {
+              "$ref": "#/definitions/ListDataExportWorkflowsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Add data_export workflow.",
+        "operationId": "AddDataExportWorkflow",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "DataExportWorkflow",
+            "description": "add data export workflow",
+            "name": "data_export_workflow",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/DataExportWorkflow"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddDataExportWorkflowReply",
+            "schema": {
+              "$ref": "#/definitions/AddDataExportWorkflowReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/data_export_workflow/{data_export_task_uid}": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get data_export task.",
+        "operationId": "GetDataExportTask",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "DataExportTaskUid",
+            "name": "data_export_task_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GetDataExportTaskReply",
+            "schema": {
+              "$ref": "#/definitions/GetDataExportTaskReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid}": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get data_export workflow.",
+        "operationId": "GetDataExportWorkflow",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "DataExportWorkflowUid",
+            "name": "data_export_workflow_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GetDataExportWorkflowReply",
+            "schema": {
+              "$ref": "#/definitions/GetDataExportWorkflowReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "update data_export workflow.",
+        "operationId": "UpdateDataExportWorkflow",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "project id",
+            "name": "ProjectUid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "DataExportWorkflowUid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "example": "transaction data export",
+            "x-go-name": "Desc",
+            "description": "desc",
+            "name": "desc",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid}/approve": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Approve data_export workflow.",
+        "operationId": "ApproveDataExportWorkflow",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "DataExportWorkflowUid",
+            "name": "data_export_workflow_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid}/exec": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "exec data_export workflow.",
+        "operationId": "ExecDataExportWorkflow",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "DataExportWorkflowUid",
+            "name": "data_export_workflow_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid}/reject": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Reject data_export workflow.",
+        "operationId": "RejectDataExportWorkflow",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "DataExportWorkflowUid",
+            "name": "data_export_workflow_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/projects/{project_uid}/database_source_services": {
       "get": {
         "tags": [
@@ -3099,6 +3563,64 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "AddDataExportTaskReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "add data export workflow reply",
+          "type": "object",
+          "properties": {
+            "uid": {
+              "description": "data export task UID",
+              "type": "string",
+              "x-go-name": "Uid"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddDataExportWorkflowReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "add data export workflow reply",
+          "type": "object",
+          "properties": {
+            "uid": {
+              "description": "data export workflow UID",
+              "type": "string",
+              "x-go-name": "Uid"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "AddDatabaseSourceServiceReply": {
       "type": "object",
       "properties": {
@@ -3689,6 +4211,62 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "DataExportTask": {
+      "type": "object",
+      "required": [
+        "db_service_uid",
+        "exec_sql"
+      ],
+      "properties": {
+        "database_name": {
+          "description": "DB Service name",
+          "type": "string",
+          "x-go-name": "DatabaseName"
+        },
+        "db_service_uid": {
+          "description": "DB Service uid",
+          "type": "string",
+          "x-go-name": "DBServiceUid"
+        },
+        "exec_sql": {
+          "description": "The exported SQL statement executed. it's necessary when ExportType is SQL",
+          "type": "string",
+          "x-go-name": "ExecSQL"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DataExportWorkflow": {
+      "type": "object",
+      "required": [
+        "name",
+        "task_ids"
+      ],
+      "properties": {
+        "desc": {
+          "description": "desc",
+          "type": "string",
+          "x-go-name": "Desc",
+          "example": "transaction data export"
+        },
+        "name": {
+          "description": "name",
+          "type": "string",
+          "x-go-name": "Name",
+          "example": "d1"
+        },
+        "task_ids": {
+          "description": "export task info",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "TaskIds",
+          "example": "export tasks"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "DatabaseDriverAdditionalParam": {
       "type": "object",
       "properties": {
@@ -3920,6 +4498,153 @@
         },
         "data": {
           "$ref": "#/definitions/CompanyNotice"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetDataExportTask": {
+      "type": "object",
+      "properties": {
+        "audit_level": {
+          "description": "SQL审核结果",
+          "type": "string",
+          "x-go-name": "AuditLevel"
+        },
+        "db_info": {
+          "$ref": "#/definitions/TaskDBInfo"
+        },
+        "exec_end_time": {
+          "type": "string",
+          "x-go-name": "ExecEndTime"
+        },
+        "exec_start_time": {
+          "type": "string",
+          "x-go-name": "ExecStartTime"
+        },
+        "execution_user_name": {
+          "type": "string",
+          "x-go-name": "ExecutionUserName"
+        },
+        "file_name": {
+          "type": "string",
+          "x-go-name": "FileName"
+        },
+        "instance_name": {
+          "type": "string",
+          "x-go-name": "InstanceName"
+        },
+        "pass_rate": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "PassRate"
+        },
+        "score": {
+          "type": "integer",
+          "format": "int32",
+          "x-go-name": "Score"
+        },
+        "status": {
+          "type": "string",
+          "x-go-name": "Status"
+        },
+        "task_id": {
+          "type": "string",
+          "x-go-name": "TaskID"
+        },
+        "task_pass_rate": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "TaskPassRate"
+        },
+        "task_score": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "TaskScore"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetDataExportTaskReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/GetDataExportTask"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetDataExportWorkflow": {
+      "type": "object",
+      "properties": {
+        "create_time": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreateTime"
+        },
+        "create_user_name": {
+          "type": "string",
+          "x-go-name": "CreateUser"
+        },
+        "desc": {
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "project_uid": {
+          "type": "string",
+          "x-go-name": "ProjectUid"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "UID"
+        },
+        "workflow_id": {
+          "type": "string",
+          "x-go-name": "WorkflowID"
+        },
+        "workflow_name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "workflow_record": {
+          "$ref": "#/definitions/WorkflowRecord"
+        },
+        "workflow_record_history": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WorkflowRecord"
+          },
+          "x-go-name": "WorkflowRecordHistory"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetDataExportWorkflowReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/GetDataExportWorkflow"
         },
         "message": {
           "description": "message",
@@ -4177,9 +4902,17 @@
           "type": "string",
           "x-go-name": "ServerUserIdUrl"
         },
+        "user_email_tag": {
+          "type": "string",
+          "x-go-name": "UserEmailTag"
+        },
         "user_id_tag": {
           "type": "string",
           "x-go-name": "UserIdTag"
+        },
+        "user_wechat_tag": {
+          "type": "string",
+          "x-go-name": "UserWeChatTag"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -4796,6 +5529,156 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "ListDataExportTaskSQL": {
+      "type": "object",
+      "properties": {
+        "audit_level": {
+          "type": "string",
+          "x-go-name": "AuditLevel"
+        },
+        "audit_result": {
+          "type": "string",
+          "x-go-name": "AuditResult"
+        },
+        "audit_status": {
+          "type": "string",
+          "x-go-name": "AuditStatus"
+        },
+        "export_status": {
+          "type": "string",
+          "x-go-name": "ExportResult"
+        },
+        "file_name": {
+          "type": "string",
+          "x-go-name": "FileName"
+        },
+        "sql": {
+          "type": "string",
+          "x-go-name": "ExportSQL"
+        },
+        "status": {
+          "type": "string",
+          "x-go-name": "ExportStatus"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "ID"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListDataExportTaskSQLsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListDataExportTaskSQL"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListDataExportWorkflow": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "creater": {
+          "$ref": "#/definitions/UidWithName"
+        },
+        "current_step_assignee_user_name_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "CurrentStepAssigneeUsers"
+        },
+        "current_step_type": {
+          "type": "string",
+          "x-go-name": "CurrentStepType"
+        },
+        "desc": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "exportedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "ExportedAt"
+        },
+        "project_uid": {
+          "type": "string",
+          "x-go-name": "ProjectUid"
+        },
+        "status": {
+          "type": "string",
+          "x-go-name": "Status"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "UID"
+        },
+        "workflow_id": {
+          "type": "string",
+          "x-go-name": "WorkflowID"
+        },
+        "workflow_name": {
+          "type": "string",
+          "x-go-name": "WorkflowName"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListDataExportWorkflowsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListDataExportWorkflow"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ListDatabaseSourceService": {
       "type": "object",
@@ -5683,9 +6566,17 @@
           "type": "string",
           "x-go-name": "ServerUserIdUrl"
         },
+        "user_email_tag": {
+          "type": "string",
+          "x-go-name": "UserEmailTag"
+        },
         "user_id_tag": {
           "type": "string",
           "x-go-name": "UserIdTag"
+        },
+        "user_wechat_tag": {
+          "type": "string",
+          "x-go-name": "UserWeChatTag"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -5943,6 +6834,34 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "Task": {
+      "type": "object",
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "x-go-name": "Id"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "TaskDBInfo": {
+      "type": "object",
+      "properties": {
+        "database_name": {
+          "type": "string",
+          "x-go-name": "DatabaseName"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "Uid"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "TestFeishuConfiguration": {
       "type": "object",
       "properties": {
@@ -6150,7 +7069,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
@@ -6726,6 +7645,83 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "WorkflowRecord": {
+      "type": "object",
+      "properties": {
+        "current_step_number": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "CurrentStepNumber"
+        },
+        "status": {
+          "type": "string",
+          "x-go-name": "Status"
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Task"
+          },
+          "x-go-name": "Tasks"
+        },
+        "workflow_step_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WorkflowStep"
+          },
+          "x-go-name": "Steps"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "WorkflowStep": {
+      "type": "object",
+      "properties": {
+        "assignee_user_name_list": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Users"
+        },
+        "desc": {
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "number": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Number"
+        },
+        "operation_time": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "OperationTime"
+        },
+        "operation_user_name": {
+          "type": "string",
+          "x-go-name": "OperationUser"
+        },
+        "reason": {
+          "type": "string",
+          "x-go-name": "Reason"
+        },
+        "state": {
+          "type": "string",
+          "x-go-name": "State"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "workflow_step_id": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Id"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     }
   },
   "responses": {
