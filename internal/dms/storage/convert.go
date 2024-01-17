@@ -187,6 +187,7 @@ func convertBizCloudbeaverUser(u *biz.CloudbeaverUser) *model.CloudbeaverUserCac
 func convertBizCloudbeaverConnection(u *biz.CloudbeaverConnection) *model.CloudbeaverConnectionCache {
 	return &model.CloudbeaverConnectionCache{
 		DMSDBServiceID:          u.DMSDBServiceID,
+		DMSUserID:               u.DMSUserId,
 		DMSDBServiceFingerprint: u.DMSDBServiceFingerprint,
 		CloudbeaverConnectionID: u.CloudbeaverConnectionID,
 	}
@@ -295,6 +296,7 @@ func convertModelCloudbeaverConnection(items []*model.CloudbeaverConnectionCache
 	for _, item := range items {
 		res = append(res, &biz.CloudbeaverConnection{
 			DMSDBServiceID:          item.DMSDBServiceID,
+			DMSUserId:               item.DMSUserID,
 			DMSDBServiceFingerprint: item.DMSDBServiceFingerprint,
 			CloudbeaverConnectionID: item.CloudbeaverConnectionID,
 		})
