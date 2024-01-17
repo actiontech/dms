@@ -1938,3 +1938,192 @@ func ReadFileContent(c echo.Context, name string) (content string, fileExist boo
 	}
 	return string(data), true, nil
 }
+
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflow dms AddDataExportWorkflow
+//
+// Add data_export workflow.
+//
+//	responses:
+//	  200: body:AddDataExportWorkflowReply
+//	  default: body:GenericResp
+func (d *DMSController) AddDataExportWorkflow(c echo.Context) error {
+	req := new(aV1.AddDataExportWorkflowReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// get current user id
+	// currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	// if err != nil {
+	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
+	// }
+
+	// reply, err := d.DMS.AddDataExportWorkflow(c.Request().Context(), req, currentUserUid)
+	// if nil != err {
+	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
+	// }
+	// return NewOkRespWithReply(c, reply)
+
+	return NewOkRespWithReply(c, nil)
+}
+
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid}/approve dms ApproveDataExportWorkflow
+//
+// Approve data_export workflow.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) ApproveDataExportWorkflow(c echo.Context) error {
+	req := &aV1.ApproveDataExportWorkflowReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	// get current user id
+	// currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	// if err != nil {
+	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
+	// }
+	// err = d.DMS.ApproveDataExportWorkflow(c.Request().Context(), req, currentUserUid)
+	// if nil != err {
+	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
+	// }
+
+	return NewOkResp(c)
+}
+
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflow dms ListDataExportWorkflows
+//
+// List data_export workflow.
+//
+//	responses:
+//	  200: body:ListDataExportWorkflowsReply
+//	  default: body:GenericResp
+func (d *DMSController) ListDataExportWorkflows(c echo.Context) error {
+	req := new(aV1.ListDataExportWorkflowsReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	// if err != nil {
+	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
+	// }
+	// reply, err := d.DMS.ListDataExportWorkflow(c.Request().Context(), req, currentUserUid)
+	// if nil != err {
+	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
+	// }
+	// return NewOkRespWithReply(c, reply)
+
+	return NewOkRespWithReply(c, nil)
+}
+
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid} dms GetDataExportWorkflow
+//
+// Get data_export workflow.
+//
+//	responses:
+//	  200: body:GetDataExportWorkflowReply
+//	  default: body:GenericResp
+func (d *DMSController) GetDataExportWorkflow(c echo.Context) error {
+	req := new(aV1.GetDataExportWorkflowReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	// if err != nil {
+	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
+	// }
+	// reply, err := d.DMS.GetDataExportWorkflow(c.Request().Context(), req, currentUserUid)
+	// if nil != err {
+	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
+	// }
+	// return NewOkRespWithReply(c, reply)
+	return NewOkRespWithReply(c, nil)
+}
+
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid}/reject dms RejectDataExportWorkflow
+//
+// Reject data_export workflow.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) RejectDataExportWorkflow(c echo.Context) error {
+	req := &aV1.RejectDataExportWorkflowReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	// get current user id
+	// currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	// if err != nil {
+	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
+	// }
+	// err = d.DMS.RejectDataExportWorkflow(c.Request().Context(), req, currentUserUid)
+	// if nil != err {
+	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
+	// }
+
+	return NewOkResp(c)
+}
+
+// swagger:route PUT /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid} dms UpdateDataExportWorkflow
+//
+// update data_export workflow.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) UpdateDataExportWorkflow(c echo.Context) error {
+	req := &aV1.UpdateDataExportWorkflowReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	// get current user id
+	_, err = jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	// err = d.DMS.UpdateDataExportWorkflow(c.Request().Context(), req, currentUserUid)
+	// if nil != err {
+	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
+	// }
+	return NewOkResp(c)
+}
+
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid}/exec dms ExecDataExportWorkflow
+//
+// exec data_export workflow.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) ExecDataExportWorkflow(c echo.Context) error {
+	req := &aV1.ExecDataExportWorkflowReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	// get current user id
+	// currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	// if err != nil {
+	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
+	// }
+	// err = d.DMS.ExecDataExportWorkflow(c.Request().Context(), req, currentUserUid)
+	// if nil != err {
+	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
+	// }
+
+	return NewOkResp(c)
+}
+
+// download
+// 数据源tips接口
+//

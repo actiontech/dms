@@ -146,6 +146,9 @@ func (s *APIServer) initRouter() error {
 		webhookV1 := v1.Group(dmsV1.WebHookRouterGroup)
 		webhookV1.POST("", s.DMSController.WebHookSendMessage) /* TODO AdminUserAllowed()*/
 
+		workflowsV1 := v1.Group("/dms/workflows")
+		workflowsV1.POST("/data_export/create")
+
 		if s.CloudbeaverController.CloudbeaverService.CloudbeaverUsecase.IsCloudbeaverConfigured() {
 			cloudbeaverV1 := s.echo.Group(s.CloudbeaverController.CloudbeaverService.CloudbeaverUsecase.GetRootUri())
 			targets, err := s.CloudbeaverController.CloudbeaverService.ProxyUsecase.GetCloudbeaverProxyTarget()
