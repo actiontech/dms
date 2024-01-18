@@ -23,9 +23,8 @@ type DataExportTask struct {
 	// Required: false
 	DatabaseName string `json:"database_name"`
 	// The exported SQL statement executed. it's necessary when ExportType is SQL
-	// Required: true
 	// SELECT * FROM DMS_test LIMIT 20;
-	ExecSQL string `json:"exec_sql" validate:"required"`
+	ExportSQL string `json:"export_sql"`
 }
 
 // swagger:model AddDataExportTaskReply
@@ -33,7 +32,7 @@ type AddDataExportTaskReply struct {
 	// add data export workflow reply
 	Data struct {
 		// data export task UID
-		Uid string `json:"uid"`
+		Uid string `json:"data_export_task_uid"`
 	} `json:"data"`
 
 	// Generic reply
@@ -83,7 +82,9 @@ type GetDataExportTask struct {
 	ExportEndTime   string               `json:"export_end_time"`
 	FileName        string               `json:"file_name"` // 导出文件名
 	AuditResult     AuditTaskResult      `json:"audit_result"`
-	// 下载次数，进度、高级配置等
+	ExportType      string               `json:"export_type"`      // Export Type example: SQL Meta
+	ExportFileType  string               `json:"export_file_type"` // Export Content example: CSV SQL EXCEL
+
 }
 
 // SQL审核结果
@@ -124,6 +125,5 @@ type ListDataExportTaskSQL struct {
 }
 type AuditSQLResult struct {
 	AuditLevel  string `json:"audit_level"`
-	AuditStatus string `json:"audit_status"`
 	AuditResult string `json:"audit_result"` // 审核结果
 }
