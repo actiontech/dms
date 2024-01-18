@@ -140,7 +140,6 @@ type GetDataExportWorkflow struct {
 	Desc                  string           `json:"desc,omitempty"`
 	CreateUser            UidWithName      `json:"create_user"`
 	CreateTime            *time.Time       `json:"create_time"`
-	ProjectUid            string           `json:"project_uid"`
 	WorkflowRecord        WorkflowRecord   `json:"workflow_record"`
 	WorkflowRecordHistory []WorkflowRecord `json:"workflow_record_history"`
 }
@@ -179,8 +178,8 @@ type ApproveDataExportWorkflowReq struct {
 	DataExportWorkflowUid string `param:"data_export_workflow_uid" json:"data_export_workflow_uid" validate:"required"`
 }
 
-// swagger:parameters ExecDataExportWorkflow
-type ExecDataExportWorkflowReq struct {
+// swagger:parameters ExportDataExportWorkflow
+type ExportDataExportWorkflowReq struct {
 	// project id
 	// Required: true
 	// in:path

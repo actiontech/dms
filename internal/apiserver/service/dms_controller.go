@@ -1939,7 +1939,7 @@ func ReadFileContent(c echo.Context, name string) (content string, fileExist boo
 	return string(data), true, nil
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflow dms AddDataExportWorkflow
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows dms AddDataExportWorkflow
 //
 // Add data_export workflow.
 //
@@ -1968,7 +1968,7 @@ func (d *DMSController) AddDataExportWorkflow(c echo.Context) error {
 	return NewOkRespWithReply(c, nil)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid}/approve dms ApproveDataExportWorkflow
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/approve dms ApproveDataExportWorkflow
 //
 // Approve data_export workflow.
 //
@@ -1994,7 +1994,7 @@ func (d *DMSController) ApproveDataExportWorkflow(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflow dms ListDataExportWorkflows
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflows dms ListDataExportWorkflows
 //
 // List data_export workflow.
 //
@@ -2021,7 +2021,7 @@ func (d *DMSController) ListDataExportWorkflows(c echo.Context) error {
 	return NewOkRespWithReply(c, nil)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid} dms GetDataExportWorkflow
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid} dms GetDataExportWorkflow
 //
 // Get data_export workflow.
 //
@@ -2047,7 +2047,7 @@ func (d *DMSController) GetDataExportWorkflow(c echo.Context) error {
 	return NewOkRespWithReply(c, nil)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid}/reject dms RejectDataExportWorkflow
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/reject dms RejectDataExportWorkflow
 //
 // Reject data_export workflow.
 //
@@ -2073,7 +2073,7 @@ func (d *DMSController) RejectDataExportWorkflow(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/projects/{project_uid}/data_export_workflow/cancel dms CancelDataExportWorkflow
+// swagger:route PUT /v1/dms/projects/{project_uid}/data_export_workflows/cancel dms CancelDataExportWorkflow
 //
 // Cancel data export workflows.
 //
@@ -2098,7 +2098,7 @@ func (d *DMSController) CancelDataExportWorkflow(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid}/exec dms ExecDataExportWorkflow
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/exec dms ExportDataExportWorkflow
 //
 // exec data_export workflow.
 //
@@ -2106,7 +2106,7 @@ func (d *DMSController) CancelDataExportWorkflow(c echo.Context) error {
 //	  200: body:GenericResp
 //	  default: body:GenericResp
 func (d *DMSController) ExecDataExportWorkflow(c echo.Context) error {
-	req := &aV1.ExecDataExportWorkflowReq{}
+	req := &aV1.ExportDataExportWorkflowReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
@@ -2116,7 +2116,7 @@ func (d *DMSController) ExecDataExportWorkflow(c echo.Context) error {
 	// if err != nil {
 	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
 	// }
-	// err = d.DMS.ExecDataExportWorkflow(c.Request().Context(), req, currentUserUid)
+	// err = d.DMS.ExportDataExportWorkflow(c.Request().Context(), req, currentUserUid)
 	// if nil != err {
 	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
 	// }
@@ -2124,7 +2124,7 @@ func (d *DMSController) ExecDataExportWorkflow(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/data_export_task dms AddDataExportTask
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_tasks dms AddDataExportTask
 //
 // Add data_export task.
 //
@@ -2153,7 +2153,7 @@ func (d *DMSController) AddDataExportTask(c echo.Context) error {
 	return NewOkRespWithReply(c, nil)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/data_export_task/{data_export_task_uid} dms GetDataExportTask
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid} dms GetDataExportTask
 //
 // Get data_export task.
 //

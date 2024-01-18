@@ -846,9 +846,6 @@ definitions:
             desc:
                 type: string
                 x-go-name: Desc
-            project_uid:
-                type: string
-                x-go-name: ProjectUid
             workflow_name:
                 type: string
                 x-go-name: Name
@@ -2817,7 +2814,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -4104,63 +4101,6 @@ paths:
             summary: Archive a project.
             tags:
                 - dms
-    /v1/dms/projects/{project_uid}/data_export_task:
-        post:
-            operationId: AddDataExportTask
-            parameters:
-                - description: project id
-                  in: path
-                  name: project_uid
-                  required: true
-                  type: string
-                  x-go-name: ProjectUid
-                - description: add data export workflow
-                  in: body
-                  name: data_export_workflow
-                  schema:
-                    items:
-                        $ref: '#/definitions/DataExportTask'
-                    type: array
-                  x-go-name: DataExportTask
-            responses:
-                "200":
-                    description: AddDataExportTaskReply
-                    schema:
-                        $ref: '#/definitions/AddDataExportTaskReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: Add data_export task.
-            tags:
-                - dms
-    /v1/dms/projects/{project_uid}/data_export_task/{data_export_task_uid}:
-        get:
-            operationId: GetDataExportTask
-            parameters:
-                - in: path
-                  name: data_export_task_uid
-                  required: true
-                  type: string
-                  x-go-name: DataExportTaskUid
-                - description: project id
-                  in: path
-                  name: project_uid
-                  required: true
-                  type: string
-                  x-go-name: ProjectUid
-            responses:
-                "200":
-                    description: GetDataExportTaskReply
-                    schema:
-                        $ref: '#/definitions/GetDataExportTaskReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: Get data_export task.
-            tags:
-                - dms
     /v1/dms/projects/{project_uid}/data_export_task_sqls:
         get:
             operationId: ListDataExportTaskSQLs
@@ -4196,7 +4136,64 @@ paths:
             summary: List data_export workflow.
             tags:
                 - dms
-    /v1/dms/projects/{project_uid}/data_export_workflow:
+    /v1/dms/projects/{project_uid}/data_export_tasks:
+        post:
+            operationId: AddDataExportTask
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: add data export workflow
+                  in: body
+                  name: data_export_workflow
+                  schema:
+                    items:
+                        $ref: '#/definitions/DataExportTask'
+                    type: array
+                  x-go-name: DataExportTask
+            responses:
+                "200":
+                    description: AddDataExportTaskReply
+                    schema:
+                        $ref: '#/definitions/AddDataExportTaskReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Add data_export task.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}:
+        get:
+            operationId: GetDataExportTask
+            parameters:
+                - in: path
+                  name: data_export_task_uid
+                  required: true
+                  type: string
+                  x-go-name: DataExportTaskUid
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: GetDataExportTaskReply
+                    schema:
+                        $ref: '#/definitions/GetDataExportTaskReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get data_export task.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/data_export_workflows:
         get:
             operationId: ListDataExportWorkflows
             parameters:
@@ -4317,7 +4314,7 @@ paths:
             summary: Add data_export workflow.
             tags:
                 - dms
-    /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid}:
+    /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}:
         get:
             operationId: GetDataExportWorkflow
             parameters:
@@ -4344,7 +4341,7 @@ paths:
             summary: Get data_export workflow.
             tags:
                 - dms
-    /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid}/approve:
+    /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/approve:
         post:
             operationId: ApproveDataExportWorkflow
             parameters:
@@ -4371,9 +4368,9 @@ paths:
             summary: Approve data_export workflow.
             tags:
                 - dms
-    /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid}/exec:
+    /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/exec:
         post:
-            operationId: ExecDataExportWorkflow
+            operationId: ExportDataExportWorkflow
             parameters:
                 - description: project id
                   in: path
@@ -4398,7 +4395,7 @@ paths:
             summary: exec data_export workflow.
             tags:
                 - dms
-    /v1/dms/projects/{project_uid}/data_export_workflow/{data_export_workflow_uid}/reject:
+    /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/reject:
         post:
             operationId: RejectDataExportWorkflow
             parameters:
@@ -4425,7 +4422,7 @@ paths:
             summary: Reject data_export workflow.
             tags:
                 - dms
-    /v1/dms/projects/{project_uid}/data_export_workflow/cancel:
+    /v1/dms/projects/{project_uid}/data_export_workflows/cancel:
         put:
             operationId: CancelDataExportWorkflow
             parameters:
