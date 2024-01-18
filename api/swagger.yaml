@@ -293,12 +293,18 @@ definitions:
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     AuditSQLResult:
         properties:
-            audit_level:
+            db_type:
                 type: string
-                x-go-name: AuditLevel
-            audit_result:
+                x-go-name: DBType
+            level:
                 type: string
-                x-go-name: AuditResult
+                x-go-name: Level
+            message:
+                type: string
+                x-go-name: Message
+            rule_name:
+                type: string
+                x-go-name: RuleName
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AuditTaskResult:
@@ -1568,7 +1574,10 @@ definitions:
     ListDataExportTaskSQL:
         properties:
             audit_sql_result:
-                $ref: '#/definitions/AuditSQLResult'
+                items:
+                    $ref: '#/definitions/AuditSQLResult'
+                type: array
+                x-go-name: AuditSQLResult
             export_status:
                 type: string
                 x-go-name: ExportResult
@@ -2661,6 +2670,9 @@ definitions:
             database_name:
                 type: string
                 x-go-name: DatabaseName
+            db_type:
+                type: string
+                x-go-name: DBType
             name:
                 type: string
                 x-go-name: Name
@@ -2823,7 +2835,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:

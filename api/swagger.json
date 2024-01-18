@@ -3936,13 +3936,21 @@
     "AuditSQLResult": {
       "type": "object",
       "properties": {
-        "audit_level": {
+        "db_type": {
           "type": "string",
-          "x-go-name": "AuditLevel"
+          "x-go-name": "DBType"
         },
-        "audit_result": {
+        "level": {
           "type": "string",
-          "x-go-name": "AuditResult"
+          "x-go-name": "Level"
+        },
+        "message": {
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "rule_name": {
+          "type": "string",
+          "x-go-name": "RuleName"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -5585,7 +5593,11 @@
       "type": "object",
       "properties": {
         "audit_sql_result": {
-          "$ref": "#/definitions/AuditSQLResult"
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AuditSQLResult"
+          },
+          "x-go-name": "AuditSQLResult"
         },
         "export_status": {
           "type": "string",
@@ -6891,6 +6903,10 @@
           "type": "string",
           "x-go-name": "DatabaseName"
         },
+        "db_type": {
+          "type": "string",
+          "x-go-name": "DBType"
+        },
         "name": {
           "type": "string",
           "x-go-name": "Name"
@@ -7109,7 +7125,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",

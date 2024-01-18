@@ -60,6 +60,7 @@ type BatchGetDataExportTaskReply struct {
 
 type TaskDBInfo struct {
 	UidWithName
+	DBType       string `json:"db_type"`
 	DatabaseName string `json:"database_name"`
 }
 
@@ -121,12 +122,14 @@ type ListDataExportTaskSQLsReply struct {
 }
 
 type ListDataExportTaskSQL struct {
-	ID             string         `json:"uid"`
-	ExportSQL      string         `json:"sql"`
-	ExportResult   string         `json:"export_status"` // 导出结果
-	AuditSQLResult AuditSQLResult `json:"audit_sql_result"`
+	ID             string           `json:"uid"`
+	ExportSQL      string           `json:"sql"`
+	ExportResult   string           `json:"export_status"` // 导出结果
+	AuditSQLResult []AuditSQLResult `json:"audit_sql_result"`
 }
 type AuditSQLResult struct {
-	AuditLevel  string `json:"audit_level"`
-	AuditResult string `json:"audit_result"` // 审核结果
+	Level    string `json:"level" example:"warn"`
+	Message  string `json:"message" example:"避免使用不必要的内置函数md5()"`
+	RuleName string `json:"rule_name"`
+	DBType   string `json:"db_type"`
 }
