@@ -89,14 +89,14 @@ type ListDataExportWorkflowsReply struct {
 }
 
 type ListDataExportWorkflow struct {
-	ProjectUid   string      `json:"project_uid"`
-	WorkflowID   string      `json:"workflow_uid"`  // 数据导出工单ID
-	WorkflowName string      `json:"workflow_name"` // 数据导出工单的名称
-	Description  string      `json:"desc"`          // 数据导出工单的描述
-	Creater      UidWithName `json:"creater"`       // 数据导出工单的创建人
-	CreatedAt    time.Time   `json:"created_at"`    // 数据导出工单的创建时间
-	ExportedAt   time.Time   `json:"exported_at"`   // 执行数据导出工单的时间
-	Status       string      `json:"status"`        // 数据导出工单的状态
+	ProjectUid   string                   `json:"project_uid"`
+	WorkflowID   string                   `json:"workflow_uid"`  // 数据导出工单ID
+	WorkflowName string                   `json:"workflow_name"` // 数据导出工单的名称
+	Description  string                   `json:"desc"`          // 数据导出工单的描述
+	Creater      UidWithName              `json:"creater"`       // 数据导出工单的创建人
+	CreatedAt    time.Time                `json:"created_at"`    // 数据导出工单的创建时间
+	ExportedAt   time.Time                `json:"exported_at"`   // 执行数据导出工单的时间
+	Status       DataExportWorkflowStatus `json:"status"`        // 数据导出工单的状态
 
 	CurrentStepAssigneeUsers []UidWithName `json:"current_step_assignee_user_list"` // 工单待操作人
 	CurrentStepType          string        `json:"current_step_type"`
@@ -107,8 +107,8 @@ type DataExportWorkflowStatus string
 
 const (
 	DataExportWorkflowStatusWaitForApprove   DataExportWorkflowStatus = "wait_for_approve"
-	DataExportWorkflowStatusWaitForExecute   DataExportWorkflowStatus = "wait_for_execute"
-	DataExportWorkflowStatusWaitForExecuting DataExportWorkflowStatus = "executing"
+	DataExportWorkflowStatusWaitForExport    DataExportWorkflowStatus = "wait_for_export"
+	DataExportWorkflowStatusWaitForExporting DataExportWorkflowStatus = "exporting"
 	DataExportWorkflowStatusRejeted          DataExportWorkflowStatus = "rejected"
 	DataExportWorkflowStatusCancel           DataExportWorkflowStatus = "cancel"
 	DataExportWorkflowStatusFailed           DataExportWorkflowStatus = "failed"

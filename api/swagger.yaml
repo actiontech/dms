@@ -1623,7 +1623,23 @@ definitions:
                 type: string
                 x-go-name: ProjectUid
             status:
+                enum:
+                    - wait_for_approve
+                    - wait_for_export
+                    - exporting
+                    - rejected
+                    - cancel
+                    - failed
+                    - finish
                 type: string
+                x-go-enum-desc: |-
+                    wait_for_approve DataExportWorkflowStatusWaitForApprove
+                    wait_for_export DataExportWorkflowStatusWaitForExport
+                    exporting DataExportWorkflowStatusWaitForExporting
+                    rejected DataExportWorkflowStatusRejeted
+                    cancel DataExportWorkflowStatusCancel
+                    failed DataExportWorkflowStatusFailed
+                    finish DataExportWorkflowStatusFinish
                 x-go-name: Status
             workflow_name:
                 type: string
@@ -3244,8 +3260,8 @@ definitions:
             status:
                 enum:
                     - wait_for_approve
-                    - wait_for_execute
-                    - executing
+                    - wait_for_export
+                    - exporting
                     - rejected
                     - cancel
                     - failed
@@ -3253,8 +3269,8 @@ definitions:
                 type: string
                 x-go-enum-desc: |-
                     wait_for_approve DataExportWorkflowStatusWaitForApprove
-                    wait_for_execute DataExportWorkflowStatusWaitForExecute
-                    executing DataExportWorkflowStatusWaitForExecuting
+                    wait_for_export DataExportWorkflowStatusWaitForExport
+                    exporting DataExportWorkflowStatusWaitForExporting
                     rejected DataExportWorkflowStatusRejeted
                     cancel DataExportWorkflowStatusCancel
                     failed DataExportWorkflowStatusFailed
@@ -4206,16 +4222,16 @@ paths:
                 - description: |-
                     filter the status
                     wait_for_approve DataExportWorkflowStatusWaitForApprove
-                    wait_for_execute DataExportWorkflowStatusWaitForExecute
-                    executing DataExportWorkflowStatusWaitForExecuting
+                    wait_for_export DataExportWorkflowStatusWaitForExport
+                    exporting DataExportWorkflowStatusWaitForExporting
                     rejected DataExportWorkflowStatusRejeted
                     cancel DataExportWorkflowStatusCancel
                     failed DataExportWorkflowStatusFailed
                     finish DataExportWorkflowStatusFinish
                   enum:
                     - wait_for_approve
-                    - wait_for_execute
-                    - executing
+                    - wait_for_export
+                    - exporting
                     - rejected
                     - cancel
                     - failed
@@ -4225,8 +4241,8 @@ paths:
                   type: string
                   x-go-enum-desc: |-
                     wait_for_approve DataExportWorkflowStatusWaitForApprove
-                    wait_for_execute DataExportWorkflowStatusWaitForExecute
-                    executing DataExportWorkflowStatusWaitForExecuting
+                    wait_for_export DataExportWorkflowStatusWaitForExport
+                    exporting DataExportWorkflowStatusWaitForExporting
                     rejected DataExportWorkflowStatusRejeted
                     cancel DataExportWorkflowStatusCancel
                     failed DataExportWorkflowStatusFailed
