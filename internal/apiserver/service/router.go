@@ -148,6 +148,17 @@ func (s *APIServer) initRouter() error {
 
 		dataExportWorkflowsV1 := v1.Group("/dms/projects/:project_uid/data_export_workflows")
 		dataExportWorkflowsV1.POST("", s.DMSController.AddDataExportWorkflow)
+		dataExportWorkflowsV1.GET("", s.DMSController.ListDataExportWorkflows)
+		dataExportWorkflowsV1.GET("/:data_export_workflow_uid", s.DMSController.GetDataExportWorkflow)
+		dataExportWorkflowsV1.POST("/:data_export_workflow_uid/approve", s.DMSController.ApproveDataExportWorkflow)
+		dataExportWorkflowsV1.POST("/:data_export_workflow_uid/reject", s.DMSController.RejectDataExportWorkflow)
+		dataExportWorkflowsV1.POST("/:data_export_workflow_uid/cancel", s.DMSController.CancelDataExportWorkflow)
+		dataExportWorkflowsV1.POST("/:data_export_workflow_uid/export", s.DMSController.ExportDataExportWorkflow)
+
+		dataExportTaskV1 := v1.Group("/dms/projects/:project_uid/data_export_tasks")
+		dataExportTaskV1.POST("", s.DMSController.AddDataExportTask)
+		dataExportTaskV1.GET("", s.DMSController.BatchGetDataExportTask)
+		dataExportTaskV1.GET("/:data_export_task_uid/data_export_task_sqls", s.DMSController.ListDataExportTaskSQLs)
 
 		if s.CloudbeaverController.CloudbeaverService.CloudbeaverUsecase.IsCloudbeaverConfigured() {
 			cloudbeaverV1 := s.echo.Group(s.CloudbeaverController.CloudbeaverService.CloudbeaverUsecase.GetRootUri())

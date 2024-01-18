@@ -47,10 +47,12 @@ definitions:
             data:
                 description: add data export workflow reply
                 properties:
-                    uid:
-                        description: data export task UID
-                        type: string
-                        x-go-name: Uid
+                    data_export_task_uids:
+                        description: data export task UIDs
+                        items:
+                            type: string
+                        type: array
+                        x-go-name: Uids
                 type: object
                 x-go-name: Data
             message:
@@ -297,9 +299,6 @@ definitions:
             audit_result:
                 type: string
                 x-go-name: AuditResult
-            audit_status:
-                type: string
-                x-go-name: AuditStatus
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AuditTaskResult:
@@ -331,6 +330,24 @@ definitions:
             title:
                 type: string
                 x-go-name: Title
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    BatchGetDataExportTaskReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/GetDataExportTask'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     BindOauth2UserReply:
@@ -571,13 +588,14 @@ definitions:
                 description: DB Service uid
                 type: string
                 x-go-name: DBServiceUid
-            exec_sql:
-                description: The exported SQL statement executed. it's necessary when ExportType is SQL
+            export_sql:
+                description: |-
+                    The exported SQL statement executed. it's necessary when ExportType is SQL
+                    SELECT * FROM DMS_test LIMIT 20;
                 type: string
-                x-go-name: ExecSQL
+                x-go-name: ExportSQL
         required:
             - db_service_uid
-            - exec_sql
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DataExportWorkflow:
@@ -592,16 +610,16 @@ definitions:
                 example: d1
                 type: string
                 x-go-name: Name
-            task_uids:
+            tasks:
                 description: export task info
                 example: '[export_task_uid1,export_task_uid2]'
                 items:
-                    type: string
+                    $ref: '#/definitions/Task'
                 type: array
-                x-go-name: TaskUids
+                x-go-name: Tasks
         required:
             - name
-            - task_uids
+            - tasks
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DatabaseDriverAdditionalParam:
@@ -796,9 +814,15 @@ definitions:
             export_end_time:
                 type: string
                 x-go-name: ExportEndTime
+            export_file_type:
+                type: string
+                x-go-name: ExportFileType
             export_start_time:
                 type: string
                 x-go-name: ExportStartTime
+            export_type:
+                type: string
+                x-go-name: ExportType
             file_name:
                 type: string
                 x-go-name: FileName
@@ -818,21 +842,6 @@ definitions:
             task_uid:
                 type: string
                 x-go-name: TaskUid
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    GetDataExportTaskReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                $ref: '#/definitions/GetDataExportTask'
-            message:
-                description: message
-                type: string
-                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetDataExportWorkflow:
@@ -2814,7 +2823,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -4101,9 +4110,9 @@ paths:
             summary: Archive a project.
             tags:
                 - dms
-    /v1/dms/projects/{project_uid}/data_export_task_sqls:
+    /v1/dms/projects/{project_uid}/data_export_tasks:
         get:
-            operationId: ListDataExportTaskSQLs
+            operationId: BatchGetDataExportTask
             parameters:
                 - description: project id
                   in: path
@@ -4111,32 +4120,26 @@ paths:
                   required: true
                   type: string
                   x-go-name: ProjectUid
-                - description: the maximum count of member to be returned
-                  format: uint32
-                  in: query
-                  name: page_size
+                - in: body
+                  name: data_export_task_uids
                   required: true
-                  type: integer
-                  x-go-name: PageSize
-                - description: the offset of members to be returned, default is 0
-                  format: uint32
-                  in: query
-                  name: page_index
-                  type: integer
-                  x-go-name: PageIndex
+                  schema:
+                    items:
+                        type: string
+                    type: array
+                  x-go-name: TaskUids
             responses:
                 "200":
-                    description: ListDataExportTaskSQLsReply
+                    description: BatchGetDataExportTaskReply
                     schema:
-                        $ref: '#/definitions/ListDataExportTaskSQLsReply'
+                        $ref: '#/definitions/BatchGetDataExportTaskReply'
                 default:
                     description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: List data_export workflow.
+            summary: Batch get data_export task.
             tags:
                 - dms
-    /v1/dms/projects/{project_uid}/data_export_tasks:
         post:
             operationId: AddDataExportTask
             parameters:
@@ -4166,31 +4169,44 @@ paths:
             summary: Add data_export task.
             tags:
                 - dms
-    /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}:
+    /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/data_export_task_sqls:
         get:
-            operationId: GetDataExportTask
+            operationId: ListDataExportTaskSQLs
             parameters:
-                - in: path
-                  name: data_export_task_uid
-                  required: true
-                  type: string
-                  x-go-name: DataExportTaskUid
                 - description: project id
                   in: path
                   name: project_uid
                   required: true
                   type: string
                   x-go-name: ProjectUid
+                - in: path
+                  name: data_export_task_uid
+                  required: true
+                  type: string
+                  x-go-name: DataExportTaskUid
+                - description: the maximum count of member to be returned
+                  format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of members to be returned, default is 0
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
             responses:
                 "200":
-                    description: GetDataExportTaskReply
+                    description: ListDataExportTaskSQLsReply
                     schema:
-                        $ref: '#/definitions/GetDataExportTaskReply'
+                        $ref: '#/definitions/ListDataExportTaskSQLsReply'
                 default:
                     description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: Get data_export task.
+            summary: List data_export workflow.
             tags:
                 - dms
     /v1/dms/projects/{project_uid}/data_export_workflows:
@@ -4368,7 +4384,7 @@ paths:
             summary: Approve data_export workflow.
             tags:
                 - dms
-    /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/exec:
+    /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/export:
         post:
             operationId: ExportDataExportWorkflow
             parameters:
@@ -4423,7 +4439,7 @@ paths:
             tags:
                 - dms
     /v1/dms/projects/{project_uid}/data_export_workflows/cancel:
-        put:
+        post:
             operationId: CancelDataExportWorkflow
             parameters:
                 - description: project id

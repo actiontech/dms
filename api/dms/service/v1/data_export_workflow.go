@@ -29,7 +29,7 @@ type DataExportWorkflow struct {
 	// export task info
 	// Required: true
 	// example: [export_task_uid1,export_task_uid2]
-	TaskUids []string `json:"task_uids" validate:"required"`
+	Tasks []Task `json:"tasks" validate:"required"`
 }
 
 // swagger:model AddDataExportWorkflowReply

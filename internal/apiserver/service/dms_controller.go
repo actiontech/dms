@@ -2073,7 +2073,7 @@ func (d *DMSController) RejectDataExportWorkflow(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/projects/{project_uid}/data_export_workflows/cancel dms CancelDataExportWorkflow
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/cancel dms CancelDataExportWorkflow
 //
 // Cancel data export workflows.
 //
@@ -2098,14 +2098,14 @@ func (d *DMSController) CancelDataExportWorkflow(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/exec dms ExportDataExportWorkflow
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/export dms ExportDataExportWorkflow
 //
 // exec data_export workflow.
 //
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (d *DMSController) ExecDataExportWorkflow(c echo.Context) error {
+func (d *DMSController) ExportDataExportWorkflow(c echo.Context) error {
 	req := &aV1.ExportDataExportWorkflowReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -2153,15 +2153,15 @@ func (d *DMSController) AddDataExportTask(c echo.Context) error {
 	return NewOkRespWithReply(c, nil)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid} dms GetDataExportTask
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks dms BatchGetDataExportTask
 //
-// Get data_export task.
+// Batch get data_export task.
 //
 //	responses:
-//	  200: body:GetDataExportTaskReply
+//	  200: body:BatchGetDataExportTaskReply
 //	  default: body:GenericResp
-func (d *DMSController) GetDataExportTask(c echo.Context) error {
-	req := new(aV1.GetDataExportTaskReq)
+func (d *DMSController) BatchGetDataExportTask(c echo.Context) error {
+	req := new(aV1.BatchGetDataExportTaskReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
@@ -2171,7 +2171,7 @@ func (d *DMSController) GetDataExportTask(c echo.Context) error {
 	// if err != nil {
 	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
 	// }
-	// reply, err := d.DMS.GetDataExportTask(c.Request().Context(), req, currentUserUid)
+	// reply, err := d.DMS.BatchGetDataExportTask(c.Request().Context(), req, currentUserUid)
 	// if nil != err {
 	// 	return NewErrResp(c, err, apiError.DMSServiceErr)
 	// }
@@ -2179,7 +2179,7 @@ func (d *DMSController) GetDataExportTask(c echo.Context) error {
 	return NewOkRespWithReply(c, nil)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/data_export_task_sqls dms ListDataExportTaskSQLs
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/data_export_task_sqls dms ListDataExportTaskSQLs
 //
 // List data_export workflow.
 //

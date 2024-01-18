@@ -31,28 +31,28 @@ type DataExportTask struct {
 type AddDataExportTaskReply struct {
 	// add data export workflow reply
 	Data struct {
-		// data export task UID
-		Uid string `json:"data_export_task_uid"`
+		// data export task UIDs
+		Uids []string `json:"data_export_task_uids"`
 	} `json:"data"`
 
 	// Generic reply
 	base.GenericResp
 }
 
-// swagger:parameters GetDataExportTask
-type GetDataExportTaskReq struct {
-	// Required: true
-	// in:path
-	DataExportTaskUid string `param:"data_export_task_uid" json:"data_export_task_uid" validate:"required"`
+// swagger:parameters BatchGetDataExportTask
+type BatchGetDataExportTaskReq struct {
 	// project id
 	// Required: true
 	// in:path
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	// Required: true
+	// in:body
+	TaskUids []string `param:"data_export_task_uids" json:"data_export_task_uids" validate:"required"`
 }
 
-// swagger:model GetDataExportTaskReply
-type GetDataExportTaskReply struct {
-	Data *GetDataExportTask `json:"data"`
+// swagger:model BatchGetDataExportTaskReply
+type BatchGetDataExportTaskReply struct {
+	Data *[]GetDataExportTask `json:"data"`
 
 	// Generic reply
 	base.GenericResp
@@ -100,6 +100,9 @@ type ListDataExportTaskSQLsReq struct {
 	// Required: true
 	// in:path
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	// Required: true
+	// in:path
+	DataExportTaskUid string `param:"data_export_task_uid" json:"data_export_task_uid" validate:"required"`
 	// the maximum count of member to be returned
 	// in:query
 	// Required: true
