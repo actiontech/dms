@@ -70,6 +70,7 @@ func (v CBVersion) LessThan(version CBVersion) bool {
 type GraphQLImpl interface {
 	CreateConnectionQuery() string
 	UpdateConnectionQuery() string
+	DeleteConnectionQuery() string
 	GetUserConnectionsQuery() string
 	SetUserConnectionsQuery() string
 	IsUserExistQuery(userId string) (string, map[string]interface{})
@@ -111,6 +112,17 @@ mutation updateConnection(
 }
 fragment DatabaseConnection on ConnectionInfo {
   id
+}
+`
+}
+
+func (CloudBeaverV2215) DeleteConnectionQuery() string {
+	return `
+mutation deleteConnection(
+  $projectId: ID!
+  $connectionId: ID!
+) {
+  deleteConnection(projectId: $projectId, id: $connectionId)
 }
 `
 }
