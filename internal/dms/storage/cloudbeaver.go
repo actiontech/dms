@@ -68,10 +68,42 @@ func (cr *CloudbeaverRepo) GetDbServiceIdByConnectionId(ctx context.Context, con
 	return cloudbeaverConnection.DMSDBServiceID, nil
 }
 
-func (cr *CloudbeaverRepo) GetCloudbeaverConnectionByDMSDBServiceIds(ctx context.Context, dmsDBServiceIds []string) ([]*biz.CloudbeaverConnection, error) {
+func (cr *CloudbeaverRepo) GetAllCloudbeaverConnections(ctx context.Context) ([]*biz.CloudbeaverConnection, error) {
 	var cloudbeaverConnections []*model.CloudbeaverConnectionCache
 	err := transaction(cr.log, ctx, cr.db, func(tx *gorm.DB) error {
-		if err := tx.Find(&cloudbeaverConnections, dmsDBServiceIds).Error; err != nil {
+		if err := tx.Find(&cloudbeaverConnections).Error; err != nil {
+			return fmt.Errorf("failed to get cloudbeaver db service: %v", err)
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return convertModelCloudbeaverConnection(cloudbeaverConnections), nil
+}
+
+func (cr *CloudbeaverRepo) GetCloudbeaverConnectionsByUserIdAndDBServiceIds(ctx context.Context, userId string, dmsDBServiceIds []string) ([]*biz.CloudbeaverConnection, error) {
+	var cloudbeaverConnections []*model.CloudbeaverConnectionCache
+	err := transaction(cr.log, ctx, cr.db, func(tx *gorm.DB) error {
+		if err := tx.Where("dms_user_id = ? and dms_db_service_id in (?)", userId, dmsDBServiceIds).Find(&cloudbeaverConnections).Error; err != nil {
+			return fmt.Errorf("failed to get cloudbeaver db service: %v", err)
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return convertModelCloudbeaverConnection(cloudbeaverConnections), nil
+}
+
+func (cr *CloudbeaverRepo) GetCloudbeaverConnectionsByUserId(ctx context.Context, userId string) ([]*biz.CloudbeaverConnection, error) {
+	var cloudbeaverConnections []*model.CloudbeaverConnectionCache
+	err := transaction(cr.log, ctx, cr.db, func(tx *gorm.DB) error {
+		if err := tx.Where("dms_user_id = ?", userId).Find(&cloudbeaverConnections).Error; err != nil {
 			return fmt.Errorf("failed to get cloudbeaver db service: %v", err)
 		}
 		return nil
@@ -88,6 +120,19 @@ func (cr *CloudbeaverRepo) UpdateCloudbeaverConnectionCache(ctx context.Context,
 	return transaction(cr.log, ctx, cr.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Save(convertBizCloudbeaverConnection(u)).Error; err != nil {
 			return fmt.Errorf("failed to update cloudbeaver db Service: %v", err)
+		}
+		return nil
+	})
+}
+
+func (cr *CloudbeaverRepo) DeleteCloudbeaverConnectionCache(ctx context.Context, dbServiceId, userId string) error {
+	return transaction(cr.log, ctx, cr.db, func(tx *gorm.DB) error {
+		db := tx.WithContext(ctx).Where("dms_db_service_id = ?", dbServiceId)
+		if len(userId) > 0 {
+			db = db.Where("dms_user_id = ?", userId)
+		}
+		if err := db.Delete(&model.CloudbeaverConnectionCache{}).Error; err != nil {
+			return fmt.Errorf("failed to delete cloudbeaver db Service: %v", err)
 		}
 		return nil
 	})
