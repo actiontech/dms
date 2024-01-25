@@ -19,6 +19,7 @@ type OpPermissionVerifyRepo interface {
 	GetUserProjectWithOpPermissions(ctx context.Context, userUid string) (projectWithPermission []ProjectOpPermissionWithOpRange, err error)
 	ListUsersOpPermissionInProject(ctx context.Context, projectUid string, opt *ListMembersOpPermissionOption) (items []ListMembersOpPermissionItem, total int64, err error)
 	GetUserProject(ctx context.Context, userUid string) (projects []*Project, err error)
+	ListUsersInProject(ctx context.Context, projectUid string) (items []ListMembersOpPermissionItem, err error)
 }
 
 type OpPermissionVerifyUsecase struct {
@@ -172,6 +173,10 @@ func (o *OpPermissionVerifyUsecase) ListUsersOpPermissionInProject(ctx context.C
 	}
 
 	return items, total, nil
+}
+
+func (o *OpPermissionVerifyUsecase) ListUsersInProject(ctx context.Context, projectUid string) ([]ListMembersOpPermissionItem, error) {
+	return o.repo.ListUsersInProject(ctx, projectUid)
 }
 
 func (o *OpPermissionVerifyUsecase) GetUserProject(ctx context.Context, userUid string) ([]*Project, error) {
