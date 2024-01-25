@@ -346,9 +346,9 @@ func convertModelMemberGroup(mg *model.MemberGroup) (*biz.MemberGroup, error) {
 		})
 	}
 
-	users := make([]biz.UserIdWithName, 0, len(mg.Users))
+	users := make([]biz.UIdWithName, 0, len(mg.Users))
 	for _, user := range mg.Users {
-		users = append(users, biz.UserIdWithName{
+		users = append(users, biz.UIdWithName{
 			Uid:  user.UID,
 			Name: user.Name,
 		})
@@ -887,4 +887,204 @@ func convertModelClusterNodeInfo(m *model.ClusterNodeInfo) (*biz.ClusterNodeInfo
 		ServerId:     m.ServerId,
 		HardwareSign: m.HardwareSign,
 	}, nil
+}
+
+func convertBizWorkflow(b *biz.Workflow) *model.Workflow {
+	workflow := &model.Workflow{
+		Model: model.Model{
+			UID: b.UID,
+		},
+		Name:              b.Name,
+		ProjectUID:        b.ProjectUID,
+		WorkflowType:      b.WorkflowType,
+		Desc:              b.Desc,
+		CreateTime:        &b.CreateTime,
+		CreateUserUID:     b.CreateUserUID,
+		WorkflowRecordUid: b.WorkflowRecordUid,
+	}
+	if b.WorkflowRecord != nil {
+		workflow.WorkflowRecord = convertBizWorkflowRecord(b.WorkflowRecord)
+	}
+	return workflow
+}
+
+func convertModelWorkflow(m *model.Workflow) (w *biz.Workflow, err error) {
+	w = &biz.Workflow{
+		Base: convertBase(m.Model),
+
+		UID:               m.UID,
+		Name:              m.Name,
+		ProjectUID:        m.ProjectUID,
+		WorkflowType:      m.WorkflowType,
+		Desc:              m.Desc,
+		CreateTime:        *m.CreateTime,
+		CreateUserUID:     m.CreateUserUID,
+		WorkflowRecordUid: m.WorkflowRecordUid,
+	}
+	if m.WorkflowRecord != nil {
+		w.WorkflowRecord, err = convertModelWorkflowRecord(m.WorkflowRecord)
+		if err != nil {
+			return w, err
+		}
+		w.Status = m.WorkflowRecord.Status
+		for _, taskId := range m.WorkflowRecord.TaskIds {
+			w.WorkflowRecord.Tasks = append(w.WorkflowRecord.Tasks, biz.Task{UID: taskId})
+		}
+	}
+
+	return w, nil
+}
+
+func convertBizWorkflowRecord(b *biz.WorkflowRecord) *model.WorkflowRecord {
+	var taskIds model.Strings
+	for _, task := range b.Tasks {
+		taskIds = append(taskIds, task.UID)
+	}
+	workflowRecord := &model.WorkflowRecord{
+		Model: model.Model{
+			UID: b.UID,
+		},
+		CurrentWorkflowStepId: b.CurrentWorkflowStepId,
+		Status:                b.Status.String(),
+		TaskIds:               taskIds,
+	}
+	if b.WorkflowSteps != nil {
+		for _, step := range b.WorkflowSteps {
+			workflowRecord.Steps = append(workflowRecord.Steps, convertBizWorkflowStep(step))
+		}
+	}
+	return workflowRecord
+}
+
+func convertModelWorkflowRecord(m *model.WorkflowRecord) (wr *biz.WorkflowRecord, err error) {
+	wr = &biz.WorkflowRecord{
+		UID:                   m.UID,
+		Status:                biz.DataExportWorkflowStatus(m.Status),
+		Tasks:                 make([]biz.Task, 0),
+		CurrentWorkflowStepId: m.CurrentWorkflowStepId,
+	}
+	if m.Steps != nil {
+		wr.WorkflowSteps = make([]*biz.WorkflowStep, 0)
+		for _, step := range m.Steps {
+			wr.WorkflowSteps = append(wr.WorkflowSteps, &biz.WorkflowStep{
+				StepId:            step.StepId,
+				WorkflowRecordUid: step.WorkflowRecordUid,
+				OperationUserUid:  step.OperationUserUid,
+				OperateAt:         step.OperateAt,
+				State:             step.State,
+				Reason:            step.Reason,
+				Assignees:         step.Assignees,
+			})
+		}
+	}
+	return wr, nil
+}
+
+func convertBizWorkflowStep(b *biz.WorkflowStep) *model.WorkflowStep {
+	return &model.WorkflowStep{
+		StepId:            b.StepId,
+		WorkflowRecordUid: b.WorkflowRecordUid,
+		OperationUserUid:  b.OperationUserUid,
+		OperateAt:         b.OperateAt,
+		State:             b.State,
+		Reason:            b.Reason,
+		Assignees:         b.Assignees,
+	}
+}
+
+func convertModelWorkflowStep(m *model.WorkflowStep) (*biz.WorkflowStep, error) {
+	return &biz.WorkflowStep{}, nil
+}
+
+func convertBizDataExportTask(b *biz.DataExportTask) *model.DataExportTask {
+	dataExportTask := &model.DataExportTask{
+		Model:             model.Model{UID: b.UID},
+		CreateUserUID:     b.CreateUserUID,
+		DBServiceUid:      b.DBServiceUid,
+		DatabaseName:      b.DatabaseName,
+		WorkFlowRecordUid: b.WorkFlowRecordUid,
+		ExportType:        b.ExportType,
+		ExportFileType:    b.ExportFileType,
+		ExportFileName:    b.ExportFileName,
+		ExportStatus:      b.ExportStatus.String(),
+		ExportStartTime:   b.ExportStartTime,
+		ExportEndTime:     b.ExportEndTime,
+		AuditPassRate:     b.AuditPassRate,
+		AuditScore:        b.AuditScore,
+		AuditLevel:        b.AuditLevel,
+	}
+	if b.DataExportTaskRecords != nil {
+		for _, record := range b.DataExportTaskRecords {
+			dataExportTask.DataExportTaskRecords = append(dataExportTask.DataExportTaskRecords, convertBizDataExportTaskRecords(record))
+		}
+
+	}
+	return dataExportTask
+}
+
+func convertModelDataExportTask(m *model.DataExportTask) (w *biz.DataExportTask, err error) {
+	w = &biz.DataExportTask{
+		Base:              convertBase(m.Model),
+		UID:               m.UID,
+		DBServiceUid:      m.DBServiceUid,
+		CreateUserUID:     m.CreateUserUID,
+		DatabaseName:      m.DatabaseName,
+		WorkFlowRecordUid: m.WorkFlowRecordUid,
+		ExportType:        m.ExportType,
+		ExportFileType:    m.ExportFileType,
+		ExportFileName:    m.ExportFileName,
+		AuditPassRate:     m.AuditPassRate,
+		AuditScore:        m.AuditScore,
+		AuditLevel:        m.AuditLevel,
+		ExportStatus:      biz.DataExportTaskStatus(m.ExportStatus),
+		ExportStartTime:   m.ExportStartTime,
+		ExportEndTime:     m.ExportEndTime,
+	}
+	if m.DataExportTaskRecords != nil {
+		for _, r := range m.DataExportTaskRecords {
+			w.DataExportTaskRecords = append(w.DataExportTaskRecords, convertModelDataExportTaskRecords(r))
+		}
+
+	}
+	return w, nil
+}
+
+func convertBizDataExportTaskRecords(b *biz.DataExportTaskRecord) *model.DataExportTaskRecord {
+	m := &model.DataExportTaskRecord{
+		Number:           b.Number,
+		DataExportTaskId: b.DataExportTaskId,
+		ExportSQL:        b.ExportSQL,
+		ExportResult:     b.ExportResult,
+		AuditLevel:       b.AuditLevel,
+	}
+	if len(b.AuditSQLResults) != 0 {
+		for _, v := range b.AuditSQLResults {
+			m.AuditResults = append(m.AuditResults, model.AuditResult{
+				Level:    v.Level,
+				Message:  v.Message,
+				RuleName: v.RuleName,
+			})
+		}
+	}
+	return m
+}
+
+func convertModelDataExportTaskRecords(m *model.DataExportTaskRecord) *biz.DataExportTaskRecord {
+	b := &biz.DataExportTaskRecord{
+		Number:           m.Number,
+		DataExportTaskId: m.DataExportTaskId,
+		ExportSQL:        m.ExportSQL,
+		AuditLevel:       m.AuditLevel,
+		ExportResult:     m.ExportResult,
+	}
+	if len(m.AuditResults) != 0 {
+		for _, v := range m.AuditResults {
+			b.AuditSQLResults = append(b.AuditSQLResults, &biz.AuditResult{
+				Level:    v.Level,
+				Message:  v.Message,
+				RuleName: v.RuleName,
+			})
+		}
+	}
+	return b
 }
