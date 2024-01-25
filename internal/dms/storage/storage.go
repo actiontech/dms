@@ -73,12 +73,21 @@ func (s *Storage) AutoMigrate(logger pkgLog.Logger) error {
 }
 
 func gormWhere(db *gorm.DB, condition pkgConst.FilterCondition) *gorm.DB {
+	// TODO  临时解决ISNULL场景不需要参数问题
+	query, arg := gormWhereCondition(condition)
+	if arg == nil {
+		return db.Where(query)
+	}
+	return db.Where(query, arg)
+}
+
+func gormWhereCondition(condition pkgConst.FilterCondition) (string, interface{}) {
 	if condition.Operator == pkgConst.FilterOperatorIsNull {
-		return db.Where(fmt.Sprintf("%s IS NULL", condition.Field))
+		return fmt.Sprintf("%s IS NULL", condition.Field), nil
 	} else if condition.Operator == pkgConst.FilterOperatorContains {
 		condition.Value = fmt.Sprintf("%%%s%%", condition.Value)
 	}
-	return db.Where(fmt.Sprintf("%s %s ?", condition.Field, condition.Operator), condition.Value)
+	return fmt.Sprintf("%s %s ?", condition.Field, condition.Operator), condition.Value
 }
 
 func gormWheres(ctx context.Context, db *gorm.DB, conditions []pkgConst.FilterCondition) *gorm.DB {
@@ -86,6 +95,9 @@ func gormWheres(ctx context.Context, db *gorm.DB, conditions []pkgConst.FilterCo
 	singleWhere := db.WithContext(ctx)
 
 	for _, condition := range conditions {
+		if condition.Table != "" {
+			continue
+		}
 		if condition.KeywordSearch {
 			// 模糊查询字段
 			fuzzyWhere = fuzzyWhere.Or(gormWhere(singleWhere, condition))
@@ -94,6 +106,22 @@ func gormWheres(ctx context.Context, db *gorm.DB, conditions []pkgConst.FilterCo
 		}
 	}
 	db = db.Where(fuzzyWhere)
+	return db
+}
+
+func gormPreload(ctx context.Context, db *gorm.DB, conditions []pkgConst.FilterCondition) *gorm.DB {
+	for _, f := range conditions {
+		// Preload 关联表
+		if f.Table != "" {
+			args := make([]interface{}, 0)
+			// Preload 筛选参数
+			if f.Field != "" {
+				whereCondition, value := gormWhereCondition(f)
+				args = []interface{}{whereCondition, value}
+			}
+			db = db.Preload(f.Table, args)
+		}
+	}
 	return db
 }
 
