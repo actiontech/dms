@@ -17,13 +17,8 @@ type MemberGroup struct {
 	Name             string
 	ProjectUID       string
 	UserUids         []string
-	Users            []UserIdWithName
+	Users            []UIdWithName
 	RoleWithOpRanges []MemberRoleWithOpRange
-}
-
-type UserIdWithName struct {
-	Uid  string `json:"uid"`
-	Name string `json:"name"`
 }
 
 type MemberGroupRepo interface {

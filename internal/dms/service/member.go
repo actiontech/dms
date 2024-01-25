@@ -43,6 +43,26 @@ func (d *DMSService) AddMember(ctx context.Context, currentUserUid string, req *
 	}, nil
 }
 
+func (d *DMSService) ListMemberTips(ctx context.Context, projectId string) (reply *dmsV1.ListMemberTipsReply, err error) {
+	members, err := d.OpPermissionVerifyUsecase.ListUsersInProject(ctx, projectId)
+	if nil != err {
+		return nil, err
+	}
+
+	ret := make([]dmsV1.ListMemberTipsItem, len(members))
+	for i, m := range members {
+
+		ret[i] = dmsV1.ListMemberTipsItem{
+			UserId:   m.UserUid,
+			UserName: m.UserName,
+		}
+	}
+
+	return &dmsV1.ListMemberTipsReply{
+		Data: ret,
+	}, nil
+}
+
 func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) (reply *dmsV1.ListMemberReply, err error) {
 	var orderBy biz.MemberField
 	switch req.OrderBy {

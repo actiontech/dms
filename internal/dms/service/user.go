@@ -554,3 +554,14 @@ func convertBizOpRangeType(bizOpRangeTyp biz.OpRangeType) (typ dmsV1.OpRangeType
 
 	return typ, nil
 }
+
+func convertBizUidWithName(bizUidWithNames []biz.UIdWithName) []dmsV1.UidWithName {
+	ret := make([]dmsV1.UidWithName, 0)
+	for _, v := range bizUidWithNames {
+		ret = append(ret, dmsV1.UidWithName{
+			Uid:  v.Uid,
+			Name: v.Name,
+		})
+	}
+	return ret
+}
