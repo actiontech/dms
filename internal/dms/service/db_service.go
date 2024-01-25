@@ -375,6 +375,28 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 	}, nil
 }
 
+func (d *DMSService) ListDBServiceTips(ctx context.Context, req *dmsV1.ListDBServiceTipsReq, userId string) (reply *dmsV1.ListDBServiceTipsReply, err error) {
+	dbServices, err := d.DBServiceUsecase.ListDBServiceTips(ctx, req, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := make([]*dmsV1.ListDBServiceTipItem, 0, len(dbServices))
+	for _, item := range dbServices {
+		ret = append(ret, &dmsV1.ListDBServiceTipItem{
+			Id:   item.UID,
+			Name: item.Name,
+			Host: item.Host,
+			Port: item.Port,
+			Type: item.DBType,
+		})
+	}
+
+	return &dmsV1.ListDBServiceTipsReply{
+		Data: ret,
+	}, nil
+}
+
 func (d *DMSService) ListDBServiceDriverOption(ctx context.Context) (reply *dmsV1.ListDBServiceDriverOptionReply, err error) {
 	options, err := d.DBServiceUsecase.ListDBServiceDriverOption(ctx)
 	if err != nil {
