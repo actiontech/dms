@@ -109,7 +109,7 @@ const (
 	DataExportWorkflowStatusWaitForApprove   DataExportWorkflowStatus = "wait_for_approve"
 	DataExportWorkflowStatusWaitForExport    DataExportWorkflowStatus = "wait_for_export"
 	DataExportWorkflowStatusWaitForExporting DataExportWorkflowStatus = "exporting"
-	DataExportWorkflowStatusRejeted          DataExportWorkflowStatus = "rejected"
+	DataExportWorkflowStatusRejected         DataExportWorkflowStatus = "rejected"
 	DataExportWorkflowStatusCancel           DataExportWorkflowStatus = "cancel"
 	DataExportWorkflowStatusFailed           DataExportWorkflowStatus = "failed"
 	DataExportWorkflowStatusFinish           DataExportWorkflowStatus = "finish"
@@ -134,6 +134,15 @@ type GetDataExportWorkflowReply struct {
 	base.GenericResp
 }
 
+// swagger:enum WorkflowStepStatus
+type WorkflowStepStatus string
+
+const (
+	WorkflowStepStatusWaitForExporting WorkflowStepStatus = "init"
+	WorkflowStepStatusRejected         WorkflowStepStatus = "rejected"
+	WorkflowStepStatusFinish           WorkflowStepStatus = "finish"
+)
+
 type GetDataExportWorkflow struct {
 	Name                  string           `json:"workflow_name"`
 	WorkflowID            string           `json:"workflow_uid"`
@@ -156,15 +165,14 @@ type Task struct {
 }
 
 type WorkflowStep struct {
-	Id            uint          `json:"workflow_step_id,omitempty"`
-	Number        uint          `json:"number"`
-	Type          string        `json:"type"`
-	Desc          string        `json:"desc,omitempty"`
-	Users         []UidWithName `json:"assignee_user_list,omitempty"`
-	OperationUser UidWithName   `json:"operation_user,omitempty"`
-	OperationTime *time.Time    `json:"operation_time,omitempty"`
-	State         string        `json:"state,omitempty" `
-	Reason        string        `json:"reason,omitempty"`
+	Number        uint64             `json:"number"`
+	Type          string             `json:"type"`
+	Desc          string             `json:"desc,omitempty"`
+	Users         []UidWithName      `json:"assignee_user_list,omitempty"`
+	OperationUser UidWithName        `json:"operation_user,omitempty"`
+	OperationTime *time.Time         `json:"operation_time,omitempty"`
+	State         WorkflowStepStatus `json:"state,omitempty" `
+	Reason        string             `json:"reason,omitempty"`
 }
 
 // swagger:parameters ApproveDataExportWorkflow
@@ -189,6 +197,11 @@ type ExportDataExportWorkflowReq struct {
 	DataExportWorkflowUid string `param:"data_export_workflow_uid" json:"data_export_workflow_uid" validate:"required"`
 }
 
+type RejectDataExportWorkflowPayload struct {
+	// Required: true
+	Reason string `json:"reason" validate:"required"`
+}
+
 // swagger:parameters RejectDataExportWorkflow
 type RejectDataExportWorkflowReq struct {
 	// project id
@@ -198,6 +211,14 @@ type RejectDataExportWorkflowReq struct {
 	// Required: true
 	// in:path
 	DataExportWorkflowUid string `param:"data_export_workflow_uid" json:"data_export_workflow_uid" validate:"required"`
+	// Required: true
+	// in:body
+	Payload RejectDataExportWorkflowPayload `json:"payload" validate:"required"`
+}
+
+type CancelDataExportWorkflowPayload struct {
+	// Required: true
+	DataExportWorkflowUids []string `json:"data_export_workflow_uids" validate:"required"`
 }
 
 // swagger:parameters CancelDataExportWorkflow
@@ -205,8 +226,8 @@ type CancelDataExportWorkflowReq struct {
 	// project id
 	// Required: true
 	// in:path
-	ProjectUid string `param:"project_uid" validate:"required"`
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// Required: true
 	// in:body
-	DataExportWorkflowUids []string `json:"data_export_workflow_uids" validate:"required"`
+	Payload CancelDataExportWorkflowPayload `json:"payload" validate:"required"`
 }

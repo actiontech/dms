@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"time"
+
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 )
 
@@ -12,7 +14,7 @@ type AddDataExportTaskReq struct {
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// add data export workflow
 	// in:body
-	DataExportTask []DataExportTask `json:"data_export_workflow"`
+	DataExportTasks []DataExportTask `json:"data_export_tasks"`
 }
 
 type DataExportTask struct {
@@ -46,13 +48,13 @@ type BatchGetDataExportTaskReq struct {
 	// in:path
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// Required: true
-	// in:body
-	TaskUids []string `param:"data_export_task_uids" json:"data_export_task_uids" validate:"required"`
+	// in: query
+	TaskUids string `query:"data_export_task_uids" json:"data_export_task_uids" validate:"required"`
 }
 
 // swagger:model BatchGetDataExportTaskReply
 type BatchGetDataExportTaskReply struct {
-	Data *[]GetDataExportTask `json:"data"`
+	Data []*GetDataExportTask `json:"data"`
 
 	// Generic reply
 	base.GenericResp
@@ -79,8 +81,8 @@ type GetDataExportTask struct {
 	TaskUid         string               `json:"task_uid"`
 	DBInfo          TaskDBInfo           `json:"db_info"`
 	Status          DataExportTaskStatus `json:"status"`
-	ExportStartTime string               `json:"export_start_time"`
-	ExportEndTime   string               `json:"export_end_time"`
+	ExportStartTime *time.Time           `json:"export_start_time,omitempty"`
+	ExportEndTime   *time.Time           `json:"export_end_time,omitempty"`
 	FileName        string               `json:"file_name"` // 导出文件名
 	AuditResult     AuditTaskResult      `json:"audit_result"`
 	ExportType      string               `json:"export_type"`      // Export Type example: SQL Meta
@@ -122,9 +124,11 @@ type ListDataExportTaskSQLsReply struct {
 }
 
 type ListDataExportTaskSQL struct {
-	ID             string           `json:"uid"`
-	ExportSQL      string           `json:"sql"`
-	ExportResult   string           `json:"export_status"` // 导出结果
+	ID           uint   `json:"uid"`
+	ExportSQL    string `json:"sql"`
+	ExportResult string `json:"export_status"` // 导出结果
+
+	AuditLevel     string           `json:"audit_level"`
 	AuditSQLResult []AuditSQLResult `json:"audit_sql_result"`
 }
 type AuditSQLResult struct {
@@ -132,4 +136,22 @@ type AuditSQLResult struct {
 	Message  string `json:"message" example:"避免使用不必要的内置函数md5()"`
 	RuleName string `json:"rule_name"`
 	DBType   string `json:"db_type"`
+}
+
+// swagger:parameters DownloadDataExportTask
+type DownloadDataExportTaskReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	// Required: true
+	// in:path
+	DataExportTaskUid string `param:"data_export_task_uid" json:"data_export_task_uid" validate:"required"`
+}
+
+// swagger:response DownloadDataExportTaskReply
+type DownloadDataExportTaskReply struct {
+	// swagger:file
+	// in:  body
+	File []byte
 }
