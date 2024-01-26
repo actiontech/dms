@@ -2527,6 +2527,7 @@ definitions:
                     view_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限
                     save_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务
                     sql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限
+                    create_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单
                 enum:
                     - unknown
                     - create_project
@@ -2539,6 +2540,7 @@ definitions:
                     - view_other_audit_plan
                     - save_audit_plan
                     - sql_query
+                    - create_export_task
                 type: string
                 x-go-enum-desc: |-
                     unknown OpPermissionTypeUnknown
@@ -2552,6 +2554,7 @@ definitions:
                     view_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限
                     save_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务
                     sql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限
+                    create_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单
                 x-go-name: OpPermissionType
             range_type:
                 description: |-
@@ -2928,7 +2931,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -5025,9 +5028,8 @@ paths:
                   type: string
                   x-go-name: FilterDBType
                 - enum:
-                    - create_audit_plan
+                    - save_audit_plan
                     - create_workflow
-                    - sql_manage
                     - create_export_task
                   in: query
                   name: functional_module

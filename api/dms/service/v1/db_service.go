@@ -241,9 +241,9 @@ type ListDBServiceTipsReq struct {
 	// in:query
 	FilterDBType string `json:"filter_db_type" query:"filter_db_type"`
 	// Required: false
-	// enum: create_audit_plan,create_workflow,sql_manage,create_export_task
+	// enum: save_audit_plan,create_workflow,create_export_task
 	// in:query
-	FunctionalModule string `json:"functional_module" query:"functional_module" validate:"omitempty,oneof=create_audit_plan create_workflow sql_manage create_export_task"`
+	FunctionalModule string `json:"functional_module" query:"functional_module" validate:"omitempty,oneof=save_audit_plan create_workflow create_export_task"`
 }
 
 type ListDBServiceTipItem struct {
