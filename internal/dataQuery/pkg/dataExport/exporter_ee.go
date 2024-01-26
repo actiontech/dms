@@ -105,14 +105,14 @@ func (et *ExportTask) WithTransfer(trans Transfer) *ExportTask {
 }
 
 func (et *ExportTask) Start() error {
-	err := et.extract.Start()
-	if err != nil {
-		return err
-	}
 	defer func() {
 		et.extract.Close()
 		et.export.Close()
 	}()
+	err := et.extract.Start()
+	if err != nil {
+		return err
+	}
 
 	err = et.export.WriteHeader(et.extract.Columns())
 	if err != nil {
