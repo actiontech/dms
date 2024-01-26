@@ -332,7 +332,7 @@ func (d *DataExportWorkflowUsecase) AddDataExportTasks(ctx context.Context, proj
 		}
 		taskids = append(taskids, dataExportTaskUid)
 
-		auditTaskInfo, AuditRecord, err := d.SQLEAuditSQL(ctx, project.Name, dataExportTaskUid, v.DBServiceUid, v.ExportSQL)
+		auditTaskInfo, AuditRecord, err := d.SQLEAuditSQL(ctx, project.Name, dataExportTaskUid, v.DBServiceUid, v.DatabaseName, v.ExportSQL)
 		if err != nil {
 			return nil, fmt.Errorf("audit export sql err: %v", err)
 		}
@@ -426,7 +426,7 @@ type AuditTaskSQLResV2 struct {
 	Description   string         `json:"description"`
 }
 
-func (d *DataExportWorkflowUsecase) SQLEAuditSQL(ctx context.Context, projectName, taskId, DBServiceUid, Sqls string) (*AuditTaskInfo, []*DataExportTaskRecord, error) {
+func (d *DataExportWorkflowUsecase) SQLEAuditSQL(ctx context.Context, projectName, taskId, dBServiceUid, dbName string, Sqls string) (*AuditTaskInfo, []*DataExportTaskRecord, error) {
 	// sqle地址、请求头
 	target, err := d.dmsProxyTargetRepo.GetProxyTargetByName(ctx, cloudbeaver.SQLEProxyName)
 	if err != nil {
@@ -438,7 +438,7 @@ func (d *DataExportWorkflowUsecase) SQLEAuditSQL(ctx context.Context, projectNam
 	}
 
 	// 获取数据源名称
-	dbService, err := d.dbServiceRepo.GetDBService(ctx, DBServiceUid)
+	dbService, err := d.dbServiceRepo.GetDBService(ctx, dBServiceUid)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -448,7 +448,7 @@ func (d *DataExportWorkflowUsecase) SQLEAuditSQL(ctx context.Context, projectNam
 	auditUri := fmt.Sprintf("/v1/projects/%s/tasks/audits", projectName)
 	err = pkgHttp.POST(ctx, fmt.Sprintf("%s%s", sqleUrl, auditUri), header, CreateAuditTaskReqV1{
 		InstanceName:   dbService.Name,
-		InstanceSchema: "",
+		InstanceSchema: dbName,
 		Sql:            Sqls,
 	}, auditReply)
 	if err != nil {
