@@ -4397,7 +4397,7 @@ paths:
                   x-go-name: FilterByStatus
                 - description: filter create user id
                   in: query
-                  name: filter_create_user_uid
+                  name: filter_by_create_user_uid
                   type: string
                   x-go-name: FilterByCreateUserUid
                 - description: filter current assignee user id
@@ -4407,7 +4407,7 @@ paths:
                   x-go-name: FilterCurrentStepAssigneeUserUid
                 - description: filter db_service id
                   in: query
-                  name: filter_db_service_uid
+                  name: filter_by_db_service_uid
                   type: string
                   x-go-name: FilterByDBServiceUid
                 - description: filter create time from

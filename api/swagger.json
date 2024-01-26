@@ -1405,7 +1405,7 @@
             "type": "string",
             "x-go-name": "FilterByCreateUserUid",
             "description": "filter create user id",
-            "name": "filter_create_user_uid",
+            "name": "filter_by_create_user_uid",
             "in": "query"
           },
           {
@@ -1419,7 +1419,7 @@
             "type": "string",
             "x-go-name": "FilterByDBServiceUid",
             "description": "filter db_service id",
-            "name": "filter_db_service_uid",
+            "name": "filter_by_db_service_uid",
             "in": "query"
           },
           {
