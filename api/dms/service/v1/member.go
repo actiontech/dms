@@ -122,6 +122,28 @@ type ListMemberReply struct {
 	base.GenericResp
 }
 
+// swagger:parameters ListMemberTips
+type ListMemberTipsReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+}
+
+type ListMemberTipsItem struct {
+	UserId   string `json:"user_id"`
+	UserName string `json:"user_name"`
+}
+
+// swagger:model ListMemberTipsReply
+type ListMemberTipsReply struct {
+	// List member tip reply
+	Data []ListMemberTipsItem `json:"data"`
+
+	// Generic reply
+	base.GenericResp
+}
+
 // swagger:parameters DelMember
 type DelMemberReq struct {
 	// project id

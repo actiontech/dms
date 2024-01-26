@@ -6,6 +6,7 @@ import (
 	"io"
 	"mime"
 	"net/http"
+	"path/filepath"
 	"time"
 
 	aV1 "github.com/actiontech/dms/api/dms/service/v1"
@@ -99,6 +100,31 @@ func (d *DMSController) ListDBServices(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 	reply, err := d.DMS.ListDBServices(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route GET /v1/dms/projects/{project_uid}/db_services/tips dms ListDBServiceTips
+//
+// List db service tip.
+//
+//	responses:
+//	  200: body:ListDBServiceTipsReply
+//	  default: body:GenericResp
+func (d *DMSController) ListDBServiceTips(c echo.Context) error {
+	req := new(aV1.ListDBServiceTipsReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	reply, err := d.DMS.ListDBServiceTips(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -929,6 +955,27 @@ func (d *DMSController) AddMember(c echo.Context) error {
 	}
 
 	reply, err := d.DMS.AddMember(c.Request().Context(), currentUserUid, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route GET /v1/dms/projects/{project_uid}/members/tips dms ListMemberTips
+//
+// List member tips.
+//
+//	responses:
+//	  200: body:ListMemberTipsReply
+//	  default: body:GenericResp
+func (d *DMSController) ListMemberTips(c echo.Context) error {
+	req := new(aV1.ListMemberTipsReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	reply, err := d.DMS.ListMemberTips(c.Request().Context(), req.ProjectUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1937,4 +1984,289 @@ func ReadFileContent(c echo.Context, name string) (content string, fileExist boo
 		return "", false, err
 	}
 	return string(data), true, nil
+}
+
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows dms AddDataExportWorkflow
+//
+// Add data_export workflow.
+//
+//	responses:
+//	  200: body:AddDataExportWorkflowReply
+//	  default: body:GenericResp
+func (d *DMSController) AddDataExportWorkflow(c echo.Context) error {
+	req := new(aV1.AddDataExportWorkflowReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, err := d.DMS.AddDataExportWorkflow(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/approve dms ApproveDataExportWorkflow
+//
+// Approve data_export workflow.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) ApproveDataExportWorkflow(c echo.Context) error {
+	req := &aV1.ApproveDataExportWorkflowReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	if err = d.DMS.ApproveDataExportWorkflow(c.Request().Context(), req, currentUserUid); err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkResp(c)
+}
+
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/reject dms RejectDataExportWorkflow
+//
+// Reject data_export workflow.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) RejectDataExportWorkflow(c echo.Context) error {
+	req := &aV1.RejectDataExportWorkflowReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	if err = d.DMS.RejectDataExportWorkflow(c.Request().Context(), req, currentUserUid); err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkResp(c)
+}
+
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflows dms ListDataExportWorkflows
+//
+// List data_export workflow.
+//
+//	responses:
+//	  200: body:ListDataExportWorkflowsReply
+//	  default: body:GenericResp
+func (d *DMSController) ListDataExportWorkflows(c echo.Context) error {
+	req := new(aV1.ListDataExportWorkflowsReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	reply, err := d.DMS.ListDataExportWorkflow(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid} dms GetDataExportWorkflow
+//
+// Get data_export workflow.
+//
+//	responses:
+//	  200: body:GetDataExportWorkflowReply
+//	  default: body:GenericResp
+func (d *DMSController) GetDataExportWorkflow(c echo.Context) error {
+	req := new(aV1.GetDataExportWorkflowReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	reply, err := d.DMS.GetDataExportWorkflow(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/cancel dms CancelDataExportWorkflow
+//
+// Cancel data export workflows.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) CancelDataExportWorkflow(c echo.Context) error {
+	req := &aV1.CancelDataExportWorkflowReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	if err = d.DMS.CancelDataExportWorkflow(c.Request().Context(), req, currentUserUid); err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkResp(c)
+}
+
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/export dms ExportDataExportWorkflow
+//
+// exec data_export workflow.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) ExportDataExportWorkflow(c echo.Context) error {
+	req := &aV1.ExportDataExportWorkflowReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	err = d.DMS.ExportDataExportWorkflow(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkResp(c)
+}
+
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_tasks dms AddDataExportTask
+//
+// Add data_export task.
+//
+//	responses:
+//	  200: body:AddDataExportTaskReply
+//	  default: body:GenericResp
+func (d *DMSController) AddDataExportTask(c echo.Context) error {
+	req := new(aV1.AddDataExportTaskReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, err := d.DMS.AddDataExportTask(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+
+}
+
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks dms BatchGetDataExportTask
+//
+// Batch get data_export task.
+//
+//	responses:
+//	  200: body:BatchGetDataExportTaskReply
+//	  default: body:GenericResp
+func (d *DMSController) BatchGetDataExportTask(c echo.Context) error {
+	req := new(aV1.BatchGetDataExportTaskReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	reply, err := d.DMS.BatchGetDataExportTask(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/data_export_task_sqls dms ListDataExportTaskSQLs
+//
+// List data_export workflow.
+//
+//	responses:
+//	  200: body:ListDataExportTaskSQLsReply
+//	  default: body:GenericResp
+func (d *DMSController) ListDataExportTaskSQLs(c echo.Context) error {
+	req := new(aV1.ListDataExportTaskSQLsReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	reply, err := d.DMS.ListDataExportTaskSQLs(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/download dms DownloadDataExportTask
+//
+// download task file.
+//
+//	responses:
+//	  200: DownloadDataExportTaskReply
+//	  default: body:GenericResp
+func (d *DMSController) DownloadDataExportTask(c echo.Context) error {
+	req := &aV1.DownloadDataExportTaskReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	filePath, err := d.DMS.DownloadDataExportTask(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return c.Attachment(filePath, filepath.Base(filePath))
 }
