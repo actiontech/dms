@@ -3,6 +3,8 @@ package model
 import (
 	"database/sql/driver"
 	"encoding/json"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/actiontech/dms/pkg/params"
@@ -38,6 +40,11 @@ var AutoMigrateList = []interface{}{
 	CompanyNotice{},
 	ClusterLeader{},
 	ClusterNodeInfo{},
+	Workflow{},
+	WorkflowRecord{},
+	WorkflowStep{},
+	DataExportTask{},
+	DataExportTaskRecord{},
 }
 
 type Model struct {
@@ -352,4 +359,115 @@ type ClusterNodeInfo struct {
 	HardwareSign string    `json:"hardware_sign" gorm:"type:varchar(3000)"`
 	CreatedAt    time.Time `json:"created_at" gorm:"<-:create" example:"2018-10-21T16:40:23+08:00"`
 	UpdatedAt    time.Time `json:"updated_at" example:"2018-10-21T16:40:23+08:00"`
+}
+type Workflow struct {
+	Model
+	Name              string     `json:"name" gorm:"size:255;not null;index:project_uid_name,unique" example:""`
+	ProjectUID        string     `json:"project_uid" gorm:"size:32;column:project_uid;index:project_uid_name,unique"`
+	WorkflowType      string     `json:"workflow_type" gorm:"size:64;column:workflow_type; not null" example:"export"`
+	Desc              string     `json:"desc" gorm:"column:desc" example:"this is a data transform export workflow"`
+	CreateTime        *time.Time `json:"create_time" gorm:"column:create_time"`
+	CreateUserUID     string     `json:"create_user_uid" gorm:"size:32;column:create_user_uid"`
+	WorkflowRecordUid string     `json:"workflow_record_uid" gorm:"size:32;column:workflow_record_uid"`
+
+	WorkflowRecord *WorkflowRecord `gorm:"foreignkey:WorkflowUid"`
+}
+
+type WorkflowRecord struct {
+	Model
+	WorkflowUid           string  `json:"workflow_uid" gorm:"size:32" `
+	CurrentWorkflowStepId uint64  `json:"current_workflow_step_id"`
+	Status                string  `gorm:"default:\"wait_for_export\""`
+	TaskIds               Strings `json:"task_ids" gorm:"type:json"`
+
+	Steps []*WorkflowStep `gorm:"foreignkey:WorkflowRecordUid"`
+}
+
+type Strings []string
+
+func (t *Strings) Scan(value interface{}) error {
+	bytesValue, _ := value.([]byte)
+	return json.Unmarshal(bytesValue, t)
+}
+
+func (t Strings) Value() (driver.Value, error) {
+	return json.Marshal(t)
+}
+
+type WorkflowStep struct {
+	StepId            uint64     `json:"step_id" gorm:"index:step_record_id,unique"`
+	WorkflowRecordUid string     `gorm:"index; not null;index:step_record_id,unique"`
+	OperationUserUid  string     `json:"operation_user_uid" gorm:"size:32"`
+	OperateAt         *time.Time `json:"operate_at"`
+	State             string     `gorm:"size:32"`
+	Reason            string     `json:"reason" gorm:"size:255"`
+	Assignees         Strings    `json:"assignees" gorm:"type:json"`
+}
+
+type DataExportTask struct {
+	Model
+	DBServiceUid      string     `json:"db_service_uid" gorm:"size:32"`
+	DatabaseName      string     `json:"database_name" gorm:"size:32"`
+	WorkFlowRecordUid string     `json:"workflow_record_uid" gorm:"size:255"`
+	ExportType        string     `json:"export_type" gorm:"size:32"`
+	ExportFileType    string     `json:"export_file_type" gorm:"size:32"`
+	ExportFileName    string     `json:"export_file_name" gorm:"size:255"`
+	ExportStatus      string     `json:"export_status" gorm:"size:32"`
+	ExportStartTime   *time.Time `json:"export_start_time"`
+	ExportEndTime     *time.Time `json:"export_end_time"`
+	CreateUserUID     string     `json:"create_user_uid" gorm:"size:32;column:create_user_uid"`
+	// Audit Result
+	AuditPassRate float64 `json:"audit_pass_rate"`
+	AuditScore    int32   `json:"audit_score"`
+	AuditLevel    string  `json:"audit_level"  gorm:"size:32"`
+
+	DataExportTaskRecords []*DataExportTaskRecord `gorm:"foreignkey:DataExportTaskId"`
+}
+
+type DataExportTaskRecord struct {
+	Number           uint   `json:"number" gorm:"index:task_id_number,unique"`
+	DataExportTaskId string `json:"data_export_task_id" gorm:"size:32;column:data_export_task_id;index:task_id_number,unique"`
+	ExportSQL        string `json:"export_sql" gorm:"size:255"`
+	ExportResult     string `json:"export_result"`
+	ExportStatus     string `json:"export_status" gorm:"size:32"`
+
+	AuditLevel   string       `json:"audit_level"`
+	AuditResults AuditResults `json:"audit_results" gorm:"type:json"`
+}
+
+type AuditResult struct {
+	Level    string `json:"level"`
+	Message  string `json:"message"`
+	RuleName string `json:"rule_name"`
+}
+
+type AuditResults []AuditResult
+
+func (a AuditResults) Value() (driver.Value, error) {
+	b, err := json.Marshal(a)
+	return string(b), err
+}
+
+func (a *AuditResults) Scan(input interface{}) error {
+	return json.Unmarshal(input.([]byte), a)
+}
+
+func (a *AuditResults) String() string {
+	msgs := make([]string, len(*a))
+	for i := range *a {
+		res := (*a)[i]
+		msg := fmt.Sprintf("[%s]%s", res.Level, res.Message)
+		msgs[i] = msg
+	}
+	return strings.Join(msgs, "\n")
+}
+
+func (a *AuditResults) Append(level, ruleName, message string) {
+	for i := range *a {
+		ar := (*a)[i]
+		if ar.Level == level && ar.RuleName == ruleName && ar.Message == message {
+			return
+		}
+	}
+	*a = append(*a, AuditResult{Level: level, RuleName: ruleName, Message: message})
 }

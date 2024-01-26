@@ -111,6 +111,17 @@ func initOpPermission() []*OpPermission {
 			RangeType: OpRangeTypeDBService,
 			Desc:      "SQL查询；拥有该权限的用户可以执行SQL查询",
 		},
+		{
+			UID:       pkgConst.UIDOfOpPermissionExportApprovalReject,
+			Name:      "审批/驳回数据导出工单",
+			RangeType: OpRangeTypeDBService,
+			Desc:      "审批/驳回数据导出工单；拥有该权限的用户可以执行审批导出数据工单或者驳回导出数据工单",
+		}, {
+			UID:       pkgConst.UIDOfOpPermissionExportCreate,
+			Name:      "创建数据导出任务",
+			RangeType: OpRangeTypeDBService,
+			Desc:      "创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单",
+		},
 	}
 }
 
