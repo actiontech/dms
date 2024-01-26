@@ -108,9 +108,73 @@ func generateWorkflowStep(workflowRecordUid string, allInspector []string) ([]*W
 	}, nil
 }
 
-func (d *DataExportWorkflowUsecase) ListDataExportWorkflows(ctx context.Context, workflowsOption *ListWorkflowsOption, currentUserId, dbServiceUID string) ([]*Workflow, int64, error) {
-	// TODO 导出任务实现后对接 filter by task's db_service uid
-	// filter task id,将查询的workflow_recordid 作为筛选值加入workflowOption
+func (d *DataExportWorkflowUsecase) ListDataExportWorkflows(ctx context.Context, workflowsOption *ListWorkflowsOption, currentUserId, dbServiceUID, filterCurrentStepAssigneeUserUid, filterByStatus string) ([]*Workflow, int64, error) {
+
+	// for preload
+	workflowsOption.FilterBy = append(workflowsOption.FilterBy, pkgConst.FilterCondition{
+		Table: "WorkflowRecord",
+	}, pkgConst.FilterCondition{
+		Table: "WorkflowRecord.Steps",
+	})
+
+	// 当前用户创建 OR 当前用户能操作的工单
+	filterWorkflowUids, err := d.repo.GetDataExportWorkflowsForView(ctx, currentUserId)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// 非workflow筛选条件
+	{
+
+		merge := func(s1, s2 []string) []string {
+			visited := make(map[string]bool)
+			result := []string{}
+
+			for _, v := range s1 {
+				visited[v] = true
+			}
+
+			for _, v := range s2 {
+				if visited[v] {
+					result = append(result, v)
+				}
+			}
+
+			return result
+		}
+
+		// 跟workflowRecord相关
+		if filterByStatus != "" {
+			workflowUids, err := d.repo.GetDataExportWorkflowsByStatus(ctx, filterByStatus)
+			if err != nil {
+				return nil, 0, err
+			}
+			filterWorkflowUids = merge(filterWorkflowUids, workflowUids)
+		}
+
+		// 跟step 相关
+		if filterCurrentStepAssigneeUserUid != "" {
+			workflowUids, err := d.repo.GetDataExportWorkflowsByAssignUser(ctx, filterCurrentStepAssigneeUserUid)
+			if err != nil {
+				return nil, 0, err
+			}
+			filterWorkflowUids = merge(filterWorkflowUids, workflowUids)
+		}
+
+		// 跟task相关
+		if dbServiceUID != "" {
+			workflowUids, err := d.repo.GetDataExportWorkflowsByDBService(ctx, dbServiceUID)
+			if err != nil {
+				return nil, 0, err
+			}
+			filterWorkflowUids = merge(filterWorkflowUids, workflowUids)
+		}
+	}
+	workflowsOption.FilterBy = append(workflowsOption.FilterBy, pkgConst.FilterCondition{
+		Field:    string(WorkflowFieldUID),
+		Operator: pkgConst.FilterOperatorIn,
+		Value:    filterWorkflowUids,
+	})
 
 	services, total, err := d.repo.ListDataExportWorkflows(ctx, workflowsOption)
 	if err != nil {
