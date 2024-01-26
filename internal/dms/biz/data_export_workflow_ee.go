@@ -227,17 +227,14 @@ func (d *DataExportWorkflowUsecase) ExportDataExportWorkflow(ctx context.Context
 
 func (d *DataExportWorkflowUsecase) ExportWorkflow(ctx context.Context, workflow *Workflow) {
 	var err error
-	tx := d.tx.BeginTX(ctx)
 	defer func() {
 		// 更新工单状态
 		workflow.WorkflowRecord.Status = DataExportWorkflowStatusFinish
 		if err != nil {
-			d.log.Warn(tx.RollbackWithError(d.log, err))
 			workflow.WorkflowRecord.Status = DataExportWorkflowStatusFailed
 		}
-		updateErr := d.repo.UpdateWorkflowStatusById(ctx, workflow.WorkflowRecordUid, DataExportWorkflowStatus(workflow.WorkflowRecord.Status))
-		if updateErr != nil {
-			d.log.Error(updateErr)
+		if err = d.repo.UpdateWorkflowStatusById(ctx, workflow.WorkflowRecordUid, workflow.WorkflowRecord.Status); err != nil {
+			d.log.Error(err)
 		}
 	}()
 
@@ -247,36 +244,46 @@ func (d *DataExportWorkflowUsecase) ExportWorkflow(ctx context.Context, workflow
 		taskIds = append(taskIds, t.UID)
 	}
 	if len(taskIds) == 0 {
-		d.log.Error(fmt.Errorf("workflwo has no export task"))
+		err = fmt.Errorf("workflwo has no export task")
+		d.log.Error(err)
+		return
+	}
+
+	if err = d.dataExportTaskRepo.BatchUpdateDataExportTaskStatusByIds(ctx, taskIds, DataExportTaskStatusExporting); err != nil {
+		d.log.Error(err)
+		return
 	}
 
 	// 执行导出任务
-	tasks, err := d.dataExportTaskRepo.GetDataExportTaskByIds(tx, taskIds)
+	tasks, err := d.dataExportTaskRepo.GetDataExportTaskByIds(ctx, taskIds)
 	if err != nil {
 		d.log.Error(fmt.Errorf("get data export task failed: %v", err))
+		return
 	}
 
 	for _, task := range tasks {
 		task.ExportFileName = fmt.Sprintf("%s-%s.zip", workflow.Name, task.UID)
-		err := d.ExecExportTask(tx, task)
+		err := d.ExecExportTask(ctx, task)
 		if err != nil {
 			d.log.Errorf("exec export task fail: %v", err)
 		}
 	}
 
-	err = d.dataExportTaskRepo.SaveDataExportTask(tx, tasks)
-	if err != nil {
+	if err = d.dataExportTaskRepo.SaveDataExportTask(ctx, tasks); err != nil {
 		d.log.Error(err)
-	}
-
-	if err := tx.Commit(d.log); err != nil {
-		d.log.Error(fmt.Errorf("commit tx failed: %v", err))
 	}
 }
 
 const ExportFilePath string = "./"
 
 func (d *DataExportWorkflowUsecase) ExecExportTask(ctx context.Context, taskInfo *DataExportTask) (err error) {
+	defer func() {
+		if err != nil {
+			d.log.Error(err)
+			taskInfo.ExportStatus = DataExportTaskStatusFailed
+		}
+	}()
+
 	dbService, err := d.dbServiceRepo.GetDBService(ctx, taskInfo.DBServiceUid)
 	if err != nil {
 		return fmt.Errorf("get db service failed: %v", err)
@@ -298,7 +305,7 @@ func (d *DataExportWorkflowUsecase) ExecExportTask(ctx context.Context, taskInfo
 
 	err = export.ExportTasksToZip(taskInfo.ExportFileName, exportTasks)
 	if err != nil {
-		taskInfo.ExportStatus = DataExportTaskStatusFailed
+		return err
 	}
 	taskInfo.ExportStatus = DataExportTaskStatusFinish
 	endTime := time.Now()
