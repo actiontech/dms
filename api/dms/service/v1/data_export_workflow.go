@@ -62,13 +62,13 @@ type ListDataExportWorkflowsReq struct {
 	FilterByStatus DataExportWorkflowStatus `query:"filter_by_status" json:"filter_by_status"`
 	// filter create user id
 	// in:query
-	FilterByCreateUserUid string `json:"filter_create_user_uid" query:"filter_by_create_user_uid"`
+	FilterByCreateUserUid string `json:"filter_by_create_user_uid" query:"filter_by_create_user_uid"`
 	// filter current assignee user id
 	// in:query
 	FilterCurrentStepAssigneeUserUid string `json:"filter_current_step_assignee_user_uid" query:"filter_current_step_assignee_user_uid"`
 	// filter db_service id
 	// in:query
-	FilterByDBServiceUid string `json:"filter_db_service_uid" query:"filter_by_db_service_uid"`
+	FilterByDBServiceUid string `json:"filter_by_db_service_uid" query:"filter_by_db_service_uid"`
 	// filter create time from
 	// in:query
 	FilterCreateTimeFrom string `json:"filter_create_time_from" query:"filter_create_time_from"`
