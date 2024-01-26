@@ -166,6 +166,8 @@ const (
 	OpPermissionTypeSaveAuditPlan OpPermissionType = "save_audit_plan"
 	//SQL查询；SQL查询权限
 	OpPermissionTypeSQLQuery OpPermissionType = "sql_query"
+	// 创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单
+	OpPermissionTypeExportCreate OpPermissionType = "create_export_task"
 )
 
 func ParseOpPermissionType(typ string) (OpPermissionType, error) {
