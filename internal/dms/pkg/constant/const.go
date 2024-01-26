@@ -19,6 +19,7 @@ const (
 	UIDOfOpPermissionSaveAuditPlan        = "700009"
 	UIDOfOpPermissionSQLQuery             = "700010"
 	UIDOfOpPermissionExportApprovalReject = "700011"
+	UIDOfOpPermissionExportCreate         = "700012"
 
 	UIDOfDMSConfig = "700100"
 
