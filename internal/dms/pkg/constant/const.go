@@ -55,6 +55,8 @@ func ConvertPermissionIdToType(opPermissionUid string) (apiOpPermissionTyp dmsCo
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeViewOtherAuditPlan
 	case UIDOfOpPermissionSQLQuery:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeSQLQuery
+	case UIDOfOpPermissionExportApprovalReject:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeAuditExportWorkflow
 	case UIDOfOpPermissionExportCreate:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeExportCreate
 	default:
@@ -86,6 +88,8 @@ func ConvertPermissionTypeToId(opPermissionType dmsCommonV1.OpPermissionType) (p
 		permissionId = UIDOfOpPermissionViewOthersAuditPlan
 	case dmsCommonV1.OpPermissionTypeSQLQuery:
 		permissionId = UIDOfOpPermissionSQLQuery
+	case dmsCommonV1.OpPermissionTypeAuditExportWorkflow:
+		permissionId = UIDOfOpPermissionExportApprovalReject
 	case dmsCommonV1.OpPermissionTypeExportCreate:
 		permissionId = UIDOfOpPermissionExportCreate
 	default:
