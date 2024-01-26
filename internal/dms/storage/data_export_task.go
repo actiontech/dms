@@ -22,7 +22,7 @@ func NewDataExportTaskRepo(log utilLog.Logger, s *Storage) *DataExportTaskRepo {
 	return &DataExportTaskRepo{Storage: s, log: utilLog.NewHelper(log, utilLog.WithMessageKey("storage.dataExportTask"))}
 }
 
-func (d DataExportTaskRepo) SaveDataExportTask(ctx context.Context, dataExportDataExportTasks []*biz.DataExportTask) error {
+func (d *DataExportTaskRepo) SaveDataExportTask(ctx context.Context, dataExportDataExportTasks []*biz.DataExportTask) error {
 	models := make([]*model.DataExportTask, 0)
 	for _, dataExportDataExportTask := range dataExportDataExportTasks {
 		models = append(models, convertBizDataExportTask(dataExportDataExportTask))
@@ -39,7 +39,7 @@ func (d DataExportTaskRepo) SaveDataExportTask(ctx context.Context, dataExportDa
 
 	return nil
 }
-func (d DataExportTaskRepo) GetDataExportTaskByIds(ctx context.Context, ids []string) (dataExportDataExportTasks []*biz.DataExportTask, err error) {
+func (d *DataExportTaskRepo) GetDataExportTaskByIds(ctx context.Context, ids []string) (dataExportDataExportTasks []*biz.DataExportTask, err error) {
 	tasks := make([]*model.DataExportTask, 0)
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		if err := tx.Preload("DataExportTaskRecords").Find(&tasks, "uid in (?)", ids).Error; err != nil {
@@ -95,4 +95,14 @@ func (d *DataExportTaskRepo) ListDataExportTaskRecord(ctx context.Context, opt *
 		exportTaskRecords = append(exportTaskRecords, convertModelDataExportTaskRecords(model))
 	}
 	return exportTaskRecords, total, nil
+}
+
+func (d *DataExportTaskRepo) BatchUpdateDataExportTaskStatusByIds(ctx context.Context, ids []string, status biz.DataExportTaskStatus) error {
+	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Model(&model.DataExportTask{}).Where("uid in (?)", ids).Update("export_status", status).Error; err != nil {
+			return fmt.Errorf("failed to update data export task status: %v", err)
+		}
+
+		return nil
+	})
 }
