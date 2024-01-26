@@ -94,6 +94,87 @@ func (d *WorkflowRepo) ListDataExportWorkflows(ctx context.Context, opt *biz.Lis
 	return Workflows, total, nil
 }
 
+func (d *WorkflowRepo) GetDataExportWorkflowsForView(ctx context.Context, userUid string) ([]string, error) {
+	workflowUids := make([]string, 0)
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Raw(`
+		SELECT DISTINCT w.uid
+	FROM  workflows w
+	left join workflow_records wr on w.workflow_record_uid  = wr.uid
+	LEFT JOIN workflow_steps ws on wr.uid = ws.workflow_record_uid  and wr.uid  = ws.workflow_record_uid
+	left join data_export_tasks det on JSON_SEARCH(wr.task_ids ,'one',det.uid) IS NOT NULL
+	WHERE  JSON_SEARCH(ws.assignees,"one",?) IS NOT NULL
+	UNION
+	SELECT DISTINCT w.uid
+	FROM  workflows w
+	WHERE w.create_user_uid = ?
+	`, userUid, userUid).Find(&workflowUids).Error; err != nil {
+			return fmt.Errorf("failed to find workflow for view: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	return workflowUids, nil
+}
+
+func (d *WorkflowRepo) GetDataExportWorkflowsByStatus(ctx context.Context, status string) ([]string, error) {
+	workflowUids := make([]string, 0)
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Raw(`
+			SELECT w.uid
+		FROM  workflows w
+		left join workflow_records wr on w.workflow_record_uid  = wr.uid
+		WHERE wr.status  = ?
+	`, status).Find(&workflowUids).Error; err != nil {
+			return fmt.Errorf("failed to get worfklow by status: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	return workflowUids, nil
+}
+
+func (d *WorkflowRepo) GetDataExportWorkflowsByAssignUser(ctx context.Context, userUid string) ([]string, error) {
+	workflowUids := make([]string, 0)
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Raw(`
+			SELECT DISTINCT w.uid
+		FROM  workflows w
+		left join workflow_records wr on w.workflow_record_uid  = wr.uid
+		LEFT JOIN workflow_steps ws on wr.uid = ws.workflow_record_uid  and wr.current_workflow_step_id  = ws.step_id 
+		left join data_export_tasks det on JSON_SEARCH(wr.task_ids ,'one',det.uid) IS NOT NULL
+		WHERE  JSON_SEARCH(ws.assignees,"one",?) IS NOT NULL AND ws.state = "init"
+	`, userUid).Find(&workflowUids).Error; err != nil {
+			return fmt.Errorf("failed to find workflow by assignee user: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	return workflowUids, nil
+}
+
+func (d *WorkflowRepo) GetDataExportWorkflowsByDBService(ctx context.Context, dbUid string) ([]string, error) {
+	workflowUids := make([]string, 0)
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Raw(`
+		SELECT w.uid
+		FROM  workflows w
+		left join workflow_records wr on w.workflow_record_uid  = wr.uid
+		left join data_export_tasks det on JSON_SEARCH(wr.task_ids ,'one',det.uid) IS NOT NULL
+		WHERE det.db_service_uid = ?
+	`, dbUid).Find(&workflowUids).Error; err != nil {
+			return fmt.Errorf("failed to find workflow by db uid: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	return workflowUids, nil
+}
+
 func (d *WorkflowRepo) GetDataExportWorkflow(ctx context.Context, workflowUid string) (*biz.Workflow, error) {
 	var workflow *model.Workflow
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
