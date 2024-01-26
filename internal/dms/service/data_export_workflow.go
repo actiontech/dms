@@ -91,34 +91,6 @@ func (d *DMSService) ListDataExportWorkflow(ctx context.Context, req *dmsV1.List
 		)
 	}
 
-	// 跟workflowRecord相关
-	if req.FilterByStatus != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
-			Table:    "WorkflowRecord",
-			Field:    string(biz.WorkflowRecordFieldStatus),
-			Operator: pkgConst.FilterOperatorEqual,
-			Value:    req.FilterByStatus,
-		})
-	} else {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
-			Table: "WorkflowRecord",
-		})
-	}
-
-	// 跟step 相关
-	if req.FilterCurrentStepAssigneeUserUid != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
-			Table:    "WorkflowRecord.Steps",
-			Field:    string(biz.WorkflowStepFieldAssignees),
-			Operator: pkgConst.FilterOperatorIn,
-			Value:    req.FilterCurrentStepAssigneeUserUid,
-		})
-	} else {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
-			Table: "WorkflowRecord.Steps",
-		})
-	}
-
 	listOption := &biz.ListWorkflowsOption{
 		PageNumber:   req.PageIndex,
 		LimitPerPage: req.PageSize,
@@ -126,7 +98,7 @@ func (d *DMSService) ListDataExportWorkflow(ctx context.Context, req *dmsV1.List
 		FilterBy:     filterBy,
 	}
 
-	workflows, total, err := d.DataExportWorkflowUsecase.ListDataExportWorkflows(ctx, listOption, currentUserUid, req.FilterByDBServiceUid)
+	workflows, total, err := d.DataExportWorkflowUsecase.ListDataExportWorkflows(ctx, listOption, currentUserUid, req.FilterByDBServiceUid, req.FilterCurrentStepAssigneeUserUid, string(req.FilterByStatus))
 	if nil != err {
 		return nil, err
 	}
