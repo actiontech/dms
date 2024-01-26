@@ -11,6 +11,7 @@ import (
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	export "github.com/actiontech/dms/internal/dataQuery/pkg/dataExport"
+	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver"
 	v1Base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
@@ -30,8 +31,47 @@ func (d *DataExportWorkflowUsecase) AddDataExportWorkflow(ctx context.Context, c
 		Tasks:                 params.Tasks,
 	}
 
+	taskIds := make([]string, 0)
+	for _, t := range params.Tasks {
+		taskIds = append(taskIds, t.UID)
+	}
+	tasks, err := d.dataExportTaskRepo.GetDataExportTaskByIds(ctx, taskIds)
+	if err != nil {
+		return "", err
+	}
+	dbServiceUids := make([]string, 0)
+	for _, task := range tasks {
+		dbServiceUids = append(dbServiceUids, task.DBServiceUid)
+	}
+
+	userPermissions, err := d.opPermissionVerifyUsecase.GetUserOpPermissionInProject(ctx, currentUserId, params.ProjectUID)
+	if err != nil {
+		return "", err
+	}
+	for _, dbServiceUid := range dbServiceUids {
+		if !d.opPermissionVerifyUsecase.UserCanOpDB(userPermissions, []string{pkgConst.UIDOfOpPermissionExportCreate}, dbServiceUid) {
+			return "", fmt.Errorf("current user has not enough permission to create export workflow: db service %v", dbServiceUid)
+		}
+	}
+
+	// 获取审批人
+	approveWorkflowUsers := make([]string, 0)
+	approveWorkflowMapUsers := make(map[string] /*userId*/ struct{})
+	for _, task := range tasks {
+		opUsers, err := d.opPermissionVerifyUsecase.GetCanOpDBUsers(ctx, params.ProjectUID, task.DBServiceUid, []string{pkgConst.UIDOfOpPermissionExportApprovalReject})
+		if err != nil {
+			return "", fmt.Errorf("get op users fail: %v", err)
+		}
+		for _, opUser := range opUsers {
+			if _, ok := approveWorkflowMapUsers[opUser]; !ok {
+				approveWorkflowMapUsers[opUser] = struct{}{}
+				approveWorkflowUsers = append(approveWorkflowUsers, opUser)
+			}
+		}
+	}
+
 	//  generate workflow step
-	steps, err := generateWorkflowStep(workflowRecord.UID, []string{currentUserId} /*TODO 获取审批人*/)
+	steps, err := generateWorkflowStep(workflowRecord.UID, approveWorkflowUsers)
 	if err != nil {
 		return "", err
 	}
@@ -208,6 +248,17 @@ func (d *DataExportWorkflowUsecase) AddDataExportTasks(ctx context.Context, proj
 	if err != nil {
 		return nil, err
 	}
+	// 校验创建导出任务权限
+	userPermissions, err := d.opPermissionVerifyUsecase.GetUserOpPermissionInProject(ctx, currentUserId, projectUid)
+	if err != nil {
+		return nil, err
+	}
+	for _, task := range params {
+		if !d.opPermissionVerifyUsecase.UserCanOpDB(userPermissions, []string{pkgConst.UIDOfOpPermissionExportCreate}, task.DBServiceUid) {
+			return nil, fmt.Errorf("current user has not enough permission to create export workflow: db service %v", task.DBServiceUid)
+		}
+	}
+
 	dataExportTasks := make([]*DataExportTask, 0)
 	for _, v := range params {
 		// geerate data export task record
