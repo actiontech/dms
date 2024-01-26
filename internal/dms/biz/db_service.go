@@ -266,40 +266,17 @@ func (d *DBServiceUsecase) ListDBServiceTips(ctx context.Context, req *dmsV1.Lis
 
 	ret := make([]*DBService, 0)
 	for _, item := range dbServices {
-		if d.canOperationDbService(permissions, []dmsCommonV1.OpPermissionType{dmsCommonV1.OpPermissionType(req.FunctionalModule)}, item) {
+		permissionId, err := pkgConst.ConvertPermissionTypeToId(dmsCommonV1.OpPermissionType(req.FunctionalModule))
+		if err != nil {
+			return nil, err
+		}
+
+		if d.opPermissionVerifyUsecase.UserCanOpDB(permissions, []string{permissionId}, item.UID) {
 			ret = append(ret, item)
 		}
 	}
 
 	return ret, nil
-}
-
-func (d *DBServiceUsecase) canOperationDbService(userOpPermissions []OpPermissionWithOpRange, needOpPermissionTypes []dmsCommonV1.OpPermissionType, dbService *DBService) bool {
-	for _, userOpPermission := range userOpPermissions {
-		// 对象权限(当前空间内所有对象)
-		if userOpPermission.OpRangeType == OpRangeType(dmsV1.OpRangeTypeProject) {
-			return true
-		}
-
-		permissionType, err := pkgConst.ConvertPermissionIdToType(userOpPermission.OpPermissionUID)
-		if err != nil {
-			return false
-		}
-
-		// 动作权限(创建、审核、上线工单等)
-		for _, needOpPermissionType := range needOpPermissionTypes {
-			if needOpPermissionType == permissionType && userOpPermission.OpRangeType == OpRangeType(dmsV1.OpRangeTypeDBService) {
-				// 对象权限(指定数据源)
-				for _, id := range userOpPermission.RangeUIDs {
-					if id == dbService.UID {
-						return true
-					}
-				}
-			}
-		}
-	}
-
-	return false
 }
 
 func (d *DBServiceUsecase) ListDBServiceDriverOption(ctx context.Context) ([]conf.DatabaseDriverOption, error) {
