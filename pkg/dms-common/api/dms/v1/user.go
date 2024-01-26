@@ -168,6 +168,8 @@ const (
 	OpPermissionTypeSQLQuery OpPermissionType = "sql_query"
 	// 创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单
 	OpPermissionTypeExportCreate OpPermissionType = "create_export_task"
+	// 审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单
+	OpPermissionTypeAuditExportWorkflow OpPermissionType = "audit_export_workflow"
 )
 
 func ParseOpPermissionType(typ string) (OpPermissionType, error) {
@@ -192,6 +194,10 @@ func ParseOpPermissionType(typ string) (OpPermissionType, error) {
 		return OpPermissionTypeSaveAuditPlan, nil
 	case string(OpPermissionTypeSQLQuery):
 		return OpPermissionTypeSQLQuery, nil
+	case string(OpPermissionTypeExportCreate):
+		return OpPermissionTypeExportCreate, nil
+	case string(OpPermissionTypeAuditExportWorkflow):
+		return OpPermissionTypeAuditExportWorkflow, nil
 	default:
 		return "", fmt.Errorf("invalid op permission type: %s", typ)
 	}
