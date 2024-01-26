@@ -34,6 +34,7 @@ type DMSService struct {
 	CompanyNoticeUsecase         *biz.CompanyNoticeUsecase
 	LicenseUsecase               *biz.LicenseUsecase
 	ClusterUsecase               *biz.ClusterUsecase
+	DataExportWorkflowUsecase    *biz.DataExportWorkflowUsecase
 	log                          *utilLog.Helper
 	shutdownCallback             func() error
 }
@@ -66,7 +67,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	projectUsecase := biz.NewProjectUsecase(logger, tx, projectRepo, &memberUsecase, opPermissionVerifyUsecase, pluginUseCase)
 	dbServiceRepo := storage.NewDBServiceRepo(logger, st)
 	dmsProxyTargetRepo := storage.NewProxyTargetRepo(logger, st)
-	dbServiceUseCase := biz.NewDBServiceUsecase(dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, opts.DatabaseDriverOptions)
+	dbServiceUseCase := biz.NewDBServiceUsecase(logger, dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, opts.DatabaseDriverOptions)
 	databaseSourceServiceRepo := storage.NewDatabaseSourceServiceRepo(logger, st)
 	databaseSourceServiceUsecase := biz.NewDatabaseSourceServiceUsecase(logger, databaseSourceServiceRepo, opPermissionVerifyUsecase, projectUsecase, dbServiceUseCase)
 	ldapConfigurationRepo := storage.NewLDAPConfigurationRepo(logger, st)
@@ -104,7 +105,9 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	clusterUsecase := biz.NewClusterUsecase(logger, tx, clusterRepo)
 	licenseRepo := storage.NewLicenseRepo(logger, st)
 	LicenseUsecase := biz.NewLicenseUsecase(logger, tx, licenseRepo, userUsecase, dbServiceUseCase, clusterUsecase)
-
+	dataExportTaskRepo := storage.NewDataExportTaskRepo(logger, st)
+	workflowRepo := storage.NewWorkflowRepo(logger, st)
+	DataExportWorkflowUsecase := biz.NewDataExportWorkflowUsecase(logger, tx, workflowRepo, dataExportTaskRepo, dbServiceRepo, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo)
 	if err != nil {
 		return nil, fmt.Errorf("failed to new dms proxy usecase: %v", err)
 	}
@@ -132,6 +135,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		CompanyNoticeUsecase:         companyNoticeRepoUsecase,
 		LicenseUsecase:               LicenseUsecase,
 		ClusterUsecase:               clusterUsecase,
+		DataExportWorkflowUsecase:    DataExportWorkflowUsecase,
 		log:                          utilLog.NewHelper(logger, utilLog.WithMessageKey("dms.service")),
 		shutdownCallback: func() error {
 			if err := st.Close(); nil != err {

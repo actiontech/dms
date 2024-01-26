@@ -1,19 +1,25 @@
 package constant
 
-import "fmt"
+import (
+	"fmt"
+
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+)
 
 // internel build-in uid
 const (
-	UIDOfOpPermissionCreateProject       = "700001"
-	UIDOfOpPermissionProjectAdmin        = "700002"
-	UIDOfOpPermissionCreateWorkflow      = "700003"
-	UIDOfOpPermissionAuditWorkflow       = "700004"
-	UIDOfOpPermissionAuthDBServiceData   = "700005"
-	UIDOfOpPermissionExecuteWorkflow     = "700006"
-	UIDOfOpPermissionViewOthersWorkflow  = "700007"
-	UIDOfOpPermissionViewOthersAuditPlan = "700008"
-	UIDOfOpPermissionSaveAuditPlan       = "700009"
-	UIDOfOpPermissionSQLQuery            = "700010"
+	UIDOfOpPermissionCreateProject        = "700001"
+	UIDOfOpPermissionProjectAdmin         = "700002"
+	UIDOfOpPermissionCreateWorkflow       = "700003"
+	UIDOfOpPermissionAuditWorkflow        = "700004"
+	UIDOfOpPermissionAuthDBServiceData    = "700005"
+	UIDOfOpPermissionExecuteWorkflow      = "700006"
+	UIDOfOpPermissionViewOthersWorkflow   = "700007"
+	UIDOfOpPermissionViewOthersAuditPlan  = "700008"
+	UIDOfOpPermissionSaveAuditPlan        = "700009"
+	UIDOfOpPermissionSQLQuery             = "700010"
+	UIDOfOpPermissionExportApprovalReject = "700011"
+	UIDOfOpPermissionExportCreate         = "700012"
 
 	UIDOfDMSConfig = "700100"
 
@@ -26,6 +32,68 @@ const (
 	UIDOfRoleSQLEAdmin      = "700401"
 	UIDOfRoleProvisionAdmin = "700402"
 )
+
+func ConvertPermissionIdToType(opPermissionUid string) (apiOpPermissionTyp dmsCommonV1.OpPermissionType, err error) {
+	switch opPermissionUid {
+	case UIDOfOpPermissionCreateWorkflow:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeCreateWorkflow
+	case UIDOfOpPermissionAuditWorkflow:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeAuditWorkflow
+	case UIDOfOpPermissionAuthDBServiceData:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeAuthDBServiceData
+	case UIDOfOpPermissionProjectAdmin:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeProjectAdmin
+	case UIDOfOpPermissionCreateProject:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeCreateProject
+	case UIDOfOpPermissionExecuteWorkflow:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeExecuteWorkflow
+	case UIDOfOpPermissionViewOthersWorkflow:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeViewOthersWorkflow
+	case UIDOfOpPermissionSaveAuditPlan:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeSaveAuditPlan
+	case UIDOfOpPermissionViewOthersAuditPlan:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeViewOtherAuditPlan
+	case UIDOfOpPermissionSQLQuery:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeSQLQuery
+	case UIDOfOpPermissionExportCreate:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeExportCreate
+	default:
+		return dmsCommonV1.OpPermissionTypeUnknown, fmt.Errorf("get user op permission type error: invalid op permission uid: %v", opPermissionUid)
+
+	}
+	return apiOpPermissionTyp, nil
+}
+
+func ConvertPermissionTypeToId(opPermissionType dmsCommonV1.OpPermissionType) (permissionId string, err error) {
+	switch opPermissionType {
+	case dmsCommonV1.OpPermissionTypeCreateWorkflow:
+		permissionId = UIDOfOpPermissionCreateWorkflow
+	case dmsCommonV1.OpPermissionTypeAuditWorkflow:
+		permissionId = UIDOfOpPermissionAuditWorkflow
+	case dmsCommonV1.OpPermissionTypeAuthDBServiceData:
+		permissionId = UIDOfOpPermissionAuthDBServiceData
+	case dmsCommonV1.OpPermissionTypeProjectAdmin:
+		permissionId = UIDOfOpPermissionProjectAdmin
+	case dmsCommonV1.OpPermissionTypeCreateProject:
+		permissionId = UIDOfOpPermissionCreateProject
+	case dmsCommonV1.OpPermissionTypeExecuteWorkflow:
+		permissionId = UIDOfOpPermissionExecuteWorkflow
+	case dmsCommonV1.OpPermissionTypeViewOthersWorkflow:
+		permissionId = UIDOfOpPermissionViewOthersWorkflow
+	case dmsCommonV1.OpPermissionTypeSaveAuditPlan:
+		permissionId = UIDOfOpPermissionSaveAuditPlan
+	case dmsCommonV1.OpPermissionTypeViewOtherAuditPlan:
+		permissionId = UIDOfOpPermissionViewOthersAuditPlan
+	case dmsCommonV1.OpPermissionTypeSQLQuery:
+		permissionId = UIDOfOpPermissionSQLQuery
+	case dmsCommonV1.OpPermissionTypeExportCreate:
+		permissionId = UIDOfOpPermissionExportCreate
+	default:
+		return "", fmt.Errorf("get user op permission id error: invalid op permission type: %v", opPermissionType)
+	}
+
+	return permissionId, nil
+}
 
 type DBType string
 
@@ -68,6 +136,8 @@ const (
 )
 
 type FilterCondition struct {
+	// Filter For Preload Table
+	Table         string
 	KeywordSearch bool
 	Field         string
 	Operator      FilterOperator

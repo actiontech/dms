@@ -346,6 +346,49 @@ func (o *OpPermissionVerifyRepo) ListUsersOpPermissionInProject(ctx context.Cont
 	return items, total, nil
 }
 
+func (o *OpPermissionVerifyRepo) ListUsersInProject(ctx context.Context, projectUid string) (items []biz.ListMembersOpPermissionItem, err error) {
+	type result struct {
+		UserUid  string
+		UserName string
+	}
+	var results []result
+	if err = transaction(o.log, ctx, o.db, func(tx *gorm.DB) error {
+		// find result
+		{
+			if err = tx.WithContext(ctx).Raw(`
+			SELECT * FROM (
+				SELECT 
+					m.user_uid, u.name AS user_name 
+				FROM
+					members AS m JOIN users AS u ON m.user_uid = u.uid AND m.project_uid = ?
+				UNION
+				SELECT 
+					DISTINCT u.uid AS user_uid, u.name AS user_name
+				FROM 
+					member_groups AS mg
+					JOIN member_group_users mgu on mg.uid = mgu.member_group_uid AND mg.project_uid = ?
+					JOIN users AS u ON mgu.user_uid = u.uid
+			) TEMP`,
+				projectUid, projectUid).Scan(&results).Error; err != nil {
+				return fmt.Errorf("failed to list users in project: %v", err)
+			}
+		}
+
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	for _, rs := range results {
+		items = append(items, biz.ListMembersOpPermissionItem{
+			UserUid:  rs.UserUid,
+			UserName: rs.UserName,
+		})
+	}
+
+	return items, nil
+}
+
 func (d *OpPermissionVerifyRepo) GetUserProject(ctx context.Context, userUid string) (projects []*biz.Project, err error) {
 	var models []*model.Project
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {

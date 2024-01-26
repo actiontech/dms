@@ -123,15 +123,12 @@ func (d *ProjectUsecase) ListProject(ctx context.Context, option *ListProjectsOp
 	return projects, total, nil
 }
 
-func (d *ProjectUsecase) InitProjects(ctx context.Context) (err error) {
-	tx := d.tx.BeginTX(ctx)
-	defer func() {
-		if err != nil {
-			err = tx.RollbackWithError(d.log, err)
-		}
-	}()
-	for _, n := range initProjects() {
+func (d *ProjectUsecase) ListProjectTips(ctx context.Context, currentUserUid string) ([]*Project, error) {
+	return d.opPermissionVerifyUsecase.GetUserProject(ctx, currentUserUid)
+}
 
+func (d *ProjectUsecase) InitProjects(ctx context.Context) (err error) {
+	for _, n := range initProjects() {
 		_, err := d.GetProject(ctx, n.UID)
 		// already exist
 		if err == nil {
@@ -144,18 +141,15 @@ func (d *ProjectUsecase) InitProjects(ctx context.Context) (err error) {
 		}
 
 		// not exist, then create it.
-		err = d.repo.SaveProject(tx, n)
+		err = d.repo.SaveProject(ctx, n)
 		if err != nil {
 			return fmt.Errorf("save projects failed: %v", err)
 		}
 
-		_, err = d.memberUsecase.AddUserToProjectAdminMember(tx, pkgConst.UIDOfUserAdmin, n.UID)
+		_, err = d.memberUsecase.AddUserToProjectAdminMember(ctx, pkgConst.UIDOfUserAdmin, n.UID)
 		if err != nil {
 			return fmt.Errorf("add admin to projects failed: %v", err)
 		}
-	}
-	if err := tx.Commit(d.log); err != nil {
-		return fmt.Errorf("commit tx failed: %v", err)
 	}
 	d.log.Debug("init project success")
 	return nil

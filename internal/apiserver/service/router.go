@@ -37,7 +37,7 @@ func (s *APIServer) initRouter() error {
 		dbServiceV1 := v1.Group(dmsV1.DBServiceRouterGroup)
 		dbServiceV1.POST("", s.DMSController.AddDBService)
 		dbServiceV1.GET("", s.DMSController.ListDBServices)
-
+		dbServiceV1.GET("/tips", s.DMSController.ListDBServiceTips)
 		dbServiceV1.DELETE("/:db_service_uid", s.DMSController.DelDBService)
 		dbServiceV1.PUT("/:db_service_uid", s.DMSController.UpdateDBService)
 		dbServiceV1.POST("/connection", s.DMSController.CheckDBServiceIsConnectable)
@@ -80,6 +80,7 @@ func (s *APIServer) initRouter() error {
 
 		memberV1 := v1.Group(dmsV1.MemberRouterGroup)
 		memberV1.POST("", s.DMSController.AddMember)
+		memberV1.GET("/tips", s.DMSController.ListMemberTips)
 		memberV1.GET("", s.DMSController.ListMembers)
 		memberV1.GET(dmsV1.MemberForInternalRouterSuffix, s.DMSController.ListMembersForInternal)
 		memberV1.DELETE("/:member_uid", s.DMSController.DelMember)
@@ -145,6 +146,21 @@ func (s *APIServer) initRouter() error {
 		// webhook
 		webhookV1 := v1.Group(dmsV1.WebHookRouterGroup)
 		webhookV1.POST("", s.DMSController.WebHookSendMessage) /* TODO AdminUserAllowed()*/
+
+		dataExportWorkflowsV1 := v1.Group("/dms/projects/:project_uid/data_export_workflows")
+		dataExportWorkflowsV1.POST("", s.DMSController.AddDataExportWorkflow)
+		dataExportWorkflowsV1.GET("", s.DMSController.ListDataExportWorkflows)
+		dataExportWorkflowsV1.GET("/:data_export_workflow_uid", s.DMSController.GetDataExportWorkflow)
+		dataExportWorkflowsV1.POST("/:data_export_workflow_uid/approve", s.DMSController.ApproveDataExportWorkflow)
+		dataExportWorkflowsV1.POST("/:data_export_workflow_uid/reject", s.DMSController.RejectDataExportWorkflow)
+		dataExportWorkflowsV1.POST("/:data_export_workflow_uid/export", s.DMSController.ExportDataExportWorkflow)
+		dataExportWorkflowsV1.POST("/cancel", s.DMSController.CancelDataExportWorkflow)
+
+		dataExportTaskV1 := v1.Group("/dms/projects/:project_uid/data_export_tasks")
+		dataExportTaskV1.POST("", s.DMSController.AddDataExportTask)
+		dataExportTaskV1.GET("", s.DMSController.BatchGetDataExportTask)
+		dataExportTaskV1.GET("/:data_export_task_uid/data_export_task_sqls", s.DMSController.ListDataExportTaskSQLs)
+		dataExportTaskV1.GET("/:data_export_task_uid/download", s.DMSController.DownloadDataExportTask)
 
 		if s.CloudbeaverController.CloudbeaverService.CloudbeaverUsecase.IsCloudbeaverConfigured() {
 			cloudbeaverV1 := s.echo.Group(s.CloudbeaverController.CloudbeaverService.CloudbeaverUsecase.GetRootUri())

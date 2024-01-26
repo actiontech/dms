@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -19,6 +20,7 @@ type OpPermissionVerifyRepo interface {
 	GetUserProjectWithOpPermissions(ctx context.Context, userUid string) (projectWithPermission []ProjectOpPermissionWithOpRange, err error)
 	ListUsersOpPermissionInProject(ctx context.Context, projectUid string, opt *ListMembersOpPermissionOption) (items []ListMembersOpPermissionItem, total int64, err error)
 	GetUserProject(ctx context.Context, userUid string) (projects []*Project, err error)
+	ListUsersInProject(ctx context.Context, projectUid string) (items []ListMembersOpPermissionItem, err error)
 }
 
 type OpPermissionVerifyUsecase struct {
@@ -174,6 +176,10 @@ func (o *OpPermissionVerifyUsecase) ListUsersOpPermissionInProject(ctx context.C
 	return items, total, nil
 }
 
+func (o *OpPermissionVerifyUsecase) ListUsersInProject(ctx context.Context, projectUid string) ([]ListMembersOpPermissionItem, error) {
+	return o.repo.ListUsersInProject(ctx, projectUid)
+}
+
 func (o *OpPermissionVerifyUsecase) GetUserProject(ctx context.Context, userUid string) ([]*Project, error) {
 
 	projects, err := o.repo.GetUserProject(ctx, userUid)
@@ -182,4 +188,46 @@ func (o *OpPermissionVerifyUsecase) GetUserProject(ctx context.Context, userUid 
 	}
 
 	return projects, nil
+}
+
+func (o *OpPermissionVerifyUsecase) UserCanOpDB(userOpPermissions []OpPermissionWithOpRange, needOpPermissionTypes []string, dbServiceUid string) bool {
+	for _, userOpPermission := range userOpPermissions {
+		// 对象权限(当前空间内所有对象)
+		if userOpPermission.OpRangeType == OpRangeType(dmsV1.OpRangeTypeProject) {
+			return true
+		}
+
+		// 动作权限(创建、审核、上线工单等)
+		for _, needOpPermission := range needOpPermissionTypes {
+			if needOpPermission == userOpPermission.OpPermissionUID && userOpPermission.OpRangeType == OpRangeType(dmsV1.OpRangeTypeDBService) {
+				// 对象权限(指定数据源)
+				for _, id := range userOpPermission.RangeUIDs {
+					if id == dbServiceUid {
+						return true
+					}
+				}
+			}
+		}
+	}
+
+	return false
+}
+
+func (o *OpPermissionVerifyUsecase) GetCanOpDBUsers(ctx context.Context, projectUID, dbServiceUid string, needOpPermissionTypes []string) ([]string, error) {
+	members, _, err := o.ListUsersOpPermissionInProject(ctx, projectUID, &ListMembersOpPermissionOption{
+		PageNumber:   1,
+		LimitPerPage: 999,
+	})
+	if nil != err {
+		return nil, err
+	}
+
+	userIds := make([]string, 0)
+	for _, member := range members {
+		if o.UserCanOpDB(member.OpPermissions, needOpPermissionTypes, dbServiceUid) {
+			userIds = append(userIds, member.UserUid)
+		}
+	}
+
+	return userIds, nil
 }

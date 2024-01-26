@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"sync"
 
+	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/apiserver/conf"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	v1Base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 	v1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
+	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	pkgParams "github.com/actiontech/dms/pkg/params"
 	pkgPeriods "github.com/actiontech/dms/pkg/periods"
 	pkgRand "github.com/actiontech/dms/pkg/rand"
@@ -127,9 +129,10 @@ type DBServiceUsecase struct {
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	projectUsecase            *ProjectUsecase
 	databaseDriverOptions     []conf.DatabaseDriverOption
+	log                       *utilLog.Helper
 }
 
-func NewDBServiceUsecase(repo DBServiceRepo, pluginUsecase *PluginUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, databaseDriverOptions []conf.DatabaseDriverOption) *DBServiceUsecase {
+func NewDBServiceUsecase(log utilLog.Logger, repo DBServiceRepo, pluginUsecase *PluginUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, databaseDriverOptions []conf.DatabaseDriverOption) *DBServiceUsecase {
 	return &DBServiceUsecase{
 		repo:                      repo,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
@@ -137,6 +140,7 @@ func NewDBServiceUsecase(repo DBServiceRepo, pluginUsecase *PluginUsecase, opPer
 		projectUsecase:            projectUsecase,
 		dmsProxyTargetRepo:        proxyTargetRepo,
 		databaseDriverOptions:     databaseDriverOptions,
+		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.dbService")),
 	}
 }
 
@@ -218,6 +222,61 @@ func (d *DBServiceUsecase) ListDBService(ctx context.Context, option *ListDBServ
 		return nil, 0, fmt.Errorf("list db services failed: %w", err)
 	}
 	return services, total, nil
+}
+
+func (d *DBServiceUsecase) ListDBServiceTips(ctx context.Context, req *dmsV1.ListDBServiceTipsReq, userId string) ([]*DBService, error) {
+	conditions := []pkgConst.FilterCondition{
+		{
+			Field:    string(DBServiceFieldProjectUID),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    req.ProjectUid,
+		},
+	}
+
+	if req.FilterDBType != "" {
+		conditions = append(conditions, pkgConst.FilterCondition{
+			Field:    string(DBServiceFieldDBType),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    req.FilterDBType,
+		})
+	}
+
+	dbServices, err := d.repo.GetDBServices(ctx, conditions)
+	if err != nil {
+		return nil, fmt.Errorf("list db service tips failed: %w", err)
+	}
+
+	if req.FunctionalModule == "" {
+		return dbServices, nil
+	}
+
+	isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, userId, req.ProjectUid)
+	if err != nil {
+		return nil, fmt.Errorf("check user admin error: %v", err)
+	}
+
+	if isAdmin {
+		return dbServices, nil
+	}
+
+	permissions, err := d.opPermissionVerifyUsecase.GetUserOpPermissionInProject(ctx, userId, req.ProjectUid)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := make([]*DBService, 0)
+	for _, item := range dbServices {
+		permissionId, err := pkgConst.ConvertPermissionTypeToId(dmsCommonV1.OpPermissionType(req.FunctionalModule))
+		if err != nil {
+			return nil, err
+		}
+
+		if d.opPermissionVerifyUsecase.UserCanOpDB(permissions, []string{permissionId}, item.UID) {
+			ret = append(ret, item)
+		}
+	}
+
+	return ret, nil
 }
 
 func (d *DBServiceUsecase) ListDBServiceDriverOption(ctx context.Context) ([]conf.DatabaseDriverOption, error) {
@@ -429,4 +488,33 @@ func (d *DBServiceUsecase) CountDBService(ctx context.Context) ([]DBTypeCount, e
 		return nil, fmt.Errorf("count db services failed: %w", err)
 	}
 	return counts, nil
+}
+
+func (d *DBServiceUsecase) GetBizDBWithNameByUids(ctx context.Context, uids []string) []UIdWithName {
+	if len(uids) == 0 {
+		return []UIdWithName{}
+	}
+	uidWithNameCacheCache.ulock.Lock()
+	defer uidWithNameCacheCache.ulock.Unlock()
+	if uidWithNameCacheCache.DBCache == nil {
+		uidWithNameCacheCache.DBCache = make(map[string]UIdWithName)
+	}
+	ret := make([]UIdWithName, 0)
+	for _, uid := range uids {
+		dbCache, ok := uidWithNameCacheCache.DBCache[uid]
+		if !ok {
+			dbCache = UIdWithName{
+				Uid: uid,
+			}
+			db, err := d.repo.GetDBService(ctx, uid)
+			if err == nil {
+				dbCache.Name = db.Name
+				uidWithNameCacheCache.DBCache[db.UID] = dbCache
+			} else {
+				d.log.Errorf("get db service for cache err: %v", err)
+			}
+		}
+		ret = append(ret, dbCache)
+	}
+	return ret
 }

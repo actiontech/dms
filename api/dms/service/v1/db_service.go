@@ -230,3 +230,35 @@ type ListDBServiceDriverOptionReply struct {
 	// Generic reply
 	base.GenericResp
 }
+
+// swagger:parameters ListDBServiceTips
+type ListDBServiceTipsReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	// Required: false
+	// in:query
+	FilterDBType string `json:"filter_db_type" query:"filter_db_type"`
+	// Required: false
+	// enum: save_audit_plan,create_workflow,create_export_task
+	// in:query
+	FunctionalModule string `json:"functional_module" query:"functional_module" validate:"omitempty,oneof=save_audit_plan create_workflow create_export_task"`
+}
+
+type ListDBServiceTipItem struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+	Type string `json:"db_type"`
+	Host string `json:"host"`
+	Port string `json:"port"`
+}
+
+// swagger:model ListDBServiceTipsReply
+type ListDBServiceTipsReply struct {
+	// List db service reply
+	Data []*ListDBServiceTipItem `json:"data"`
+
+	// Generic reply
+	base.GenericResp
+}
