@@ -1022,8 +1022,8 @@ func convertBizDataExportTask(b *biz.DataExportTask) *model.DataExportTask {
 	return dataExportTask
 }
 
-func convertModelDataExportTask(m *model.DataExportTask) (w *biz.DataExportTask, err error) {
-	w = &biz.DataExportTask{
+func convertModelDataExportTask(m *model.DataExportTask) *biz.DataExportTask {
+	w := &biz.DataExportTask{
 		Base:              convertBase(m.Model),
 		UID:               m.UID,
 		DBServiceUid:      m.DBServiceUid,
@@ -1046,7 +1046,7 @@ func convertModelDataExportTask(m *model.DataExportTask) (w *biz.DataExportTask,
 		}
 
 	}
-	return w, nil
+	return w
 }
 
 func convertBizDataExportTaskRecords(b *biz.DataExportTaskRecord) *model.DataExportTaskRecord {

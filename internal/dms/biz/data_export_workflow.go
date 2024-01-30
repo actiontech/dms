@@ -75,6 +75,7 @@ type WorkflowRepo interface {
 	GetDataExportWorkflowsByStatus(ctx context.Context, status string) ([]string, error)
 	GetDataExportWorkflowsByAssignUser(ctx context.Context, userUid string) ([]string, error)
 	GetDataExportWorkflowsByDBService(ctx context.Context, dbUid string) ([]string, error)
+	DeleteDataExportWorkflowsByIds(ctx context.Context, dataExportWorkflowUid []string) error
 }
 
 type DataExportWorkflowUsecase struct {
@@ -85,11 +86,12 @@ type DataExportWorkflowUsecase struct {
 	dmsProxyTargetRepo        ProxyTargetRepo
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	projectUsecase            *ProjectUsecase
+	clusterUsecase            *ClusterUsecase
 	log                       *utilLog.Helper
 	reportHost                string
 }
 
-func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator, repo WorkflowRepo, dataExportTaskRepo DataExportTaskRepo, dbServiceRepo DBServiceRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, reportHost string) *DataExportWorkflowUsecase {
+func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator, repo WorkflowRepo, dataExportTaskRepo DataExportTaskRepo, dbServiceRepo DBServiceRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, clusterUseCase *ClusterUsecase, reportHost string) *DataExportWorkflowUsecase {
 	return &DataExportWorkflowUsecase{
 		tx:                        tx,
 		repo:                      repo,
@@ -98,6 +100,7 @@ func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator
 		projectUsecase:            projectUsecase,
 		dmsProxyTargetRepo:        proxyTargetRepo,
 		dataExportTaskRepo:        dataExportTaskRepo,
+		clusterUsecase:            clusterUseCase,
 		log:                       utilLog.NewHelper(logger, utilLog.WithMessageKey("biz.dtaExportWorkflow")),
 		reportHost:                reportHost,
 	}
