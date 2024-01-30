@@ -84,7 +84,7 @@ func gormWhere(db *gorm.DB, condition pkgConst.FilterCondition) *gorm.DB {
 func gormWhereCondition(condition pkgConst.FilterCondition) (string, interface{}) {
 	if condition.Operator == pkgConst.FilterOperatorIsNull {
 		return fmt.Sprintf("%s IS NULL", condition.Field), nil
-	} else if condition.Operator == pkgConst.FilterOperatorContains {
+	} else if condition.Operator == pkgConst.FilterOperatorContains || condition.Operator == pkgConst.FilterOperatorNotContains {
 		condition.Value = fmt.Sprintf("%%%s%%", condition.Value)
 	}
 	return fmt.Sprintf("%s %s ?", condition.Field, condition.Operator), condition.Value
