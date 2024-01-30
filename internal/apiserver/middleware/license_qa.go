@@ -1,5 +1,5 @@
-//go:build !release
-// +build !release
+//go:build !release && !trial
+// +build !release,!trial
 
 package middleware
 
