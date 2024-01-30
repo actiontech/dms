@@ -230,14 +230,11 @@ func (d *DataExportWorkflowUsecase) ExportDataExportWorkflow(ctx context.Context
 const ExportFilenameSeparate = ";"
 
 func (d *DataExportWorkflowUsecase) ExportWorkflow(ctx context.Context, workflow *Workflow) {
-	var err error
+	workflow.WorkflowRecord.Status = DataExportWorkflowStatusFailed
+
+	var exportFailed bool
 	defer func() {
-		// 更新工单状态
-		workflow.WorkflowRecord.Status = DataExportWorkflowStatusFinish
-		if err != nil {
-			workflow.WorkflowRecord.Status = DataExportWorkflowStatusFailed
-		}
-		if err = d.repo.UpdateWorkflowStatusById(ctx, workflow.WorkflowRecordUid, workflow.WorkflowRecord.Status); err != nil {
+		if err := d.repo.UpdateWorkflowStatusById(ctx, workflow.WorkflowRecordUid, workflow.WorkflowRecord.Status); err != nil {
 			d.log.Error(err)
 		}
 	}()
@@ -248,12 +245,13 @@ func (d *DataExportWorkflowUsecase) ExportWorkflow(ctx context.Context, workflow
 		taskIds = append(taskIds, t.UID)
 	}
 	if len(taskIds) == 0 {
-		err = fmt.Errorf("workflwo has no export task")
-		d.log.Error(err)
+		exportFailed = true
+		d.log.Error(fmt.Errorf("workflwo has no export task"))
 		return
 	}
 
-	if err = d.dataExportTaskRepo.BatchUpdateDataExportTaskStatusByIds(ctx, taskIds, DataExportTaskStatusExporting); err != nil {
+	if err := d.dataExportTaskRepo.BatchUpdateDataExportTaskStatusByIds(ctx, taskIds, DataExportTaskStatusExporting); err != nil {
+		exportFailed = true
 		d.log.Error(err)
 		return
 	}
@@ -261,6 +259,7 @@ func (d *DataExportWorkflowUsecase) ExportWorkflow(ctx context.Context, workflow
 	// 执行导出任务
 	tasks, err := d.dataExportTaskRepo.GetDataExportTaskByIds(ctx, taskIds)
 	if err != nil {
+		exportFailed = true
 		d.log.Error(fmt.Errorf("get data export task failed: %v", err))
 		return
 	}
@@ -270,6 +269,7 @@ func (d *DataExportWorkflowUsecase) ExportWorkflow(ctx context.Context, workflow
 		task.ExportFileName = fmt.Sprintf("%s-%s.zip", workflow.Name, task.UID)
 		err := d.ExecExportTask(ctx, task)
 		if err != nil {
+			exportFailed = true
 			d.log.Errorf("exec export task fail: %v", err)
 		}
 
@@ -277,11 +277,18 @@ func (d *DataExportWorkflowUsecase) ExportWorkflow(ctx context.Context, workflow
 		task.ExportFileName = fmt.Sprintf("%s%s%s", d.reportHost, ExportFilenameSeparate, task.ExportFileName)
 	}
 	if err = d.dataExportTaskRepo.SaveDataExportTask(ctx, tasks); err != nil {
+		exportFailed = true
 		d.log.Error(err)
+		return
+	}
+
+	// 更新工单状态
+	if !exportFailed {
+		workflow.WorkflowRecord.Status = DataExportWorkflowStatusFinish
 	}
 }
 
-const ExportFilePath string = "./"
+const ExportFilePath string = "./export/"
 
 func (d *DataExportWorkflowUsecase) ExecExportTask(ctx context.Context, taskInfo *DataExportTask) (err error) {
 	defer func() {
@@ -307,10 +314,17 @@ func (d *DataExportWorkflowUsecase) ExecExportTask(ctx context.Context, taskInfo
 	// TODO recor状态返回
 	exportTasks := make([]*export.ExportTask, 0)
 	for _, record := range taskInfo.DataExportTaskRecords {
-		exportTasks = append(exportTasks, export.NewExportTask().WithExtract(export.NewExtract(db, record.ExportSQL)).WithExporter(fmt.Sprintf("%s%s_%d.csv", ExportFilePath, record.DataExportTaskId, record.Number), export.NewCsvExport()))
+		exportTasks = append(exportTasks, export.NewExportTask().WithExtract(export.NewExtract(db, record.ExportSQL)).WithExporter(fmt.Sprintf("%s_%d.csv", record.DataExportTaskId, record.Number), export.NewCsvExport()))
+	}
+	if _, err := os.Stat(ExportFilePath); os.IsNotExist(err) {
+		// 文件夹不存在，创建它
+		err = os.MkdirAll(ExportFilePath, 644)
+		if err != nil {
+			return err
+		}
 	}
 
-	err = export.ExportTasksToZip(taskInfo.ExportFileName, exportTasks)
+	err = export.ExportTasksToZip(filepath.Join(ExportFilePath, taskInfo.ExportFileName), exportTasks)
 	if err != nil {
 		return err
 	}
