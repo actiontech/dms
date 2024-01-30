@@ -3,9 +3,9 @@ package storage
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/actiontech/dms/internal/dms/biz"
-	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	"github.com/actiontech/dms/internal/dms/storage/model"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	"gorm.io/gorm"
@@ -52,11 +52,7 @@ func (d *DataExportTaskRepo) GetDataExportTaskByIds(ctx context.Context, ids []s
 
 	ret := make([]*biz.DataExportTask, 0)
 	for _, v := range tasks {
-		t, err := convertModelDataExportTask(v)
-		if err != nil {
-			return nil, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert model workflow: %v", err))
-		}
-		ret = append(ret, t)
+		ret = append(ret, convertModelDataExportTask(v))
 	}
 
 	return ret, nil
@@ -103,6 +99,87 @@ func (d *DataExportTaskRepo) BatchUpdateDataExportTaskStatusByIds(ctx context.Co
 			return fmt.Errorf("failed to update data export task status: %v", err)
 		}
 
+		return nil
+	})
+}
+
+func (d *DataExportTaskRepo) ListDataExportTasks(ctx context.Context, opt *biz.ListDataExportTaskOption) (exportTasks []*biz.DataExportTask, total int64, err error) {
+	var models []*model.DataExportTask
+
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+
+		// find models
+		{
+			db := tx.WithContext(ctx).Order(opt.OrderBy)
+			db = gormWheres(ctx, db, opt.FilterBy)
+			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber)))))
+			if err := db.Find(&models).Error; err != nil {
+				return fmt.Errorf("failed to list data export task: %v", err)
+			}
+		}
+
+		// find total
+		{
+			db := tx.WithContext(ctx).Model(&model.DataExportTask{})
+			db = gormWheres(ctx, db, opt.FilterBy)
+			if err := db.Count(&total).Error; err != nil {
+				return fmt.Errorf("failed to count data export task: %v", err)
+			}
+		}
+		return nil
+	}); err != nil {
+		return nil, 0, err
+	}
+
+	// convert model to biz
+	for _, model := range models {
+		exportTasks = append(exportTasks, convertModelDataExportTask(model))
+	}
+	return exportTasks, total, nil
+}
+
+func (d *DataExportTaskRepo) DeleteUnusedDataExportTasks(ctx context.Context) error {
+	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		err := tx.Exec(`DELETE 
+		FROM
+			data_export_task_records 
+		WHERE
+			data_export_task_id NOT IN (
+			SELECT
+				det.uid 
+			FROM
+				data_export_tasks det
+			JOIN workflow_records wr ON JSON_SEARCH( wr.task_ids, "one", det.uid ) IS NOT NULL 
+			WHERE det.created_at < ?
+			) 
+			`, time.Now().Add(-time.Hour*24)).Error
+		if err != nil {
+			return err
+		}
+
+		err = tx.Exec(`DELETE det
+		FROM data_export_tasks det
+		LEFT JOIN (
+			SELECT det.uid
+			FROM data_export_tasks det
+			JOIN workflow_records wr ON JSON_SEARCH(wr.task_ids, 'one', det.uid) IS NOT NULL
+			WHERE det.created_at < ?
+		) AS subquery ON det.uid = subquery.uid
+		WHERE subquery.uid IS NULL
+		`, time.Now().Add(-time.Hour*24)).Error
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
+func (d *DataExportTaskRepo) BatchUpdateDataExportTaskByIds(ctx context.Context, ids []string, args map[string]interface{}) error {
+	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Model(&model.DataExportTask{}).Where("uid in (?)", ids).Updates(args).Error; err != nil {
+			return fmt.Errorf("failed to update data export task: %v", err)
+		}
 		return nil
 	})
 }

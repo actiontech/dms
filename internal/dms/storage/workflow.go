@@ -262,3 +262,37 @@ func (d *WorkflowRepo) GetDataExportWorkflowsByIds(ctx context.Context, ids []st
 
 	return ret, nil
 }
+
+func (d *WorkflowRepo) DeleteDataExportWorkflowsByIds(ctx context.Context, dataExportWorkflowUids []string) error {
+	if len(dataExportWorkflowUids) == 0 {
+		return nil
+	}
+	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		err := tx.Exec(`DELETE 
+		FROM
+			workflow_steps 
+		WHERE
+			workflow_record_uid IN (
+			SELECT
+				uid
+			FROM
+				workflow_records 
+		WHERE
+			workflow_uid IN ?
+			)`, dataExportWorkflowUids).Error
+		if err != nil {
+			return err
+		}
+
+		err = tx.Exec("DELETE FROM workflow_records WHERE workflow_uid in ?", dataExportWorkflowUids).Error
+		if err != nil {
+			return err
+		}
+
+		err = tx.WithContext(ctx).Exec("DELETE FROM workflows WHERE uid in ?", dataExportWorkflowUids).Error
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+}
