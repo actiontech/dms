@@ -155,6 +155,7 @@ const (
 	FilterOperatorIsNull             FilterOperator = "isNull"
 	FilterOperatorNotEqual           FilterOperator = "<>"
 	FilterOperatorContains           FilterOperator = "like"
+	FilterOperatorNotContains        FilterOperator = "not like"
 	FilterOperatorGreaterThanOrEqual FilterOperator = ">="
 	FilterOperatorLessThanOrEqual    FilterOperator = "<="
 	FilterOperatorIn                 FilterOperator = "in"
