@@ -197,6 +197,17 @@ func (d *UserRepo) DelUser(ctx context.Context, userUid string) error {
 		if err := tx.WithContext(ctx).Select("OpPermissions").Delete(&model.User{Model: model.Model{UID: userUid}}).Error; err != nil {
 			return fmt.Errorf("failed to delete user: %v", err)
 		}
+
+		// delete members, member_role_op_ranges
+		if err := tx.WithContext(ctx).Exec(`delete m, mror from members m left join member_role_op_ranges mror on m.uid = mror.member_uid where m.user_uid = ?`, userUid).Error; err != nil {
+			return fmt.Errorf("failed to delete user associate members: %v", err)
+		}
+
+		// delete member_group_users
+		if err := tx.WithContext(ctx).Exec(`delete mgu from member_group_users mgu where mgu.user_uid = ?`, userUid).Error; err != nil {
+			return fmt.Errorf("failed to delete user associate member_groups: %v", err)
+		}
+
 		return nil
 	})
 }
