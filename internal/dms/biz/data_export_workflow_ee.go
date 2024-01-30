@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -636,4 +637,118 @@ func (d *DataExportWorkflowUsecase) DownloadDataExportTask(ctx context.Context, 
 	}
 
 	return false, filename, nil
+}
+
+func (d *DataExportWorkflowUsecase) RecycleWorkflow() {
+	if d.clusterUsecase.IsClusterMode() && !d.clusterUsecase.IsLeader() {
+		d.log.Info("current node is not leader,don't to recycle workflow")
+		return
+	}
+	// 回收工单
+	expiredWorkflowUids := make([]string, 0)
+	for pageIndex, pageSize := 1, 100; ; {
+		workflows, _, err := d.repo.ListDataExportWorkflows(context.Background(), &ListWorkflowsOption{
+			PageNumber:   uint32(pageIndex),
+			LimitPerPage: uint32(pageSize),
+			OrderBy:      WorkflowFieldCreateTime,
+			FilterBy: []pkgConst.FilterCondition{
+				{
+					Field:    string(WorkflowFieldCreateTime),
+					Operator: pkgConst.FilterOperatorLessThanOrEqual,
+					Value:    time.Now().Add(-time.Hour * 365 * 24),
+				},
+			},
+		})
+		if err != nil {
+			d.log.Error(err)
+		}
+		for _, workflow := range workflows {
+			expiredWorkflowUids = append(expiredWorkflowUids, workflow.UID)
+		}
+		if len(workflows) < pageSize {
+			break
+		}
+	}
+	if len(expiredWorkflowUids) == 0 {
+		return
+	}
+
+	err := d.repo.DeleteDataExportWorkflowsByIds(context.Background(), expiredWorkflowUids)
+	if err != nil {
+		d.log.Error(err)
+	}
+	d.log.Infof("delete expired workflow %v success ", expiredWorkflowUids)
+}
+
+func (d *DataExportWorkflowUsecase) RecycleDataExportTask() {
+	if d.clusterUsecase.IsClusterMode() && !d.clusterUsecase.IsLeader() {
+		d.log.Info("current node is not leader,don't to recycle data export task")
+		return
+	}
+	// 回收无关联工单的数据导出任务
+	err := d.dataExportTaskRepo.DeleteUnusedDataExportTasks(context.Background())
+	if err != nil {
+		d.log.Error(err)
+		return
+	}
+	d.log.Infof("recycle data export task  success")
+}
+
+func (d *DataExportWorkflowUsecase) RecycleDataExportTaskFiles() {
+	// 回收超时导出文件
+	recycleDataExportTasks := make([]*DataExportTask, 0)
+	for pageIndex, pageSize := 1, 100; ; {
+		dataExportTasks, _, err := d.dataExportTaskRepo.ListDataExportTasks(context.Background(), &ListDataExportTaskOption{
+			PageNumber:   uint32(pageIndex),
+			LimitPerPage: uint32(pageSize),
+			OrderBy:      DataExportTaskFieldExportEndTime,
+			FilterBy: []pkgConst.FilterCondition{
+				{
+					Field:    string(DataExportTaskFieldExportEndTime),
+					Operator: pkgConst.FilterOperatorLessThanOrEqual,
+					Value:    time.Now().Add(-24 * time.Hour).String(),
+				},
+				{
+					Field:    string(DataExportTaskFieldExportFileName),
+					Operator: pkgConst.FilterOperatorNotContains,
+					Value:    "[DELETED]",
+				},
+			},
+		})
+		if err != nil {
+			d.log.Error(err)
+		}
+
+		recycleDataExportTasks = append(recycleDataExportTasks, dataExportTasks...)
+		if len(dataExportTasks) < pageSize {
+			break
+		}
+	}
+
+	for _, t := range recycleDataExportTasks {
+		// 文件已被删除
+		_, err := os.Stat(path.Join(ExportFilePath, t.ExportFileName))
+		if err != nil {
+			if !os.IsNotExist(err) {
+				d.log.Error(err)
+				continue
+			}
+		} else {
+			err = os.Remove(filepath.Join(ExportFilePath, t.ExportFileName))
+			if err != nil {
+				d.log.Errorf("remove expired file %v , err: %v", t.ExportFileName, err)
+				continue
+			}
+		}
+		// 文件移除后更新字段
+		err = d.dataExportTaskRepo.BatchUpdateDataExportTaskByIds(context.Background(), []string{t.UID}, map[string]interface{}{
+			"export_file_name": t.ExportFileName + "[DELETED]",
+		})
+		if err != nil {
+			d.log.Errorf("update data export task failed: %v", err)
+		}
+		d.log.Debugf("remove expired file %v success", t.ExportFileName)
+	}
+
+	d.log.Infof("recycle data export task file success")
 }
