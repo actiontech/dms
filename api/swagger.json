@@ -5795,6 +5795,10 @@
           },
           "x-go-name": "AuditSQLResult"
         },
+        "export_sql_type": {
+          "type": "string",
+          "x-go-name": "ExportSQLType"
+        },
         "export_status": {
           "type": "string",
           "x-go-name": "ExportResult"
