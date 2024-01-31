@@ -100,6 +100,7 @@ type User struct {
 	Model
 	Name                   string         `json:"name" gorm:"size:200;column:name"`
 	ThirdPartyUserID       string         `json:"third_party_user_id" gorm:"size:255;third_party_user_id;column:third_party_user_id"`
+	ThirdPartyUserInfo     string         `json:"third_party_user_info" gorm:"size:255;third_party_user_info;column:third_party_user_info"`
 	Email                  string         `json:"email" gorm:"size:255;column:email"`
 	Phone                  string         `json:"phone" gorm:"size:255;column:phone"`
 	WeChatID               string         `json:"wechat_id" gorm:"size:255;column:wechat_id"`
