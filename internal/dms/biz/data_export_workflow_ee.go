@@ -234,15 +234,6 @@ func (d *DataExportWorkflowUsecase) ExportDataExportWorkflow(ctx context.Context
 		return err
 	}
 
-	taskIds := make([]string, 0)
-	for _, t := range workflow.WorkflowRecord.Tasks {
-		taskIds = append(taskIds, t.UID)
-	}
-	err = d.checkTaskHasNoneDQL(ctx, taskIds)
-	if err != nil {
-		return err
-	}
-
 	// 校验工单状态
 	if workflow.WorkflowRecord.Status != DataExportWorkflowStatusWaitForExport {
 		return fmt.Errorf("current workflow status is %v, not allow to export", workflow.WorkflowRecord.Status)
