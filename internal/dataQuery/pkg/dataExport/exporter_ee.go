@@ -144,25 +144,28 @@ func (et *ExportTask) Output() io.Reader {
 	return et.export
 }
 
-func ExportTasksToZip(fileName string, tasks []*ExportTask) error {
+func ExportTasksToZip(fileName string, tasks []*ExportTask) ([]string, error) {
 	file, err := os.Create(fileName)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	defer file.Close()
 
+	taskResults := make([]string, len(tasks))
 	w := zip.NewWriter(file)
-	for _, task := range tasks {
+	for i, task := range tasks {
 		err := exportTasksToZip(w, task)
 		if err != nil {
-			return err
+			taskResults[i] = err.Error()
+			return taskResults, err
 		}
+		taskResults[i] = "ok"
 	}
 	err = w.Close()
 	if err != nil {
-		log.Fatal(err)
+		return taskResults, err
 	}
-	return nil
+	return taskResults, nil
 }
 
 func exportTasksToZip(w *zip.Writer, task *ExportTask) error {
