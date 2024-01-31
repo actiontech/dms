@@ -192,11 +192,17 @@ type Project struct {
 	Status        string `gorm:"size:64;default:'active'"`
 }
 
+const (
+	ProxyScenarioCheckDbConn         string = "check_db_conn"
+	ProxyScenarioThirdPartyIntegrate string = "thrid_party_integrate"
+)
+
 type ProxyTarget struct {
 	Name            string `json:"name" gorm:"primaryKey;size:200;not null;column:name"`
 	Url             string `json:"url" gorm:"size:255;column:url"`
 	Version         string `json:"version" gorm:"size:64;column:version"`
 	ProxyUrlPrefixs string `json:"proxy_url_prefixs" gorm:"size:255;column:proxy_url_prefixs"`
+	Scenario        string `json:"scenario" gorm:"size:64;column:scenario;default:'check_db_conn'"`
 }
 
 type Plugin struct {
