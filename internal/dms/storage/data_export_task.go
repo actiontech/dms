@@ -140,33 +140,18 @@ func (d *DataExportTaskRepo) ListDataExportTasks(ctx context.Context, opt *biz.L
 
 func (d *DataExportTaskRepo) DeleteUnusedDataExportTasks(ctx context.Context) error {
 	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
-		err := tx.Exec(`DELETE 
-		FROM
-			data_export_task_records 
-		WHERE
-			data_export_task_id NOT IN (
-			SELECT
-				det.uid 
-			FROM
-				data_export_tasks det
-			JOIN workflow_records wr ON JSON_SEARCH( wr.task_ids, "one", det.uid ) IS NOT NULL 
-			WHERE det.created_at < ?
-			) 
-			`, time.Now().Add(-time.Hour*24)).Error
-		if err != nil {
-			return err
-		}
-
-		err = tx.Exec(`DELETE det
+		err := tx.Exec(`DELETE det,detr
 		FROM data_export_tasks det
-		LEFT JOIN (
-			SELECT det.uid
-			FROM data_export_tasks det
-			JOIN workflow_records wr ON JSON_SEARCH(wr.task_ids, 'one', det.uid) IS NOT NULL
-			WHERE det.created_at < ?
-		) AS subquery ON det.uid = subquery.uid
-		WHERE subquery.uid IS NULL
-		`, time.Now().Add(-time.Hour*24)).Error
+		LEFT JOIN data_export_task_records detr ON det.uid = detr.data_export_task_id
+		WHERE det.uid NOT IN (
+			SELECT uid FROM (
+				SELECT det.uid
+				FROM data_export_tasks det
+				JOIN workflow_records wr ON JSON_SEARCH(wr.task_ids, "one", det.uid) IS NOT NULL
+			) AS subquery
+		)
+		AND det.created_at < ?
+			`, time.Now().Add(-time.Hour*24)).Error
 		if err != nil {
 			return err
 		}

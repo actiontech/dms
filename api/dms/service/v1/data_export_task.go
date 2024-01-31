@@ -125,10 +125,10 @@ type ListDataExportTaskSQLsReply struct {
 }
 
 type ListDataExportTaskSQL struct {
-	ID           uint   `json:"uid"`
-	ExportSQL    string `json:"sql"`
-	ExportResult string `json:"export_status"` // 导出结果
-
+	ID             uint             `json:"uid"`
+	ExportSQL      string           `json:"sql"`
+	ExportResult   string           `json:"export_status"` // 导出结果
+	ExportSQLType  string           `json:"export_sql_type"`
 	AuditLevel     string           `json:"audit_level"`
 	AuditSQLResult []AuditSQLResult `json:"audit_sql_result"`
 }

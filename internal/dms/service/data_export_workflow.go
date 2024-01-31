@@ -255,10 +255,11 @@ func (d *DMSService) ListDataExportTaskSQLs(ctx context.Context, req *dmsV1.List
 	ret := make([]*dmsV1.ListDataExportTaskSQL, len(taskRecords))
 	for i, w := range taskRecords {
 		ret[i] = &dmsV1.ListDataExportTaskSQL{
-			ID:           w.Number,
-			ExportSQL:    w.ExportSQL,
-			AuditLevel:   w.AuditLevel,
-			ExportResult: w.ExportResult,
+			ID:            w.Number,
+			ExportSQL:     w.ExportSQL,
+			AuditLevel:    w.AuditLevel,
+			ExportResult:  w.ExportResult,
+			ExportSQLType: w.ExportSQLType,
 		}
 		if w.AuditSQLResults != nil {
 			for _, result := range w.AuditSQLResults {
