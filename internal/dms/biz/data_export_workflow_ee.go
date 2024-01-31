@@ -356,7 +356,7 @@ func (d *DataExportWorkflowUsecase) ExecExportTask(ctx context.Context, taskInfo
 		}
 	}
 
-	taskResults, err := export.ExportTasksToZip(filepath.Join(ExportFilePath, taskInfo.ExportFileName), exportTasks)
+	taskResults, err := export.ExportTasksToZip(d.log, filepath.Join(ExportFilePath, taskInfo.ExportFileName), exportTasks)
 	{
 		// 更新执行错误信息
 		// save方法未更新到关联表，所以在此处先更新
