@@ -428,6 +428,7 @@ type DataExportTaskRecord struct {
 	Number           uint   `json:"number" gorm:"index:task_id_number,unique"`
 	DataExportTaskId string `json:"data_export_task_id" gorm:"size:32;column:data_export_task_id;index:task_id_number,unique"`
 	ExportSQL        string `json:"export_sql" gorm:"size:255"`
+	ExportSQLType    string `json:"export_sql_type" gorm:"column:export_sql_type;size:10"`
 	ExportResult     string `json:"export_result"`
 	ExportStatus     string `json:"export_status" gorm:"size:32"`
 

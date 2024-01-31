@@ -1054,6 +1054,7 @@ func convertBizDataExportTaskRecords(b *biz.DataExportTaskRecord) *model.DataExp
 		Number:           b.Number,
 		DataExportTaskId: b.DataExportTaskId,
 		ExportSQL:        b.ExportSQL,
+		ExportSQLType:    b.ExportSQLType,
 		ExportResult:     b.ExportResult,
 		AuditLevel:       b.AuditLevel,
 	}
@@ -1074,6 +1075,7 @@ func convertModelDataExportTaskRecords(m *model.DataExportTaskRecord) *biz.DataE
 		Number:           m.Number,
 		DataExportTaskId: m.DataExportTaskId,
 		ExportSQL:        m.ExportSQL,
+		ExportSQLType:    m.ExportSQLType,
 		AuditLevel:       m.AuditLevel,
 		ExportResult:     m.ExportResult,
 	}

@@ -148,6 +148,7 @@ const (
 	DataExportTaskRecordFieldNumber           DataExportTaskRecordField = "number"
 	DataExportTaskRecordFieldDataExportTaskId DataExportTaskRecordField = "data_export_task_id"
 	DataExportTaskRecordFieldExportSQL        DataExportTaskRecordField = "exportsql"
+	DataExportTaskRecordFieldExportSQLType    DataExportTaskRecordField = "export_sql_type"
 	DataExportTaskRecordFieldExportStatus     DataExportTaskRecordField = "exportstatus"
 	DataExportTaskRecordFieldAuditResults     DataExportTaskRecordField = "auditresults"
 )
