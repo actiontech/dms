@@ -25,6 +25,7 @@ dms:
   secret_key:
   server_id:
   enable_cluster_mode: false
+  report_host: # the host name or IP address of the cluster node
   database_driver_options:
     - db_type: MySQL
       logo_path: "/logo/mysql.png"
