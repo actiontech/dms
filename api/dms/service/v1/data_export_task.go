@@ -71,10 +71,11 @@ type DataExportTaskStatus string
 
 // 导出任务状态常量
 const (
-	StatusInit      DataExportTaskStatus = "init"
-	StatusExporting DataExportTaskStatus = "exporting"
-	StatusFinish    DataExportTaskStatus = "finish"
-	StatusFailed    DataExportTaskStatus = "failed"
+	StatusInit        DataExportTaskStatus = "init"
+	StatusExporting   DataExportTaskStatus = "exporting"
+	StatusFinish      DataExportTaskStatus = "finish"
+	StatusFailed      DataExportTaskStatus = "failed"
+	StatusFileDeleted DataExportTaskStatus = "file_deleted"
 )
 
 type GetDataExportTask struct {
