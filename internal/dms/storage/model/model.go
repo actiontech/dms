@@ -49,7 +49,7 @@ var AutoMigrateList = []interface{}{
 
 type Model struct {
 	UID       string    `json:"uid" gorm:"primaryKey;size:32" example:"1"`
-	CreatedAt time.Time `json:"created_at" example:"2018-10-21T16:40:23+08:00"`
+	CreatedAt time.Time `json:"created_at" gorm:"column:created_at" example:"2018-10-21T16:40:23+08:00"`
 	UpdatedAt time.Time `json:"updated_at" example:"2018-10-21T16:40:23+08:00"`
 }
 
@@ -411,10 +411,10 @@ type DataExportTask struct {
 	WorkFlowRecordUid string     `json:"workflow_record_uid" gorm:"size:255"`
 	ExportType        string     `json:"export_type" gorm:"size:32"`
 	ExportFileType    string     `json:"export_file_type" gorm:"size:32"`
-	ExportFileName    string     `json:"export_file_name" gorm:"size:255"`
-	ExportStatus      string     `json:"export_status" gorm:"size:32"`
-	ExportStartTime   *time.Time `json:"export_start_time"`
-	ExportEndTime     *time.Time `json:"export_end_time"`
+	ExportFileName    string     `json:"export_file_name" gorm:"column:export_file_name;size:255"`
+	ExportStatus      string     `json:"export_status" gorm:"column:export_status;size:32"`
+	ExportStartTime   *time.Time `json:"export_start_time" gorm:"column:export_start_time"`
+	ExportEndTime     *time.Time `json:"export_end_time" gorm:"column:export_end_time"`
 	CreateUserUID     string     `json:"create_user_uid" gorm:"size:32;column:create_user_uid"`
 	// Audit Result
 	AuditPassRate float64 `json:"audit_pass_rate"`

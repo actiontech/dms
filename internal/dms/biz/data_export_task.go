@@ -11,10 +11,11 @@ type DataExportTaskStatus string
 
 // 导出任务状态常量
 const (
-	DataExportTaskStatusInit      DataExportTaskStatus = "init"
-	DataExportTaskStatusExporting DataExportTaskStatus = "exporting"
-	DataExportTaskStatusFinish    DataExportTaskStatus = "finish"
-	DataExportTaskStatusFailed    DataExportTaskStatus = "failed"
+	DataExportTaskStatusInit       DataExportTaskStatus = "init"
+	DataExportTaskStatusExporting  DataExportTaskStatus = "exporting"
+	DataExportTaskStatusFinish     DataExportTaskStatus = "finish"
+	DataExportTaskStatusFailed     DataExportTaskStatus = "failed"
+	DataExportTaskStatusFileDelted DataExportTaskStatus = "file_deleted"
 )
 
 func (dets DataExportTaskStatus) String() string {
@@ -65,9 +66,19 @@ type ListDataExportTaskRecordOption struct {
 	OrderBy      DataExportTaskRecordField
 	FilterBy     []pkgConst.FilterCondition
 }
+type ListDataExportTaskOption struct {
+	PageNumber   uint32
+	LimitPerPage uint32
+	OrderBy      DataExportTaskField
+	FilterBy     []pkgConst.FilterCondition
+}
+
 type DataExportTaskRepo interface {
 	SaveDataExportTask(ctx context.Context, dataExportDataExportTasks []*DataExportTask) error
 	GetDataExportTaskByIds(ctx context.Context, ids []string) (dataExportDataExportTasks []*DataExportTask, err error)
 	ListDataExportTaskRecord(ctx context.Context, opt *ListDataExportTaskRecordOption) (dataExportTaskRecords []*DataExportTaskRecord, total int64, err error)
 	BatchUpdateDataExportTaskStatusByIds(ctx context.Context, ids []string, status DataExportTaskStatus) (err error)
+	ListDataExportTasks(ctx context.Context, opt *ListDataExportTaskOption) (exportTasks []*DataExportTask, total int64, err error)
+	DeleteUnusedDataExportTasks(ctx context.Context) error
+	BatchUpdateDataExportTaskByIds(ctx context.Context, ids []string, args map[string]interface{}) error
 }

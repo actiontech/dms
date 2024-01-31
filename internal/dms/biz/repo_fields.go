@@ -135,8 +135,11 @@ const (
 	DataExportTaskFieldWorkFlowRecordUid     DataExportTaskField = "workflowrecorduid"
 	DataExportTaskFieldExportType            DataExportTaskField = "exporttype"
 	DataExportTaskFieldExportFileType        DataExportTaskField = "exportfiletype"
-	DataExportTaskFieldExportFileName        DataExportTaskField = "exportfilename"
-	DataExportTaskFieldExportStatus          DataExportTaskField = "exportstatus"
+	DataExportTaskFieldExportFileName        DataExportTaskField = "export_file_name"
+	DataExportTaskFieldExportStatus          DataExportTaskField = "export_status"
+	DataExportTaskFieldExportStartTime       DataExportTaskField = "export_start_time"
+	DataExportTaskFieldExportEndTime         DataExportTaskField = "export_end_time"
+	DataExportTaskFieldCreateUserUID         DataExportTaskField = "create_user_uid"
 	DataExportTaskFieldAuditLevel            DataExportTaskField = "auditlevel"
 	DataExportTaskFieldDataExportTaskRecords DataExportTaskField = "dataexporttaskrecords"
 )
@@ -215,7 +218,8 @@ const (
 )
 
 const (
-	ModelFieldUID ModelField = "uid"
+	ModelFieldUID       ModelField = "uid"
+	ModelFieldCreatedAt ModelField = "created_at"
 )
 
 const (
@@ -349,6 +353,7 @@ const (
 )
 
 const (
+	WorkflowStepFieldStepId            WorkflowStepField = "stepid"
 	WorkflowStepFieldWorkflowRecordUid WorkflowStepField = "workflowrecorduid"
 	WorkflowStepFieldOperationUserUid  WorkflowStepField = "operationuseruid"
 	WorkflowStepFieldState             WorkflowStepField = "state"
