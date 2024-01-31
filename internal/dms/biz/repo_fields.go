@@ -136,7 +136,7 @@ const (
 	DataExportTaskFieldExportType            DataExportTaskField = "exporttype"
 	DataExportTaskFieldExportFileType        DataExportTaskField = "exportfiletype"
 	DataExportTaskFieldExportFileName        DataExportTaskField = "export_file_name"
-	DataExportTaskFieldExportStatus          DataExportTaskField = "exportstatus"
+	DataExportTaskFieldExportStatus          DataExportTaskField = "export_status"
 	DataExportTaskFieldExportStartTime       DataExportTaskField = "export_start_time"
 	DataExportTaskFieldExportEndTime         DataExportTaskField = "export_end_time"
 	DataExportTaskFieldCreateUserUID         DataExportTaskField = "create_user_uid"

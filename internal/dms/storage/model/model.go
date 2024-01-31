@@ -412,7 +412,7 @@ type DataExportTask struct {
 	ExportType        string     `json:"export_type" gorm:"size:32"`
 	ExportFileType    string     `json:"export_file_type" gorm:"size:32"`
 	ExportFileName    string     `json:"export_file_name" gorm:"column:export_file_name;size:255"`
-	ExportStatus      string     `json:"export_status" gorm:"size:32"`
+	ExportStatus      string     `json:"export_status" gorm:"column:export_status;size:32"`
 	ExportStartTime   *time.Time `json:"export_start_time" gorm:"column:export_start_time"`
 	ExportEndTime     *time.Time `json:"export_end_time" gorm:"column:export_end_time"`
 	CreateUserUID     string     `json:"create_user_uid" gorm:"size:32;column:create_user_uid"`
