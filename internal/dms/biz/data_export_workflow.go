@@ -86,9 +86,10 @@ type DataExportWorkflowUsecase struct {
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	projectUsecase            *ProjectUsecase
 	log                       *utilLog.Helper
+	reportHost                string
 }
 
-func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator, repo WorkflowRepo, dataExportTaskRepo DataExportTaskRepo, dbServiceRepo DBServiceRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo) *DataExportWorkflowUsecase {
+func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator, repo WorkflowRepo, dataExportTaskRepo DataExportTaskRepo, dbServiceRepo DBServiceRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, reportHost string) *DataExportWorkflowUsecase {
 	return &DataExportWorkflowUsecase{
 		tx:                        tx,
 		repo:                      repo,
@@ -98,6 +99,7 @@ func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator
 		dmsProxyTargetRepo:        proxyTargetRepo,
 		dataExportTaskRepo:        dataExportTaskRepo,
 		log:                       utilLog.NewHelper(logger, utilLog.WithMessageKey("biz.dtaExportWorkflow")),
+		reportHost:                reportHost,
 	}
 }
 
