@@ -1,12 +1,16 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
 	"mime"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"path/filepath"
+	"strings"
 	"time"
 
 	aV1 "github.com/actiontech/dms/api/dms/service/v1"
@@ -14,6 +18,7 @@ import (
 	apiError "github.com/actiontech/dms/internal/apiserver/pkg/error"
 	"github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/dms/service"
+	"github.com/labstack/echo/v4/middleware"
 
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
@@ -2264,9 +2269,46 @@ func (d *DMSController) DownloadDataExportTask(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	filePath, err := d.DMS.DownloadDataExportTask(c.Request().Context(), req, currentUserUid)
+	isProxy, filePath, err := d.DMS.DownloadDataExportTask(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
+
+	if isProxy {
+		return d.proxyDownloadDataExportTask(c, filePath)
+	}
+
 	return c.Attachment(filePath, filepath.Base(filePath))
+}
+
+func (d *DMSController) proxyDownloadDataExportTask(c echo.Context, reportHost string) (err error) {
+	protocol := strings.ToLower(strings.Split(c.Request().Proto, "/")[0])
+
+	// reference from echo framework proxy middleware
+	target, _ := url.Parse(fmt.Sprintf("%s://%s", protocol, reportHost))
+	reverseProxy := httputil.NewSingleHostReverseProxy(target)
+	reverseProxy.ErrorHandler = func(resp http.ResponseWriter, req *http.Request, err error) {
+		// If the client canceled the request (usually by closing the connection), we can report a
+		// client error (4xx) instead of a server error (5xx) to correctly identify the situation.
+		// The Go standard library (at of late 2020) wraps the exported, standard
+		// context.Canceled error with unexported garbage value requiring a substring check, see
+		// https://github.com/golang/go/blob/6965b01ea248cabb70c3749fd218b36089a21efb/src/net/net.go#L416-L430
+		if err == context.Canceled || strings.Contains(err.Error(), "operation was canceled") {
+			httpError := echo.NewHTTPError(middleware.StatusCodeContextCanceled, fmt.Sprintf("client closed connection: %v", err))
+			httpError.Internal = err
+			c.Set("_error", httpError)
+		} else {
+			httpError := echo.NewHTTPError(http.StatusBadGateway, fmt.Sprintf("remote %s unreachable, could not forward: %v", reportHost, err))
+			httpError.Internal = err
+			c.Set("_error", httpError)
+		}
+	}
+
+	reverseProxy.ServeHTTP(c.Response(), c.Request())
+
+	if e, ok := c.Get("_error").(error); ok {
+		err = e
+	}
+
+	return
 }
