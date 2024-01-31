@@ -22,7 +22,7 @@ func licenseAdapter(l *biz.LicenseUsecase) echo.MiddlewareFunc {
 			check := &LicenseChecker{ctx: c, LicenseUsecase: l}
 			err := check.Check()
 			if err != nil {
-				return fmt.Errorf("the operation is outside the scope of the license, %v", err)
+				return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("the operation is outside the scope of the license, %v", err))
 			}
 			return next(c)
 		}
