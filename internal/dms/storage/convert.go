@@ -552,12 +552,24 @@ func convertModelProjectStatus(status string) biz.ProjectStatus {
 	}
 }
 
+func convertModelProxyScenario(scenario string) biz.ProxyScenario {
+	switch scenario {
+	case "check_db_conn":
+		return biz.ProxyScenarioCheckDbConn
+	case "thrid_party_integrate":
+		return biz.ProxyScenarioThirdPartyIntegrate
+	default:
+		return biz.ProxyScenarioUnknown
+	}
+}
+
 func convertBizProxyTarget(t *biz.ProxyTarget) (*model.ProxyTarget, error) {
 	return &model.ProxyTarget{
 		Name:            t.Name,
 		Url:             t.URL.String(),
 		Version:         t.Version,
 		ProxyUrlPrefixs: strings.Join(t.GetProxyUrlPrefixs(), ";"),
+		Scenario:        string(t.Scenario),
 	}, nil
 }
 
@@ -572,7 +584,8 @@ func convertModelProxyTarget(t *model.ProxyTarget) (*biz.ProxyTarget, error) {
 			URL:  url,
 			Meta: echo.Map{},
 		},
-		Version: t.Version,
+		Version:  t.Version,
+		Scenario: convertModelProxyScenario(t.Scenario),
 	}
 	p.SetProxyUrlPrefix(strings.Split(t.ProxyUrlPrefixs, ";"))
 	return p, nil
