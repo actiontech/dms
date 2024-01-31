@@ -70,6 +70,7 @@ type User struct {
 	Name                   string
 	Password               string
 	ThirdPartyUserID       string
+	ThirdPartyUserInfo     string
 	Email                  string
 	Phone                  string
 	WxID                   string
@@ -129,6 +130,7 @@ func newUser(args *CreateUserArgs) (*User, error) {
 		Desc:                   args.Desc,
 		UserAuthenticationType: args.UserAuthenticationType,
 		ThirdPartyUserID:       args.ThirdPartyUserID,
+		ThirdPartyUserInfo:     args.ThirdPartyUserInfo,
 		Stat:                   UserStatOK,
 	}, nil
 }
@@ -403,6 +405,7 @@ type CreateUserArgs struct {
 	Name                   string
 	Password               string
 	ThirdPartyUserID       string
+	ThirdPartyUserInfo     string
 	Email                  string
 	Phone                  string
 	WxID                   string

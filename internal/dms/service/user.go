@@ -435,6 +435,7 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 		Email:   u.Email,
 		Phone:   u.Phone,
 		WxID:    u.WxID,
+		ThirdPartyUserInfo: u.ThirdPartyUserInfo,
 	}
 
 	// 获取用户状态
