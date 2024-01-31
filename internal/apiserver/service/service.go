@@ -63,6 +63,10 @@ func (s *APIServer) RunHttpServer(logger utilLog.Logger) error {
 			return fmt.Errorf("server id is required on cluster mode")
 		}
 
+		if s.opts.ReportHost == "" {
+			return fmt.Errorf("report host is required on cluster mode")
+		}
+
 		s.DMSController.DMS.ClusterUsecase.SetClusterMode(true)
 		if err := s.DMSController.DMS.ClusterUsecase.Join(s.opts.ServerId); err != nil {
 			return err

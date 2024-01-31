@@ -289,6 +289,6 @@ func (d *DMSService) CancelDataExportWorkflow(ctx context.Context, req *dmsV1.Ca
 	return d.DataExportWorkflowUsecase.CancelDataExportWorkflow(ctx, userId, req)
 }
 
-func (d *DMSService) DownloadDataExportTask(ctx context.Context, req *dmsV1.DownloadDataExportTaskReq, userId string) (string, error) {
+func (d *DMSService) DownloadDataExportTask(ctx context.Context, req *dmsV1.DownloadDataExportTaskReq, userId string) (bool, string, error) {
 	return d.DataExportWorkflowUsecase.DownloadDataExportTask(ctx, userId, req)
 }
