@@ -25,7 +25,7 @@ func licenseAdapter(l *biz.LicenseUsecase) echo.MiddlewareFunc {
 
 			dbTypeCounts, err := l.DBService.CountDBService(c.Request().Context())
 			if err != nil {
-				return err
+				return echo.NewHTTPError(http.StatusInternalServerError, err)
 			}
 
 			var total int64
@@ -34,7 +34,7 @@ func licenseAdapter(l *biz.LicenseUsecase) echo.MiddlewareFunc {
 			}
 
 			if total >= dbServiceLimit {
-				return fmt.Errorf("the number of db services exceeds the limit of %v", dbServiceLimit)
+				return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("the number of db services exceeds the limit of %v", dbServiceLimit))
 			}
 
 			return next(c)
