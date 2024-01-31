@@ -20,6 +20,34 @@ import (
 	pkgRand "github.com/actiontech/dms/pkg/rand"
 )
 
+func (d *DataExportWorkflowUsecase) checkTaskHasNoneDQL(ctx context.Context, taskIds []string) error {
+
+	_, total, err := d.dataExportTaskRepo.ListDataExportTaskRecord(ctx, &ListDataExportTaskRecordOption{
+		PageNumber:   1,
+		LimitPerPage: 1,
+		OrderBy:      "",
+		FilterBy: []pkgConst.FilterCondition{
+			{
+				Field:    string(DataExportTaskRecordFieldExportSQLType),
+				Operator: pkgConst.FilterOperatorNotEqual,
+				Value:    "dql",
+			}, {
+				Field:    string(DataExportTaskRecordFieldDataExportTaskId),
+				Operator: pkgConst.FilterOperatorIn,
+				Value:    taskIds,
+			},
+		},
+	})
+	if err != nil {
+		return err
+	}
+	if total > 0 {
+		return fmt.Errorf("there is not allowed to export by  SQL with DQL Type")
+	}
+
+	return nil
+}
+
 func (d *DataExportWorkflowUsecase) AddDataExportWorkflow(ctx context.Context, currentUserId string, params *Workflow) (string, error) {
 	// geerate workflow record
 	workflowRecordUid, err := pkgRand.GenStrUid()
@@ -44,6 +72,10 @@ func (d *DataExportWorkflowUsecase) AddDataExportWorkflow(ctx context.Context, c
 	dbServiceUids := make([]string, 0)
 	for _, task := range tasks {
 		dbServiceUids = append(dbServiceUids, task.DBServiceUid)
+	}
+
+	if err := d.checkTaskHasNoneDQL(ctx, taskIds); err != nil {
+		return "", err
 	}
 
 	userPermissions, err := d.opPermissionVerifyUsecase.GetUserOpPermissionInProject(ctx, currentUserId, params.ProjectUID)
@@ -201,6 +233,7 @@ func (d *DataExportWorkflowUsecase) ExportDataExportWorkflow(ctx context.Context
 	if err != nil {
 		return err
 	}
+
 	// 校验工单状态
 	if workflow.WorkflowRecord.Status != DataExportWorkflowStatusWaitForExport {
 		return fmt.Errorf("current workflow status is %v, not allow to export", workflow.WorkflowRecord.Status)
@@ -452,6 +485,7 @@ type AuditTaskSQLResV2 struct {
 	ExecStatus    string         `json:"exec_status"`
 	RollbackSQL   string         `json:"rollback_sql,omitempty"`
 	Description   string         `json:"description"`
+	SQLType       string         `json:"sql_type"`
 }
 
 func (d *DataExportWorkflowUsecase) SQLEAuditSQL(ctx context.Context, projectName, taskId, dBServiceUid, dbName string, Sqls string) (*AuditTaskInfo, []*DataExportTaskRecord, error) {
@@ -509,6 +543,7 @@ func (d *DataExportWorkflowUsecase) SQLEAuditSQL(ctx context.Context, projectNam
 			DataExportTaskId: taskId,
 			Number:           record.Number,
 			ExportSQL:        record.ExecSQL,
+			ExportSQLType:    record.SQLType,
 			AuditLevel:       record.AuditLevel,
 			AuditSQLResults:  record.AuditResult,
 		})
