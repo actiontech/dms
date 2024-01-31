@@ -851,12 +851,14 @@ definitions:
                     - exporting
                     - finish
                     - failed
+                    - file_deleted
                 type: string
                 x-go-enum-desc: |-
                     init StatusInit
                     exporting StatusExporting
                     finish StatusFinish
                     failed StatusFailed
+                    file_deleted StatusFileDeleted
                 x-go-name: Status
             task_uid:
                 type: string
@@ -2528,6 +2530,7 @@ definitions:
                     save_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务
                     sql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限
                     create_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单
+                    audit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单
                 enum:
                     - unknown
                     - create_project
@@ -2541,6 +2544,7 @@ definitions:
                     - save_audit_plan
                     - sql_query
                     - create_export_task
+                    - audit_export_workflow
                 type: string
                 x-go-enum-desc: |-
                     unknown OpPermissionTypeUnknown
@@ -2555,6 +2559,7 @@ definitions:
                     save_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务
                     sql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限
                     create_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单
+                    audit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单
                 x-go-name: OpPermissionType
             range_type:
                 description: |-
