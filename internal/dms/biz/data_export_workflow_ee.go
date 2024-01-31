@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
@@ -225,6 +226,8 @@ func (d *DataExportWorkflowUsecase) ExportDataExportWorkflow(ctx context.Context
 	return nil
 }
 
+const ExportFilenameSeparate = ";"
+
 func (d *DataExportWorkflowUsecase) ExportWorkflow(ctx context.Context, workflow *Workflow) {
 	var err error
 	defer func() {
@@ -262,13 +265,16 @@ func (d *DataExportWorkflowUsecase) ExportWorkflow(ctx context.Context, workflow
 	}
 
 	for _, task := range tasks {
+		// export file name
 		task.ExportFileName = fmt.Sprintf("%s-%s.zip", workflow.Name, task.UID)
 		err := d.ExecExportTask(ctx, task)
 		if err != nil {
 			d.log.Errorf("exec export task fail: %v", err)
 		}
-	}
 
+		// export_file_name filed value
+		task.ExportFileName = fmt.Sprintf("%s%s%s", d.reportHost, ExportFilenameSeparate, task.ExportFileName)
+	}
 	if err = d.dataExportTaskRepo.SaveDataExportTask(ctx, tasks); err != nil {
 		d.log.Error(err)
 	}
@@ -590,31 +596,44 @@ func (d *DataExportWorkflowUsecase) CancelDataExportWorkflow(ctx context.Context
 	return d.repo.CancelWorkflow(ctx, cancelWorkflowRecordIds, cancelWorkflowSteps, userId)
 }
 
-func (d *DataExportWorkflowUsecase) DownloadDataExportTask(ctx context.Context, userId string, req *dmsV1.DownloadDataExportTaskReq) (string, error) {
+func (d *DataExportWorkflowUsecase) DownloadDataExportTask(ctx context.Context, userId string, req *dmsV1.DownloadDataExportTaskReq) (bool, string, error) {
 	tasks, err := d.dataExportTaskRepo.GetDataExportTaskByIds(ctx, []string{req.DataExportTaskUid})
 	if err != nil {
-		return "", err
+		return false, "", err
 	}
 
 	if len(tasks) == 0 {
-		return "", fmt.Errorf("task does not exist")
+		return false, "", fmt.Errorf("task does not exist")
 	}
 
 	if userId != tasks[0].CreateUserUID {
-		return "", fmt.Errorf("current user not executable download")
+		return false, "", fmt.Errorf("current user not executable download")
 	}
 
-	filename := filepath.Join(ExportFilePath, tasks[0].ExportFileName)
+	if len(tasks[0].ExportFileName) == 0 {
+		return false, "", fmt.Errorf("download file does not exist")
+	}
+
+	//exportFilename = "ip:port;filename.zip"
+	splitResult := strings.Split(tasks[0].ExportFileName, ExportFilenameSeparate)
+	reportHost, exportFilename := splitResult[0], splitResult[1]
+
+	//proxy request other node to download files
+	if d.reportHost != reportHost {
+		return true, reportHost, nil
+	}
+
+	filename := filepath.Join(ExportFilePath, exportFilename)
 
 	if _, err = os.Stat(filename); err != nil {
-		return "", err
+		return false, "", err
 	} else if os.IsNotExist(err) {
-		return "", fmt.Errorf("file %s does not exist", filename)
+		return false, "", fmt.Errorf("file %s does not exist", filename)
 	}
 
 	if tasks[0].ExportEndTime.Before(time.Now().Add(-24 * time.Hour)) {
-		return "", fmt.Errorf("the file %s download has exceeded 24 hours", tasks[0].ExportFileName)
+		return false, "", fmt.Errorf("the file %s download has exceeded 24 hours", tasks[0].ExportFileName)
 	}
 
-	return filename, nil
+	return false, filename, nil
 }
