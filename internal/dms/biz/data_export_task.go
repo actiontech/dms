@@ -51,6 +51,7 @@ type DataExportTaskRecord struct {
 	ExportSQL        string
 	AuditLevel       string
 	ExportResult     string
+	ExportSQLType    string
 	AuditSQLResults  []*AuditResult
 }
 
