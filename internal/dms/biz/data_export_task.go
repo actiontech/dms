@@ -11,10 +11,11 @@ type DataExportTaskStatus string
 
 // 导出任务状态常量
 const (
-	DataExportTaskStatusInit      DataExportTaskStatus = "init"
-	DataExportTaskStatusExporting DataExportTaskStatus = "exporting"
-	DataExportTaskStatusFinish    DataExportTaskStatus = "finish"
-	DataExportTaskStatusFailed    DataExportTaskStatus = "failed"
+	DataExportTaskStatusInit       DataExportTaskStatus = "init"
+	DataExportTaskStatusExporting  DataExportTaskStatus = "exporting"
+	DataExportTaskStatusFinish     DataExportTaskStatus = "finish"
+	DataExportTaskStatusFailed     DataExportTaskStatus = "failed"
+	DataExportTaskStatusFileDelted DataExportTaskStatus = "file_deleted"
 )
 
 func (dets DataExportTaskStatus) String() string {
