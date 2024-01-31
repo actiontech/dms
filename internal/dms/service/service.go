@@ -107,9 +107,15 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	LicenseUsecase := biz.NewLicenseUsecase(logger, tx, licenseRepo, userUsecase, dbServiceUseCase, clusterUsecase)
 	dataExportTaskRepo := storage.NewDataExportTaskRepo(logger, st)
 	workflowRepo := storage.NewWorkflowRepo(logger, st)
-	DataExportWorkflowUsecase := biz.NewDataExportWorkflowUsecase(logger, tx, workflowRepo, dataExportTaskRepo, dbServiceRepo, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, fmt.Sprintf("%s:%d", opts.ReportHost, opts.APIServiceOpts.Port))
+	DataExportWorkflowUsecase := biz.NewDataExportWorkflowUsecase(logger, tx, workflowRepo, dataExportTaskRepo, dbServiceRepo, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, clusterUsecase, fmt.Sprintf("%s:%d", opts.ReportHost, opts.APIServiceOpts.Port))
 	if err != nil {
 		return nil, fmt.Errorf("failed to new dms proxy usecase: %v", err)
+	}
+
+	cronTask := biz.NewCronTaskUsecase(logger, DataExportWorkflowUsecase)
+	err = cronTask.InitialTask()
+	if err != nil {
+		return nil, fmt.Errorf("failed to new cron task: %v", err)
 	}
 
 	s := &DMSService{
