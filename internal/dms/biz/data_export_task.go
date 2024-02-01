@@ -82,4 +82,5 @@ type DataExportTaskRepo interface {
 	ListDataExportTasks(ctx context.Context, opt *ListDataExportTaskOption) (exportTasks []*DataExportTask, total int64, err error)
 	DeleteUnusedDataExportTasks(ctx context.Context) error
 	BatchUpdateDataExportTaskByIds(ctx context.Context, ids []string, args map[string]interface{}) error
+	SaveDataExportTaskRecords(ctx context.Context, dataExportTaskRecords []*DataExportTaskRecord) error
 }
