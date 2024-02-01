@@ -173,6 +173,15 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 			return data.generateQuery(uri), "", err
 		}
 		data.DMSToken = dmsToken
+		// update user whenever login via oauth2
+		user.UserAuthenticationType = UserAuthenticationTypeOAUTH2
+		user.WxID = oauth2User.WxID
+		user.Email = oauth2User.Email
+		user.ThirdPartyUserInfo = oauth2User.ThirdPartyUserInfo
+		err := d.userUsecase.SaveUser(ctx, user)
+		if err != nil {
+			d.log.Errorf("when generate callback uri, update user failed,%v", err)
+		}
 	}
 
 	return data.generateQuery(uri), dmsToken, nil
@@ -236,6 +245,7 @@ func (d *Oauth2ConfigurationUsecase) getOauth2User(conf *Oauth2Configuration, to
 			user.Email = userEmail.ToString()
 		}
 	}
+	user.ThirdPartyUserInfo = string(body)
 	return user, nil
 }
 
@@ -274,6 +284,7 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 			IsDisabled:             false,
 			ThirdPartyUserID:       oauth2User.UID,
 			UserAuthenticationType: UserAuthenticationTypeOAUTH2,
+			ThirdPartyUserInfo:     oauth2User.ThirdPartyUserInfo,
 			Email:                  oauth2User.Email,
 			WxID:                   oauth2User.WxID,
 		}
@@ -308,12 +319,9 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 		if user.UserAuthenticationType != UserAuthenticationTypeOAUTH2 {
 			user.ThirdPartyUserID = oauth2User.UID
 			user.UserAuthenticationType = UserAuthenticationTypeOAUTH2
-			if user.WxID == "" {
-				user.WxID = oauth2User.WxID
-			}
-			if user.Email == "" {
-				user.Email = oauth2User.Email
-			}
+			user.WxID = oauth2User.WxID
+			user.Email = oauth2User.Email
+			user.ThirdPartyUserInfo = oauth2User.ThirdPartyUserInfo
 			err := d.userUsecase.SaveUser(ctx, user)
 			if err != nil {
 				return "", err
