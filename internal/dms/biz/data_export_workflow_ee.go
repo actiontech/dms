@@ -344,7 +344,6 @@ func (d *DataExportWorkflowUsecase) ExecExportTask(ctx context.Context, taskInfo
 	startTime := time.Now()
 	taskInfo.ExportStartTime = &startTime
 
-	// TODO recor状态返回
 	exportTasks := make([]*export.ExportTask, 0)
 	for _, record := range taskInfo.DataExportTaskRecords {
 		exportTasks = append(exportTasks, export.NewExportTask().WithExtract(export.NewExtract(db, record.ExportSQL)).WithExporter(fmt.Sprintf("%s_%d.csv", record.DataExportTaskId, record.Number), export.NewCsvExport()))
@@ -357,10 +356,23 @@ func (d *DataExportWorkflowUsecase) ExecExportTask(ctx context.Context, taskInfo
 		}
 	}
 
-	err = export.ExportTasksToZip(filepath.Join(ExportFilePath, taskInfo.ExportFileName), exportTasks)
+	taskResults, err := export.ExportTasksToZip(d.log, filepath.Join(ExportFilePath, taskInfo.ExportFileName), exportTasks)
+	{
+		// 更新执行错误信息
+		// save方法未更新到关联表，所以在此处先更新
+		for i := range taskResults {
+			taskInfo.DataExportTaskRecords[i].ExportResult = taskResults[i]
+		}
+
+		if err := d.dataExportTaskRepo.SaveDataExportTaskRecords(ctx, taskInfo.DataExportTaskRecords); err != nil {
+			return err
+		}
+	}
+
 	if err != nil {
 		return err
 	}
+
 	taskInfo.ExportStatus = DataExportTaskStatusFinish
 	endTime := time.Now()
 	taskInfo.ExportEndTime = &endTime

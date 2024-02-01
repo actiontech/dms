@@ -6,9 +6,10 @@ import (
 	"archive/zip"
 	"encoding/csv"
 	"io"
-	"log"
 	"os"
 	"sync"
+
+	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 )
 
 // MySQL extractor
@@ -144,39 +145,44 @@ func (et *ExportTask) Output() io.Reader {
 	return et.export
 }
 
-func ExportTasksToZip(fileName string, tasks []*ExportTask) error {
+func ExportTasksToZip(log *utilLog.Helper, fileName string, tasks []*ExportTask) ([]string, error) {
 	file, err := os.Create(fileName)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	defer file.Close()
 
+	taskResults := make([]string, len(tasks))
 	w := zip.NewWriter(file)
-	for _, task := range tasks {
-		err := exportTasksToZip(w, task)
+	for i, task := range tasks {
+		err := exportTasksToZip(log, w, task)
 		if err != nil {
-			return err
+			taskResults[i] = err.Error()
+			return taskResults, err
 		}
+		taskResults[i] = "ok"
 	}
 	err = w.Close()
 	if err != nil {
-		log.Fatal(err)
+		return taskResults, err
 	}
-	return nil
+	return taskResults, nil
 }
 
-func exportTasksToZip(w *zip.Writer, task *ExportTask) error {
+func exportTasksToZip(log *utilLog.Helper, w *zip.Writer, task *ExportTask) error {
 	wait := sync.WaitGroup{}
 	wait.Add(1)
 	go func() {
 		defer wait.Done()
 		f, err := w.Create(task.exportFileName)
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
+			return
 		}
 		_, err = io.Copy(f, task.Output())
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
+			return
 		}
 	}()
 	err := task.Start()
