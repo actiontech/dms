@@ -39,6 +39,7 @@ func (d *DataExportTaskRepo) SaveDataExportTask(ctx context.Context, dataExportD
 
 	return nil
 }
+
 func (d *DataExportTaskRepo) GetDataExportTaskByIds(ctx context.Context, ids []string) (dataExportDataExportTasks []*biz.DataExportTask, err error) {
 	tasks := make([]*model.DataExportTask, 0)
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
@@ -167,4 +168,22 @@ func (d *DataExportTaskRepo) BatchUpdateDataExportTaskByIds(ctx context.Context,
 		}
 		return nil
 	})
+}
+
+func (d *DataExportTaskRepo) SaveDataExportTaskRecords(ctx context.Context, dataExportTaskRecords []*biz.DataExportTaskRecord) error {
+	models := make([]*model.DataExportTaskRecord, 0)
+	for _, dataExportTaskRecord := range dataExportTaskRecords {
+		models = append(models, convertBizDataExportTaskRecords(dataExportTaskRecord))
+	}
+
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Save(models).Error; err != nil {
+			return fmt.Errorf("failed to save data export task records: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	return nil
 }
