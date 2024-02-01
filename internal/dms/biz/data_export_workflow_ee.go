@@ -42,7 +42,7 @@ func (d *DataExportWorkflowUsecase) checkTaskHasNoneDQL(ctx context.Context, tas
 		return err
 	}
 	if total > 0 {
-		return fmt.Errorf("there is not allowed to export by  SQL with DQL Type")
+		return fmt.Errorf("disable export of SQL types as non-dql tasks")
 	}
 
 	return nil
