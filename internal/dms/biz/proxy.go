@@ -18,13 +18,24 @@ type ProxyTargetRepo interface {
 	SaveProxyTarget(ctx context.Context, u *ProxyTarget) error
 	UpdateProxyTarget(ctx context.Context, u *ProxyTarget) error
 	ListProxyTargets(ctx context.Context) ([]*ProxyTarget, error)
+	ListProxyTargetsByScenarios(ctx context.Context, scenarios []ProxyScenario) ([]*ProxyTarget, error)
 	GetProxyTargetByName(ctx context.Context, name string) (*ProxyTarget, error)
 }
 
 type ProxyTarget struct {
 	middleware.ProxyTarget
-	Version string
+	Version  string
+	Scenario ProxyScenario
 }
+type ProxyScenario string
+
+const (
+	ProxyScenarioInternalService     ProxyScenario = "internal_service"
+	ProxyScenarioThirdPartyIntegrate ProxyScenario = "thrid_party_integrate"
+	ProxyScenarioUnknown             ProxyScenario = "unknown"
+)
+
+var ErrUnknownProxyScenario error = fmt.Errorf("unknown proxy scenairo")
 
 const ProxyTargetMetaKey = "prefixs"
 
@@ -77,6 +88,7 @@ type RegisterDMSProxyTargetArgs struct {
 	Addr            string
 	Version         string
 	ProxyUrlPrefixs []string
+	Scenario        ProxyScenario
 }
 
 func (d *DmsProxyUsecase) RegisterDMSProxyTarget(ctx context.Context, currentUserUid string, args RegisterDMSProxyTargetArgs) error {
@@ -105,7 +117,8 @@ func (d *DmsProxyUsecase) RegisterDMSProxyTarget(ctx context.Context, currentUse
 			URL:  url,
 			Meta: echo.Map{ProxyTargetMetaKey: args.ProxyUrlPrefixs},
 		},
-		Version: args.Version,
+		Version:  args.Version,
+		Scenario: args.Scenario,
 	}
 
 	for i, t := range d.targets {

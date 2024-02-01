@@ -79,6 +79,32 @@ func (d *ProxyTargetRepo) CheckProxyTargetExist(ctx context.Context, targetNames
 	return true, nil
 }
 
+func (d *ProxyTargetRepo) ListProxyTargetsByScenarios(ctx context.Context, scenarios []biz.ProxyScenario) (targets []*biz.ProxyTarget, err error) {
+
+	var models []*model.ProxyTarget
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+
+		// find targets
+		if err := tx.WithContext(ctx).Where("scenario IN (?)", scenarios).Find(&models).Error; err != nil {
+			return fmt.Errorf("failed to list proxy targets: %v", err)
+		}
+
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	// convert model to biz
+	for _, model := range models {
+		t, err := convertModelProxyTarget(model)
+		if err != nil {
+			return nil, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert model proxy targets: %v", err))
+		}
+		targets = append(targets, t)
+	}
+	return targets, nil
+}
+
 func (d *ProxyTargetRepo) ListProxyTargets(ctx context.Context) (targets []*biz.ProxyTarget, err error) {
 
 	var models []*model.ProxyTarget
