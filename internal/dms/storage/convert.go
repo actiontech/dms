@@ -554,8 +554,8 @@ func convertModelProjectStatus(status string) biz.ProjectStatus {
 
 func convertModelProxyScenario(scenario string) biz.ProxyScenario {
 	switch scenario {
-	case "check_db_conn":
-		return biz.ProxyScenarioCheckDbConn
+	case "internal_service":
+		return biz.ProxyScenarioInternalService
 	case "thrid_party_integrate":
 		return biz.ProxyScenarioThirdPartyIntegrate
 	default:

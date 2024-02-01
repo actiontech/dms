@@ -31,7 +31,7 @@ type DMSProxyTarget struct {
 type ProxyScenario string
 
 const (
-	ProxyScenarioCheckDbConn         ProxyScenario = "check_db_conn"
+	ProxyScenarioInternalService     ProxyScenario = "internal_service"
 	ProxyScenarioThirdPartyIntegrate ProxyScenario = "thrid_party_integrate"
 )
 
