@@ -36,7 +36,8 @@ type GetUser struct {
 	// is admin
 	IsAdmin bool `json:"is_admin"`
 	// user bind name space
-	UserBindProjects []UserBindProject `json:"user_bind_projects"`
+	UserBindProjects   []UserBindProject `json:"user_bind_projects"`
+	ThirdPartyUserInfo string            `json:"third_party_user_info"`
 }
 
 type UserBindProject struct {
