@@ -1634,12 +1634,12 @@ definitions:
                     $ref: '#/definitions/AuditSQLResult'
                 type: array
                 x-go-name: AuditSQLResult
+            export_result:
+                type: string
+                x-go-name: ExportResult
             export_sql_type:
                 type: string
                 x-go-name: ExportSQLType
-            export_status:
-                type: string
-                x-go-name: ExportResult
             sql:
                 type: string
                 x-go-name: ExportSQL
@@ -2939,7 +2939,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
