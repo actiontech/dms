@@ -64,7 +64,8 @@ func NewDmsProxyUsecase(logger utilLog.Logger, repo ProxyTargetRepo, dmsPort int
 		},
 		// TODO 支持可配置
 		rewrite: map[string]string{
-			"/sqle/*": "/$1",
+			"/sqle/*":    "/$1",
+			"/webhook/*": "/$1",
 		},
 		targets: targets,
 		logger:  logger,
