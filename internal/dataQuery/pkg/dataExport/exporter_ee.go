@@ -177,10 +177,12 @@ func exportTasksToZip(log *utilLog.Helper, w *zip.Writer, task *ExportTask) erro
 		f, err := w.Create(task.exportFileName)
 		if err != nil {
 			log.Error(err)
+			return
 		}
 		_, err = io.Copy(f, task.Output())
 		if err != nil {
 			log.Error(err)
+			return
 		}
 	}()
 	err := task.Start()
