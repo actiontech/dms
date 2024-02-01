@@ -32,13 +32,13 @@ func (d *DMSService) RegisterDMSProxyTarget(ctx context.Context, currentUserUid 
 
 func convertProxyScenario(scenario dmsV1.ProxyScenario) (biz.ProxyScenario, error) {
 	switch scenario {
-	case dmsV1.ProxyScenarioCheckDbConn:
-		return biz.ProxyScenarioCheckDbConn, nil
+	case dmsV1.ProxyScenarioInternalService:
+		return biz.ProxyScenarioInternalService, nil
 	case dmsV1.ProxyScenarioThirdPartyIntegrate:
 		return biz.ProxyScenarioThirdPartyIntegrate, nil
 	case "":
 		// 兼容旧版本SQLE
-		return biz.ProxyScenarioCheckDbConn, nil
+		return biz.ProxyScenarioInternalService, nil
 	default:
 		return "", biz.ErrUnknownProxyScenario
 	}

@@ -442,7 +442,7 @@ type IsConnectableReply struct {
 }
 
 func (d *DBServiceUsecase) IsConnectable(ctx context.Context, params dmsCommonV1.CheckDbConnectable) ([]*IsConnectableReply, error) {
-	dmsProxyTargets, err := d.dmsProxyTargetRepo.ListProxyTargetsByScenario(ctx, ProxyScenarioCheckDbConn)
+	dmsProxyTargets, err := d.dmsProxyTargetRepo.ListProxyTargetsByScenario(ctx, ProxyScenarioInternalService)
 	if err != nil {
 		return nil, err
 	}
