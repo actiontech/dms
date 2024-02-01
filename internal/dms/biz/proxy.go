@@ -18,7 +18,7 @@ type ProxyTargetRepo interface {
 	SaveProxyTarget(ctx context.Context, u *ProxyTarget) error
 	UpdateProxyTarget(ctx context.Context, u *ProxyTarget) error
 	ListProxyTargets(ctx context.Context) ([]*ProxyTarget, error)
-	ListProxyTargetsByScenario(ctx context.Context, scenario ProxyScenario) ([]*ProxyTarget, error)
+	ListProxyTargetsByScenarios(ctx context.Context, scenarios []ProxyScenario) ([]*ProxyTarget, error)
 	GetProxyTargetByName(ctx context.Context, name string) (*ProxyTarget, error)
 }
 
