@@ -214,7 +214,7 @@ func (d *DMSService) BatchGetDataExportTask(ctx context.Context, req *dmsV1.Batc
 			DBInfo:          dmsV1.TaskDBInfo{UidWithName: convertBizUidWithName(d.DBServiceUsecase.GetBizDBWithNameByUids(ctx, []string{task.DBServiceUid}))[0], DBType: "", DatabaseName: task.DatabaseName},
 			Status:          dmsV1.DataExportTaskStatus(task.ExportStatus),
 			ExportStartTime: task.ExportStartTime,
-			ExportEndTime:   task.ExportStartTime,
+			ExportEndTime:   task.ExportEndTime,
 			FileName:        task.ExportFileName,
 			ExportType:      task.ExportType,
 			ExportFileType:  task.ExportFileType,
