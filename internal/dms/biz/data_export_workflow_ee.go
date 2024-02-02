@@ -350,7 +350,7 @@ func (d *DataExportWorkflowUsecase) ExecExportTask(ctx context.Context, taskInfo
 	}
 	if _, err := os.Stat(ExportFilePath); os.IsNotExist(err) {
 		// 文件夹不存在，创建它
-		err = os.MkdirAll(ExportFilePath, 644)
+		err = os.MkdirAll(ExportFilePath, 0740)
 		if err != nil {
 			return err
 		}
