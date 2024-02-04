@@ -18,7 +18,7 @@ dms:
       max_backup_number: 10
   cloudbeaver:
     enable_https: false
-    host: 172.41.134.5
+    host: 127.0.0.1
     port: 8978
     admin_user: administrator
     admin_password: 123456
