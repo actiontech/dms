@@ -232,13 +232,13 @@ func (s *APIServer) installMiddleware() error {
 		TokenLookup: "cookie:dms-token,header:Authorization:Bearer ", // tell the middleware where to get token: from cookie and header,
 	}))
 
+	s.echo.Use(dmsMiddleware.LicenseAdapter(s.DMSController.DMS.LicenseUsecase))
+
 	s.echo.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
 		Skipper:  s.DMSController.DMS.DmsProxyUsecase.GetEchoProxySkipper(),
 		Balancer: s.DMSController.DMS.DmsProxyUsecase.GetEchoProxyBalancer(),
 		Rewrite:  s.DMSController.DMS.DmsProxyUsecase.GetEchoProxyRewrite(),
 	}))
-
-	s.echo.Use(dmsMiddleware.LicenseAdapter(s.DMSController.DMS.LicenseUsecase))
 
 	return nil
 }
