@@ -24,6 +24,16 @@ func (dews DataExportWorkflowStatus) String() string {
 	return string(dews)
 }
 
+type EventType string
+
+const (
+	DataExportWorkflowEventType EventType = "data_export"
+)
+
+func (et EventType) String() string {
+	return string(et)
+}
+
 type Workflow struct {
 	Base
 
@@ -87,11 +97,13 @@ type DataExportWorkflowUsecase struct {
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	projectUsecase            *ProjectUsecase
 	clusterUsecase            *ClusterUsecase
+	webhookUsecase            *WebHookConfigurationUsecase
+	userUsecase               *UserUsecase
 	log                       *utilLog.Helper
 	reportHost                string
 }
 
-func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator, repo WorkflowRepo, dataExportTaskRepo DataExportTaskRepo, dbServiceRepo DBServiceRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, clusterUseCase *ClusterUsecase, reportHost string) *DataExportWorkflowUsecase {
+func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator, repo WorkflowRepo, dataExportTaskRepo DataExportTaskRepo, dbServiceRepo DBServiceRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, clusterUseCase *ClusterUsecase, webhookUsecase *WebHookConfigurationUsecase, userUsecase *UserUsecase, reportHost string) *DataExportWorkflowUsecase {
 	return &DataExportWorkflowUsecase{
 		tx:                        tx,
 		repo:                      repo,
@@ -101,6 +113,8 @@ func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator
 		dmsProxyTargetRepo:        proxyTargetRepo,
 		dataExportTaskRepo:        dataExportTaskRepo,
 		clusterUsecase:            clusterUseCase,
+		webhookUsecase:            webhookUsecase,
+		userUsecase:               userUsecase,
 		log:                       utilLog.NewHelper(logger, utilLog.WithMessageKey("biz.dtaExportWorkflow")),
 		reportHost:                reportHost,
 	}
