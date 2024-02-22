@@ -54,3 +54,23 @@ type GetLicenseInfoReply struct {
 	// in:  body
 	File []byte
 }
+
+type LicenseUsageItem struct {
+	ResourceType     string `json:"resource_type"`
+	ResourceTypeDesc string `json:"resource_type_desc"`
+	Used             uint   `json:"used"`
+	Limit            uint   `json:"limit"`
+	IsLimited        bool   `json:"is_limited"`
+}
+
+type LicenseUsage struct {
+	UsersUsage      LicenseUsageItem   `json:"users_usage"`
+	DbServicesUsage []LicenseUsageItem `json:"db_services_usage"`
+}
+
+// swagger:model GetLicenseUsageReply
+type GetLicenseUsageReply struct {
+	// Generic reply
+	base.GenericResp
+	Data *LicenseUsage `json:"data"`
+}
