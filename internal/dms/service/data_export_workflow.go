@@ -41,7 +41,7 @@ func (d *DMSService) ListDataExportWorkflow(ctx context.Context, req *dmsV1.List
 	filterBy = append(filterBy, pkgConst.FilterCondition{
 		Field:    string(biz.WorkflowFieldWorkflowType),
 		Operator: pkgConst.FilterOperatorEqual,
-		Value:    "data_export",
+		Value:    biz.DataExportWorkflowEventType.String(),
 	})
 
 	if req.FilterByCreateUserUid != "" {
