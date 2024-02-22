@@ -285,7 +285,7 @@ query serverConfig {
 }`
 
 type CloudBeaverV2321 struct {
-	CloudBeaverV2221
+	CloudBeaverV2223
 }
 
 func (CloudBeaverV2321) IsUserExistQuery(userId string) (string, map[string]interface{}) {
