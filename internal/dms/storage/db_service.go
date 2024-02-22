@@ -253,7 +253,7 @@ func (d *DBServiceRepo) CountDBService(ctx context.Context) ([]biz.DBTypeCount, 
 	}); err != nil {
 		return nil, err
 	}
-	dbTypeCounts := make([]biz.DBTypeCount, len(results))
+	dbTypeCounts := make([]biz.DBTypeCount, 0, len(results))
 	for _, result := range results {
 		dbTypeCounts = append(dbTypeCounts, biz.DBTypeCount{
 			DBType: result.DBType,
