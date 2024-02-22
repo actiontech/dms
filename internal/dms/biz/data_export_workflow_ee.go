@@ -4,6 +4,7 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path"
@@ -69,9 +70,12 @@ func (d *DataExportWorkflowUsecase) AddDataExportWorkflow(ctx context.Context, c
 	if err != nil {
 		return "", err
 	}
+
+	dbServiceIdSchemaMap := make(map[string]string)
 	dbServiceUids := make([]string, 0)
 	for _, task := range tasks {
 		dbServiceUids = append(dbServiceUids, task.DBServiceUid)
+		dbServiceIdSchemaMap[task.DBServiceUid] = task.DatabaseName
 	}
 
 	if err := d.checkTaskHasNoneDQL(ctx, taskIds); err != nil {
@@ -120,7 +124,7 @@ func (d *DataExportWorkflowUsecase) AddDataExportWorkflow(ctx context.Context, c
 		UID:               workflowUid,
 		Name:              params.Name,
 		ProjectUID:        params.ProjectUID,
-		WorkflowType:      "data_export", // 枚举
+		WorkflowType:      DataExportWorkflowEventType.String(), // 枚举
 		Desc:              params.Desc,
 		CreateTime:        time.Now(),
 		CreateUserUID:     currentUserId,
@@ -128,7 +132,97 @@ func (d *DataExportWorkflowUsecase) AddDataExportWorkflow(ctx context.Context, c
 		WorkflowRecord:    workflowRecord,
 	})
 
+	if err != nil {
+		return "", err
+	}
+
+	go func() {
+		if _, exist, err := d.webhookUsecase.GetWebHookConfiguration(ctx); err != nil {
+			d.log.Errorf("webhook get configuration err: %v", err)
+		} else if exist {
+			d.log.Infof("webhook send message, workflow_id: %s", workflowUid)
+
+			dbServices, err := d.dbServiceRepo.GetDBServicesByIds(context.TODO(), dbServiceUids)
+			if err != nil {
+				d.log.Errorf("webhook get db_services err: %v", err)
+				return
+			}
+
+			instances := make([]InstanceInfo, 0, len(dbServices))
+			for _, item := range dbServices {
+				instances = append(instances, InstanceInfo{
+					Host:   item.Host,
+					Schema: dbServiceIdSchemaMap[item.UID],
+					Port:   item.Port,
+					Desc:   item.Desc,
+				})
+			}
+
+			user, err := d.userUsecase.GetUser(context.TODO(), currentUserId)
+			if err != nil {
+				d.log.Errorf("webhook get user err: %v", err)
+				return
+			}
+
+			payload, err := json.Marshal(DataExportPayload{
+				ProjectUid:         params.ProjectUID,
+				WorkflowSubject:    params.Name,
+				WorkflowID:         workflowUid,
+				InstanceInfo:       instances,
+				ThirdPartyUserInfo: user.ThirdPartyUserInfo,
+			})
+			if err != nil {
+				d.log.Errorf("webhook payload encode err: %v", err)
+				return
+			}
+
+			req := SqleCreateWorkflowReq{
+				Event:     DataExportWorkflowEventType,
+				Action:    "create",
+				Timestamp: time.Now().Format(time.RFC3339),
+				Payload:   payload,
+			}
+
+			dataRaw, err := json.Marshal(req)
+			if err != nil {
+				d.log.Errorf("webhook payload encode err: %v", err)
+				return
+			}
+
+			if err := d.webhookUsecase.SendWebHookMessage(context.TODO(), DataExportWorkflowEventType.String(), string(dataRaw)); err != nil {
+				d.log.Errorf("webhook send message, workflow_id: %s, err: %v", workflowUid, err)
+			}
+		}
+	}()
+
 	return workflowUid, err
+}
+
+type SqleCreateWorkflowReq struct {
+	Event     EventType       `json:"event"`     // SQLE工单 workflow
+	Action    string          `json:"action"`    // SQLE工单 create 其他类型需要
+	Timestamp string          `json:"timestamp"` // time.RFC3339
+	Payload   json.RawMessage `json:"payload"`   // 负载
+}
+
+type InstanceInfo struct {
+	Host   string `json:"host"`
+	Schema string `json:"schema"`
+	Port   string `json:"port"`
+	Desc   string `json:"desc"`
+}
+
+type DataExportPayload struct {
+	ProjectUid            string         `json:"project_uid"`             // 项目uid
+	WorkflowSubject       string         `json:"workflow_subject"`        // 数据导出工单标题
+	WorkflowID            string         `json:"workflow_id"`             // 数据导出工单ID
+	InstanceInfo          []InstanceInfo `json:"instance_info"`           // 数据库实例信息
+	ThirdPartyUserInfo    string         `json:"third_party_user_info"`   // 三方用户信息
+	DataApplicationMethod string         `json:"data_application_method"` // 数据应用方式 保留 暂时不填
+	SubmitReason          string         `json:"submit_reason"`           // 申请原因 保留 暂时不填
+	ProcessDepartment     int            `json:"process_department"`      // 处理部门 保留 暂时不填
+	DataRecipient         string         `json:"data_recipient"`          // 数据接收人 保留 暂时不填
+	Manager               string         `json:"manager"`                 // 中心负责人 保留 暂时不填
 }
 
 func generateWorkflowStep(workflowRecordUid string, allInspector []string) ([]*WorkflowStep, error) {
