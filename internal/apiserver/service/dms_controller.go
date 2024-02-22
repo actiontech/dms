@@ -1917,6 +1917,22 @@ func (d *DMSController) GetLicenseInfo(c echo.Context) error {
 	return c.Blob(http.StatusOK, echo.MIMEOctetStream, []byte(data))
 }
 
+// swagger:route GET /v1/dms/configurations/license/usage dms GetLicenseUsage
+//
+// get license usage.
+//
+//	responses:
+//	  200: body:GetLicenseUsageReply
+//	  default: body:GenericResp
+func (d *DMSController) GetLicenseUsage(c echo.Context) error {
+	usage, err := d.DMS.GetLicenseUsage(c.Request().Context())
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+
+	return NewOkRespWithReply(c, usage)
+}
+
 // swagger:route POST /v1/dms/configurations/license dms SetLicense
 //
 // import license.

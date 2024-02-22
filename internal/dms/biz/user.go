@@ -151,6 +151,7 @@ type UserRepo interface {
 	UpdateUser(ctx context.Context, u *User) error
 	CheckUserExist(ctx context.Context, userUids []string) (exists bool, err error)
 	ListUsers(ctx context.Context, opt *ListUsersOption) (users []*User, total int64, err error)
+	CountUsers(ctx context.Context, opts []pkgConst.FilterCondition) (total int64, err error)
 	DelUser(ctx context.Context, UserUid string) error
 	GetUser(ctx context.Context, UserUid string) (*User, error)
 	GetUserByName(ctx context.Context, userName string) (*User, error)

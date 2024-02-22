@@ -21,3 +21,7 @@ func (d *DMSService) SetLicense(ctx context.Context, data string) error {
 func (d *DMSService) CheckLicense(ctx context.Context, data string) (*v1.CheckLicenseReply, error) {
 	return d.LicenseUsecase.CheckLicense(ctx, data)
 }
+
+func (d *DMSService) GetLicenseUsage(ctx context.Context) (*v1.GetLicenseUsageReply, error) {
+	return d.LicenseUsecase.GetLicenseUsage(ctx)
+}

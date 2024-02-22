@@ -41,6 +41,42 @@ func (d *LicenseUsecase) GetLicenseInfo(ctx context.Context) ([]byte, error) {
 	return []byte{}, ErrNoLicenseRequired
 }
 
+func (d *LicenseUsecase) GetLicenseUsage(ctx context.Context) (*v1.GetLicenseUsageReply, error) {
+	usersTotal, err := d.userUsecase.repo.CountUsers(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	instanceStatistics, err := d.DBService.CountDBService(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	dbServicesUsage := make([]v1.LicenseUsageItem, 0, len(instanceStatistics))
+	for _, item := range instanceStatistics {
+		dbServicesUsage = append(dbServicesUsage, v1.LicenseUsageItem{
+			ResourceType:     item.DBType,
+			ResourceTypeDesc: item.DBType,
+			Used:             uint(item.Count),
+			Limit:            0,
+			IsLimited:        false,
+		})
+	}
+
+	return &v1.GetLicenseUsageReply{
+		Data: &v1.LicenseUsage{
+			UsersUsage: v1.LicenseUsageItem{
+				ResourceType:     "user",
+				ResourceTypeDesc: "用户",
+				Used:             uint(usersTotal),
+				Limit:            0,
+				IsLimited:        false,
+			},
+			DbServicesUsage: dbServicesUsage,
+		},
+	}, nil
+}
+
 func (d *LicenseUsecase) SetLicense(ctx context.Context, data string) error {
 	return ErrNoLicenseRequired
 }
