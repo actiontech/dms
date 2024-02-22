@@ -95,6 +95,92 @@ func (d *LicenseUsecase) GetLicenseInfo(ctx context.Context) ([]byte, error) {
 	return []byte(hardwareSign), nil
 }
 
+func (d *LicenseUsecase) GetLicenseUsage(ctx context.Context) (*v1.GetLicenseUsageReply, error) {
+	li, exist, err := d.repo.GetLastLicense(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if !exist {
+		return &v1.GetLicenseUsageReply{
+			Data: &v1.LicenseUsage{
+				UsersUsage: v1.LicenseUsageItem{
+					ResourceType:     "user",
+					ResourceTypeDesc: "用户",
+					Used:             2,
+					Limit:            2,
+					IsLimited:        true,
+				},
+				DbServicesUsage: []v1.LicenseUsageItem{},
+			},
+		}, nil
+	}
+
+	l, ok := li.(*License)
+	if !ok {
+		return nil, fmt.Errorf("get license failed")
+	}
+
+	permission := l.Content.Permission
+	usersTotal, err := d.userUsecase.repo.CountUsers(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	instanceStatistics, err := d.DBService.CountDBService(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	dbServicesUsage := make([]v1.LicenseUsageItem, 0, len(instanceStatistics))
+	var customDatabaseTypeUsage uint = 0
+
+	for _, item := range instanceStatistics {
+		if _, ok := permission.NumberOfInstanceOfEachType[item.DBType]; ok {
+			usedTotal := uint(item.Count)
+			limitTotal := uint(permission.NumberOfInstanceOfEachType[item.DBType].Count)
+			if usedTotal > limitTotal {
+				customDatabaseTypeUsage += usedTotal - limitTotal
+
+				usedTotal = limitTotal
+			}
+
+			dbServicesUsage = append(dbServicesUsage, v1.LicenseUsageItem{
+				ResourceType:     item.DBType,
+				ResourceTypeDesc: item.DBType,
+				Used:             usedTotal,
+				Limit:            limitTotal,
+				IsLimited:        true,
+			})
+		}
+	}
+
+	customDatabaseTypeLiteral := "custom"
+	// count custom type
+	if item, ok := permission.NumberOfInstanceOfEachType[customDatabaseTypeLiteral]; ok {
+		dbServicesUsage = append(dbServicesUsage, v1.LicenseUsageItem{
+			ResourceType:     customDatabaseTypeLiteral,
+			ResourceTypeDesc: customDatabaseTypeLiteral,
+			Used:             customDatabaseTypeUsage,
+			Limit:            uint(item.Count),
+			IsLimited:        true,
+		})
+	}
+
+	return &v1.GetLicenseUsageReply{
+		Data: &v1.LicenseUsage{
+			UsersUsage: v1.LicenseUsageItem{
+				ResourceType:     "user",
+				ResourceTypeDesc: "用户",
+				Used:             uint(usersTotal),
+				Limit:            uint(permission.UserCount),
+				IsLimited:        true,
+			},
+			DbServicesUsage: dbServicesUsage,
+		},
+	}, nil
+}
+
 func (d *LicenseUsecase) SetLicense(ctx context.Context, data string) error {
 	l := &license.License{}
 	l.WorkDurationHour = 0
@@ -270,7 +356,7 @@ func (d *LicenseUsecase) getLicenseInner(ctx context.Context) (*license.License,
 }
 
 func (d *LicenseUsecase) CheckCanCreateUser(ctx context.Context) (bool, error) {
-	_, count, err := d.userUsecase.ListUser(ctx, &ListUsersOption{PageNumber: 1, LimitPerPage: 1})
+	count, err := d.userUsecase.repo.CountUsers(ctx, nil)
 	if err != nil {
 		return true, err
 	}
