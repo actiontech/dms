@@ -350,6 +350,29 @@
         }
       }
     },
+    "/v1/dms/configurations/license/usage": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "get license usage.",
+        "operationId": "GetLicenseUsage",
+        "responses": {
+          "200": {
+            "description": "GetLicenseUsageReply",
+            "schema": {
+              "$ref": "#/definitions/GetLicenseUsageReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/configurations/oauth2": {
       "get": {
         "tags": [
@@ -4445,6 +4468,16 @@
           },
           "x-go-name": "ProxyUrlPrefixs"
         },
+        "scenario": {
+          "description": "the scenario is used to differentiate scenarios\ninternal_service ProxyScenarioInternalService\nthrid_party_integrate ProxyScenarioThirdPartyIntegrate",
+          "type": "string",
+          "enum": [
+            "internal_service",
+            "thrid_party_integrate"
+          ],
+          "x-go-enum-desc": "internal_service ProxyScenarioInternalService\nthrid_party_integrate ProxyScenarioThirdPartyIntegrate",
+          "x-go-name": "Scenario"
+        },
         "version": {
           "description": "version number",
           "type": "string",
@@ -5004,6 +5037,26 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "GetLicenseUsageReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/LicenseUsage"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "GetMemberGroup": {
       "type": "object",
       "properties": {
@@ -5277,6 +5330,10 @@
           ],
           "x-go-enum-desc": "正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown",
           "x-go-name": "Stat"
+        },
+        "third_party_user_info": {
+          "type": "string",
+          "x-go-name": "ThirdPartyUserInfo"
         },
         "uid": {
           "description": "user uid",
@@ -5590,6 +5647,50 @@
         "name": {
           "type": "string",
           "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "LicenseUsage": {
+      "type": "object",
+      "properties": {
+        "db_services_usage": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LicenseUsageItem"
+          },
+          "x-go-name": "DbServicesUsage"
+        },
+        "users_usage": {
+          "$ref": "#/definitions/LicenseUsageItem"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "LicenseUsageItem": {
+      "type": "object",
+      "properties": {
+        "is_limited": {
+          "type": "boolean",
+          "x-go-name": "IsLimited"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Limit"
+        },
+        "resource_type": {
+          "type": "string",
+          "x-go-name": "ResourceType"
+        },
+        "resource_type_desc": {
+          "type": "string",
+          "x-go-name": "ResourceTypeDesc"
+        },
+        "used": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Used"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -7380,7 +7481,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
