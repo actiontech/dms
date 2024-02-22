@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/actiontech/dms/internal/dms/biz"
+	"github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	"github.com/actiontech/dms/internal/dms/storage/model"
 
@@ -190,6 +191,25 @@ func (d *UserRepo) ListUsers(ctx context.Context, opt *biz.ListUsersOption) (use
 		users = append(users, ds)
 	}
 	return users, total, nil
+}
+
+func (d *UserRepo) CountUsers(ctx context.Context, opts []constant.FilterCondition) (total int64, err error) {
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		// find total
+		db := tx.WithContext(ctx).Model(&model.User{})
+		for _, f := range opts {
+			db = gormWhere(db, f)
+		}
+		if err := db.Count(&total).Error; err != nil {
+			return fmt.Errorf("failed to count users: %v", err)
+		}
+
+		return nil
+	}); err != nil {
+		return 0, err
+	}
+
+	return total, nil
 }
 
 func (d *UserRepo) DelUser(ctx context.Context, userUid string) error {

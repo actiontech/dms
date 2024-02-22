@@ -135,11 +135,11 @@ func (s *APIServer) initRouter() error {
 		configurationV1.POST("/webhook/test", s.DMSController.TestWebHookConfiguration) /* TODO AdminUserAllowed()*/
 		configurationV1.GET("/sql_query", s.CloudbeaverController.GetSQLQueryConfiguration)
 
-		configurationV1.GET("/license", s.DMSController.GetLicense)          /* TODO AdminUserAllowed()*/
-		configurationV1.POST("/license", s.DMSController.SetLicense)         /* TODO AdminUserAllowed()*/
-		configurationV1.GET("/license/info", s.DMSController.GetLicenseInfo) /* TODO AdminUserAllowed()*/
-		configurationV1.POST("/license/check", s.DMSController.CheckLicense) /* TODO AdminUserAllowed()*/
-
+		configurationV1.GET("/license", s.DMSController.GetLicense)            /* TODO AdminUserAllowed()*/
+		configurationV1.POST("/license", s.DMSController.SetLicense)           /* TODO AdminUserAllowed()*/
+		configurationV1.GET("/license/info", s.DMSController.GetLicenseInfo)   /* TODO AdminUserAllowed()*/
+		configurationV1.POST("/license/check", s.DMSController.CheckLicense)   /* TODO AdminUserAllowed()*/
+		configurationV1.GET("/license/usage", s.DMSController.GetLicenseUsage) /* TODO AdminUserAllowed()*/
 		// notify
 		notificationV1 := v1.Group(dmsV1.NotificationRouterGroup)
 		notificationV1.POST("", s.DMSController.Notify) /* TODO AdminUserAllowed()*/
