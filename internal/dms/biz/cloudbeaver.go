@@ -961,6 +961,7 @@ func (cu *CloudbeaverUsecase) fillMSSQLParams(config map[string]interface{}) err
 
 func (cu *CloudbeaverUsecase) fillPGSQLParams(config map[string]interface{}) error {
 	config["driverId"] = "postgresql:postgres-jdbc"
+	config["databaseName"] = "postgres"
 	config["providerProperties"] = map[string]interface{}{
 		"@dbeaver-show-non-default-db@": true,
 		"@dbeaver-show-unavailable-db@": true,
