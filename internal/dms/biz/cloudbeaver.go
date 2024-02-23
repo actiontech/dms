@@ -17,6 +17,7 @@ import (
 	maskBiz "github.com/actiontech/dms/internal/data_masking/biz"
 
 	"github.com/actiontech/dms/internal/dms/pkg/constant"
+	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver/model"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver/resolver"
@@ -144,6 +145,9 @@ func (cu *CloudbeaverUsecase) getGraphQLServerURI() string {
 func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			// 获取项目ID，仅有dms跳转登录带上项目ID
+			projectUID := c.QueryParam("project_id")
+
 			var dmsToken string
 			for _, cookie := range c.Cookies() {
 				if cookie.Name == constant.DMSToken {
@@ -151,7 +155,6 @@ func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 					break
 				}
 			}
-
 			if dmsToken == "" {
 				return c.Redirect(http.StatusFound, "/login?target=/sql_query")
 			}
@@ -199,7 +202,7 @@ func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 				return err
 			}
 
-			if err = cu.connectManagement(c.Request().Context(), cloudbeaverUserId, user); err != nil {
+			if err = cu.connectManagement(c.Request().Context(), projectUID, cloudbeaverUserId, user); err != nil {
 				cu.log.Errorf("sync cloudbeaver user %s bind instance info failed: %v", user.Name, err)
 				return err
 			}
@@ -214,6 +217,7 @@ func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 				if cookie.Name == CloudbeaverCookieName {
 					cu.setCloudbeaverSession(user.UID, dmsToken, cookie.Value)
 					c.Request().AddCookie(cookie)
+					// c.Request().Header.Set("Cookie", fmt.Sprintf("%s=%s", CloudbeaverCookieName, cookie.Value))
 				}
 			}
 
@@ -581,8 +585,19 @@ func (cu *CloudbeaverUsecase) createUserIfNotExist(ctx context.Context, cloudbea
 	return cu.repo.UpdateCloudbeaverUserCache(ctx, cloudbeaverUser)
 }
 
-func (cu *CloudbeaverUsecase) connectManagement(ctx context.Context, cloudbeaverUserId string, dmsUser *User) error {
-	activeDBServices, err := cu.dbServiceUsecase.GetActiveDBServices(ctx, nil)
+func (cu *CloudbeaverUsecase) connectManagement(ctx context.Context, projectUID string, cloudbeaverUserId string, dmsUser *User) error {
+	// get all db services by project
+	activeDBServices, _, err := cu.dbServiceUsecase.ListDBService(ctx, &ListDBServicesOption{
+		PageNumber:   1,
+		LimitPerPage: 999,
+		OrderBy:      DBServiceFieldName,
+		FilterBy: []pkgConst.FilterCondition{
+			{
+				Field:    string(DBServiceFieldProjectUID),
+				Operator: pkgConst.FilterOperatorEqual,
+				Value:    projectUID,
+			}},
+	}, projectUID, dmsUser.UID)
 	if err != nil {
 		return err
 	}
