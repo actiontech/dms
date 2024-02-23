@@ -305,6 +305,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 			}
 
 			if cloudbeaverHandle.UseLocalHandler {
+				ctx := graphql.StartOperationTrace(context.Background())
 				if params.OperationName == "asyncSqlExecuteQuery" {
 					isEnableSqlAudit, err := cu.isEnableSQLAudit(c.Request().Context(), params)
 					if err != nil {
@@ -315,6 +316,28 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					if !isEnableSqlAudit {
 						return next(c)
 					}
+
+					sqleUrl, err := cu.getSQLEUrl(c.Request().Context())
+					if err != nil {
+						return err
+					}
+
+					dbService, err := cu.getDbService(c.Request().Context(), params)
+					if err != nil {
+						return err
+					}
+
+					directAuditReq := cloudbeaver.DirectAuditParams{
+						AuditSQLReq: cloudbeaver.AuditSQLReq{
+							InstanceType:     dbService.DBType,
+							ProjectId:        dbService.ProjectUID,
+							RuleTemplateName: dbService.SQLEConfig.RuleTemplateName,
+						},
+						SQLEAddr: fmt.Sprintf("%s/v2/sql_audit", sqleUrl),
+					}
+
+					// pass sqle direct audit params
+					ctx = context.WithValue(ctx, cloudbeaver.SQLEDirectAudit, directAuditReq)
 				}
 
 				if params.OperationName == "getSqlExecuteTaskResults" {
@@ -334,13 +357,6 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					End:   graphql.Now(),
 				}
 
-				sqleUrl, sqleErr := cu.getSQLEUrl(c.Request().Context())
-				if sqleErr != nil {
-					return sqleErr
-				}
-
-				// pass sqle proxy address by context
-				ctx := graphql.StartOperationTrace(context.WithValue(c.Request().Context(), cloudbeaver.SQLEProxyAddrName, fmt.Sprintf("%s/v2/sql_audit", sqleUrl)))
 				params.Headers = c.Request().Header.Clone()
 
 				var cloudbeaverNext cloudbeaver.Next
@@ -401,30 +417,34 @@ func (cu *CloudbeaverUsecase) IsEnableDataMasking(ctx context.Context) (bool, er
 }
 
 func (cu *CloudbeaverUsecase) isEnableSQLAudit(ctx context.Context, params *graphql.RawParams) (bool, error) {
+	dbService, err := cu.getDbService(ctx, params)
+	if err != nil {
+		return false, err
+	}
+
+	return dbService.SQLEConfig.SQLQueryConfig.AuditEnabled, nil
+}
+
+func (cu *CloudbeaverUsecase) getDbService(ctx context.Context, params *graphql.RawParams) (*DBService, error) {
 	var connectionId interface{}
 	var connectionIdStr string
 	var ok bool
 
 	connectionId, ok = params.Variables["connectionId"]
 	if !ok {
-		return false, fmt.Errorf("missing connectionId in %s query", params.OperationName)
+		return nil, fmt.Errorf("missing connectionId in %s query", params.OperationName)
 	}
 
 	connectionIdStr, ok = connectionId.(string)
 	if !ok {
-		return false, fmt.Errorf("connectionId %s convert failed", connectionId)
+		return nil, fmt.Errorf("connectionId %s convert failed", connectionId)
 	}
 	dbServiceId, err := cu.repo.GetDbServiceIdByConnectionId(ctx, connectionIdStr)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
-	dbService, err := cu.dbServiceUsecase.GetDBService(ctx, dbServiceId)
-	if err != nil {
-		return false, err
-	}
-
-	return dbService.SQLEConfig.SQLQueryConfig.AuditEnabled, nil
+	return cu.dbServiceUsecase.GetDBService(ctx, dbServiceId)
 }
 
 type ActiveUserQueryRes struct {
