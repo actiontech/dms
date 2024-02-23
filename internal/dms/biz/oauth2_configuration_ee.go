@@ -18,9 +18,10 @@ import (
 	"golang.org/x/oauth2"
 
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
+	"github.com/actiontech/dms/pkg/rand"
 )
 
-func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Context, enableOauth2 *bool, clientID, clientKey, clientHost, serverAuthUrl, serverTokenUrl, serverUserIdUrl,
+func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Context, enableOauth2, autoCreateUser *bool, clientID, clientKey, clientHost, serverAuthUrl, serverTokenUrl, serverUserIdUrl,
 	accessTokenTag, userIdTag, userWechatTag, userEmailTag, loginTip *string, scopes *[]string) error {
 	oauth2C, err := d.repo.GetLastOauth2Configuration(ctx)
 	if err != nil {
@@ -37,6 +38,9 @@ func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Conte
 	{ // patch oauth2 config
 		if enableOauth2 != nil {
 			oauth2C.EnableOauth2 = *enableOauth2
+		}
+		if autoCreateUser != nil {
+			oauth2C.AutoCreateUser = *autoCreateUser
 		}
 		if clientID != nil {
 			oauth2C.ClientID = *clientID
@@ -159,9 +163,31 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 		return data.generateQuery(uri), "", err
 	}
 	data.UserExist = exist
-
-	// the user has successfully logged in at the third party, and the token can be returned directly after checking users'state
-	if exist {
+	if oauth2C.AutoCreateUser && !exist {
+		args := &CreateUserArgs{
+			Name:                   oauth2User.UID,
+			Password:               rand.GenPassword(16),
+			IsDisabled:             false,
+			ThirdPartyUserID:       oauth2User.UID,
+			UserAuthenticationType: UserAuthenticationTypeOAUTH2,
+			ThirdPartyUserInfo:     oauth2User.ThirdPartyUserInfo,
+			Email:                  oauth2User.Email,
+			WxID:                   oauth2User.WxID,
+		}
+		uid, err := d.userUsecase.CreateUser(ctx, pkgConst.UIDOfUserSys, args)
+		if err != nil {
+			d.log.Errorf("when generate callback uri, userUsecase.CreateUser failed,%v", err)
+			return "", "", err
+		}
+		dmsToken, err = jwt.GenJwtToken(jwt.WithUserId(uid))
+		if err != nil {
+			data.Error = err.Error()
+			return data.generateQuery(uri), "", err
+		}
+		data.DMSToken = dmsToken
+		data.UserExist = true
+	} else if exist {
+		// the user has successfully logged in at the third party, and the token can be returned directly after checking users'state
 		if user.Stat == UserStatDisable {
 			err = fmt.Errorf("user %s not exist or can not login", user.Name)
 			data.Error = err.Error()
