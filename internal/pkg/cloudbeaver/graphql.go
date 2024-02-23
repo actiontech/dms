@@ -96,9 +96,9 @@ func (r *QueryResolverImpl) ActiveUser(ctx context.Context) (*model.UserInfo, er
 type ContextKey string
 
 const (
-	UsernamePrefix               = "dms-"
-	SQLEProxyAddrName ContextKey = "sqle_addr"
-	SQLEProxyName                = "sqle"
+	UsernamePrefix             = "dms-"
+	SQLEDirectAudit ContextKey = "sqle_direct_audit"
+	SQLEProxyName              = "sqle"
 )
 
 func GenerateCloudbeaverUserId(name string) string {
@@ -109,11 +109,18 @@ func RemoveCloudbeaverUserIdPrefix(name string) string {
 	return strings.TrimPrefix(name, UsernamePrefix)
 }
 
-type auditSQLReq struct {
+type AuditSQLReq struct {
 	InstanceType string `json:"instance_type" form:"instance_type" example:"MySQL" valid:"required"`
 	// 调用方不应该关心SQL是否被完美的拆分成独立的条目, 拆分SQL由SQLE实现
-	SQLContent string `json:"sql_content" form:"sql_content" example:"select * from t1; select * from t2;" valid:"required"`
-	SQLType    string `json:"sql_type" form:"sql_type" example:"sql" enums:"sql,mybatis," valid:"omitempty,oneof=sql mybatis"`
+	SQLContent       string `json:"sql_content" form:"sql_content" example:"select * from t1; select * from t2;" valid:"required"`
+	SQLType          string `json:"sql_type" form:"sql_type" example:"sql" enums:"sql,mybatis," valid:"omitempty,oneof=sql mybatis"`
+	ProjectId        string `json:"project_id" form:"project_id" example:"700300" valid:"required"`
+	RuleTemplateName string `json:"rule_template_name" form:"rule_template_name" example:"default" valid:"required"`
+}
+
+type DirectAuditParams struct {
+	AuditSQLReq
+	SQLEAddr string
 }
 
 type AuditResult struct {
@@ -147,24 +154,27 @@ func (r *MutationResolverImpl) AuditSQL(ctx context.Context, sql string, connect
 	header := map[string]string{
 		"Authorization": pkgHttp.DefaultDMSToken,
 	}
-	req := auditSQLReq{
-		InstanceType: "MySQL",
-		SQLContent:   sql,
-		SQLType:      "sql",
-	}
-	reply := &auditSQLReply{}
 
-	addr := ctx.Value(SQLEProxyAddrName)
-	sqleAddr, ok := addr.(string)
+	ctxVal := ctx.Value(SQLEDirectAudit)
+	directAuditParams, ok := ctxVal.(DirectAuditParams)
 	if !ok {
-		return false, nil, fmt.Errorf("ctx.value %s failed", SQLEProxyAddrName)
+		return false, nil, fmt.Errorf("ctx.value %v failed", SQLEDirectAudit)
 	}
 
-	if sqleAddr == "" {
-		return false, nil, fmt.Errorf("%s is empty", SQLEProxyAddrName)
+	if directAuditParams.SQLEAddr == "" {
+		return false, nil, fmt.Errorf("%v is empty", SQLEDirectAudit)
 	}
 
-	if err = pkgHttp.POST(ctx, sqleAddr, header, req, reply); err != nil {
+	req := AuditSQLReq{
+		InstanceType:     directAuditParams.InstanceType,
+		SQLContent:       sql,
+		SQLType:          "sql",
+		ProjectId:        directAuditParams.ProjectId,
+		RuleTemplateName: directAuditParams.RuleTemplateName,
+	}
+
+	reply := &auditSQLReply{}
+	if err = pkgHttp.POST(ctx, directAuditParams.SQLEAddr, header, req, reply); err != nil {
 		return false, nil, err
 	}
 	if reply.Code != 0 {
@@ -229,7 +239,7 @@ func (r *MutationResolverImpl) AsyncSQLExecuteResults(ctx context.Context, taskI
 	if err != nil {
 		return nil, err
 	}
-	
+
 	resp := &struct {
 		Data struct {
 			Result *model.SQLExecuteInfo `json:"result"`
