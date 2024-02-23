@@ -166,11 +166,13 @@ func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 				return err
 			}
 
+			// 当前用户已经用同一个token登录过CB
 			cloudbeaverSessionId := cu.getCloudbeaverSession(dmsUserId, dmsToken)
 			if cloudbeaverSessionId != "" {
 				cookie := &http.Cookie{Name: CloudbeaverCookieName, Value: cloudbeaverSessionId}
 				c.Request().AddCookie(cookie)
 
+				// 根据cookie 获取登录用户
 				cloudbeaverActiveUser, err := cu.getActiveUserQuery([]*http.Cookie{cookie})
 				if err != nil {
 					cu.log.Errorf("getActiveUserQuery err: %v", err)
@@ -534,7 +536,7 @@ func (cu *CloudbeaverUsecase) createUserIfNotExist(ctx context.Context, cloudbea
 		})
 		err = graphQLClient.Run(ctx, grantUserRoleReq, nil)
 		if err != nil {
-			return fmt.Errorf("create cloudbeaver user failed: %v", err)
+			return fmt.Errorf("grant cloudbeaver user failed: %v", err)
 		}
 	}
 
@@ -569,12 +571,16 @@ func (cu *CloudbeaverUsecase) connectManagement(ctx context.Context, cloudbeaver
 		return cu.clearConnection(ctx)
 	}
 
-	activeDBServices, err = cu.ResetDbServiceByAuth(ctx, activeDBServices, dmsUser.UID)
+	isAdmin, err := cu.opPermissionVerifyUsecase.IsUserDMSAdmin(ctx, dmsUser.UID)
 	if err != nil {
 		return err
 	}
 
-	if isAdmin, _ := cu.opPermissionVerifyUsecase.IsUserDMSAdmin(ctx, dmsUser.UID); !isAdmin {
+	if !isAdmin {
+		activeDBServices, err = cu.ResetDbServiceByAuth(ctx, activeDBServices, dmsUser.UID)
+		if err != nil {
+			return err
+		}
 		opPermissions, err := cu.opPermissionVerifyUsecase.GetUserOpPermission(ctx, dmsUser.UID)
 		if err != nil {
 			return err
@@ -632,11 +638,9 @@ func (cu *CloudbeaverUsecase) connectManagement(ctx context.Context, cloudbeaver
 }
 
 func (cu *CloudbeaverUsecase) operateConnection(ctx context.Context, activeDBServices []*DBService, userId string) error {
-	dbServiceIds := make([]string, 0, len(activeDBServices))
 	dbServiceMap := map[string]*DBService{}
 	projectMap := map[string]string{}
 	for _, service := range activeDBServices {
-		dbServiceIds = append(dbServiceIds, service.UID)
 		dbServiceMap[service.UID] = service
 
 		project, err := cu.dbServiceUsecase.projectUsecase.GetProject(ctx, service.ProjectUID)
@@ -1055,7 +1059,7 @@ func (cu *CloudbeaverUsecase) loginCloudbeaverServer(user, pwd string) (cookie [
 		} `json:"authInfo"`
 	}{}
 	if err = client.Run(context.TODO(), req, &res); err != nil {
-		return cookie, fmt.Errorf("cloudbeaver login failed: %v", err)
+		return cookie, fmt.Errorf("cloudbeaver login failed: %v,req: %v,res %v", err, req, res)
 	}
 
 	return cookie, nil
