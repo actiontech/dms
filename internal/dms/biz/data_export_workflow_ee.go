@@ -137,11 +137,9 @@ func (d *DataExportWorkflowUsecase) AddDataExportWorkflow(ctx context.Context, c
 	}
 
 	go func() {
-		if _, exist, err := d.webhookUsecase.GetWebHookConfiguration(ctx); err != nil {
+		if _, exist, err := d.webhookUsecase.GetWebHookConfiguration(context.TODO()); err != nil {
 			d.log.Errorf("webhook get configuration err: %v", err)
 		} else if exist {
-			d.log.Infof("webhook send message, workflow_id: %s", workflowUid)
-
 			dbServices, err := d.dbServiceRepo.GetDBServicesByIds(context.TODO(), dbServiceUids)
 			if err != nil {
 				d.log.Errorf("webhook get db_services err: %v", err)
@@ -182,6 +180,8 @@ func (d *DataExportWorkflowUsecase) AddDataExportWorkflow(ctx context.Context, c
 				Timestamp: time.Now().Format(time.RFC3339),
 				Payload:   payload,
 			}
+
+			d.log.Infof("webhook send payload: %s", string(payload))
 
 			dataRaw, err := json.Marshal(req)
 			if err != nil {
