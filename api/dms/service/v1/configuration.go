@@ -33,6 +33,7 @@ type Oauth2ConfigurationReq struct {
 }
 type Oauth2Configuration struct {
 	EnableOauth2    *bool     `json:"enable_oauth2"`
+	AutoCreateUser  *bool     `json:"auto_create_user"`
 	ClientID        *string   `json:"client_id"`
 	ClientKey       *string   `json:"client_key"`
 	ClientHost      *string   `json:"client_host"`
