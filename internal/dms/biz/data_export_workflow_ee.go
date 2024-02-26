@@ -71,11 +71,9 @@ func (d *DataExportWorkflowUsecase) AddDataExportWorkflow(ctx context.Context, c
 		return "", err
 	}
 
-	dbServiceIdSchemaMap := make(map[string]string)
 	dbServiceUids := make([]string, 0)
 	for _, task := range tasks {
 		dbServiceUids = append(dbServiceUids, task.DBServiceUid)
-		dbServiceIdSchemaMap[task.DBServiceUid] = task.DatabaseName
 	}
 
 	if err := d.checkTaskHasNoneDQL(ctx, taskIds); err != nil {
@@ -136,10 +134,40 @@ func (d *DataExportWorkflowUsecase) AddDataExportWorkflow(ctx context.Context, c
 		return "", err
 	}
 
+	d.webhook(currentUserId, workflowUid, DataExportWorkflowEventActionCreate.String())
+
+	return workflowUid, err
+}
+
+func (d *DataExportWorkflowUsecase) webhook(currentUserId, workflowUid, DataExportWorkflowEventAction string) {
 	go func() {
 		if _, exist, err := d.webhookUsecase.GetWebHookConfiguration(context.TODO()); err != nil {
 			d.log.Errorf("webhook get configuration err: %v", err)
 		} else if exist {
+			workflow, err := d.repo.GetDataExportWorkflow(context.TODO(), workflowUid)
+			if err != nil {
+				d.log.Errorf("webhook get workflow err: %v", err)
+				return
+			}
+
+			taskIds := make([]string, 0, len(workflow.WorkflowRecord.Tasks))
+			for _, task := range workflow.WorkflowRecord.Tasks {
+				taskIds = append(taskIds, task.UID)
+			}
+
+			tasks, err := d.dataExportTaskRepo.GetDataExportTaskByIds(context.TODO(), taskIds)
+			if err != nil {
+				d.log.Errorf("webhook get workflow tasks err: %v", err)
+				return
+			}
+
+			dbServiceIdSchemaMap := make(map[string]string)
+			dbServiceUids := make([]string, 0)
+			for _, task := range tasks {
+				dbServiceUids = append(dbServiceUids, task.DBServiceUid)
+				dbServiceIdSchemaMap[task.DBServiceUid] = task.DatabaseName
+			}
+
 			dbServices, err := d.dbServiceRepo.GetDBServicesByIds(context.TODO(), dbServiceUids)
 			if err != nil {
 				d.log.Errorf("webhook get db_services err: %v", err)
@@ -156,32 +184,49 @@ func (d *DataExportWorkflowUsecase) AddDataExportWorkflow(ctx context.Context, c
 				})
 			}
 
-			user, err := d.userUsecase.GetUser(context.TODO(), currentUserId)
+			currUser, err := d.userUsecase.GetUser(context.TODO(), currentUserId)
 			if err != nil {
-				d.log.Errorf("webhook get user err: %v", err)
+				d.log.Errorf("webhook get curr user err: %v", err)
 				return
 			}
 
+			createUser, err := d.userUsecase.GetUser(context.TODO(), workflow.CreateUserUID)
+			if err != nil {
+				d.log.Errorf("webhook get create user err: %v", err)
+				return
+			}
+
+			var nextOperateUser = make([]string, 0)
+			if workflow.WorkflowRecord.WorkflowSteps[workflow.WorkflowRecord.CurrentWorkflowStepId-1].State == "init" {
+				for _, item := range d.userUsecase.GetBizUserWithNameByUids(context.TODO(), workflow.WorkflowRecord.WorkflowSteps[workflow.WorkflowRecord.CurrentWorkflowStepId-1].Assignees) {
+					nextOperateUser = append(nextOperateUser, item.Name)
+				}
+			}
+
 			payload, err := json.Marshal(DataExportPayload{
-				ProjectUid:         params.ProjectUID,
-				WorkflowSubject:    params.Name,
-				WorkflowID:         workflowUid,
-				InstanceInfo:       instances,
-				ThirdPartyUserInfo: user.ThirdPartyUserInfo,
+				ProjectUid:              workflow.ProjectUID,
+				WorkflowSubject:         workflow.Name,
+				WorkflowID:              workflowUid,
+				InstanceInfo:            instances,
+				WorkflowCurrOperateUser: currUser.Name,
+				WorkflowNextOperateUser: strings.Join(nextOperateUser, ","),
+				WorkflowStatus:          workflow.WorkflowRecord.Status.String(),
+				WorkflowCreateUserId:    workflow.CreateUserUID,
+				WorkflowCreateUser:      createUser.Name,
+				WorkflowCreateTime:      workflow.CreatedAt.Format("2006-01-02 15:04:05"),
+				WorkflowDesc:            workflow.Desc,
 			})
 			if err != nil {
 				d.log.Errorf("webhook payload encode err: %v", err)
 				return
 			}
 
-			req := SqleCreateWorkflowReq{
+			req := WebhookDataExportWorkflow{
 				Event:     DataExportWorkflowEventType,
-				Action:    "create",
+				Action:    DataExportWorkflowEventAction,
 				Timestamp: time.Now().Format(time.RFC3339),
 				Payload:   payload,
 			}
-
-			d.log.Infof("webhook send payload: %s", string(payload))
 
 			dataRaw, err := json.Marshal(req)
 			if err != nil {
@@ -189,40 +234,41 @@ func (d *DataExportWorkflowUsecase) AddDataExportWorkflow(ctx context.Context, c
 				return
 			}
 
+			d.log.Infof("webhook send payload: %s", string(dataRaw))
+
 			if err := d.webhookUsecase.SendWebHookMessage(context.TODO(), DataExportWorkflowEventType.String(), string(dataRaw)); err != nil {
 				d.log.Errorf("webhook send message, workflow_id: %s, err: %v", workflowUid, err)
 			}
 		}
 	}()
-
-	return workflowUid, err
 }
 
-type SqleCreateWorkflowReq struct {
-	Event     EventType       `json:"event"`     // SQLE工单 workflow
-	Action    string          `json:"action"`    // SQLE工单 create 其他类型需要
+type WebhookDataExportWorkflow struct {
+	Event     EventType       `json:"event"`     // 数据导出事件类型, ["data_export"]
+	Action    string          `json:"action"`    // 数据导出事件行为, {"create":"创建导出工单", "approve":"审核通过工单", "reject":"审核驳回工单", "cancel":"关闭工单", "export":"导出工单"}
 	Timestamp string          `json:"timestamp"` // time.RFC3339
-	Payload   json.RawMessage `json:"payload"`   // 负载
+	Payload   json.RawMessage `json:"payload"`   // 负载 DataExportPayload
 }
 
 type InstanceInfo struct {
-	Host   string `json:"host"`
-	Schema string `json:"schema"`
-	Port   string `json:"port"`
-	Desc   string `json:"desc"`
+	Host   string `json:"host"`   // 主机
+	Schema string `json:"schema"` // 数据库名称
+	Port   string `json:"port"`   // 端口
+	Desc   string `json:"desc"`   // 描述
 }
 
 type DataExportPayload struct {
-	ProjectUid            string         `json:"project_uid"`             // 项目uid
-	WorkflowSubject       string         `json:"workflow_subject"`        // 数据导出工单标题
-	WorkflowID            string         `json:"workflow_id"`             // 数据导出工单ID
-	InstanceInfo          []InstanceInfo `json:"instance_info"`           // 数据库实例信息
-	ThirdPartyUserInfo    string         `json:"third_party_user_info"`   // 三方用户信息
-	DataApplicationMethod string         `json:"data_application_method"` // 数据应用方式 保留 暂时不填
-	SubmitReason          string         `json:"submit_reason"`           // 申请原因 保留 暂时不填
-	ProcessDepartment     int            `json:"process_department"`      // 处理部门 保留 暂时不填
-	DataRecipient         string         `json:"data_recipient"`          // 数据接收人 保留 暂时不填
-	Manager               string         `json:"manager"`                 // 中心负责人 保留 暂时不填
+	ProjectUid              string         `json:"project_uid"`                // 项目uid
+	WorkflowSubject         string         `json:"workflow_subject"`           // 数据导出工单标题
+	WorkflowID              string         `json:"workflow_id"`                // 数据导出工单ID
+	WorkflowCurrOperateUser string         `json:"workflow_curr_operate_user"` // 工单当前操作人
+	WorkflowNextOperateUser string         `json:"workflow_next_operate_user"` // 工单下一步操作人
+	WorkflowStatus          string         `json:"workflow_status"`            // 工单状态
+	WorkflowCreateUserId    string         `json:"workflow_create_user_id"`    // 工单创建人id
+	WorkflowCreateUser      string         `json:"workflow_create_user"`       // 工单创建人
+	WorkflowCreateTime      string         `json:"workflow_created_time"`      // 工单创建时间
+	WorkflowDesc            string         `json:"workflow_desc"`              // 工单描述
+	InstanceInfo            []InstanceInfo `json:"instance_info"`              // 数据库实例信息
 }
 
 func generateWorkflowStep(workflowRecordUid string, allInspector []string) ([]*WorkflowStep, error) {
@@ -350,6 +396,8 @@ func (d *DataExportWorkflowUsecase) ExportDataExportWorkflow(ctx context.Context
 	}
 
 	go d.ExportWorkflow(context.Background(), workflow)
+
+	d.webhook(currentUserId, workflowUid, DataExportWorkflowEventActionExport.String())
 
 	return nil
 }
@@ -679,7 +727,13 @@ func (d *DataExportWorkflowUsecase) ListDataExportTaskRecords(ctx context.Contex
 }
 
 func (d *DataExportWorkflowUsecase) ApproveDataExportWorkflow(ctx context.Context, projectId, workflowId, userId string) error {
-	return d.auditDataExportWorkflow(ctx, DataExportWorkflowStatusWaitForExport, DataExportWorkflowStatusFinish.String(), workflowId, userId, "")
+	err := d.auditDataExportWorkflow(ctx, DataExportWorkflowStatusWaitForExport, DataExportWorkflowStatusFinish.String(), workflowId, userId, "")
+
+	if err == nil {
+		d.webhook(userId, workflowId, DataExportWorkflowEventActionApprove.String())
+	}
+
+	return err
 }
 
 func (d *DataExportWorkflowUsecase) auditDataExportWorkflow(ctx context.Context, workflowStatus DataExportWorkflowStatus, stepStatus, workflowId, userId, reason string) error {
@@ -715,7 +769,13 @@ func (d *DataExportWorkflowUsecase) auditDataExportWorkflow(ctx context.Context,
 }
 
 func (d *DataExportWorkflowUsecase) RejectDataExportWorkflow(ctx context.Context, req *dmsV1.RejectDataExportWorkflowReq, userId string) error {
-	return d.auditDataExportWorkflow(ctx, DataExportWorkflowStatusRejected, DataExportWorkflowStatusRejected.String(), req.DataExportWorkflowUid, userId, req.Payload.Reason)
+	err := d.auditDataExportWorkflow(ctx, DataExportWorkflowStatusRejected, DataExportWorkflowStatusRejected.String(), req.DataExportWorkflowUid, userId, req.Payload.Reason)
+
+	if err == nil {
+		d.webhook(userId, req.DataExportWorkflowUid, DataExportWorkflowEventActionReject.String())
+	}
+
+	return err
 }
 
 func (d *DataExportWorkflowUsecase) CancelDataExportWorkflow(ctx context.Context, userId string, req *dmsV1.CancelDataExportWorkflowReq) error {
@@ -749,7 +809,15 @@ func (d *DataExportWorkflowUsecase) CancelDataExportWorkflow(ctx context.Context
 		cancelWorkflowRecordIds = append(cancelWorkflowRecordIds, workflow.WorkflowRecord.UID)
 	}
 
-	return d.repo.CancelWorkflow(ctx, cancelWorkflowRecordIds, cancelWorkflowSteps, userId)
+	err = d.repo.CancelWorkflow(ctx, cancelWorkflowRecordIds, cancelWorkflowSteps, userId)
+
+	if err == nil {
+		for _, item := range workflows {
+			d.webhook(userId, item.UID, DataExportWorkflowEventActionCancel.String())
+		}
+	}
+
+	return err
 }
 
 func (d *DataExportWorkflowUsecase) DownloadDataExportTask(ctx context.Context, userId string, req *dmsV1.DownloadDataExportTaskReq) (bool, string, error) {
