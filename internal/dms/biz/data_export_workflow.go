@@ -34,6 +34,20 @@ func (et EventType) String() string {
 	return string(et)
 }
 
+type DataExportWorkflowEventAction string
+
+const (
+	DataExportWorkflowEventActionCreate  DataExportWorkflowEventAction = "create"
+	DataExportWorkflowEventActionApprove DataExportWorkflowEventAction = "approve"
+	DataExportWorkflowEventActionReject  DataExportWorkflowEventAction = "reject"
+	DataExportWorkflowEventActionCancel  DataExportWorkflowEventAction = "cancel"
+	DataExportWorkflowEventActionExport  DataExportWorkflowEventAction = "export"
+)
+
+func (et DataExportWorkflowEventAction) String() string {
+	return string(et)
+}
+
 type Workflow struct {
 	Base
 
