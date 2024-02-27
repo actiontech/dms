@@ -170,7 +170,7 @@ func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 			cloudbeaverSessionId := cu.getCloudbeaverSession(dmsUserId, dmsToken)
 			if cloudbeaverSessionId != "" {
 				cookie := &http.Cookie{Name: CloudbeaverCookieName, Value: cloudbeaverSessionId}
-				c.Request().AddCookie(cookie)
+				c.Request().Header.Set("Cookie", fmt.Sprintf("%s=%s", CloudbeaverCookieName, cookie.Value))
 
 				// 根据cookie 获取登录用户
 				cloudbeaverActiveUser, err := cu.getActiveUserQuery([]*http.Cookie{cookie})
@@ -213,7 +213,7 @@ func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 			for _, cookie := range cookies {
 				if cookie.Name == CloudbeaverCookieName {
 					cu.setCloudbeaverSession(user.UID, dmsToken, cookie.Value)
-					c.Request().AddCookie(&http.Cookie{Name: CloudbeaverCookieName, Value: cookie.Value})
+					c.Request().AddCookie(cookie)
 				}
 			}
 
