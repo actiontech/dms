@@ -171,7 +171,7 @@ func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 
 			// 当前用户已经用同一个token登录过CB
 			cloudbeaverSessionId := cu.getCloudbeaverSession(dmsUserId, dmsToken)
-			if cloudbeaverSessionId != "" {
+			if cloudbeaverSessionId != "" && projectUID == "" {
 				cookie := &http.Cookie{Name: CloudbeaverCookieName, Value: cloudbeaverSessionId}
 				c.Request().Header.Set("Cookie", fmt.Sprintf("%s=%s", CloudbeaverCookieName, cookie.Value))
 
@@ -216,8 +216,7 @@ func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 			for _, cookie := range cookies {
 				if cookie.Name == CloudbeaverCookieName {
 					cu.setCloudbeaverSession(user.UID, dmsToken, cookie.Value)
-					c.Request().AddCookie(cookie)
-					// c.Request().Header.Set("Cookie", fmt.Sprintf("%s=%s", CloudbeaverCookieName, cookie.Value))
+					c.Request().Header.Set("Cookie", fmt.Sprintf("%s=%s", CloudbeaverCookieName, cookie.Value))
 				}
 			}
 
