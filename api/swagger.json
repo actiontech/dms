@@ -5120,6 +5120,10 @@
           "type": "string",
           "x-go-name": "AccessTokenTag"
         },
+        "auto_create_user": {
+          "type": "boolean",
+          "x-go-name": "AutoCreateUser"
+        },
         "client_host": {
           "type": "string",
           "x-go-name": "ClientHost"
@@ -6919,6 +6923,10 @@
           "type": "string",
           "x-go-name": "AccessTokenTag"
         },
+        "auto_create_user": {
+          "type": "boolean",
+          "x-go-name": "AutoCreateUser"
+        },
         "client_host": {
           "type": "string",
           "x-go-name": "ClientHost"
@@ -7481,7 +7489,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
