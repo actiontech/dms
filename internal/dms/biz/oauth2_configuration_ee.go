@@ -132,11 +132,11 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 	uri := oauth2C.ClientHost
 	data := callbackRedirectData{}
 	// check callback request
-	if state != oauthState {
-		err := fmt.Errorf("invalid state: %v", state)
-		data.Error = err.Error()
-		return data.generateQuery(uri), "", err
-	}
+	// if state != oauthState {
+	// 	err := fmt.Errorf("invalid state: %v", state)
+	// 	data.Error = err.Error()
+	// 	return data.generateQuery(uri), "", err
+	// }
 	if code == "" {
 		err := fmt.Errorf("code is nil")
 		data.Error = err.Error()
