@@ -5120,6 +5120,10 @@
           "type": "string",
           "x-go-name": "AccessTokenTag"
         },
+        "auto_create_user": {
+          "type": "boolean",
+          "x-go-name": "AutoCreateUser"
+        },
         "client_host": {
           "type": "string",
           "x-go-name": "ClientHost"
@@ -6918,6 +6922,10 @@
         "access_token_tag": {
           "type": "string",
           "x-go-name": "AccessTokenTag"
+        },
+        "auto_create_user": {
+          "type": "boolean",
+          "x-go-name": "AutoCreateUser"
         },
         "client_host": {
           "type": "string",
