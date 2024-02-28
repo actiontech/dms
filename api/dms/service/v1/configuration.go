@@ -4,7 +4,7 @@ import base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 
 type GetOauth2ConfigurationResData struct {
 	EnableOauth2    bool     `json:"enable_oauth2"`
-	AutoCreateUser  bool    `json:"auto_create_user"`
+	AutoCreateUser  bool     `json:"auto_create_user"`
 	ClientID        string   `json:"client_id"`
 	ClientHost      string   `json:"client_host"`
 	ServerAuthUrl   string   `json:"server_auth_url"`
@@ -84,7 +84,7 @@ type BindOauth2UserResData struct {
 
 // swagger:parameters Oauth2Callback
 type Oauth2CallbackReq struct {
-	State string `json:"state" query:"state" validate:"required"`
+	State string `json:"state" query:"state"`
 	Code  string `json:"code" query:"code" validate:"required"`
 }
 
