@@ -93,6 +93,7 @@ func (d *Oauth2ConfigurationUsecase) GetOauth2Configuration(ctx context.Context)
 	return oauth2C, true, nil
 }
 
+// TODO the state field is a fixed value with low security and should be changed to a random value, such as a hash value based on session ID
 var oauthState = "dms-action"
 
 func (d *Oauth2ConfigurationUsecase) GenOauth2LinkURI(ctx context.Context) (uri string, err error) {
@@ -131,12 +132,13 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 	// TODO sqle https should also support
 	uri := oauth2C.ClientHost
 	data := callbackRedirectData{}
+	// TODO add a configuration item for verifying State on the OAuth2.0 configuration page. If this configuration item is enabled, the State will be verified
 	// check callback request
-	if state != oauthState {
-		err := fmt.Errorf("invalid state: %v", state)
-		data.Error = err.Error()
-		return data.generateQuery(uri), "", err
-	}
+	// if state != oauthState {
+	// 	err := fmt.Errorf("invalid state: %v", state)
+	// 	data.Error = err.Error()
+	// 	return data.generateQuery(uri), "", err
+	// }
 	if code == "" {
 		err := fmt.Errorf("code is nil")
 		data.Error = err.Error()
