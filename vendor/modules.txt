@@ -46,6 +46,13 @@ github.com/cpuguy83/go-md2man/v2/md2man
 # github.com/davecgh/go-spew v1.1.1
 ## explicit
 github.com/davecgh/go-spew/spew
+# github.com/denisenkom/go-mssqldb v0.12.3
+## explicit; go 1.13
+github.com/denisenkom/go-mssqldb
+github.com/denisenkom/go-mssqldb/internal/cp
+github.com/denisenkom/go-mssqldb/internal/decimal
+github.com/denisenkom/go-mssqldb/internal/querytext
+github.com/denisenkom/go-mssqldb/msdsn
 # github.com/fatih/color v1.10.0
 ## explicit; go 1.13
 github.com/fatih/color
@@ -99,6 +106,12 @@ github.com/golang-jwt/jwt
 # github.com/golang-jwt/jwt/v4 v4.5.0
 ## explicit; go 1.16
 github.com/golang-jwt/jwt/v4
+# github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe
+## explicit
+github.com/golang-sql/civil
+# github.com/golang-sql/sqlexp v0.1.0
+## explicit; go 1.16
+github.com/golang-sql/sqlexp
 # github.com/golang/protobuf v1.5.2
 ## explicit; go 1.9
 github.com/golang/protobuf/proto
@@ -173,6 +186,11 @@ github.com/larksuite/oapi-sdk-go/v3/service/wiki/v2
 # github.com/leodido/go-urn v1.2.4
 ## explicit; go 1.16
 github.com/leodido/go-urn
+# github.com/lib/pq v1.10.9
+## explicit; go 1.13
+github.com/lib/pq
+github.com/lib/pq/oid
+github.com/lib/pq/scram
 # github.com/mattn/go-colorable v0.1.13
 ## explicit; go 1.15
 github.com/mattn/go-colorable
@@ -208,6 +226,16 @@ github.com/robfig/cron/v3
 # github.com/russross/blackfriday/v2 v2.1.0
 ## explicit
 github.com/russross/blackfriday/v2
+# github.com/sijms/go-ora/v2 v2.8.9
+## explicit; go 1.17
+github.com/sijms/go-ora/v2
+github.com/sijms/go-ora/v2/advanced_nego
+github.com/sijms/go-ora/v2/advanced_nego/ntlmssp
+github.com/sijms/go-ora/v2/converters
+github.com/sijms/go-ora/v2/network
+github.com/sijms/go-ora/v2/network/security
+github.com/sijms/go-ora/v2/network/security/md4
+github.com/sijms/go-ora/v2/trace
 # github.com/stretchr/testify v1.8.2
 ## explicit; go 1.13
 github.com/stretchr/testify/assert
@@ -244,8 +272,8 @@ go.mongodb.org/mongo-driver/bson/bsonrw
 go.mongodb.org/mongo-driver/bson/bsontype
 go.mongodb.org/mongo-driver/bson/primitive
 go.mongodb.org/mongo-driver/x/bsonx/bsoncore
-# golang.org/x/crypto v0.10.0
-## explicit; go 1.17
+# golang.org/x/crypto v0.17.0
+## explicit; go 1.18
 golang.org/x/crypto/acme
 golang.org/x/crypto/acme/autocert
 golang.org/x/crypto/md4
@@ -273,13 +301,13 @@ golang.org/x/oauth2/internal
 # golang.org/x/sync v0.1.0
 ## explicit
 golang.org/x/sync/errgroup
-# golang.org/x/sys v0.9.0
-## explicit; go 1.17
+# golang.org/x/sys v0.15.0
+## explicit; go 1.18
 golang.org/x/sys/cpu
 golang.org/x/sys/execabs
 golang.org/x/sys/unix
-# golang.org/x/text v0.10.0
-## explicit; go 1.17
+# golang.org/x/text v0.14.0
+## explicit; go 1.18
 golang.org/x/text/cases
 golang.org/x/text/internal
 golang.org/x/text/internal/language
