@@ -477,7 +477,7 @@ func (d *DataExportWorkflowUsecase) ExecExportTask(ctx context.Context, taskInfo
 	if err != nil {
 		return fmt.Errorf("get db service failed: %v", err)
 	}
-	db, err := export.NewMysqlConn(dbService.Host, dbService.Port, dbService.User, dbService.Password, taskInfo.DatabaseName)
+	db, err := export.NewDBConnection(ctx, dbService.DBType, dbService.Host, dbService.Port, dbService.User, dbService.Password, taskInfo.DatabaseName, dbService.AdditionalParams)
 	if err != nil {
 		return err
 	}
