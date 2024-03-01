@@ -5,7 +5,8 @@ import base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 type TriggerEventType string
 
 const (
-	TriggerEventTypeWorkflow TriggerEventType = "workflow"
+	TriggerEventTypeWorkflow    TriggerEventType = "workflow"
+	TriggerEventManualAuditPlan TriggerEventType = "manual_trigger_audit_plan"
 )
 
 // swagger:parameters WebHookSendMessage
