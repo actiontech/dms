@@ -38,7 +38,7 @@ func NewDBConnection(ctx context.Context, dbType, host, port, user, password, sc
 		return nil, fmt.Errorf("db type %s is no supportd", dbType)
 	}
 
-	timeoutCtx, cancel := context.WithTimeout(context.TODO(), time.Second*3)
+	timeoutCtx, cancel := context.WithTimeout(ctx, time.Second*3)
 	defer cancel()
 
 	if err = conn.PingContext(timeoutCtx); err != nil {
