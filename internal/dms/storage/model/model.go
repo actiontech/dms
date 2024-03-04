@@ -218,22 +218,22 @@ type Plugin struct {
 // Oauth2Configuration store oauth2 server configuration.
 type Oauth2Configuration struct {
 	Model
-	EnableOauth2     bool   `json:"enable_oauth2" gorm:"column:enable_oauth2"`
-	EnableCheckState bool   `json:"enable_check_state" gorm:"column:enable_check_state"`
-	AutoCreateUser   bool   `json:"auto_create_user" gorm:"auto_create_user"`
-	ClientID         string `json:"client_id" gorm:"size:255;column:client_id"`
-	ClientKey        string `json:"-" gorm:"-"`
-	ClientSecret     string `json:"client_secret" gorm:"size:255;client_secret"`
-	ClientHost       string `json:"client_host" gorm:"size:255;column:client_host"`
-	ServerAuthUrl    string `json:"server_auth_url" gorm:"size:255;column:server_auth_url"`
-	ServerTokenUrl   string `json:"server_token_url" gorm:"size:255;column:server_token_url"`
-	ServerUserIdUrl  string `json:"server_user_id_url" gorm:"size:255;column:server_user_id_url"`
-	Scopes           string `json:"scopes" gorm:"size:255;column:scopes"`
-	AccessTokenTag   string `json:"access_token_tag" gorm:"size:255;column:access_token_tag"`
-	UserIdTag        string `json:"user_id_tag" gorm:"size:255;column:user_id_tag"`
-	UserWeChatTag    string `json:"user_wechat_tag" gorm:"size:255;column:user_wechat_tag"`
-	UserEmailTag     string `json:"user_email_tag" gorm:"size:255;column:user_email_tag"`
-	LoginTip         string `json:"login_tip" gorm:"size:255;column:login_tip; default:'使用第三方账户登录'"`
+	EnableOauth2    bool   `json:"enable_oauth2" gorm:"column:enable_oauth2"`
+	SkipCheckState  bool   `json:"skip_check_state" gorm:"column:skip_check_state; default:true"`
+	AutoCreateUser  bool   `json:"auto_create_user" gorm:"auto_create_user"`
+	ClientID        string `json:"client_id" gorm:"size:255;column:client_id"`
+	ClientKey       string `json:"-" gorm:"-"`
+	ClientSecret    string `json:"client_secret" gorm:"size:255;client_secret"`
+	ClientHost      string `json:"client_host" gorm:"size:255;column:client_host"`
+	ServerAuthUrl   string `json:"server_auth_url" gorm:"size:255;column:server_auth_url"`
+	ServerTokenUrl  string `json:"server_token_url" gorm:"size:255;column:server_token_url"`
+	ServerUserIdUrl string `json:"server_user_id_url" gorm:"size:255;column:server_user_id_url"`
+	Scopes          string `json:"scopes" gorm:"size:255;column:scopes"`
+	AccessTokenTag  string `json:"access_token_tag" gorm:"size:255;column:access_token_tag"`
+	UserIdTag       string `json:"user_id_tag" gorm:"size:255;column:user_id_tag"`
+	UserWeChatTag   string `json:"user_wechat_tag" gorm:"size:255;column:user_wechat_tag"`
+	UserEmailTag    string `json:"user_email_tag" gorm:"size:255;column:user_email_tag"`
+	LoginTip        string `json:"login_tip" gorm:"size:255;column:login_tip; default:'使用第三方账户登录'"`
 }
 
 // LDAPConfiguration store ldap server configuration.
