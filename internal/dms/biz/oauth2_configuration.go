@@ -17,6 +17,7 @@ type Oauth2Configuration struct {
 
 	UID             string
 	EnableOauth2    bool
+	SkipCheckState  bool
 	AutoCreateUser  bool
 	ClientID        string
 	ClientKey       string

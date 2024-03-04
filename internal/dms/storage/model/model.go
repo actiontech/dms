@@ -219,6 +219,7 @@ type Plugin struct {
 type Oauth2Configuration struct {
 	Model
 	EnableOauth2    bool   `json:"enable_oauth2" gorm:"column:enable_oauth2"`
+	SkipCheckState  bool   `json:"skip_check_state" gorm:"column:skip_check_state"`
 	AutoCreateUser  bool   `json:"auto_create_user" gorm:"auto_create_user"`
 	ClientID        string `json:"client_id" gorm:"size:255;column:client_id"`
 	ClientKey       string `json:"-" gorm:"-"`
