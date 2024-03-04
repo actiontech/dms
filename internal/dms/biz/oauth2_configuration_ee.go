@@ -40,7 +40,7 @@ func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Conte
 			oauth2C.EnableOauth2 = *enableOauth2
 		}
 		if skipCheckState != nil {
-			oauth2C.EnableCheckState = *skipCheckState
+			oauth2C.SkipCheckState = *skipCheckState
 		}
 		if autoCreateUser != nil {
 			oauth2C.AutoCreateUser = *autoCreateUser
