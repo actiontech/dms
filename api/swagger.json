@@ -5132,6 +5132,10 @@
           "type": "string",
           "x-go-name": "ClientID"
         },
+        "enable_check_state": {
+          "type": "boolean",
+          "x-go-name": "EnableCheckState"
+        },
         "enable_oauth2": {
           "type": "boolean",
           "x-go-name": "EnableOauth2"
@@ -6938,6 +6942,10 @@
         "client_key": {
           "type": "string",
           "x-go-name": "ClientKey"
+        },
+        "enable_check_state": {
+          "type": "boolean",
+          "x-go-name": "EnableCheckState"
         },
         "enable_oauth2": {
           "type": "boolean",
