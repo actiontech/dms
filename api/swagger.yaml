@@ -1106,9 +1106,6 @@ definitions:
             client_id:
                 type: string
                 x-go-name: ClientID
-            enable_check_state:
-                type: boolean
-                x-go-name: EnableCheckState
             enable_oauth2:
                 type: boolean
                 x-go-name: EnableOauth2
@@ -1129,6 +1126,9 @@ definitions:
             server_user_id_url:
                 type: string
                 x-go-name: ServerUserIdUrl
+            skip_check_state:
+                type: boolean
+                x-go-name: SkipCheckState
             user_email_tag:
                 type: string
                 x-go-name: UserEmailTag
@@ -2556,9 +2556,6 @@ definitions:
             client_key:
                 type: string
                 x-go-name: ClientKey
-            enable_check_state:
-                type: boolean
-                x-go-name: EnableCheckState
             enable_oauth2:
                 type: boolean
                 x-go-name: EnableOauth2
@@ -2580,6 +2577,9 @@ definitions:
             server_user_id_url:
                 type: string
                 x-go-name: ServerUserIdUrl
+            skip_check_state:
+                type: boolean
+                x-go-name: SkipCheckState
             user_email_tag:
                 type: string
                 x-go-name: UserEmailTag
