@@ -4,6 +4,7 @@ import base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 
 type GetOauth2ConfigurationResData struct {
 	EnableOauth2    bool     `json:"enable_oauth2"`
+	SkipCheckState  bool     `json:"skip_check_state"`
 	AutoCreateUser  bool     `json:"auto_create_user"`
 	ClientID        string   `json:"client_id"`
 	ClientHost      string   `json:"client_host"`
@@ -34,6 +35,7 @@ type Oauth2ConfigurationReq struct {
 }
 type Oauth2Configuration struct {
 	EnableOauth2    *bool     `json:"enable_oauth2"`
+	SkipCheckState  *bool     `json:"skip_check_state"`
 	AutoCreateUser  *bool     `json:"auto_create_user"`
 	ClientID        *string   `json:"client_id"`
 	ClientKey       *string   `json:"client_key"`

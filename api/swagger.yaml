@@ -1126,6 +1126,9 @@ definitions:
             server_user_id_url:
                 type: string
                 x-go-name: ServerUserIdUrl
+            skip_check_state:
+                type: boolean
+                x-go-name: SkipCheckState
             user_email_tag:
                 type: string
                 x-go-name: UserEmailTag
@@ -2574,6 +2577,9 @@ definitions:
             server_user_id_url:
                 type: string
                 x-go-name: ServerUserIdUrl
+            skip_check_state:
+                type: boolean
+                x-go-name: SkipCheckState
             user_email_tag:
                 type: string
                 x-go-name: UserEmailTag

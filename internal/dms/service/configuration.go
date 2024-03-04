@@ -30,6 +30,7 @@ func (d *DMSService) GetOauth2Configuration(ctx context.Context) (reply *dmsV1.G
 	return &dmsV1.GetOauth2ConfigurationReply{
 		Data: dmsV1.GetOauth2ConfigurationResData{
 			EnableOauth2:    oauth2C.EnableOauth2,
+			SkipCheckState:  oauth2C.SkipCheckState,
 			AutoCreateUser:  oauth2C.AutoCreateUser,
 			ClientID:        oauth2C.ClientID,
 			ClientHost:      oauth2C.ClientHost,
@@ -79,6 +80,7 @@ func (d *DMSService) UpdateOauth2Configuration(ctx context.Context, req *dmsV1.O
 	return d.Oauth2ConfigurationUsecase.UpdateOauth2Configuration(
 		ctx,
 		oauth2Configuration.EnableOauth2,
+		oauth2Configuration.SkipCheckState,
 		oauth2Configuration.AutoCreateUser,
 		oauth2Configuration.ClientID,
 		oauth2Configuration.ClientKey,

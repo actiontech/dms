@@ -9,7 +9,7 @@ import (
 
 var errNotSupportOauth2 = errors.New("oauth2 related functions are enterprise version functions")
 
-func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Context, enableOauth2, autoCreateUser *bool, clientID, clientKey, clientHost, serverAuthUrl, serverTokenUrl, serverUserIdUrl,
+func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Context, enableOauth2, skipCheckState, autoCreateUser *bool, clientID, clientKey, clientHost, serverAuthUrl, serverTokenUrl, serverUserIdUrl,
 	accessTokenTag, userIdTag, userWechatTag, userEmailTag, loginTip *string, scopes *[]string) error {
 
 	return errNotSupportOauth2
