@@ -21,7 +21,7 @@ import (
 	"github.com/actiontech/dms/pkg/rand"
 )
 
-func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Context, enableOauth2, enableCheckState, autoCreateUser *bool, clientID, clientKey, clientHost, serverAuthUrl, serverTokenUrl, serverUserIdUrl,
+func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Context, enableOauth2, skipCheckState, autoCreateUser *bool, clientID, clientKey, clientHost, serverAuthUrl, serverTokenUrl, serverUserIdUrl,
 	accessTokenTag, userIdTag, userWechatTag, userEmailTag, loginTip *string, scopes *[]string) error {
 	oauth2C, err := d.repo.GetLastOauth2Configuration(ctx)
 	if err != nil {
@@ -39,8 +39,8 @@ func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Conte
 		if enableOauth2 != nil {
 			oauth2C.EnableOauth2 = *enableOauth2
 		}
-		if enableCheckState != nil {
-			oauth2C.EnableCheckState = *enableCheckState
+		if skipCheckState != nil {
+			oauth2C.EnableCheckState = *skipCheckState
 		}
 		if autoCreateUser != nil {
 			oauth2C.AutoCreateUser = *autoCreateUser
@@ -137,7 +137,7 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 	data := callbackRedirectData{}
 	// TODO add a configuration item for verifying State on the OAuth2.0 configuration page. If this configuration item is enabled, the State will be verified
 	// check callback request
-	if oauth2C.EnableCheckState && state != oauthState {
+	if oauth2C.SkipCheckState && state != oauthState {
 		err := fmt.Errorf("invalid state: %v", state)
 		data.Error = err.Error()
 		return data.generateQuery(uri), "", err
