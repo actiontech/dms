@@ -137,7 +137,7 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 	data := callbackRedirectData{}
 	// TODO add a configuration item for verifying State on the OAuth2.0 configuration page. If this configuration item is enabled, the State will be verified
 	// check callback request
-	if oauth2C.SkipCheckState && state != oauthState {
+	if !oauth2C.SkipCheckState && state != oauthState {
 		err := fmt.Errorf("invalid state: %v", state)
 		data.Error = err.Error()
 		return data.generateQuery(uri), "", err
