@@ -99,8 +99,8 @@ type SqlQueryConfig struct {
 type User struct {
 	Model
 	Name                   string         `json:"name" gorm:"size:200;column:name"`
-	ThirdPartyUserID       string         `json:"third_party_user_id" gorm:"size:255;third_party_user_id;column:third_party_user_id"`       // used to retrieve sqle user based on third-party user ID
-	ThirdPartyUserInfo     string         `json:"third_party_user_info" gorm:"size:255;third_party_user_info;column:third_party_user_info"` // used to save original third-party user information
+	ThirdPartyUserID       string         `json:"third_party_user_id" gorm:"size:255;third_party_user_id;column:third_party_user_id"`        // used to retrieve sqle user based on third-party user ID
+	ThirdPartyUserInfo     string         `json:"third_party_user_info" gorm:"type:text;third_party_user_info;column:third_party_user_info"` // used to save original third-party user information
 	Email                  string         `json:"email" gorm:"size:255;column:email"`
 	Phone                  string         `json:"phone" gorm:"size:255;column:phone"`
 	WeChatID               string         `json:"wechat_id" gorm:"size:255;column:wechat_id"`
