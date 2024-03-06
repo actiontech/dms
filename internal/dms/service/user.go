@@ -189,12 +189,13 @@ func (d *DMSService) ListUsers(ctx context.Context, req *dmsCommonV1.ListUserReq
 	ret := make([]*dmsCommonV1.ListUser, len(users))
 	for i, u := range users {
 		ret[i] = &dmsCommonV1.ListUser{
-			UserUid:   u.GetUID(),
-			Name:      u.Name,
-			Email:     u.Email,
-			Phone:     u.Phone,
-			WxID:      u.WxID,
-			IsDeleted: u.Deleted,
+			UserUid:            u.GetUID(),
+			Name:               u.Name,
+			Email:              u.Email,
+			Phone:              u.Phone,
+			WxID:               u.WxID,
+			IsDeleted:          u.Deleted,
+			ThirdPartyUserInfo: u.ThirdPartyUserInfo,
 		}
 		// 已删除用户只有基础信息
 		if u.Deleted {
@@ -430,11 +431,11 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 	}
 
 	dmsCommonUser := &dmsCommonV1.GetUser{
-		UserUid: u.GetUID(),
-		Name:    u.Name,
-		Email:   u.Email,
-		Phone:   u.Phone,
-		WxID:    u.WxID,
+		UserUid:            u.GetUID(),
+		Name:               u.Name,
+		Email:              u.Email,
+		Phone:              u.Phone,
+		WxID:               u.WxID,
 		ThirdPartyUserInfo: u.ThirdPartyUserInfo,
 	}
 

@@ -285,6 +285,8 @@ type ListUser struct {
 	OpPermissions []UidWithName `json:"op_permissions"`
 	// user is deleted
 	IsDeleted bool `json:"is_deleted"`
+	// third party user info
+	ThirdPartyUserInfo string `json:"third_party_user_info"`
 }
 
 // swagger:model ListUserReply
