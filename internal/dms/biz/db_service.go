@@ -48,7 +48,8 @@ type DBService struct {
 	Source            string
 
 	// sqle config
-	SQLEConfig *SQLEConfig
+	SQLEConfig      *SQLEConfig
+	IsMaskingSwitch bool
 }
 
 type DBTypeCount struct {
@@ -94,6 +95,7 @@ func newDBService(args *BizDBServiceArgs) (*DBService, error) {
 		Source:            args.Source,
 		MaintenancePeriod: args.MaintenancePeriod,
 		SQLEConfig:        &SQLEConfig{},
+		IsMaskingSwitch:   args.IsMaskingSwitch,
 	}
 
 	if args.RuleTemplateName != "" {
@@ -161,6 +163,7 @@ type BizDBServiceArgs struct {
 	RuleTemplateName string
 	RuleTemplateID   string
 	SQLQueryConfig   *SQLQueryConfig
+	IsMaskingSwitch  bool
 }
 
 type SQLQueryConfig struct {
@@ -411,6 +414,7 @@ func (d *DBServiceUsecase) UpdateDBService(ctx context.Context, dbServiceUid str
 		ds.Business = updateDBService.Business
 		ds.AdditionalParams = updateDBService.AdditionalParams
 		ds.MaintenancePeriod = updateDBService.MaintenancePeriod
+		ds.IsMaskingSwitch = updateDBService.IsMaskingSwitch
 		ds.SQLEConfig = &SQLEConfig{}
 		// 支持新增和更新sqleConfig，不允许删除sqle配置
 		if updateDBService.RuleTemplateName != "" {

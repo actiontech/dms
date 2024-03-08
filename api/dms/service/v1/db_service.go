@@ -42,6 +42,9 @@ type DBService struct {
 	Desc string `json:"desc"`
 	// SQLE config
 	SQLEConfig *dmsCommonV1.SQLEConfig `json:"sqle_config"`
+	// data masking switch
+	// Required: false
+	IsEnableMasking bool `json:"is_enable_masking"`
 }
 
 // swagger:parameters AddDBService
@@ -188,6 +191,9 @@ type UpdateDBService struct {
 	Desc *string `json:"desc"`
 	// SQLE config
 	SQLEConfig *dmsCommonV1.SQLEConfig `json:"sqle_config"`
+	// data masking switch
+	// Required: false
+	IsEnableMasking bool `json:"is_enable_masking"`
 }
 
 // swagger:model UpdateDBServiceReply

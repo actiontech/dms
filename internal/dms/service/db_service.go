@@ -52,6 +52,7 @@ func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV1.UpdateDBSer
 		Business:          req.DBService.Business,
 		MaintenancePeriod: d.convertMaintenanceTimeToPeriod(req.DBService.MaintenanceTimes),
 		AdditionalParams:  additionalParams,
+		IsMaskingSwitch:   req.DBService.IsEnableMasking,
 	}
 
 	sqleConfig := req.DBService.SQLEConfig
@@ -163,6 +164,7 @@ func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceRe
 		ProjectUID:        req.ProjectUid,
 		Source:            string(pkgConst.DBServiceSourceNameSQLE),
 		AdditionalParams:  additionalParams,
+		IsMaskingSwitch:   req.DBService.IsEnableMasking,
 	}
 
 	sqleConfig := req.DBService.SQLEConfig
