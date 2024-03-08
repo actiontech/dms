@@ -68,7 +68,7 @@ type DBService struct {
 	ProjectUID        string          `json:"project_uid" gorm:"size:32;column:project_uid;index:project_uid_name,unique"`
 	MaintenancePeriod periods.Periods `json:"maintenance_period" gorm:"type:text"`
 	ExtraParameters   ExtraParameters `json:"extra_parameters" gorm:"TYPE:json"`
-	IsEnableMasking   bool            `json:"is_enable_masking" gorm:"type:bool"`
+	IsEnableMasking   bool            `json:"is_enable_masking" gorm:"column:is_enable_masking;type:bool"`
 }
 
 type ExtraParameters struct {

@@ -262,6 +262,14 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 		})
 	}
 
+	if req.IsEnableMasking != nil {
+		filterBy = append(filterBy, pkgConst.FilterCondition{
+			Field:    string(biz.DBServiceFieldIsEnableMasking),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    *req.IsEnableMasking,
+		})
+	}
+
 	if req.FilterByName != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldName),
@@ -340,6 +348,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 			Desc:             u.Desc,
 			Source:           u.Source,
 			ProjectUID:       u.ProjectUID,
+			IsEnableMasking:  u.IsMaskingSwitch,
 		}
 
 		if u.AdditionalParams != nil {
