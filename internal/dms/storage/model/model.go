@@ -317,6 +317,7 @@ type CloudbeaverConnectionCache struct {
 	DMSUserID               string `json:"dms_user_id" gorm:"column:dms_user_id;primaryKey"`
 	DMSDBServiceFingerprint string `json:"dms_db_service_fingerprint" gorm:"size:255;column:dms_db_service_fingerprint"`
 	CloudbeaverConnectionID string `json:"cloudbeaver_connection_id" gorm:"size:255;column:cloudbeaver_connection_id"`
+	Purpose                 string `json:"purpose" gorm:"size:20;column:purpose;primaryKey"`
 }
 
 type DatabaseSourceService struct {
