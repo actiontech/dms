@@ -23,6 +23,10 @@ type TempDBAccount struct {
 	Password string `json:"password"`
 	// the datasource's uid
 	DbServiceUid string `json:"db_service_uid"`
+	// the dbaccount relation auth purpose
+	AuthPurpose string `json:"auth_purpose"`
+	// the dbaccount relation auth used by sql workbench
+	UsedBySQLWorkbench bool `json:"used_by_workbench"`
 }
 
 type ListDBAccountReply struct {
@@ -45,18 +49,24 @@ func (cu *CloudbeaverUsecase) ResetDbServiceByAuth(ctx context.Context, activeDB
 	}
 
 	ret := make([]*DBService, 0)
-	for _, activeDBService := range activeDBServices {
-		if activeDBService.DBType == constant.DBTypeMySQL.String() {
-			for _, dbaccount := range dbaccounts {
-				// use db account instead of admin account
+	for _, dbaccount := range dbaccounts {
+		if !dbaccount.UsedBySQLWorkbench || dbaccount.AuthPurpose == "" {
+			continue
+		}
+
+		for _, activeDBService := range activeDBServices {
+			if activeDBService.DBType != constant.DBTypeMySQL.String() {
+				ret = append(ret, activeDBService)
+			} else {
 				if dbaccount.DbServiceUid == activeDBService.UID {
-					activeDBService.User = dbaccount.User
-					activeDBService.Password = dbaccount.Password
-					ret = append(ret, activeDBService)
+					db := *activeDBService
+					db.User = dbaccount.User
+					db.Password = dbaccount.Password
+					db.AccountPurpose = dbaccount.AuthPurpose
+					ret = append(ret, &db)
+					break
 				}
 			}
-		} else {
-			ret = append(ret, activeDBService)
 		}
 	}
 
@@ -70,7 +80,7 @@ func (cu *CloudbeaverUsecase) ListAuthDbAccount(ctx context.Context, url, userId
 
 	reply := &ListDBAccountReply{}
 
-	if err := pkgHttp.Get(ctx, fmt.Sprintf("%v/provision/v1/auth/dbaccounts?page_size=999&page_index=1&owner_user_id=%s", url, userId), header, nil, reply); err != nil {
+	if err := pkgHttp.Get(ctx, fmt.Sprintf("%v/provision/v1/auth/dbaccounts?used_by_sql_workbench=true&page_size=999&page_index=1&owner_user_id=%s", url, userId), header, nil, reply); err != nil {
 		return nil, fmt.Errorf("failed to get db account from %v: %v", url, err)
 	}
 	if reply.Code != 0 {
