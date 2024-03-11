@@ -190,6 +190,7 @@ func convertBizCloudbeaverConnection(u *biz.CloudbeaverConnection) *model.Cloudb
 		DMSDBServiceID:          u.DMSDBServiceID,
 		DMSUserID:               u.DMSUserId,
 		DMSDBServiceFingerprint: u.DMSDBServiceFingerprint,
+		Purpose:                 u.Purpose,
 		CloudbeaverConnectionID: u.CloudbeaverConnectionID,
 	}
 }
@@ -300,6 +301,7 @@ func convertModelCloudbeaverConnection(items []*model.CloudbeaverConnectionCache
 			DMSDBServiceID:          item.DMSDBServiceID,
 			DMSUserId:               item.DMSUserID,
 			DMSDBServiceFingerprint: item.DMSDBServiceFingerprint,
+			Purpose:                 item.Purpose,
 			CloudbeaverConnectionID: item.CloudbeaverConnectionID,
 		})
 	}

@@ -49,6 +49,8 @@ type DBService struct {
 
 	// sqle config
 	SQLEConfig *SQLEConfig
+	// PROV config
+	AccountPurpose string
 }
 
 type DBTypeCount struct {
