@@ -309,6 +309,8 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 
 	// create user if not exist
 	if !exist {
+		// 使用固定密码初始化用户 密码：12345678
+		password = "12345678"
 		args := &CreateUserArgs{
 			Name:                   userName,
 			Password:               password,
