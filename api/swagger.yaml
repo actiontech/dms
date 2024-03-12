@@ -2321,6 +2321,10 @@ definitions:
                     被禁用 StatDisable
                     未知 StatUnknown
                 x-go-name: Stat
+            third_party_user_info:
+                description: third party user info
+                type: string
+                x-go-name: ThirdPartyUserInfo
             uid:
                 description: user uid
                 type: string
@@ -4416,6 +4420,31 @@ paths:
             summary: List data_export workflow.
             tags:
                 - dms
+    /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/data_export_task_sqls/download:
+        get:
+            operationId: DownloadDataExportTaskSQLs
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - in: path
+                  name: data_export_task_uid
+                  required: true
+                  type: string
+                  x-go-name: DataExportTaskUid
+            responses:
+                "200":
+                    $ref: '#/responses/DownloadDataExportTaskSQLsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: dowload data_export sqls.
+            tags:
+                - dms
     /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/download:
         get:
             operationId: DownloadDataExportTask
@@ -6053,6 +6082,10 @@ produces:
     - application/json
 responses:
     DownloadDataExportTaskReply:
+        description: ""
+        schema:
+            type: file
+    DownloadDataExportTaskSQLsReply:
         description: ""
         schema:
             type: file
