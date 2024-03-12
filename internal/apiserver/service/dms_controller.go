@@ -2271,7 +2271,7 @@ func (d *DMSController) ListDataExportTaskSQLs(c echo.Context) error {
 // dowload data_export sqls.
 //
 //	responses:
-//	  200: body:ListDataExportTaskSQLsReply
+//	  200: DownloadDataExportTaskSQLsReply
 //	  default: body:GenericResp
 func (d *DMSController) DownloadDataExportTaskSQLs(c echo.Context) error {
 	req := new(aV1.DownloadDataExportTaskSQLsReq)

@@ -167,3 +167,10 @@ type DownloadDataExportTaskSQLsReq struct {
 	// in:path
 	DataExportTaskUid string `param:"data_export_task_uid" json:"data_export_task_uid" validate:"required"`
 }
+
+// swagger:response DownloadDataExportTaskSQLsReply
+type DownloadDataExportTaskSQLsReply struct {
+	// swagger:file
+	// in:  body
+	File []byte
+}
