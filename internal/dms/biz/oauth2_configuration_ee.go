@@ -168,8 +168,8 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 	}
 	data.UserExist = exist
 	if oauth2C.AutoCreateUser && !exist {
-		// 使用固定密码初始化用户 密码：12345678
-		password := "12345678"
+		// 使用固定密码初始化用户 密码：S01audit#$
+		password := "S01audit#$"
 		args := &CreateUserArgs{
 			Name:                   oauth2User.UID,
 			Password:               password,
