@@ -241,10 +241,6 @@ func (s *APIServer) installMiddleware() error {
 		Rewrite:  s.DMSController.DMS.DmsProxyUsecase.GetEchoProxyRewrite(),
 	}))
 
-	s.echo.Use(middleware.GzipWithConfig(middleware.GzipConfig{
-		Level: 5,
-	}))
-
 	return nil
 }
 
