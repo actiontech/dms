@@ -2266,6 +2266,34 @@ func (d *DMSController) ListDataExportTaskSQLs(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/data_export_task_sqls/download dms DownloadDataExportTaskSQLs
+//
+// dowload data_export sqls.
+//
+//	responses:
+//	  200: body:ListDataExportTaskSQLsReply
+//	  default: body:GenericResp
+func (d *DMSController) DownloadDataExportTaskSQLs(c echo.Context) error {
+	req := new(aV1.DownloadDataExportTaskSQLsReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	fileName, content, err := d.DMS.DownloadDataExportTaskSQLs(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	c.Response().Header().Set(echo.HeaderContentDisposition,
+		mime.FormatMediaType("attachment", map[string]string{"filename": fileName}))
+
+	return c.Blob(http.StatusOK, echo.MIMETextPlain, content)
+}
+
 // swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/download dms DownloadDataExportTask
 //
 // download task file.
