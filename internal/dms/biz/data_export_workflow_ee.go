@@ -3,6 +3,7 @@
 package biz
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -979,4 +980,37 @@ func (d *DataExportWorkflowUsecase) RecycleDataExportTaskFiles() {
 	}
 
 	d.log.Infof("recycle data export task file success")
+}
+
+func (d *DataExportWorkflowUsecase) DownloadDataExportTaskSQLs(ctx context.Context, req *dmsV1.DownloadDataExportTaskSQLsReq, userId string) (string, []byte, error) {
+	// TODO 下载SQL权限需要和任务的可查看权限一致
+
+	buff := &bytes.Buffer{}
+	for pageNumber, pageSize := 20, 1; ; pageNumber++ {
+		records, _, err := d.dataExportTaskRepo.ListDataExportTaskRecord(ctx, &ListDataExportTaskRecordOption{
+			PageNumber:   uint32(pageNumber),
+			LimitPerPage: uint32(pageSize),
+			OrderBy:      "",
+			FilterBy: []pkgConst.FilterCondition{
+				{
+					Field:    string(DataExportTaskRecordFieldDataExportTaskId),
+					Operator: pkgConst.FilterOperatorEqual,
+					Value:    req.DataExportTaskUid,
+				},
+			},
+		})
+		if err != nil {
+			return "", nil, err
+		}
+		for _, record := range records {
+			buff.WriteString(strings.TrimRight(record.ExportSQL, ";"))
+			buff.WriteString(";\n")
+		}
+		if len(records) < int(pageSize) {
+			break
+		}
+	}
+
+	fileName := fmt.Sprintf("export_sql_%s_%s.sql", req.DataExportTaskUid, time.Now().Format("20060102"))
+	return fileName, buff.Bytes(), nil
 }
