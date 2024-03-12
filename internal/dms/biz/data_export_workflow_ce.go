@@ -54,6 +54,9 @@ func (d *DataExportWorkflowUsecase) BatchGetDataExportTask(ctx context.Context, 
 func (d *DataExportWorkflowUsecase) ListDataExportTaskRecords(ctx context.Context, options *ListDataExportTaskRecordOption, currentUserId string) ([]*DataExportTaskRecord, int64, error) {
 	return nil, 0, errNotDataExportTask
 }
+func (d *DataExportWorkflowUsecase) DownloadDataExportTaskSQLs(ctx context.Context, req *dmsV1.DownloadDataExportTaskSQLsReq, userId string) (string, []byte, error) {
+	return "", nil, errNotDataExportTask
+}
 
 func (d *DataExportWorkflowUsecase) RecycleWorkflow()            {}
 func (d *DataExportWorkflowUsecase) RecycleDataExportTask()      {}
