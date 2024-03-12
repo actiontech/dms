@@ -4437,9 +4437,7 @@ paths:
                   x-go-name: DataExportTaskUid
             responses:
                 "200":
-                    description: ListDataExportTaskSQLsReply
-                    schema:
-                        $ref: '#/definitions/ListDataExportTaskSQLsReply'
+                    $ref: '#/responses/DownloadDataExportTaskSQLsReply'
                 default:
                     description: GenericResp
                     schema:
@@ -6084,6 +6082,10 @@ produces:
     - application/json
 responses:
     DownloadDataExportTaskReply:
+        description: ""
+        schema:
+            type: file
+    DownloadDataExportTaskSQLsReply:
         description: ""
         schema:
             type: file
