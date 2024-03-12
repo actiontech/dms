@@ -442,7 +442,7 @@ func (d *DataExportWorkflowUsecase) ExportWorkflow(ctx context.Context, workflow
 
 	for _, task := range tasks {
 		// export file name
-		task.ExportFileName = fmt.Sprintf("%s-%s.zip", workflow.Name, task.UID)
+		task.ExportFileName = fmt.Sprintf("%s-%s-%s.zip", workflow.Name, task.UID, time.Now().Format("20060102150405"))
 		err := d.ExecExportTask(ctx, task)
 		if err != nil {
 			exportFailed = true
