@@ -986,7 +986,7 @@ func (d *DataExportWorkflowUsecase) DownloadDataExportTaskSQLs(ctx context.Conte
 	// TODO 下载SQL权限需要和任务的可查看权限一致
 
 	buff := &bytes.Buffer{}
-	for pageNumber, pageSize := 20, 1; ; pageNumber++ {
+	for pageNumber, pageSize := 1, 20; ; pageNumber++ {
 		records, _, err := d.dataExportTaskRepo.ListDataExportTaskRecord(ctx, &ListDataExportTaskRecordOption{
 			PageNumber:   uint32(pageNumber),
 			LimitPerPage: uint32(pageSize),
