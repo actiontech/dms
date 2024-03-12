@@ -160,6 +160,7 @@ func (s *APIServer) initRouter() error {
 		dataExportTaskV1.POST("", s.DMSController.AddDataExportTask)
 		dataExportTaskV1.GET("", s.DMSController.BatchGetDataExportTask)
 		dataExportTaskV1.GET("/:data_export_task_uid/data_export_task_sqls", s.DMSController.ListDataExportTaskSQLs)
+		dataExportTaskV1.GET("/:data_export_task_uid/data_export_task_sqls/download", s.DMSController.DownloadDataExportTaskSQLs)
 		dataExportTaskV1.GET("/:data_export_task_uid/download", s.DMSController.DownloadDataExportTask)
 
 		if s.CloudbeaverController.CloudbeaverService.CloudbeaverUsecase.IsCloudbeaverConfigured() {
@@ -238,6 +239,10 @@ func (s *APIServer) installMiddleware() error {
 		Skipper:  s.DMSController.DMS.DmsProxyUsecase.GetEchoProxySkipper(),
 		Balancer: s.DMSController.DMS.DmsProxyUsecase.GetEchoProxyBalancer(),
 		Rewrite:  s.DMSController.DMS.DmsProxyUsecase.GetEchoProxyRewrite(),
+	}))
+
+	s.echo.Use(middleware.GzipWithConfig(middleware.GzipConfig{
+		Level: 5,
 	}))
 
 	return nil

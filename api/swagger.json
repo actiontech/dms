@@ -1337,6 +1337,46 @@
         }
       }
     },
+    "/v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/data_export_task_sqls/download": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "dowload data_export sqls.",
+        "operationId": "DownloadDataExportTaskSQLs",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "DataExportTaskUid",
+            "name": "data_export_task_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListDataExportTaskSQLsReply",
+            "schema": {
+              "$ref": "#/definitions/ListDataExportTaskSQLsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/download": {
       "get": {
         "tags": [
@@ -6652,6 +6692,11 @@
           ],
           "x-go-enum-desc": "正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown",
           "x-go-name": "Stat"
+        },
+        "third_party_user_info": {
+          "description": "third party user info",
+          "type": "string",
+          "x-go-name": "ThirdPartyUserInfo"
         },
         "uid": {
           "description": "user uid",
