@@ -2322,7 +2322,11 @@ func (d *DMSController) DownloadDataExportTask(c echo.Context) error {
 		return d.proxyDownloadDataExportTask(c, filePath)
 	}
 
-	return c.Attachment(filePath, filepath.Base(filePath))
+	fileName := filepath.Base(filePath)
+	c.Response().Header().Set(echo.HeaderContentDisposition,
+		mime.FormatMediaType("attachment", map[string]string{"filename": fileName}))
+
+	return c.File(filePath)
 }
 
 func (d *DMSController) proxyDownloadDataExportTask(c echo.Context, reportHost string) (err error) {
