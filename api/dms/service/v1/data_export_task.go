@@ -156,3 +156,14 @@ type DownloadDataExportTaskReply struct {
 	// in:  body
 	File []byte
 }
+
+// swagger:parameters DownloadDataExportTaskSQLs
+type DownloadDataExportTaskSQLsReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	// Required: true
+	// in:path
+	DataExportTaskUid string `param:"data_export_task_uid" json:"data_export_task_uid" validate:"required"`
+}
