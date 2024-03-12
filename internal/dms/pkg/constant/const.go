@@ -123,6 +123,8 @@ func ParseDBType(s string) (DBType, error) {
 		return DBTypeSQLServer, nil
 	case "OceanBase For MySQL":
 		return DBTypeOceanBaseMySQL, nil
+	case "GoldenDB":
+		return DBTypeGoldenDB, nil
 	default:
 		return "", fmt.Errorf("invalid db type: %s", s)
 	}
@@ -137,6 +139,7 @@ const (
 	DBTypeDB2            DBType = "DB2"
 	DBTypeOceanBaseMySQL DBType = "OceanBase For MySQL"
 	DBTypeTDSQLForInnoDB DBType = "TDSQL For InnoDB"
+	DBTypeGoldenDB       DBType = "GoldenDB"
 )
 
 type FilterCondition struct {

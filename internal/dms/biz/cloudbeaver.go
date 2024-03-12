@@ -956,6 +956,8 @@ func (cu *CloudbeaverUsecase) GenerateCloudbeaverConnectionParams(dbService *DBS
 		err = cu.fillDB2Params(dbService, config)
 	case constant.DBTypeOceanBaseMySQL:
 		err = cu.fillOceanBaseParams(dbService, config)
+	case constant.DBTypeGoldenDB:
+		err = cu.fillGoldenDBParams(config)
 	default:
 		return nil, fmt.Errorf("temporarily unsupported instance types")
 	}
@@ -1037,6 +1039,11 @@ func (cu *CloudbeaverUsecase) fillOceanBaseParams(inst *DBService, config map[st
 	}
 	credentialConfig["userName"] = fmt.Sprintf("%v@%v", inst.User, tenant)
 	config["credentials"] = credentialConfig
+	return nil
+}
+
+func (cu *CloudbeaverUsecase) fillGoldenDBParams(config map[string]interface{}) error {
+	config["driverId"] = "mysql:mysql8"
 	return nil
 }
 
