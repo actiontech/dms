@@ -53,7 +53,12 @@ func NewCsvExport() Exporter {
 }
 
 func (ce *CsvExport) WriteHeader(headers []string) error {
-	return ce.cw.Write(headers)
+	err := ce.cw.Write(headers)
+	if err != nil {
+		return err
+	}
+	ce.cw.Flush()
+	return nil
 }
 
 func (ce *CsvExport) WriteRaws(raws []*Raw) error {
