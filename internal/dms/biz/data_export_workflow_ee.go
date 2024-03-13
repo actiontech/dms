@@ -985,6 +985,21 @@ func (d *DataExportWorkflowUsecase) RecycleDataExportTaskFiles() {
 func (d *DataExportWorkflowUsecase) DownloadDataExportTaskSQLs(ctx context.Context, req *dmsV1.DownloadDataExportTaskSQLsReq, userId string) (string, []byte, error) {
 	// TODO 下载SQL权限需要和任务的可查看权限一致
 
+	tasks, err := d.dataExportTaskRepo.GetDataExportTaskByIds(ctx, []string{req.DataExportTaskUid})
+	if err != nil {
+		return "", nil, err
+	}
+	if len(tasks) == 0 {
+		return "", nil, fmt.Errorf("can't find task by id %s", req.DataExportTaskUid)
+	}
+	services, err := d.dbServiceRepo.GetDBServicesByIds(ctx, []string{tasks[0].DBServiceUid})
+	if err != nil {
+		return "", nil, err
+	}
+	if len(services) == 0 {
+		return "", nil, fmt.Errorf("can't find service by id %s", tasks[0].DBServiceUid)
+	}
+
 	buff := &bytes.Buffer{}
 	for pageNumber, pageSize := 1, 20; ; pageNumber++ {
 		records, _, err := d.dataExportTaskRepo.ListDataExportTaskRecord(ctx, &ListDataExportTaskRecordOption{
@@ -1002,6 +1017,7 @@ func (d *DataExportWorkflowUsecase) DownloadDataExportTaskSQLs(ctx context.Conte
 		if err != nil {
 			return "", nil, err
 		}
+
 		for _, record := range records {
 			buff.WriteString(strings.TrimRight(record.ExportSQL, ";"))
 			buff.WriteString(";\n")
@@ -1011,6 +1027,6 @@ func (d *DataExportWorkflowUsecase) DownloadDataExportTaskSQLs(ctx context.Conte
 		}
 	}
 
-	fileName := fmt.Sprintf("export_sql_%s_%s.sql", req.DataExportTaskUid, time.Now().Format("20060102"))
+	fileName := fmt.Sprintf("export_sql_%s_%s.sql", services[0].Name, time.Now().Format("20060102150405"))
 	return fileName, buff.Bytes(), nil
 }
