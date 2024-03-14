@@ -2360,3 +2360,24 @@ func (d *DMSController) proxyDownloadDataExportTask(c echo.Context, reportHost s
 
 	return
 }
+
+// swagger:route GET /v1/dms/masking/rules dms ListMaskingRules
+//
+// List masking rules.
+//
+//	responses:
+//	  200: body:ListMaskingRulesReply
+//	  default: body:GenericResp
+func (d *DMSController) ListMaskingRules(c echo.Context) error {
+	req := &aV1.ListMaskingRulesReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	reply, err := d.DMS.ListMaskingRules(c.Request().Context())
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}

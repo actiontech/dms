@@ -163,6 +163,9 @@ func (s *APIServer) initRouter() error {
 		dataExportTaskV1.GET("/:data_export_task_uid/data_export_task_sqls/download", s.DMSController.DownloadDataExportTaskSQLs)
 		dataExportTaskV1.GET("/:data_export_task_uid/download", s.DMSController.DownloadDataExportTask)
 
+		maskingV1 := v1.Group("/dms/masking")
+		maskingV1.GET("/rules", s.DMSController.ListMaskingRules)
+
 		if s.CloudbeaverController.CloudbeaverService.CloudbeaverUsecase.IsCloudbeaverConfigured() {
 			cloudbeaverV1 := s.echo.Group(s.CloudbeaverController.CloudbeaverService.CloudbeaverUsecase.GetRootUri())
 			targets, err := s.CloudbeaverController.CloudbeaverService.ProxyUsecase.GetCloudbeaverProxyTarget()
