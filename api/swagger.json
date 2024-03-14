@@ -730,6 +730,29 @@
         }
       }
     },
+    "/v1/dms/masking/rules": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List masking rules.",
+        "operationId": "ListMaskingRules",
+        "responses": {
+          "200": {
+            "description": "ListMaskingRulesReply",
+            "schema": {
+              "$ref": "#/definitions/ListMaskingRulesReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/notifications": {
       "post": {
         "tags": [
@@ -2133,6 +2156,13 @@
             "x-go-name": "FuzzyKeyword",
             "description": "the db service fuzzy keyword,include host/port",
             "name": "fuzzy_keyword",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "x-go-name": "IsEnableMasking",
+            "description": "is masking",
+            "name": "is_enable_masking",
             "in": "query"
           }
         ],
@@ -4443,6 +4473,11 @@
           "type": "string",
           "x-go-name": "Host"
         },
+        "is_enable_masking": {
+          "description": "data masking switch",
+          "type": "boolean",
+          "x-go-name": "IsEnableMasking"
+        },
         "maintenance_times": {
           "description": "DB Service maintenance time\nempty value means that maintenance time is unlimited",
           "type": "array",
@@ -5772,6 +5807,11 @@
           "type": "string",
           "x-go-name": "Host"
         },
+        "is_enable_masking": {
+          "description": "is enable masking",
+          "type": "boolean",
+          "x-go-name": "IsEnableMasking"
+        },
         "maintenance_times": {
           "description": "DB Service maintenance time",
           "type": "array",
@@ -6187,6 +6227,57 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/ListDatabaseSourceService"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListMaskingRulesData": {
+      "type": "object",
+      "properties": {
+        "effect": {
+          "type": "string",
+          "x-go-name": "Effect"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Id"
+        },
+        "masking_type": {
+          "type": "string",
+          "x-go-name": "MaskingType"
+        },
+        "reference_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "ReferenceFields"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListMaskingRulesReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "list masking rule reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListMaskingRulesData"
           },
           "x-go-name": "Data"
         },
@@ -7623,6 +7714,11 @@
           "description": "DB Service Host",
           "type": "string",
           "x-go-name": "Host"
+        },
+        "is_enable_masking": {
+          "description": "data masking switch",
+          "type": "boolean",
+          "x-go-name": "IsEnableMasking"
         },
         "maintenance_times": {
           "description": "DB Service maintenance time",

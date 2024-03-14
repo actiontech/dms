@@ -54,6 +54,10 @@ func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV1.UpdateDBSer
 		AdditionalParams:  additionalParams,
 	}
 
+	if biz.IsDMS() {
+		args.IsMaskingSwitch = req.DBService.IsEnableMasking
+	}
+
 	sqleConfig := req.DBService.SQLEConfig
 	if sqleConfig != nil {
 		args.RuleTemplateName = sqleConfig.RuleTemplateName
@@ -165,6 +169,10 @@ func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceRe
 		AdditionalParams:  additionalParams,
 	}
 
+	if biz.IsDMS() {
+		args.IsMaskingSwitch = req.DBService.IsEnableMasking
+	}
+
 	sqleConfig := req.DBService.SQLEConfig
 	if sqleConfig != nil {
 		args.RuleTemplateName = sqleConfig.RuleTemplateName
@@ -260,6 +268,14 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 		})
 	}
 
+	if biz.IsDMS() && req.IsEnableMasking != nil {
+		filterBy = append(filterBy, pkgConst.FilterCondition{
+			Field:    string(biz.DBServiceFieldIsEnableMasking),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    *req.IsEnableMasking,
+		})
+	}
+
 	if req.FilterByName != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldName),
@@ -338,6 +354,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 			Desc:             u.Desc,
 			Source:           u.Source,
 			ProjectUID:       u.ProjectUID,
+			IsEnableMasking:  u.IsMaskingSwitch,
 		}
 
 		if u.AdditionalParams != nil {

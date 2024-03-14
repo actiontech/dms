@@ -14,8 +14,6 @@ import (
 	"strings"
 	"sync"
 
-	maskBiz "github.com/actiontech/dms/internal/data_masking/biz"
-
 	"github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver/model"
@@ -82,7 +80,7 @@ type CloudbeaverUsecase struct {
 	dbServiceUsecase          *DBServiceUsecase
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	dmsConfigUseCase          *DMSConfigUseCase
-	dataMaskingUseCase        *maskBiz.DataMaskingUseCase
+	dataMaskingUseCase        *DataMaskingUsecase
 	repo                      CloudbeaverRepo
 	proxyTargetRepo           ProxyTargetRepo
 }
@@ -92,7 +90,7 @@ func NewCloudbeaverUsecase(log utilLog.Logger, cfg *CloudbeaverCfg,
 	dbServiceUsecase *DBServiceUsecase,
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase,
 	dmsConfigUseCase *DMSConfigUseCase,
-	dataMaskingUseCase *maskBiz.DataMaskingUseCase,
+	dataMaskingUseCase *DataMaskingUsecase,
 	cloudbeaverRepo CloudbeaverRepo,
 	proxyTargetRepo ProxyTargetRepo) (cu *CloudbeaverUsecase) {
 	cu = &CloudbeaverUsecase{
@@ -264,6 +262,28 @@ func (cu *CloudbeaverUsecase) getSQLEUrl(ctx context.Context) (string, error) {
 	return target.URL.String(), nil
 }
 
+type TaskInfo struct {
+	Data struct {
+		TaskInfo *model.AsyncTaskInfo `json:"taskInfo"`
+	} `json:"data"`
+}
+
+var taskIdAssocMasking sync.Map
+
+func (cu *CloudbeaverUsecase) buildTaskIdAssocDataMasking(raw []byte, enableMasking bool) error {
+	var taskInfo TaskInfo
+
+	if err := json.Unmarshal(raw, &taskInfo); err != nil {
+		cu.log.Errorf("extract task id err: %v", err)
+
+		return fmt.Errorf("extract task id err: %v", err)
+	}
+
+	taskIdAssocMasking.Store(taskInfo.Data.TaskInfo.ID, enableMasking)
+
+	return nil
+}
+
 func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) (err error) {
@@ -311,23 +331,30 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 
 			if cloudbeaverHandle.UseLocalHandler {
 				ctx := graphql.StartOperationTrace(context.Background())
+
+				var dbService *DBService
+
 				if params.OperationName == "asyncSqlExecuteQuery" {
-					isEnableSqlAudit, err := cu.isEnableSQLAudit(c.Request().Context(), params)
+					dbService, err = cu.getDbService(c.Request().Context(), params)
 					if err != nil {
 						cu.log.Error(err)
 						return err
 					}
 
-					if !isEnableSqlAudit {
-						return next(c)
+					if !cu.isEnableSQLAudit(dbService) {
+						cloudbeaverResBuf := new(bytes.Buffer)
+						mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
+						writer := &cloudbeaverResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
+						c.Response().Writer = writer
+
+						if err = next(c); err != nil {
+							return err
+						}
+
+						return cu.buildTaskIdAssocDataMasking(cloudbeaverResBuf.Bytes(), dbService.IsMaskingSwitch)
 					}
 
 					sqleUrl, err := cu.getSQLEUrl(c.Request().Context())
-					if err != nil {
-						return err
-					}
-
-					dbService, err := cu.getDbService(c.Request().Context(), params)
 					if err != nil {
 						return err
 					}
@@ -346,13 +373,13 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				}
 
 				if params.OperationName == "getSqlExecuteTaskResults" {
-					isEnableMasking, err := cu.IsEnableDataMasking(c.Request().Context())
-					if err != nil {
-						cu.log.Error(err)
-						return err
+					taskIdAssocMaskingVal, exist := taskIdAssocMasking.LoadAndDelete(params.Variables["taskId"])
+					if !exist {
+						return next(c)
 					}
 
-					if !isEnableMasking {
+					enableMasking, ok := taskIdAssocMaskingVal.(bool)
+					if !ok || !enableMasking {
 						return next(c)
 					}
 				}
@@ -368,7 +395,24 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				var resWrite *responseProcessWriter
 				if !cloudbeaverHandle.NeedModifyRemoteRes {
 					cloudbeaverNext = func(c echo.Context) ([]byte, error) {
-						return nil, next(c)
+						cloudbeaverResBuf := new(bytes.Buffer)
+						if params.OperationName == "asyncSqlExecuteQuery" {
+							mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
+							writer := &cloudbeaverResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
+							c.Response().Writer = writer
+						}
+
+						if err = next(c); err != nil {
+							return nil, err
+						}
+
+						if params.OperationName == "asyncSqlExecuteQuery" {
+							if err := cu.buildTaskIdAssocDataMasking(cloudbeaverResBuf.Bytes(), dbService.IsMaskingSwitch); err != nil {
+								return nil, err
+							}
+						}
+
+						return nil, nil
 					}
 				} else {
 					cloudbeaverNext = func(c echo.Context) ([]byte, error) {
@@ -384,7 +428,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				}
 
 				g := resolver.NewExecutableSchema(resolver.Config{
-					Resolvers: cloudbeaver.NewResolverImpl(c, cloudbeaverNext, cu.SQLExecuteResultsDataMasking),
+					Resolvers: cloudbeaver.NewResolverImpl(c, cloudbeaverNext, cu.dataMaskingUseCase.SQLExecuteResultsDataMasking),
 				})
 
 				exec := executor.New(g)
@@ -417,17 +461,29 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 	}
 }
 
-func (cu *CloudbeaverUsecase) IsEnableDataMasking(ctx context.Context) (bool, error) {
-	return cu.dmsConfigUseCase.IsEnableSQLResultsDataMasking(ctx)
+type cloudbeaverResponseWriter struct {
+	io.Writer
+	http.ResponseWriter
 }
 
-func (cu *CloudbeaverUsecase) isEnableSQLAudit(ctx context.Context, params *graphql.RawParams) (bool, error) {
-	dbService, err := cu.getDbService(ctx, params)
-	if err != nil {
-		return false, err
-	}
+func (w *cloudbeaverResponseWriter) WriteHeader(code int) {
+	w.ResponseWriter.WriteHeader(code)
+}
 
-	return dbService.SQLEConfig.SQLQueryConfig.AuditEnabled, nil
+func (w *cloudbeaverResponseWriter) Write(b []byte) (int, error) {
+	return w.Writer.Write(b)
+}
+
+func (w *cloudbeaverResponseWriter) Flush() {
+	w.ResponseWriter.(http.Flusher).Flush()
+}
+
+func (w *cloudbeaverResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	return w.ResponseWriter.(http.Hijacker).Hijack()
+}
+
+func (cu *CloudbeaverUsecase) isEnableSQLAudit(dbService *DBService) bool {
+	return dbService.SQLEConfig.SQLQueryConfig.AuditEnabled
 }
 
 func (cu *CloudbeaverUsecase) getDbService(ctx context.Context, params *graphql.RawParams) (*DBService, error) {
