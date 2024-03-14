@@ -210,6 +210,10 @@ func (s *APIServer) installMiddleware() error {
 			if strings.HasPrefix(c.Request().URL.Path, s.CloudbeaverController.CloudbeaverService.CloudbeaverUsecase.GetRootUri()) {
 				return true
 			}
+			if strings.HasPrefix(c.Request().URL.Path, "/provision/v") ||
+				strings.HasPrefix(c.Request().URL.Path, "/sqle/v") {
+				return true
+			}
 
 			return strings.Contains(c.Request().URL.Path, "/swagger")
 		}),
@@ -218,6 +222,8 @@ func (s *APIServer) installMiddleware() error {
 		HTML5:  true,
 		Browse: false,
 	}))
+	s.echo.Any("", echo.NotFoundHandler)
+	s.echo.Any("/*", echo.NotFoundHandler)
 
 	s.echo.Use(echojwt.WithConfig(echojwt.Config{
 		Skipper: middleware.Skipper(func(c echo.Context) bool {
