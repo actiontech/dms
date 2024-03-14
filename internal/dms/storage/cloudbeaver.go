@@ -125,11 +125,14 @@ func (cr *CloudbeaverRepo) UpdateCloudbeaverConnectionCache(ctx context.Context,
 	})
 }
 
-func (cr *CloudbeaverRepo) DeleteCloudbeaverConnectionCache(ctx context.Context, dbServiceId, userId string) error {
+func (cr *CloudbeaverRepo) DeleteCloudbeaverConnectionCache(ctx context.Context, dbServiceId, userId, purpose string) error {
 	return transaction(cr.log, ctx, cr.db, func(tx *gorm.DB) error {
 		db := tx.WithContext(ctx).Where("dms_db_service_id = ?", dbServiceId)
 		if len(userId) > 0 {
 			db = db.Where("dms_user_id = ?", userId)
+		}
+		if len(purpose) > 0 {
+			db = db.Where("purpose = ?", purpose)
 		}
 		if err := db.Delete(&model.CloudbeaverConnectionCache{}).Error; err != nil {
 			return fmt.Errorf("failed to delete cloudbeaver db Service: %v", err)
