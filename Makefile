@@ -33,6 +33,11 @@ ifeq ($(RELEASE),rel)
     GO_BUILD_TAGS :=$(GO_BUILD_TAGS),release
 endif
 
+PRODUCT_CATEGORY =
+ifeq ($(PRODUCT_CATEGORY),dms)
+    GO_BUILD_TAGS :=$(GO_BUILD_TAGS),dms
+endif
+
 # Two cases:
 # 1. if there is tag on current commit, means that
 # 	 we release new version on current branch just now.
