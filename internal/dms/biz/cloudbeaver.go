@@ -53,9 +53,14 @@ type CloudbeaverUser struct {
 
 type CloudbeaverConnection struct {
 	DMSDBServiceID          string `json:"dms_db_service_id"`
+	Purpose                 string `json:"purpose"`
 	DMSUserId               string `json:"dms_user_id"`
 	DMSDBServiceFingerprint string `json:"dms_db_service_fingerprint"`
 	CloudbeaverConnectionID string `json:"cloudbeaver_connection_id"`
+}
+
+func (c CloudbeaverConnection) PrimaryKey() string {
+	return getDBPrimaryKey(c.DMSDBServiceID, c.Purpose, c.DMSUserId)
 }
 
 type CloudbeaverRepo interface {
@@ -66,7 +71,7 @@ type CloudbeaverRepo interface {
 	GetCloudbeaverConnectionsByUserIdAndDBServiceIds(ctx context.Context, userId string, dmsDBServiceIds []string) ([]*CloudbeaverConnection, error)
 	GetCloudbeaverConnectionsByUserId(ctx context.Context, userId string) ([]*CloudbeaverConnection, error)
 	UpdateCloudbeaverConnectionCache(ctx context.Context, u *CloudbeaverConnection) error
-	DeleteCloudbeaverConnectionCache(ctx context.Context, dbServiceId, userId string) error
+	DeleteCloudbeaverConnectionCache(ctx context.Context, dbServiceId, userId, purpose string) error
 }
 
 type CloudbeaverUsecase struct {
@@ -606,6 +611,7 @@ func (cu *CloudbeaverUsecase) connectManagement(ctx context.Context, cloudbeaver
 			return err
 		}
 
+		// 已配置的项目管理权限和数据源工作台查询权限
 		projectIdMap := map[string]struct{}{}
 		dbServiceIdMap := map[string]struct{}{}
 		for _, opPermission := range opPermissions {
@@ -657,11 +663,17 @@ func (cu *CloudbeaverUsecase) connectManagement(ctx context.Context, cloudbeaver
 	return nil
 }
 
+// 判断连接是否唯一的条件：dbServiceId : purpose : userUid
+func getDBPrimaryKey(dbUid, purpose, userUid string) string {
+	// service.UID:service.AccountPurpose:userId
+	return fmt.Sprint(dbUid, ":", purpose, ":", userUid)
+}
+
 func (cu *CloudbeaverUsecase) operateConnection(ctx context.Context, activeDBServices []*DBService, userId string) error {
 	dbServiceMap := map[string]*DBService{}
 	projectMap := map[string]string{}
 	for _, service := range activeDBServices {
-		dbServiceMap[service.UID] = service
+		dbServiceMap[getDBPrimaryKey(service.UID, service.AccountPurpose, userId)] = service
 
 		project, err := cu.dbServiceUsecase.projectUsecase.GetProject(ctx, service.ProjectUID)
 		if err != nil {
@@ -678,34 +690,32 @@ func (cu *CloudbeaverUsecase) operateConnection(ctx context.Context, activeDBSer
 		return err
 	}
 
-	var deleteConnection []string
+	var deleteConnections []*CloudbeaverConnection
 
 	cloudbeaverConnectionMap := map[string]*CloudbeaverConnection{}
 	for _, connection := range cloudbeaverConnections {
 		// 删除用户关联的连接
 		if connection.DMSUserId == userId {
-			cloudbeaverConnectionMap[connection.DMSDBServiceID] = connection
-
-			if _, ok := dbServiceMap[connection.DMSDBServiceID]; !ok {
-				deleteConnection = append(deleteConnection, connection.DMSDBServiceID)
+			cloudbeaverConnectionMap[connection.PrimaryKey()] = connection
+			if _, ok := dbServiceMap[connection.PrimaryKey()]; !ok {
+				deleteConnections = append(deleteConnections, connection)
 			}
 		}
 	}
 
-	var createConnection []string
-	var updateConnection []string
+	createConnections, updateConnections := []*CloudbeaverConnection{}, []*CloudbeaverConnection{}
 
-	for dbServiceId, dbService := range dbServiceMap {
-		if cloudbeaverConnection, ok := cloudbeaverConnectionMap[dbServiceId]; ok {
+	for _, dbService := range dbServiceMap {
+		if cloudbeaverConnection, ok := cloudbeaverConnectionMap[getDBPrimaryKey(dbService.UID, dbService.AccountPurpose, userId)]; ok {
 			if cloudbeaverConnection.DMSDBServiceFingerprint != cu.dbServiceUsecase.GetDBServiceFingerprint(dbService) {
-				updateConnection = append(updateConnection, dbService.UID)
+				updateConnections = append(updateConnections, &CloudbeaverConnection{DMSDBServiceID: dbService.UID, Purpose: dbService.AccountPurpose, DMSUserId: userId})
 			}
 		} else {
-			createConnection = append(createConnection, dbService.UID)
+			createConnections = append(createConnections, &CloudbeaverConnection{DMSDBServiceID: dbService.UID, Purpose: dbService.AccountPurpose, DMSUserId: userId})
 		}
 	}
 
-	if len(createConnection) == 0 && len(updateConnection) == 0 && len(deleteConnection) == 0 {
+	if len(createConnections) == 0 && len(updateConnections) == 0 && len(deleteConnections) == 0 {
 		return nil
 	}
 
@@ -716,27 +726,29 @@ func (cu *CloudbeaverUsecase) operateConnection(ctx context.Context, activeDBSer
 	}
 
 	// 同步实例连接信息
-	for _, dbServiceId := range createConnection {
-		if err = cu.createCloudbeaverConnection(ctx, cloudbeaverClient, dbServiceMap[dbServiceId], projectMap[dbServiceId], userId); err != nil {
-			cu.log.Errorf("create dnServerId %s connection failed: %v", dbServiceId, err)
+	for _, createConnection := range createConnections {
+		if err = cu.createCloudbeaverConnection(ctx, cloudbeaverClient, dbServiceMap[getDBPrimaryKey(createConnection.DMSDBServiceID, createConnection.Purpose, userId)],
+			projectMap[createConnection.DMSDBServiceID], userId); err != nil {
+			cu.log.Errorf("create connection %v failed: %v", createConnection, err)
 		}
 	}
 
-	for _, dbServiceId := range updateConnection {
-		if err = cu.updateCloudbeaverConnection(ctx, cloudbeaverClient, cloudbeaverConnectionMap[dbServiceId].CloudbeaverConnectionID, dbServiceMap[dbServiceId], projectMap[dbServiceId], userId); err != nil {
-			cu.log.Errorf("update dnServerId %s to connection failed: %v", dbServiceId, err)
+	for _, updateConnection := range updateConnections {
+		if err = cu.updateCloudbeaverConnection(ctx, cloudbeaverClient, updateConnection.CloudbeaverConnectionID, dbServiceMap[getDBPrimaryKey(updateConnection.DMSDBServiceID, updateConnection.Purpose, userId)], projectMap[updateConnection.DMSDBServiceID], userId); err != nil {
+			cu.log.Errorf("update dnServerId %s to connection failed: %v", updateConnection, err)
 		}
 	}
 
-	for _, dbServiceId := range deleteConnection {
-		if err = cu.deleteCloudbeaverConnection(ctx, cloudbeaverClient, cloudbeaverConnectionMap[dbServiceId].CloudbeaverConnectionID, dbServiceId, userId); err != nil {
-			cu.log.Errorf("delete dbServerId %s to connection failed: %v", dbServiceId, err)
+	for _, deleteConnection := range deleteConnections {
+		if err = cu.deleteCloudbeaverConnection(ctx, cloudbeaverClient, deleteConnection.CloudbeaverConnectionID, deleteConnection.DMSDBServiceID, userId, deleteConnection.Purpose); err != nil {
+			cu.log.Errorf("delete connection %v failed: %v", deleteConnection, err)
 		}
 	}
 
 	return nil
 }
 
+// 删除DMS已知待删除的连接
 func (cu *CloudbeaverUsecase) clearConnection(ctx context.Context) error {
 	cloudbeaverConnections, err := cu.repo.GetAllCloudbeaverConnections(ctx)
 	if err != nil {
@@ -750,7 +762,7 @@ func (cu *CloudbeaverUsecase) clearConnection(ctx context.Context) error {
 	}
 
 	for _, item := range cloudbeaverConnections {
-		if err = cu.deleteCloudbeaverConnection(ctx, cloudbeaverClient, item.CloudbeaverConnectionID, item.DMSDBServiceID, ""); err != nil {
+		if err = cu.deleteCloudbeaverConnection(ctx, cloudbeaverClient, item.CloudbeaverConnectionID, item.DMSDBServiceID, "", ""); err != nil {
 			cu.log.Errorf("delete dbServerId %s to connection failed: %v", item.DMSDBServiceID, err)
 
 			return fmt.Errorf("delete dbServerId %s to connection failed: %v", item.DMSDBServiceID, err)
@@ -835,7 +847,7 @@ func (cu *CloudbeaverUsecase) bindUserAccessConnection(ctx context.Context, clou
 }
 
 func (cu *CloudbeaverUsecase) createCloudbeaverConnection(ctx context.Context, client *cloudbeaver.Client, dbService *DBService, project, userId string) error {
-	params, err := cu.GenerateCloudbeaverConnectionParams(dbService, project, userId)
+	params, err := cu.GenerateCloudbeaverConnectionParams(dbService, project, dbService.AccountPurpose)
 	if err != nil {
 		return fmt.Errorf("%s unsupported", dbService.DBType)
 	}
@@ -858,13 +870,14 @@ func (cu *CloudbeaverUsecase) createCloudbeaverConnection(ctx context.Context, c
 		DMSDBServiceID:          dbService.UID,
 		DMSUserId:               userId,
 		DMSDBServiceFingerprint: cu.dbServiceUsecase.GetDBServiceFingerprint(dbService),
+		Purpose:                 dbService.AccountPurpose,
 		CloudbeaverConnectionID: resp.Connection.ID,
 	})
 }
 
 // UpdateCloudbeaverConnection 更新完毕后会同步缓存
 func (cu *CloudbeaverUsecase) updateCloudbeaverConnection(ctx context.Context, client *cloudbeaver.Client, cloudbeaverConnectionId string, dbService *DBService, project, userId string) error {
-	params, err := cu.GenerateCloudbeaverConnectionParams(dbService, project, userId)
+	params, err := cu.GenerateCloudbeaverConnectionParams(dbService, project, dbService.AccountPurpose)
 	if err != nil {
 		return fmt.Errorf("%s unsupported", dbService.DBType)
 	}
@@ -892,11 +905,12 @@ func (cu *CloudbeaverUsecase) updateCloudbeaverConnection(ctx context.Context, c
 		DMSDBServiceID:          dbService.UID,
 		DMSUserId:               userId,
 		DMSDBServiceFingerprint: cu.dbServiceUsecase.GetDBServiceFingerprint(dbService),
+		Purpose:                 dbService.AccountPurpose,
 		CloudbeaverConnectionID: resp.Connection.ID,
 	})
 }
 
-func (cu *CloudbeaverUsecase) deleteCloudbeaverConnection(ctx context.Context, client *cloudbeaver.Client, cloudbeaverConnectionId, dbServiceId, userId string) error {
+func (cu *CloudbeaverUsecase) deleteCloudbeaverConnection(ctx context.Context, client *cloudbeaver.Client, cloudbeaverConnectionId, dbServiceId, userId, purpose string) error {
 	variables := make(map[string]interface{})
 	variables["connectionId"] = cloudbeaverConnectionId
 	variables["projectId"] = cloudbeaverProjectId
@@ -910,13 +924,17 @@ func (cu *CloudbeaverUsecase) deleteCloudbeaverConnection(ctx context.Context, c
 		return err
 	}
 
-	return cu.repo.DeleteCloudbeaverConnectionCache(ctx, dbServiceId, userId)
+	return cu.repo.DeleteCloudbeaverConnectionCache(ctx, dbServiceId, userId, purpose)
 }
 
-func (cu *CloudbeaverUsecase) generateCommonCloudbeaverConfigParams(dbService *DBService, project, userId string) map[string]interface{} {
+func (cu *CloudbeaverUsecase) generateCommonCloudbeaverConfigParams(dbService *DBService, project, purpose string) map[string]interface{} {
+	name := fmt.Sprintf("%s:%s", project, dbService.Name)
+	if purpose != "" {
+		name = fmt.Sprintf("%s:%s", name, purpose)
+	}
 	return map[string]interface{}{
 		"configurationType": "MANUAL",
-		"name":              fmt.Sprintf("%s:%s:%s", project, dbService.Name, userId),
+		"name":              name,
 		"template":          false,
 		"host":              dbService.Host,
 		"port":              dbService.Port,
@@ -933,9 +951,9 @@ func (cu *CloudbeaverUsecase) generateCommonCloudbeaverConfigParams(dbService *D
 
 const cloudbeaverProjectId = "g_GlobalConfiguration"
 
-func (cu *CloudbeaverUsecase) GenerateCloudbeaverConnectionParams(dbService *DBService, project string, userId string) (map[string]interface{}, error) {
+func (cu *CloudbeaverUsecase) GenerateCloudbeaverConnectionParams(dbService *DBService, project string, purpose string) (map[string]interface{}, error) {
 	var err error
-	config := cu.generateCommonCloudbeaverConfigParams(dbService, project, userId)
+	config := cu.generateCommonCloudbeaverConfigParams(dbService, project, purpose)
 
 	dbType, err := constant.ParseDBType(dbService.DBType)
 	if err != nil {
