@@ -1,0 +1,94 @@
+Items:
+  - RuleID: 1
+    In:  18612341234 is my phone
+    Method: CHINAPHONE
+  - RuleID: 2
+    In:  abcd@abcd.com
+    Method: EMAIL
+  - RuleID: 4
+    In:  320723199111243876
+    Method: CHINAID
+  - RuleID: 5
+    In:  6214180002046909007
+    Method: BANK
+  - RuleID: 6
+    In:  6214180002046909007
+    Method: BANK
+  - RuleID: 7
+    In:  E9000082
+    Method: PASSPORT
+  - RuleID: 8
+    In:  上海市徐汇区虹梅路2000号
+    Method: ADDRESS
+  - RuleID: 9
+    In:  洛奇巴布亚
+    Method: NAME
+  - RuleID: 10
+    In:  90-2E-16-5D-95-4D
+    Method: MACADDR
+  - RuleID: 11
+    In:  上海市徐汇区虹梅路2000号
+    Method: ADDRESS
+  - RuleID: 12
+    In:  102100099996
+    Method: ABA
+  - RuleID: 13
+    In:  320723199212233876
+    Method: CHINAID
+  - RuleID: 14
+    In:  14qViLJfdGaP4EeHnDyJbEGQysnCpwn1gd
+    Method: BITCOIN
+  - RuleID: 17
+    In:  E9000082
+    Method: PASSPORT
+  - RuleID: 18
+    In:  6214180002046909007
+    Method: BANK
+  - RuleID: 19
+    In:  6214180002046909007
+    Method: BANK
+  - RuleID: 20
+    In:  4343730249
+    Method: PHONE
+  - RuleID: 21
+    In:  S0756464C
+    Method: IDCARD
+  - RuleID: 23
+    In:  6214180002046909007
+    Method: BANK
+  - RuleID: 24
+    In:  京A.66666
+    Method: CAR
+  - RuleID: 25
+    In:  E9000082
+    Method: PASSPORT
+  - RuleID: 26
+    In:  4CAA4958-7F22-4776-8C41-5F1129CFAC27
+    Method: DID
+  - RuleID: 27
+    In:  新竹之乡
+    Method: NAME
+  - RuleID: 28
+    In:  2019-03-23
+    Method: BIRTH
+  - RuleID: 29
+    In:  12
+    Method: AGE
+  - RuleID: 30
+    In:  苏州大学
+    Method: EDU
+  - RuleID: 31
+    In:  china
+    Method: ExampleTAG
+  - RuleID: 32
+    In:  320832323232323232
+    Method: IDCARD
+  - RuleID: 33
+    In:  121°38′E, 25°2′N
+    Method: ExampleTAG
+  - RuleID: 35
+    In:  18801546333
+    Method: PHONE
+  - RuleID: 36
+    In:  700200
+    Method: UID
