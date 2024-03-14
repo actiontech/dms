@@ -530,6 +530,10 @@ definitions:
                 description: DB Service Host
                 type: string
                 x-go-name: Host
+            is_enable_masking:
+                description: data masking switch
+                type: boolean
+                x-go-name: IsEnableMasking
             maintenance_times:
                 description: |-
                     DB Service maintenance time
@@ -1575,6 +1579,10 @@ definitions:
                 description: db service host
                 type: string
                 x-go-name: Host
+            is_enable_masking:
+                description: is enable masking
+                type: boolean
+                x-go-name: IsEnableMasking
             maintenance_times:
                 description: DB Service maintenance time
                 items:
@@ -1900,6 +1908,44 @@ definitions:
             data:
                 items:
                     $ref: '#/definitions/ListDatabaseSourceService'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListMaskingRulesData:
+        properties:
+            effect:
+                type: string
+                x-go-name: Effect
+            id:
+                format: int64
+                type: integer
+                x-go-name: Id
+            masking_type:
+                type: string
+                x-go-name: MaskingType
+            reference_fields:
+                items:
+                    type: string
+                type: array
+                x-go-name: ReferenceFields
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListMaskingRulesReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: list masking rule reply
+                items:
+                    $ref: '#/definitions/ListMaskingRulesData'
                 type: array
                 x-go-name: Data
             message:
@@ -3077,6 +3123,10 @@ definitions:
                 description: DB Service Host
                 type: string
                 x-go-name: Host
+            is_enable_masking:
+                description: data masking switch
+                type: boolean
+                x-go-name: IsEnableMasking
             maintenance_times:
                 description: DB Service maintenance time
                 items:
@@ -3997,6 +4047,21 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: List db service driver option.
+            tags:
+                - dms
+    /v1/dms/masking/rules:
+        get:
+            operationId: ListMaskingRules
+            responses:
+                "200":
+                    description: ListMaskingRulesReply
+                    schema:
+                        $ref: '#/definitions/ListMaskingRulesReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List masking rules.
             tags:
                 - dms
     /v1/dms/notifications:
@@ -4984,6 +5049,11 @@ paths:
                   name: fuzzy_keyword
                   type: string
                   x-go-name: FuzzyKeyword
+                - description: is masking
+                  in: query
+                  name: is_enable_masking
+                  type: boolean
+                  x-go-name: IsEnableMasking
             responses:
                 "200":
                     description: ListDBServiceReply

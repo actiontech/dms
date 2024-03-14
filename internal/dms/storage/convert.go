@@ -43,6 +43,7 @@ func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
 		Source:            ds.Source,
 		MaintenancePeriod: ds.MaintenancePeriod,
 		ProjectUID:        ds.ProjectUID,
+		IsEnableMasking:   ds.IsMaskingSwitch,
 	}
 	{
 		// add sqle config
@@ -88,6 +89,7 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 		AdditionalParams:  ds.AdditionalParams,
 		Source:            ds.Source,
 		ProjectUID:        ds.ProjectUID,
+		IsMaskingSwitch:   ds.IsEnableMasking,
 	}
 	{
 		modelSqleConfig := ds.ExtraParameters.SqleConfig
