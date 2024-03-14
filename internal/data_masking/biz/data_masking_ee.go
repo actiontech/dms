@@ -8,7 +8,9 @@ import (
 
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	dlp "github.com/bytedance/godlp"
+	"github.com/bytedance/godlp/conf"
 	"github.com/bytedance/godlp/dlpheader"
+	"gopkg.in/yaml.v2"
 )
 
 //go:embed data_masking_conf_ee.yml
@@ -100,4 +102,56 @@ func (d *DataMaskingUseCase) MaskSqlExecuteResultByAutoDetection(data *MaskSqlEx
 		}
 	}
 	return nil
+}
+
+//go:embed data_masking_rule_in.yml
+var dataMaskingRuleInConf string
+
+type DataMaskingRuleIn struct {
+	Items []DataMaskingRuleInItem `yaml:"Items"`
+}
+
+type DataMaskingRuleInItem struct {
+	RuleID int32  `yaml:"RuleID"`
+	In     string `yaml:"In"`
+	Method string `yaml:"Method"`
+}
+
+type DataMaskingRuleOut struct {
+	MaskingType     string   `json:"masking_type"`
+	ReferenceFields []string `json:"reference_fields"`
+	Effect          string   `json:"effect"`
+}
+
+func (d *DataMaskingUseCase) GetMaskingRulesOut() ([]DataMaskingRuleOut, error) {
+	var dataMaskingRuleIn DataMaskingRuleIn
+	ruleIdOutMap := make(map[int32]string)
+	if err := yaml.Unmarshal([]byte(dataMaskingRuleInConf), &dataMaskingRuleIn); err == nil {
+		for _, item := range dataMaskingRuleIn.Items {
+			if out, err := d.eng.Mask(item.In, item.Method); err == nil {
+				ruleIdOutMap[item.RuleID] = out
+			} else {
+				d.log.Errorf("masking out err: %v", err)
+			}
+		}
+	} else {
+		d.log.Errorf("masking rule conf unmarshal err: %v", err)
+	}
+
+	dataMaskingConf := conf.DlpConf{}
+
+	if err := yaml.Unmarshal([]byte(d.eng.GetDefaultConf()), &dataMaskingConf); err != nil {
+		return nil, err
+	}
+
+	ret := make([]DataMaskingRuleOut, 0, len(dataMaskingConf.Rules))
+	for _, rule := range dataMaskingConf.Rules {
+		ret = append(ret, DataMaskingRuleOut{
+			MaskingType:     fmt.Sprintf("%s (%s)", rule.CnName, rule.Description),
+			ReferenceFields: rule.Verify.CDict,
+			Effect:          ruleIdOutMap[rule.RuleID],
+		})
+	}
+
+	return ret, nil
 }
