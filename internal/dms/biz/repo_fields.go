@@ -76,6 +76,7 @@ const (
 	CloudbeaverConnectionCacheFieldDMSUserID               CloudbeaverConnectionCacheField = "dms_user_id"
 	CloudbeaverConnectionCacheFieldDMSDBServiceFingerprint CloudbeaverConnectionCacheField = "dms_db_service_fingerprint"
 	CloudbeaverConnectionCacheFieldCloudbeaverConnectionID CloudbeaverConnectionCacheField = "cloudbeaver_connection_id"
+	CloudbeaverConnectionCacheFieldPurpose                 CloudbeaverConnectionCacheField = "purpose"
 )
 
 const (
@@ -117,6 +118,7 @@ const (
 	DBServiceFieldProjectUID        DBServiceField = "project_uid"
 	DBServiceFieldMaintenancePeriod DBServiceField = "maintenanceperiod"
 	DBServiceFieldExtraParameters   DBServiceField = "extraparameters"
+	DBServiceFieldIsEnableMasking   DBServiceField = "is_enable_masking"
 )
 
 const (
@@ -147,7 +149,6 @@ const (
 const (
 	DataExportTaskRecordFieldNumber           DataExportTaskRecordField = "number"
 	DataExportTaskRecordFieldDataExportTaskId DataExportTaskRecordField = "data_export_task_id"
-	DataExportTaskRecordFieldExportSQL        DataExportTaskRecordField = "exportsql"
 	DataExportTaskRecordFieldExportSQLType    DataExportTaskRecordField = "export_sql_type"
 	DataExportTaskRecordFieldExportStatus     DataExportTaskRecordField = "exportstatus"
 	DataExportTaskRecordFieldAuditResults     DataExportTaskRecordField = "auditresults"
@@ -226,6 +227,8 @@ const (
 const (
 	Oauth2ConfigurationFieldUID             Oauth2ConfigurationField = "uid"
 	Oauth2ConfigurationFieldEnableOauth2    Oauth2ConfigurationField = "enable_oauth2"
+	Oauth2ConfigurationFieldSkipCheckState  Oauth2ConfigurationField = "skip_check_state"
+	Oauth2ConfigurationFieldAutoCreateUser  Oauth2ConfigurationField = "autocreateuser"
 	Oauth2ConfigurationFieldClientID        Oauth2ConfigurationField = "client_id"
 	Oauth2ConfigurationFieldClientKey       Oauth2ConfigurationField = "clientkey"
 	Oauth2ConfigurationFieldClientSecret    Oauth2ConfigurationField = "clientsecret"
@@ -270,6 +273,7 @@ const (
 	ProxyTargetFieldUrl             ProxyTargetField = "url"
 	ProxyTargetFieldVersion         ProxyTargetField = "version"
 	ProxyTargetFieldProxyUrlPrefixs ProxyTargetField = "proxy_url_prefixs"
+	ProxyTargetFieldScenario        ProxyTargetField = "scenario"
 )
 
 const (
@@ -294,6 +298,7 @@ const (
 	UserFieldUID                    UserField = "uid"
 	UserFieldName                   UserField = "name"
 	UserFieldThirdPartyUserID       UserField = "third_party_user_id"
+	UserFieldThirdPartyUserInfo     UserField = "third_party_user_info"
 	UserFieldEmail                  UserField = "email"
 	UserFieldPhone                  UserField = "phone"
 	UserFieldWeChatID               UserField = "wechat_id"

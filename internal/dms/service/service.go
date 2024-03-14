@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/actiontech/dms/internal/apiserver/conf"
+	maskingBiz "github.com/actiontech/dms/internal/data_masking/biz"
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/internal/dms/storage"
 
@@ -35,6 +36,7 @@ type DMSService struct {
 	LicenseUsecase               *biz.LicenseUsecase
 	ClusterUsecase               *biz.ClusterUsecase
 	DataExportWorkflowUsecase    *biz.DataExportWorkflowUsecase
+	DataMaskingUsecase           *biz.DataMaskingUsecase
 	log                          *utilLog.Helper
 	shutdownCallback             func() error
 }
@@ -108,9 +110,11 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	dataExportTaskRepo := storage.NewDataExportTaskRepo(logger, st)
 	workflowRepo := storage.NewWorkflowRepo(logger, st)
 	DataExportWorkflowUsecase := biz.NewDataExportWorkflowUsecase(logger, tx, workflowRepo, dataExportTaskRepo, dbServiceRepo, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, clusterUsecase, webhookConfigurationUsecase, userUsecase, fmt.Sprintf("%s:%d", opts.ReportHost, opts.APIServiceOpts.Port))
+	dataMasking, err := maskingBiz.NewDataMaskingUseCase(logger)
 	if err != nil {
-		return nil, fmt.Errorf("failed to new dms proxy usecase: %v", err)
+		return nil, fmt.Errorf("failed to new data masking use case: %v", err)
 	}
+	dataMaskingUsecase := biz.NewMaskingUsecase(logger, dataMasking)
 
 	cronTask := biz.NewCronTaskUsecase(logger, DataExportWorkflowUsecase)
 	err = cronTask.InitialTask()
@@ -142,6 +146,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		LicenseUsecase:               LicenseUsecase,
 		ClusterUsecase:               clusterUsecase,
 		DataExportWorkflowUsecase:    DataExportWorkflowUsecase,
+		DataMaskingUsecase:           dataMaskingUsecase,
 		log:                          utilLog.NewHelper(logger, utilLog.WithMessageKey("dms.service")),
 		shutdownCallback: func() error {
 			if err := st.Close(); nil != err {
