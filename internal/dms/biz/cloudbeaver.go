@@ -60,7 +60,7 @@ type CloudbeaverConnection struct {
 }
 
 func (c CloudbeaverConnection) PrimaryKey() string {
-	return c.DMSDBServiceID + c.Purpose + c.DMSUserId
+	return getDBPrimaryKey(c.DMSDBServiceID, c.Purpose, c.DMSUserId)
 }
 
 type CloudbeaverRepo interface {
