@@ -637,7 +637,7 @@ Rules:
       CnGroup: 用户数据
   - RuleID: 35
     InfoType: PHONE
-    Description: 电话，kv类型
+    Description: 电话,kv类型
     EnName: telephone_number
     CnName: 电话号码
     Level: L4
@@ -651,7 +651,7 @@ Rules:
       CnGroup: 用户数据
   - RuleID: 36
     InfoType: UID
-    Description: 用户user id
+    Description: 用户user id,kv类型
     EnName: userid
     CnName: 用户user_id
     GroupName: user_data
