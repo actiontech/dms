@@ -22,6 +22,7 @@ func (d *DMSService) ListMaskingRules(ctx context.Context) (reply *dmsV1.ListMas
 		ret = append(ret, dmsV1.ListMaskingRulesData{
 			Id:              i + 1,
 			MaskingType:     rule.MaskingType,
+			Description:     rule.Description,
 			ReferenceFields: fields,
 			Effect:          rule.Effect,
 		})

@@ -19,6 +19,7 @@ func NewMaskingUsecase(log utilLog.Logger, dataMaskingUsecase *maskingBiz.DataMa
 
 type ListMaskingRule struct {
 	MaskingType     string   `json:"masking_type"`
+	Description     string   `json:"description"`
 	ReferenceFields []string `json:"reference_fields"`
 	Effect          string   `json:"effect"`
 }
