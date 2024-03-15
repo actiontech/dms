@@ -1,6 +1,6 @@
 Items:
   - RuleID: 1
-    In:  18612341234 is my phone
+    In:  18612341234
     Method: CHINAPHONE
   - RuleID: 2
     In:  abcd@abcd.com
@@ -21,13 +21,13 @@ Items:
     In:  上海市徐汇区虹梅路2000号
     Method: ADDRESS
   - RuleID: 9
-    In:  洛奇巴布亚
+    In:  rocky
     Method: NAME
   - RuleID: 10
     In:  90-2E-16-5D-95-4D
     Method: MACADDR
   - RuleID: 11
-    In:  上海市徐汇区虹梅路2000号
+    In:  江苏省苏州市吴中区智能大道1000号
     Method: ADDRESS
   - RuleID: 12
     In:  102100099996
@@ -66,7 +66,7 @@ Items:
     In:  4CAA4958-7F22-4776-8C41-5F1129CFAC27
     Method: DID
   - RuleID: 27
-    In:  新竹之乡
+    In:  Jack
     Method: NAME
   - RuleID: 28
     In:  2019-03-23

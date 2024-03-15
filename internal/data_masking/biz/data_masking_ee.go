@@ -5,6 +5,7 @@ package biz
 import (
 	_ "embed"
 	"fmt"
+	"strings"
 
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	dlp "github.com/bytedance/godlp"
@@ -119,6 +120,7 @@ type DataMaskingRuleInItem struct {
 
 type DataMaskingRuleOut struct {
 	MaskingType     string   `json:"masking_type"`
+	Description     string   `json:"description"`
 	ReferenceFields []string `json:"reference_fields"`
 	Effect          string   `json:"effect"`
 }
@@ -140,15 +142,21 @@ func (d *DataMaskingUseCase) GetMaskingRulesOut() ([]DataMaskingRuleOut, error) 
 
 	dataMaskingConf := conf.DlpConf{}
 
-	if err := yaml.Unmarshal([]byte(d.eng.GetDefaultConf()), &dataMaskingConf); err != nil {
+	if err := yaml.Unmarshal([]byte(ruleConf), &dataMaskingConf); err != nil {
 		return nil, err
 	}
 
 	ret := make([]DataMaskingRuleOut, 0, len(dataMaskingConf.Rules))
 	for _, rule := range dataMaskingConf.Rules {
+		// ruleId: 34, GODLP; ruleId: 31 ExampleTAG; ruleId: 33 ExampleTAG
+		if rule.Mask == "" || rule.RuleID == 34 || rule.RuleID == 31 || rule.RuleID == 33 {
+			continue
+		}
+
 		ret = append(ret, DataMaskingRuleOut{
-			MaskingType:     fmt.Sprintf("%s (%s)", rule.CnName, rule.Description),
-			ReferenceFields: rule.Verify.CDict,
+			MaskingType:     rule.CnName,
+			Description:     strings.Replace(rule.Description, ",kv类型", "(优先列名称匹配)", -1),
+			ReferenceFields: rule.Detect.KDict,
 			Effect:          ruleIdOutMap[rule.RuleID],
 		})
 	}

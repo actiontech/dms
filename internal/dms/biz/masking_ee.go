@@ -19,6 +19,7 @@ func (d *DataMaskingUsecase) ListMaskingRules(ctx context.Context) ([]ListMaskin
 	for _, rule := range rules {
 		ret = append(ret, ListMaskingRule{
 			MaskingType:     rule.MaskingType,
+			Description:     rule.Description,
 			ReferenceFields: rule.ReferenceFields,
 			Effect:          rule.Effect,
 		})
