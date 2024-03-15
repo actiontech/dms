@@ -10,6 +10,7 @@ type ListMaskingRulesReq struct {
 
 type ListMaskingRulesData struct {
 	MaskingType     string   `json:"masking_type"`
+	Description     string   `json:"description"`
 	ReferenceFields []string `json:"reference_fields"`
 	Effect          string   `json:"effect"`
 	Id              int      `json:"id"`

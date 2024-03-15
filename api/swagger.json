@@ -6241,6 +6241,10 @@
     "ListMaskingRulesData": {
       "type": "object",
       "properties": {
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
         "effect": {
           "type": "string",
           "x-go-name": "Effect"

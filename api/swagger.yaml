@@ -1918,6 +1918,9 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMaskingRulesData:
         properties:
+            description:
+                type: string
+                x-go-name: Description
             effect:
                 type: string
                 x-go-name: Effect
