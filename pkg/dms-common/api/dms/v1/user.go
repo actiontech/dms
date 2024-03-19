@@ -38,6 +38,14 @@ type GetUser struct {
 	// user bind name space
 	UserBindProjects   []UserBindProject `json:"user_bind_projects"`
 	ThirdPartyUserInfo string            `json:"third_party_user_info"`
+	// access token
+	AccessTokenInfo AccessTokenInfo `json:"access_token_info"`
+}
+
+type AccessTokenInfo struct {
+	AccessToken string `json:"access_token"`
+	ExpiredTime string `json:"token_expired_timestamp" example:"RFC3339"`
+	IsExpired   bool   `json:"is_expired"`
 }
 
 type UserBindProject struct {

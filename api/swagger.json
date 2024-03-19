@@ -3763,6 +3763,24 @@
     }
   },
   "definitions": {
+    "AccessTokenInfo": {
+      "type": "object",
+      "properties": {
+        "access_token": {
+          "type": "string",
+          "x-go-name": "AccessToken"
+        },
+        "is_expired": {
+          "type": "boolean",
+          "x-go-name": "IsExpired"
+        },
+        "token_expired_timestamp": {
+          "type": "string",
+          "x-go-name": "ExpiredTime"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
     "AddDBServicePreCheckReply": {
       "type": "object",
       "properties": {
@@ -5360,6 +5378,9 @@
       "description": "A dms user",
       "type": "object",
       "properties": {
+        "access_token_info": {
+          "$ref": "#/definitions/AccessTokenInfo"
+        },
         "authentication_type": {
           "description": "user authentication type\nldap UserAuthenticationTypeLDAP\ndms UserAuthenticationTypeDMS\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
           "type": "string",
@@ -7634,7 +7655,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
