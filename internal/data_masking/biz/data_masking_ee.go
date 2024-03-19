@@ -113,9 +113,9 @@ type DataMaskingRuleIn struct {
 }
 
 type DataMaskingRuleInItem struct {
-	RuleID int32  `yaml:"RuleID"`
-	In     string `yaml:"In"`
-	Method string `yaml:"Method"`
+	RuleID     int32  `yaml:"RuleID"`
+	In         string `yaml:"In"`
+	ColumnName string `yaml:"ColumnName"`
 }
 
 type DataMaskingRuleOut struct {
@@ -130,8 +130,8 @@ func (d *DataMaskingUseCase) GetMaskingRulesOut() ([]DataMaskingRuleOut, error) 
 	ruleIdOutMap := make(map[int32]string)
 	if err := yaml.Unmarshal([]byte(dataMaskingRuleInConf), &dataMaskingRuleIn); err == nil {
 		for _, item := range dataMaskingRuleIn.Items {
-			if out, err := d.eng.Mask(item.In, item.Method); err == nil {
-				ruleIdOutMap[item.RuleID] = out
+			if out, _, err := d.eng.DeidentifyMap(map[string]string{item.ColumnName: item.In}); err == nil {
+				ruleIdOutMap[item.RuleID] = out[item.ColumnName]
 			} else {
 				d.log.Errorf("masking out err: %v", err)
 			}
@@ -148,14 +148,14 @@ func (d *DataMaskingUseCase) GetMaskingRulesOut() ([]DataMaskingRuleOut, error) 
 
 	ret := make([]DataMaskingRuleOut, 0, len(dataMaskingConf.Rules))
 	for _, rule := range dataMaskingConf.Rules {
-		// ruleId: 34, GODLP; ruleId: 31 ExampleTAG; ruleId: 33 ExampleTAG
-		if rule.Mask == "" || rule.RuleID == 34 || rule.RuleID == 31 || rule.RuleID == 33 {
+		// ruleId: 34, GODLP;
+		if rule.Mask == "" || rule.RuleID == 34 {
 			continue
 		}
 
 		ret = append(ret, DataMaskingRuleOut{
 			MaskingType:     rule.CnName,
-			Description:     strings.Replace(rule.Description, ",kv类型", "(优先列名称匹配)", -1),
+			Description:     strings.Replace(rule.Description, ",kv类型", " (优先列名称匹配)", -1),
 			ReferenceFields: rule.Detect.KDict,
 			Effect:          ruleIdOutMap[rule.RuleID],
 		})
