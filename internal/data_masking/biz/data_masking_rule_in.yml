@@ -1,94 +1,94 @@
 Items:
   - RuleID: 1
-    In:  18612341234
-    Method: CHINAPHONE
+    In: 手机号 18801546201
+    ColumnName: all
   - RuleID: 2
-    In:  abcd@abcd.com
-    Method: EMAIL
+    In: abcd@abcd.com
+    ColumnName: all
   - RuleID: 4
-    In:  320723199111243876
-    Method: CHINAID
+    In: 510623197903208013
+    ColumnName: all
   - RuleID: 5
-    In:  6214180002046909007
-    Method: BANK
+    In: 借记卡 6214180002046909007
+    ColumnName: all
   - RuleID: 6
-    In:  6214180002046909007
-    Method: BANK
+    In: 信用卡 6214180002046909007
+    ColumnName: all
   - RuleID: 7
-    In:  E9000082
-    Method: PASSPORT
+    In: 护照 E90000822
+    ColumnName: all
   - RuleID: 8
-    In:  上海市徐汇区虹梅路2000号
-    Method: ADDRESS
+    In: 上海市闵行区虹桥镇万源路2138号泓茂中心2号楼
+    ColumnName: all
   - RuleID: 9
-    In:  rocky
-    Method: NAME
+    In: rocky
+    ColumnName: 收件人
   - RuleID: 10
-    In:  90-2E-16-5D-95-4D
-    Method: MACADDR
+    In: 90-2E-16-5D-95-4D
+    ColumnName: all
   - RuleID: 11
-    In:  江苏省苏州市吴中区智能大道1000号
-    Method: ADDRESS
+    In: 江苏省苏州市吴中区智能大道1000号
+    ColumnName: 联系地址
   - RuleID: 12
-    In:  102100099996
-    Method: ABA
+    In: 支行代码 102101292
+    ColumnName: all
   - RuleID: 13
-    In:  320723199212233876
-    Method: CHINAID
+    In: 驾照 320723199212233876
+    ColumnName: all
   - RuleID: 14
-    In:  14qViLJfdGaP4EeHnDyJbEGQysnCpwn1gd
-    Method: BITCOIN
+    In: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa
+    ColumnName: all
   - RuleID: 17
-    In:  E9000082
-    Method: PASSPORT
+    In: 护照 900008232
+    ColumnName: all
   - RuleID: 18
-    In:  6214180002046909007
-    Method: BANK
+    In: debit 6214180002046909007
+    ColumnName: all
   - RuleID: 19
-    In:  6214180002046909007
-    Method: BANK
+    In: taxid 922701234
+    ColumnName: all
   - RuleID: 20
-    In:  4343730249
-    Method: PHONE
+    In: phone 4343730249
+    ColumnName: all
   - RuleID: 21
-    In:  S0756464C
-    Method: IDCARD
+    In: nric S0756464C
+    ColumnName: all
   - RuleID: 23
     In:  6214180002046909007
-    Method: BANK
+    ColumnName: bankcard
   - RuleID: 24
-    In:  京A.66666
-    Method: CAR
+    In: 京A.66666
+    ColumnName: license_plate
   - RuleID: 25
-    In:  E9000082
-    Method: PASSPORT
+    In: E90000822
+    ColumnName: passport
   - RuleID: 26
     In:  4CAA4958-7F22-4776-8C41-5F1129CFAC27
-    Method: DID
+    ColumnName: deviceid
   - RuleID: 27
     In:  Jack
-    Method: NAME
+    ColumnName: name
   - RuleID: 28
     In:  2019-03-23
-    Method: BIRTH
+    ColumnName: birthday
   - RuleID: 29
     In:  12
-    Method: AGE
+    ColumnName: age
   - RuleID: 30
     In:  苏州大学
-    Method: EDU
+    ColumnName: education
   - RuleID: 31
-    In:  china
-    Method: ExampleTAG
+    In: 中国
+    ColumnName: nationality
   - RuleID: 32
-    In:  320832323232323232
-    Method: IDCARD
+    In: 320832323232323232
+    ColumnName: 社保号
   - RuleID: 33
     In:  121°38′E, 25°2′N
-    Method: ExampleTAG
+    ColumnName: latitude
   - RuleID: 35
     In:  18801546333
-    Method: PHONE
+    ColumnName: mobile
   - RuleID: 36
     In:  700200
-    Method: UID
+    ColumnName: uid
