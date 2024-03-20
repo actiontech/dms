@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
@@ -81,6 +82,13 @@ type User struct {
 	LastLoginAt time.Time
 	// 用户是否被删除
 	Deleted bool
+}
+
+type AccessTokenInfo struct {
+	UID         string
+	UserID      uint
+	Token       string
+	ExpiredTime time.Time
 }
 
 func initUsers() []*User {
@@ -162,6 +170,7 @@ type UserRepo interface {
 	GetUserGroupsByUser(ctx context.Context, userUid string) ([]*UserGroup, error)
 	GetOpPermissionsByUser(ctx context.Context, userUid string) ([]*OpPermission, error)
 	GetUserByThirdPartyUserID(ctx context.Context, thirdPartyUserUID string) (*User, error)
+	SaveAccessToken(ctx context.Context, accessTokenInfo *AccessTokenInfo) error
 }
 
 type UserUsecase struct {
@@ -768,4 +777,18 @@ func (d *UserUsecase) GetBizUserWithNameByUids(ctx context.Context, uids []strin
 		ret = append(ret, userCache)
 	}
 	return ret
+}
+
+func (d *UserUsecase) SaveAccessToken(ctx context.Context, userId string, token string, expiredTime time.Time) error {
+	userIdInt, err := strconv.Atoi(userId)
+	if err != nil {
+		return err
+	}
+	uid, err := pkgRand.GenStrUid()
+	if err != nil {
+		return err
+	}
+
+	tokenInfo := &AccessTokenInfo{UID: uid, UserID: uint(userIdInt), Token: token, ExpiredTime: expiredTime}
+	return d.repo.SaveAccessToken(ctx, tokenInfo)
 }

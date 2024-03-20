@@ -3,14 +3,20 @@ package service
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
+	"time"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+	jwtPkg "github.com/actiontech/dms/pkg/dms-common/api/jwt"
+	"github.com/golang-jwt/jwt/v4"
 )
+
+const AccessTokenLogin = "access_token_login"
 
 func (d *DMSService) VerifyUserLogin(ctx context.Context, req *dmsV1.VerifyUserLoginReq) (reply *dmsV1.VerifyUserLoginReply, err error) {
 	d.log.Infof("VerifyUserLogin.req=%v", req)
@@ -510,6 +516,31 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 	}
 
 	d.log.Infof("GetUser.resp=%v", reply)
+	return reply, nil
+}
+
+func (d *DMSService) GenAccessToken(ctx context.Context, currentUserUid string, req *dmsCommonV1.GenAccessToken) (reply *dmsCommonV1.GenAccessTokenReply, err error) {
+	days, err := strconv.ParseUint(req.ExpirationDays, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	expiredTime := time.Now().Add(time.Duration(days) * 24 * time.Hour)
+	token, err := jwtPkg.GenJwtTokenWithExpirationTime(jwt.NewNumericDate(expiredTime), jwtPkg.WithUserId(currentUserUid), jwtPkg.WithAccessTokenMark(AccessTokenLogin))
+	if err != nil {
+		return nil, fmt.Errorf("gen access token failed: %v", err)
+	}
+	if err := d.UserUsecase.SaveAccessToken(ctx, currentUserUid, token, expiredTime); err != nil {
+		return nil, fmt.Errorf("save access token failed: %v", err)
+	}
+
+	reply = &dmsCommonV1.GenAccessTokenReply{
+		Data: &dmsCommonV1.AccessTokenInfo{
+			AccessToken: token,
+			ExpiredTime: expiredTime.Format("2006-01-02T15:04:05-07:00"),
+		},
+	}
+
 	return reply, nil
 }
 

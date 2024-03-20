@@ -1,0 +1,80 @@
+2024-03-20 15:17:06 INFO caller=helper.go:66 dms.storage=connecting to storage, host: 10.186.60.70, port: 3306, user: root, schema: dms
+2024-03-20 15:17:06 INFO caller=helper.go:61 dms.cronmanager=cron start
+2024-03-20 15:17:06 INFO caller=helper.go:61 dms.storage=auto migrate dms tables
+2024-03-20 15:17:06 INFO caller=helper.go:61 dms.storage=connected to storage
+2024-03-20 15:17:06 INFO caller=helper.go:66 dms.storage=connecting to storage, host: 10.186.60.70, port: 3306, user: root, schema: dms
+2024-03-20 15:17:06 INFO caller=helper.go:61 dms.storage=auto migrate dms tables
+2024-03-20 15:17:06 INFO caller=helper.go:61 dms.storage=connected to storage
+2024-03-20 15:51:23 INFO caller=helper.go:66 dms.storage=connecting to storage, host: 10.186.60.70, port: 3306, user: root, schema: dms
+2024-03-20 15:51:23 INFO caller=helper.go:61 dms.cronmanager=cron start
+2024-03-20 15:51:23 INFO caller=helper.go:61 dms.storage=auto migrate dms tables
+2024-03-20 15:51:23 INFO caller=helper.go:61 dms.storage=connected to storage
+2024-03-20 15:51:23 INFO caller=helper.go:66 dms.storage=connecting to storage, host: 10.186.60.70, port: 3306, user: root, schema: dms
+2024-03-20 15:51:23 INFO caller=helper.go:61 dms.storage=auto migrate dms tables
+2024-03-20 15:51:23 INFO caller=helper.go:61 dms.storage=connected to storage
+2024-03-20 15:51:43 INFO caller=helper.go:66 dms.service=GetUser.req=&{gen_token}
+2024-03-20 15:51:43 ERROR caller=helper.go:101 storage.user=dms: storage no data:failed to get user: record not found
+2024-03-20 15:51:43 INFO caller=helper.go:66 dms.service=GetUser.req=&{gen_token};error=get user error: dms: storage no data:failed to get user: record not found
+2024-03-20 16:14:50 INFO caller=helper.go:66 dms.service=GetUser.req=&{700200}
+2024-03-20 16:41:56 ERROR caller=helper.go:101 storage.user=dms: storage error:context canceled
+2024-03-20 16:41:56 INFO caller=helper.go:66 dms.service=GetUser.req=&{700200};error=get user error: dms: storage error:context canceled
+2024-03-20 16:41:56 INFO caller=helper.go:66 dms.service=GetUser.req=&{700200}
+2024-03-20 16:41:57 INFO caller=helper.go:66 dms.service=GetUser.resp=&{0xc000618300 {0 }}
+2024-03-20 16:41:57 INFO caller=helper.go:66 dms.service=GetUser.req=&{700200};error=<nil>
+2024-03-20 16:45:22 INFO caller=helper.go:66 dms.storage=connecting to storage, host: 10.186.60.70, port: 3306, user: root, schema: dms
+2024-03-20 16:45:22 INFO caller=helper.go:61 dms.cronmanager=cron start
+2024-03-20 16:45:22 INFO caller=helper.go:61 dms.storage=auto migrate dms tables
+2024-03-20 16:45:22 INFO caller=helper.go:61 dms.storage=connected to storage
+2024-03-20 16:45:22 INFO caller=helper.go:66 dms.storage=connecting to storage, host: 10.186.60.70, port: 3306, user: root, schema: dms
+2024-03-20 16:45:22 INFO caller=helper.go:61 dms.storage=auto migrate dms tables
+2024-03-20 16:45:22 INFO caller=helper.go:61 dms.storage=connected to storage
+2024-03-20 16:59:06 INFO caller=helper.go:66 dms.storage=connecting to storage, host: 10.186.60.70, port: 3306, user: root, schema: dms
+2024-03-20 16:59:06 INFO caller=helper.go:61 dms.cronmanager=cron start
+2024-03-20 16:59:06 INFO caller=helper.go:61 dms.storage=auto migrate dms tables
+2024-03-20 16:59:06 INFO caller=helper.go:61 dms.storage=connected to storage
+2024-03-20 16:59:06 INFO caller=helper.go:66 dms.storage=connecting to storage, host: 10.186.60.70, port: 3306, user: root, schema: dms
+2024-03-20 16:59:06 INFO caller=helper.go:61 dms.storage=auto migrate dms tables
+2024-03-20 16:59:06 INFO caller=helper.go:61 dms.storage=connected to storage
+2024-03-20 16:59:11 ERROR caller=helper.go:101 storage.user=dms: storage error:failed to save access token: Error 1062 (23000): Duplicate entry '' for key 'PRIMARY'
+2024-03-20 17:08:08 INFO caller=helper.go:66 dms.storage=connecting to storage, host: 10.186.60.70, port: 3306, user: root, schema: dms
+2024-03-20 17:08:08 INFO caller=helper.go:61 dms.cronmanager=cron start
+2024-03-20 17:08:08 INFO caller=helper.go:61 dms.storage=auto migrate dms tables
+2024-03-20 17:08:08 INFO caller=helper.go:61 dms.storage=connected to storage
+2024-03-20 17:08:08 INFO caller=helper.go:66 dms.storage=connecting to storage, host: 10.186.60.70, port: 3306, user: root, schema: dms
+2024-03-20 17:08:08 INFO caller=helper.go:61 dms.storage=auto migrate dms tables
+2024-03-20 17:08:08 INFO caller=helper.go:61 dms.storage=connected to storage
+2024-03-20 17:17:54 INFO caller=helper.go:66 dms.storage=connecting to storage, host: 10.186.60.70, port: 3306, user: root, schema: dms
+2024-03-20 17:17:54 INFO caller=helper.go:61 dms.cronmanager=cron start
+2024-03-20 17:17:54 INFO caller=helper.go:61 dms.storage=auto migrate dms tables
+2024-03-20 17:17:54 INFO caller=helper.go:61 dms.storage=connected to storage
+2024-03-20 17:17:54 INFO caller=helper.go:66 dms.storage=connecting to storage, host: 10.186.60.70, port: 3306, user: root, schema: dms
+2024-03-20 17:17:54 INFO caller=helper.go:61 dms.storage=auto migrate dms tables
+2024-03-20 17:17:54 INFO caller=helper.go:61 dms.storage=connected to storage
+2024-03-20 17:18:27 INFO caller=helper.go:66 dms.storage=connecting to storage, host: 10.186.60.70, port: 3306, user: root, schema: dms
+2024-03-20 17:18:27 INFO caller=helper.go:61 dms.cronmanager=cron start
+2024-03-20 17:18:28 INFO caller=helper.go:61 dms.storage=auto migrate dms tables
+2024-03-20 17:18:28 INFO caller=helper.go:61 dms.storage=connected to storage
+2024-03-20 17:18:28 INFO caller=helper.go:66 dms.storage=connecting to storage, host: 10.186.60.70, port: 3306, user: root, schema: dms
+2024-03-20 17:18:28 INFO caller=helper.go:61 dms.storage=auto migrate dms tables
+2024-03-20 17:18:28 INFO caller=helper.go:61 dms.storage=connected to storage
+2024-03-20 17:20:14 INFO caller=helper.go:66 dms.storage=connecting to storage, host: 10.186.60.70, port: 3306, user: root, schema: dms
+2024-03-20 17:20:14 INFO caller=helper.go:61 dms.cronmanager=cron start
+2024-03-20 17:20:14 INFO caller=helper.go:61 dms.storage=auto migrate dms tables
+2024-03-20 17:20:14 INFO caller=helper.go:61 dms.storage=connected to storage
+2024-03-20 17:20:14 INFO caller=helper.go:66 dms.storage=connecting to storage, host: 10.186.60.70, port: 3306, user: root, schema: dms
+2024-03-20 17:20:15 INFO caller=helper.go:61 dms.storage=auto migrate dms tables
+2024-03-20 17:20:15 INFO caller=helper.go:61 dms.storage=connected to storage
+2024-03-20 17:22:07 INFO caller=helper.go:66 dms.storage=connecting to storage, host: 10.186.60.70, port: 3306, user: root, schema: dms
+2024-03-20 17:22:07 INFO caller=helper.go:61 dms.cronmanager=cron start
+2024-03-20 17:22:07 INFO caller=helper.go:61 dms.storage=auto migrate dms tables
+2024-03-20 17:22:07 INFO caller=helper.go:61 dms.storage=connected to storage
+2024-03-20 17:22:07 INFO caller=helper.go:66 dms.storage=connecting to storage, host: 10.186.60.70, port: 3306, user: root, schema: dms
+2024-03-20 17:22:07 INFO caller=helper.go:61 dms.storage=auto migrate dms tables
+2024-03-20 17:22:07 INFO caller=helper.go:61 dms.storage=connected to storage
+2024-03-20 17:23:35 INFO caller=helper.go:66 dms.storage=connecting to storage, host: 10.186.60.70, port: 3306, user: root, schema: dms
+2024-03-20 17:23:35 INFO caller=helper.go:61 dms.cronmanager=cron start
+2024-03-20 17:23:35 INFO caller=helper.go:61 dms.storage=auto migrate dms tables
+2024-03-20 17:23:35 INFO caller=helper.go:61 dms.storage=connected to storage
+2024-03-20 17:23:35 INFO caller=helper.go:66 dms.storage=connecting to storage, host: 10.186.60.70, port: 3306, user: root, schema: dms
+2024-03-20 17:23:36 INFO caller=helper.go:61 dms.storage=auto migrate dms tables
+2024-03-20 17:23:36 INFO caller=helper.go:61 dms.storage=connected to storage

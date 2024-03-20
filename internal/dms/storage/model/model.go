@@ -45,6 +45,7 @@ var AutoMigrateList = []interface{}{
 	WorkflowStep{},
 	DataExportTask{},
 	DataExportTaskRecord{},
+	UserAccessToken{},
 }
 
 type Model struct {
@@ -138,6 +139,15 @@ type OpPermission struct {
 	Name      string `json:"name" gorm:"size:200;uniqueIndex"`
 	Desc      string `json:"desc" gorm:"column:description"`
 	RangeType string `json:"range_type" gorm:"size:255;column:range_type"`
+}
+
+type UserAccessToken struct {
+	Model
+	Token       string    `json:"token" gorm:"size:255"`
+	ExpiredTime time.Time `json:"expired_time" example:"2018-10-21T16:40:23+08:00"`
+	UserID      uint      `json:"user_id" gorm:"size:32;index:user_id,unique"`
+
+	User *User `json:"user" gorm:"foreignkey:user_id"`
 }
 
 type DMSConfig struct {

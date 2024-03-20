@@ -12,6 +12,7 @@ import (
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 var _ biz.UserRepo = (*UserRepo)(nil)
@@ -330,4 +331,26 @@ func (d *UserRepo) GetUserByThirdPartyUserID(ctx context.Context, thirdPartyUser
 		return nil, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert model user: %v", err))
 	}
 	return ret, nil
+}
+
+func (d *UserRepo) SaveAccessToken(ctx context.Context, tokenInfo *biz.AccessTokenInfo) error {
+	userAccessToekn := &model.UserAccessToken{
+		Model: model.Model{
+			UID: tokenInfo.UID,
+		},
+		UserID:      tokenInfo.UserID,
+		Token:       tokenInfo.Token,
+		ExpiredTime: tokenInfo.ExpiredTime,
+	}
+
+	tx := d.db.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "user_id"}},
+		DoUpdates: clause.Assignments(map[string]interface{}{"token": tokenInfo.Token, "expired_time": tokenInfo.ExpiredTime}),
+	}).Create(userAccessToekn)
+
+	if tx.Error != nil {
+		return fmt.Errorf("failed to save access token: %v", tx.Error)
+	}
+
+	return nil
 }
