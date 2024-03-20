@@ -2,6 +2,19 @@ basePath: /
 consumes:
     - application/json
 definitions:
+    AccessTokenInfo:
+        properties:
+            access_token:
+                type: string
+                x-go-name: AccessToken
+            is_expired:
+                type: boolean
+                x-go-name: IsExpired
+            token_expired_timestamp:
+                type: string
+                x-go-name: ExpiredTime
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     AddDBServicePreCheckReply:
         properties:
             code:
@@ -795,6 +808,21 @@ definitions:
                 x-go-name: IsFeishuNotificationEnabled
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GenAccessTokenReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/AccessTokenInfo'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GenericResp:
         description: GenericResp defines the return code and msg
         properties:
@@ -1226,6 +1254,8 @@ definitions:
     GetUser:
         description: A dms user
         properties:
+            access_token_info:
+                $ref: '#/definitions/AccessTokenInfo'
             authentication_type:
                 description: |-
                     user authentication type
@@ -3067,7 +3097,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -6127,6 +6157,26 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: Get user op permission info, This API is used by other component such as sqle&auth to check user permissions.
+            tags:
+                - dms
+    /v1/dms/users/gen_token:
+        post:
+            operationId: GenAccessToken
+            parameters:
+                - in: query
+                  name: expiration_days
+                  type: string
+                  x-go-name: ExpirationDays
+            responses:
+                "200":
+                    description: GenAccessTokenReply
+                    schema:
+                        $ref: '#/definitions/GenAccessTokenReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Gen user access token.
             tags:
                 - dms
     /v1/dms/webhooks:
