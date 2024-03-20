@@ -3581,6 +3581,37 @@
         }
       }
     },
+    "/v1/dms/users/gen_token": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Gen user access token.",
+        "operationId": "GenAccessToken",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ExpirationDays",
+            "name": "expiration_days",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenAccessTokenReply",
+            "schema": {
+              "$ref": "#/definitions/GenAccessTokenReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/users/{user_uid}": {
       "get": {
         "tags": [
@@ -3763,6 +3794,24 @@
     }
   },
   "definitions": {
+    "AccessTokenInfo": {
+      "type": "object",
+      "properties": {
+        "access_token": {
+          "type": "string",
+          "x-go-name": "AccessToken"
+        },
+        "is_expired": {
+          "type": "boolean",
+          "x-go-name": "IsExpired"
+        },
+        "token_expired_timestamp": {
+          "type": "string",
+          "x-go-name": "ExpiredTime"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
     "AddDBServicePreCheckReply": {
       "type": "object",
       "properties": {
@@ -4795,6 +4844,26 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "GenAccessTokenReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/AccessTokenInfo"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
     "GenericResp": {
       "description": "GenericResp defines the return code and msg",
       "type": "object",
@@ -5360,6 +5429,9 @@
       "description": "A dms user",
       "type": "object",
       "properties": {
+        "access_token_info": {
+          "$ref": "#/definitions/AccessTokenInfo"
+        },
         "authentication_type": {
           "description": "user authentication type\nldap UserAuthenticationTypeLDAP\ndms UserAuthenticationTypeDMS\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
           "type": "string",
@@ -7634,7 +7706,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
