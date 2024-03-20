@@ -4847,14 +4847,14 @@
     "GenAccessTokenReply": {
       "type": "object",
       "properties": {
-        "access_token_info": {
-          "$ref": "#/definitions/AccessTokenInfo"
-        },
         "code": {
           "description": "code",
           "type": "integer",
           "format": "int64",
           "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/AccessTokenInfo"
         },
         "message": {
           "description": "message",
@@ -7706,7 +7706,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
