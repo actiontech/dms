@@ -1083,6 +1083,10 @@ func (cu *CloudbeaverUsecase) fillOracleParams(inst *DBService, config map[strin
 		"@dbeaver-sid-service@": "SID",
 		"oracle.logon-as":       "Normal",
 	}
+	// 默认关闭timezoneAsRegion，防止连接Oracle11g报错
+	config["properties"] = map[string]interface{}{
+		"oracle.jdbc.timezoneAsRegion": false,
+	}
 	return nil
 }
 
