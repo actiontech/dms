@@ -171,6 +171,7 @@ type UserRepo interface {
 	GetOpPermissionsByUser(ctx context.Context, userUid string) ([]*OpPermission, error)
 	GetUserByThirdPartyUserID(ctx context.Context, thirdPartyUserUID string) (*User, error)
 	SaveAccessToken(ctx context.Context, accessTokenInfo *AccessTokenInfo) error
+	GetAccessTokenByUser(ctx context.Context, UserUid string) (*AccessTokenInfo, error)
 }
 
 type UserUsecase struct {
@@ -791,4 +792,12 @@ func (d *UserUsecase) SaveAccessToken(ctx context.Context, userId string, token 
 
 	tokenInfo := &AccessTokenInfo{UID: uid, UserID: uint(userIdInt), Token: token, ExpiredTime: expiredTime}
 	return d.repo.SaveAccessToken(ctx, tokenInfo)
+}
+
+func (d *UserUsecase) GetAccessTokenByUser(ctx context.Context, UserUid string) (*AccessTokenInfo, error) {
+	accessTokenInfo, err := d.repo.GetAccessTokenByUser(ctx, UserUid)
+	if err != nil {
+		return nil, err
+	}
+	return accessTokenInfo, nil
 }

@@ -354,3 +354,17 @@ func (d *UserRepo) SaveAccessToken(ctx context.Context, tokenInfo *biz.AccessTok
 
 	return nil
 }
+
+func (d *UserRepo) GetAccessTokenByUser(ctx context.Context, userUid string) (*biz.AccessTokenInfo, error) {
+	var userToken *model.UserAccessToken
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.First(&userToken, "user_id = ?", userUid).Error; err != nil {
+			return fmt.Errorf("failed to get user access token: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	return &biz.AccessTokenInfo{Token: userToken.Token, ExpiredTime: userToken.ExpiredTime}, nil
+}
