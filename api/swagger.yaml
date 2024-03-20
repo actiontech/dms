@@ -810,13 +810,13 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GenAccessTokenReply:
         properties:
-            access_token_info:
-                $ref: '#/definitions/AccessTokenInfo'
             code:
                 description: code
                 format: int64
                 type: integer
                 x-go-name: Code
+            data:
+                $ref: '#/definitions/AccessTokenInfo'
             message:
                 description: message
                 type: string
@@ -3097,7 +3097,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
