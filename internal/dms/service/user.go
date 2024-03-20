@@ -511,6 +511,19 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 	}
 	dmsCommonUser.UserBindProjects = userBindProjects
 
+	// 获取用户access token
+	tokenInfo, err := d.UserUsecase.GetAccessTokenByUser(ctx, u.UID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user access token: %v", err)
+	}
+	accessToken := dmsCommonV1.AccessTokenInfo{}
+	accessToken.AccessToken = tokenInfo.Token
+	accessToken.ExpiredTime = tokenInfo.ExpiredTime.Format("2006-01-02T15:04:05-07:00")
+	if tokenInfo.ExpiredTime.Before(time.Now()) {
+		accessToken.IsExpired = true
+	}
+	dmsCommonUser.AccessTokenInfo = accessToken
+
 	reply = &dmsCommonV1.GetUserReply{
 		Data: dmsCommonUser,
 	}
