@@ -3581,6 +3581,37 @@
         }
       }
     },
+    "/v1/dms/users/gen_token": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Gen user access token.",
+        "operationId": "GenAccessToken",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ExpirationDays",
+            "name": "expiration_days",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenAccessTokenReply",
+            "schema": {
+              "$ref": "#/definitions/GenAccessTokenReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/users/{user_uid}": {
       "get": {
         "tags": [
@@ -4812,6 +4843,26 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GenAccessTokenReply": {
+      "type": "object",
+      "properties": {
+        "access_token_info": {
+          "$ref": "#/definitions/AccessTokenInfo"
+        },
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "GenericResp": {
       "description": "GenericResp defines the return code and msg",
@@ -7655,7 +7706,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
