@@ -306,3 +306,17 @@ type ListUserReply struct {
 	// Generic reply
 	base.GenericResp
 }
+
+// swagger:parameters GenAccessToken
+type GenAccessToken struct {
+	ExpirationDays string `param:"expiration_days" json:"expiration_days" validate:"required"`
+}
+
+// swagger:model GenAccessTokenReply
+type GenAccessTokenReply struct {
+	// Get user reply
+	Data *AccessTokenInfo `json:"access_token_info"`
+
+	// Generic reply
+	base.GenericResp
+}

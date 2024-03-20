@@ -735,6 +735,23 @@ func (a *DMSController) GetUser(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
+// swagger:route POST /v1/dms/users/gen_token dms GenAccessToken
+//
+// Gen user access token.
+//
+//	responses:
+//	  200: body:GenAccessTokenReply
+//	  default: body:GenericResp
+func (a *DMSController) GenAccessToken(c echo.Context) error {
+	req := new(dmsV1.GenAccessToken)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	reply := &dmsV1.GenAccessTokenReply{}
+	return NewOkRespWithReply(c, reply)
+}
+
 // swagger:route POST /v1/dms/user_groups dms AddUserGroup
 //
 // Add user group.
