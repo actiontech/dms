@@ -315,7 +315,7 @@ type GenAccessToken struct {
 // swagger:model GenAccessTokenReply
 type GenAccessTokenReply struct {
 	// Get user reply
-	Data *AccessTokenInfo `json:"access_token_info"`
+	Data *AccessTokenInfo `json:"data"`
 
 	// Generic reply
 	base.GenericResp
