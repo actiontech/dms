@@ -139,6 +139,7 @@ query getUserConnections (
 }
 fragment DatabaseConnection on ConnectionInfo {
   id
+  template
 }
 `
 }
