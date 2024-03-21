@@ -16,8 +16,6 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-const AccessTokenLogin = "access_token_login"
-
 func (d *DMSService) VerifyUserLogin(ctx context.Context, req *dmsV1.VerifyUserLoginReq) (reply *dmsV1.VerifyUserLoginReply, err error) {
 	d.log.Infof("VerifyUserLogin.req=%v", req)
 	defer func() {
@@ -539,7 +537,7 @@ func (d *DMSService) GenAccessToken(ctx context.Context, currentUserUid string, 
 	}
 
 	expiredTime := time.Now().Add(time.Duration(days) * 24 * time.Hour)
-	token, err := jwtPkg.GenJwtTokenWithExpirationTime(jwt.NewNumericDate(expiredTime), jwtPkg.WithUserId(currentUserUid), jwtPkg.WithAccessTokenMark(AccessTokenLogin))
+	token, err := jwtPkg.GenJwtTokenWithExpirationTime(jwt.NewNumericDate(expiredTime), jwtPkg.WithUserId(currentUserUid), jwtPkg.WithAccessTokenMark(biz.AccessTokenLogin))
 	if err != nil {
 		return nil, fmt.Errorf("gen access token failed: %v", err)
 	}
