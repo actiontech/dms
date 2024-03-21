@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/actiontech/dms/internal/dms/biz"
@@ -359,6 +360,10 @@ func (d *UserRepo) GetAccessTokenByUser(ctx context.Context, userUid string) (*b
 	var userToken *model.UserAccessToken
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		if err := tx.First(&userToken, "user_id = ?", userUid).Error; err != nil {
+			// 未找到记录返回空，不影响获取用户信息的功能
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil
+			}
 			return fmt.Errorf("failed to get user access token: %v", err)
 		}
 		return nil
