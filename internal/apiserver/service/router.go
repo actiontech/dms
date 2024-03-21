@@ -245,6 +245,8 @@ func (s *APIServer) installMiddleware() error {
 
 	s.echo.Use(dmsMiddleware.LicenseAdapter(s.DMSController.DMS.LicenseUsecase))
 
+	s.echo.Use(s.DMSController.DMS.AuthAccessTokenUseCase.CheckLatestAccessToken())
+
 	s.echo.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
 		Skipper:  s.DMSController.DMS.DmsProxyUsecase.GetEchoProxySkipper(),
 		Balancer: s.DMSController.DMS.DmsProxyUsecase.GetEchoProxyBalancer(),

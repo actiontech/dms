@@ -37,6 +37,7 @@ type DMSService struct {
 	ClusterUsecase               *biz.ClusterUsecase
 	DataExportWorkflowUsecase    *biz.DataExportWorkflowUsecase
 	DataMaskingUsecase           *biz.DataMaskingUsecase
+	AuthAccessTokenUseCase       *biz.AuthAccessTokenUsecase
 	log                          *utilLog.Helper
 	shutdownCallback             func() error
 }
@@ -111,6 +112,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	workflowRepo := storage.NewWorkflowRepo(logger, st)
 	DataExportWorkflowUsecase := biz.NewDataExportWorkflowUsecase(logger, tx, workflowRepo, dataExportTaskRepo, dbServiceRepo, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, clusterUsecase, webhookConfigurationUsecase, userUsecase, fmt.Sprintf("%s:%d", opts.ReportHost, opts.APIServiceOpts.Port))
 	dataMasking, err := maskingBiz.NewDataMaskingUseCase(logger)
+	authAccessTokenUsecase := biz.NewAuthAccessTokenUsecase(logger, userUsecase)
 	if err != nil {
 		return nil, fmt.Errorf("failed to new data masking use case: %v", err)
 	}
@@ -147,6 +149,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		ClusterUsecase:               clusterUsecase,
 		DataExportWorkflowUsecase:    DataExportWorkflowUsecase,
 		DataMaskingUsecase:           dataMaskingUsecase,
+		AuthAccessTokenUseCase:       authAccessTokenUsecase,
 		log:                          utilLog.NewHelper(logger, utilLog.WithMessageKey("dms.service")),
 		shutdownCallback: func() error {
 			if err := st.Close(); nil != err {
