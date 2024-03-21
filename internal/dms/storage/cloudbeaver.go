@@ -6,6 +6,7 @@ import (
 
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/internal/dms/storage/model"
+	"gorm.io/gorm/clause"
 
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 
@@ -118,7 +119,9 @@ func (cr *CloudbeaverRepo) GetCloudbeaverConnectionsByUserId(ctx context.Context
 
 func (cr *CloudbeaverRepo) UpdateCloudbeaverConnectionCache(ctx context.Context, u *biz.CloudbeaverConnection) error {
 	return transaction(cr.log, ctx, cr.db, func(tx *gorm.DB) error {
-		if err := tx.WithContext(ctx).Save(convertBizCloudbeaverConnection(u)).Error; err != nil {
+		if err := tx.WithContext(ctx).Clauses(clause.OnConflict{
+			UpdateAll: true,
+		}).Create(convertBizCloudbeaverConnection(u)).Error; err != nil {
 			return fmt.Errorf("failed to update cloudbeaver db Service: %v", err)
 		}
 		return nil
