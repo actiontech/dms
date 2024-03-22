@@ -778,15 +778,41 @@ func (cu *CloudbeaverUsecase) operateConnection(ctx context.Context, cloudbeaver
 		return err
 	}
 
+	// 获取管理员链接
+	cloudbeaverClient, err := cu.getGraphQLClientWithRootUser()
+	if err != nil {
+		return err
+	}
+
 	// cloudbeaver连接数为空则重置缓存
 	if userConnectionIds, err := cu.getUserConnectionIds(ctx, cloudbeaverUser, dmsUser); err != nil {
 		return err
-	} else if len(userConnectionIds) == 0 {
-		localCloudbeaverConnections = []*CloudbeaverConnection{}
+	} else {
+		// 本地连接缓存与cloudbeaver的连接比较，仅保留一致的连接
+		for _, connection := range localCloudbeaverConnections {
+			isConsistentConnection := false
+			for _, connectionId := range userConnectionIds {
+				if connection.CloudbeaverConnectionID == connectionId {
+					isConsistentConnection = true
+					break
+				}
+			}
+
+			if !isConsistentConnection {
+				for _, connectionId := range userConnectionIds {
+					if err := cu.deleteRemoteCloudbeaverConnection(ctx, cloudbeaverClient, connectionId); err != nil {
+						cu.log.Errorf("delete remote connection %v failed: %v", connectionId, err)
+					}
+				}
+
+				localCloudbeaverConnections = []*CloudbeaverConnection{}
+
+				break
+			}
+		}
 	}
 
 	var deleteConnections []*CloudbeaverConnection
-
 	cloudbeaverConnectionMap := map[string]*CloudbeaverConnection{}
 	for _, connection := range localCloudbeaverConnections {
 		// 删除用户关联的连接
@@ -813,12 +839,6 @@ func (cu *CloudbeaverUsecase) operateConnection(ctx context.Context, cloudbeaver
 
 	if len(createConnections) == 0 && len(updateConnections) == 0 && len(deleteConnections) == 0 {
 		return nil
-	}
-
-	// 获取管理员链接
-	cloudbeaverClient, err := cu.getGraphQLClientWithRootUser()
-	if err != nil {
-		return err
 	}
 
 	// 同步实例连接信息
@@ -992,6 +1012,19 @@ func (cu *CloudbeaverUsecase) updateCloudbeaverConnection(ctx context.Context, c
 		Purpose:                 dbService.AccountPurpose,
 		CloudbeaverConnectionID: resp.Connection.ID,
 	})
+}
+
+func (cu *CloudbeaverUsecase) deleteRemoteCloudbeaverConnection(ctx context.Context, client *cloudbeaver.Client, cloudbeaverConnectionId string) error {
+	variables := make(map[string]interface{})
+	variables["connectionId"] = cloudbeaverConnectionId
+	variables["projectId"] = cloudbeaverProjectId
+
+	req := cloudbeaver.NewRequest(cu.graphQl.DeleteConnectionQuery(), variables)
+	resp := struct {
+		DeleteConnection bool `json:"deleteConnection"`
+	}{}
+
+	return client.Run(ctx, req, &resp)
 }
 
 func (cu *CloudbeaverUsecase) deleteCloudbeaverConnection(ctx context.Context, client *cloudbeaver.Client, cloudbeaverConnectionId, dbServiceId, userId, purpose string) error {
