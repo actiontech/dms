@@ -232,8 +232,7 @@ func (s *APIServer) installMiddleware() error {
 			if strings.HasSuffix(c.Request().RequestURI, dmsV1.SessionRouterGroup) ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/oauth2" /* TODO 使用统一方法skip */) ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/personalization/logo") ||
-				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/license" /* TODO 使用统一方法skip */) ||
-				!strings.HasPrefix(c.Request().RequestURI, dmsV1.CurrentGroupVersion) {
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/license" /* TODO 使用统一方法skip */) {
 				logger.Debugf("skipper url jwt check: %v", c.Request().RequestURI)
 				return true
 			}
