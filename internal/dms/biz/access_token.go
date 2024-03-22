@@ -1,7 +1,6 @@
 package biz
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 
@@ -21,7 +20,7 @@ type AuthAccessTokenUsecase struct {
 func NewAuthAccessTokenUsecase(log utilLog.Logger, usecase *UserUsecase) *AuthAccessTokenUsecase {
 	au := &AuthAccessTokenUsecase{
 		userUsecase: usecase,
-		log:         utilLog.NewHelper(log, utilLog.WithMessageKey("biz.license")),
+		log:         utilLog.NewHelper(log, utilLog.WithMessageKey("biz.accesstoken")),
 	}
 	return au
 }
@@ -53,7 +52,7 @@ func (au *AuthAccessTokenUsecase) CheckLatestAccessToken() echo.MiddlewareFunc {
 				return echo.NewHTTPError(http.StatusUnauthorized, "access token login type is error")
 			}
 			uidStr := fmt.Sprintf("%v", claims[jwtPkg.JWTUserId])
-			accessTokenInfo, err := au.userUsecase.repo.GetAccessTokenByUser(context.TODO(), uidStr)
+			accessTokenInfo, err := au.userUsecase.repo.GetAccessTokenByUser(c.Request().Context(), uidStr)
 			if err != nil {
 				return err
 			}
