@@ -748,7 +748,17 @@ func (a *DMSController) GenAccessToken(c echo.Context) error {
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	reply := &dmsV1.GenAccessTokenReply{}
+
+	// get current user id
+	currentUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, err := a.DMS.GenAccessToken(c.Request().Context(), currentUid, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
 	return NewOkRespWithReply(c, reply)
 }
 

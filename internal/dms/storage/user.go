@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/actiontech/dms/internal/dms/biz"
@@ -12,6 +13,7 @@ import (
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 var _ biz.UserRepo = (*UserRepo)(nil)
@@ -330,4 +332,44 @@ func (d *UserRepo) GetUserByThirdPartyUserID(ctx context.Context, thirdPartyUser
 		return nil, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert model user: %v", err))
 	}
 	return ret, nil
+}
+
+func (d *UserRepo) SaveAccessToken(ctx context.Context, tokenInfo *biz.AccessTokenInfo) error {
+	userAccessToekn := &model.UserAccessToken{
+		Model: model.Model{
+			UID: tokenInfo.UID,
+		},
+		UserID:      tokenInfo.UserID,
+		Token:       tokenInfo.Token,
+		ExpiredTime: tokenInfo.ExpiredTime,
+	}
+
+	tx := d.db.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "user_id"}},
+		DoUpdates: clause.Assignments(map[string]interface{}{"token": tokenInfo.Token, "expired_time": tokenInfo.ExpiredTime}),
+	}).Create(userAccessToekn)
+
+	if tx.Error != nil {
+		return fmt.Errorf("failed to save access token: %v", tx.Error)
+	}
+
+	return nil
+}
+
+func (d *UserRepo) GetAccessTokenByUser(ctx context.Context, userUid string) (*biz.AccessTokenInfo, error) {
+	var userToken *model.UserAccessToken
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.First(&userToken, "user_id = ?", userUid).Error; err != nil {
+			// 未找到记录返回空，不影响获取用户信息的功能
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil
+			}
+			return fmt.Errorf("failed to get user access token: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	return &biz.AccessTokenInfo{Token: userToken.Token, ExpiredTime: userToken.ExpiredTime}, nil
 }
