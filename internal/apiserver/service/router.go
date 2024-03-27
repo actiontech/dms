@@ -226,6 +226,8 @@ func (s *APIServer) installMiddleware() error {
 	s.echo.Any("", echo.NotFoundHandler)
 	s.echo.Any("/*", echo.NotFoundHandler)
 
+	s.echo.Use(dmsMiddleware.JWTTokenAdapter())
+
 	s.echo.Use(echojwt.WithConfig(echojwt.Config{
 		Skipper: middleware.Skipper(func(c echo.Context) bool {
 			logger := log.NewHelper(log.With(pkgLog.NewKLogWrapper(s.logger), "middleware", "jwt"))
