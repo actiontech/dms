@@ -18,7 +18,6 @@ import (
 	"golang.org/x/oauth2"
 
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
-	"github.com/actiontech/dms/pkg/rand"
 )
 
 func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Context, enableOauth2, skipCheckState, autoCreateUser *bool, clientID, clientKey, clientHost, serverAuthUrl, serverTokenUrl, serverUserIdUrl,
@@ -169,9 +168,11 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 	}
 	data.UserExist = exist
 	if oauth2C.AutoCreateUser && !exist {
+		// 使用固定密码初始化用户 密码：S01audit#$
+		password := "S01audit#$"
 		args := &CreateUserArgs{
 			Name:                   oauth2User.UID,
-			Password:               rand.GenPassword(16),
+			Password:               password,
 			IsDisabled:             false,
 			ThirdPartyUserID:       oauth2User.UID,
 			UserAuthenticationType: UserAuthenticationTypeOAUTH2,
