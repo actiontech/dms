@@ -184,6 +184,13 @@ func exportTasksToZip(log *utilLog.Helper, w *zip.Writer, task *ExportTask) erro
 			log.Error(err)
 			return
 		}
+
+		// 编码格式bom为0xEF 0xBB 0xBF
+		if _, err = f.Write([]byte{0xEF, 0xBB, 0xBF}); err != nil {
+			log.Errorf("write bom header to csv err: %v", err)
+			return
+		}
+
 		_, err = io.Copy(f, task.Output())
 		if err != nil {
 			log.Error(err)
