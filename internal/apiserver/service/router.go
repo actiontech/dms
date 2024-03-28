@@ -226,12 +226,15 @@ func (s *APIServer) installMiddleware() error {
 	s.echo.Any("", echo.NotFoundHandler)
 	s.echo.Any("/*", echo.NotFoundHandler)
 
+	s.echo.Use(dmsMiddleware.JWTTokenAdapter())
+
 	s.echo.Use(echojwt.WithConfig(echojwt.Config{
 		Skipper: middleware.Skipper(func(c echo.Context) bool {
 			logger := log.NewHelper(log.With(pkgLog.NewKLogWrapper(s.logger), "middleware", "jwt"))
 			if strings.HasSuffix(c.Request().RequestURI, dmsV1.SessionRouterGroup) ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/oauth2" /* TODO 使用统一方法skip */) ||
 				strings.HasPrefix(c.Request().RequestURI, "/user/bind" /* TODO 使用统一方法skip */) ||
+				strings.HasPrefix(c.Request().RequestURI, "/webhook/") || // 用于跳过转发到脚本服务的请求的jwt鉴权，先在脚本初步鉴权，若脚本要调用dms或sqle则在dms和sqle端还会鉴权。参考issue：https://github.com/actiontech/dms/issues/226
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/personalization/logo") ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/license" /* TODO 使用统一方法skip */) {
 				logger.Debugf("skipper url jwt check: %v", c.Request().RequestURI)
