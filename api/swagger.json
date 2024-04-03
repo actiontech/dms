@@ -1114,6 +1114,41 @@
         }
       }
     },
+    "/v1/dms/projects/import": {
+      "put": {
+        "description": "Import projects",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "dms"
+        ],
+        "operationId": "ImportProjects",
+        "parameters": [
+          {
+            "type": "file",
+            "x-go-name": "ProjectsFile",
+            "description": "projects file.",
+            "name": "projects_file",
+            "in": "formData"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/projects/{project_uid}": {
       "put": {
         "tags": [
@@ -7706,7 +7741,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",

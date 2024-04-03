@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"bytes"
 	"fmt"
 
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
@@ -101,4 +102,14 @@ type UnarchiveProjectReq struct {
 	// Required: true
 	// in:path
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+}
+
+// swagger:parameters ImportProjects
+type ImportProjectsReq struct {
+	// projects file.
+	//
+	// in: formData
+	//
+	// swagger:file
+	ProjectsFile *bytes.Buffer `json:"projects_file"`
 }

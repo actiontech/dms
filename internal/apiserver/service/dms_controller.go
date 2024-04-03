@@ -1411,6 +1411,20 @@ func (a *DMSController) UnarchiveProject(c echo.Context) error {
 	return NewOkResp(c)
 }
 
+// swagger:route PUT /v1/dms/projects/import dms ImportProjects
+//
+// Import projects
+//
+//	 Consumes:
+//	 - multipart/form-data
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (a *DMSController) ImportProjects(c echo.Context) error {
+	return NewOkResp(c)
+}
+
 // swagger:route POST /v1/dms/proxy dms RegisterDMSProxyTarget
 //
 // Register dms proxy target.
