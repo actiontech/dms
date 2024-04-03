@@ -1114,6 +1114,26 @@
         }
       }
     },
+    "/v1/dms/projects/export": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Export projects file.",
+        "operationId": "ExportProjects",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/ExportProjectsReply"
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/projects/import": {
       "put": {
         "description": "Import projects",
@@ -7741,7 +7761,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
@@ -8419,6 +8439,12 @@
       }
     },
     "DownloadDataExportTaskSQLsReply": {
+      "description": "",
+      "schema": {
+        "type": "file"
+      }
+    },
+    "ExportProjectsReply": {
       "description": "",
       "schema": {
         "type": "file"

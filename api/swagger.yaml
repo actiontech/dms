@@ -3097,7 +3097,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -5659,6 +5659,19 @@ paths:
             summary: Unarchive a project.
             tags:
                 - dms
+    /v1/dms/projects/export:
+        get:
+            operationId: ExportProjects
+            responses:
+                "200":
+                    $ref: '#/responses/ExportProjectsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Export projects file.
+            tags:
+                - dms
     /v1/dms/projects/import:
         put:
             consumes:
@@ -6232,6 +6245,10 @@ responses:
         schema:
             type: file
     DownloadDataExportTaskSQLsReply:
+        description: ""
+        schema:
+            type: file
+    ExportProjectsReply:
         description: ""
         schema:
             type: file

@@ -113,3 +113,10 @@ type ImportProjectsReq struct {
 	// swagger:file
 	ProjectsFile *bytes.Buffer `json:"projects_file"`
 }
+
+// swagger:response ExportProjectsReply
+type ExportProjectsReply struct {
+	// swagger:file
+	// in:  body
+	File []byte
+}
