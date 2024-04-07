@@ -1411,6 +1411,64 @@ func (a *DMSController) UnarchiveProject(c echo.Context) error {
 	return NewOkResp(c)
 }
 
+// swagger:route PUT /v1/dms/projects/import dms ImportProjects
+//
+// Import projects
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (a *DMSController) ImportProjects(c echo.Context) error {
+	return NewOkResp(c)
+}
+
+// swagger:route GET /v1/dms/projects/preview_import dms PreviewImportProjects
+//
+// Preview import projects
+//
+//	Consumes:
+//	- multipart/form-data
+//
+//	responses:
+//	  200: PreviewImportProjectsReply
+//	  default: body:GenericResp
+func (a *DMSController) PreviewImportProjects(c echo.Context) error {
+	return NewOkResp(c)
+}
+
+// swagger:route GET /v1/dms/projects/import_template dms GetImportProjectsTemplate
+//
+// Get import projects template.
+//
+//	responses:
+//	  200: body:GetImportProjectsTemplateReply
+//	  default: body:GenericResp
+func (a *DMSController) GetImportProjectsTemplate(c echo.Context) error {
+	return NewOkResp(c)
+}
+
+// swagger:route GET /v1/dms/projects/export dms ExportProjects
+//
+// Export projects file.
+//
+//	responses:
+//	  200: ExportProjectsReply
+//	  default: body:GenericResp
+func (a *DMSController) ExportProjects(c echo.Context) error {
+	return nil
+}
+
+// swagger:route GET /v1/dms/projects/tips dms GetProjectTips
+//
+// Get project tips.
+//
+//	responses:
+//	  200: body:GetProjectTipsReply
+//	  default: body:GenericResp
+func (a *DMSController) GetProjectTips(c echo.Context) error {
+	return NewOkResp(c)
+}
+
 // swagger:route POST /v1/dms/proxy dms RegisterDMSProxyTarget
 //
 // Register dms proxy target.

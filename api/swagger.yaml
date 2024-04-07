@@ -391,6 +391,21 @@ definitions:
                 x-go-name: Token
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    Buffer:
+        description: The zero value for Buffer is an empty buffer ready to use.
+        title: A Buffer is a variable-sized buffer of bytes with Read and Write methods.
+        type: object
+        x-go-package: bytes
+    Business:
+        properties:
+            is_used:
+                type: boolean
+                x-go-name: IsUsed
+            name:
+                type: string
+                x-go-name: Name
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     CancelDataExportWorkflowPayload:
         properties:
             data_export_workflow_uids:
@@ -1480,6 +1495,24 @@ definitions:
                 type: string
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    ImportProjects:
+        properties:
+            business:
+                description: business
+                items:
+                    type: string
+                type: array
+                x-go-name: Business
+            desc:
+                description: Project desc
+                type: string
+                x-go-name: Desc
+            name:
+                description: Project name
+                type: string
+                x-go-name: Name
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     LDAPConfiguration:
         properties:
             enable_ldap:
@@ -2234,6 +2267,12 @@ definitions:
                 description: Project is archived
                 type: boolean
                 x-go-name: Archived
+            business:
+                description: Project business
+                items:
+                    $ref: '#/definitions/Business'
+                type: array
+                x-go-name: Business
             create_time:
                 description: create time
                 format: date-time
@@ -2245,6 +2284,10 @@ definitions:
                 description: Project desc
                 type: string
                 x-go-name: Desc
+            is_fixed_business:
+                description: is fixed business
+                type: boolean
+                x-go-name: IsFixedBusiness
             name:
                 description: Project name
                 type: string
@@ -2790,17 +2833,57 @@ definitions:
                 x-go-name: OperateDataResourceHandleUrl
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    PreviewImportProjects:
+        properties:
+            business:
+                description: business
+                items:
+                    type: string
+                type: array
+                x-go-name: Business
+            desc:
+                description: Project desc
+                type: string
+                x-go-name: Desc
+            name:
+                description: Project name
+                type: string
+                x-go-name: Name
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     Project:
         description: A Project
         properties:
+            business:
+                description: project business
+                items:
+                    type: string
+                type: array
+                x-go-name: Business
             desc:
                 description: project desc
                 type: string
                 x-go-name: Desc
+            is_fixed_business:
+                description: is fixed business
+                type: boolean
+                x-go-name: IsFixedBusiness
             name:
                 description: project name
                 type: string
                 x-go-name: Name
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ProjectTips:
+        properties:
+            business:
+                items:
+                    type: string
+                type: array
+                x-go-name: Business
+            is_fixed_business:
+                type: boolean
+                x-go-name: IsFixedBusiness
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     RegisterDMSPluginReply:
@@ -3097,7 +3180,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -3262,10 +3345,20 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateProject:
         properties:
+            business:
+                description: Project business
+                items:
+                    type: string
+                type: array
+                x-go-name: Business
             desc:
                 description: Project desc
                 type: string
                 x-go-name: Desc
+            is_fixed_business:
+                description: is fixed business
+                type: boolean
+                x-go-name: IsFixedBusiness
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateRole:
@@ -5659,6 +5752,101 @@ paths:
             summary: Unarchive a project.
             tags:
                 - dms
+    /v1/dms/projects/export:
+        get:
+            operationId: ExportProjects
+            responses:
+                "200":
+                    $ref: '#/responses/ExportProjectsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Export projects file.
+            tags:
+                - dms
+    /v1/dms/projects/import:
+        put:
+            description: Import projects
+            operationId: ImportProjects
+            parameters:
+                - in: query
+                  items:
+                    $ref: '#/definitions/ImportProjects'
+                  name: projects
+                  type: array
+                  x-go-name: Projects
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            tags:
+                - dms
+    /v1/dms/projects/import_template:
+        get:
+            operationId: GetImportProjectsTemplate
+            responses:
+                "200":
+                    description: GetImportProjectsTemplateReply
+                    schema:
+                        $ref: '#/definitions/GetImportProjectsTemplateReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get import projects template.
+            tags:
+                - dms
+    /v1/dms/projects/preview_import:
+        get:
+            consumes:
+                - multipart/form-data
+            description: Preview import projects
+            operationId: PreviewImportProjects
+            parameters:
+                - $ref: '#/definitions/Buffer'
+                  description: |-
+                    projects file.
+
+                    in: formDate
+                  in: query
+                  name: projects_file
+                  x-go-name: ProjectsFile
+            responses:
+                "200":
+                    $ref: '#/responses/PreviewImportProjectsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            tags:
+                - dms
+    /v1/dms/projects/tips:
+        get:
+            operationId: GetProjectTips
+            parameters:
+                - description: Project uid
+                  in: query
+                  name: project_uid
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: GetProjectTipsReply
+                    schema:
+                        $ref: '#/definitions/GetProjectTipsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get project tips.
+            tags:
+                - dms
     /v1/dms/proxy:
         post:
             operationId: RegisterDMSProxyTarget
@@ -6212,6 +6400,10 @@ responses:
         description: ""
         schema:
             type: file
+    ExportProjectsReply:
+        description: ""
+        schema:
+            type: file
     GenericResp:
         description: GenericResp defines the return code and msg
         headers:
@@ -6222,14 +6414,51 @@ responses:
             message:
                 description: message
                 type: string
+    GetImportProjectsTemplateReply:
+        description: ""
+        schema:
+            items:
+                format: uint8
+                type: integer
+            type: array
     GetLicenseInfoReply:
         description: ""
         schema:
             type: file
+    GetProjectTipsReply:
+        description: ""
+        headers:
+            code:
+                description: code
+                format: int64
+                type: integer
+            data:
+                description: project tips
+                items:
+                    $ref: '#/definitions/ProjectTips'
+                type: array
+            message:
+                description: message
+                type: string
     GetStaticLogoReply:
         description: ""
         schema:
             type: file
+    PreviewImportProjectsReply:
+        description: ""
+        headers:
+            code:
+                description: code
+                format: int64
+                type: integer
+            data:
+                description: list preview import projects
+                items:
+                    $ref: '#/definitions/PreviewImportProjects'
+                type: array
+            message:
+                description: message
+                type: string
 schemes:
     - http
     - https
