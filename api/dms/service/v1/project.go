@@ -156,6 +156,13 @@ type ExportProjectsReply struct {
 	File []byte
 }
 
+// swagger:response GetImportProjectsTemplateReply
+type GetImportProjectsTemplateReply struct {
+	// Generic reply
+	// in: body
+	File []byte
+}
+
 // swagger:parameters GetProjectTips
 type GetProjectTipsReq struct {
 	// Project uid

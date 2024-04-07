@@ -5772,6 +5772,21 @@ paths:
                         $ref: '#/definitions/GenericResp'
             tags:
                 - dms
+    /v1/dms/projects/import_template:
+        get:
+            operationId: GetImportProjectsTemplate
+            responses:
+                "200":
+                    description: GetImportProjectsTemplateReply
+                    schema:
+                        $ref: '#/definitions/GetImportProjectsTemplateReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get import projects template.
+            tags:
+                - dms
     /v1/dms/projects/preview_import:
         get:
             consumes:
@@ -6384,6 +6399,13 @@ responses:
             message:
                 description: message
                 type: string
+    GetImportProjectsTemplateReply:
+        description: ""
+        schema:
+            items:
+                format: uint8
+                type: integer
+            type: array
     GetLicenseInfoReply:
         description: ""
         schema:

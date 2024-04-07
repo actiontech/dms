@@ -105,6 +105,7 @@ func (s *APIServer) initRouter() error {
 		projectV1.PUT("/:project_uid/archive", s.DMSController.ArchiveProject)
 		projectV1.PUT("/:project_uid/unarchive", s.DMSController.UnarchiveProject)
 		projectV1.PUT("/import", s.DMSController.ImportProjects)
+		projectV1.GET("/import_template", s.DMSController.GetImportProjectsTemplate)
 		projectV1.GET("/preview_import", s.DMSController.PreviewImportProjects)
 		projectV1.GET("/export", s.DMSController.ExportProjects)
 		projectV1.GET("/tips", s.DMSController.GetProjectTips)
