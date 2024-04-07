@@ -13,6 +13,8 @@ type Project struct {
 	Name string `json:"name"`
 	// project desc
 	Desc string `json:"desc"`
+	// is fixed business
+	IsFixedBusiness bool `json:"is_fixed_business"`
 	// project business
 	Business []string `json:"business"`
 }
@@ -67,6 +69,8 @@ func (u *DelProjectReq) String() string {
 type UpdateProject struct {
 	// Project desc
 	Desc *string `json:"desc"`
+	// is fixed business
+	IsFixedBusiness *bool `json:"is_fixed_business"`
 	// Project business
 	Business []string `json:"business"`
 }
@@ -179,5 +183,6 @@ type GetProjectTipsReply struct {
 }
 
 type ProjectTips struct {
-	Business []string `json:"business"`
+	IsFixedBusiness bool     `json:"is_fixed_business"`
+	Business        []string `json:"business"`
 }

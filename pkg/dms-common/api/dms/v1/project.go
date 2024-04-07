@@ -41,6 +41,8 @@ type ListProject struct {
 	Archived bool `json:"archived"`
 	// Project desc
 	Desc string `json:"desc"`
+	// is fixed business
+	IsFixedBusiness bool `json:"is_fixed_business"`
 	// Project business
 	Business []Business `json:"business"`
 	// create user

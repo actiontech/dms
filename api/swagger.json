@@ -6881,6 +6881,11 @@
           "type": "string",
           "x-go-name": "Desc"
         },
+        "is_fixed_business": {
+          "description": "is fixed business",
+          "type": "boolean",
+          "x-go-name": "IsFixedBusiness"
+        },
         "name": {
           "description": "Project name",
           "type": "string",
@@ -7533,6 +7538,11 @@
           "type": "string",
           "x-go-name": "Desc"
         },
+        "is_fixed_business": {
+          "description": "is fixed business",
+          "type": "boolean",
+          "x-go-name": "IsFixedBusiness"
+        },
         "name": {
           "description": "project name",
           "type": "string",
@@ -7550,6 +7560,10 @@
             "type": "string"
           },
           "x-go-name": "Business"
+        },
+        "is_fixed_business": {
+          "type": "boolean",
+          "x-go-name": "IsFixedBusiness"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -8174,6 +8188,11 @@
           "description": "Project desc",
           "type": "string",
           "x-go-name": "Desc"
+        },
+        "is_fixed_business": {
+          "description": "is fixed business",
+          "type": "boolean",
+          "x-go-name": "IsFixedBusiness"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
