@@ -1114,6 +1114,147 @@
         }
       }
     },
+    "/v1/dms/projects/export": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Export projects file.",
+        "operationId": "ExportProjects",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/ExportProjectsReply"
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/import": {
+      "put": {
+        "description": "Import projects",
+        "tags": [
+          "dms"
+        ],
+        "operationId": "ImportProjects",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/ImportProjects"
+            },
+            "x-go-name": "Projects",
+            "name": "projects",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/import_template": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get import projects template.",
+        "operationId": "GetImportProjectsTemplate",
+        "responses": {
+          "200": {
+            "description": "GetImportProjectsTemplateReply",
+            "schema": {
+              "$ref": "#/definitions/GetImportProjectsTemplateReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/preview_import": {
+      "get": {
+        "description": "Preview import projects",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "dms"
+        ],
+        "operationId": "PreviewImportProjects",
+        "parameters": [
+          {
+            "$ref": "#/definitions/Buffer",
+            "x-go-name": "ProjectsFile",
+            "description": "projects file.\n\nin: formDate",
+            "name": "projects_file",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/PreviewImportProjectsReply"
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/tips": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get project tips.",
+        "operationId": "GetProjectTips",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "Project uid",
+            "name": "project_uid",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GetProjectTipsReply",
+            "schema": {
+              "$ref": "#/definitions/GetProjectTipsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/projects/{project_uid}": {
       "put": {
         "tags": [
@@ -4312,6 +4453,26 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "Buffer": {
+      "description": "The zero value for Buffer is an empty buffer ready to use.",
+      "type": "object",
+      "title": "A Buffer is a variable-sized buffer of bytes with Read and Write methods.",
+      "x-go-package": "bytes"
+    },
+    "Business": {
+      "type": "object",
+      "properties": {
+        "is_used": {
+          "type": "boolean",
+          "x-go-name": "IsUsed"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
     "CancelDataExportWorkflowPayload": {
       "type": "object",
       "required": [
@@ -5705,6 +5866,30 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "ImportProjects": {
+      "type": "object",
+      "properties": {
+        "business": {
+          "description": "business",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Business"
+        },
+        "desc": {
+          "description": "Project desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "name": {
+          "description": "Project name",
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "LDAPConfiguration": {
       "type": "object",
       "properties": {
@@ -6674,6 +6859,14 @@
           "type": "boolean",
           "x-go-name": "Archived"
         },
+        "business": {
+          "description": "Project business",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Business"
+          },
+          "x-go-name": "Business"
+        },
         "create_time": {
           "description": "create time",
           "type": "string",
@@ -6687,6 +6880,11 @@
           "description": "Project desc",
           "type": "string",
           "x-go-name": "Desc"
+        },
+        "is_fixed_business": {
+          "description": "is fixed business",
+          "type": "boolean",
+          "x-go-name": "IsFixedBusiness"
         },
         "name": {
           "description": "Project name",
@@ -7299,19 +7497,73 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "PreviewImportProjects": {
+      "type": "object",
+      "properties": {
+        "business": {
+          "description": "business",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Business"
+        },
+        "desc": {
+          "description": "Project desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "name": {
+          "description": "Project name",
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "Project": {
       "description": "A Project",
       "type": "object",
       "properties": {
+        "business": {
+          "description": "project business",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Business"
+        },
         "desc": {
           "description": "project desc",
           "type": "string",
           "x-go-name": "Desc"
         },
+        "is_fixed_business": {
+          "description": "is fixed business",
+          "type": "boolean",
+          "x-go-name": "IsFixedBusiness"
+        },
         "name": {
           "description": "project name",
           "type": "string",
           "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ProjectTips": {
+      "type": "object",
+      "properties": {
+        "business": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Business"
+        },
+        "is_fixed_business": {
+          "type": "boolean",
+          "x-go-name": "IsFixedBusiness"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -7706,7 +7958,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
@@ -7924,10 +8176,23 @@
     "UpdateProject": {
       "type": "object",
       "properties": {
+        "business": {
+          "description": "Project business",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Business"
+        },
         "desc": {
           "description": "Project desc",
           "type": "string",
           "x-go-name": "Desc"
+        },
+        "is_fixed_business": {
+          "description": "is fixed business",
+          "type": "boolean",
+          "x-go-name": "IsFixedBusiness"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -8389,6 +8654,12 @@
         "type": "file"
       }
     },
+    "ExportProjectsReply": {
+      "description": "",
+      "schema": {
+        "type": "file"
+      }
+    },
     "GenericResp": {
       "description": "GenericResp defines the return code and msg",
       "headers": {
@@ -8403,16 +8674,68 @@
         }
       }
     },
+    "GetImportProjectsTemplateReply": {
+      "description": "",
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "format": "uint8"
+        }
+      }
+    },
     "GetLicenseInfoReply": {
       "description": "",
       "schema": {
         "type": "file"
       }
     },
+    "GetProjectTipsReply": {
+      "description": "",
+      "headers": {
+        "code": {
+          "type": "integer",
+          "format": "int64",
+          "description": "code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProjectTips"
+          },
+          "description": "project tips"
+        },
+        "message": {
+          "type": "string",
+          "description": "message"
+        }
+      }
+    },
     "GetStaticLogoReply": {
       "description": "",
       "schema": {
         "type": "file"
+      }
+    },
+    "PreviewImportProjectsReply": {
+      "description": "",
+      "headers": {
+        "code": {
+          "type": "integer",
+          "format": "int64",
+          "description": "code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PreviewImportProjects"
+          },
+          "description": "list preview import projects"
+        },
+        "message": {
+          "type": "string",
+          "description": "message"
+        }
       }
     }
   },

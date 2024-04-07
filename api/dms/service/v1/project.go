@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"bytes"
 	"fmt"
 
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
@@ -12,6 +13,10 @@ type Project struct {
 	Name string `json:"name"`
 	// project desc
 	Desc string `json:"desc"`
+	// is fixed business
+	IsFixedBusiness bool `json:"is_fixed_business"`
+	// project business
+	Business []string `json:"business"`
 }
 
 // swagger:parameters AddProject
@@ -64,6 +69,10 @@ func (u *DelProjectReq) String() string {
 type UpdateProject struct {
 	// Project desc
 	Desc *string `json:"desc"`
+	// is fixed business
+	IsFixedBusiness *bool `json:"is_fixed_business"`
+	// Project business
+	Business []string `json:"business"`
 }
 
 // swagger:parameters UpdateProject
@@ -101,4 +110,79 @@ type UnarchiveProjectReq struct {
 	// Required: true
 	// in:path
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+}
+
+// swagger:parameters ImportProjects
+type ImportProjectsReq struct {
+	Projects []*ImportProjects `json:"projects" validate:"valid"`
+}
+
+type ImportProjects struct {
+	// Project name
+	Name string `json:"name" validate:"required"`
+	// Project desc
+	Desc string `json:"desc"`
+	// business
+	Business []string `json:"business" validate:"required"`
+}
+
+// swagger:parameters PreviewImportProjects
+type PreviewImportProjectsRep struct {
+	// projects file.
+	//
+	// in: formDate
+	//
+	// swagger:file
+	ProjectsFile *bytes.Buffer `json:"projects_file"`
+}
+
+// swagger:response PreviewImportProjectsReply
+type PreviewImportProjectsReply struct {
+	// Generic reply
+	base.GenericResp
+	// list preview import projects
+	Data []*PreviewImportProjects `json:"data"`
+}
+
+type PreviewImportProjects struct {
+	// Project name
+	Name string `json:"name"`
+	// Project desc
+	Desc string `json:"desc"`
+	// business
+	Business []string `json:"business"`
+}
+
+// swagger:response ExportProjectsReply
+type ExportProjectsReply struct {
+	// swagger:file
+	// in:  body
+	File []byte
+}
+
+// swagger:response GetImportProjectsTemplateReply
+type GetImportProjectsTemplateReply struct {
+	// Generic reply
+	// in: body
+	File []byte
+}
+
+// swagger:parameters GetProjectTips
+type GetProjectTipsReq struct {
+	// Project uid
+	// in:query
+	ProjectUid string `json:"project_uid"`
+}
+
+// swagger:response GetProjectTipsReply
+type GetProjectTipsReply struct {
+	// Generic reply
+	base.GenericResp
+	// project tips
+	Data []*ProjectTips `json:"data"`
+}
+
+type ProjectTips struct {
+	IsFixedBusiness bool     `json:"is_fixed_business"`
+	Business        []string `json:"business"`
 }

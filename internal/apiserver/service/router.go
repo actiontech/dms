@@ -104,6 +104,11 @@ func (s *APIServer) initRouter() error {
 		projectV1.PUT("/:project_uid", s.DMSController.UpdateProject)
 		projectV1.PUT("/:project_uid/archive", s.DMSController.ArchiveProject)
 		projectV1.PUT("/:project_uid/unarchive", s.DMSController.UnarchiveProject)
+		projectV1.PUT("/import", s.DMSController.ImportProjects)
+		projectV1.GET("/import_template", s.DMSController.GetImportProjectsTemplate)
+		projectV1.GET("/preview_import", s.DMSController.PreviewImportProjects)
+		projectV1.GET("/export", s.DMSController.ExportProjects)
+		projectV1.GET("/tips", s.DMSController.GetProjectTips)
 
 		// oauth2 interface does not require login authentication
 		oauth2V1 := v1.Group("/dms/oauth2")
@@ -233,10 +238,9 @@ func (s *APIServer) installMiddleware() error {
 			logger := log.NewHelper(log.With(pkgLog.NewKLogWrapper(s.logger), "middleware", "jwt"))
 			if strings.HasSuffix(c.Request().RequestURI, dmsV1.SessionRouterGroup) ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/oauth2" /* TODO 使用统一方法skip */) ||
-				strings.HasPrefix(c.Request().RequestURI, "/user/bind" /* TODO 使用统一方法skip */) ||
-				strings.HasPrefix(c.Request().RequestURI, "/webhook/") || // 用于跳过转发到脚本服务的请求的jwt鉴权，先在脚本初步鉴权，若脚本要调用dms或sqle则在dms和sqle端还会鉴权。参考issue：https://github.com/actiontech/dms/issues/226
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/personalization/logo") ||
-				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/license" /* TODO 使用统一方法skip */) {
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/license" /* TODO 使用统一方法skip */) ||
+				!strings.HasPrefix(c.Request().RequestURI, dmsV1.CurrentGroupVersion) {
 				logger.Debugf("skipper url jwt check: %v", c.Request().RequestURI)
 				return true
 			}
