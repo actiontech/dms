@@ -105,6 +105,7 @@ func (s *APIServer) initRouter() error {
 		projectV1.PUT("/:project_uid/archive", s.DMSController.ArchiveProject)
 		projectV1.PUT("/:project_uid/unarchive", s.DMSController.UnarchiveProject)
 		projectV1.PUT("/import", s.DMSController.ImportProjects)
+		projectV1.GET("/preview_import", s.DMSController.PreviewImportProjects)
 		projectV1.GET("/export", s.DMSController.ExportProjects)
 
 		// oauth2 interface does not require login authentication

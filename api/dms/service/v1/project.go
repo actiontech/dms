@@ -114,6 +114,33 @@ type ImportProjectsReq struct {
 	ProjectsFile *bytes.Buffer `json:"projects_file"`
 }
 
+// swagger:parameters PreviewImportProjects
+type PreviewImportProjectsRep struct {
+	// projects file.
+	//
+	// in: formDate
+	//
+	// swagger:file
+	ProjectsFile *bytes.Buffer `json:"projects_file"`
+}
+
+// swagger:response PreviewImportProjectsReply
+type PreviewImportProjectsReply struct {
+	// Generic reply
+	base.GenericResp
+	// list preview import projects
+	Data []*PreviewImportProjects `json:"data"`
+}
+
+type PreviewImportProjects struct {
+	// Project uid
+	ProjectUid string `json:"uid"`
+	// Project name
+	Name string `json:"name"`
+	// business
+	Business []string `json:"business"`
+}
+
 // swagger:response ExportProjectsReply
 type ExportProjectsReply struct {
 	// swagger:file

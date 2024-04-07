@@ -1425,6 +1425,20 @@ func (a *DMSController) ImportProjects(c echo.Context) error {
 	return NewOkResp(c)
 }
 
+// swagger:route GET /v1/dms/projects/preview_import dms PreviewImportProjects
+//
+// Preview import projects
+//
+//	Consumes:
+//	- multipart/form-data
+//
+//	responses:
+//	  200: PreviewImportProjectsReply
+//	  default: body:GenericResp
+func (a *DMSController) PreviewImportProjects(c echo.Context) error {
+	return NewOkResp(c)
+}
+
 // swagger:route GET /v1/dms/projects/export dms ExportProjects
 //
 // Export projects file.

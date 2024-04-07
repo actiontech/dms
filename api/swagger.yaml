@@ -391,6 +391,11 @@ definitions:
                 x-go-name: Token
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    Buffer:
+        description: The zero value for Buffer is an empty buffer ready to use.
+        title: A Buffer is a variable-sized buffer of bytes with Read and Write methods.
+        type: object
+        x-go-package: bytes
     CancelDataExportWorkflowPayload:
         properties:
             data_export_workflow_uids:
@@ -2790,6 +2795,24 @@ definitions:
                 x-go-name: OperateDataResourceHandleUrl
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    PreviewImportProjects:
+        properties:
+            business:
+                description: business
+                items:
+                    type: string
+                type: array
+                x-go-name: Business
+            name:
+                description: Project name
+                type: string
+                x-go-name: Name
+            uid:
+                description: Project uid
+                type: string
+                x-go-name: ProjectUid
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     Project:
         description: A Project
         properties:
@@ -3097,7 +3120,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -5695,6 +5718,30 @@ paths:
                         $ref: '#/definitions/GenericResp'
             tags:
                 - dms
+    /v1/dms/projects/preview_import:
+        get:
+            consumes:
+                - multipart/form-data
+            description: Preview import projects
+            operationId: PreviewImportProjects
+            parameters:
+                - $ref: '#/definitions/Buffer'
+                  description: |-
+                    projects file.
+
+                    in: formDate
+                  in: query
+                  name: projects_file
+                  x-go-name: ProjectsFile
+            responses:
+                "200":
+                    $ref: '#/responses/PreviewImportProjectsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            tags:
+                - dms
     /v1/dms/proxy:
         post:
             operationId: RegisterDMSProxyTarget
@@ -6270,6 +6317,21 @@ responses:
         description: ""
         schema:
             type: file
+    PreviewImportProjectsReply:
+        description: ""
+        headers:
+            code:
+                description: code
+                format: int64
+                type: integer
+            data:
+                description: list preview import projects
+                items:
+                    $ref: '#/definitions/PreviewImportProjects'
+                type: array
+            message:
+                description: message
+                type: string
 schemes:
     - http
     - https
