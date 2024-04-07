@@ -1201,6 +1201,38 @@
         }
       }
     },
+    "/v1/dms/projects/tips": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get project tips.",
+        "operationId": "GetProjectTips",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "Project uid",
+            "name": "project_uid",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GetProjectTipsReply",
+            "schema": {
+              "$ref": "#/definitions/GetProjectTipsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/projects/{project_uid}": {
       "put": {
         "tags": [
@@ -7433,6 +7465,19 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "ProjectTips": {
+      "type": "object",
+      "properties": {
+        "business": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Business"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "RegisterDMSPluginReply": {
       "type": "object",
       "properties": {
@@ -7823,7 +7868,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
@@ -8530,6 +8575,27 @@
       "description": "",
       "schema": {
         "type": "file"
+      }
+    },
+    "GetProjectTipsReply": {
+      "description": "",
+      "headers": {
+        "code": {
+          "type": "integer",
+          "format": "int64",
+          "description": "code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProjectTips"
+          },
+          "description": "project tips"
+        },
+        "message": {
+          "type": "string",
+          "description": "message"
+        }
       }
     },
     "GetStaticLogoReply": {

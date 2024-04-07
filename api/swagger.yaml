@@ -2826,6 +2826,15 @@ definitions:
                 x-go-name: Name
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ProjectTips:
+        properties:
+            business:
+                items:
+                    type: string
+                type: array
+                x-go-name: Business
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     RegisterDMSPluginReply:
         properties:
             code:
@@ -3120,7 +3129,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -5742,6 +5751,27 @@ paths:
                         $ref: '#/definitions/GenericResp'
             tags:
                 - dms
+    /v1/dms/projects/tips:
+        get:
+            operationId: GetProjectTips
+            parameters:
+                - description: Project uid
+                  in: query
+                  name: project_uid
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: GetProjectTipsReply
+                    schema:
+                        $ref: '#/definitions/GetProjectTipsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get project tips.
+            tags:
+                - dms
     /v1/dms/proxy:
         post:
             operationId: RegisterDMSProxyTarget
@@ -6313,6 +6343,21 @@ responses:
         description: ""
         schema:
             type: file
+    GetProjectTipsReply:
+        description: ""
+        headers:
+            code:
+                description: code
+                format: int64
+                type: integer
+            data:
+                description: project tips
+                items:
+                    $ref: '#/definitions/ProjectTips'
+                type: array
+            message:
+                description: message
+                type: string
     GetStaticLogoReply:
         description: ""
         schema:
