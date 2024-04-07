@@ -1169,6 +1169,38 @@
         }
       }
     },
+    "/v1/dms/projects/preview_import": {
+      "get": {
+        "description": "Preview import projects",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "dms"
+        ],
+        "operationId": "PreviewImportProjects",
+        "parameters": [
+          {
+            "$ref": "#/definitions/Buffer",
+            "x-go-name": "ProjectsFile",
+            "description": "projects file.\n\nin: formDate",
+            "name": "projects_file",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/PreviewImportProjectsReply"
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/projects/{project_uid}": {
       "put": {
         "tags": [
@@ -4367,6 +4399,12 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "Buffer": {
+      "description": "The zero value for Buffer is an empty buffer ready to use.",
+      "type": "object",
+      "title": "A Buffer is a variable-sized buffer of bytes with Read and Write methods.",
+      "x-go-package": "bytes"
+    },
     "CancelDataExportWorkflowPayload": {
       "type": "object",
       "required": [
@@ -7354,6 +7392,30 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "PreviewImportProjects": {
+      "type": "object",
+      "properties": {
+        "business": {
+          "description": "business",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Business"
+        },
+        "name": {
+          "description": "Project name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "uid": {
+          "description": "Project uid",
+          "type": "string",
+          "x-go-name": "ProjectUid"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "Project": {
       "description": "A Project",
       "type": "object",
@@ -7761,7 +7823,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
@@ -8474,6 +8536,27 @@
       "description": "",
       "schema": {
         "type": "file"
+      }
+    },
+    "PreviewImportProjectsReply": {
+      "description": "",
+      "headers": {
+        "code": {
+          "type": "integer",
+          "format": "int64",
+          "description": "code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PreviewImportProjects"
+          },
+          "description": "list preview import projects"
+        },
+        "message": {
+          "type": "string",
+          "description": "message"
+        }
       }
     }
   },
