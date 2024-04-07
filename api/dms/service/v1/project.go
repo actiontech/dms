@@ -13,6 +13,8 @@ type Project struct {
 	Name string `json:"name"`
 	// project desc
 	Desc string `json:"desc"`
+	// project business
+	Business []string `json:"business"`
 }
 
 // swagger:parameters AddProject
@@ -65,6 +67,8 @@ func (u *DelProjectReq) String() string {
 type UpdateProject struct {
 	// Project desc
 	Desc *string `json:"desc"`
+	// Project business
+	Business []string `json:"business"`
 }
 
 // swagger:parameters UpdateProject
