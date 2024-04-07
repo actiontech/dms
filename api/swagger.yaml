@@ -396,6 +396,16 @@ definitions:
         title: A Buffer is a variable-sized buffer of bytes with Read and Write methods.
         type: object
         x-go-package: bytes
+    Business:
+        properties:
+            is_used:
+                type: boolean
+                x-go-name: IsUsed
+            name:
+                type: string
+                x-go-name: Name
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     CancelDataExportWorkflowPayload:
         properties:
             data_export_workflow_uids:
@@ -2257,6 +2267,12 @@ definitions:
                 description: Project is archived
                 type: boolean
                 x-go-name: Archived
+            business:
+                description: Project business
+                items:
+                    $ref: '#/definitions/Business'
+                type: array
+                x-go-name: Business
             create_time:
                 description: create time
                 format: date-time
@@ -2834,6 +2850,12 @@ definitions:
     Project:
         description: A Project
         properties:
+            business:
+                description: project business
+                items:
+                    type: string
+                type: array
+                x-go-name: Business
             desc:
                 description: project desc
                 type: string
@@ -3147,7 +3169,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -3312,6 +3334,12 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateProject:
         properties:
+            business:
+                description: Project business
+                items:
+                    type: string
+                type: array
+                x-go-name: Business
             desc:
                 description: Project desc
                 type: string

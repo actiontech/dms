@@ -4436,6 +4436,20 @@
       "title": "A Buffer is a variable-sized buffer of bytes with Read and Write methods.",
       "x-go-package": "bytes"
     },
+    "Business": {
+      "type": "object",
+      "properties": {
+        "is_used": {
+          "type": "boolean",
+          "x-go-name": "IsUsed"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
     "CancelDataExportWorkflowPayload": {
       "type": "object",
       "required": [
@@ -6822,6 +6836,14 @@
           "type": "boolean",
           "x-go-name": "Archived"
         },
+        "business": {
+          "description": "Project business",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Business"
+          },
+          "x-go-name": "Business"
+        },
         "create_time": {
           "description": "create time",
           "type": "string",
@@ -7475,6 +7497,14 @@
       "description": "A Project",
       "type": "object",
       "properties": {
+        "business": {
+          "description": "project business",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Business"
+        },
         "desc": {
           "description": "project desc",
           "type": "string",
@@ -7891,7 +7921,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
@@ -8109,6 +8139,14 @@
     "UpdateProject": {
       "type": "object",
       "properties": {
+        "business": {
+          "description": "Project business",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Business"
+        },
         "desc": {
           "description": "Project desc",
           "type": "string",

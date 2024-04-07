@@ -41,10 +41,17 @@ type ListProject struct {
 	Archived bool `json:"archived"`
 	// Project desc
 	Desc string `json:"desc"`
+	// Project business
+	Business []Business `json:"business"`
 	// create user
 	CreateUser UidWithName `json:"create_user"`
 	// create time
 	CreateTime strfmt.DateTime `json:"create_time"`
+}
+
+type Business struct {
+	Name   string `json:"name"`
+	IsUsed bool   `json:"is_used"`
 }
 
 // swagger:model ListProjectReply
