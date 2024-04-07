@@ -147,3 +147,22 @@ type ExportProjectsReply struct {
 	// in:  body
 	File []byte
 }
+
+// swagger:parameters GetProjectTips
+type GetProjectTipsReq struct {
+	// Project uid
+	// in:query
+	ProjectUid string `json:"project_uid"`
+}
+
+// swagger:response GetProjectTipsReply
+type GetProjectTipsReply struct {
+	// Generic reply
+	base.GenericResp
+	// project tips
+	Data []*ProjectTips `json:"data"`
+}
+
+type ProjectTips struct {
+	Business []string `json:"business"`
+}

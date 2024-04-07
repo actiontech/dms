@@ -107,6 +107,7 @@ func (s *APIServer) initRouter() error {
 		projectV1.PUT("/import", s.DMSController.ImportProjects)
 		projectV1.GET("/preview_import", s.DMSController.PreviewImportProjects)
 		projectV1.GET("/export", s.DMSController.ExportProjects)
+		projectV1.GET("/tips", s.DMSController.GetProjectTips)
 
 		// oauth2 interface does not require login authentication
 		oauth2V1 := v1.Group("/dms/oauth2")

@@ -1450,6 +1450,17 @@ func (a *DMSController) ExportProjects(c echo.Context) error {
 	return nil
 }
 
+// swagger:route GET /v1/dms/projects/tips dms GetProjectTips
+//
+// Get project tips.
+//
+//	responses:
+//	  200: body:GetProjectTipsReply
+//	  default: body:GenericResp
+func (a *DMSController) GetProjectTips(c echo.Context) error {
+	return NewOkResp(c)
+}
+
 // swagger:route POST /v1/dms/proxy dms RegisterDMSProxyTarget
 //
 // Register dms proxy target.
