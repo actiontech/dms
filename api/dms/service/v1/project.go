@@ -106,12 +106,16 @@ type UnarchiveProjectReq struct {
 
 // swagger:parameters ImportProjects
 type ImportProjectsReq struct {
-	// projects file.
-	//
-	// in: formData
-	//
-	// swagger:file
-	ProjectsFile *bytes.Buffer `json:"projects_file"`
+	Projects []*ImportProjects `json:"projects" validate:"valid"`
+}
+
+type ImportProjects struct {
+	// Project name
+	Name string `json:"name" validate:"required"`
+	// Project desc
+	Desc string `json:"desc"`
+	// business
+	Business []string `json:"business" validate:"required"`
 }
 
 // swagger:parameters PreviewImportProjects
@@ -133,10 +137,10 @@ type PreviewImportProjectsReply struct {
 }
 
 type PreviewImportProjects struct {
-	// Project uid
-	ProjectUid string `json:"uid"`
 	// Project name
 	Name string `json:"name"`
+	// Project desc
+	Desc string `json:"desc"`
 	// business
 	Business []string `json:"business"`
 }

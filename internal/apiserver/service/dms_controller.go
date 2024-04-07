@@ -1415,9 +1415,6 @@ func (a *DMSController) UnarchiveProject(c echo.Context) error {
 //
 // Import projects
 //
-//	 Consumes:
-//	 - multipart/form-data
-//
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp

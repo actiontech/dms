@@ -1485,6 +1485,24 @@ definitions:
                 type: string
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    ImportProjects:
+        properties:
+            business:
+                description: business
+                items:
+                    type: string
+                type: array
+                x-go-name: Business
+            desc:
+                description: Project desc
+                type: string
+                x-go-name: Desc
+            name:
+                description: Project name
+                type: string
+                x-go-name: Name
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     LDAPConfiguration:
         properties:
             enable_ldap:
@@ -2803,14 +2821,14 @@ definitions:
                     type: string
                 type: array
                 x-go-name: Business
+            desc:
+                description: Project desc
+                type: string
+                x-go-name: Desc
             name:
                 description: Project name
                 type: string
                 x-go-name: Name
-            uid:
-                description: Project uid
-                type: string
-                x-go-name: ProjectUid
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     Project:
@@ -5706,16 +5724,15 @@ paths:
                 - dms
     /v1/dms/projects/import:
         put:
-            consumes:
-                - multipart/form-data
             description: Import projects
             operationId: ImportProjects
             parameters:
-                - description: projects file.
-                  in: formData
-                  name: projects_file
-                  type: file
-                  x-go-name: ProjectsFile
+                - in: query
+                  items:
+                    $ref: '#/definitions/ImportProjects'
+                  name: projects
+                  type: array
+                  x-go-name: Projects
             responses:
                 "200":
                     description: GenericResp

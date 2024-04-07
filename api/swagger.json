@@ -1137,20 +1137,19 @@
     "/v1/dms/projects/import": {
       "put": {
         "description": "Import projects",
-        "consumes": [
-          "multipart/form-data"
-        ],
         "tags": [
           "dms"
         ],
         "operationId": "ImportProjects",
         "parameters": [
           {
-            "type": "file",
-            "x-go-name": "ProjectsFile",
-            "description": "projects file.",
-            "name": "projects_file",
-            "in": "formData"
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/ImportProjects"
+            },
+            "x-go-name": "Projects",
+            "name": "projects",
+            "in": "query"
           }
         ],
         "responses": {
@@ -5830,6 +5829,30 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "ImportProjects": {
+      "type": "object",
+      "properties": {
+        "business": {
+          "description": "business",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Business"
+        },
+        "desc": {
+          "description": "Project desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "name": {
+          "description": "Project name",
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "LDAPConfiguration": {
       "type": "object",
       "properties": {
@@ -7435,15 +7458,15 @@
           },
           "x-go-name": "Business"
         },
+        "desc": {
+          "description": "Project desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
         "name": {
           "description": "Project name",
           "type": "string",
           "x-go-name": "Name"
-        },
-        "uid": {
-          "description": "Project uid",
-          "type": "string",
-          "x-go-name": "ProjectUid"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
