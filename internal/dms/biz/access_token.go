@@ -1,12 +1,10 @@
 package biz
 
 import (
-	"fmt"
 	"net/http"
 
-	jwtPkg "github.com/actiontech/dms/pkg/dms-common/api/jwt"
+	"github.com/actiontech/dms/pkg/dms-common/api/accesstoken"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
-	"github.com/golang-jwt/jwt/v4"
 	"github.com/labstack/echo/v4"
 )
 
@@ -28,31 +26,23 @@ func NewAuthAccessTokenUsecase(log utilLog.Logger, usecase *UserUsecase) *AuthAc
 func (au *AuthAccessTokenUsecase) CheckLatestAccessToken() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			user := c.Get("user")
-			// 获取token为空，代表该请求不需要校验token，例如：/v1/dms/oauth2
-			if user == nil {
+			token, exist, err := accesstoken.GetTokenFromContext(c)
+			if err != nil {
+				return err
+			}
+			if !exist {
 				return next(c)
 			}
-			token, ok := user.(*jwt.Token)
-			if !ok {
-				return echo.NewHTTPError(http.StatusBadRequest, "failed to convert user from jwt token")
+			uid, exist, err := accesstoken.GetUidFromAccessToken(token)
+			if err != nil {
+				return err
 			}
-
-			claims, ok := token.Claims.(jwt.MapClaims)
-			if !ok {
-				return echo.NewHTTPError(http.StatusBadRequest, "failed to convert token claims to jwt")
-			}
-
-			// 如果不存在JWTLoginType字段，代表是账号密码登录获取的token或者是扫描任务的凭证，不进行校验
-			loginType, ok := claims[jwtPkg.JWTLoginType]
-			if !ok {
+			if !exist {
 				return next(c)
 			}
-			if loginType != AccessTokenLogin {
-				return echo.NewHTTPError(http.StatusUnauthorized, "access token login type is error")
-			}
-			uidStr := fmt.Sprintf("%v", claims[jwtPkg.JWTUserId])
-			accessTokenInfo, err := au.userUsecase.repo.GetAccessTokenByUser(c.Request().Context(), uidStr)
+
+			accessTokenInfo, err := au.userUsecase.repo.GetAccessTokenByUser(c.Request().Context(), uid)
+
 			if err != nil {
 				return err
 			}
