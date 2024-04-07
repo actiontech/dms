@@ -1168,6 +1168,29 @@
         }
       }
     },
+    "/v1/dms/projects/import_template": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get import projects template.",
+        "operationId": "GetImportProjectsTemplate",
+        "responses": {
+          "200": {
+            "description": "GetImportProjectsTemplateReply",
+            "schema": {
+              "$ref": "#/definitions/GetImportProjectsTemplateReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/projects/preview_import": {
       "get": {
         "description": "Preview import projects",
@@ -8629,6 +8652,16 @@
         "message": {
           "type": "string",
           "description": "message"
+        }
+      }
+    },
+    "GetImportProjectsTemplateReply": {
+      "description": "",
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "format": "uint8"
         }
       }
     },

@@ -1436,6 +1436,17 @@ func (a *DMSController) PreviewImportProjects(c echo.Context) error {
 	return NewOkResp(c)
 }
 
+// swagger:route GET /v1/dms/projects/import_template dms GetImportProjectsTemplate
+//
+// Get import projects template.
+//
+//	responses:
+//	  200: body:GetImportProjectsTemplateReply
+//	  default: body:GenericResp
+func (a *DMSController) GetImportProjectsTemplate(c echo.Context) error {
+	return NewOkResp(c)
+}
+
 // swagger:route GET /v1/dms/projects/export dms ExportProjects
 //
 // Export projects file.
