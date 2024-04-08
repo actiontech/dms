@@ -136,7 +136,7 @@ type PreviewImportProjectsRep struct {
 	ProjectsFile *bytes.Buffer `json:"projects_file"`
 }
 
-// swagger:response PreviewImportProjectsReply
+// swagger:model PreviewImportProjectsReply
 type PreviewImportProjectsReply struct {
 	// Generic reply
 	base.GenericResp
@@ -174,7 +174,7 @@ type GetProjectTipsReq struct {
 	ProjectUid string `json:"project_uid"`
 }
 
-// swagger:response GetProjectTipsReply
+// swagger:model GetProjectTipsReply
 type GetProjectTipsReply struct {
 	// Generic reply
 	base.GenericResp
