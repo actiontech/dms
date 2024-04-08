@@ -1411,7 +1411,7 @@ func (a *DMSController) UnarchiveProject(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/projects/import dms ImportProjects
+// swagger:route POST /v1/dms/projects/import dms ImportProjects
 //
 // Import projects
 //
