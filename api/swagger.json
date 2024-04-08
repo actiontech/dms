@@ -1212,7 +1212,10 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/responses/PreviewImportProjectsReply"
+            "description": "PreviewImportProjectsReply",
+            "schema": {
+              "$ref": "#/definitions/PreviewImportProjectsReply"
+            }
           },
           "default": {
             "description": "GenericResp",
@@ -5529,6 +5532,31 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "GetProjectTipsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "project tips",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProjectTips"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "GetSMTPConfigurationReply": {
       "type": "object",
       "properties": {
@@ -7515,6 +7543,31 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "PreviewImportProjectsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "list preview import projects",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PreviewImportProjects"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "Project": {
       "description": "A Project",
       "type": "object",
@@ -7952,7 +8005,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
@@ -8684,52 +8737,10 @@
         "type": "file"
       }
     },
-    "GetProjectTipsReply": {
-      "description": "",
-      "headers": {
-        "code": {
-          "type": "integer",
-          "format": "int64",
-          "description": "code"
-        },
-        "data": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ProjectTips"
-          },
-          "description": "project tips"
-        },
-        "message": {
-          "type": "string",
-          "description": "message"
-        }
-      }
-    },
     "GetStaticLogoReply": {
       "description": "",
       "schema": {
         "type": "file"
-      }
-    },
-    "PreviewImportProjectsReply": {
-      "description": "",
-      "headers": {
-        "code": {
-          "type": "integer",
-          "format": "int64",
-          "description": "code"
-        },
-        "data": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/PreviewImportProjects"
-          },
-          "description": "list preview import projects"
-        },
-        "message": {
-          "type": "string",
-          "description": "message"
-        }
       }
     }
   },
