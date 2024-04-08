@@ -1223,6 +1223,25 @@ definitions:
                 x-go-name: LoginTip
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetProjectTipsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: project tips
+                items:
+                    $ref: '#/definitions/ProjectTips'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetSMTPConfigurationReply:
         properties:
             code:
@@ -2846,6 +2865,25 @@ definitions:
                 x-go-name: Name
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    PreviewImportProjectsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: list preview import projects
+                items:
+                    $ref: '#/definitions/PreviewImportProjects'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     Project:
         description: A Project
         properties:
@@ -3175,7 +3213,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -5811,7 +5849,9 @@ paths:
                   x-go-name: ProjectsFile
             responses:
                 "200":
-                    $ref: '#/responses/PreviewImportProjectsReply'
+                    description: PreviewImportProjectsReply
+                    schema:
+                        $ref: '#/definitions/PreviewImportProjectsReply'
                 default:
                     description: GenericResp
                     schema:
@@ -6417,40 +6457,10 @@ responses:
         description: ""
         schema:
             type: file
-    GetProjectTipsReply:
-        description: ""
-        headers:
-            code:
-                description: code
-                format: int64
-                type: integer
-            data:
-                description: project tips
-                items:
-                    $ref: '#/definitions/ProjectTips'
-                type: array
-            message:
-                description: message
-                type: string
     GetStaticLogoReply:
         description: ""
         schema:
             type: file
-    PreviewImportProjectsReply:
-        description: ""
-        headers:
-            code:
-                description: code
-                format: int64
-                type: integer
-            data:
-                description: list preview import projects
-                items:
-                    $ref: '#/definitions/PreviewImportProjects'
-                type: array
-            message:
-                description: message
-                type: string
 schemes:
     - http
     - https
