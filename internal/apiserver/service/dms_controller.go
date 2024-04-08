@@ -1422,7 +1422,7 @@ func (a *DMSController) ImportProjects(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/projects/preview_import dms PreviewImportProjects
+// swagger:route POST /v1/dms/projects/preview_import dms PreviewImportProjects
 //
 // Preview import projects
 //
