@@ -130,7 +130,7 @@ type ImportProjects struct {
 type PreviewImportProjectsRep struct {
 	// projects file.
 	//
-	// in: formDate
+	// in: formData
 	//
 	// swagger:file
 	ProjectsFile *bytes.Buffer `json:"projects_file"`

@@ -2,3708 +2,139 @@ basePath: /
 consumes:
     - application/json
 definitions:
-    AccessTokenInfo:
-        properties:
-            access_token:
-                type: string
-                x-go-name: AccessToken
-            is_expired:
-                type: boolean
-                x-go-name: IsExpired
-            token_expired_timestamp:
-                type: string
-                x-go-name: ExpiredTime
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     AddDBServicePreCheckReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     AddDBServiceReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: Add db service reply
-                properties:
-                    uid:
-                        description: db service UID
-                        type: string
-                        x-go-name: Uid
-                type: object
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddDataExportTaskReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: add data export workflow reply
-                properties:
-                    data_export_task_uids:
-                        description: data export task UIDs
-                        items:
-                            type: string
-                        type: array
-                        x-go-name: Uids
-                type: object
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddDataExportWorkflowReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: add data export workflow reply
-                properties:
-                    export_data_workflow_uid:
-                        description: data export workflow UID
-                        type: string
-                        x-go-name: Uid
-                type: object
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddDatabaseSourceServiceReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: add database source service reply
-                properties:
-                    uid:
-                        description: db service UID
-                        type: string
-                        x-go-name: Uid
-                type: object
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddMemberGroupReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: Add member group reply
-                properties:
-                    id:
-                        description: member group ID
-                        type: string
-                        x-go-name: Id
-                type: object
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddMemberReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: Add member reply
-                properties:
-                    uid:
-                        description: member UID
-                        type: string
-                        x-go-name: Uid
-                type: object
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddProjectReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: Add Project reply
-                properties:
-                    uid:
-                        description: Project UID
-                        type: string
-                        x-go-name: Uid
-                type: object
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddRoleReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: Add role reply
-                properties:
-                    uid:
-                        description: role UID
-                        type: string
-                        x-go-name: Uid
-                type: object
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    AddSession:
-        description: Use this struct to add a new session
-        properties:
-            password:
-                description: User password
-                type: string
-                x-go-name: Password
-            username:
-                description: User name
-                type: string
-                x-go-name: UserName
-        required:
-            - username
-            - password
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddSessionReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: Add user reply
-                properties:
-                    token:
-                        description: Session token
-                        type: string
-                        x-go-name: Token
-                type: object
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddUserGroupReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: Add user group reply
-                properties:
-                    uid:
-                        description: user group UID
-                        type: string
-                        x-go-name: Uid
-                type: object
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddUserReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: Add user reply
-                properties:
-                    uid:
-                        description: user UID
-                        type: string
-                        x-go-name: Uid
-                type: object
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    AdditionalParam:
-        properties:
-            description:
-                type: string
-                x-go-name: Description
-            name:
-                type: string
-                x-go-name: Name
-            type:
-                type: string
-                x-go-name: Type
-            value:
-                type: string
-                x-go-name: Value
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    AuditSQLResult:
-        properties:
-            db_type:
-                type: string
-                x-go-name: DBType
-            level:
-                type: string
-                x-go-name: Level
-            message:
-                type: string
-                x-go-name: Message
-            rule_name:
-                type: string
-                x-go-name: RuleName
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    AuditTaskResult:
-        description: SQL审核结果
-        properties:
-            audit_level:
-                type: string
-                x-go-name: AuditLevel
-            pass_rate:
-                format: double
-                type: number
-                x-go-name: PassRate
-            score:
-                format: int32
-                type: integer
-                x-go-name: Score
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    BasicInfo:
-        properties:
-            components:
-                items:
-                    $ref: '#/definitions/ComponentNameWithVersion'
-                type: array
-                x-go-name: Components
-            logo_url:
-                type: string
-                x-go-name: LogoUrl
-            title:
-                type: string
-                x-go-name: Title
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     BatchGetDataExportTaskReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                items:
-                    $ref: '#/definitions/GetDataExportTask'
-                type: array
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     BindOauth2UserReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                $ref: '#/definitions/BindOauth2UserResData'
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    BindOauth2UserResData:
-        properties:
-            token:
-                type: string
-                x-go-name: Token
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    Buffer:
-        description: The zero value for Buffer is an empty buffer ready to use.
-        title: A Buffer is a variable-sized buffer of bytes with Read and Write methods.
-        type: object
-        x-go-package: bytes
-    Business:
-        properties:
-            is_used:
-                type: boolean
-                x-go-name: IsUsed
-            name:
-                type: string
-                x-go-name: Name
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    CancelDataExportWorkflowPayload:
-        properties:
-            data_export_workflow_uids:
-                items:
-                    type: string
-                type: array
-                x-go-name: DataExportWorkflowUids
-        required:
-            - data_export_workflow_uids
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CheckDBServiceIsConnectableReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                items:
-                    $ref: '#/definitions/CheckDBServiceIsConnectableReplyItem'
-                type: array
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    CheckDBServiceIsConnectableReplyItem:
-        properties:
-            component:
-                type: string
-                x-go-name: Component
-            connect_error_message:
-                type: string
-                x-go-name: ConnectErrorMessage
-            is_connectable:
-                type: boolean
-                x-go-name: IsConnectable
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    CheckDbConnectable:
-        properties:
-            additional_params:
-                description: DB Service Custom connection parameters
-                items:
-                    $ref: '#/definitions/AdditionalParam'
-                type: array
-                x-go-name: AdditionalParams
-            db_type:
-                description: DB Service type
-                example: MySQL
-                type: string
-                x-go-name: DBType
-            host:
-                description: DB Service host
-                example: 127.0.0.1
-                type: string
-                x-go-name: Host
-            password:
-                description: DB Service admin password
-                example: "123456"
-                type: string
-                x-go-name: Password
-            port:
-                description: DB Service port
-                example: "3306"
-                type: string
-                x-go-name: Port
-            user:
-                description: DB Service admin user
-                example: root
-                type: string
-                x-go-name: User
-        required:
-            - db_type
-            - user
-            - host
-            - port
-            - password
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     CheckLicenseReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            content:
-                type: string
-                x-go-name: Content
-            license:
-                items:
-                    $ref: '#/definitions/LicenseItem'
-                type: array
-                x-go-name: License
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    CompanyNotice:
-        description: A companynotice
-        properties:
-            notice_str:
-                description: companynotice info
-                type: string
-                x-go-name: NoticeStr
-            read_by_current_user:
-                description: current user has been read
-                type: boolean
-                x-go-name: ReadByCurrentUser
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    ComponentNameWithVersion:
-        properties:
-            name:
-                type: string
-                x-go-name: Name
-            version:
-                type: string
-                x-go-name: Version
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    DBService:
-        description: A db service
-        properties:
-            additional_params:
-                description: DB Service Custom connection parameters
-                items:
-                    $ref: '#/definitions/AdditionalParam'
-                type: array
-                x-go-name: AdditionalParams
-            business:
-                description: DB Service business name
-                type: string
-                x-go-name: Business
-            db_type:
-                description: Service DB type
-                type: string
-                x-go-name: DBType
-            desc:
-                description: Service description
-                type: string
-                x-go-name: Desc
-            host:
-                description: DB Service Host
-                type: string
-                x-go-name: Host
-            is_enable_masking:
-                description: data masking switch
-                type: boolean
-                x-go-name: IsEnableMasking
-            maintenance_times:
-                description: |-
-                    DB Service maintenance time
-                    empty value means that maintenance time is unlimited
-                items:
-                    $ref: '#/definitions/MaintenanceTime'
-                type: array
-                x-go-name: MaintenanceTimes
-            name:
-                description: Service name
-                type: string
-                x-go-name: Name
-            password:
-                description: DB Service admin password
-                type: string
-                x-go-name: Password
-            port:
-                description: DB Service port
-                type: string
-                x-go-name: Port
-            sqle_config:
-                $ref: '#/definitions/SQLEConfig'
-            user:
-                description: DB Service admin user
-                type: string
-                x-go-name: User
-        required:
-            - name
-            - db_type
-            - host
-            - port
-            - user
-            - password
-            - business
-            - maintenance_times
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    DMSProxyTarget:
-        description: A dms proxy target
-        properties:
-            addr:
-                description: 'target addr, eg: http://10.1.2.1:5432'
-                type: string
-                x-go-name: Addr
-            name:
-                description: target name
-                type: string
-                x-go-name: Name
-            proxy_url_prefixs:
-                description: 'url prefix that need to be proxy, eg: /v1/user'
-                items:
-                    type: string
-                type: array
-                x-go-name: ProxyUrlPrefixs
-            scenario:
-                description: |-
-                    the scenario is used to differentiate scenarios
-                    internal_service ProxyScenarioInternalService
-                    thrid_party_integrate ProxyScenarioThirdPartyIntegrate
-                enum:
-                    - internal_service
-                    - thrid_party_integrate
-                type: string
-                x-go-enum-desc: |-
-                    internal_service ProxyScenarioInternalService
-                    thrid_party_integrate ProxyScenarioThirdPartyIntegrate
-                x-go-name: Scenario
-            version:
-                description: version number
-                type: string
-                x-go-name: Version
-        required:
-            - name
-            - addr
-            - version
-            - proxy_url_prefixs
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    DataExportTask:
-        properties:
-            database_name:
-                description: DB Service name
-                type: string
-                x-go-name: DatabaseName
-            db_service_uid:
-                description: DB Service uid
-                type: string
-                x-go-name: DBServiceUid
-            export_sql:
-                description: |-
-                    The exported SQL statement executed. it's necessary when ExportType is SQL
-                    SELECT * FROM DMS_test LIMIT 20;
-                type: string
-                x-go-name: ExportSQL
-        required:
-            - db_service_uid
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    DataExportWorkflow:
-        properties:
-            desc:
-                description: desc
-                example: transaction data export
-                type: string
-                x-go-name: Desc
-            name:
-                description: name
-                example: d1
-                type: string
-                x-go-name: Name
-            tasks:
-                description: export task info
-                example: '[export_task_uid1,export_task_uid2]'
-                items:
-                    $ref: '#/definitions/Task'
-                type: array
-                x-go-name: Tasks
-        required:
-            - name
-            - tasks
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    DatabaseDriverAdditionalParam:
-        properties:
-            description:
-                type: string
-                x-go-name: Description
-            name:
-                type: string
-                x-go-name: Name
-            type:
-                type: string
-                x-go-name: Type
-            value:
-                type: string
-                x-go-name: Value
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    DatabaseDriverOption:
-        properties:
-            db_type:
-                type: string
-                x-go-name: DBType
-            logo_path:
-                type: string
-                x-go-name: LogoPath
-            params:
-                items:
-                    $ref: '#/definitions/DatabaseDriverAdditionalParam'
-                type: array
-                x-go-name: Params
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    DatabaseSource:
-        properties:
-            db_types:
-                description: database type
-                example: MySQL
-                items:
-                    type: string
-                type: array
-                x-go-name: DbTypes
-            source:
-                description: database source
-                example: actiontech-dmp
-                type: string
-                x-go-name: Source
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    DatabaseSourceService:
-        properties:
-            cron_express:
-                description: cron expression
-                example: 0 0 * * *
-                type: string
-                x-go-name: CronExpress
-            db_type:
-                description: database type
-                example: MySQL
-                type: string
-                x-go-name: DbType
-            name:
-                description: name
-                example: dmp
-                type: string
-                x-go-name: Name
-            source:
-                description: source
-                example: actiontech-dmp
-                type: string
-                x-go-name: Source
-            sqle_config:
-                $ref: '#/definitions/SQLEConfig'
-            url:
-                description: addr
-                example: http://10.186.62.56:10000
-                type: string
-                x-go-name: URL
-            version:
-                description: version
-                example: 5.23.01.0
-                type: string
-                x-go-name: Version
-        required:
-            - name
-            - source
-            - version
-            - url
-            - db_type
-            - cron_express
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DelDBServicePreCheckReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     DelUserGroupPreCheckReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     DelUserPreCheckReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    FeishuConfigurationResData:
-        properties:
-            app_id:
-                type: string
-                x-go-name: AppID
-            is_feishu_notification_enabled:
-                type: boolean
-                x-go-name: IsFeishuNotificationEnabled
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GenAccessTokenReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                $ref: '#/definitions/AccessTokenInfo'
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    GenericResp:
-        description: GenericResp defines the return code and msg
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/base/v1
     GetBasicInfoReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                $ref: '#/definitions/BasicInfo'
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetCompanyNoticeReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                $ref: '#/definitions/CompanyNotice'
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    GetDataExportTask:
-        properties:
-            audit_result:
-                $ref: '#/definitions/AuditTaskResult'
-            db_info:
-                $ref: '#/definitions/TaskDBInfo'
-            export_end_time:
-                format: date-time
-                type: string
-                x-go-name: ExportEndTime
-            export_file_type:
-                type: string
-                x-go-name: ExportFileType
-            export_start_time:
-                format: date-time
-                type: string
-                x-go-name: ExportStartTime
-            export_type:
-                type: string
-                x-go-name: ExportType
-            file_name:
-                type: string
-                x-go-name: FileName
-            status:
-                enum:
-                    - init
-                    - exporting
-                    - finish
-                    - failed
-                    - file_deleted
-                type: string
-                x-go-enum-desc: |-
-                    init StatusInit
-                    exporting StatusExporting
-                    finish StatusFinish
-                    failed StatusFailed
-                    file_deleted StatusFileDeleted
-                x-go-name: Status
-            task_uid:
-                type: string
-                x-go-name: TaskUid
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    GetDataExportWorkflow:
-        properties:
-            create_time:
-                format: date-time
-                type: string
-                x-go-name: CreateTime
-            create_user:
-                $ref: '#/definitions/UidWithName'
-            desc:
-                type: string
-                x-go-name: Desc
-            workflow_name:
-                type: string
-                x-go-name: Name
-            workflow_record:
-                $ref: '#/definitions/WorkflowRecord'
-            workflow_record_history:
-                items:
-                    $ref: '#/definitions/WorkflowRecord'
-                type: array
-                x-go-name: WorkflowRecordHistory
-            workflow_uid:
-                type: string
-                x-go-name: WorkflowID
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetDataExportWorkflowReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                $ref: '#/definitions/GetDataExportWorkflow'
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    GetDatabaseSourceService:
-        properties:
-            cron_express:
-                description: cron expression
-                example: 0 0 * * *
-                type: string
-                x-go-name: CronExpress
-            db_type:
-                description: database type
-                example: MySQL
-                type: string
-                x-go-name: DbType
-            name:
-                description: name
-                example: dmp
-                type: string
-                x-go-name: Name
-            project_uid:
-                type: string
-                x-go-name: ProjectUid
-            source:
-                description: source
-                example: actiontech-dmp
-                type: string
-                x-go-name: Source
-            sqle_config:
-                $ref: '#/definitions/SQLEConfig'
-            uid:
-                type: string
-                x-go-name: UID
-            url:
-                description: addr
-                example: http://10.186.62.56:10000
-                type: string
-                x-go-name: URL
-            version:
-                description: version
-                example: 5.23.01.0
-                type: string
-                x-go-name: Version
-        required:
-            - name
-            - source
-            - version
-            - url
-            - db_type
-            - cron_express
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetDatabaseSourceServiceReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                $ref: '#/definitions/GetDatabaseSourceService'
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetFeishuConfigurationReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                $ref: '#/definitions/FeishuConfigurationResData'
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetLDAPConfigurationResDataReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                $ref: '#/definitions/LDAPConfigurationResData'
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-name: GetLDAPConfigurationReply
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetLicenseReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            content:
-                type: string
-                x-go-name: Content
-            license:
-                items:
-                    $ref: '#/definitions/LicenseItem'
-                type: array
-                x-go-name: License
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetLicenseUsageReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                $ref: '#/definitions/LicenseUsage'
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    GetMemberGroup:
-        properties:
-            is_project_admin:
-                description: Whether the member has project admin permission
-                type: boolean
-                x-go-name: IsProjectAdmin
-            name:
-                type: string
-                x-go-name: Name
-            role_with_op_ranges:
-                description: member op permission
-                items:
-                    $ref: '#/definitions/ListMemberRoleWithOpRange'
-                type: array
-                x-go-name: RoleWithOpRanges
-            uid:
-                description: member group uid
-                type: string
-                x-go-name: Uid
-            users:
-                description: member user
-                items:
-                    $ref: '#/definitions/UidWithName'
-                type: array
-                x-go-name: Users
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetMemberGroupReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                $ref: '#/definitions/GetMemberGroup'
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    GetOauth2ConfigurationResData:
-        properties:
-            access_token_tag:
-                type: string
-                x-go-name: AccessTokenTag
-            auto_create_user:
-                type: boolean
-                x-go-name: AutoCreateUser
-            client_host:
-                type: string
-                x-go-name: ClientHost
-            client_id:
-                type: string
-                x-go-name: ClientID
-            enable_oauth2:
-                type: boolean
-                x-go-name: EnableOauth2
-            login_tip:
-                type: string
-                x-go-name: LoginTip
-            scopes:
-                items:
-                    type: string
-                type: array
-                x-go-name: Scopes
-            server_auth_url:
-                type: string
-                x-go-name: ServerAuthUrl
-            server_token_url:
-                type: string
-                x-go-name: ServerTokenUrl
-            server_user_id_url:
-                type: string
-                x-go-name: ServerUserIdUrl
-            skip_check_state:
-                type: boolean
-                x-go-name: SkipCheckState
-            user_email_tag:
-                type: string
-                x-go-name: UserEmailTag
-            user_id_tag:
-                type: string
-                x-go-name: UserIdTag
-            user_wechat_tag:
-                type: string
-                x-go-name: UserWeChatTag
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetOauth2ConfigurationResDataReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                $ref: '#/definitions/GetOauth2ConfigurationResData'
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-name: GetOauth2ConfigurationReply
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetOauth2TipsReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                $ref: '#/definitions/GetOauth2TipsResData'
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    GetOauth2TipsResData:
-        properties:
-            enable_oauth2:
-                type: boolean
-                x-go-name: EnableOauth2
-            login_tip:
-                type: string
-                x-go-name: LoginTip
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetSMTPConfigurationReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                $ref: '#/definitions/SMTPConfigurationResData'
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetSQLQueryConfigurationReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                properties:
-                    enable_sql_query:
-                        type: boolean
-                        x-go-name: EnableSQLQuery
-                    sql_query_root_uri:
-                        type: string
-                        x-go-name: SQLQueryRootURI
-                type: object
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    GetUser:
-        description: A dms user
-        properties:
-            access_token_info:
-                $ref: '#/definitions/AccessTokenInfo'
-            authentication_type:
-                description: |-
-                    user authentication type
-                    ldap UserAuthenticationTypeLDAP
-                    dms UserAuthenticationTypeDMS
-                    oauth2 UserAuthenticationTypeOAUTH2
-                    unknown UserAuthenticationTypeUnknown
-                enum:
-                    - ldap
-                    - dms
-                    - oauth2
-                    - unknown
-                type: string
-                x-go-enum-desc: |-
-                    ldap UserAuthenticationTypeLDAP
-                    dms UserAuthenticationTypeDMS
-                    oauth2 UserAuthenticationTypeOAUTH2
-                    unknown UserAuthenticationTypeUnknown
-                x-go-name: AuthenticationType
-            email:
-                description: user email
-                type: string
-                x-go-name: Email
-            is_admin:
-                description: is admin
-                type: boolean
-                x-go-name: IsAdmin
-            name:
-                description: user name
-                type: string
-                x-go-name: Name
-            op_permissions:
-                description: user operation permissions
-                items:
-                    $ref: '#/definitions/UidWithName'
-                type: array
-                x-go-name: OpPermissions
-            phone:
-                description: user phone
-                type: string
-                x-go-name: Phone
-            stat:
-                description: |-
-                    user stat
-                    正常 StatOK
-                    被禁用 StatDisable
-                    未知 StatUnknown
-                enum:
-                    - 正常
-                    - 被禁用
-                    - 未知
-                type: string
-                x-go-enum-desc: |-
-                    正常 StatOK
-                    被禁用 StatDisable
-                    未知 StatUnknown
-                x-go-name: Stat
-            third_party_user_info:
-                type: string
-                x-go-name: ThirdPartyUserInfo
-            uid:
-                description: user uid
-                type: string
-                x-go-name: UserUid
-            user_bind_projects:
-                description: user bind name space
-                items:
-                    $ref: '#/definitions/UserBindProject'
-                type: array
-                x-go-name: UserBindProjects
-            user_groups:
-                description: user groups
-                items:
-                    $ref: '#/definitions/UidWithName'
-                type: array
-                x-go-name: UserGroups
-            wxid:
-                description: user wxid
-                type: string
-                x-go-name: WxID
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GetUserBySessionReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: Get user reply
-                properties:
-                    name:
-                        description: User name
-                        type: string
-                        x-go-name: Name
-                    user_uid:
-                        description: User UID
-                        type: string
-                        x-go-name: UserUid
-                type: object
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetUserOpPermissionReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: |-
-                    user op permission reply
-                    is user admin, admin has all permissions
-                properties:
-                    is_admin:
-                        type: boolean
-                        x-go-name: IsAdmin
-                    op_permission_list:
-                        description: user op permissions
-                        items:
-                            $ref: '#/definitions/OpPermissionItem'
-                        type: array
-                        x-go-name: OpPermissionList
-                type: object
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GetUserReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                $ref: '#/definitions/GetUser'
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GetWeChatConfigurationReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                $ref: '#/definitions/WeChatConfigurationResData'
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetWebHookConfigurationReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                $ref: '#/definitions/GetWebHookConfigurationReplyItem'
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    GetWebHookConfigurationReplyItem:
-        properties:
-            enable:
-                type: boolean
-                x-go-name: Enable
-            max_retry_times:
-                description: minlength(3) maxlength(100)
-                format: int64
-                type: integer
-                x-go-name: MaxRetryTimes
-            retry_interval_seconds:
-                format: int64
-                type: integer
-                x-go-name: RetryIntervalSeconds
-            token:
-                type: string
-                x-go-name: Token
-            url:
-                type: string
-                x-go-name: URL
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    IPluginDBService:
-        properties:
-            Business:
-                type: string
-            DBType:
-                type: string
-            Host:
-                type: string
-            Name:
-                type: string
-            Port:
-                type: string
-            SQLERuleTemplateId:
-                type: string
-            SQLERuleTemplateName:
-                type: string
-            User:
-                type: string
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    ImportProjects:
-        properties:
-            business:
-                description: business
-                items:
-                    type: string
-                type: array
-                x-go-name: Business
-            desc:
-                description: Project desc
-                type: string
-                x-go-name: Desc
-            name:
-                description: Project name
-                type: string
-                x-go-name: Name
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    LDAPConfiguration:
-        properties:
-            enable_ldap:
-                type: boolean
-                x-go-name: EnableLdap
-            enable_ssl:
-                type: boolean
-                x-go-name: EnableSSL
-            ldap_connect_dn:
-                type: string
-                x-go-name: LdapConnectDn
-            ldap_connect_pwd:
-                type: string
-                x-go-name: LdapConnectPwd
-            ldap_search_base_dn:
-                type: string
-                x-go-name: LdapSearchBaseDn
-            ldap_server_host:
-                type: string
-                x-go-name: LdapServerHost
-            ldap_server_port:
-                type: string
-                x-go-name: LdapServerPort
-            ldap_user_email_rdn_key:
-                type: string
-                x-go-name: LdapUserEmailRdnKey
-            ldap_user_name_rdn_key:
-                type: string
-                x-go-name: LdapUserNameRdnKey
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    LDAPConfigurationResData:
-        properties:
-            enable_ldap:
-                type: boolean
-                x-go-name: EnableLdap
-            enable_ssl:
-                type: boolean
-                x-go-name: EnableSSL
-            ldap_connect_dn:
-                type: string
-                x-go-name: LdapConnectDn
-            ldap_search_base_dn:
-                type: string
-                x-go-name: LdapSearchBaseDn
-            ldap_server_host:
-                type: string
-                x-go-name: LdapServerHost
-            ldap_server_port:
-                type: string
-                x-go-name: LdapServerPort
-            ldap_user_email_rdn_key:
-                type: string
-                x-go-name: LdapUserEmailRdnKey
-            ldap_user_name_rdn_key:
-                type: string
-                x-go-name: LdapUserNameRdnKey
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    LicenseItem:
-        properties:
-            description:
-                type: string
-                x-go-name: Description
-            limit:
-                type: string
-                x-go-name: Limit
-            name:
-                type: string
-                x-go-name: Name
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    LicenseUsage:
-        properties:
-            db_services_usage:
-                items:
-                    $ref: '#/definitions/LicenseUsageItem'
-                type: array
-                x-go-name: DbServicesUsage
-            users_usage:
-                $ref: '#/definitions/LicenseUsageItem'
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    LicenseUsageItem:
-        properties:
-            is_limited:
-                type: boolean
-                x-go-name: IsLimited
-            limit:
-                format: uint64
-                type: integer
-                x-go-name: Limit
-            resource_type:
-                type: string
-                x-go-name: ResourceType
-            resource_type_desc:
-                type: string
-                x-go-name: ResourceTypeDesc
-            used:
-                format: uint64
-                type: integer
-                x-go-name: Used
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    ListDBService:
-        description: A dms db Service
-        properties:
-            additional_params:
-                description: DB Service Custom connection parameters
-                items:
-                    $ref: '#/definitions/AdditionalParam'
-                type: array
-                x-go-name: AdditionalParams
-            business:
-                description: the db service business name
-                type: string
-                x-go-name: Business
-            db_type:
-                description: db service DB type
-                type: string
-                x-go-name: DBType
-            desc:
-                description: DB desc
-                type: string
-                x-go-name: Desc
-            host:
-                description: db service host
-                type: string
-                x-go-name: Host
-            is_enable_masking:
-                description: is enable masking
-                type: boolean
-                x-go-name: IsEnableMasking
-            maintenance_times:
-                description: DB Service maintenance time
-                items:
-                    $ref: '#/definitions/MaintenanceTime'
-                type: array
-                x-go-name: MaintenanceTimes
-            name:
-                description: db service name
-                type: string
-                x-go-name: Name
-            password:
-                description: db service admin encrypted password
-                type: string
-                x-go-name: Password
-            port:
-                description: db service port
-                type: string
-                x-go-name: Port
-            project_uid:
-                description: DB project uid
-                type: string
-                x-go-name: ProjectUID
-            source:
-                description: DB source
-                type: string
-                x-go-name: Source
-            sqle_config:
-                $ref: '#/definitions/SQLEConfig'
-            uid:
-                description: db service uid
-                type: string
-                x-go-name: DBServiceUid
-            user:
-                description: db service admin user
-                type: string
-                x-go-name: User
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ListDBServiceDriverOptionReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: List db service reply
-                items:
-                    $ref: '#/definitions/DatabaseDriverOption'
-                type: array
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListDBServiceReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: List db service reply
-                items:
-                    $ref: '#/definitions/ListDBService'
-                type: array
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-            total_nums:
-                format: int64
-                type: integer
-                x-go-name: Total
-        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    ListDBServiceTipItem:
-        properties:
-            db_type:
-                type: string
-                x-go-name: Type
-            host:
-                type: string
-                x-go-name: Host
-            id:
-                type: string
-                x-go-name: Id
-            name:
-                type: string
-                x-go-name: Name
-            port:
-                type: string
-                x-go-name: Port
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListDBServiceTipsReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: List db service reply
-                items:
-                    $ref: '#/definitions/ListDBServiceTipItem'
-                type: array
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    ListDataExportTaskSQL:
-        properties:
-            audit_level:
-                type: string
-                x-go-name: AuditLevel
-            audit_sql_result:
-                items:
-                    $ref: '#/definitions/AuditSQLResult'
-                type: array
-                x-go-name: AuditSQLResult
-            export_result:
-                type: string
-                x-go-name: ExportResult
-            export_sql_type:
-                type: string
-                x-go-name: ExportSQLType
-            sql:
-                type: string
-                x-go-name: ExportSQL
-            uid:
-                format: uint64
-                type: integer
-                x-go-name: ID
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListDataExportTaskSQLsReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                items:
-                    $ref: '#/definitions/ListDataExportTaskSQL'
-                type: array
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-            total_nums:
-                format: int64
-                type: integer
-                x-go-name: Total
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    ListDataExportWorkflow:
-        properties:
-            created_at:
-                format: date-time
-                type: string
-                x-go-name: CreatedAt
-            creater:
-                $ref: '#/definitions/UidWithName'
-            current_step_assignee_user_list:
-                items:
-                    $ref: '#/definitions/UidWithName'
-                type: array
-                x-go-name: CurrentStepAssigneeUsers
-            current_step_type:
-                type: string
-                x-go-name: CurrentStepType
-            desc:
-                type: string
-                x-go-name: Description
-            exported_at:
-                format: date-time
-                type: string
-                x-go-name: ExportedAt
-            project_uid:
-                type: string
-                x-go-name: ProjectUid
-            status:
-                enum:
-                    - wait_for_approve
-                    - wait_for_export
-                    - exporting
-                    - rejected
-                    - cancel
-                    - failed
-                    - finish
-                type: string
-                x-go-enum-desc: |-
-                    wait_for_approve DataExportWorkflowStatusWaitForApprove
-                    wait_for_export DataExportWorkflowStatusWaitForExport
-                    exporting DataExportWorkflowStatusWaitForExporting
-                    rejected DataExportWorkflowStatusRejected
-                    cancel DataExportWorkflowStatusCancel
-                    failed DataExportWorkflowStatusFailed
-                    finish DataExportWorkflowStatusFinish
-                x-go-name: Status
-            workflow_name:
-                type: string
-                x-go-name: WorkflowName
-            workflow_uid:
-                type: string
-                x-go-name: WorkflowID
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListDataExportWorkflowsReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                items:
-                    $ref: '#/definitions/ListDataExportWorkflow'
-                type: array
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-            total_nums:
-                format: int64
-                type: integer
-                x-go-name: Total
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    ListDatabaseSourceService:
-        properties:
-            cron_express:
-                description: cron expression
-                example: 0 0 * * *
-                type: string
-                x-go-name: CronExpress
-            db_type:
-                description: database type
-                example: MySQL
-                type: string
-                x-go-name: DbType
-            last_sync_err:
-                description: last sync error message
-                type: string
-                x-go-name: LastSyncErr
-            last_sync_success_time:
-                format: date-time
-                type: string
-                x-go-name: LastSyncSuccessTime
-            name:
-                description: name
-                example: dmp
-                type: string
-                x-go-name: Name
-            project_uid:
-                type: string
-                x-go-name: ProjectUid
-            source:
-                description: source
-                example: actiontech-dmp
-                type: string
-                x-go-name: Source
-            sqle_config:
-                $ref: '#/definitions/SQLEConfig'
-            uid:
-                type: string
-                x-go-name: UID
-            url:
-                description: addr
-                example: http://10.186.62.56:10000
-                type: string
-                x-go-name: URL
-            version:
-                description: version
-                example: 5.23.01.0
-                type: string
-                x-go-name: Version
-        required:
-            - name
-            - source
-            - version
-            - url
-            - db_type
-            - cron_express
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListDatabaseSourceServiceTipsReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                items:
-                    $ref: '#/definitions/DatabaseSource'
-                type: array
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListDatabaseSourceServicesReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                items:
-                    $ref: '#/definitions/ListDatabaseSourceService'
-                type: array
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    ListMaskingRulesData:
-        properties:
-            description:
-                type: string
-                x-go-name: Description
-            effect:
-                type: string
-                x-go-name: Effect
-            id:
-                format: int64
-                type: integer
-                x-go-name: Id
-            masking_type:
-                type: string
-                x-go-name: MaskingType
-            reference_fields:
-                items:
-                    type: string
-                type: array
-                x-go-name: ReferenceFields
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMaskingRulesReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: list masking rule reply
-                items:
-                    $ref: '#/definitions/ListMaskingRulesData'
-                type: array
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    ListMember:
-        description: A dms member
-        properties:
-            is_project_admin:
-                description: Whether the member has project admin permission
-                type: boolean
-                x-go-name: IsProjectAdmin
-            role_with_op_ranges:
-                description: member op permission
-                items:
-                    $ref: '#/definitions/ListMemberRoleWithOpRange'
-                type: array
-                x-go-name: RoleWithOpRanges
-            uid:
-                description: member uid
-                type: string
-                x-go-name: MemberUid
-            user:
-                $ref: '#/definitions/UidWithName'
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    ListMemberGroup:
-        properties:
-            is_project_admin:
-                description: Whether the member has project admin permission
-                type: boolean
-                x-go-name: IsProjectAdmin
-            name:
-                type: string
-                x-go-name: Name
-            role_with_op_ranges:
-                description: member op permission
-                items:
-                    $ref: '#/definitions/ListMemberRoleWithOpRange'
-                type: array
-                x-go-name: RoleWithOpRanges
-            uid:
-                description: member uid
-                type: string
-                x-go-name: Uid
-            users:
-                description: member user
-                items:
-                    $ref: '#/definitions/UidWithName'
-                type: array
-                x-go-name: Users
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberGroupsReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: List member reply
-                items:
-                    $ref: '#/definitions/ListMemberGroup'
-                type: array
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-            total_nums:
-                format: int64
-                type: integer
-                x-go-name: Total
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: List member reply
-                items:
-                    $ref: '#/definitions/ListMember'
-                type: array
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-            total_nums:
-                format: int64
-                type: integer
-                x-go-name: Total
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    ListMemberRoleWithOpRange:
-        properties:
-            op_range_type:
-                description: |-
-                    op permission range type, only support db service now
-                    unknown OpRangeTypeUnknown
-                    global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
-                    project OpRangeTypeProject  项目权限: 该权限只能被成员使用
-                    db_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用
-                enum:
-                    - unknown
-                    - global
-                    - project
-                    - db_service
-                type: string
-                x-go-enum-desc: |-
-                    unknown OpRangeTypeUnknown
-                    global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
-                    project OpRangeTypeProject  项目权限: 该权限只能被成员使用
-                    db_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用
-                x-go-name: OpRangeType
-            range_uids:
-                description: op range uids
-                items:
-                    $ref: '#/definitions/UidWithName'
-                type: array
-                x-go-name: RangeUIDs
-            role_uid:
-                $ref: '#/definitions/UidWithName'
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    ListMemberTipsItem:
-        properties:
-            user_id:
-                type: string
-                x-go-name: UserId
-            user_name:
-                type: string
-                x-go-name: UserName
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberTipsReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: List member tip reply
-                items:
-                    $ref: '#/definitions/ListMemberTipsItem'
-                type: array
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    ListMembersForInternalItem:
-        description: A dms member for internal
-        properties:
-            is_admin:
-                description: is member project admin, admin has all permissions
-                type: boolean
-                x-go-name: IsAdmin
-            member_op_permission_list:
-                description: member op permissions
-                items:
-                    $ref: '#/definitions/OpPermissionItem'
-                type: array
-                x-go-name: MemberOpPermissionList
-            user:
-                $ref: '#/definitions/UidWithName'
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ListMembersForInternalReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: List member reply
-                items:
-                    $ref: '#/definitions/ListMembersForInternalItem'
-                type: array
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-            total_nums:
-                format: int64
-                type: integer
-                x-go-name: Total
-        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    ListOpPermission:
-        description: A dms op permission
-        properties:
-            description:
-                type: string
-                x-go-name: Description
-            op_permission:
-                $ref: '#/definitions/UidWithName'
-            range_type:
-                enum:
-                    - unknown
-                    - global
-                    - project
-                    - db_service
-                type: string
-                x-go-enum-desc: |-
-                    unknown OpRangeTypeUnknown
-                    global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
-                    project OpRangeTypeProject  项目权限: 该权限只能被成员使用
-                    db_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用
-                x-go-name: RangeType
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListOpPermissionReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: List op_permission reply
-                items:
-                    $ref: '#/definitions/ListOpPermission'
-                type: array
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-            total_nums:
-                format: int64
-                type: integer
-                x-go-name: Total
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    ListProject:
-        description: A dms Project
-        properties:
-            archived:
-                description: Project is archived
-                type: boolean
-                x-go-name: Archived
-            business:
-                description: Project business
-                items:
-                    $ref: '#/definitions/Business'
-                type: array
-                x-go-name: Business
-            create_time:
-                description: create time
-                format: date-time
-                type: string
-                x-go-name: CreateTime
-            create_user:
-                $ref: '#/definitions/UidWithName'
-            desc:
-                description: Project desc
-                type: string
-                x-go-name: Desc
-            is_fixed_business:
-                description: is fixed business
-                type: boolean
-                x-go-name: IsFixedBusiness
-            name:
-                description: Project name
-                type: string
-                x-go-name: Name
-            uid:
-                description: Project uid
-                type: string
-                x-go-name: ProjectUid
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ListProjectReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: List project reply
-                items:
-                    $ref: '#/definitions/ListProject'
-                type: array
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-            total_nums:
-                format: int64
-                type: integer
-                x-go-name: Total
-        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    ListRole:
-        description: A dms role
-        properties:
-            desc:
-                description: role desc
-                type: string
-                x-go-name: Desc
-            name:
-                description: role name
-                type: string
-                x-go-name: Name
-            op_permissions:
-                description: op permissions
-                items:
-                    $ref: '#/definitions/UidWithName'
-                type: array
-                x-go-name: OpPermissions
-            stat:
-                description: |-
-                    role stat
-                    正常 StatOK
-                    被禁用 StatDisable
-                    未知 StatUnknown
-                enum:
-                    - 正常
-                    - 被禁用
-                    - 未知
-                type: string
-                x-go-enum-desc: |-
-                    正常 StatOK
-                    被禁用 StatDisable
-                    未知 StatUnknown
-                x-go-name: Stat
-            uid:
-                description: role uid
-                type: string
-                x-go-name: RoleUid
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListRoleReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: List role reply
-                items:
-                    $ref: '#/definitions/ListRole'
-                type: array
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-            total_nums:
-                format: int64
-                type: integer
-                x-go-name: Total
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    ListUser:
-        description: A dms user
-        properties:
-            authentication_type:
-                description: |-
-                    user authentication type
-                    ldap UserAuthenticationTypeLDAP
-                    dms UserAuthenticationTypeDMS
-                    oauth2 UserAuthenticationTypeOAUTH2
-                    unknown UserAuthenticationTypeUnknown
-                enum:
-                    - ldap
-                    - dms
-                    - oauth2
-                    - unknown
-                type: string
-                x-go-enum-desc: |-
-                    ldap UserAuthenticationTypeLDAP
-                    dms UserAuthenticationTypeDMS
-                    oauth2 UserAuthenticationTypeOAUTH2
-                    unknown UserAuthenticationTypeUnknown
-                x-go-name: AuthenticationType
-            email:
-                description: user email
-                type: string
-                x-go-name: Email
-            is_deleted:
-                description: user is deleted
-                type: boolean
-                x-go-name: IsDeleted
-            name:
-                description: user name
-                type: string
-                x-go-name: Name
-            op_permissions:
-                description: user operation permissions
-                items:
-                    $ref: '#/definitions/UidWithName'
-                type: array
-                x-go-name: OpPermissions
-            phone:
-                description: user phone
-                type: string
-                x-go-name: Phone
-            stat:
-                description: |-
-                    user stat
-                    正常 StatOK
-                    被禁用 StatDisable
-                    未知 StatUnknown
-                enum:
-                    - 正常
-                    - 被禁用
-                    - 未知
-                type: string
-                x-go-enum-desc: |-
-                    正常 StatOK
-                    被禁用 StatDisable
-                    未知 StatUnknown
-                x-go-name: Stat
-            third_party_user_info:
-                description: third party user info
-                type: string
-                x-go-name: ThirdPartyUserInfo
-            uid:
-                description: user uid
-                type: string
-                x-go-name: UserUid
-            user_groups:
-                description: user groups
-                items:
-                    $ref: '#/definitions/UidWithName'
-                type: array
-                x-go-name: UserGroups
-            wxid:
-                description: user wxid
-                type: string
-                x-go-name: WxID
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    ListUserGroup:
-        description: A dms user group
-        properties:
-            desc:
-                description: user group description
-                type: string
-                x-go-name: Desc
-            name:
-                description: user group name
-                type: string
-                x-go-name: Name
-            stat:
-                description: |-
-                    user group stat
-                    正常 StatOK
-                    被禁用 StatDisable
-                    未知 StatUnknown
-                enum:
-                    - 正常
-                    - 被禁用
-                    - 未知
-                type: string
-                x-go-enum-desc: |-
-                    正常 StatOK
-                    被禁用 StatDisable
-                    未知 StatUnknown
-                x-go-name: Stat
-            uid:
-                description: user group uid
-                type: string
-                x-go-name: UserGroupUid
-            users:
-                description: users
-                items:
-                    $ref: '#/definitions/UidWithName'
-                type: array
-                x-go-name: Users
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListUserGroupReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: List user reply
-                items:
-                    $ref: '#/definitions/ListUserGroup'
-                type: array
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-            total_nums:
-                format: int64
-                type: integer
-                x-go-name: Total
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListUserReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: List user reply
-                items:
-                    $ref: '#/definitions/ListUser'
-                type: array
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-            total_nums:
-                format: int64
-                type: integer
-                x-go-name: Total
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    MaintenanceTime:
-        properties:
-            maintenance_start_time:
-                $ref: '#/definitions/Time'
-            maintenance_stop_time:
-                $ref: '#/definitions/Time'
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    Member:
-        description: A member
-        properties:
-            is_project_admin:
-                description: Whether the member has project admin permission
-                type: boolean
-                x-go-name: IsProjectAdmin
-            role_with_op_ranges:
-                description: member role with op ranges
-                items:
-                    $ref: '#/definitions/MemberRoleWithOpRange'
-                type: array
-                x-go-name: RoleWithOpRanges
-            user_uid:
-                description: member user uid
-                type: string
-                x-go-name: UserUid
-        required:
-            - user_uid
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    MemberGroup:
-        properties:
-            is_project_admin:
-                description: Whether the member has project admin permission
-                type: boolean
-                x-go-name: IsProjectAdmin
-            name:
-                description: member group name
-                type: string
-                x-go-name: Name
-            role_with_op_ranges:
-                description: member role with op ranges
-                items:
-                    $ref: '#/definitions/MemberRoleWithOpRange'
-                type: array
-                x-go-name: RoleWithOpRanges
-            user_uids:
-                description: member user uid
-                items:
-                    type: string
-                type: array
-                x-go-name: UserUids
-        required:
-            - name
-            - user_uids
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    MemberRoleWithOpRange:
-        properties:
-            op_range_type:
-                description: |-
-                    op permission range type, only support db service now
-                    unknown OpRangeTypeUnknown
-                    global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
-                    project OpRangeTypeProject  项目权限: 该权限只能被成员使用
-                    db_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用
-                enum:
-                    - unknown
-                    - global
-                    - project
-                    - db_service
-                type: string
-                x-go-enum-desc: |-
-                    unknown OpRangeTypeUnknown
-                    global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
-                    project OpRangeTypeProject  项目权限: 该权限只能被成员使用
-                    db_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用
-                x-go-name: OpRangeType
-            range_uids:
-                description: op range uids
-                items:
-                    type: string
-                type: array
-                x-go-name: RangeUIDs
-            role_uid:
-                description: role uid
-                type: string
-                x-go-name: RoleUID
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    Notification:
-        properties:
-            notification_body:
-                type: string
-                x-go-name: NotificationBody
-            notification_subject:
-                type: string
-                x-go-name: NotificationSubject
-            user_uids:
-                items:
-                    type: string
-                type: array
-                x-go-name: UserUids
-        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     NotificationReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    Oauth2Configuration:
-        properties:
-            access_token_tag:
-                type: string
-                x-go-name: AccessTokenTag
-            auto_create_user:
-                type: boolean
-                x-go-name: AutoCreateUser
-            client_host:
-                type: string
-                x-go-name: ClientHost
-            client_id:
-                type: string
-                x-go-name: ClientID
-            client_key:
-                type: string
-                x-go-name: ClientKey
-            enable_oauth2:
-                type: boolean
-                x-go-name: EnableOauth2
-            login_tip:
-                maximum: 28
-                type: string
-                x-go-name: LoginTip
-            scopes:
-                items:
-                    type: string
-                type: array
-                x-go-name: Scopes
-            server_auth_url:
-                type: string
-                x-go-name: ServerAuthUrl
-            server_token_url:
-                type: string
-                x-go-name: ServerTokenUrl
-            server_user_id_url:
-                type: string
-                x-go-name: ServerUserIdUrl
-            skip_check_state:
-                type: boolean
-                x-go-name: SkipCheckState
-            user_email_tag:
-                type: string
-                x-go-name: UserEmailTag
-            user_id_tag:
-                type: string
-                x-go-name: UserIdTag
-            user_wechat_tag:
-                type: string
-                x-go-name: UserWeChatTag
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    OpPermissionItem:
-        properties:
-            op_permission_type:
-                description: |-
-                    op permission type
-                    unknown OpPermissionTypeUnknown
-                    create_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限
-                    project_admin OpPermissionTypeProjectAdmin  项目管理；拥有该权限的用户可以管理项目下的所有资源
-                    create_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单
-                    audit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单
-                    auth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限
-                    view_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限
-                    execute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单
-                    view_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限
-                    save_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务
-                    sql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限
-                    create_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单
-                    audit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单
-                enum:
-                    - unknown
-                    - create_project
-                    - project_admin
-                    - create_workflow
-                    - audit_workflow
-                    - auth_db_service_data
-                    - view_others_workflow
-                    - execute_workflow
-                    - view_other_audit_plan
-                    - save_audit_plan
-                    - sql_query
-                    - create_export_task
-                    - audit_export_workflow
-                type: string
-                x-go-enum-desc: |-
-                    unknown OpPermissionTypeUnknown
-                    create_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限
-                    project_admin OpPermissionTypeProjectAdmin  项目管理；拥有该权限的用户可以管理项目下的所有资源
-                    create_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单
-                    audit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单
-                    auth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限
-                    view_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限
-                    execute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单
-                    view_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限
-                    save_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务
-                    sql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限
-                    create_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单
-                    audit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单
-                x-go-name: OpPermissionType
-            range_type:
-                description: |-
-                    object type of RangeUids
-                    unknown OpRangeTypeUnknown
-                    global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
-                    project OpRangeTypeProject  项目权限: 该权限只能被成员使用
-                    db_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用
-                enum:
-                    - unknown
-                    - global
-                    - project
-                    - db_service
-                type: string
-                x-go-enum-desc: |-
-                    unknown OpRangeTypeUnknown
-                    global OpRangeTypeGlobal  全局权限: 该权限只能被用户使用
-                    project OpRangeTypeProject  项目权限: 该权限只能被成员使用
-                    db_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用
-                x-go-name: RangeType
-            range_uids:
-                description: object uids, object type is defined by RangeType
-                items:
-                    type: string
-                type: array
-                x-go-name: RangeUids
-        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     OperateDataResourceHandleReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    Plugin:
-        properties:
-            add_db_service_pre_check_url:
-                description: '添加数据源预检查接口地址, 如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/services/precheck/add'
-                type: string
-                x-go-name: AddDBServicePreCheckUrl
-            del_db_service_pre_check_url:
-                description: '删除数据源预检查接口地址, 如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/services/precheck/del'
-                type: string
-                x-go-name: DelDBServicePreCheckUrl
-            del_user_group_pre_check_url:
-                description: '删除用户组预检查接口地址,如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/usergroups/precheck/del'
-                type: string
-                x-go-name: DelUserGroupPreCheckUrl
-            del_user_pre_check_url:
-                description: '删除用户预检查接口地址,如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/users/precheck/del'
-                type: string
-                x-go-name: DelUserPreCheckUrl
-            name:
-                description: 插件名称
-                type: string
-                x-go-name: Name
-            operate_data_resource_handle_url:
-                description: '操作资源处理接口地址,如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/data_resource_operate/handle'
-                type: string
-                x-go-name: OperateDataResourceHandleUrl
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    PreviewImportProjects:
-        properties:
-            business:
-                description: business
-                items:
-                    type: string
-                type: array
-                x-go-name: Business
-            desc:
-                description: Project desc
-                type: string
-                x-go-name: Desc
-            name:
-                description: Project name
-                type: string
-                x-go-name: Name
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    Project:
-        description: A Project
-        properties:
-            business:
-                description: project business
-                items:
-                    type: string
-                type: array
-                x-go-name: Business
-            desc:
-                description: project desc
-                type: string
-                x-go-name: Desc
-            is_fixed_business:
-                description: is fixed business
-                type: boolean
-                x-go-name: IsFixedBusiness
-            name:
-                description: project name
-                type: string
-                x-go-name: Name
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    ProjectTips:
-        properties:
-            business:
-                items:
-                    type: string
-                type: array
-                x-go-name: Business
-            is_fixed_business:
-                type: boolean
-                x-go-name: IsFixedBusiness
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     RegisterDMSPluginReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     RegisterDMSProxyTargetReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    RejectDataExportWorkflowPayload:
-        properties:
-            reason:
-                type: string
-                x-go-name: Reason
-        required:
-            - reason
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    Role:
-        description: A role
-        properties:
-            desc:
-                description: role description
-                type: string
-                x-go-name: Desc
-            name:
-                description: role name
-                type: string
-                x-go-name: Name
-            op_permission_uids:
-                description: op permission uid
-                items:
-                    type: string
-                type: array
-                x-go-name: OpPermissionUids
-        required:
-            - name
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    SMTPConfigurationResData:
-        properties:
-            enable_smtp_notify:
-                type: boolean
-                x-go-name: EnableSMTPNotify
-            is_skip_verify:
-                type: boolean
-                x-go-name: IsSkipVerify
-            smtp_host:
-                type: string
-                x-go-name: Host
-            smtp_port:
-                type: string
-                x-go-name: Port
-            smtp_username:
-                type: string
-                x-go-name: Username
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    SQLEConfig:
-        properties:
-            rule_template_id:
-                description: DB Service rule template id
-                type: string
-                x-go-name: RuleTemplateID
-            rule_template_name:
-                description: DB Service rule template name
-                type: string
-                x-go-name: RuleTemplateName
-            sql_query_config:
-                $ref: '#/definitions/SQLQueryConfig'
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    SQLQueryConfig:
-        properties:
-            allow_query_when_less_than_audit_level:
-                enum:
-                    - normal
-                    - notice
-                    - warn
-                    - error
-                type: string
-                x-go-enum-desc: |-
-                    normal AuditLevelNormal
-                    notice AuditLevelNotice
-                    warn AuditLevelWarn
-                    error AuditLevelError
-                x-go-name: AllowQueryWhenLessThanAuditLevel
-            audit_enabled:
-                type: boolean
-                x-go-name: AuditEnabled
-            max_pre_query_rows:
-                format: int64
-                type: integer
-                x-go-name: MaxPreQueryRows
-            query_timeout_second:
-                format: int64
-                type: integer
-                x-go-name: QueryTimeoutSecond
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    Task:
-        properties:
-            task_uid:
-                type: string
-                x-go-name: Uid
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    TaskDBInfo:
-        properties:
-            database_name:
-                type: string
-                x-go-name: DatabaseName
-            db_type:
-                type: string
-                x-go-name: DBType
-            name:
-                type: string
-                x-go-name: Name
-            uid:
-                type: string
-                x-go-name: Uid
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    TestFeishuConfiguration:
-        properties:
-            account:
-                type: string
-                x-go-name: Account
-            account_type:
-                enum:
-                    - email
-                    - phone
-                type: string
-                x-go-enum-desc: |-
-                    email FeishuAccountTypeEmail
-                    phone FeishuAccountTypePhone
-                x-go-name: AccountType
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     TestFeishuConfigurationReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                $ref: '#/definitions/TestFeishuConfigurationResData'
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    TestFeishuConfigurationResData:
-        properties:
-            error_message:
-                type: string
-                x-go-name: ErrorMessage
-            is_message_sent_normally:
-                type: boolean
-                x-go-name: IsMessageSentNormally
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    TestSMTPConfiguration:
-        properties:
-            recipient_addr:
-                type: string
-                x-go-name: RecipientAddr
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     TestSMTPConfigurationReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                $ref: '#/definitions/TestSMTPConfigurationResData'
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    TestSMTPConfigurationResData:
-        properties:
-            is_smtp_send_normal:
-                type: boolean
-                x-go-name: IsSMTPSendNormal
-            send_error_message:
-                type: string
-                x-go-name: SendErrorMessage
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    TestWeChatConfiguration:
-        properties:
-            recipient_id:
-                type: string
-                x-go-name: RecipientID
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     TestWeChatConfigurationReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                $ref: '#/definitions/TestWeChatConfigurationResData'
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    TestWeChatConfigurationResData:
-        properties:
-            is_wechat_send_normal:
-                type: boolean
-                x-go-name: IsWeChatSendNormal
-            send_error_message:
-                type: string
-                x-go-name: SendErrorMessage
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     TestWebHookConfigurationReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                $ref: '#/definitions/TestWebHookConfigurationResData'
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    TestWebHookConfigurationResData:
-        properties:
-            is_message_sent_normally:
-                type: boolean
-                x-go-name: IsMessageSentNormally
-            send_error_message:
-                type: string
-                x-go-name: SendErrorMessage
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    Time:
-        properties:
-            hour:
-                format: int64
-                type: integer
-                x-go-name: Hour
-            minute:
-                format: int64
-                type: integer
-                x-go-name: Minute
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    TriggerEventType:
-        type: string
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    UidWithName:
-        properties:
-            name:
-                type: string
-                x-go-name: Name
-            uid:
-                type: string
-                x-go-name: Uid
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    UpdateCompanyNotice:
-        description: A companynotice
-        properties:
-            notice_str:
-                description: companynotice info
-                type: string
-                x-go-name: NoticeStr
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    UpdateCurrentUser:
-        properties:
-            email:
-                description: User email
-                type: string
-                x-go-name: Email
-            old_password:
-                description: User old password
-                type: string
-                x-go-name: OldPassword
-            password:
-                description: User new password
-                type: string
-                x-go-name: Password
-            phone:
-                description: User phone
-                type: string
-                x-go-name: Phone
-            wxid:
-                description: User wxid
-                type: string
-                x-go-name: WxID
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    UpdateDBService:
-        description: update db service
-        properties:
-            additional_params:
-                description: DB Service Custom connection parameters
-                items:
-                    $ref: '#/definitions/AdditionalParam'
-                type: array
-                x-go-name: AdditionalParams
-            business:
-                description: DB Service business name
-                type: string
-                x-go-name: Business
-            db_type:
-                description: Service DB type
-                type: string
-                x-go-name: DBType
-            desc:
-                description: Service description
-                type: string
-                x-go-name: Desc
-            host:
-                description: DB Service Host
-                type: string
-                x-go-name: Host
-            is_enable_masking:
-                description: data masking switch
-                type: boolean
-                x-go-name: IsEnableMasking
-            maintenance_times:
-                description: DB Service maintenance time
-                items:
-                    $ref: '#/definitions/MaintenanceTime'
-                type: array
-                x-go-name: MaintenanceTimes
-            password:
-                description: DB Service admin password
-                type: string
-                x-go-name: Password
-            port:
-                description: DB Service port
-                type: string
-                x-go-name: Port
-            sqle_config:
-                $ref: '#/definitions/SQLEConfig'
-            user:
-                description: DB Service admin user
-                type: string
-                x-go-name: User
-        required:
-            - db_type
-            - host
-            - port
-            - user
-            - business
-            - maintenance_times
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateDBServiceReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: update db service reply
-                properties:
-                    uid:
-                        description: db service UID
-                        type: string
-                        x-go-name: Uid
-                type: object
-                x-go-name: Data
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    UpdateFeishuConfiguration:
-        properties:
-            app_id:
-                type: string
-                x-go-name: AppID
-            app_secret:
-                type: string
-                x-go-name: AppSecret
-            is_feishu_notification_enabled:
-                type: boolean
-                x-go-name: IsFeishuNotificationEnabled
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    UpdateMember:
-        properties:
-            is_project_admin:
-                description: Whether the member has project admin permission
-                type: boolean
-                x-go-name: IsProjectAdmin
-            role_with_op_ranges:
-                description: member role with op ranges
-                items:
-                    $ref: '#/definitions/MemberRoleWithOpRange'
-                type: array
-                x-go-name: RoleWithOpRanges
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    UpdateMemberGroup:
-        properties:
-            is_project_admin:
-                description: Whether the member has project admin permission
-                type: boolean
-                x-go-name: IsProjectAdmin
-            role_with_op_ranges:
-                description: member role with op ranges
-                items:
-                    $ref: '#/definitions/MemberRoleWithOpRange'
-                type: array
-                x-go-name: RoleWithOpRanges
-            user_uids:
-                description: member user uid
-                items:
-                    type: string
-                type: array
-                x-go-name: UserUids
-        required:
-            - user_uids
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    UpdateProject:
-        properties:
-            business:
-                description: Project business
-                items:
-                    type: string
-                type: array
-                x-go-name: Business
-            desc:
-                description: Project desc
-                type: string
-                x-go-name: Desc
-            is_fixed_business:
-                description: is fixed business
-                type: boolean
-                x-go-name: IsFixedBusiness
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    UpdateRole:
-        properties:
-            desc:
-                description: Role desc
-                type: string
-                x-go-name: Desc
-            is_disabled:
-                description: Whether the role is disabled or not
-                type: boolean
-                x-go-name: IsDisabled
-            op_permission_uids:
-                description: Op permission uids
-                items:
-                    type: string
-                type: array
-                x-go-name: OpPermissionUids
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    UpdateSMTPConfiguration:
-        properties:
-            enable_smtp_notify:
-                type: boolean
-                x-go-name: EnableSMTPNotify
-            is_skip_verify:
-                type: boolean
-                x-go-name: IsSkipVerify
-            smtp_host:
-                type: string
-                x-go-name: Host
-            smtp_password:
-                type: string
-                x-go-name: Password
-            smtp_port:
-                type: string
-                x-go-name: Port
-            smtp_username:
-                type: string
-                x-go-name: Username
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    UpdateUser:
-        properties:
-            email:
-                description: User email
-                type: string
-                x-go-name: Email
-            is_disabled:
-                description: Whether the user is disabled or not
-                type: boolean
-                x-go-name: IsDisabled
-            op_permission_uids:
-                description: User operation permission uids
-                items:
-                    type: string
-                type: array
-                x-go-name: OpPermissionUids
-            password:
-                description: User password, User can login with this password
-                type: string
-                x-go-name: Password
-            phone:
-                description: User phone
-                type: string
-                x-go-name: Phone
-            user_group_uids:
-                description: User group uids
-                items:
-                    type: string
-                type: array
-                x-go-name: UserGroupUids
-            wxid:
-                description: User wxid
-                type: string
-                x-go-name: WxID
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    UpdateUserGroup:
-        properties:
-            desc:
-                description: UserGroup description
-                type: string
-                x-go-name: Desc
-            is_disabled:
-                description: Whether the user group is disabled or not
-                type: boolean
-                x-go-name: IsDisabled
-            user_uids:
-                description: User uids
-                items:
-                    type: string
-                type: array
-                x-go-name: UserUids
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    UpdateWeChatConfiguration:
-        properties:
-            agent_id:
-                format: int64
-                type: integer
-                x-go-name: AgentID
-            corp_id:
-                type: string
-                x-go-name: CorpID
-            corp_secret:
-                type: string
-                x-go-name: CorpSecret
-            enable_wechat_notify:
-                type: boolean
-                x-go-name: EnableWeChatNotify
-            proxy_ip:
-                type: string
-                x-go-name: ProxyIP
-            safe_enabled:
-                type: boolean
-                x-go-name: SafeEnabled
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    User:
-        description: A user
-        properties:
-            desc:
-                description: user description
-                type: string
-                x-go-name: Desc
-            email:
-                description: user email
-                type: string
-                x-go-name: Email
-            name:
-                description: user name
-                type: string
-                x-go-name: Name
-            op_permission_uids:
-                description: user op permission uid
-                items:
-                    type: string
-                type: array
-                x-go-name: OpPermissionUids
-            password:
-                description: user password
-                type: string
-                x-go-name: Password
-            phone:
-                description: user phone
-                type: string
-                x-go-name: Phone
-            user_group_uids:
-                description: user group uid
-                items:
-                    type: string
-                type: array
-                x-go-name: UserGroupUids
-            wxid:
-                description: user wxid
-                type: string
-                x-go-name: WxID
-        required:
-            - name
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    UserBindProject:
-        properties:
-            is_manager:
-                type: boolean
-                x-go-name: IsManager
-            project_id:
-                type: string
-                x-go-name: ProjectID
-            project_name:
-                type: string
-                x-go-name: ProjectName
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    UserGroup:
-        description: A user group
-        properties:
-            desc:
-                description: user group description
-                type: string
-                x-go-name: Desc
-            name:
-                description: user group name
-                type: string
-                x-go-name: Name
-            user_uids:
-                description: user uids
-                items:
-                    type: string
-                type: array
-                x-go-name: UserUids
-        required:
-            - name
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    UserOpPermission:
-        properties:
-            project_uid:
-                description: uesr project uid
-                type: string
-                x-go-name: ProjectUid
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    WeChatConfigurationResData:
-        properties:
-            agent_id:
-                format: int64
-                type: integer
-                x-go-name: AgentID
-            corp_id:
-                type: string
-                x-go-name: CorpID
-            enable_wechat_notify:
-                type: boolean
-                x-go-name: EnableWeChatNotify
-            proxy_ip:
-                type: string
-                x-go-name: ProxyIP
-            safe_enabled:
-                type: boolean
-                x-go-name: SafeEnabled
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    WebHookConfigurationData:
-        properties:
-            enable:
-                type: boolean
-                x-go-name: Enable
-            max_retry_times:
-                description: minlength(3) maxlength(100)
-                format: int64
-                type: integer
-                x-go-name: MaxRetryTimes
-            retry_interval_seconds:
-                format: int64
-                type: integer
-                x-go-name: RetryIntervalSeconds
-            token:
-                type: string
-                x-go-name: Token
-            url:
-                type: string
-                x-go-name: URL
-        type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     WebHookSendMessageReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
         x-go-name: WebHooksSendMessageReply
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    WebHooksMessage:
-        properties:
-            message:
-                type: string
-                x-go-name: Message
-            trigger_event_type:
-                $ref: '#/definitions/TriggerEventType'
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    WorkflowRecord:
-        properties:
-            current_step_number:
-                format: uint64
-                type: integer
-                x-go-name: CurrentStepNumber
-            status:
-                enum:
-                    - wait_for_approve
-                    - wait_for_export
-                    - exporting
-                    - rejected
-                    - cancel
-                    - failed
-                    - finish
-                type: string
-                x-go-enum-desc: |-
-                    wait_for_approve DataExportWorkflowStatusWaitForApprove
-                    wait_for_export DataExportWorkflowStatusWaitForExport
-                    exporting DataExportWorkflowStatusWaitForExporting
-                    rejected DataExportWorkflowStatusRejected
-                    cancel DataExportWorkflowStatusCancel
-                    failed DataExportWorkflowStatusFailed
-                    finish DataExportWorkflowStatusFinish
-                x-go-name: Status
-            tasks:
-                items:
-                    $ref: '#/definitions/Task'
-                type: array
-                x-go-name: Tasks
-            workflow_step_list:
-                items:
-                    $ref: '#/definitions/WorkflowStep'
-                type: array
-                x-go-name: Steps
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    WorkflowStep:
-        properties:
-            assignee_user_list:
-                items:
-                    $ref: '#/definitions/UidWithName'
-                type: array
-                x-go-name: Users
-            desc:
-                type: string
-                x-go-name: Desc
-            number:
-                format: uint64
-                type: integer
-                x-go-name: Number
-            operation_time:
-                format: date-time
-                type: string
-                x-go-name: OperationTime
-            operation_user:
-                $ref: '#/definitions/UidWithName'
-            reason:
-                type: string
-                x-go-name: Reason
-            state:
-                enum:
-                    - init
-                    - rejected
-                    - finish
-                type: string
-                x-go-enum-desc: |-
-                    init WorkflowStepStatusWaitForExporting
-                    rejected WorkflowStepStatusRejected
-                    finish WorkflowStepStatusFinish
-                x-go-name: State
-            type:
-                type: string
-                x-go-name: Type
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
 info:
     description: Documentation of our dms API.
     title: dms api.
@@ -3746,8 +177,7 @@ paths:
                 - description: Update a companynotice
                   in: body
                   name: company_notice
-                  schema:
-                    $ref: '#/definitions/UpdateCompanyNotice'
+                  schema: {}
                   x-go-name: UpdateCompanyNotice
             responses:
                 "200":
@@ -3781,8 +211,7 @@ paths:
                 - description: update feishu configuration
                   in: body
                   name: update_feishu_configuration
-                  schema:
-                    $ref: '#/definitions/UpdateFeishuConfiguration'
+                  schema: {}
                   x-go-name: UpdateFeishuConfiguration
             responses:
                 "200":
@@ -3803,8 +232,7 @@ paths:
                 - description: test feishu configuration
                   in: body
                   name: test_feishu_configuration
-                  schema:
-                    $ref: '#/definitions/TestFeishuConfiguration'
+                  schema: {}
                   x-go-name: TestFeishuConfiguration
             responses:
                 "200":
@@ -3839,8 +267,7 @@ paths:
                 - description: update ldap configuration
                   in: body
                   name: ldap
-                  schema:
-                    $ref: '#/definitions/LDAPConfiguration'
+                  schema: {}
                   x-go-name: LDAPConfiguration
             responses:
                 "200":
@@ -3963,8 +390,7 @@ paths:
                 - description: update oauth2 configuration
                   in: body
                   name: oauth2
-                  schema:
-                    $ref: '#/definitions/Oauth2Configuration'
+                  schema: {}
                   x-go-name: Oauth2Configuration
             responses:
                 "200":
@@ -3999,8 +425,7 @@ paths:
                 - description: update smtp configuration
                   in: body
                   name: smtp_configuration
-                  schema:
-                    $ref: '#/definitions/UpdateSMTPConfiguration'
+                  schema: {}
                   x-go-name: UpdateSMTPConfiguration
             responses:
                 "200":
@@ -4021,8 +446,7 @@ paths:
                 - description: test smtp configuration
                   in: body
                   name: test_smtp_configuration
-                  schema:
-                    $ref: '#/definitions/TestSMTPConfiguration'
+                  schema: {}
                   x-go-name: TestSMTPConfiguration
             responses:
                 "200":
@@ -4072,8 +496,7 @@ paths:
                 - description: test webhook configuration
                   in: body
                   name: webhook_config
-                  schema:
-                    $ref: '#/definitions/WebHookConfigurationData'
+                  schema: {}
                   x-go-name: UpdateWebHookConfiguration
             responses:
                 "200":
@@ -4123,8 +546,7 @@ paths:
                 - description: update wechat configuration
                   in: body
                   name: update_wechat_configuration
-                  schema:
-                    $ref: '#/definitions/UpdateWeChatConfiguration'
+                  schema: {}
                   x-go-name: UpdateWeChatConfiguration
             responses:
                 "200":
@@ -4145,8 +567,7 @@ paths:
                 - description: test wechat configuration
                   in: body
                   name: test_wechat_configuration
-                  schema:
-                    $ref: '#/definitions/TestWeChatConfiguration'
+                  schema: {}
                   x-go-name: TestWeChatConfiguration
             responses:
                 "200":
@@ -4197,8 +618,7 @@ paths:
                 - description: notification
                   in: body
                   name: notification
-                  schema:
-                    $ref: '#/definitions/Notification'
+                  schema: {}
                   x-go-name: Notification
             responses:
                 "200":
@@ -4272,32 +692,13 @@ paths:
                   name: page_index
                   type: integer
                   x-go-name: PageIndex
-                - description: |-
-                    Order by the specified field
-                    name OpPermissionOrderByName
-                  enum:
-                    - name
+                - description: Order by the specified field
                   in: query
                   name: order_by
-                  type: string
-                  x-go-enum-desc: name OpPermissionOrderByName
                   x-go-name: OrderBy
-                - description: |-
-                    filter by op permission target
-                    all OpPermissionTargetAll
-                    user OpPermissionTargetUser
-                    member OpPermissionTargetMember
-                  enum:
-                    - all
-                    - user
-                    - member
+                - description: filter by op permission target
                   in: query
                   name: filter_by_target
-                  type: string
-                  x-go-enum-desc: |-
-                    all OpPermissionTargetAll
-                    user OpPermissionTargetUser
-                    member OpPermissionTargetMember
                   x-go-name: FilterByTarget
             responses:
                 "200":
@@ -4359,8 +760,7 @@ paths:
                 - description: Register dms plugin
                   in: body
                   name: plugin
-                  schema:
-                    $ref: '#/definitions/Plugin'
+                  schema: {}
                   x-go-name: Plugin
             responses:
                 "200":
@@ -4391,15 +791,9 @@ paths:
                   name: page_index
                   type: integer
                   x-go-name: PageIndex
-                - description: |-
-                    Multiple of ["name"], default is ["name"]
-                    name ProjectOrderByName
-                  enum:
-                    - name
+                - description: Multiple of ["name"], default is ["name"]
                   in: query
                   name: order_by
-                  type: string
-                  x-go-enum-desc: name ProjectOrderByName
                   x-go-name: OrderBy
                 - description: filter the Project name
                   in: query
@@ -4429,8 +823,7 @@ paths:
                 - description: Add new Project
                   in: body
                   name: project
-                  schema:
-                    $ref: '#/definitions/Project'
+                  schema: {}
                   x-go-name: Project
             responses:
                 "200":
@@ -4478,8 +871,7 @@ paths:
                 - description: Update a project
                   in: body
                   name: project
-                  schema:
-                    $ref: '#/definitions/UpdateProject'
+                  schema: {}
                   x-go-name: Project
             responses:
                 "200":
@@ -4555,8 +947,7 @@ paths:
                   in: body
                   name: data_export_tasks
                   schema:
-                    items:
-                        $ref: '#/definitions/DataExportTask'
+                    items: {}
                     type: array
                   x-go-name: DataExportTasks
             responses:
@@ -4684,34 +1075,9 @@ paths:
                   name: page_index
                   type: integer
                   x-go-name: PageIndex
-                - description: |-
-                    filter the status
-                    wait_for_approve DataExportWorkflowStatusWaitForApprove
-                    wait_for_export DataExportWorkflowStatusWaitForExport
-                    exporting DataExportWorkflowStatusWaitForExporting
-                    rejected DataExportWorkflowStatusRejected
-                    cancel DataExportWorkflowStatusCancel
-                    failed DataExportWorkflowStatusFailed
-                    finish DataExportWorkflowStatusFinish
-                  enum:
-                    - wait_for_approve
-                    - wait_for_export
-                    - exporting
-                    - rejected
-                    - cancel
-                    - failed
-                    - finish
+                - description: filter the status
                   in: query
                   name: filter_by_status
-                  type: string
-                  x-go-enum-desc: |-
-                    wait_for_approve DataExportWorkflowStatusWaitForApprove
-                    wait_for_export DataExportWorkflowStatusWaitForExport
-                    exporting DataExportWorkflowStatusWaitForExporting
-                    rejected DataExportWorkflowStatusRejected
-                    cancel DataExportWorkflowStatusCancel
-                    failed DataExportWorkflowStatusFailed
-                    finish DataExportWorkflowStatusFinish
                   x-go-name: FilterByStatus
                 - description: filter create user id
                   in: query
@@ -4767,8 +1133,7 @@ paths:
                 - description: add data export workflow
                   in: body
                   name: data_export_workflow
-                  schema:
-                    $ref: '#/definitions/DataExportWorkflow'
+                  schema: {}
                   x-go-name: DataExportWorkflow
             responses:
                 "200":
@@ -4881,8 +1246,7 @@ paths:
                 - in: body
                   name: payload
                   required: true
-                  schema:
-                    $ref: '#/definitions/RejectDataExportWorkflowPayload'
+                  schema: {}
                   x-go-name: Payload
             responses:
                 "200":
@@ -4909,8 +1273,7 @@ paths:
                 - in: body
                   name: payload
                   required: true
-                  schema:
-                    $ref: '#/definitions/CancelDataExportWorkflowPayload'
+                  schema: {}
                   x-go-name: Payload
             responses:
                 "200":
@@ -4958,8 +1321,7 @@ paths:
                 - description: add database source service
                   in: body
                   name: database_source_service
-                  schema:
-                    $ref: '#/definitions/DatabaseSourceService'
+                  schema: {}
                   x-go-name: DatabaseSourceService
             responses:
                 "200":
@@ -5043,8 +1405,7 @@ paths:
                 - description: update database source service
                   in: body
                   name: database_source_service
-                  schema:
-                    $ref: '#/definitions/DatabaseSourceService'
+                  schema: {}
                   x-go-name: DatabaseSourceService
             responses:
                 "200":
@@ -5124,15 +1485,9 @@ paths:
                   name: page_index
                   type: integer
                   x-go-name: PageIndex
-                - description: |-
-                    Multiple of ["name"], default is ["name"]
-                    name DBServiceOrderByName
-                  enum:
-                    - name
+                - description: Multiple of ["name"], default is ["name"]
                   in: query
                   name: order_by
-                  type: string
-                  x-go-enum-desc: name DBServiceOrderByName
                   x-go-name: OrderBy
                 - description: the db service business name
                   in: query
@@ -5204,8 +1559,7 @@ paths:
                 - description: Add new db service
                   in: body
                   name: db_service
-                  schema:
-                    $ref: '#/definitions/DBService'
+                  schema: {}
                   x-go-name: DBService
             responses:
                 "200":
@@ -5265,8 +1619,7 @@ paths:
                 - description: Update a DB service
                   in: body
                   name: db_service
-                  schema:
-                    $ref: '#/definitions/UpdateDBService'
+                  schema: {}
                   x-go-name: DBService
             responses:
                 "200":
@@ -5321,8 +1674,7 @@ paths:
                 - description: check db_service is connectable
                   in: body
                   name: db_service
-                  schema:
-                    $ref: '#/definitions/CheckDbConnectable'
+                  schema: {}
                   x-go-name: DBService
             responses:
                 "200":
@@ -5387,15 +1739,9 @@ paths:
                   name: page_index
                   type: integer
                   x-go-name: PageIndex
-                - description: |-
-                    Multiple of ["name"], default is ["name"]
-                    name MemberGroupOrderByName
-                  enum:
-                    - name
+                - description: Multiple of ["name"], default is ["name"]
                   in: query
                   name: order_by
-                  type: string
-                  x-go-enum-desc: name MemberGroupOrderByName
                   x-go-name: OrderBy
                 - description: filter the user group name
                   in: query
@@ -5432,8 +1778,7 @@ paths:
                 - description: Add new member group
                   in: body
                   name: member_group
-                  schema:
-                    $ref: '#/definitions/MemberGroup'
+                  schema: {}
                   x-go-name: MemberGroup
             responses:
                 "200":
@@ -5520,8 +1865,7 @@ paths:
                 - description: Update a member group
                   in: body
                   name: member_group
-                  schema:
-                    $ref: '#/definitions/UpdateMemberGroup'
+                  schema: {}
                   x-go-name: MemberGroup
             responses:
                 "200":
@@ -5552,15 +1896,9 @@ paths:
                   name: page_index
                   type: integer
                   x-go-name: PageIndex
-                - description: |-
-                    Multiple of ["name"], default is ["name"]
-                    user_uid MemberOrderByUserUid
-                  enum:
-                    - user_uid
+                - description: Multiple of ["name"], default is ["name"]
                   in: query
                   name: order_by
-                  type: string
-                  x-go-enum-desc: user_uid MemberOrderByUserUid
                   x-go-name: OrderBy
                 - description: filter the member user uid
                   in: query
@@ -5597,8 +1935,7 @@ paths:
                 - description: Add new member
                   in: body
                   name: member
-                  schema:
-                    $ref: '#/definitions/Member'
+                  schema: {}
                   x-go-name: Member
             responses:
                 "200":
@@ -5658,8 +1995,7 @@ paths:
                 - description: Update a member
                   in: body
                   name: member
-                  schema:
-                    $ref: '#/definitions/UpdateMember'
+                  schema: {}
                   x-go-name: Member
             responses:
                 "200":
@@ -5771,8 +2107,7 @@ paths:
             operationId: ImportProjects
             parameters:
                 - in: query
-                  items:
-                    $ref: '#/definitions/ImportProjects'
+                  items: {}
                   name: projects
                   type: array
                   x-go-name: Projects
@@ -5803,19 +2138,16 @@ paths:
             tags:
                 - dms
     /v1/dms/projects/preview_import:
-        get:
+        post:
             consumes:
                 - multipart/form-data
             description: Preview import projects
             operationId: PreviewImportProjects
             parameters:
-                - $ref: '#/definitions/Buffer'
-                  description: |-
-                    projects file.
-
-                    in: formDate
-                  in: query
+                - description: projects file.
+                  in: formData
                   name: projects_file
+                  type: file
                   x-go-name: ProjectsFile
             responses:
                 "200":
@@ -5854,8 +2186,7 @@ paths:
                 - description: register dms proxy
                   in: body
                   name: dms_proxy_target
-                  schema:
-                    $ref: '#/definitions/DMSProxyTarget'
+                  schema: {}
                   x-go-name: DMSProxyTarget
             responses:
                 "200":
@@ -5886,15 +2217,9 @@ paths:
                   name: page_index
                   type: integer
                   x-go-name: PageIndex
-                - description: |-
-                    Multiple of ["name"], default is ["name"]
-                    name RoleOrderByName
-                  enum:
-                    - name
+                - description: Multiple of ["name"], default is ["name"]
                   in: query
                   name: order_by
-                  type: string
-                  x-go-enum-desc: name RoleOrderByName
                   x-go-name: OrderBy
                 - description: filter the role name
                   in: query
@@ -5919,8 +2244,7 @@ paths:
                 - description: Add new role
                   in: body
                   name: role
-                  schema:
-                    $ref: '#/definitions/Role'
+                  schema: {}
                   x-go-name: Role
             responses:
                 "200":
@@ -5968,8 +2292,7 @@ paths:
                 - description: Update a role
                   in: body
                   name: role
-                  schema:
-                    $ref: '#/definitions/UpdateRole'
+                  schema: {}
                   x-go-name: Role
             responses:
                 "200":
@@ -6004,8 +2327,7 @@ paths:
                 - description: Add a new session
                   in: body
                   name: session
-                  schema:
-                    $ref: '#/definitions/AddSession'
+                  schema: {}
                   x-go-name: Session
             responses:
                 "200":
@@ -6056,15 +2378,9 @@ paths:
                   name: page_index
                   type: integer
                   x-go-name: PageIndex
-                - description: |-
-                    Multiple of ["name"], default is ["name"]
-                    name UserGroupOrderByName
-                  enum:
-                    - name
+                - description: Multiple of ["name"], default is ["name"]
                   in: query
                   name: order_by
-                  type: string
-                  x-go-enum-desc: name UserGroupOrderByName
                   x-go-name: OrderBy
                 - description: filter the user group name
                   in: query
@@ -6089,8 +2405,7 @@ paths:
                 - description: Add new user group
                   in: body
                   name: user_group
-                  schema:
-                    $ref: '#/definitions/UserGroup'
+                  schema: {}
                   x-go-name: UserGroup
             responses:
                 "200":
@@ -6138,8 +2453,7 @@ paths:
                 - description: Update a user group
                   in: body
                   name: user_group
-                  schema:
-                    $ref: '#/definitions/UpdateUserGroup'
+                  schema: {}
                   x-go-name: UserGroup
             responses:
                 "200":
@@ -6170,15 +2484,9 @@ paths:
                   name: page_index
                   type: integer
                   x-go-name: PageIndex
-                - description: |-
-                    Multiple of ["name"], default is ["name"]
-                    name UserOrderByName
-                  enum:
-                    - name
+                - description: Multiple of ["name"], default is ["name"]
                   in: query
                   name: order_by
-                  type: string
-                  x-go-enum-desc: name UserOrderByName
                   x-go-name: OrderBy
                 - description: filter the user name
                   in: query
@@ -6213,8 +2521,7 @@ paths:
                 - description: Add new user
                   in: body
                   name: user
-                  schema:
-                    $ref: '#/definitions/User'
+                  schema: {}
                   x-go-name: User
             responses:
                 "200":
@@ -6234,8 +2541,7 @@ paths:
                 - description: Update current user
                   in: body
                   name: current_user
-                  schema:
-                    $ref: '#/definitions/UpdateCurrentUser'
+                  schema: {}
                   x-go-name: User
             responses:
                 "200":
@@ -6304,8 +2610,7 @@ paths:
                 - description: Update a user
                   in: body
                   name: user
-                  schema:
-                    $ref: '#/definitions/UpdateUser'
+                  schema: {}
                   x-go-name: User
             responses:
                 "200":
@@ -6332,8 +2637,7 @@ paths:
                 - description: user op permission info
                   in: body
                   name: user_op_permission
-                  schema:
-                    $ref: '#/definitions/UserOpPermission'
+                  schema: {}
                   x-go-name: UserOpPermission
             responses:
                 "200":
@@ -6374,8 +2678,7 @@ paths:
                 - description: webhooks
                   in: body
                   name: webhook_message
-                  schema:
-                    $ref: '#/definitions/WebHooksMessage'
+                  schema: {}
                   x-go-name: WebHookMessage
             responses:
                 "200":
@@ -6434,8 +2737,7 @@ responses:
                 type: integer
             data:
                 description: project tips
-                items:
-                    $ref: '#/definitions/ProjectTips'
+                items: {}
                 type: array
             message:
                 description: message
@@ -6453,8 +2755,7 @@ responses:
                 type: integer
             data:
                 description: list preview import projects
-                items:
-                    $ref: '#/definitions/PreviewImportProjects'
+                items: {}
                 type: array
             message:
                 description: message
