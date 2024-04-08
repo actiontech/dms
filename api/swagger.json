@@ -74,7 +74,9 @@
             "description": "Update a companynotice",
             "name": "company_notice",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/UpdateCompanyNotice"
+            }
           }
         ],
         "responses": {
@@ -127,7 +129,9 @@
             "description": "update feishu configuration",
             "name": "update_feishu_configuration",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/UpdateFeishuConfiguration"
+            }
           }
         ],
         "responses": {
@@ -159,7 +163,9 @@
             "description": "test feishu configuration",
             "name": "test_feishu_configuration",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/TestFeishuConfiguration"
+            }
           }
         ],
         "responses": {
@@ -212,7 +218,9 @@
             "description": "update ldap configuration",
             "name": "ldap",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/LDAPConfiguration"
+            }
           }
         ],
         "responses": {
@@ -399,7 +407,9 @@
             "description": "update oauth2 configuration",
             "name": "oauth2",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/Oauth2Configuration"
+            }
           }
         ],
         "responses": {
@@ -452,7 +462,9 @@
             "description": "update smtp configuration",
             "name": "smtp_configuration",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/UpdateSMTPConfiguration"
+            }
           }
         ],
         "responses": {
@@ -484,7 +496,9 @@
             "description": "test smtp configuration",
             "name": "test_smtp_configuration",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/TestSMTPConfiguration"
+            }
           }
         ],
         "responses": {
@@ -560,7 +574,9 @@
             "description": "test webhook configuration",
             "name": "webhook_config",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/WebHookConfigurationData"
+            }
           }
         ],
         "responses": {
@@ -636,7 +652,9 @@
             "description": "update wechat configuration",
             "name": "update_wechat_configuration",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/UpdateWeChatConfiguration"
+            }
           }
         ],
         "responses": {
@@ -668,7 +686,9 @@
             "description": "test wechat configuration",
             "name": "test_wechat_configuration",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/TestWeChatConfiguration"
+            }
           }
         ],
         "responses": {
@@ -746,7 +766,9 @@
             "description": "notification",
             "name": "notification",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/Notification"
+            }
           }
         ],
         "responses": {
@@ -857,14 +879,26 @@
             "in": "query"
           },
           {
+            "enum": [
+              "name"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "name OpPermissionOrderByName",
             "x-go-name": "OrderBy",
-            "description": "Order by the specified field",
+            "description": "Order by the specified field\nname OpPermissionOrderByName",
             "name": "order_by",
             "in": "query"
           },
           {
+            "enum": [
+              "all",
+              "user",
+              "member"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "all OpPermissionTargetAll\nuser OpPermissionTargetUser\nmember OpPermissionTargetMember",
             "x-go-name": "FilterByTarget",
-            "description": "filter by op permission target",
+            "description": "filter by op permission target\nall OpPermissionTargetAll\nuser OpPermissionTargetUser\nmember OpPermissionTargetMember",
             "name": "filter_by_target",
             "in": "query"
           }
@@ -960,7 +994,9 @@
             "description": "Register dms plugin",
             "name": "plugin",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/Plugin"
+            }
           }
         ],
         "responses": {
@@ -1005,8 +1041,13 @@
             "in": "query"
           },
           {
+            "enum": [
+              "name"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "name ProjectOrderByName",
             "x-go-name": "OrderBy",
-            "description": "Multiple of [\"name\"], default is [\"name\"]",
+            "description": "Multiple of [\"name\"], default is [\"name\"]\nname ProjectOrderByName",
             "name": "order_by",
             "in": "query"
           },
@@ -1052,7 +1093,9 @@
             "description": "Add new Project",
             "name": "project",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/Project"
+            }
           }
         ],
         "responses": {
@@ -1092,7 +1135,7 @@
       }
     },
     "/v1/dms/projects/import": {
-      "put": {
+      "post": {
         "description": "Import projects",
         "tags": [
           "dms"
@@ -1101,7 +1144,9 @@
         "parameters": [
           {
             "type": "array",
-            "items": {},
+            "items": {
+              "$ref": "#/definitions/ImportProjects"
+            },
             "x-go-name": "Projects",
             "name": "projects",
             "in": "query"
@@ -1231,7 +1276,9 @@
             "description": "Update a project",
             "name": "project",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/UpdateProject"
+            }
           }
         ],
         "responses": {
@@ -1375,7 +1422,9 @@
             "in": "body",
             "schema": {
               "type": "array",
-              "items": {}
+              "items": {
+                "$ref": "#/definitions/DataExportTask"
+              }
             }
           }
         ],
@@ -1560,8 +1609,19 @@
             "in": "query"
           },
           {
+            "enum": [
+              "wait_for_approve",
+              "wait_for_export",
+              "exporting",
+              "rejected",
+              "cancel",
+              "failed",
+              "finish"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "wait_for_approve DataExportWorkflowStatusWaitForApprove\nwait_for_export DataExportWorkflowStatusWaitForExport\nexporting DataExportWorkflowStatusWaitForExporting\nrejected DataExportWorkflowStatusRejected\ncancel DataExportWorkflowStatusCancel\nfailed DataExportWorkflowStatusFailed\nfinish DataExportWorkflowStatusFinish",
             "x-go-name": "FilterByStatus",
-            "description": "filter the status",
+            "description": "filter the status\nwait_for_approve DataExportWorkflowStatusWaitForApprove\nwait_for_export DataExportWorkflowStatusWaitForExport\nexporting DataExportWorkflowStatusWaitForExporting\nrejected DataExportWorkflowStatusRejected\ncancel DataExportWorkflowStatusCancel\nfailed DataExportWorkflowStatusFailed\nfinish DataExportWorkflowStatusFinish",
             "name": "filter_by_status",
             "in": "query"
           },
@@ -1643,7 +1703,9 @@
             "description": "add data export workflow",
             "name": "data_export_workflow",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/DataExportWorkflow"
+            }
           }
         ],
         "responses": {
@@ -1683,7 +1745,9 @@
             "name": "payload",
             "in": "body",
             "required": true,
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/CancelDataExportWorkflowPayload"
+            }
           }
         ],
         "responses": {
@@ -1850,7 +1914,9 @@
             "name": "payload",
             "in": "body",
             "required": true,
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/RejectDataExportWorkflowPayload"
+            }
           }
         ],
         "responses": {
@@ -1921,7 +1987,9 @@
             "description": "add database source service",
             "name": "database_source_service",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/DatabaseSourceService"
+            }
           }
         ],
         "responses": {
@@ -2039,7 +2107,9 @@
             "description": "update database source service",
             "name": "database_source_service",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/DatabaseSourceService"
+            }
           }
         ],
         "responses": {
@@ -2162,8 +2232,13 @@
             "in": "query"
           },
           {
+            "enum": [
+              "name"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "name DBServiceOrderByName",
             "x-go-name": "OrderBy",
-            "description": "Multiple of [\"name\"], default is [\"name\"]",
+            "description": "Multiple of [\"name\"], default is [\"name\"]\nname DBServiceOrderByName",
             "name": "order_by",
             "in": "query"
           },
@@ -2267,7 +2342,9 @@
             "description": "Add new db service",
             "name": "db_service",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/DBService"
+            }
           }
         ],
         "responses": {
@@ -2307,7 +2384,9 @@
             "description": "check db_service is connectable",
             "name": "db_service",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/CheckDbConnectable"
+            }
           }
         ],
         "responses": {
@@ -2405,7 +2484,9 @@
             "description": "Update a DB service",
             "name": "db_service",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/UpdateDBService"
+            }
           }
         ],
         "responses": {
@@ -2530,8 +2611,13 @@
             "in": "query"
           },
           {
+            "enum": [
+              "name"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "name MemberGroupOrderByName",
             "x-go-name": "OrderBy",
-            "description": "Multiple of [\"name\"], default is [\"name\"]",
+            "description": "Multiple of [\"name\"], default is [\"name\"]\nname MemberGroupOrderByName",
             "name": "order_by",
             "in": "query"
           },
@@ -2586,7 +2672,9 @@
             "description": "Add new member group",
             "name": "member_group",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/MemberGroup"
+            }
           }
         ],
         "responses": {
@@ -2673,7 +2761,9 @@
             "description": "Update a member group",
             "name": "member_group",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/UpdateMemberGroup"
+            }
           }
         ],
         "responses": {
@@ -2757,8 +2847,13 @@
             "in": "query"
           },
           {
+            "enum": [
+              "user_uid"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "user_uid MemberOrderByUserUid",
             "x-go-name": "OrderBy",
-            "description": "Multiple of [\"name\"], default is [\"name\"]",
+            "description": "Multiple of [\"name\"], default is [\"name\"]\nuser_uid MemberOrderByUserUid",
             "name": "order_by",
             "in": "query"
           },
@@ -2813,7 +2908,9 @@
             "description": "Add new member",
             "name": "member",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/Member"
+            }
           }
         ],
         "responses": {
@@ -2944,7 +3041,9 @@
             "description": "Update a member",
             "name": "member",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/UpdateMember"
+            }
           }
         ],
         "responses": {
@@ -3048,7 +3147,9 @@
             "description": "register dms proxy",
             "name": "dms_proxy_target",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/DMSProxyTarget"
+            }
           }
         ],
         "responses": {
@@ -3093,8 +3194,13 @@
             "in": "query"
           },
           {
+            "enum": [
+              "name"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "name RoleOrderByName",
             "x-go-name": "OrderBy",
-            "description": "Multiple of [\"name\"], default is [\"name\"]",
+            "description": "Multiple of [\"name\"], default is [\"name\"]\nname RoleOrderByName",
             "name": "order_by",
             "in": "query"
           },
@@ -3133,7 +3239,9 @@
             "description": "Add new role",
             "name": "role",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/Role"
+            }
           }
         ],
         "responses": {
@@ -3173,7 +3281,9 @@
             "description": "Update a role",
             "name": "role",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/UpdateRole"
+            }
           }
         ],
         "responses": {
@@ -3236,7 +3346,9 @@
             "description": "Add a new session",
             "name": "session",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/AddSession"
+            }
           }
         ],
         "responses": {
@@ -3333,8 +3445,13 @@
             "in": "query"
           },
           {
+            "enum": [
+              "name"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "name UserGroupOrderByName",
             "x-go-name": "OrderBy",
-            "description": "Multiple of [\"name\"], default is [\"name\"]",
+            "description": "Multiple of [\"name\"], default is [\"name\"]\nname UserGroupOrderByName",
             "name": "order_by",
             "in": "query"
           },
@@ -3373,7 +3490,9 @@
             "description": "Add new user group",
             "name": "user_group",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/UserGroup"
+            }
           }
         ],
         "responses": {
@@ -3413,7 +3532,9 @@
             "description": "Update a user group",
             "name": "user_group",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/UpdateUserGroup"
+            }
           }
         ],
         "responses": {
@@ -3489,8 +3610,13 @@
             "in": "query"
           },
           {
+            "enum": [
+              "name"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "name UserOrderByName",
             "x-go-name": "OrderBy",
-            "description": "Multiple of [\"name\"], default is [\"name\"]",
+            "description": "Multiple of [\"name\"], default is [\"name\"]\nname UserOrderByName",
             "name": "order_by",
             "in": "query"
           },
@@ -3543,7 +3669,9 @@
             "description": "Update current user",
             "name": "current_user",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/UpdateCurrentUser"
+            }
           }
         ],
         "responses": {
@@ -3573,7 +3701,9 @@
             "description": "Add new user",
             "name": "user",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
           }
         ],
         "responses": {
@@ -3675,7 +3805,9 @@
             "description": "Update a user",
             "name": "user",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/UpdateUser"
+            }
           }
         ],
         "responses": {
@@ -3746,7 +3878,9 @@
             "description": "user op permission info",
             "name": "user_op_permission",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/UserOpPermission"
+            }
           }
         ],
         "responses": {
@@ -3778,7 +3912,9 @@
             "description": "webhooks",
             "name": "webhook_message",
             "in": "body",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/WebHooksMessage"
+            }
           }
         ],
         "responses": {
@@ -3799,203 +3935,4704 @@
     }
   },
   "definitions": {
+    "AccessTokenInfo": {
+      "type": "object",
+      "properties": {
+        "access_token": {
+          "type": "string",
+          "x-go-name": "AccessToken"
+        },
+        "is_expired": {
+          "type": "boolean",
+          "x-go-name": "IsExpired"
+        },
+        "token_expired_timestamp": {
+          "type": "string",
+          "x-go-name": "ExpiredTime"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
     "AddDBServicePreCheckReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "AddDBServiceReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "Add db service reply",
+          "type": "object",
+          "properties": {
+            "uid": {
+              "description": "db service UID",
+              "type": "string",
+              "x-go-name": "Uid"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "AddDataExportTaskReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "add data export workflow reply",
+          "type": "object",
+          "properties": {
+            "data_export_task_uids": {
+              "description": "data export task UIDs",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "x-go-name": "Uids"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "AddDataExportWorkflowReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "add data export workflow reply",
+          "type": "object",
+          "properties": {
+            "export_data_workflow_uid": {
+              "description": "data export workflow UID",
+              "type": "string",
+              "x-go-name": "Uid"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "AddDatabaseSourceServiceReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "add database source service reply",
+          "type": "object",
+          "properties": {
+            "uid": {
+              "description": "db service UID",
+              "type": "string",
+              "x-go-name": "Uid"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "AddMemberGroupReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "Add member group reply",
+          "type": "object",
+          "properties": {
+            "id": {
+              "description": "member group ID",
+              "type": "string",
+              "x-go-name": "Id"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "AddMemberReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "Add member reply",
+          "type": "object",
+          "properties": {
+            "uid": {
+              "description": "member UID",
+              "type": "string",
+              "x-go-name": "Uid"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "AddProjectReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "Add Project reply",
+          "type": "object",
+          "properties": {
+            "uid": {
+              "description": "Project UID",
+              "type": "string",
+              "x-go-name": "Uid"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "AddRoleReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "Add role reply",
+          "type": "object",
+          "properties": {
+            "uid": {
+              "description": "role UID",
+              "type": "string",
+              "x-go-name": "Uid"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddSession": {
+      "description": "Use this struct to add a new session",
+      "type": "object",
+      "required": [
+        "username",
+        "password"
+      ],
+      "properties": {
+        "password": {
+          "description": "User password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "username": {
+          "description": "User name",
+          "type": "string",
+          "x-go-name": "UserName"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "AddSessionReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "Add user reply",
+          "type": "object",
+          "properties": {
+            "token": {
+              "description": "Session token",
+              "type": "string",
+              "x-go-name": "Token"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "AddUserGroupReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "Add user group reply",
+          "type": "object",
+          "properties": {
+            "uid": {
+              "description": "user group UID",
+              "type": "string",
+              "x-go-name": "Uid"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "AddUserReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "Add user reply",
+          "type": "object",
+          "properties": {
+            "uid": {
+              "description": "user UID",
+              "type": "string",
+              "x-go-name": "Uid"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AdditionalParam": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "value": {
+          "type": "string",
+          "x-go-name": "Value"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "AuditSQLResult": {
+      "type": "object",
+      "properties": {
+        "db_type": {
+          "type": "string",
+          "x-go-name": "DBType"
+        },
+        "level": {
+          "type": "string",
+          "x-go-name": "Level"
+        },
+        "message": {
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "rule_name": {
+          "type": "string",
+          "x-go-name": "RuleName"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AuditTaskResult": {
+      "description": "SQL审核结果",
+      "type": "object",
+      "properties": {
+        "audit_level": {
+          "type": "string",
+          "x-go-name": "AuditLevel"
+        },
+        "pass_rate": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "PassRate"
+        },
+        "score": {
+          "type": "integer",
+          "format": "int32",
+          "x-go-name": "Score"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "BasicInfo": {
+      "type": "object",
+      "properties": {
+        "components": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ComponentNameWithVersion"
+          },
+          "x-go-name": "Components"
+        },
+        "logo_url": {
+          "type": "string",
+          "x-go-name": "LogoUrl"
+        },
+        "title": {
+          "type": "string",
+          "x-go-name": "Title"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "BatchGetDataExportTaskReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetDataExportTask"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "BindOauth2UserReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/BindOauth2UserResData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "BindOauth2UserResData": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string",
+          "x-go-name": "Token"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "Business": {
+      "type": "object",
+      "properties": {
+        "is_used": {
+          "type": "boolean",
+          "x-go-name": "IsUsed"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "CancelDataExportWorkflowPayload": {
+      "type": "object",
+      "required": [
+        "data_export_workflow_uids"
+      ],
+      "properties": {
+        "data_export_workflow_uids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "DataExportWorkflowUids"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "CheckDBServiceIsConnectableReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CheckDBServiceIsConnectableReplyItem"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "CheckDBServiceIsConnectableReplyItem": {
+      "type": "object",
+      "properties": {
+        "component": {
+          "type": "string",
+          "x-go-name": "Component"
+        },
+        "connect_error_message": {
+          "type": "string",
+          "x-go-name": "ConnectErrorMessage"
+        },
+        "is_connectable": {
+          "type": "boolean",
+          "x-go-name": "IsConnectable"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "CheckDbConnectable": {
+      "type": "object",
+      "required": [
+        "db_type",
+        "user",
+        "host",
+        "port",
+        "password"
+      ],
+      "properties": {
+        "additional_params": {
+          "description": "DB Service Custom connection parameters",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdditionalParam"
+          },
+          "x-go-name": "AdditionalParams"
+        },
+        "db_type": {
+          "description": "DB Service type",
+          "type": "string",
+          "x-go-name": "DBType",
+          "example": "MySQL"
+        },
+        "host": {
+          "description": "DB Service host",
+          "type": "string",
+          "x-go-name": "Host",
+          "example": "127.0.0.1"
+        },
+        "password": {
+          "description": "DB Service admin password",
+          "type": "string",
+          "x-go-name": "Password",
+          "example": "123456"
+        },
+        "port": {
+          "description": "DB Service port",
+          "type": "string",
+          "x-go-name": "Port",
+          "example": "3306"
+        },
+        "user": {
+          "description": "DB Service admin user",
+          "type": "string",
+          "x-go-name": "User",
+          "example": "root"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
     "CheckLicenseReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "content": {
+          "type": "string",
+          "x-go-name": "Content"
+        },
+        "license": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LicenseItem"
+          },
+          "x-go-name": "License"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "CompanyNotice": {
+      "description": "A companynotice",
+      "type": "object",
+      "properties": {
+        "notice_str": {
+          "description": "companynotice info",
+          "type": "string",
+          "x-go-name": "NoticeStr"
+        },
+        "read_by_current_user": {
+          "description": "current user has been read",
+          "type": "boolean",
+          "x-go-name": "ReadByCurrentUser"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ComponentNameWithVersion": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "version": {
+          "type": "string",
+          "x-go-name": "Version"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DBService": {
+      "description": "A db service",
+      "type": "object",
+      "required": [
+        "name",
+        "db_type",
+        "host",
+        "port",
+        "user",
+        "password",
+        "business",
+        "maintenance_times"
+      ],
+      "properties": {
+        "additional_params": {
+          "description": "DB Service Custom connection parameters",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdditionalParam"
+          },
+          "x-go-name": "AdditionalParams"
+        },
+        "business": {
+          "description": "DB Service business name",
+          "type": "string",
+          "x-go-name": "Business"
+        },
+        "db_type": {
+          "description": "Service DB type",
+          "type": "string",
+          "x-go-name": "DBType"
+        },
+        "desc": {
+          "description": "Service description",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "host": {
+          "description": "DB Service Host",
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "is_enable_masking": {
+          "description": "data masking switch",
+          "type": "boolean",
+          "x-go-name": "IsEnableMasking"
+        },
+        "maintenance_times": {
+          "description": "DB Service maintenance time\nempty value means that maintenance time is unlimited",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MaintenanceTime"
+          },
+          "x-go-name": "MaintenanceTimes"
+        },
+        "name": {
+          "description": "Service name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "password": {
+          "description": "DB Service admin password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "port": {
+          "description": "DB Service port",
+          "type": "string",
+          "x-go-name": "Port"
+        },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
+        },
+        "user": {
+          "description": "DB Service admin user",
+          "type": "string",
+          "x-go-name": "User"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DMSProxyTarget": {
+      "description": "A dms proxy target",
+      "type": "object",
+      "required": [
+        "name",
+        "addr",
+        "version",
+        "proxy_url_prefixs"
+      ],
+      "properties": {
+        "addr": {
+          "description": "target addr, eg: http://10.1.2.1:5432",
+          "type": "string",
+          "x-go-name": "Addr"
+        },
+        "name": {
+          "description": "target name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "proxy_url_prefixs": {
+          "description": "url prefix that need to be proxy, eg: /v1/user",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "ProxyUrlPrefixs"
+        },
+        "scenario": {
+          "description": "the scenario is used to differentiate scenarios\ninternal_service ProxyScenarioInternalService\nthrid_party_integrate ProxyScenarioThirdPartyIntegrate",
+          "type": "string",
+          "enum": [
+            "internal_service",
+            "thrid_party_integrate"
+          ],
+          "x-go-enum-desc": "internal_service ProxyScenarioInternalService\nthrid_party_integrate ProxyScenarioThirdPartyIntegrate",
+          "x-go-name": "Scenario"
+        },
+        "version": {
+          "description": "version number",
+          "type": "string",
+          "x-go-name": "Version"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "DataExportTask": {
+      "type": "object",
+      "required": [
+        "db_service_uid"
+      ],
+      "properties": {
+        "database_name": {
+          "description": "DB Service name",
+          "type": "string",
+          "x-go-name": "DatabaseName"
+        },
+        "db_service_uid": {
+          "description": "DB Service uid",
+          "type": "string",
+          "x-go-name": "DBServiceUid"
+        },
+        "export_sql": {
+          "description": "The exported SQL statement executed. it's necessary when ExportType is SQL\nSELECT * FROM DMS_test LIMIT 20;",
+          "type": "string",
+          "x-go-name": "ExportSQL"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DataExportWorkflow": {
+      "type": "object",
+      "required": [
+        "name",
+        "tasks"
+      ],
+      "properties": {
+        "desc": {
+          "description": "desc",
+          "type": "string",
+          "x-go-name": "Desc",
+          "example": "transaction data export"
+        },
+        "name": {
+          "description": "name",
+          "type": "string",
+          "x-go-name": "Name",
+          "example": "d1"
+        },
+        "tasks": {
+          "description": "export task info",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Task"
+          },
+          "x-go-name": "Tasks",
+          "example": "[export_task_uid1,export_task_uid2]"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DatabaseDriverAdditionalParam": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "value": {
+          "type": "string",
+          "x-go-name": "Value"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DatabaseDriverOption": {
+      "type": "object",
+      "properties": {
+        "db_type": {
+          "type": "string",
+          "x-go-name": "DBType"
+        },
+        "logo_path": {
+          "type": "string",
+          "x-go-name": "LogoPath"
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DatabaseDriverAdditionalParam"
+          },
+          "x-go-name": "Params"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DatabaseSource": {
+      "type": "object",
+      "properties": {
+        "db_types": {
+          "description": "database type",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "DbTypes",
+          "example": "MySQL"
+        },
+        "source": {
+          "description": "database source",
+          "type": "string",
+          "x-go-name": "Source",
+          "example": "actiontech-dmp"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DatabaseSourceService": {
+      "type": "object",
+      "required": [
+        "name",
+        "source",
+        "version",
+        "url",
+        "db_type",
+        "cron_express"
+      ],
+      "properties": {
+        "cron_express": {
+          "description": "cron expression",
+          "type": "string",
+          "x-go-name": "CronExpress",
+          "example": "0 0 * * *"
+        },
+        "db_type": {
+          "description": "database type",
+          "type": "string",
+          "x-go-name": "DbType",
+          "example": "MySQL"
+        },
+        "name": {
+          "description": "name",
+          "type": "string",
+          "x-go-name": "Name",
+          "example": "dmp"
+        },
+        "source": {
+          "description": "source",
+          "type": "string",
+          "x-go-name": "Source",
+          "example": "actiontech-dmp"
+        },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
+        },
+        "url": {
+          "description": "addr",
+          "type": "string",
+          "x-go-name": "URL",
+          "example": "http://10.186.62.56:10000"
+        },
+        "version": {
+          "description": "version",
+          "type": "string",
+          "x-go-name": "Version",
+          "example": "5.23.01.0"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "DelDBServicePreCheckReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "DelUserGroupPreCheckReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "DelUserPreCheckReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "FeishuConfigurationResData": {
+      "type": "object",
+      "properties": {
+        "app_id": {
+          "type": "string",
+          "x-go-name": "AppID"
+        },
+        "is_feishu_notification_enabled": {
+          "type": "boolean",
+          "x-go-name": "IsFeishuNotificationEnabled"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GenAccessTokenReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/AccessTokenInfo"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "GenericResp": {
+      "description": "GenericResp defines the return code and msg",
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
+    },
     "GetBasicInfoReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/BasicInfo"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetCompanyNoticeReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/CompanyNotice"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetDataExportTask": {
+      "type": "object",
+      "properties": {
+        "audit_result": {
+          "$ref": "#/definitions/AuditTaskResult"
+        },
+        "db_info": {
+          "$ref": "#/definitions/TaskDBInfo"
+        },
+        "export_end_time": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "ExportEndTime"
+        },
+        "export_file_type": {
+          "type": "string",
+          "x-go-name": "ExportFileType"
+        },
+        "export_start_time": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "ExportStartTime"
+        },
+        "export_type": {
+          "type": "string",
+          "x-go-name": "ExportType"
+        },
+        "file_name": {
+          "type": "string",
+          "x-go-name": "FileName"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "init",
+            "exporting",
+            "finish",
+            "failed",
+            "file_deleted"
+          ],
+          "x-go-enum-desc": "init StatusInit\nexporting StatusExporting\nfinish StatusFinish\nfailed StatusFailed\nfile_deleted StatusFileDeleted",
+          "x-go-name": "Status"
+        },
+        "task_uid": {
+          "type": "string",
+          "x-go-name": "TaskUid"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetDataExportWorkflow": {
+      "type": "object",
+      "properties": {
+        "create_time": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreateTime"
+        },
+        "create_user": {
+          "$ref": "#/definitions/UidWithName"
+        },
+        "desc": {
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "workflow_name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "workflow_record": {
+          "$ref": "#/definitions/WorkflowRecord"
+        },
+        "workflow_record_history": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WorkflowRecord"
+          },
+          "x-go-name": "WorkflowRecordHistory"
+        },
+        "workflow_uid": {
+          "type": "string",
+          "x-go-name": "WorkflowID"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetDataExportWorkflowReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/GetDataExportWorkflow"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetDatabaseSourceService": {
+      "type": "object",
+      "required": [
+        "name",
+        "source",
+        "version",
+        "url",
+        "db_type",
+        "cron_express"
+      ],
+      "properties": {
+        "cron_express": {
+          "description": "cron expression",
+          "type": "string",
+          "x-go-name": "CronExpress",
+          "example": "0 0 * * *"
+        },
+        "db_type": {
+          "description": "database type",
+          "type": "string",
+          "x-go-name": "DbType",
+          "example": "MySQL"
+        },
+        "name": {
+          "description": "name",
+          "type": "string",
+          "x-go-name": "Name",
+          "example": "dmp"
+        },
+        "project_uid": {
+          "type": "string",
+          "x-go-name": "ProjectUid"
+        },
+        "source": {
+          "description": "source",
+          "type": "string",
+          "x-go-name": "Source",
+          "example": "actiontech-dmp"
+        },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "UID"
+        },
+        "url": {
+          "description": "addr",
+          "type": "string",
+          "x-go-name": "URL",
+          "example": "http://10.186.62.56:10000"
+        },
+        "version": {
+          "description": "version",
+          "type": "string",
+          "x-go-name": "Version",
+          "example": "5.23.01.0"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetDatabaseSourceServiceReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/GetDatabaseSourceService"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetFeishuConfigurationReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/FeishuConfigurationResData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetLDAPConfigurationResDataReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/LDAPConfigurationResData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-name": "GetLDAPConfigurationReply",
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetLicenseReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "content": {
+          "type": "string",
+          "x-go-name": "Content"
+        },
+        "license": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LicenseItem"
+          },
+          "x-go-name": "License"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetLicenseUsageReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/LicenseUsage"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetMemberGroup": {
+      "type": "object",
+      "properties": {
+        "is_project_admin": {
+          "description": "Whether the member has project admin permission",
+          "type": "boolean",
+          "x-go-name": "IsProjectAdmin"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "role_with_op_ranges": {
+          "description": "member op permission",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListMemberRoleWithOpRange"
+          },
+          "x-go-name": "RoleWithOpRanges"
+        },
+        "uid": {
+          "description": "member group uid",
+          "type": "string",
+          "x-go-name": "Uid"
+        },
+        "users": {
+          "description": "member user",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "Users"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetMemberGroupReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/GetMemberGroup"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetOauth2ConfigurationResData": {
+      "type": "object",
+      "properties": {
+        "access_token_tag": {
+          "type": "string",
+          "x-go-name": "AccessTokenTag"
+        },
+        "auto_create_user": {
+          "type": "boolean",
+          "x-go-name": "AutoCreateUser"
+        },
+        "client_host": {
+          "type": "string",
+          "x-go-name": "ClientHost"
+        },
+        "client_id": {
+          "type": "string",
+          "x-go-name": "ClientID"
+        },
+        "enable_oauth2": {
+          "type": "boolean",
+          "x-go-name": "EnableOauth2"
+        },
+        "login_tip": {
+          "type": "string",
+          "x-go-name": "LoginTip"
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Scopes"
+        },
+        "server_auth_url": {
+          "type": "string",
+          "x-go-name": "ServerAuthUrl"
+        },
+        "server_token_url": {
+          "type": "string",
+          "x-go-name": "ServerTokenUrl"
+        },
+        "server_user_id_url": {
+          "type": "string",
+          "x-go-name": "ServerUserIdUrl"
+        },
+        "skip_check_state": {
+          "type": "boolean",
+          "x-go-name": "SkipCheckState"
+        },
+        "user_email_tag": {
+          "type": "string",
+          "x-go-name": "UserEmailTag"
+        },
+        "user_id_tag": {
+          "type": "string",
+          "x-go-name": "UserIdTag"
+        },
+        "user_wechat_tag": {
+          "type": "string",
+          "x-go-name": "UserWeChatTag"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetOauth2ConfigurationResDataReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/GetOauth2ConfigurationResData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-name": "GetOauth2ConfigurationReply",
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetOauth2TipsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/GetOauth2TipsResData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetOauth2TipsResData": {
+      "type": "object",
+      "properties": {
+        "enable_oauth2": {
+          "type": "boolean",
+          "x-go-name": "EnableOauth2"
+        },
+        "login_tip": {
+          "type": "string",
+          "x-go-name": "LoginTip"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetSMTPConfigurationReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/SMTPConfigurationResData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetSQLQueryConfigurationReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "enable_sql_query": {
+              "type": "boolean",
+              "x-go-name": "EnableSQLQuery"
+            },
+            "sql_query_root_uri": {
+              "type": "string",
+              "x-go-name": "SQLQueryRootURI"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "GetUser": {
+      "description": "A dms user",
+      "type": "object",
+      "properties": {
+        "access_token_info": {
+          "$ref": "#/definitions/AccessTokenInfo"
+        },
+        "authentication_type": {
+          "description": "user authentication type\nldap UserAuthenticationTypeLDAP\ndms UserAuthenticationTypeDMS\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
+          "type": "string",
+          "enum": [
+            "ldap",
+            "dms",
+            "oauth2",
+            "unknown"
+          ],
+          "x-go-enum-desc": "ldap UserAuthenticationTypeLDAP\ndms UserAuthenticationTypeDMS\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
+          "x-go-name": "AuthenticationType"
+        },
+        "email": {
+          "description": "user email",
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "is_admin": {
+          "description": "is admin",
+          "type": "boolean",
+          "x-go-name": "IsAdmin"
+        },
+        "name": {
+          "description": "user name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "op_permissions": {
+          "description": "user operation permissions",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "OpPermissions"
+        },
+        "phone": {
+          "description": "user phone",
+          "type": "string",
+          "x-go-name": "Phone"
+        },
+        "stat": {
+          "description": "user stat\n正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown",
+          "type": "string",
+          "enum": [
+            "正常",
+            "被禁用",
+            "未知"
+          ],
+          "x-go-enum-desc": "正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown",
+          "x-go-name": "Stat"
+        },
+        "third_party_user_info": {
+          "type": "string",
+          "x-go-name": "ThirdPartyUserInfo"
+        },
+        "uid": {
+          "description": "user uid",
+          "type": "string",
+          "x-go-name": "UserUid"
+        },
+        "user_bind_projects": {
+          "description": "user bind name space",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserBindProject"
+          },
+          "x-go-name": "UserBindProjects"
+        },
+        "user_groups": {
+          "description": "user groups",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "UserGroups"
+        },
+        "wxid": {
+          "description": "user wxid",
+          "type": "string",
+          "x-go-name": "WxID"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
     "GetUserBySessionReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "Get user reply",
+          "type": "object",
+          "properties": {
+            "name": {
+              "description": "User name",
+              "type": "string",
+              "x-go-name": "Name"
+            },
+            "user_uid": {
+              "description": "User UID",
+              "type": "string",
+              "x-go-name": "UserUid"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetUserOpPermissionReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "user op permission reply\nis user admin, admin has all permissions",
+          "type": "object",
+          "properties": {
+            "is_admin": {
+              "type": "boolean",
+              "x-go-name": "IsAdmin"
+            },
+            "op_permission_list": {
+              "description": "user op permissions",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/OpPermissionItem"
+              },
+              "x-go-name": "OpPermissionList"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "GetUserReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/GetUser"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "GetWeChatConfigurationReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/WeChatConfigurationResData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetWebHookConfigurationReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/GetWebHookConfigurationReplyItem"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "GetWebHookConfigurationReplyItem": {
+      "type": "object",
+      "properties": {
+        "enable": {
+          "type": "boolean",
+          "x-go-name": "Enable"
+        },
+        "max_retry_times": {
+          "description": "minlength(3) maxlength(100)",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "MaxRetryTimes"
+        },
+        "retry_interval_seconds": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RetryIntervalSeconds"
+        },
+        "token": {
+          "type": "string",
+          "x-go-name": "Token"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "IPluginDBService": {
+      "type": "object",
+      "properties": {
+        "Business": {
+          "type": "string"
+        },
+        "DBType": {
+          "type": "string"
+        },
+        "Host": {
+          "type": "string"
+        },
+        "Name": {
+          "type": "string"
+        },
+        "Port": {
+          "type": "string"
+        },
+        "SQLERuleTemplateId": {
+          "type": "string"
+        },
+        "SQLERuleTemplateName": {
+          "type": "string"
+        },
+        "User": {
+          "type": "string"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "ImportProjects": {
+      "type": "object",
+      "properties": {
+        "business": {
+          "description": "business",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Business"
+        },
+        "desc": {
+          "description": "Project desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "name": {
+          "description": "Project name",
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "LDAPConfiguration": {
+      "type": "object",
+      "properties": {
+        "enable_ldap": {
+          "type": "boolean",
+          "x-go-name": "EnableLdap"
+        },
+        "enable_ssl": {
+          "type": "boolean",
+          "x-go-name": "EnableSSL"
+        },
+        "ldap_connect_dn": {
+          "type": "string",
+          "x-go-name": "LdapConnectDn"
+        },
+        "ldap_connect_pwd": {
+          "type": "string",
+          "x-go-name": "LdapConnectPwd"
+        },
+        "ldap_search_base_dn": {
+          "type": "string",
+          "x-go-name": "LdapSearchBaseDn"
+        },
+        "ldap_server_host": {
+          "type": "string",
+          "x-go-name": "LdapServerHost"
+        },
+        "ldap_server_port": {
+          "type": "string",
+          "x-go-name": "LdapServerPort"
+        },
+        "ldap_user_email_rdn_key": {
+          "type": "string",
+          "x-go-name": "LdapUserEmailRdnKey"
+        },
+        "ldap_user_name_rdn_key": {
+          "type": "string",
+          "x-go-name": "LdapUserNameRdnKey"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "LDAPConfigurationResData": {
+      "type": "object",
+      "properties": {
+        "enable_ldap": {
+          "type": "boolean",
+          "x-go-name": "EnableLdap"
+        },
+        "enable_ssl": {
+          "type": "boolean",
+          "x-go-name": "EnableSSL"
+        },
+        "ldap_connect_dn": {
+          "type": "string",
+          "x-go-name": "LdapConnectDn"
+        },
+        "ldap_search_base_dn": {
+          "type": "string",
+          "x-go-name": "LdapSearchBaseDn"
+        },
+        "ldap_server_host": {
+          "type": "string",
+          "x-go-name": "LdapServerHost"
+        },
+        "ldap_server_port": {
+          "type": "string",
+          "x-go-name": "LdapServerPort"
+        },
+        "ldap_user_email_rdn_key": {
+          "type": "string",
+          "x-go-name": "LdapUserEmailRdnKey"
+        },
+        "ldap_user_name_rdn_key": {
+          "type": "string",
+          "x-go-name": "LdapUserNameRdnKey"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "LicenseItem": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "limit": {
+          "type": "string",
+          "x-go-name": "Limit"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "LicenseUsage": {
+      "type": "object",
+      "properties": {
+        "db_services_usage": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LicenseUsageItem"
+          },
+          "x-go-name": "DbServicesUsage"
+        },
+        "users_usage": {
+          "$ref": "#/definitions/LicenseUsageItem"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "LicenseUsageItem": {
+      "type": "object",
+      "properties": {
+        "is_limited": {
+          "type": "boolean",
+          "x-go-name": "IsLimited"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Limit"
+        },
+        "resource_type": {
+          "type": "string",
+          "x-go-name": "ResourceType"
+        },
+        "resource_type_desc": {
+          "type": "string",
+          "x-go-name": "ResourceTypeDesc"
+        },
+        "used": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Used"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListDBService": {
+      "description": "A dms db Service",
+      "type": "object",
+      "properties": {
+        "additional_params": {
+          "description": "DB Service Custom connection parameters",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdditionalParam"
+          },
+          "x-go-name": "AdditionalParams"
+        },
+        "business": {
+          "description": "the db service business name",
+          "type": "string",
+          "x-go-name": "Business"
+        },
+        "db_type": {
+          "description": "db service DB type",
+          "type": "string",
+          "x-go-name": "DBType"
+        },
+        "desc": {
+          "description": "DB desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "host": {
+          "description": "db service host",
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "is_enable_masking": {
+          "description": "is enable masking",
+          "type": "boolean",
+          "x-go-name": "IsEnableMasking"
+        },
+        "maintenance_times": {
+          "description": "DB Service maintenance time",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MaintenanceTime"
+          },
+          "x-go-name": "MaintenanceTimes"
+        },
+        "name": {
+          "description": "db service name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "password": {
+          "description": "db service admin encrypted password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "port": {
+          "description": "db service port",
+          "type": "string",
+          "x-go-name": "Port"
+        },
+        "project_uid": {
+          "description": "DB project uid",
+          "type": "string",
+          "x-go-name": "ProjectUID"
+        },
+        "source": {
+          "description": "DB source",
+          "type": "string",
+          "x-go-name": "Source"
+        },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
+        },
+        "uid": {
+          "description": "db service uid",
+          "type": "string",
+          "x-go-name": "DBServiceUid"
+        },
+        "user": {
+          "description": "db service admin user",
+          "type": "string",
+          "x-go-name": "User"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
     "ListDBServiceDriverOptionReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List db service reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DatabaseDriverOption"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ListDBServiceReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List db service reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListDBService"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "ListDBServiceTipItem": {
+      "type": "object",
+      "properties": {
+        "db_type": {
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "host": {
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "id": {
+          "type": "string",
+          "x-go-name": "Id"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "port": {
+          "type": "string",
+          "x-go-name": "Port"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "ListDBServiceTipsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List db service reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListDBServiceTipItem"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListDataExportTaskSQL": {
+      "type": "object",
+      "properties": {
+        "audit_level": {
+          "type": "string",
+          "x-go-name": "AuditLevel"
+        },
+        "audit_sql_result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AuditSQLResult"
+          },
+          "x-go-name": "AuditSQLResult"
+        },
+        "export_result": {
+          "type": "string",
+          "x-go-name": "ExportResult"
+        },
+        "export_sql_type": {
+          "type": "string",
+          "x-go-name": "ExportSQLType"
+        },
+        "sql": {
+          "type": "string",
+          "x-go-name": "ExportSQL"
+        },
+        "uid": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "ID"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ListDataExportTaskSQLsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListDataExportTaskSQL"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListDataExportWorkflow": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "creater": {
+          "$ref": "#/definitions/UidWithName"
+        },
+        "current_step_assignee_user_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "CurrentStepAssigneeUsers"
+        },
+        "current_step_type": {
+          "type": "string",
+          "x-go-name": "CurrentStepType"
+        },
+        "desc": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "exported_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "ExportedAt"
+        },
+        "project_uid": {
+          "type": "string",
+          "x-go-name": "ProjectUid"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "wait_for_approve",
+            "wait_for_export",
+            "exporting",
+            "rejected",
+            "cancel",
+            "failed",
+            "finish"
+          ],
+          "x-go-enum-desc": "wait_for_approve DataExportWorkflowStatusWaitForApprove\nwait_for_export DataExportWorkflowStatusWaitForExport\nexporting DataExportWorkflowStatusWaitForExporting\nrejected DataExportWorkflowStatusRejected\ncancel DataExportWorkflowStatusCancel\nfailed DataExportWorkflowStatusFailed\nfinish DataExportWorkflowStatusFinish",
+          "x-go-name": "Status"
+        },
+        "workflow_name": {
+          "type": "string",
+          "x-go-name": "WorkflowName"
+        },
+        "workflow_uid": {
+          "type": "string",
+          "x-go-name": "WorkflowID"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ListDataExportWorkflowsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListDataExportWorkflow"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListDatabaseSourceService": {
+      "type": "object",
+      "required": [
+        "name",
+        "source",
+        "version",
+        "url",
+        "db_type",
+        "cron_express"
+      ],
+      "properties": {
+        "cron_express": {
+          "description": "cron expression",
+          "type": "string",
+          "x-go-name": "CronExpress",
+          "example": "0 0 * * *"
+        },
+        "db_type": {
+          "description": "database type",
+          "type": "string",
+          "x-go-name": "DbType",
+          "example": "MySQL"
+        },
+        "last_sync_err": {
+          "description": "last sync error message",
+          "type": "string",
+          "x-go-name": "LastSyncErr"
+        },
+        "last_sync_success_time": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "LastSyncSuccessTime"
+        },
+        "name": {
+          "description": "name",
+          "type": "string",
+          "x-go-name": "Name",
+          "example": "dmp"
+        },
+        "project_uid": {
+          "type": "string",
+          "x-go-name": "ProjectUid"
+        },
+        "source": {
+          "description": "source",
+          "type": "string",
+          "x-go-name": "Source",
+          "example": "actiontech-dmp"
+        },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "UID"
+        },
+        "url": {
+          "description": "addr",
+          "type": "string",
+          "x-go-name": "URL",
+          "example": "http://10.186.62.56:10000"
+        },
+        "version": {
+          "description": "version",
+          "type": "string",
+          "x-go-name": "Version",
+          "example": "5.23.01.0"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ListDatabaseSourceServiceTipsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DatabaseSource"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ListDatabaseSourceServicesReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListDatabaseSourceService"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListMaskingRulesData": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "effect": {
+          "type": "string",
+          "x-go-name": "Effect"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Id"
+        },
+        "masking_type": {
+          "type": "string",
+          "x-go-name": "MaskingType"
+        },
+        "reference_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "ReferenceFields"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ListMaskingRulesReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "list masking rule reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListMaskingRulesData"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListMember": {
+      "description": "A dms member",
+      "type": "object",
+      "properties": {
+        "is_project_admin": {
+          "description": "Whether the member has project admin permission",
+          "type": "boolean",
+          "x-go-name": "IsProjectAdmin"
+        },
+        "role_with_op_ranges": {
+          "description": "member op permission",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListMemberRoleWithOpRange"
+          },
+          "x-go-name": "RoleWithOpRanges"
+        },
+        "uid": {
+          "description": "member uid",
+          "type": "string",
+          "x-go-name": "MemberUid"
+        },
+        "user": {
+          "$ref": "#/definitions/UidWithName"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListMemberGroup": {
+      "type": "object",
+      "properties": {
+        "is_project_admin": {
+          "description": "Whether the member has project admin permission",
+          "type": "boolean",
+          "x-go-name": "IsProjectAdmin"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "role_with_op_ranges": {
+          "description": "member op permission",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListMemberRoleWithOpRange"
+          },
+          "x-go-name": "RoleWithOpRanges"
+        },
+        "uid": {
+          "description": "member uid",
+          "type": "string",
+          "x-go-name": "Uid"
+        },
+        "users": {
+          "description": "member user",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "Users"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ListMemberGroupsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List member reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListMemberGroup"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ListMemberReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List member reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListMember"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListMemberRoleWithOpRange": {
+      "type": "object",
+      "properties": {
+        "op_range_type": {
+          "description": "op permission range type, only support db service now\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
+          "type": "string",
+          "enum": [
+            "unknown",
+            "global",
+            "project",
+            "db_service"
+          ],
+          "x-go-enum-desc": "unknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
+          "x-go-name": "OpRangeType"
+        },
+        "range_uids": {
+          "description": "op range uids",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "RangeUIDs"
+        },
+        "role_uid": {
+          "$ref": "#/definitions/UidWithName"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListMemberTipsItem": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "x-go-name": "UserId"
+        },
+        "user_name": {
+          "type": "string",
+          "x-go-name": "UserName"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ListMemberTipsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List member tip reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListMemberTipsItem"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListMembersForInternalItem": {
+      "description": "A dms member for internal",
+      "type": "object",
+      "properties": {
+        "is_admin": {
+          "description": "is member project admin, admin has all permissions",
+          "type": "boolean",
+          "x-go-name": "IsAdmin"
+        },
+        "member_op_permission_list": {
+          "description": "member op permissions",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OpPermissionItem"
+          },
+          "x-go-name": "MemberOpPermissionList"
+        },
+        "user": {
+          "$ref": "#/definitions/UidWithName"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "ListMembersForInternalReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List member reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListMembersForInternalItem"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
-    "ListOpPermissionReply": {
+    "ListOpPermission": {
+      "description": "A dms op permission",
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "op_permission": {
+          "$ref": "#/definitions/UidWithName"
+        },
+        "range_type": {
+          "type": "string",
+          "enum": [
+            "unknown",
+            "global",
+            "project",
+            "db_service"
+          ],
+          "x-go-enum-desc": "unknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
+          "x-go-name": "RangeType"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
-    "ListProjectReply": {
+    "ListOpPermissionReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List op_permission reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListOpPermission"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListProject": {
+      "description": "A dms Project",
+      "type": "object",
+      "properties": {
+        "archived": {
+          "description": "Project is archived",
+          "type": "boolean",
+          "x-go-name": "Archived"
+        },
+        "business": {
+          "description": "Project business",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Business"
+          },
+          "x-go-name": "Business"
+        },
+        "create_time": {
+          "description": "create time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreateTime"
+        },
+        "create_user": {
+          "$ref": "#/definitions/UidWithName"
+        },
+        "desc": {
+          "description": "Project desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "is_fixed_business": {
+          "description": "is fixed business",
+          "type": "boolean",
+          "x-go-name": "IsFixedBusiness"
+        },
+        "name": {
+          "description": "Project name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "uid": {
+          "description": "Project uid",
+          "type": "string",
+          "x-go-name": "ProjectUid"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "ListProjectReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List project reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListProject"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "ListRole": {
+      "description": "A dms role",
+      "type": "object",
+      "properties": {
+        "desc": {
+          "description": "role desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "name": {
+          "description": "role name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "op_permissions": {
+          "description": "op permissions",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "OpPermissions"
+        },
+        "stat": {
+          "description": "role stat\n正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown",
+          "type": "string",
+          "enum": [
+            "正常",
+            "被禁用",
+            "未知"
+          ],
+          "x-go-enum-desc": "正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown",
+          "x-go-name": "Stat"
+        },
+        "uid": {
+          "description": "role uid",
+          "type": "string",
+          "x-go-name": "RoleUid"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "ListRoleReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List role reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListRole"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListUser": {
+      "description": "A dms user",
+      "type": "object",
+      "properties": {
+        "authentication_type": {
+          "description": "user authentication type\nldap UserAuthenticationTypeLDAP\ndms UserAuthenticationTypeDMS\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
+          "type": "string",
+          "enum": [
+            "ldap",
+            "dms",
+            "oauth2",
+            "unknown"
+          ],
+          "x-go-enum-desc": "ldap UserAuthenticationTypeLDAP\ndms UserAuthenticationTypeDMS\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
+          "x-go-name": "AuthenticationType"
+        },
+        "email": {
+          "description": "user email",
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "is_deleted": {
+          "description": "user is deleted",
+          "type": "boolean",
+          "x-go-name": "IsDeleted"
+        },
+        "name": {
+          "description": "user name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "op_permissions": {
+          "description": "user operation permissions",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "OpPermissions"
+        },
+        "phone": {
+          "description": "user phone",
+          "type": "string",
+          "x-go-name": "Phone"
+        },
+        "stat": {
+          "description": "user stat\n正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown",
+          "type": "string",
+          "enum": [
+            "正常",
+            "被禁用",
+            "未知"
+          ],
+          "x-go-enum-desc": "正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown",
+          "x-go-name": "Stat"
+        },
+        "third_party_user_info": {
+          "description": "third party user info",
+          "type": "string",
+          "x-go-name": "ThirdPartyUserInfo"
+        },
+        "uid": {
+          "description": "user uid",
+          "type": "string",
+          "x-go-name": "UserUid"
+        },
+        "user_groups": {
+          "description": "user groups",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "UserGroups"
+        },
+        "wxid": {
+          "description": "user wxid",
+          "type": "string",
+          "x-go-name": "WxID"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "ListUserGroup": {
+      "description": "A dms user group",
+      "type": "object",
+      "properties": {
+        "desc": {
+          "description": "user group description",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "name": {
+          "description": "user group name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "stat": {
+          "description": "user group stat\n正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown",
+          "type": "string",
+          "enum": [
+            "正常",
+            "被禁用",
+            "未知"
+          ],
+          "x-go-enum-desc": "正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown",
+          "x-go-name": "Stat"
+        },
+        "uid": {
+          "description": "user group uid",
+          "type": "string",
+          "x-go-name": "UserGroupUid"
+        },
+        "users": {
+          "description": "users",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "Users"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ListUserGroupReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List user reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListUserGroup"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ListUserReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List user reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListUser"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "MaintenanceTime": {
+      "type": "object",
+      "properties": {
+        "maintenance_start_time": {
+          "$ref": "#/definitions/Time"
+        },
+        "maintenance_stop_time": {
+          "$ref": "#/definitions/Time"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "Member": {
+      "description": "A member",
+      "type": "object",
+      "required": [
+        "user_uid"
+      ],
+      "properties": {
+        "is_project_admin": {
+          "description": "Whether the member has project admin permission",
+          "type": "boolean",
+          "x-go-name": "IsProjectAdmin"
+        },
+        "role_with_op_ranges": {
+          "description": "member role with op ranges",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MemberRoleWithOpRange"
+          },
+          "x-go-name": "RoleWithOpRanges"
+        },
+        "user_uid": {
+          "description": "member user uid",
+          "type": "string",
+          "x-go-name": "UserUid"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "MemberGroup": {
+      "type": "object",
+      "required": [
+        "name",
+        "user_uids"
+      ],
+      "properties": {
+        "is_project_admin": {
+          "description": "Whether the member has project admin permission",
+          "type": "boolean",
+          "x-go-name": "IsProjectAdmin"
+        },
+        "name": {
+          "description": "member group name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "role_with_op_ranges": {
+          "description": "member role with op ranges",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MemberRoleWithOpRange"
+          },
+          "x-go-name": "RoleWithOpRanges"
+        },
+        "user_uids": {
+          "description": "member user uid",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "UserUids"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "MemberRoleWithOpRange": {
+      "type": "object",
+      "properties": {
+        "op_range_type": {
+          "description": "op permission range type, only support db service now\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
+          "type": "string",
+          "enum": [
+            "unknown",
+            "global",
+            "project",
+            "db_service"
+          ],
+          "x-go-enum-desc": "unknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
+          "x-go-name": "OpRangeType"
+        },
+        "range_uids": {
+          "description": "op range uids",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "RangeUIDs"
+        },
+        "role_uid": {
+          "description": "role uid",
+          "type": "string",
+          "x-go-name": "RoleUID"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "Notification": {
+      "type": "object",
+      "properties": {
+        "notification_body": {
+          "type": "string",
+          "x-go-name": "NotificationBody"
+        },
+        "notification_subject": {
+          "type": "string",
+          "x-go-name": "NotificationSubject"
+        },
+        "user_uids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "UserUids"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "NotificationReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "Oauth2Configuration": {
+      "type": "object",
+      "properties": {
+        "access_token_tag": {
+          "type": "string",
+          "x-go-name": "AccessTokenTag"
+        },
+        "auto_create_user": {
+          "type": "boolean",
+          "x-go-name": "AutoCreateUser"
+        },
+        "client_host": {
+          "type": "string",
+          "x-go-name": "ClientHost"
+        },
+        "client_id": {
+          "type": "string",
+          "x-go-name": "ClientID"
+        },
+        "client_key": {
+          "type": "string",
+          "x-go-name": "ClientKey"
+        },
+        "enable_oauth2": {
+          "type": "boolean",
+          "x-go-name": "EnableOauth2"
+        },
+        "login_tip": {
+          "type": "string",
+          "maximum": 28,
+          "x-go-name": "LoginTip"
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Scopes"
+        },
+        "server_auth_url": {
+          "type": "string",
+          "x-go-name": "ServerAuthUrl"
+        },
+        "server_token_url": {
+          "type": "string",
+          "x-go-name": "ServerTokenUrl"
+        },
+        "server_user_id_url": {
+          "type": "string",
+          "x-go-name": "ServerUserIdUrl"
+        },
+        "skip_check_state": {
+          "type": "boolean",
+          "x-go-name": "SkipCheckState"
+        },
+        "user_email_tag": {
+          "type": "string",
+          "x-go-name": "UserEmailTag"
+        },
+        "user_id_tag": {
+          "type": "string",
+          "x-go-name": "UserIdTag"
+        },
+        "user_wechat_tag": {
+          "type": "string",
+          "x-go-name": "UserWeChatTag"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "OpPermissionItem": {
+      "type": "object",
+      "properties": {
+        "op_permission_type": {
+          "description": "op permission type\nunknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nproject_admin OpPermissionTypeProjectAdmin  项目管理；拥有该权限的用户可以管理项目下的所有资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单",
+          "type": "string",
+          "enum": [
+            "unknown",
+            "create_project",
+            "project_admin",
+            "create_workflow",
+            "audit_workflow",
+            "auth_db_service_data",
+            "view_others_workflow",
+            "execute_workflow",
+            "view_other_audit_plan",
+            "save_audit_plan",
+            "sql_query",
+            "create_export_task",
+            "audit_export_workflow"
+          ],
+          "x-go-enum-desc": "unknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nproject_admin OpPermissionTypeProjectAdmin  项目管理；拥有该权限的用户可以管理项目下的所有资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单",
+          "x-go-name": "OpPermissionType"
+        },
+        "range_type": {
+          "description": "object type of RangeUids\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
+          "type": "string",
+          "enum": [
+            "unknown",
+            "global",
+            "project",
+            "db_service"
+          ],
+          "x-go-enum-desc": "unknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
+          "x-go-name": "RangeType"
+        },
+        "range_uids": {
+          "description": "object uids, object type is defined by RangeType",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "RangeUids"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "OperateDataResourceHandleReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "Plugin": {
+      "type": "object",
+      "properties": {
+        "add_db_service_pre_check_url": {
+          "description": "添加数据源预检查接口地址, 如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/services/precheck/add",
+          "type": "string",
+          "x-go-name": "AddDBServicePreCheckUrl"
+        },
+        "del_db_service_pre_check_url": {
+          "description": "删除数据源预检查接口地址, 如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/services/precheck/del",
+          "type": "string",
+          "x-go-name": "DelDBServicePreCheckUrl"
+        },
+        "del_user_group_pre_check_url": {
+          "description": "删除用户组预检查接口地址,如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/usergroups/precheck/del",
+          "type": "string",
+          "x-go-name": "DelUserGroupPreCheckUrl"
+        },
+        "del_user_pre_check_url": {
+          "description": "删除用户预检查接口地址,如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/users/precheck/del",
+          "type": "string",
+          "x-go-name": "DelUserPreCheckUrl"
+        },
+        "name": {
+          "description": "插件名称",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "operate_data_resource_handle_url": {
+          "description": "操作资源处理接口地址,如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/data_resource_operate/handle",
+          "type": "string",
+          "x-go-name": "OperateDataResourceHandleUrl"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "PreviewImportProjects": {
+      "type": "object",
+      "properties": {
+        "business": {
+          "description": "business",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Business"
+        },
+        "desc": {
+          "description": "Project desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "name": {
+          "description": "Project name",
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "Project": {
+      "description": "A Project",
+      "type": "object",
+      "properties": {
+        "business": {
+          "description": "project business",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Business"
+        },
+        "desc": {
+          "description": "project desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "is_fixed_business": {
+          "description": "is fixed business",
+          "type": "boolean",
+          "x-go-name": "IsFixedBusiness"
+        },
+        "name": {
+          "description": "project name",
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ProjectTips": {
+      "type": "object",
+      "properties": {
+        "business": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Business"
+        },
+        "is_fixed_business": {
+          "type": "boolean",
+          "x-go-name": "IsFixedBusiness"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "RegisterDMSPluginReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "RegisterDMSProxyTargetReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "RejectDataExportWorkflowPayload": {
+      "type": "object",
+      "required": [
+        "reason"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "x-go-name": "Reason"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "Role": {
+      "description": "A role",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "desc": {
+          "description": "role description",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "name": {
+          "description": "role name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "op_permission_uids": {
+          "description": "op permission uid",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "OpPermissionUids"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "SMTPConfigurationResData": {
+      "type": "object",
+      "properties": {
+        "enable_smtp_notify": {
+          "type": "boolean",
+          "x-go-name": "EnableSMTPNotify"
+        },
+        "is_skip_verify": {
+          "type": "boolean",
+          "x-go-name": "IsSkipVerify"
+        },
+        "smtp_host": {
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "smtp_port": {
+          "type": "string",
+          "x-go-name": "Port"
+        },
+        "smtp_username": {
+          "type": "string",
+          "x-go-name": "Username"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "SQLEConfig": {
+      "type": "object",
+      "properties": {
+        "rule_template_id": {
+          "description": "DB Service rule template id",
+          "type": "string",
+          "x-go-name": "RuleTemplateID"
+        },
+        "rule_template_name": {
+          "description": "DB Service rule template name",
+          "type": "string",
+          "x-go-name": "RuleTemplateName"
+        },
+        "sql_query_config": {
+          "$ref": "#/definitions/SQLQueryConfig"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "SQLQueryConfig": {
+      "type": "object",
+      "properties": {
+        "allow_query_when_less_than_audit_level": {
+          "type": "string",
+          "enum": [
+            "normal",
+            "notice",
+            "warn",
+            "error"
+          ],
+          "x-go-enum-desc": "normal AuditLevelNormal\nnotice AuditLevelNotice\nwarn AuditLevelWarn\nerror AuditLevelError",
+          "x-go-name": "AllowQueryWhenLessThanAuditLevel"
+        },
+        "audit_enabled": {
+          "type": "boolean",
+          "x-go-name": "AuditEnabled"
+        },
+        "max_pre_query_rows": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "MaxPreQueryRows"
+        },
+        "query_timeout_second": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "QueryTimeoutSecond"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "Task": {
+      "type": "object",
+      "properties": {
+        "task_uid": {
+          "type": "string",
+          "x-go-name": "Uid"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "TaskDBInfo": {
+      "type": "object",
+      "properties": {
+        "database_name": {
+          "type": "string",
+          "x-go-name": "DatabaseName"
+        },
+        "db_type": {
+          "type": "string",
+          "x-go-name": "DBType"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "Uid"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "TestFeishuConfiguration": {
+      "type": "object",
+      "properties": {
+        "account": {
+          "type": "string",
+          "x-go-name": "Account"
+        },
+        "account_type": {
+          "type": "string",
+          "enum": [
+            "email",
+            "phone"
+          ],
+          "x-go-enum-desc": "email FeishuAccountTypeEmail\nphone FeishuAccountTypePhone",
+          "x-go-name": "AccountType"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "TestFeishuConfigurationReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/TestFeishuConfigurationResData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "TestFeishuConfigurationResData": {
+      "type": "object",
+      "properties": {
+        "error_message": {
+          "type": "string",
+          "x-go-name": "ErrorMessage"
+        },
+        "is_message_sent_normally": {
+          "type": "boolean",
+          "x-go-name": "IsMessageSentNormally"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "TestSMTPConfiguration": {
+      "type": "object",
+      "properties": {
+        "recipient_addr": {
+          "type": "string",
+          "x-go-name": "RecipientAddr"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "TestSMTPConfigurationReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/TestSMTPConfigurationResData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "TestSMTPConfigurationResData": {
+      "type": "object",
+      "properties": {
+        "is_smtp_send_normal": {
+          "type": "boolean",
+          "x-go-name": "IsSMTPSendNormal"
+        },
+        "send_error_message": {
+          "type": "string",
+          "x-go-name": "SendErrorMessage"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "TestWeChatConfiguration": {
+      "type": "object",
+      "properties": {
+        "recipient_id": {
+          "type": "string",
+          "x-go-name": "RecipientID"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "TestWeChatConfigurationReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/TestWeChatConfigurationResData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "TestWeChatConfigurationResData": {
+      "type": "object",
+      "properties": {
+        "is_wechat_send_normal": {
+          "type": "boolean",
+          "x-go-name": "IsWeChatSendNormal"
+        },
+        "send_error_message": {
+          "type": "string",
+          "x-go-name": "SendErrorMessage"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "TestWebHookConfigurationReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/TestWebHookConfigurationResData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "TestWebHookConfigurationResData": {
+      "type": "object",
+      "properties": {
+        "is_message_sent_normally": {
+          "type": "boolean",
+          "x-go-name": "IsMessageSentNormally"
+        },
+        "send_error_message": {
+          "type": "string",
+          "x-go-name": "SendErrorMessage"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "Time": {
+      "type": "object",
+      "properties": {
+        "hour": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Hour"
+        },
+        "minute": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Minute"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "TriggerEventType": {
+      "type": "string",
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "UidWithName": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "Uid"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateCompanyNotice": {
+      "description": "A companynotice",
+      "type": "object",
+      "properties": {
+        "notice_str": {
+          "description": "companynotice info",
+          "type": "string",
+          "x-go-name": "NoticeStr"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateCurrentUser": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "description": "User email",
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "old_password": {
+          "description": "User old password",
+          "type": "string",
+          "x-go-name": "OldPassword"
+        },
+        "password": {
+          "description": "User new password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "phone": {
+          "description": "User phone",
+          "type": "string",
+          "x-go-name": "Phone"
+        },
+        "wxid": {
+          "description": "User wxid",
+          "type": "string",
+          "x-go-name": "WxID"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateDBService": {
+      "description": "update db service",
+      "type": "object",
+      "required": [
+        "db_type",
+        "host",
+        "port",
+        "user",
+        "business",
+        "maintenance_times"
+      ],
+      "properties": {
+        "additional_params": {
+          "description": "DB Service Custom connection parameters",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdditionalParam"
+          },
+          "x-go-name": "AdditionalParams"
+        },
+        "business": {
+          "description": "DB Service business name",
+          "type": "string",
+          "x-go-name": "Business"
+        },
+        "db_type": {
+          "description": "Service DB type",
+          "type": "string",
+          "x-go-name": "DBType"
+        },
+        "desc": {
+          "description": "Service description",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "host": {
+          "description": "DB Service Host",
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "is_enable_masking": {
+          "description": "data masking switch",
+          "type": "boolean",
+          "x-go-name": "IsEnableMasking"
+        },
+        "maintenance_times": {
+          "description": "DB Service maintenance time",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MaintenanceTime"
+          },
+          "x-go-name": "MaintenanceTimes"
+        },
+        "password": {
+          "description": "DB Service admin password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "port": {
+          "description": "DB Service port",
+          "type": "string",
+          "x-go-name": "Port"
+        },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
+        },
+        "user": {
+          "description": "DB Service admin user",
+          "type": "string",
+          "x-go-name": "User"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateDBServiceReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "update db service reply",
+          "type": "object",
+          "properties": {
+            "uid": {
+              "description": "db service UID",
+              "type": "string",
+              "x-go-name": "Uid"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateFeishuConfiguration": {
+      "type": "object",
+      "properties": {
+        "app_id": {
+          "type": "string",
+          "x-go-name": "AppID"
+        },
+        "app_secret": {
+          "type": "string",
+          "x-go-name": "AppSecret"
+        },
+        "is_feishu_notification_enabled": {
+          "type": "boolean",
+          "x-go-name": "IsFeishuNotificationEnabled"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateMember": {
+      "type": "object",
+      "properties": {
+        "is_project_admin": {
+          "description": "Whether the member has project admin permission",
+          "type": "boolean",
+          "x-go-name": "IsProjectAdmin"
+        },
+        "role_with_op_ranges": {
+          "description": "member role with op ranges",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MemberRoleWithOpRange"
+          },
+          "x-go-name": "RoleWithOpRanges"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateMemberGroup": {
+      "type": "object",
+      "required": [
+        "user_uids"
+      ],
+      "properties": {
+        "is_project_admin": {
+          "description": "Whether the member has project admin permission",
+          "type": "boolean",
+          "x-go-name": "IsProjectAdmin"
+        },
+        "role_with_op_ranges": {
+          "description": "member role with op ranges",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MemberRoleWithOpRange"
+          },
+          "x-go-name": "RoleWithOpRanges"
+        },
+        "user_uids": {
+          "description": "member user uid",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "UserUids"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateProject": {
+      "type": "object",
+      "properties": {
+        "business": {
+          "description": "Project business",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Business"
+        },
+        "desc": {
+          "description": "Project desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "is_fixed_business": {
+          "description": "is fixed business",
+          "type": "boolean",
+          "x-go-name": "IsFixedBusiness"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateRole": {
+      "type": "object",
+      "properties": {
+        "desc": {
+          "description": "Role desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "is_disabled": {
+          "description": "Whether the role is disabled or not",
+          "type": "boolean",
+          "x-go-name": "IsDisabled"
+        },
+        "op_permission_uids": {
+          "description": "Op permission uids",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "OpPermissionUids"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateSMTPConfiguration": {
+      "type": "object",
+      "properties": {
+        "enable_smtp_notify": {
+          "type": "boolean",
+          "x-go-name": "EnableSMTPNotify"
+        },
+        "is_skip_verify": {
+          "type": "boolean",
+          "x-go-name": "IsSkipVerify"
+        },
+        "smtp_host": {
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "smtp_password": {
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "smtp_port": {
+          "type": "string",
+          "x-go-name": "Port"
+        },
+        "smtp_username": {
+          "type": "string",
+          "x-go-name": "Username"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateUser": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "description": "User email",
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "is_disabled": {
+          "description": "Whether the user is disabled or not",
+          "type": "boolean",
+          "x-go-name": "IsDisabled"
+        },
+        "op_permission_uids": {
+          "description": "User operation permission uids",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "OpPermissionUids"
+        },
+        "password": {
+          "description": "User password, User can login with this password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "phone": {
+          "description": "User phone",
+          "type": "string",
+          "x-go-name": "Phone"
+        },
+        "user_group_uids": {
+          "description": "User group uids",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "UserGroupUids"
+        },
+        "wxid": {
+          "description": "User wxid",
+          "type": "string",
+          "x-go-name": "WxID"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateUserGroup": {
+      "type": "object",
+      "properties": {
+        "desc": {
+          "description": "UserGroup description",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "is_disabled": {
+          "description": "Whether the user group is disabled or not",
+          "type": "boolean",
+          "x-go-name": "IsDisabled"
+        },
+        "user_uids": {
+          "description": "User uids",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "UserUids"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateWeChatConfiguration": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "AgentID"
+        },
+        "corp_id": {
+          "type": "string",
+          "x-go-name": "CorpID"
+        },
+        "corp_secret": {
+          "type": "string",
+          "x-go-name": "CorpSecret"
+        },
+        "enable_wechat_notify": {
+          "type": "boolean",
+          "x-go-name": "EnableWeChatNotify"
+        },
+        "proxy_ip": {
+          "type": "string",
+          "x-go-name": "ProxyIP"
+        },
+        "safe_enabled": {
+          "type": "boolean",
+          "x-go-name": "SafeEnabled"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "User": {
+      "description": "A user",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "desc": {
+          "description": "user description",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "email": {
+          "description": "user email",
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "name": {
+          "description": "user name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "op_permission_uids": {
+          "description": "user op permission uid",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "OpPermissionUids"
+        },
+        "password": {
+          "description": "user password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "phone": {
+          "description": "user phone",
+          "type": "string",
+          "x-go-name": "Phone"
+        },
+        "user_group_uids": {
+          "description": "user group uid",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "UserGroupUids"
+        },
+        "wxid": {
+          "description": "user wxid",
+          "type": "string",
+          "x-go-name": "WxID"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UserBindProject": {
+      "type": "object",
+      "properties": {
+        "is_manager": {
+          "type": "boolean",
+          "x-go-name": "IsManager"
+        },
+        "project_id": {
+          "type": "string",
+          "x-go-name": "ProjectID"
+        },
+        "project_name": {
+          "type": "string",
+          "x-go-name": "ProjectName"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "UserGroup": {
+      "description": "A user group",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "desc": {
+          "description": "user group description",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "name": {
+          "description": "user group name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "user_uids": {
+          "description": "user uids",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "UserUids"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UserOpPermission": {
+      "type": "object",
+      "properties": {
+        "project_uid": {
+          "description": "uesr project uid",
+          "type": "string",
+          "x-go-name": "ProjectUid"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "WeChatConfigurationResData": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "AgentID"
+        },
+        "corp_id": {
+          "type": "string",
+          "x-go-name": "CorpID"
+        },
+        "enable_wechat_notify": {
+          "type": "boolean",
+          "x-go-name": "EnableWeChatNotify"
+        },
+        "proxy_ip": {
+          "type": "string",
+          "x-go-name": "ProxyIP"
+        },
+        "safe_enabled": {
+          "type": "boolean",
+          "x-go-name": "SafeEnabled"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "WebHookConfigurationData": {
+      "type": "object",
+      "properties": {
+        "enable": {
+          "type": "boolean",
+          "x-go-name": "Enable"
+        },
+        "max_retry_times": {
+          "description": "minlength(3) maxlength(100)",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "MaxRetryTimes"
+        },
+        "retry_interval_seconds": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RetryIntervalSeconds"
+        },
+        "token": {
+          "type": "string",
+          "x-go-name": "Token"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "WebHookSendMessageReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
       "x-go-name": "WebHooksSendMessageReply",
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "WebHooksMessage": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "trigger_event_type": {
+          "$ref": "#/definitions/TriggerEventType"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "WorkflowRecord": {
+      "type": "object",
+      "properties": {
+        "current_step_number": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "CurrentStepNumber"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "wait_for_approve",
+            "wait_for_export",
+            "exporting",
+            "rejected",
+            "cancel",
+            "failed",
+            "finish"
+          ],
+          "x-go-enum-desc": "wait_for_approve DataExportWorkflowStatusWaitForApprove\nwait_for_export DataExportWorkflowStatusWaitForExport\nexporting DataExportWorkflowStatusWaitForExporting\nrejected DataExportWorkflowStatusRejected\ncancel DataExportWorkflowStatusCancel\nfailed DataExportWorkflowStatusFailed\nfinish DataExportWorkflowStatusFinish",
+          "x-go-name": "Status"
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Task"
+          },
+          "x-go-name": "Tasks"
+        },
+        "workflow_step_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WorkflowStep"
+          },
+          "x-go-name": "Steps"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "WorkflowStep": {
+      "type": "object",
+      "properties": {
+        "assignee_user_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "Users"
+        },
+        "desc": {
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "number": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Number"
+        },
+        "operation_time": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "OperationTime"
+        },
+        "operation_user": {
+          "$ref": "#/definitions/UidWithName"
+        },
+        "reason": {
+          "type": "string",
+          "x-go-name": "Reason"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "init",
+            "rejected",
+            "finish"
+          ],
+          "x-go-enum-desc": "init WorkflowStepStatusWaitForExporting\nrejected WorkflowStepStatusRejected\nfinish WorkflowStepStatusFinish",
+          "x-go-name": "State"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     }
   },
   "responses": {
@@ -4057,7 +8694,9 @@
         },
         "data": {
           "type": "array",
-          "items": {},
+          "items": {
+            "$ref": "#/definitions/ProjectTips"
+          },
           "description": "project tips"
         },
         "message": {
@@ -4082,7 +8721,9 @@
         },
         "data": {
           "type": "array",
-          "items": {},
+          "items": {
+            "$ref": "#/definitions/PreviewImportProjects"
+          },
           "description": "list preview import projects"
         },
         "message": {
