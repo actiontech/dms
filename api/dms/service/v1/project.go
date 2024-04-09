@@ -114,7 +114,7 @@ type UnarchiveProjectReq struct {
 
 // swagger:parameters ImportProjects
 type ImportProjectsReq struct {
-	Projects []*ImportProjects `json:"projects" validate:"valid"`
+	Projects []*ImportProjects `json:"projects" validate:"required"`
 }
 
 type ImportProjects struct {
