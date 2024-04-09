@@ -34,3 +34,7 @@ func (d *ProjectUsecase) DeleteProject(ctx context.Context, currentUserUid, proj
 func (d *ProjectUsecase) isProjectActive(ctx context.Context, projectUid string) error {
 	return nil
 }
+
+func (d *ProjectUsecase) ImportProjects(ctx context.Context, uid string, projects []*Project) error {
+	return errNotSupportProject
+}

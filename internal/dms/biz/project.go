@@ -27,12 +27,13 @@ type Project struct {
 	UID           string
 	Name          string
 	Desc          string
+	Business      []string
 	CreateUserUID string
 	CreateTime    time.Time
 	Status        ProjectStatus
 }
 
-func NewProject(createUserUID, name, desc string) (*Project, error) {
+func NewProject(createUserUID, name, desc string, business []string) (*Project, error) {
 	uid, err := pkgRand.GenStrUid()
 	if err != nil {
 		return nil, err
@@ -41,6 +42,7 @@ func NewProject(createUserUID, name, desc string) (*Project, error) {
 		UID:           uid,
 		Name:          name,
 		Desc:          desc,
+		Business:      business,
 		Status:        ProjectStatusActive,
 		CreateUserUID: createUserUID,
 	}, nil
@@ -60,6 +62,7 @@ func initProjects() []*Project {
 
 type ProjectRepo interface {
 	SaveProject(ctx context.Context, project *Project) error
+	BatchSaveProjects(ctx context.Context, projects []*Project) error
 	ListProjects(ctx context.Context, opt *ListProjectsOption, currentUserUID string) (projects []*Project, total int64, err error)
 	GetProject(ctx context.Context, projectUid string) (*Project, error)
 	GetProjectByName(ctx context.Context, projectName string) (*Project, error)

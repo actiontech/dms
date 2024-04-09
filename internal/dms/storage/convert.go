@@ -530,6 +530,7 @@ func convertBizProject(m *biz.Project) (*model.Project, error) {
 		},
 		Name:          m.Name,
 		Desc:          m.Desc,
+		Business:      m.Business,
 		Status:        string(m.Status),
 		CreateUserUID: m.CreateUserUID,
 	}, nil

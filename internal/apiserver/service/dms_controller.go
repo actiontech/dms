@@ -1419,6 +1419,22 @@ func (a *DMSController) UnarchiveProject(c echo.Context) error {
 //	  200: body:GenericResp
 //	  default: body:GenericResp
 func (a *DMSController) ImportProjects(c echo.Context) error {
+	req := new(aV1.ImportProjectsReq)
+	err := bindAndValidateReq(c, req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	err = a.DMS.ImportProjects(c.Request().Context(), currentUserUid, req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
 	return NewOkResp(c)
 }
 

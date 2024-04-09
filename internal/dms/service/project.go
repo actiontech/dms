@@ -9,7 +9,6 @@ import (
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
-
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 
 	"github.com/go-openapi/strfmt"
@@ -98,7 +97,7 @@ func (d *DMSService) AddProject(ctx context.Context, currentUserUid string, req 
 		}
 	}
 
-	project, err := biz.NewProject(currentUserUid, req.Project.Name, req.Project.Desc)
+	project, err := biz.NewProject(currentUserUid, req.Project.Name, req.Project.Desc, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -149,4 +148,31 @@ func (d *DMSService) UnarchiveProject(ctx context.Context, currentUserUid string
 	}
 
 	return nil
+}
+
+func (d *DMSService) ImportProjects(ctx context.Context, uid string, req *dmsV1.ImportProjectsReq) error {
+	projects, err := convertImportReqToBiz(req, uid)
+	if err != nil {
+		return fmt.Errorf("convert req to biz failed: %w", err)
+	}
+
+	err = d.ProjectUsecase.ImportProjects(ctx, uid, projects)
+	if err != nil {
+		return fmt.Errorf("import projects failed: %w", err)
+	}
+
+	return nil
+}
+
+func convertImportReqToBiz(req *dmsV1.ImportProjectsReq, uid string) ([]*biz.Project, error) {
+	projects := make([]*biz.Project, 0, len(req.Projects))
+	for _, p := range req.Projects {
+		project, err := biz.NewProject(uid, p.Name, p.Desc, p.Business)
+		if err != nil {
+			return nil, fmt.Errorf("create project failed: %w", err)
+		}
+		projects = append(projects, project)
+	}
+
+	return projects, nil
 }
