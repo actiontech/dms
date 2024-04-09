@@ -185,3 +185,23 @@ func (d *DMSService) GetImportProjectsTemplate(ctx context.Context, uid string) 
 
 	return content, nil
 }
+
+func (d *DMSService) GetProjectTips(ctx context.Context, uid string, req *dmsV1.GetProjectTipsReq) (reply *dmsV1.GetProjectTipsReply, err error) {
+	projects, err := d.ProjectUsecase.GetProjectTips(ctx, uid, req.ProjectUid)
+	if err != nil {
+		return nil, fmt.Errorf("get project tips failed: %w", err)
+	}
+
+	resp := make([]*dmsV1.ProjectTips, len(projects))
+	for i, p := range projects {
+		resp[i] = &dmsV1.ProjectTips{
+			ProjectUid:      p.UID,
+			IsFixedBusiness: p.IsFixedBusiness,
+			Business:        p.Business,
+		}
+	}
+
+	return &dmsV1.GetProjectTipsReply{
+		Data: resp,
+	}, nil
+}

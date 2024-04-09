@@ -198,11 +198,12 @@ func (mg *MemberGroupRoleOpRange) AfterSave(tx *gorm.DB) error {
 
 type Project struct {
 	Model
-	Name          string  `json:"name" gorm:"size:200;column:name;index:name,unique"`
-	Desc          string  `json:"desc" gorm:"column:desc"`
-	Business      Strings `json:"business" gorm:"type:json"`
-	CreateUserUID string  `json:"create_user_uid" gorm:"size:32;column:create_user_uid"`
-	Status        string  `gorm:"size:64;default:'active'"`
+	Name            string  `json:"name" gorm:"size:200;column:name;index:name,unique"`
+	Desc            string  `json:"desc" gorm:"column:desc"`
+	Business        Strings `json:"business" gorm:"type:json"`
+	IsFixedBusiness bool    `json:"is_fixed_business" gorm:"not null"`
+	CreateUserUID   string  `json:"create_user_uid" gorm:"size:32;column:create_user_uid"`
+	Status          string  `gorm:"size:64;default:'active'"`
 }
 
 const (

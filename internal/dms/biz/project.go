@@ -24,13 +24,14 @@ const (
 type Project struct {
 	Base
 
-	UID           string
-	Name          string
-	Desc          string
-	Business      []string
-	CreateUserUID string
-	CreateTime    time.Time
-	Status        ProjectStatus
+	UID             string
+	Name            string
+	Desc            string
+	Business        []string
+	IsFixedBusiness bool
+	CreateUserUID   string
+	CreateTime      time.Time
+	Status          ProjectStatus
 }
 
 func NewProject(createUserUID, name, desc string, business []string) (*Project, error) {

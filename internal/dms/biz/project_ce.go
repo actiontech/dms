@@ -42,3 +42,7 @@ func (d *ProjectUsecase) ImportProjects(ctx context.Context, uid string, project
 func (d *ProjectUsecase) GetImportProjectsTemplate(ctx context.Context, projectUid string) ([]byte, error) {
 	return nil, errNotSupportProject
 }
+
+func (d *ProjectUsecase) GetProjectTips(ctx context.Context, uid, projectUid string) ([]*Project, error) {
+	return nil, errNotSupportProject
+}

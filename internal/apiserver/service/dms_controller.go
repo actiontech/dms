@@ -1495,7 +1495,23 @@ func (a *DMSController) ExportProjects(c echo.Context) error {
 //	  200: body:GetProjectTipsReply
 //	  default: body:GenericResp
 func (a *DMSController) GetProjectTips(c echo.Context) error {
-	return NewOkResp(c)
+	req := new(aV1.GetProjectTipsReq)
+	err := bindAndValidateReq(c, req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, err := a.DMS.GetProjectTips(c.Request().Context(), currentUserUid, req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:route POST /v1/dms/proxy dms RegisterDMSProxyTarget
