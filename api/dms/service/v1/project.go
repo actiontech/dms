@@ -183,6 +183,7 @@ type GetProjectTipsReply struct {
 }
 
 type ProjectTips struct {
+	ProjectUid      string   `json:"project_uid"`
 	IsFixedBusiness bool     `json:"is_fixed_business"`
 	Business        []string `json:"business"`
 }

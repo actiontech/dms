@@ -7608,6 +7608,10 @@
         "is_fixed_business": {
           "type": "boolean",
           "x-go-name": "IsFixedBusiness"
+        },
+        "project_uid": {
+          "type": "string",
+          "x-go-name": "ProjectUid"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
