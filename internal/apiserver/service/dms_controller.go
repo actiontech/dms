@@ -1449,7 +1449,25 @@ func (a *DMSController) ImportProjects(c echo.Context) error {
 //	  200: PreviewImportProjectsReply
 //	  default: body:GenericResp
 func (a *DMSController) PreviewImportProjects(c echo.Context) error {
-	return NewOkResp(c)
+	file, exist, err := ReadFileContent(c, ProjectsFileParamKey)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	if !exist {
+		return NewErrResp(c, fmt.Errorf("upload file is not exist"), apiError.APIServerErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, err := a.DMS.PreviewImportProjects(c.Request().Context(), currentUserUid, file)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:route GET /v1/dms/projects/import_template dms GetImportProjectsTemplate
@@ -2027,6 +2045,7 @@ func (d *DMSController) GetLicense(c echo.Context) error {
 const (
 	HardwareInfoFileName = "collected.infos"
 	LicenseFileParamKey  = "license_file"
+	ProjectsFileParamKey = "projects_file"
 )
 
 // swagger:route GET /v1/dms/configurations/license/info dms GetLicenseInfo

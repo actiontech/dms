@@ -205,3 +205,23 @@ func (d *DMSService) GetProjectTips(ctx context.Context, uid string, req *dmsV1.
 		Data: resp,
 	}, nil
 }
+
+func (d *DMSService) PreviewImportProjects(ctx context.Context, uid string, file string) (reply *dmsV1.PreviewImportProjectsReply, err error) {
+	projects, err := d.ProjectUsecase.PreviewImportProjects(ctx, uid, file)
+	if err != nil {
+		return nil, fmt.Errorf("preview import projects failed: %w", err)
+	}
+
+	resp := make([]*dmsV1.PreviewImportProjects, len(projects))
+	for i, p := range projects {
+		resp[i] = &dmsV1.PreviewImportProjects{
+			Name:     p.Name,
+			Desc:     p.Desc,
+			Business: p.Business,
+		}
+	}
+
+	return &dmsV1.PreviewImportProjectsReply{
+		Data: resp,
+	}, nil
+}

@@ -46,3 +46,7 @@ func (d *ProjectUsecase) GetImportProjectsTemplate(ctx context.Context, projectU
 func (d *ProjectUsecase) GetProjectTips(ctx context.Context, uid, projectUid string) ([]*Project, error) {
 	return nil, errNotSupportProject
 }
+
+func (d *ProjectUsecase) PreviewImportProjects(ctx context.Context, uid, file string) ([]*Project, error) {
+	return nil, errNotSupportProject
+}
