@@ -237,7 +237,7 @@ func GetOperationTypeDesc(opType OpPermissionType) string {
 	case OpPermissionTypeSQLQuery:
 		return "SQL查询"
 	default:
-		return "不支持的操作类型"
+		return "未知操作类型"
 	}
 }
 
