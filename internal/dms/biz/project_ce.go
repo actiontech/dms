@@ -38,3 +38,7 @@ func (d *ProjectUsecase) isProjectActive(ctx context.Context, projectUid string)
 func (d *ProjectUsecase) ImportProjects(ctx context.Context, uid string, projects []*Project) error {
 	return errNotSupportProject
 }
+
+func (d *ProjectUsecase) GetImportProjectsTemplate(ctx context.Context, projectUid string) ([]byte, error) {
+	return nil, errNotSupportProject
+}

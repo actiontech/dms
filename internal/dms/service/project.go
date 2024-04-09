@@ -176,3 +176,12 @@ func convertImportReqToBiz(req *dmsV1.ImportProjectsReq, uid string) ([]*biz.Pro
 
 	return projects, nil
 }
+
+func (d *DMSService) GetImportProjectsTemplate(ctx context.Context, uid string) ([]byte, error) {
+	content, err := d.ProjectUsecase.GetImportProjectsTemplate(ctx, uid)
+	if err != nil {
+		return nil, fmt.Errorf("get import projects template failed: %w", err)
+	}
+
+	return content, nil
+}

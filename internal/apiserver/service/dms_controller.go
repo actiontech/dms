@@ -1460,7 +1460,20 @@ func (a *DMSController) PreviewImportProjects(c echo.Context) error {
 //	  200: GetImportProjectsTemplateReply
 //	  default: body:GenericResp
 func (a *DMSController) GetImportProjectsTemplate(c echo.Context) error {
-	return NewOkResp(c)
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	content, err := a.DMS.GetImportProjectsTemplate(c.Request().Context(), currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	c.Response().Header().Set(echo.HeaderContentDisposition,
+		mime.FormatMediaType("attachment", map[string]string{"filename": "导入项目模版.csv"}))
+
+	return c.Blob(http.StatusOK, "text/csv", content)
 }
 
 // swagger:route GET /v1/dms/projects/export dms ExportProjects
