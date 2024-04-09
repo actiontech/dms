@@ -1441,7 +1441,7 @@ func (a *DMSController) PreviewImportProjects(c echo.Context) error {
 // Get import projects template.
 //
 //	responses:
-//	  200: body:GetImportProjectsTemplateReply
+//	  200: GetImportProjectsTemplateReply
 //	  default: body:GenericResp
 func (a *DMSController) GetImportProjectsTemplate(c echo.Context) error {
 	return NewOkResp(c)

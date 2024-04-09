@@ -1177,10 +1177,7 @@
         "operationId": "GetImportProjectsTemplate",
         "responses": {
           "200": {
-            "description": "GetImportProjectsTemplateReply",
-            "schema": {
-              "$ref": "#/definitions/GetImportProjectsTemplateReply"
-            }
+            "$ref": "#/responses/GetImportProjectsTemplateReply"
           },
           "default": {
             "description": "GenericResp",
@@ -8005,7 +8002,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
@@ -8724,11 +8721,7 @@
     "GetImportProjectsTemplateReply": {
       "description": "",
       "schema": {
-        "type": "array",
-        "items": {
-          "type": "integer",
-          "format": "uint8"
-        }
+        "type": "file"
       }
     },
     "GetLicenseInfoReply": {
