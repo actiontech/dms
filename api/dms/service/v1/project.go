@@ -162,7 +162,7 @@ type ExportProjectsReply struct {
 
 // swagger:response GetImportProjectsTemplateReply
 type GetImportProjectsTemplateReply struct {
-	// Generic reply
+	// swagger:file
 	// in: body
 	File []byte
 }
