@@ -9,6 +9,7 @@ import (
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
+	"github.com/actiontech/dms/pkg"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 
 	"github.com/go-openapi/strfmt"
@@ -54,11 +55,12 @@ func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV1.ListProj
 	ret := make([]*dmsCommonV1.ListProject, len(projects))
 	for i, n := range projects {
 		ret[i] = &dmsCommonV1.ListProject{
-			ProjectUid: n.UID,
-			Name:       n.Name,
-			Archived:   (n.Status == biz.ProjectStatusArchived),
-			Desc:       n.Desc,
-			CreateTime: strfmt.DateTime(n.CreateTime),
+			ProjectUid:      n.UID,
+			Name:            n.Name,
+			Archived:        (n.Status == biz.ProjectStatusArchived),
+			Desc:            n.Desc,
+			IsFixedBusiness: n.IsFixedBusiness,
+			CreateTime:      strfmt.DateTime(n.CreateTime),
 		}
 		user, err := d.UserUsecase.GetUser(ctx, n.CreateUserUID)
 		if err != nil {
@@ -70,6 +72,19 @@ func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV1.ListProj
 			Name: user.Name,
 		}
 
+		business, err := d.DBServiceUsecase.GetBusiness(ctx, n.UID)
+		if err != nil {
+			d.log.Errorf("get business error: %v", err)
+			continue
+		}
+
+		for _, b := range business {
+			isBusinessInUse := pkg.IsStrInSlice(b, n.Business)
+			ret[i].Business = append(ret[i].Business, dmsCommonV1.Business{
+				Name:   b,
+				IsUsed: isBusinessInUse,
+			})
+		}
 	}
 
 	return &dmsCommonV1.ListProjectReply{

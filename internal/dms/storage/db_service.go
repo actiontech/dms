@@ -262,3 +262,21 @@ func (d *DBServiceRepo) CountDBService(ctx context.Context) ([]biz.DBTypeCount, 
 	}
 	return dbTypeCounts, nil
 }
+
+func (d *DBServiceRepo) GetBusiness(ctx context.Context, projectUid string) ([]string, error) {
+	businessList := make([]string, 0)
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Raw(`
+SELECT DISTINCT business
+FROM db_services
+WHERE project_uid = ?;
+	`, projectUid).Find(&businessList).Error; err != nil {
+			return fmt.Errorf("failed to get business: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	return businessList, nil
+}
