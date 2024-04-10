@@ -40,12 +40,13 @@ func NewProject(createUserUID, name, desc string, business []string) (*Project, 
 		return nil, err
 	}
 	return &Project{
-		UID:           uid,
-		Name:          name,
-		Desc:          desc,
-		Business:      business,
-		Status:        ProjectStatusActive,
-		CreateUserUID: createUserUID,
+		UID:             uid,
+		Name:            name,
+		Desc:            desc,
+		Business:        business,
+		Status:          ProjectStatusActive,
+		IsFixedBusiness: true,
+		CreateUserUID:   createUserUID,
 	}, nil
 }
 
