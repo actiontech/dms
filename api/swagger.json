@@ -7582,11 +7582,6 @@
           "type": "string",
           "x-go-name": "Desc"
         },
-        "is_fixed_business": {
-          "description": "is fixed business",
-          "type": "boolean",
-          "x-go-name": "IsFixedBusiness"
-        },
         "name": {
           "description": "project name",
           "type": "string",
@@ -8006,7 +8001,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",

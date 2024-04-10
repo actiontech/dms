@@ -13,8 +13,6 @@ type Project struct {
 	Name string `json:"name"`
 	// project desc
 	Desc string `json:"desc"`
-	// is fixed business
-	IsFixedBusiness bool `json:"is_fixed_business"`
 	// project business
 	Business []string `json:"business"`
 }
