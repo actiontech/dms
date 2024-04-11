@@ -1121,6 +1121,33 @@
         ],
         "summary": "Export projects file.",
         "operationId": "ExportProjects",
+        "parameters": [
+          {
+            "enum": [
+              "name"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "name ProjectOrderByName",
+            "x-go-name": "OrderBy",
+            "description": "Multiple of [\"name\"], default is [\"name\"]\nname ProjectOrderByName",
+            "name": "order_by",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByName",
+            "description": "filter the Project name",
+            "name": "filter_by_name",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByUID",
+            "description": "filter the Project UID",
+            "name": "filter_by_uid",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "$ref": "#/responses/ExportProjectsReply"

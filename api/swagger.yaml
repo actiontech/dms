@@ -5791,6 +5791,27 @@ paths:
     /v1/dms/projects/export:
         get:
             operationId: ExportProjects
+            parameters:
+                - description: |-
+                    Multiple of ["name"], default is ["name"]
+                    name ProjectOrderByName
+                  enum:
+                    - name
+                  in: query
+                  name: order_by
+                  type: string
+                  x-go-enum-desc: name ProjectOrderByName
+                  x-go-name: OrderBy
+                - description: filter the Project name
+                  in: query
+                  name: filter_by_name
+                  type: string
+                  x-go-name: FilterByName
+                - description: filter the Project UID
+                  in: query
+                  name: filter_by_uid
+                  type: string
+                  x-go-name: FilterByUID
             responses:
                 "200":
                     $ref: '#/responses/ExportProjectsReply'
