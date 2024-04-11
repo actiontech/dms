@@ -393,6 +393,9 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     Business:
         properties:
+            id:
+                type: string
+                x-go-name: Id
             is_used:
                 type: boolean
                 x-go-name: IsUsed
@@ -3381,7 +3384,7 @@ definitions:
             business:
                 description: Project business
                 items:
-                    type: string
+                    $ref: '#/definitions/Business'
                 type: array
                 x-go-name: Business
             desc:

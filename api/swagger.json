@@ -4456,6 +4456,10 @@
     "Business": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string",
+          "x-go-name": "Id"
+        },
         "is_used": {
           "type": "boolean",
           "x-go-name": "IsUsed"
@@ -8224,7 +8228,7 @@
           "description": "Project business",
           "type": "array",
           "items": {
-            "type": "string"
+            "$ref": "#/definitions/Business"
           },
           "x-go-name": "Business"
         },
