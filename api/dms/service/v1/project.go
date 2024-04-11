@@ -72,7 +72,12 @@ type UpdateProject struct {
 	// is fixed business
 	IsFixedBusiness *bool `json:"is_fixed_business"`
 	// Project business
-	Business []string `json:"business"`
+	Business []Business `json:"business"`
+}
+
+type Business struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 // swagger:parameters UpdateProject
@@ -114,7 +119,7 @@ type UnarchiveProjectReq struct {
 
 // swagger:parameters ImportProjects
 type ImportProjectsReq struct {
-	Projects []*ImportProjects `json:"projects" validate:"valid"`
+	Projects []*ImportProjects `json:"projects" validate:"required"`
 }
 
 type ImportProjects struct {
