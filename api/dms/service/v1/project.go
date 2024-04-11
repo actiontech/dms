@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
 
 // A Project
@@ -156,6 +157,17 @@ type PreviewImportProjects struct {
 	Desc string `json:"desc"`
 	// business
 	Business []string `json:"business"`
+}
+
+// swagger:parameters ExportProjects
+type ExportProjectsReq struct {
+	// Multiple of ["name"], default is ["name"]
+	// in:query
+	OrderBy dmsCommonV1.ProjectOrderByField `query:"order_by" json:"order_by"`
+	// filter the Project name
+	FilterByName string `query:"filter_by_name" json:"filter_by_name"`
+	// filter the Project UID
+	FilterByUID string `query:"filter_by_uid" json:"filter_by_uid"`
 }
 
 // swagger:response ExportProjectsReply
