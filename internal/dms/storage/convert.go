@@ -555,14 +555,15 @@ func convertModelProject(m *model.Project) (*biz.Project, error) {
 	}
 
 	return &biz.Project{
-		Base:          convertBase(m.Model),
-		UID:           m.UID,
-		Name:          m.Name,
-		Desc:          m.Desc,
-		Business:      businessList,
-		Status:        convertModelProjectStatus(m.Status),
-		CreateUserUID: m.CreateUserUID,
-		CreateTime:    m.CreatedAt,
+		Base:            convertBase(m.Model),
+		UID:             m.UID,
+		Name:            m.Name,
+		Desc:            m.Desc,
+		IsFixedBusiness: m.IsFixedBusiness,
+		Business:        businessList,
+		Status:          convertModelProjectStatus(m.Status),
+		CreateUserUID:   m.CreateUserUID,
+		CreateTime:      m.CreatedAt,
 	}, nil
 }
 
