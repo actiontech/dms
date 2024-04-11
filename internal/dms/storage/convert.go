@@ -524,23 +524,42 @@ func convertModelRangeUIDs(uids string) []string {
 }
 
 func convertBizProject(m *biz.Project) (*model.Project, error) {
+	busList := make([]model.Business, 0)
+	for _, business := range m.Business {
+		busList = append(busList, model.Business{
+			Uid:  business.Uid,
+			Name: business.Name,
+		})
+	}
+
 	return &model.Project{
 		Model: model.Model{
 			UID: m.UID,
 		},
-		Name:          m.Name,
-		Desc:          m.Desc,
-		Status:        string(m.Status),
-		CreateUserUID: m.CreateUserUID,
+		Name:            m.Name,
+		Desc:            m.Desc,
+		Business:        busList,
+		Status:          string(m.Status),
+		IsFixedBusiness: m.IsFixedBusiness,
+		CreateUserUID:   m.CreateUserUID,
 	}, nil
 }
 
 func convertModelProject(m *model.Project) (*biz.Project, error) {
+	businessList := make([]biz.Business, 0)
+	for _, business := range m.Business {
+		businessList = append(businessList, biz.Business{
+			Uid:  business.Uid,
+			Name: business.Name,
+		})
+	}
+
 	return &biz.Project{
 		Base:          convertBase(m.Model),
 		UID:           m.UID,
 		Name:          m.Name,
 		Desc:          m.Desc,
+		Business:      businessList,
 		Status:        convertModelProjectStatus(m.Status),
 		CreateUserUID: m.CreateUserUID,
 		CreateTime:    m.CreatedAt,
