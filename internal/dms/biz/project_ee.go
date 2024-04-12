@@ -258,6 +258,11 @@ func (d *ProjectUsecase) checkImportOp(ctx context.Context, uid string, projects
 	projectNames := make([]string, 0)
 	for _, p := range projects {
 		if _, ok := m[p.Name]; !ok {
+			// 因为业务名称是以分号分割的，所以项目名称不能包含分号
+			if strings.Contains(p.Name, ";") {
+				return fmt.Errorf("project name %s contains split character ';',please check file content", p.Name)
+			}
+
 			m[p.Name] = struct{}{}
 			projectNames = append(projectNames, p.Name)
 		} else {
@@ -355,6 +360,10 @@ func (d *ProjectUsecase) PreviewImportProjects(ctx context.Context, uid, file st
 		// 跳过表头
 		if i == 0 {
 			continue
+		}
+
+		if len(record) != 3 {
+			return nil, fmt.Errorf("invalid record length: %d", len(record))
 		}
 
 		projects = append(projects, &PreviewProject{
