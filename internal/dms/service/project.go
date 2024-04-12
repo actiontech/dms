@@ -183,116 +183,21 @@ func (d *DMSService) UnarchiveProject(ctx context.Context, currentUserUid string
 }
 
 func (d *DMSService) ImportProjects(ctx context.Context, uid string, req *dmsV1.ImportProjectsReq) error {
-	projects, err := convertImportReqToBiz(req, uid)
-	if err != nil {
-		return fmt.Errorf("convert req to biz failed: %w", err)
-	}
-
-	err = d.ProjectUsecase.ImportProjects(ctx, uid, projects)
-	if err != nil {
-		return fmt.Errorf("import projects failed: %w", err)
-	}
-
-	return nil
-}
-
-func convertImportReqToBiz(req *dmsV1.ImportProjectsReq, uid string) ([]*biz.Project, error) {
-	projects := make([]*biz.Project, 0, len(req.Projects))
-	for _, p := range req.Projects {
-		project, err := biz.NewProject(uid, p.Name, p.Desc, true, p.Business)
-		if err != nil {
-			return nil, fmt.Errorf("create project failed: %w", err)
-		}
-		projects = append(projects, project)
-	}
-
-	return projects, nil
+	return d.importProjects(ctx, uid, req)
 }
 
 func (d *DMSService) GetImportProjectsTemplate(ctx context.Context, uid string) ([]byte, error) {
-	content, err := d.ProjectUsecase.GetImportProjectsTemplate(ctx, uid)
-	if err != nil {
-		return nil, fmt.Errorf("get import projects template failed: %w", err)
-	}
-
-	return content, nil
+	return d.getImportProjectsTemplate(ctx, uid)
 }
 
 func (d *DMSService) GetProjectTips(ctx context.Context, uid string, req *dmsV1.GetProjectTipsReq) (reply *dmsV1.GetProjectTipsReply, err error) {
-	projects, err := d.ProjectUsecase.GetProjectTips(ctx, uid, req.ProjectUid)
-	if err != nil {
-		return nil, fmt.Errorf("get project tips failed: %w", err)
-	}
-
-	resp := make([]*dmsV1.ProjectTips, len(projects))
-	for i, p := range projects {
-		businessList := make([]string, 0)
-		for _, business := range p.Business {
-			businessList = append(businessList, business.Name)
-		}
-
-		resp[i] = &dmsV1.ProjectTips{
-			IsFixedBusiness: p.IsFixedBusiness,
-			Business:        businessList,
-		}
-	}
-
-	return &dmsV1.GetProjectTipsReply{
-		Data: resp,
-	}, nil
+	return d.getProjectTips(ctx, uid, req, err)
 }
 
 func (d *DMSService) PreviewImportProjects(ctx context.Context, uid string, file string) (reply *dmsV1.PreviewImportProjectsReply, err error) {
-	projects, err := d.ProjectUsecase.PreviewImportProjects(ctx, uid, file)
-	if err != nil {
-		return nil, fmt.Errorf("preview import projects failed: %w", err)
-	}
-
-	resp := make([]*dmsV1.PreviewImportProjects, len(projects))
-	for i, p := range projects {
-		resp[i] = &dmsV1.PreviewImportProjects{
-			Name:     p.Name,
-			Desc:     p.Desc,
-			Business: p.Business,
-		}
-	}
-
-	return &dmsV1.PreviewImportProjectsReply{
-		Data: resp,
-	}, nil
+	return d.previewImportProjects(ctx, uid, file, err)
 }
 
 func (d *DMSService) ExportProjects(ctx context.Context, uid string, req *dmsV1.ExportProjectsReq) ([]byte, error) {
-	var orderBy biz.ProjectField
-	switch req.OrderBy {
-	case dmsCommonV1.ProjectOrderByName:
-		orderBy = biz.ProjectFieldName
-	default:
-		orderBy = biz.ProjectFieldName
-	}
-
-	filterBy := make([]pkgConst.FilterCondition, 0)
-	if req.FilterByName != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
-			Field:    string(biz.ProjectFieldName),
-			Operator: pkgConst.FilterOperatorEqual,
-			Value:    req.FilterByName,
-		})
-	}
-	if req.FilterByUID != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
-			Field:    string(biz.ProjectFieldUID),
-			Operator: pkgConst.FilterOperatorEqual,
-			Value:    req.FilterByUID,
-		})
-	}
-
-	listOption := &biz.ListProjectsOption{
-		PageNumber:   0,
-		LimitPerPage: 99999,
-		OrderBy:      orderBy,
-		FilterBy:     filterBy,
-	}
-
-	return d.ProjectUsecase.ExportProjects(ctx, uid, listOption)
+	return d.exportProjects(ctx, uid, req)
 }
