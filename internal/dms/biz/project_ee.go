@@ -331,12 +331,6 @@ func (d *ProjectUsecase) GetProjectTips(ctx context.Context, uid, projectUid str
 	return projects, nil
 }
 
-type PreviewProject struct {
-	Name     string
-	Desc     string
-	Business []string
-}
-
 func (d *ProjectUsecase) PreviewImportProjects(ctx context.Context, uid, file string) ([]*PreviewProject, error) {
 	if len(file) == 0 {
 		return nil, fmt.Errorf("file is empty")
