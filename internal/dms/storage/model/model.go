@@ -198,10 +198,12 @@ func (mg *MemberGroupRoleOpRange) AfterSave(tx *gorm.DB) error {
 
 type Project struct {
 	Model
-	Name          string `json:"name" gorm:"size:200;column:name;index:name,unique"`
-	Desc          string `json:"desc" gorm:"column:desc"`
-	CreateUserUID string `json:"create_user_uid" gorm:"size:32;column:create_user_uid"`
-	Status        string `gorm:"size:64;default:'active'"`
+	Name            string `json:"name" gorm:"size:200;column:name;index:name,unique"`
+	Desc            string `json:"desc" gorm:"column:desc"`
+	Business        Bus    `json:"business" gorm:"type:json"`
+	IsFixedBusiness bool   `json:"is_fixed_business" gorm:"not null"`
+	CreateUserUID   string `json:"create_user_uid" gorm:"size:32;column:create_user_uid"`
+	Status          string `gorm:"size:64;default:'active'"`
 }
 
 const (
@@ -413,6 +415,22 @@ func (t *Strings) Scan(value interface{}) error {
 
 func (t Strings) Value() (driver.Value, error) {
 	return json.Marshal(t)
+}
+
+type Bus []Business
+
+type Business struct {
+	Uid  string
+	Name string
+}
+
+func (b *Bus) Scan(value interface{}) error {
+	bytesValue, _ := value.([]byte)
+	return json.Unmarshal(bytesValue, b)
+}
+
+func (b Bus) Value() (driver.Value, error) {
+	return json.Marshal(b)
 }
 
 type WorkflowStep struct {
