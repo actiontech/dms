@@ -188,7 +188,7 @@ type GetImportProjectsTemplateReply struct {
 type GetProjectTipsReq struct {
 	// Project uid
 	// in:query
-	ProjectUid string `json:"project_uid"`
+	ProjectUid string `query:"project_uid" json:"project_uid"`
 }
 
 // swagger:model GetProjectTipsReply

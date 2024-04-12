@@ -42,6 +42,28 @@ func (d *ProjectRepo) SaveProject(ctx context.Context, u *biz.Project) error {
 	return nil
 }
 
+func (d *ProjectRepo) BatchSaveProjects(ctx context.Context, projects []*biz.Project) error {
+	models := make([]*model.Project, 0)
+	for _, project := range projects {
+		p, err := convertBizProject(project)
+		if err != nil {
+			return pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert biz project: %v", err))
+		}
+		models = append(models, p)
+	}
+
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).CreateInBatches(models, 50).Error; err != nil {
+			return fmt.Errorf("failed to batch save projects: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (d *ProjectRepo) ListProjects(ctx context.Context, opt *biz.ListProjectsOption, currentUserUid string) (projects []*biz.Project, total int64, err error) {
 	var models []*model.Project
 
@@ -149,6 +171,16 @@ func (d *ProjectRepo) DelProject(ctx context.Context, projectUid string) error {
 	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Where("uid = ?", projectUid).Delete(&model.Project{}).Error; err != nil {
 			return fmt.Errorf("failed to delete project: %v", err)
+		}
+		return nil
+	})
+}
+
+func (d *ProjectRepo) UpdateDBServiceBusiness(ctx context.Context, projectUid string, originBusiness string, descBusiness string) error {
+	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Model(&model.DBService{}).Where("project_uid = ? and business = ?", projectUid, originBusiness).
+			Update("business", descBusiness).Error; err != nil {
+			return fmt.Errorf("failed to update dbService business: %v", err)
 		}
 		return nil
 	})
