@@ -24,25 +24,54 @@ const (
 type Project struct {
 	Base
 
-	UID           string
-	Name          string
-	Desc          string
-	CreateUserUID string
-	CreateTime    time.Time
-	Status        ProjectStatus
+	UID             string
+	Name            string
+	Desc            string
+	IsFixedBusiness bool
+	Business        []Business
+	CreateUserUID   string
+	CreateTime      time.Time
+	Status          ProjectStatus
 }
 
-func NewProject(createUserUID, name, desc string) (*Project, error) {
+type Business struct {
+	Uid  string
+	Name string
+}
+
+type PreviewProject struct {
+	Name     string
+	Desc     string
+	Business []string
+}
+
+func NewProject(createUserUID, name, desc string, isFixedBusiness bool, business []string) (*Project, error) {
 	uid, err := pkgRand.GenStrUid()
 	if err != nil {
 		return nil, err
 	}
+
+	businessList := make([]Business, 0)
+	for _, b := range business {
+		uid, err = pkgRand.GenStrUid()
+		if err != nil {
+			return nil, err
+		}
+
+		businessList = append(businessList, Business{
+			Uid:  uid,
+			Name: b,
+		})
+	}
+
 	return &Project{
-		UID:           uid,
-		Name:          name,
-		Desc:          desc,
-		Status:        ProjectStatusActive,
-		CreateUserUID: createUserUID,
+		UID:             uid,
+		Name:            name,
+		Desc:            desc,
+		Business:        businessList,
+		Status:          ProjectStatusActive,
+		IsFixedBusiness: isFixedBusiness,
+		CreateUserUID:   createUserUID,
 	}, nil
 }
 
@@ -60,11 +89,13 @@ func initProjects() []*Project {
 
 type ProjectRepo interface {
 	SaveProject(ctx context.Context, project *Project) error
+	BatchSaveProjects(ctx context.Context, projects []*Project) error
 	ListProjects(ctx context.Context, opt *ListProjectsOption, currentUserUID string) (projects []*Project, total int64, err error)
 	GetProject(ctx context.Context, projectUid string) (*Project, error)
 	GetProjectByName(ctx context.Context, projectName string) (*Project, error)
 	UpdateProject(ctx context.Context, u *Project) error
 	DelProject(ctx context.Context, projectUid string) error
+	UpdateDBServiceBusiness(ctx context.Context, projectUid string, originBusiness string, descBusiness string) error
 }
 
 type ProjectUsecase struct {
@@ -157,4 +188,25 @@ func (d *ProjectUsecase) InitProjects(ctx context.Context) (err error) {
 
 func (d *ProjectUsecase) GetProject(ctx context.Context, projectUid string) (*Project, error) {
 	return d.repo.GetProject(ctx, projectUid)
+}
+
+func (d *ProjectUsecase) UpdateDBServiceBusiness(ctx context.Context, currentUserUid, projectUid string, originBusiness, descBusiness string) error {
+	// 检查项目是否归档/删除
+	if err := d.isProjectActive(ctx, projectUid); err != nil {
+		return fmt.Errorf("update db service error: %v", err)
+	}
+
+	// 检查当前用户有项目管理员权限
+	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, projectUid); err != nil {
+		return fmt.Errorf("check user is project admin failed: %v", err)
+	} else if !isAdmin {
+		return fmt.Errorf("user is not project admin")
+	}
+
+	err := d.repo.UpdateDBServiceBusiness(ctx, projectUid, originBusiness, descBusiness)
+	if err != nil {
+		return fmt.Errorf("update db service business failed: %v", err)
+	}
+
+	return nil
 }

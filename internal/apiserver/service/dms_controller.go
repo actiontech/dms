@@ -1352,7 +1352,7 @@ func (a *DMSController) UpdateProject(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	err = a.DMS.UpdateProjectDesc(c.Request().Context(), currentUserUid, req)
+	err = a.DMS.UpdateProject(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1419,6 +1419,22 @@ func (a *DMSController) UnarchiveProject(c echo.Context) error {
 //	  200: body:GenericResp
 //	  default: body:GenericResp
 func (a *DMSController) ImportProjects(c echo.Context) error {
+	req := new(aV1.ImportProjectsReq)
+	err := bindAndValidateReq(c, req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	err = a.DMS.ImportProjects(c.Request().Context(), currentUserUid, req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
 	return NewOkResp(c)
 }
 
@@ -1433,7 +1449,25 @@ func (a *DMSController) ImportProjects(c echo.Context) error {
 //	  200: PreviewImportProjectsReply
 //	  default: body:GenericResp
 func (a *DMSController) PreviewImportProjects(c echo.Context) error {
-	return NewOkResp(c)
+	file, exist, err := ReadFileContent(c, ProjectsFileParamKey)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	if !exist {
+		return NewErrResp(c, fmt.Errorf("upload file is not exist"), apiError.APIServerErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, err := a.DMS.PreviewImportProjects(c.Request().Context(), currentUserUid, file)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:route GET /v1/dms/projects/import_template dms GetImportProjectsTemplate
@@ -1444,7 +1478,20 @@ func (a *DMSController) PreviewImportProjects(c echo.Context) error {
 //	  200: GetImportProjectsTemplateReply
 //	  default: body:GenericResp
 func (a *DMSController) GetImportProjectsTemplate(c echo.Context) error {
-	return NewOkResp(c)
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	content, err := a.DMS.GetImportProjectsTemplate(c.Request().Context(), currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	c.Response().Header().Set(echo.HeaderContentDisposition,
+		mime.FormatMediaType("attachment", map[string]string{"filename": "导入项目模版.csv"}))
+
+	return c.Blob(http.StatusOK, "text/csv", content)
 }
 
 // swagger:route GET /v1/dms/projects/export dms ExportProjects
@@ -1455,7 +1502,27 @@ func (a *DMSController) GetImportProjectsTemplate(c echo.Context) error {
 //	  200: ExportProjectsReply
 //	  default: body:GenericResp
 func (a *DMSController) ExportProjects(c echo.Context) error {
-	return nil
+	req := new(aV1.ExportProjectsReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	content, err := a.DMS.ExportProjects(c.Request().Context(), currentUserUid, req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	fileName := fmt.Sprintf("项目列表_%s.csv", time.Now().Format("20060102150405"))
+	c.Response().Header().Set(echo.HeaderContentDisposition,
+		mime.FormatMediaType("attachment", map[string]string{"filename": fileName}))
+
+	return c.Blob(http.StatusOK, "text/csv", content)
 }
 
 // swagger:route GET /v1/dms/projects/tips dms GetProjectTips
@@ -1466,7 +1533,23 @@ func (a *DMSController) ExportProjects(c echo.Context) error {
 //	  200: body:GetProjectTipsReply
 //	  default: body:GenericResp
 func (a *DMSController) GetProjectTips(c echo.Context) error {
-	return NewOkResp(c)
+	req := new(aV1.GetProjectTipsReq)
+	err := bindAndValidateReq(c, req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, err := a.DMS.GetProjectTips(c.Request().Context(), currentUserUid, req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:route POST /v1/dms/proxy dms RegisterDMSProxyTarget
@@ -1982,6 +2065,7 @@ func (d *DMSController) GetLicense(c echo.Context) error {
 const (
 	HardwareInfoFileName = "collected.infos"
 	LicenseFileParamKey  = "license_file"
+	ProjectsFileParamKey = "projects_file"
 )
 
 // swagger:route GET /v1/dms/configurations/license/info dms GetLicenseInfo

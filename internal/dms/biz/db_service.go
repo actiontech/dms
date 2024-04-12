@@ -124,6 +124,7 @@ type DBServiceRepo interface {
 	CheckDBServiceExist(ctx context.Context, dbServiceUids []string) (exists bool, err error)
 	UpdateDBService(ctx context.Context, dbService *DBService) error
 	CountDBService(ctx context.Context) ([]DBTypeCount, error)
+	GetBusinessByProjectUID(ctx context.Context, projectUid string) ([]string, error)
 }
 
 type DBServiceUsecase struct {
@@ -523,4 +524,13 @@ func (d *DBServiceUsecase) GetBizDBWithNameByUids(ctx context.Context, uids []st
 		ret = append(ret, dbCache)
 	}
 	return ret
+}
+
+func (d *DBServiceUsecase) GetBusiness(ctx context.Context, projectUid string) ([]string, error) {
+	business, err := d.repo.GetBusinessByProjectUID(ctx, projectUid)
+	if err != nil {
+		return nil, fmt.Errorf("get business failed: %v", err)
+	}
+
+	return business, nil
 }
