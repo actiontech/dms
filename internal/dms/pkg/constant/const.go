@@ -8,18 +8,20 @@ import (
 
 // internel build-in uid
 const (
-	UIDOfOpPermissionCreateProject        = "700001"
-	UIDOfOpPermissionProjectAdmin         = "700002"
-	UIDOfOpPermissionCreateWorkflow       = "700003"
-	UIDOfOpPermissionAuditWorkflow        = "700004"
-	UIDOfOpPermissionAuthDBServiceData    = "700005"
-	UIDOfOpPermissionExecuteWorkflow      = "700006"
-	UIDOfOpPermissionViewOthersWorkflow   = "700007"
-	UIDOfOpPermissionViewOthersAuditPlan  = "700008"
-	UIDOfOpPermissionSaveAuditPlan        = "700009"
-	UIDOfOpPermissionSQLQuery             = "700010"
-	UIDOfOpPermissionExportApprovalReject = "700011"
-	UIDOfOpPermissionExportCreate         = "700012"
+	UIDOfOpPermissionCreateProject          = "700001"
+	UIDOfOpPermissionProjectAdmin           = "700002"
+	UIDOfOpPermissionCreateWorkflow         = "700003"
+	UIDOfOpPermissionAuditWorkflow          = "700004"
+	UIDOfOpPermissionAuthDBServiceData      = "700005"
+	UIDOfOpPermissionExecuteWorkflow        = "700006"
+	UIDOfOpPermissionViewOthersWorkflow     = "700007"
+	UIDOfOpPermissionViewOthersAuditPlan    = "700008"
+	UIDOfOpPermissionSaveAuditPlan          = "700009"
+	UIDOfOpPermissionSQLQuery               = "700010"
+	UIDOfOpPermissionExportApprovalReject   = "700011"
+	UIDOfOpPermissionExportCreate           = "700012"
+	UIDOfOpPermissionCreateOptimization     = "700013"
+	UIDOfOpPermissionViewOthersOptimization = "700014"
 
 	UIDOfDMSConfig = "700100"
 
