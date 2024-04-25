@@ -218,28 +218,77 @@ func ParseUserUidStrFromTokenWithOldJwt(token *jwtOld.Token) (uid string, err er
 	return uidStr, nil
 }
 
-func GetTokenStrFromContextWithOldJwt(c EchoContextGetter) (tokenStr string, err error) {
+type TokenDetail struct {
+	TokenStr  string
+	UID       string
+	LoginType string
+}
+
+func GetTokenDetailFromContextWithOldJwt(c EchoContextGetter) (tokenDetail *TokenDetail, err error) {
+	tokenDetail = &TokenDetail{}
+
 	if c.Get("user") == nil {
-		return "", fmt.Errorf("user not found in context")
+		return tokenDetail, nil
 	}
 
 	// Gets user token from the context.
 	u, ok := c.Get("user").(*jwtOld.Token)
 	if !ok {
-		return "", fmt.Errorf("failed to convert user from jwt token")
+		return nil, fmt.Errorf("failed to convert user from jwt token")
 	}
-	return u.Raw, nil
+	tokenDetail.TokenStr = u.Raw
+
+	// get uid from token
+	uid, err := ParseUserUidStrFromTokenWithOldJwt(u)
+	if err != nil {
+		return nil, err
+	}
+	tokenDetail.UID = uid
+
+	// get login type from token
+	claims, ok := u.Claims.(jwtOld.MapClaims)
+	if !ok {
+		return nil, fmt.Errorf("failed to convert token claims to jwt")
+	}
+	loginType, ok := claims[JWTLoginType]
+	if !ok {
+		return tokenDetail, nil
+	}
+
+	tokenDetail.LoginType = fmt.Sprint(loginType)
+	return tokenDetail, nil
 }
 
-func GetTokenStrFromContext(c EchoContextGetter) (tokenStr string, err error) {
+func GetTokenDetailFromContext(c EchoContextGetter) (tokenDetail *TokenDetail, err error) {
+	tokenDetail = &TokenDetail{}
 	if c.Get("user") == nil {
-		return "", fmt.Errorf("user not found in context")
+		return tokenDetail, nil
 	}
 
 	// Gets user token from the context.
 	u, ok := c.Get("user").(*jwt.Token)
 	if !ok {
-		return "", fmt.Errorf("failed to convert user from jwt token")
+		return nil, fmt.Errorf("failed to convert user from jwt token")
 	}
-	return u.Raw, nil
+	tokenDetail.TokenStr = u.Raw
+
+	// get uid from token
+	uid, err := ParseUserUidStrFromToken(u)
+	if err != nil {
+		return nil, err
+	}
+	tokenDetail.UID = uid
+
+	// get login type from token
+	claims, ok := u.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, fmt.Errorf("failed to convert token claims to jwt")
+	}
+	loginType, ok := claims[JWTLoginType]
+	if !ok {
+		return tokenDetail, nil
+	}
+
+	tokenDetail.LoginType = fmt.Sprint(loginType)
+	return tokenDetail, nil
 }
