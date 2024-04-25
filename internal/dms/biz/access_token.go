@@ -1,10 +1,12 @@
 package biz
 
 import (
+	"fmt"
 	"net/http"
 
-	"github.com/actiontech/dms/pkg/dms-common/api/accesstoken"
+	jwtPkg "github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
+
 	"github.com/labstack/echo/v4"
 )
 
@@ -26,28 +28,28 @@ func NewAuthAccessTokenUsecase(log utilLog.Logger, usecase *UserUsecase) *AuthAc
 func (au *AuthAccessTokenUsecase) CheckLatestAccessToken() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			token, exist, err := accesstoken.GetTokenFromContext(c)
+			tokenDetail, err := jwtPkg.GetTokenDetailFromContext(c)
 			if err != nil {
+				echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("get token detail failed, err:%v", err))
 				return err
 			}
-			if !exist {
-				return next(c)
-			}
-			uid, exist, err := accesstoken.GetUidFromAccessToken(token)
-			if err != nil {
-				return err
-			}
-			if !exist {
+
+			// LoginType为空，不需要校验access token
+			if tokenDetail.LoginType == "" {
 				return next(c)
 			}
 
-			accessTokenInfo, err := au.userUsecase.repo.GetAccessTokenByUser(c.Request().Context(), uid)
+			if tokenDetail.LoginType != AccessTokenLogin {
+				return echo.NewHTTPError(http.StatusUnauthorized, "access token login type is error")
+			}
+
+			accessTokenInfo, err := au.userUsecase.repo.GetAccessTokenByUser(c.Request().Context(), tokenDetail.UID)
 
 			if err != nil {
 				return err
 			}
 
-			if accessTokenInfo.Token != token.Raw {
+			if accessTokenInfo.Token != tokenDetail.TokenStr {
 				return echo.NewHTTPError(http.StatusUnauthorized, "access token is not latest")
 			}
 
