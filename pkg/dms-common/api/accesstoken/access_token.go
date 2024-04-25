@@ -15,14 +15,15 @@ const AccessTokenLogin = "access_token_login"
 func CheckLatestAccessToken(dmsAddress string, getTokenDetail func(c jwtPkg.EchoContextGetter) (*jwtPkg.TokenDetail, error)) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			tokenDetail ,err := getTokenDetail(c)
+			tokenDetail, err := getTokenDetail(c)
 
-			if tokenDetail.TokenStr == "" {
-				return next(c)
-			}
 			if err != nil {
 				echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("get token detail failed, err:%v", err))
 				return err
+			}
+
+			if tokenDetail.TokenStr == "" {
+				return next(c)
 			}
 
 			// LoginType为空，不需要校验access token
