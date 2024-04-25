@@ -217,3 +217,29 @@ func ParseUserUidStrFromTokenWithOldJwt(token *jwtOld.Token) (uid string, err er
 	}
 	return uidStr, nil
 }
+
+func GetTokenStrFromContextWithOldJwt(c EchoContextGetter) (tokenStr string, err error) {
+	if c.Get("user") == nil {
+		return "", fmt.Errorf("user not found in context")
+	}
+
+	// Gets user token from the context.
+	u, ok := c.Get("user").(*jwtOld.Token)
+	if !ok {
+		return "", fmt.Errorf("failed to convert user from jwt token")
+	}
+	return u.Raw, nil
+}
+
+func GetTokenStrFromContext(c EchoContextGetter) (tokenStr string, err error) {
+	if c.Get("user") == nil {
+		return "", fmt.Errorf("user not found in context")
+	}
+
+	// Gets user token from the context.
+	u, ok := c.Get("user").(*jwt.Token)
+	if !ok {
+		return "", fmt.Errorf("failed to convert user from jwt token")
+	}
+	return u.Raw, nil
+}
