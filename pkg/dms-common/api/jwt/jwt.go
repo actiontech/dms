@@ -224,6 +224,7 @@ type TokenDetail struct {
 	LoginType string
 }
 
+// 由于sqle使用的github.com/golang-jwt/jwt，本方法为sqle兼容
 func GetTokenDetailFromContextWithOldJwt(c EchoContextGetter) (tokenDetail *TokenDetail, err error) {
 	tokenDetail = &TokenDetail{}
 
