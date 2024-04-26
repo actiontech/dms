@@ -154,7 +154,8 @@ func (d *RoleUsecase) InitRoles(ctx context.Context) (err error) {
 				pkgConst.UIDOfOpPermissionAuditWorkflow, pkgConst.UIDOfOpPermissionExecuteWorkflow,
 				pkgConst.UIDOfOpPermissionViewOthersWorkflow, pkgConst.UIDOfOpPermissionSaveAuditPlan,
 				pkgConst.UIDOfOpPermissionViewOthersAuditPlan, pkgConst.UIDOfOpPermissionSQLQuery,
-				pkgConst.UIDOfOpPermissionExportApprovalReject, pkgConst.UIDOfOpPermissionExportCreate}, roleId); err != nil {
+				pkgConst.UIDOfOpPermissionExportApprovalReject, pkgConst.UIDOfOpPermissionExportCreate,
+				pkgConst.UIDOfOpPermissionCreateOptimization, pkgConst.UIDOfOpPermissionViewOthersOptimization}, roleId); err != nil {
 				return fmt.Errorf("insure op permissions in role failed: %v", err)
 			}
 		case pkgConst.UIDOfRoleProvisionAdmin:
