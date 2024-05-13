@@ -211,6 +211,11 @@ func (s *APIServer) installMiddleware() error {
 		},
 	}))
 
+	s.echo.Use(middleware.GzipWithConfig(middleware.GzipConfig{
+		Skipper: middleware.DefaultSkipper,
+		Level:   5,
+	}))
+
 	s.echo.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Skipper: middleware.Skipper(func(c echo.Context) bool {
 			if strings.HasPrefix(c.Request().URL.Path, s.CloudbeaverController.CloudbeaverService.CloudbeaverUsecase.GetRootUri()) {
