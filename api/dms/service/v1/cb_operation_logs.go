@@ -8,23 +8,7 @@ import (
 
 // swagger:parameters ListCBOperationLogs
 type ListCBOperationLogsReq struct {
-	// project id
-	// Required: true
-	// in:path
-	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-	// in:query
-	FilterOperationPersonUID string `json:"filter_operation_person_uid" query:"filter_operation_person_uid"`
-	// in:query
-	FilterOperationTimeFrom string `json:"filter_operation_time_from" query:"filter_operation_time_from"`
-	// in:query
-	FilterOperationTimeTo string `json:"filter_operation_time_to" query:"filter_operation_time_to"`
-	// in:query
-	FilterDBServiceUID string `json:"filter_db_service_uid" query:"filter_db_service_uid"`
-	// in:query
-	FilterExecResult string `json:"filter_exec_result" query:"filter_exec_result"`
-	// filter fuzzy key word for operation_detail/operation_ip
-	// in:query
-	FuzzyKeyword string `json:"fuzzy_keyword" query:"fuzzy_keyword"`
+	cbOperationLogsReq
 	// the maximum count of member to be returned
 	// in:query
 	// Required: true
@@ -68,4 +52,36 @@ type CBOperationLog struct {
 type UidWithDBServiceName struct {
 	Uid  string `json:"uid"`
 	Name string `json:"name"`
+}
+
+// swagger:parameters ExportCBOperationLogs
+type ExportCBOperationLogsReq struct {
+	cbOperationLogsReq
+}
+
+// swagger:response ExportCBOperationLogsReply
+type ExportCBOperationLogsReply struct {
+	// swagger:file
+	// in:  body
+	File []byte
+}
+
+type cbOperationLogsReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	// in:query
+	FilterOperationPersonUID string `json:"filter_operation_person_uid" query:"filter_operation_person_uid"`
+	// in:query
+	FilterOperationTimeFrom string `json:"filter_operation_time_from" query:"filter_operation_time_from"`
+	// in:query
+	FilterOperationTimeTo string `json:"filter_operation_time_to" query:"filter_operation_time_to"`
+	// in:query
+	FilterDBServiceUID string `json:"filter_db_service_uid" query:"filter_db_service_uid"`
+	// in:query
+	FilterExecResult string `json:"filter_exec_result" query:"filter_exec_result"`
+	// filter fuzzy key word for operation_detail/operation_ip
+	// in:query
+	FuzzyKeyword string `json:"fuzzy_keyword" query:"fuzzy_keyword"`
 }
