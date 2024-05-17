@@ -404,6 +404,46 @@ definitions:
                 x-go-name: Name
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    CBOperationLog:
+        properties:
+            audit_result:
+                items:
+                    $ref: '#/definitions/AuditSQLResult'
+                type: array
+                x-go-name: AuditResult
+            db_service:
+                $ref: '#/definitions/UidWithDBServiceName'
+            exec_result:
+                type: string
+                x-go-name: ExecResult
+            exec_time_second:
+                format: int64
+                type: integer
+                x-go-name: ExecTimeSecond
+            operation_detail:
+                type: string
+                x-go-name: OperationDetail
+            operation_ip:
+                type: string
+                x-go-name: OperationIp
+            operation_person:
+                $ref: '#/definitions/UidWithName'
+            operation_time:
+                format: date-time
+                type: string
+                x-go-name: OperationTime
+            result_set_row_count:
+                format: int64
+                type: integer
+                x-go-name: ResultSetRowCount
+            session_id:
+                type: string
+                x-go-name: SessionID
+            uid:
+                type: string
+                x-go-name: UID
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CancelDataExportWorkflowPayload:
         properties:
             data_export_workflow_uids:
@@ -1634,6 +1674,49 @@ definitions:
                 x-go-name: Used
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListCBOperationLogsReply:
+        properties:
+            audit_intercepted_sql_count:
+                description: 审核拦截的异常SQL数量
+                format: int64
+                type: integer
+                x-go-name: AuditInterceptedSQLCount
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: list cb operation logs reply
+                items:
+                    $ref: '#/definitions/CBOperationLog'
+                type: array
+                x-go-name: Data
+            exec_failed_sql_count:
+                description: 执行失败的SQL
+                format: int64
+                type: integer
+                x-go-name: ExecFailedSQLCount
+            exec_sql_total:
+                description: 执行SQL总量
+                format: int64
+                type: integer
+                x-go-name: ExecSQLTotal
+            exec_success_rate:
+                description: 执行成功率
+                format: double
+                type: number
+                x-go-name: ExecSuccessRate
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListDBService:
         description: A dms db Service
         properties:
@@ -2752,6 +2835,8 @@ definitions:
                     sql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限
                     create_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单
                     audit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单
+                    create_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优
+                    view_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优
                 enum:
                     - unknown
                     - create_project
@@ -2766,6 +2851,8 @@ definitions:
                     - sql_query
                     - create_export_task
                     - audit_export_workflow
+                    - create_optimization
+                    - view_others_optimization
                 type: string
                 x-go-enum-desc: |-
                     unknown OpPermissionTypeUnknown
@@ -2781,6 +2868,8 @@ definitions:
                     sql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限
                     create_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单
                     audit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单
+                    create_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优
+                    view_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优
                 x-go-name: OpPermissionType
             range_type:
                 description: |-
@@ -3207,7 +3296,7 @@ definitions:
     TriggerEventType:
         type: string
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    UidWithName:
+    UidWithDBServiceName:
         properties:
             name:
                 type: string
@@ -3217,6 +3306,16 @@ definitions:
                 x-go-name: Uid
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UidWithName:
+        properties:
+            name:
+                type: string
+                x-go-name: Name
+            uid:
+                type: string
+                x-go-name: Uid
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -4549,6 +4648,66 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: Archive a project.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/cb_operation_logs:
+        get:
+            operationId: ListCBOperationLogs
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - in: query
+                  name: filter_operation_person_uid
+                  type: string
+                  x-go-name: FilterOperationPersonUID
+                - in: query
+                  name: filter_operation_time_from
+                  type: string
+                  x-go-name: FilterOperationTimeFrom
+                - in: query
+                  name: filter_operation_time_to
+                  type: string
+                  x-go-name: FilterOperationTimeTo
+                - in: query
+                  name: filter_db_service_uid
+                  type: string
+                  x-go-name: FilterDBServiceUID
+                - in: query
+                  name: filter_exec_result
+                  type: string
+                  x-go-name: FilterExecResult
+                - description: filter fuzzy key word for operation_detail/operation_ip
+                  in: query
+                  name: fuzzy_keyword
+                  type: string
+                  x-go-name: FuzzyKeyword
+                - description: the maximum count of member to be returned
+                  format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of members to be returned, default is 0
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+            responses:
+                "200":
+                    description: ListCBOperationLogsReply
+                    schema:
+                        $ref: '#/definitions/ListCBOperationLogsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List cb operation logs.
             tags:
                 - dms
     /v1/dms/projects/{project_uid}/data_export_tasks:
