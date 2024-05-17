@@ -7,6 +7,7 @@ import (
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	pkgLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
+	"github.com/labstack/echo/v4"
 
 	dmsMiddleware "github.com/actiontech/dms/internal/apiserver/middleware"
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -14,7 +15,6 @@ import (
 	echojwt "github.com/labstack/echo-jwt/v4"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
@@ -168,6 +168,9 @@ func (s *APIServer) initRouter() error {
 		dataExportTaskV1.GET("/:data_export_task_uid/data_export_task_sqls", s.DMSController.ListDataExportTaskSQLs)
 		dataExportTaskV1.GET("/:data_export_task_uid/data_export_task_sqls/download", s.DMSController.DownloadDataExportTaskSQLs)
 		dataExportTaskV1.GET("/:data_export_task_uid/download", s.DMSController.DownloadDataExportTask)
+
+		cbOperationLogsV1 := v1.Group("/dms/projects/:project_uid/cb_operation_logs")
+		cbOperationLogsV1.GET("", s.DMSController.ListCBOperationLogs)
 
 		maskingV1 := v1.Group("/dms/masking")
 		maskingV1.GET("/rules", s.DMSController.ListMaskingRules)
