@@ -1475,6 +1475,73 @@
         }
       }
     },
+    "/v1/dms/projects/{project_uid}/cb_operation_logs/export": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Export cb operation logs.",
+        "operationId": "ExportCBOperationLogs",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterOperationPersonUID",
+            "name": "filter_operation_person_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterOperationTimeFrom",
+            "name": "filter_operation_time_from",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterOperationTimeTo",
+            "name": "filter_operation_time_to",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterDBServiceUID",
+            "name": "filter_db_service_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterExecResult",
+            "name": "filter_exec_result",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FuzzyKeyword",
+            "description": "filter fuzzy key word for operation_detail/operation_ip",
+            "name": "fuzzy_keyword",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/ExportCBOperationLogsReply"
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/projects/{project_uid}/data_export_tasks": {
       "get": {
         "tags": [
@@ -8935,6 +9002,12 @@
       }
     },
     "DownloadDataExportTaskSQLsReply": {
+      "description": "",
+      "schema": {
+        "type": "file"
+      }
+    },
+    "ExportCBOperationLogsReply": {
       "description": "",
       "schema": {
         "type": "file"
