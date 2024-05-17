@@ -4710,6 +4710,51 @@ paths:
             summary: List cb operation logs.
             tags:
                 - dms
+    /v1/dms/projects/{project_uid}/cb_operation_logs/export:
+        get:
+            operationId: ExportCBOperationLogs
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - in: query
+                  name: filter_operation_person_uid
+                  type: string
+                  x-go-name: FilterOperationPersonUID
+                - in: query
+                  name: filter_operation_time_from
+                  type: string
+                  x-go-name: FilterOperationTimeFrom
+                - in: query
+                  name: filter_operation_time_to
+                  type: string
+                  x-go-name: FilterOperationTimeTo
+                - in: query
+                  name: filter_db_service_uid
+                  type: string
+                  x-go-name: FilterDBServiceUID
+                - in: query
+                  name: filter_exec_result
+                  type: string
+                  x-go-name: FilterExecResult
+                - description: filter fuzzy key word for operation_detail/operation_ip
+                  in: query
+                  name: fuzzy_keyword
+                  type: string
+                  x-go-name: FuzzyKeyword
+            responses:
+                "200":
+                    $ref: '#/responses/ExportCBOperationLogsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Export cb operation logs.
+            tags:
+                - dms
     /v1/dms/projects/{project_uid}/data_export_tasks:
         get:
             operationId: BatchGetDataExportTask
@@ -6610,6 +6655,10 @@ responses:
         schema:
             type: file
     DownloadDataExportTaskSQLsReply:
+        description: ""
+        schema:
+            type: file
+    ExportCBOperationLogsReply:
         description: ""
         schema:
             type: file

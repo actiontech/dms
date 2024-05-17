@@ -2561,3 +2561,14 @@ func (d *DMSController) ListMaskingRules(c echo.Context) error {
 func (d *DMSController) ListCBOperationLogs(c echo.Context) error {
 	return nil
 }
+
+// swagger:route GET /v1/dms/projects/{project_uid}/cb_operation_logs/export dms ExportCBOperationLogs
+//
+// Export cb operation logs.
+//
+//	responses:
+//	  200: ExportCBOperationLogsReply
+//	  default: body:GenericResp
+func (d *DMSController) ExportCBOperationLogs(c echo.Context) error {
+	return nil
+}
