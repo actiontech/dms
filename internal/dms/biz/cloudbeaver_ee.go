@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
+
+	v1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver"
@@ -19,21 +21,23 @@ import (
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 	pkgRand "github.com/actiontech/dms/pkg/rand"
+	"github.com/go-openapi/strfmt"
 	"github.com/labstack/echo/v4"
 )
 
 // A provision DBAccount
 type TempDBAccount struct {
-	// the dbaccount user
-	User string `json:"user"`
-	// the dbaccount password
+	DBAccountUid string         `json:"db_account_uid"`
+	AccountInfo  AccountInfo    `json:"account_info"`
+	Explanation  string         `json:"explanation"`
+	ExpiredTime  string         `json:"expired_time"`
+	DbService    v1.UidWithName `json:"db_service"`
+}
+
+type AccountInfo struct {
+	User     string `json:"user"`
+	Hostname string `json:"hostname"`
 	Password string `json:"password"`
-	// the datasource's uid
-	DbServiceUid string `json:"db_service_uid"`
-	// the dbaccount relation auth purpose
-	AuthPurpose string `json:"auth_purpose"`
-	// the dbaccount relation auth used by sql workbench
-	UsedBySQLWorkbench bool `json:"used_by_workbench"`
 }
 
 type ListDBAccountReply struct {
@@ -57,19 +61,26 @@ func (cu *CloudbeaverUsecase) ResetDbServiceByAuth(ctx context.Context, activeDB
 
 	ret := make([]*DBService, 0)
 	for _, dbaccount := range dbaccounts {
-		if !dbaccount.UsedBySQLWorkbench || dbaccount.AuthPurpose == "" {
-			continue
+		if dbaccount.ExpiredTime != "" {
+			expiredTime, err := time.Parse(strfmt.RFC3339Millis, dbaccount.ExpiredTime)
+			if err != nil {
+				cu.log.Errorf("failed to parse expired time %v: %v", dbaccount.ExpiredTime, err)
+				continue
+			}
+			if expiredTime.Unix() <= time.Now().Unix() {
+				continue
+			}
 		}
 
 		for _, activeDBService := range activeDBServices {
 			if activeDBService.DBType != constant.DBTypeMySQL.String() {
 				ret = append(ret, activeDBService)
 			} else {
-				if dbaccount.DbServiceUid == activeDBService.UID {
+				if dbaccount.DbService.Uid == activeDBService.UID {
 					db := *activeDBService
-					db.User = dbaccount.User
-					db.Password = dbaccount.Password
-					db.AccountPurpose = dbaccount.AuthPurpose
+					db.User = dbaccount.AccountInfo.User
+					db.Password = dbaccount.AccountInfo.Password
+					db.AccountPurpose = dbaccount.AccountInfo.User
 					ret = append(ret, &db)
 					break
 				}
@@ -87,7 +98,7 @@ func (cu *CloudbeaverUsecase) ListAuthDbAccount(ctx context.Context, url, userId
 
 	reply := &ListDBAccountReply{}
 
-	if err := pkgHttp.Get(ctx, fmt.Sprintf("%v/provision/v1/auth/dbaccounts?used_by_sql_workbench=true&page_size=999&page_index=1&owner_user_id=%s", url, userId), header, nil, reply); err != nil {
+	if err := pkgHttp.Get(ctx, fmt.Sprintf("%v/provision/v1/auth/projects//db_accounts?page_size=999&page_index=1&filter_by_used_by_sql_workbench=true&filter_by_password_managed=true&filter_by_status=unlock&filter_by_user=%s", url, userId), header, nil, reply); err != nil {
 		return nil, fmt.Errorf("failed to get db account from %v: %v", url, err)
 	}
 	if reply.Code != 0 {
