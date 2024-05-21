@@ -905,6 +905,21 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetCBOperationLogTipsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/cBOperationLogTips'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetCompanyNoticeReply:
         properties:
             code:
@@ -3839,6 +3854,15 @@ definitions:
                 x-go-name: Type
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    cBOperationLogTips:
+        properties:
+            exec_result:
+                items:
+                    type: string
+                type: array
+                x-go-name: ExecResult
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
 info:
     description: Documentation of our dms API.
     title: dms api.
@@ -4753,6 +4777,28 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: Export cb operation logs.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/cb_operation_logs/tips:
+        get:
+            operationId: GetCBOperationLogTips
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: GetCBOperationLogTipsReply
+                    schema:
+                        $ref: '#/definitions/GetCBOperationLogTipsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get cb operation log tips.
             tags:
                 - dms
     /v1/dms/projects/{project_uid}/data_export_tasks:

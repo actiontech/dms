@@ -85,3 +85,22 @@ type cbOperationLogsReq struct {
 	// in:query
 	FuzzyKeyword string `json:"fuzzy_keyword" query:"fuzzy_keyword"`
 }
+
+// swagger:parameters GetCBOperationLogTips
+type GetCBOperationLogTipsReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+}
+
+// swagger:model GetCBOperationLogTipsReply
+type GetCBOperationLogTipsReply struct {
+	// Generic reply
+	base.GenericResp
+	Data *cBOperationLogTips `json:"data"`
+}
+
+type cBOperationLogTips struct {
+	ExecResult []string `json:"exec_result"`
+}

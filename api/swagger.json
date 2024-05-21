@@ -1542,6 +1542,39 @@
         }
       }
     },
+    "/v1/dms/projects/{project_uid}/cb_operation_logs/tips": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get cb operation log tips.",
+        "operationId": "GetCBOperationLogTips",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GetCBOperationLogTipsReply",
+            "schema": {
+              "$ref": "#/definitions/GetCBOperationLogTipsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/projects/{project_uid}/data_export_tasks": {
       "get": {
         "tags": [
@@ -5296,6 +5329,26 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "GetCBOperationLogTipsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/cBOperationLogTips"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "GetCompanyNoticeReply": {
       "type": "object",
       "properties": {
@@ -8989,6 +9042,19 @@
         "type": {
           "type": "string",
           "x-go-name": "Type"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "cBOperationLogTips": {
+      "type": "object",
+      "properties": {
+        "exec_result": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "ExecResult"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
