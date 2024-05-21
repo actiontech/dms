@@ -172,6 +172,7 @@ func (s *APIServer) initRouter() error {
 		cbOperationLogsV1 := v1.Group("/dms/projects/:project_uid/cb_operation_logs")
 		cbOperationLogsV1.GET("", s.DMSController.ListCBOperationLogs)
 		cbOperationLogsV1.GET("/export", s.DMSController.ExportCBOperationLogs)
+		cbOperationLogsV1.GET("/tips", s.DMSController.GetCBOperationLogTips)
 
 		maskingV1 := v1.Group("/dms/masking")
 		maskingV1.GET("/rules", s.DMSController.ListMaskingRules)
