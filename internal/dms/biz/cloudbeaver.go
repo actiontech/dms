@@ -395,6 +395,11 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				var resWrite *responseProcessWriter
 				if !cloudbeaverHandle.NeedModifyRemoteRes {
 					cloudbeaverNext = func(c echo.Context) ([]byte, error) {
+						resp := c.Get(cloudbeaver.AuditResultKey).(cloudbeaver.AuditResults)
+						if !resp.IsSuccess {
+							return nil, c.JSON(http.StatusOK, convertToResp(resp))
+						}
+
 						cloudbeaverResBuf := new(bytes.Buffer)
 						if params.OperationName == "asyncSqlExecuteQuery" {
 							mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
@@ -416,6 +421,11 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					}
 				} else {
 					cloudbeaverNext = func(c echo.Context) ([]byte, error) {
+						resp := c.Get(cloudbeaver.AuditResultKey).(cloudbeaver.AuditResults)
+						if !resp.IsSuccess {
+							return nil, c.JSON(http.StatusOK, convertToResp(resp))
+						}
+
 						resWrite = &responseProcessWriter{tmp: &bytes.Buffer{}, ResponseWriter: c.Response().Writer}
 						c.Response().Writer = resWrite
 
@@ -458,6 +468,38 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 			}
 			return next(c)
 		}
+	}
+}
+
+func convertToResp(resp cloudbeaver.AuditResults) interface{} {
+	var messages []string
+	for _, sqlResult := range resp.Results {
+		for _, audit := range sqlResult.AuditResult {
+			messages = append(messages, audit.Message)
+		}
+	}
+
+	messageStr := strings.Join(messages, ",")
+	name := "SQL Audit Failed"
+
+	return struct {
+		Data struct {
+			TaskInfo model.AsyncTaskInfo `json:"taskInfo"`
+		} `json:"data"`
+	}{
+		struct {
+			TaskInfo model.AsyncTaskInfo `json:"taskInfo"`
+		}{
+			TaskInfo: model.AsyncTaskInfo{
+				Name:    &name,
+				Running: false,
+				Status:  &resp.SQL,
+				Error: &model.ServerError{
+					Message:    &messageStr,
+					StackTrace: &messageStr,
+				},
+			},
+		},
 	}
 }
 
