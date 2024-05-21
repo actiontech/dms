@@ -2572,3 +2572,14 @@ func (d *DMSController) ListCBOperationLogs(c echo.Context) error {
 func (d *DMSController) ExportCBOperationLogs(c echo.Context) error {
 	return nil
 }
+
+// swagger:route GET /v1/dms/projects/{project_uid}/cb_operation_logs/tips dms GetCBOperationLogTips
+//
+// Get cb operation log tips.
+//
+//	responses:
+//	  200: GetCBOperationLogTipsReply
+//	  default: body:GenericResp
+func (a *DMSController) GetCBOperationLogTips(c echo.Context) error {
+	return nil
+}
