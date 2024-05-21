@@ -1388,6 +1388,160 @@
         }
       }
     },
+    "/v1/dms/projects/{project_uid}/cb_operation_logs": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List cb operation logs.",
+        "operationId": "ListCBOperationLogs",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterOperationPersonUID",
+            "name": "filter_operation_person_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterOperationTimeFrom",
+            "name": "filter_operation_time_from",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterOperationTimeTo",
+            "name": "filter_operation_time_to",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterDBServiceUID",
+            "name": "filter_db_service_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterExecResult",
+            "name": "filter_exec_result",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FuzzyKeyword",
+            "description": "filter fuzzy key word for operation_detail/operation_ip",
+            "name": "fuzzy_keyword",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of member to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of members to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListCBOperationLogsReply",
+            "schema": {
+              "$ref": "#/definitions/ListCBOperationLogsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/cb_operation_logs/export": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Export cb operation logs.",
+        "operationId": "ExportCBOperationLogs",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterOperationPersonUID",
+            "name": "filter_operation_person_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterOperationTimeFrom",
+            "name": "filter_operation_time_from",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterOperationTimeTo",
+            "name": "filter_operation_time_to",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterDBServiceUID",
+            "name": "filter_db_service_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterExecResult",
+            "name": "filter_exec_result",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FuzzyKeyword",
+            "description": "filter fuzzy key word for operation_detail/operation_ip",
+            "name": "fuzzy_keyword",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/ExportCBOperationLogsReply"
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/projects/{project_uid}/data_export_tasks": {
       "get": {
         "tags": [
@@ -4498,6 +4652,60 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "CBOperationLog": {
+      "type": "object",
+      "properties": {
+        "audit_result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AuditSQLResult"
+          },
+          "x-go-name": "AuditResult"
+        },
+        "db_service": {
+          "$ref": "#/definitions/UidWithDBServiceName"
+        },
+        "exec_result": {
+          "type": "string",
+          "x-go-name": "ExecResult"
+        },
+        "exec_time_second": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ExecTimeSecond"
+        },
+        "operation_detail": {
+          "type": "string",
+          "x-go-name": "OperationDetail"
+        },
+        "operation_ip": {
+          "type": "string",
+          "x-go-name": "OperationIp"
+        },
+        "operation_person": {
+          "$ref": "#/definitions/UidWithName"
+        },
+        "operation_time": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "OperationTime"
+        },
+        "result_set_row_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ResultSetRowCount"
+        },
+        "session_id": {
+          "type": "string",
+          "x-go-name": "SessionID"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "UID"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "CancelDataExportWorkflowPayload": {
       "type": "object",
       "required": [
@@ -6082,6 +6290,60 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "ListCBOperationLogsReply": {
+      "type": "object",
+      "properties": {
+        "audit_intercepted_sql_count": {
+          "description": "审核拦截的异常SQL数量",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "AuditInterceptedSQLCount"
+        },
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "list cb operation logs reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CBOperationLog"
+          },
+          "x-go-name": "Data"
+        },
+        "exec_failed_sql_count": {
+          "description": "执行失败的SQL",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ExecFailedSQLCount"
+        },
+        "exec_sql_total": {
+          "description": "执行SQL总量",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ExecSQLTotal"
+        },
+        "exec_success_rate": {
+          "description": "执行成功率",
+          "type": "number",
+          "format": "double",
+          "x-go-name": "ExecSuccessRate"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "ListDBService": {
       "description": "A dms db Service",
       "type": "object",
@@ -7451,7 +7713,7 @@
       "type": "object",
       "properties": {
         "op_permission_type": {
-          "description": "op permission type\nunknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nproject_admin OpPermissionTypeProjectAdmin  项目管理；拥有该权限的用户可以管理项目下的所有资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单",
+          "description": "op permission type\nunknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nproject_admin OpPermissionTypeProjectAdmin  项目管理；拥有该权限的用户可以管理项目下的所有资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单\ncreate_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优\nview_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优",
           "type": "string",
           "enum": [
             "unknown",
@@ -7466,9 +7728,11 @@
             "save_audit_plan",
             "sql_query",
             "create_export_task",
-            "audit_export_workflow"
+            "audit_export_workflow",
+            "create_optimization",
+            "view_others_optimization"
           ],
-          "x-go-enum-desc": "unknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nproject_admin OpPermissionTypeProjectAdmin  项目管理；拥有该权限的用户可以管理项目下的所有资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单",
+          "x-go-enum-desc": "unknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nproject_admin OpPermissionTypeProjectAdmin  项目管理；拥有该权限的用户可以管理项目下的所有资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单\ncreate_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优\nview_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优",
           "x-go-name": "OpPermissionType"
         },
         "range_type": {
@@ -8021,7 +8285,7 @@
       "type": "string",
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
-    "UidWithName": {
+    "UidWithDBServiceName": {
       "type": "object",
       "properties": {
         "name": {
@@ -8034,6 +8298,20 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UidWithName": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "Uid"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
@@ -8724,6 +9002,12 @@
       }
     },
     "DownloadDataExportTaskSQLsReply": {
+      "description": "",
+      "schema": {
+        "type": "file"
+      }
+    },
+    "ExportCBOperationLogsReply": {
       "description": "",
       "schema": {
         "type": "file"
