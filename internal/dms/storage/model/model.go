@@ -46,6 +46,7 @@ var AutoMigrateList = []interface{}{
 	DataExportTask{},
 	DataExportTaskRecord{},
 	UserAccessToken{},
+	CbOperationLog{},
 }
 
 type Model struct {
@@ -510,4 +511,19 @@ func (a *AuditResults) Append(level, ruleName, message string) {
 		}
 	}
 	*a = append(*a, AuditResult{Level: level, RuleName: ruleName, Message: message})
+}
+
+type CbOperationLog struct {
+	Model
+	OpPersonUID       string       `json:"op_person_uid" gorm:"size:32"`
+	OpTime            time.Time    `json:"op_time"`
+	DBServiceUID      string       `json:"db_service_uid" gorm:"size:32"`
+	OpDetail          string       `json:"op_detail" gorm:"type:longtext"`
+	OpSessionID       *string      `json:"op_session_id" gorm:"size:255"`
+	OpHost            string       `json:"op_host" gorm:"size:255"`
+	AuditResult       AuditResults `json:"audit_result" gorm:"type:json"`
+	IsAuditPassed     *bool        `json:"is_audit_passed"`
+	ExecResult        string       `json:"exec_result" gorm:"type:text"`
+	ExecTotalSec      int64        `json:"exec_total_sec"`
+	ResultSetRowCount int64        `json:"result_set_row_count"`
 }
