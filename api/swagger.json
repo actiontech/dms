@@ -4707,9 +4707,8 @@
           "format": "int64",
           "x-go-name": "ExecTimeSecond"
         },
-        "operation_detail": {
-          "type": "string",
-          "x-go-name": "OperationDetail"
+        "operation": {
+          "$ref": "#/definitions/Operation"
         },
         "operation_ip": {
           "type": "string",
@@ -7827,6 +7826,24 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "Operation": {
+      "type": "object",
+      "properties": {
+        "operation_detail": {
+          "type": "string",
+          "x-go-name": "OperationDetail"
+        },
+        "operation_type": {
+          "type": "string",
+          "enum": [
+            "SQL"
+          ],
+          "x-go-enum-desc": "SQL CbOperationTypeSQL",
+          "x-go-name": "OperationType"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "Plugin": {
       "type": "object",
