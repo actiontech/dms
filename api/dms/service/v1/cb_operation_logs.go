@@ -40,13 +40,25 @@ type CBOperationLog struct {
 	OperationPerson   UidWithName          `json:"operation_person"`
 	OperationTime     time.Time            `json:"operation_time"`
 	DBService         UidWithDBServiceName `json:"db_service"`
-	OperationDetail   string               `json:"operation_detail"`
+	Operation         Operation            `json:"operation"`
 	SessionID         string               `json:"session_id"`
 	OperationIp       string               `json:"operation_ip"`
 	AuditResult       []*AuditSQLResult    `json:"audit_result"`
 	ExecResult        string               `json:"exec_result"`
 	ExecTimeSecond    int                  `json:"exec_time_second"`
 	ResultSetRowCount int64                `json:"result_set_row_count"`
+}
+
+// swagger:enum CbOperationType
+type CbOperationType string
+
+const (
+	CbOperationTypeSQL CbOperationType = "SQL"
+)
+
+type Operation struct {
+	OperationType   CbOperationType `json:"operation_type"`
+	OperationDetail string          `json:"operation_detail"`
 }
 
 type UidWithDBServiceName struct {
