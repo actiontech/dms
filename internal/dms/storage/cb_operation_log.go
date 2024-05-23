@@ -68,7 +68,10 @@ func (d *CbOperationLogRepo) ListCbOperationLogs(ctx context.Context, opt *biz.L
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		// find models
 		{
-			db := tx.WithContext(ctx).Preload("User").Preload("DbService").Order(opt.OrderBy)
+			db := tx.WithContext(ctx).Preload("User").Preload("DbService")
+			if opt.OrderBy != "" {
+				db = db.Order(fmt.Sprintf("%s DESC", opt.OrderBy))
+			}
 			db = gormWheres(ctx, db, opt.FilterBy)
 			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber)))))
 			if err := db.Find(&models).Error; err != nil {
