@@ -2559,7 +2559,23 @@ func (d *DMSController) ListMaskingRules(c echo.Context) error {
 //	  200: body:ListCBOperationLogsReply
 //	  default: body:GenericResp
 func (d *DMSController) ListCBOperationLogs(c echo.Context) error {
-	return nil
+	req := &aV1.ListCBOperationLogsReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, err := d.DMS.ListCBOperationLogs(c.Request().Context(), req, currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:route GET /v1/dms/projects/{project_uid}/cb_operation_logs/export dms ExportCBOperationLogs
@@ -2581,5 +2597,21 @@ func (d *DMSController) ExportCBOperationLogs(c echo.Context) error {
 //	  200: GetCBOperationLogTipsReply
 //	  default: body:GenericResp
 func (a *DMSController) GetCBOperationLogTips(c echo.Context) error {
-	return nil
+	req := &aV1.GetCBOperationLogTipsReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, err := a.DMS.GetCBOperationLogTips(c.Request().Context(), req, currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+
+	return NewOkRespWithReply(c, reply)
 }
