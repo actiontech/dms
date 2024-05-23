@@ -341,6 +341,11 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						return err
 					}
 
+					err = cu.SaveCbOpLog(c, dbService, params, next)
+					if err != nil {
+						return err
+					}
+
 					if !cu.isEnableSQLAudit(dbService) {
 						cloudbeaverResBuf := new(bytes.Buffer)
 						mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
@@ -373,6 +378,20 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				}
 
 				if params.OperationName == "getSqlExecuteTaskResults" {
+					cloudbeaverResBuf := new(bytes.Buffer)
+					mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
+					writer := &cloudbeaverResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
+					c.Response().Writer = writer
+
+					if err = next(c); err != nil {
+						return err
+					}
+
+					err = cu.UpdateCbOpResult(c, cloudbeaverResBuf, params, ctx)
+					if err != nil {
+						return err
+					}
+
 					taskIdAssocMaskingVal, exist := taskIdAssocMasking.LoadAndDelete(params.Variables["taskId"])
 					if !exist {
 						return next(c)
