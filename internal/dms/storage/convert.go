@@ -1154,6 +1154,7 @@ func convertBizCbOperationLog(src *biz.CbOperationLog) *model.CbOperationLog {
 		OpPersonUID:       src.OpPersonUID,
 		OpTime:            src.OpTime,
 		DBServiceUID:      src.DBServiceUID,
+		OpType:            string(src.OpType),
 		OpDetail:          src.OpDetail,
 		OpSessionID:       src.OpSessionID,
 		OpHost:            src.OpHost,
@@ -1165,7 +1166,7 @@ func convertBizCbOperationLog(src *biz.CbOperationLog) *model.CbOperationLog {
 	}
 }
 
-func convertModelCbOperationLog(model *model.CbOperationLog) *biz.CbOperationLog {
+func convertModelCbOperationLog(model *model.CbOperationLog) (*biz.CbOperationLog, error) {
 	var AuditResults []*biz.AuditResult
 	if len(model.AuditResult) != 0 {
 		for _, v := range model.AuditResult {
@@ -1177,12 +1178,23 @@ func convertModelCbOperationLog(model *model.CbOperationLog) *biz.CbOperationLog
 		}
 	}
 
+	user, err := convertModelUser(model.User)
+	if err != nil {
+		return nil, err
+	}
+
+	dbService, err := convertModelDBService(model.DbService)
+	if err != nil {
+		return nil, err
+	}
+
 	return &biz.CbOperationLog{
 		UID:               model.UID,
 		ProjectID:         model.ProjectID,
 		OpPersonUID:       model.OpPersonUID,
 		OpTime:            model.OpTime,
 		DBServiceUID:      model.DBServiceUID,
+		OpType:            biz.CbOperationLogType(model.OpType),
 		OpDetail:          model.OpDetail,
 		OpSessionID:       model.OpSessionID,
 		OpHost:            model.OpHost,
@@ -1191,5 +1203,7 @@ func convertModelCbOperationLog(model *model.CbOperationLog) *biz.CbOperationLog
 		ExecResult:        model.ExecResult,
 		ExecTotalSec:      model.ExecTotalSec,
 		ResultSetRowCount: model.ResultSetRowCount,
-	}
+		User:              user,
+		DbService:         dbService,
+	}, nil
 }
