@@ -393,8 +393,17 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 
 				var cloudbeaverNext cloudbeaver.Next
 				var resWrite *responseProcessWriter
+				var resp cloudbeaver.AuditResults
 				if !cloudbeaverHandle.NeedModifyRemoteRes {
 					cloudbeaverNext = func(c echo.Context) ([]byte, error) {
+						resp, ok = c.Get(cloudbeaver.AuditResultKey).(cloudbeaver.AuditResults)
+						if ok {
+							cu.UpdateCbOp(params, ctx, resp)
+							if !resp.IsSuccess {
+								return nil, c.JSON(http.StatusOK, convertToResp(resp))
+							}
+						}
+
 						cloudbeaverResBuf := new(bytes.Buffer)
 						if params.OperationName == "asyncSqlExecuteQuery" {
 							mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
@@ -416,6 +425,12 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					}
 				} else {
 					cloudbeaverNext = func(c echo.Context) ([]byte, error) {
+						resp, ok = c.Get(cloudbeaver.AuditResultKey).(cloudbeaver.AuditResults)
+						cu.UpdateCbOp(params, ctx, resp)
+						if !resp.IsSuccess {
+							return nil, c.JSON(http.StatusOK, convertToResp(resp))
+						}
+
 						resWrite = &responseProcessWriter{tmp: &bytes.Buffer{}, ResponseWriter: c.Response().Writer}
 						c.Response().Writer = resWrite
 
