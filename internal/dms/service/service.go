@@ -36,6 +36,7 @@ type DMSService struct {
 	LicenseUsecase               *biz.LicenseUsecase
 	ClusterUsecase               *biz.ClusterUsecase
 	DataExportWorkflowUsecase    *biz.DataExportWorkflowUsecase
+	CbOperationLogUsecase        *biz.CbOperationLogUsecase
 	DataMaskingUsecase           *biz.DataMaskingUsecase
 	AuthAccessTokenUseCase       *biz.AuthAccessTokenUsecase
 	log                          *utilLog.Helper
@@ -109,6 +110,9 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	licenseRepo := storage.NewLicenseRepo(logger, st)
 	LicenseUsecase := biz.NewLicenseUsecase(logger, tx, licenseRepo, userUsecase, dbServiceUseCase, clusterUsecase)
 	dataExportTaskRepo := storage.NewDataExportTaskRepo(logger, st)
+
+	cbOperationRepo := storage.NewCbOperationLogRepo(logger, st)
+	CbOperationLogUsecase := biz.NewCbOperationLogUsecase(logger, cbOperationRepo)
 	workflowRepo := storage.NewWorkflowRepo(logger, st)
 	DataExportWorkflowUsecase := biz.NewDataExportWorkflowUsecase(logger, tx, workflowRepo, dataExportTaskRepo, dbServiceRepo, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, clusterUsecase, webhookConfigurationUsecase, userUsecase, fmt.Sprintf("%s:%d", opts.ReportHost, opts.APIServiceOpts.Port))
 	dataMasking, err := maskingBiz.NewDataMaskingUseCase(logger)
@@ -148,6 +152,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		LicenseUsecase:               LicenseUsecase,
 		ClusterUsecase:               clusterUsecase,
 		DataExportWorkflowUsecase:    DataExportWorkflowUsecase,
+		CbOperationLogUsecase:        CbOperationLogUsecase,
 		DataMaskingUsecase:           dataMaskingUsecase,
 		AuthAccessTokenUseCase:       authAccessTokenUsecase,
 		log:                          utilLog.NewHelper(logger, utilLog.WithMessageKey("dms.service")),
