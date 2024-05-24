@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"strconv"
 	"strings"
 
@@ -188,42 +187,25 @@ func (r *MutationResolverImpl) AuditSQL(ctx context.Context, sql string, connect
 	return true, nil, nil
 }
 
+type AuditResults struct {
+	SQL       string
+	IsSuccess bool
+	Results   []AuditSQLResV2
+}
+
+const AuditResultKey = "audit_result"
+
 func (r *MutationResolverImpl) AsyncSQLExecuteQuery(ctx context.Context, projectID *string, connectionID string, contextID string, sql string, resultID *string, filter *model.SQLDataFilter, dataFormat *model.ResultDataFormat, readLogs *bool) (*model.AsyncTaskInfo, error) {
 	success, results, err := r.AuditSQL(ctx, sql, connectionID)
 	if err != nil {
 		return nil, err
 	}
 
-	if !success {
-		var messages []string
-		for _, sqlResult := range results {
-			for _, audit := range sqlResult.AuditResult {
-				messages = append(messages, audit.Message)
-			}
-		}
-
-		messageStr := strings.Join(messages, ",")
-		name := "SQL Audit Failed"
-		return nil, r.Ctx.JSON(http.StatusOK, struct {
-			Data struct {
-				TaskInfo model.AsyncTaskInfo `json:"taskInfo"`
-			} `json:"data"`
-		}{
-			struct {
-				TaskInfo model.AsyncTaskInfo `json:"taskInfo"`
-			}{
-				TaskInfo: model.AsyncTaskInfo{
-					Name:    &name,
-					Running: false,
-					Status:  &sql,
-					Error: &model.ServerError{
-						Message:    &messageStr,
-						StackTrace: &messageStr,
-					},
-				},
-			},
-		})
-	}
+	r.Ctx.Set(AuditResultKey, AuditResults{
+		SQL:       sql,
+		IsSuccess: success,
+		Results:   results,
+	})
 
 	_, err = r.Next(r.Ctx)
 	if err != nil {

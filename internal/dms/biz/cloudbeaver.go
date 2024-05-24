@@ -81,18 +81,13 @@ type CloudbeaverUsecase struct {
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	dmsConfigUseCase          *DMSConfigUseCase
 	dataMaskingUseCase        *DataMaskingUsecase
+	cbOperationLogUsecase     *CbOperationLogUsecase
+	projectUsecase            *ProjectUsecase
 	repo                      CloudbeaverRepo
 	proxyTargetRepo           ProxyTargetRepo
 }
 
-func NewCloudbeaverUsecase(log utilLog.Logger, cfg *CloudbeaverCfg,
-	userUsecase *UserUsecase,
-	dbServiceUsecase *DBServiceUsecase,
-	opPermissionVerifyUsecase *OpPermissionVerifyUsecase,
-	dmsConfigUseCase *DMSConfigUseCase,
-	dataMaskingUseCase *DataMaskingUsecase,
-	cloudbeaverRepo CloudbeaverRepo,
-	proxyTargetRepo ProxyTargetRepo) (cu *CloudbeaverUsecase) {
+func NewCloudbeaverUsecase(log utilLog.Logger, cfg *CloudbeaverCfg, userUsecase *UserUsecase, dbServiceUsecase *DBServiceUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, dmsConfigUseCase *DMSConfigUseCase, dataMaskingUseCase *DataMaskingUsecase, cloudbeaverRepo CloudbeaverRepo, proxyTargetRepo ProxyTargetRepo, cbOperationUseDase *CbOperationLogUsecase, projectUsecase *ProjectUsecase) (cu *CloudbeaverUsecase) {
 	cu = &CloudbeaverUsecase{
 		repo:                      cloudbeaverRepo,
 		proxyTargetRepo:           proxyTargetRepo,
@@ -101,6 +96,8 @@ func NewCloudbeaverUsecase(log utilLog.Logger, cfg *CloudbeaverCfg,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 		dmsConfigUseCase:          dmsConfigUseCase,
 		dataMaskingUseCase:        dataMaskingUseCase,
+		cbOperationLogUsecase:     cbOperationUseDase,
+		projectUsecase:            projectUsecase,
 		cloudbeaverCfg:            cfg,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.cloudbeaver")),
 	}
@@ -144,6 +141,8 @@ func (cu *CloudbeaverUsecase) getGraphQLServerURI() string {
 	return fmt.Sprintf("%v://%v:%v%v%v", protocol, cu.cloudbeaverCfg.Host, cu.cloudbeaverCfg.Port, CbRootUri, CbGqlApi)
 }
 
+const dmsUserIdKey = "dmsToken"
+
 func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -164,7 +163,8 @@ func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 				cu.log.Errorf("GetUserUidStrFromContext err: %v", err)
 				return errors.New("get user name from token failed")
 			}
-
+			// set dmsUserId to context for save ob operation log
+			c.Set(dmsUserIdKey, dmsUserId)
 			if err = cu.initialGraphQL(); err != nil {
 				return err
 			}
@@ -268,6 +268,7 @@ type TaskInfo struct {
 	} `json:"data"`
 }
 
+var taskIDAssocUid sync.Map
 var taskIdAssocMasking sync.Map
 
 func (cu *CloudbeaverUsecase) buildTaskIdAssocDataMasking(raw []byte, enableMasking bool) error {
@@ -341,6 +342,11 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						return err
 					}
 
+					err = cu.SaveCbOpLog(c, dbService, params, next)
+					if err != nil {
+						return err
+					}
+
 					if !cu.isEnableSQLAudit(dbService) {
 						cloudbeaverResBuf := new(bytes.Buffer)
 						mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
@@ -373,6 +379,20 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				}
 
 				if params.OperationName == "getSqlExecuteTaskResults" {
+					cloudbeaverResBuf := new(bytes.Buffer)
+					mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
+					writer := &cloudbeaverResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
+					c.Response().Writer = writer
+
+					if err = next(c); err != nil {
+						return err
+					}
+
+					err = cu.UpdateCbOpResult(c, cloudbeaverResBuf, params, ctx)
+					if err != nil {
+						return err
+					}
+
 					taskIdAssocMaskingVal, exist := taskIdAssocMasking.LoadAndDelete(params.Variables["taskId"])
 					if !exist {
 						return next(c)
@@ -393,8 +413,17 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 
 				var cloudbeaverNext cloudbeaver.Next
 				var resWrite *responseProcessWriter
+				var resp cloudbeaver.AuditResults
 				if !cloudbeaverHandle.NeedModifyRemoteRes {
 					cloudbeaverNext = func(c echo.Context) ([]byte, error) {
+						resp, ok = c.Get(cloudbeaver.AuditResultKey).(cloudbeaver.AuditResults)
+						if ok {
+							cu.UpdateCbOp(params, ctx, resp)
+							if !resp.IsSuccess {
+								return nil, c.JSON(http.StatusOK, convertToResp(resp))
+							}
+						}
+
 						cloudbeaverResBuf := new(bytes.Buffer)
 						if params.OperationName == "asyncSqlExecuteQuery" {
 							mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
@@ -416,6 +445,12 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					}
 				} else {
 					cloudbeaverNext = func(c echo.Context) ([]byte, error) {
+						resp, ok = c.Get(cloudbeaver.AuditResultKey).(cloudbeaver.AuditResults)
+						cu.UpdateCbOp(params, ctx, resp)
+						if !resp.IsSuccess {
+							return nil, c.JSON(http.StatusOK, convertToResp(resp))
+						}
+
 						resWrite = &responseProcessWriter{tmp: &bytes.Buffer{}, ResponseWriter: c.Response().Writer}
 						c.Response().Writer = resWrite
 
@@ -458,6 +493,38 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 			}
 			return next(c)
 		}
+	}
+}
+
+func convertToResp(resp cloudbeaver.AuditResults) interface{} {
+	var messages []string
+	for _, sqlResult := range resp.Results {
+		for _, audit := range sqlResult.AuditResult {
+			messages = append(messages, audit.Message)
+		}
+	}
+
+	messageStr := strings.Join(messages, ",")
+	name := "SQL Audit Failed"
+
+	return struct {
+		Data struct {
+			TaskInfo model.AsyncTaskInfo `json:"taskInfo"`
+		} `json:"data"`
+	}{
+		struct {
+			TaskInfo model.AsyncTaskInfo `json:"taskInfo"`
+		}{
+			TaskInfo: model.AsyncTaskInfo{
+				Name:    &name,
+				Running: false,
+				Status:  &resp.SQL,
+				Error: &model.ServerError{
+					Message:    &messageStr,
+					StackTrace: &messageStr,
+				},
+			},
+		},
 	}
 }
 
