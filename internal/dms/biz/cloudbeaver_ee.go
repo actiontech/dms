@@ -3,14 +3,24 @@
 package biz
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"math"
+	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
+	"github.com/actiontech/dms/internal/pkg/cloudbeaver"
+	"github.com/actiontech/dms/internal/pkg/cloudbeaver/model"
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
+	pkgRand "github.com/actiontech/dms/pkg/rand"
+	"github.com/labstack/echo/v4"
 )
 
 // A provision DBAccount
@@ -86,4 +96,135 @@ func (cu *CloudbeaverUsecase) ListAuthDbAccount(ctx context.Context, url, userId
 	}
 
 	return reply.Data, nil
+}
+
+func (cu *CloudbeaverUsecase) UpdateCbOp(params *graphql.RawParams, ctx context.Context, resp cloudbeaver.AuditResults) {
+	value, loaded := taskIDAssocUid.LoadAndDelete(params.Variables["taskId"])
+	if loaded {
+		uid, ok := value.(string)
+		if ok {
+			operationLog, err := cu.cbOperationLogUsecase.GetCbOperationLogByID(ctx, uid)
+			if err == nil {
+				operationLog.AuditResults = convertToAuditResults(resp.Results)
+				operationLog.IsAuditPass = &resp.IsSuccess
+				err = cu.cbOperationLogUsecase.UpdateCbOperationLog(ctx, operationLog)
+				if err != nil {
+					cu.log.Error(err)
+				}
+			}
+		}
+	}
+}
+
+func (cu *CloudbeaverUsecase) UpdateCbOpResult(c echo.Context, cloudbeaverResBuf *bytes.Buffer, params *graphql.RawParams, ctx context.Context) error {
+	resp := &struct {
+		Data struct {
+			Result *model.SQLExecuteInfo `json:"result"`
+		} `json:"data"`
+	}{}
+
+	if err := json.Unmarshal(cloudbeaverResBuf.Bytes(), &resp); err != nil {
+		cu.log.Errorf("extract task id err: %v", err)
+		return fmt.Errorf("extract task id err: %v", err)
+	}
+
+	if resp.Data.Result != nil && resp.Data.Result.Results != nil {
+		value, loaded := taskIDAssocUid.LoadAndDelete(params.Variables["taskId"])
+		if loaded {
+			uid, ok := value.(string)
+			if ok {
+				operationLog, err := cu.cbOperationLogUsecase.GetCbOperationLogByID(ctx, uid)
+				if err == nil {
+					executeInfo := resp.Data.Result
+					operationLog.ExecTotalSec = int64(executeInfo.Duration)
+					operationLog.ExecResult = *executeInfo.StatusMessage
+					if executeInfo.Results != nil && len(executeInfo.Results) > 0 && executeInfo.Results[0].UpdateRowCount != nil {
+						operationLog.ResultSetRowCount = int64(math.Round(*executeInfo.Results[0].UpdateRowCount))
+					} else {
+						operationLog.ResultSetRowCount = 0
+					}
+					err = cu.cbOperationLogUsecase.UpdateCbOperationLog(c.Request().Context(), operationLog)
+					if err != nil {
+						cu.log.Error(err)
+					}
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+func (cu *CloudbeaverUsecase) SaveCbOpLog(c echo.Context, dbService *DBService, params *graphql.RawParams, next echo.HandlerFunc) error {
+	uid, err := pkgRand.GenStrUid()
+	if err != nil {
+		cu.log.Error(err)
+		return err
+	}
+	cbOperationLog := newCbOperationLog(c, uid, dbService, params)
+
+	cloudbeaverResBuf := new(bytes.Buffer)
+	mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
+	writer := &cloudbeaverResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
+	c.Response().Writer = writer
+
+	if err = next(c); err != nil {
+		return err
+	}
+
+	var taskInfo TaskInfo
+	if err := json.Unmarshal(cloudbeaverResBuf.Bytes(), &taskInfo); err != nil {
+		cu.log.Errorf("extract task id err: %v", err)
+		return fmt.Errorf("extract task id err: %v", err)
+	}
+
+	err = cu.cbOperationLogUsecase.SaveCbOperationLog(c.Request().Context(), &cbOperationLog)
+	if err != nil {
+		cu.log.Error(err)
+	} else if taskInfo.Data.TaskInfo != nil {
+		taskID := taskInfo.Data.TaskInfo.ID
+		taskIDAssocUid.Store(taskID, cbOperationLog.UID)
+	}
+
+	return nil
+}
+
+func newCbOperationLog(c echo.Context, uid string, dbService *DBService, params *graphql.RawParams) CbOperationLog {
+	var cbOperationLog CbOperationLog
+	cbOperationLog.UID = uid
+	cbOperationLog.OpPersonUID = c.Get(dmsUserIdKey).(string)
+	now := time.Now()
+	cbOperationLog.OpTime = &now
+	cbOperationLog.DBServiceUID = dbService.UID
+	cbOperationLog.ProjectID = dbService.ProjectUID
+	sessionID, ok := params.Variables["connectionId"]
+	if ok {
+		opSessionID := sessionID.(string)
+		cbOperationLog.OpSessionID = &opSessionID
+	}
+	query, ok := params.Variables["query"]
+	if ok {
+		query := query.(string)
+		cbOperationLog.OpDetail = query
+	}
+	cbOperationLog.OpHost = c.RealIP()
+
+	return cbOperationLog
+}
+
+func convertToAuditResults(results []cloudbeaver.AuditSQLResV2) []*AuditResult {
+	var auditResults []*AuditResult
+	for _, res := range results {
+		for _, result := range res.AuditResult {
+			auditResult := &AuditResult{
+				Level:    result.Level,
+				Message:  result.Message,
+				RuleName: result.RuleName,
+			}
+
+			auditResults = append(auditResults, auditResult)
+		}
+	}
+
+	return auditResults
 }
