@@ -516,14 +516,19 @@ func (a *AuditResults) Append(level, ruleName, message string) {
 type CbOperationLog struct {
 	Model
 	OpPersonUID       string       `json:"op_person_uid" gorm:"size:32"`
-	OpTime            time.Time    `json:"op_time"`
+	OpTime            *time.Time   `json:"op_time"`
 	DBServiceUID      string       `json:"db_service_uid" gorm:"size:32"`
+	OpType            string       `json:"op_type" gorm:"size:255"`
 	OpDetail          string       `json:"op_detail" gorm:"type:longtext"`
 	OpSessionID       *string      `json:"op_session_id" gorm:"size:255"`
+	ProjectID         string       `json:"project_id" gorm:"size:32"`
 	OpHost            string       `json:"op_host" gorm:"size:255"`
 	AuditResult       AuditResults `json:"audit_result" gorm:"type:json"`
 	IsAuditPassed     *bool        `json:"is_audit_passed"`
 	ExecResult        string       `json:"exec_result" gorm:"type:text"`
 	ExecTotalSec      int64        `json:"exec_total_sec"`
 	ResultSetRowCount int64        `json:"result_set_row_count"`
+
+	User      *User      `json:"user" gorm:"foreignKey:OpPersonUID"`
+	DbService *DBService `json:"db_service" gorm:"foreignKey:DBServiceUID"`
 }

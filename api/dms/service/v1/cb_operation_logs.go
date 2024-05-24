@@ -8,7 +8,7 @@ import (
 
 // swagger:parameters ListCBOperationLogs
 type ListCBOperationLogsReq struct {
-	cbOperationLogsReq
+	CbOperationLogsReq
 	// the maximum count of member to be returned
 	// in:query
 	// Required: true
@@ -68,7 +68,7 @@ type UidWithDBServiceName struct {
 
 // swagger:parameters ExportCBOperationLogs
 type ExportCBOperationLogsReq struct {
-	cbOperationLogsReq
+	CbOperationLogsReq
 }
 
 // swagger:response ExportCBOperationLogsReply
@@ -78,7 +78,7 @@ type ExportCBOperationLogsReply struct {
 	File []byte
 }
 
-type cbOperationLogsReq struct {
+type CbOperationLogsReq struct {
 	// project id
 	// Required: true
 	// in:path
@@ -110,9 +110,9 @@ type GetCBOperationLogTipsReq struct {
 type GetCBOperationLogTipsReply struct {
 	// Generic reply
 	base.GenericResp
-	Data *cBOperationLogTips `json:"data"`
+	Data *CBOperationLogTips `json:"data"`
 }
 
-type cBOperationLogTips struct {
+type CBOperationLogTips struct {
 	ExecResult []string `json:"exec_result"`
 }

@@ -65,10 +65,28 @@ type WorkflowRecordField string
 
 type WorkflowStepField string
 
+type CbOperationLogField string
+
 const (
 	BasicConfigFieldUID   BasicConfigField = "uid"
 	BasicConfigFieldLogo  BasicConfigField = "logo"
 	BasicConfigFieldTitle BasicConfigField = "title"
+)
+
+const (
+	CbOperationLogFieldUID               CbOperationLogField = "uid"
+	CbOperationLogFieldOpPersonUID       CbOperationLogField = "op_person_uid"
+	CbOperationLogFieldOpTime            CbOperationLogField = "op_time"
+	CbOperationLogFieldDBServiceUID      CbOperationLogField = "db_service_uid"
+	CbOperationLogFieldOpDetail          CbOperationLogField = "op_detail"
+	CbOperationLogFieldOpSessionID       CbOperationLogField = "op_session_id"
+	CbOperationLogFieldProjectID         CbOperationLogField = "project_id"
+	CbOperationLogFieldOpHost            CbOperationLogField = "op_host"
+	CbOperationLogFieldAuditResult       CbOperationLogField = "audit_result"
+	CbOperationLogFieldIsAuditPassed     CbOperationLogField = "is_audit_passed"
+	CbOperationLogFieldExecResult        CbOperationLogField = "exec_result"
+	CbOperationLogFieldExecTotalSec      CbOperationLogField = "exec_total_sec"
+	CbOperationLogFieldResultSetRowCount CbOperationLogField = "result_set_row_count"
 )
 
 const (

@@ -1133,3 +1133,77 @@ func convertModelDataExportTaskRecords(m *model.DataExportTaskRecord) *biz.DataE
 	}
 	return b
 }
+
+func convertBizCbOperationLog(src *biz.CbOperationLog) *model.CbOperationLog {
+	var AuditSQLResults model.AuditResults
+	if len(src.AuditResults) != 0 {
+		for _, v := range src.AuditResults {
+			AuditSQLResults = append(AuditSQLResults, model.AuditResult{
+				Level:    v.Level,
+				RuleName: v.RuleName,
+				Message:  v.Message,
+			})
+		}
+	}
+
+	return &model.CbOperationLog{
+		Model: model.Model{
+			UID: src.UID,
+		},
+		ProjectID:         src.ProjectID,
+		OpPersonUID:       src.OpPersonUID,
+		OpTime:            src.OpTime,
+		DBServiceUID:      src.DBServiceUID,
+		OpType:            string(src.OpType),
+		OpDetail:          src.OpDetail,
+		OpSessionID:       src.OpSessionID,
+		OpHost:            src.OpHost,
+		AuditResult:       AuditSQLResults,
+		IsAuditPassed:     src.IsAuditPass,
+		ExecResult:        src.ExecResult,
+		ExecTotalSec:      src.ExecTotalSec,
+		ResultSetRowCount: src.ResultSetRowCount,
+	}
+}
+
+func convertModelCbOperationLog(model *model.CbOperationLog) (*biz.CbOperationLog, error) {
+	var AuditResults []*biz.AuditResult
+	if len(model.AuditResult) != 0 {
+		for _, v := range model.AuditResult {
+			AuditResults = append(AuditResults, &biz.AuditResult{
+				Level:    v.Level,
+				RuleName: v.RuleName,
+				Message:  v.Message,
+			})
+		}
+	}
+
+	user, err := convertModelUser(model.User)
+	if err != nil {
+		return nil, err
+	}
+
+	dbService, err := convertModelDBService(model.DbService)
+	if err != nil {
+		return nil, err
+	}
+
+	return &biz.CbOperationLog{
+		UID:               model.UID,
+		ProjectID:         model.ProjectID,
+		OpPersonUID:       model.OpPersonUID,
+		OpTime:            model.OpTime,
+		DBServiceUID:      model.DBServiceUID,
+		OpType:            biz.CbOperationLogType(model.OpType),
+		OpDetail:          model.OpDetail,
+		OpSessionID:       model.OpSessionID,
+		OpHost:            model.OpHost,
+		AuditResults:      AuditResults,
+		IsAuditPass:       model.IsAuditPassed,
+		ExecResult:        model.ExecResult,
+		ExecTotalSec:      model.ExecTotalSec,
+		ResultSetRowCount: model.ResultSetRowCount,
+		User:              user,
+		DbService:         dbService,
+	}, nil
+}
