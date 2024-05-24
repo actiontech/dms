@@ -19,7 +19,7 @@ func (d *DMSService) listCBOperationLogs(ctx context.Context, req *dmsV1.ListCBO
 	filterBy := make([]constant.FilterCondition, 0)
 	if req.FilterOperationPersonUID != "" {
 		filterBy = append(filterBy, constant.FilterCondition{
-			Field:    string(biz.CbOperationLogFieldUID),
+			Field:    string(biz.CbOperationLogFieldOpPersonUID),
 			Operator: constant.FilterOperatorEqual,
 			Value:    req.FilterOperationPersonUID,
 		})
@@ -84,6 +84,7 @@ func (d *DMSService) listCBOperationLogs(ctx context.Context, req *dmsV1.ListCBO
 		PageNumber:   req.PageIndex,
 		LimitPerPage: req.PageSize,
 		FilterBy:     filterBy,
+		OrderBy:      string(biz.CbOperationLogFieldOpTime),
 	}
 
 	logs, total, err := d.CbOperationLogUsecase.ListCbOperationLog(ctx, listOption, uid, req.FilterOperationPersonUID, req.ProjectUid)

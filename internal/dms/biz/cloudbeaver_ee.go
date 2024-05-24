@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"math"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -138,8 +137,8 @@ func (cu *CloudbeaverUsecase) UpdateCbOpResult(c echo.Context, cloudbeaverResBuf
 					executeInfo := resp.Data.Result
 					operationLog.ExecTotalSec = int64(executeInfo.Duration)
 					operationLog.ExecResult = *executeInfo.StatusMessage
-					if executeInfo.Results != nil && len(executeInfo.Results) > 0 && executeInfo.Results[0].UpdateRowCount != nil {
-						operationLog.ResultSetRowCount = int64(math.Round(*executeInfo.Results[0].UpdateRowCount))
+					if executeInfo.Results != nil && len(executeInfo.Results) > 0 && executeInfo.Results[0].ResultSet != nil {
+						operationLog.ResultSetRowCount = int64(len(executeInfo.Results[0].ResultSet.Rows))
 					} else {
 						operationLog.ResultSetRowCount = 0
 					}
@@ -197,6 +196,7 @@ func newCbOperationLog(c echo.Context, uid string, dbService *DBService, params 
 	cbOperationLog.OpTime = &now
 	cbOperationLog.DBServiceUID = dbService.UID
 	cbOperationLog.ProjectID = dbService.ProjectUID
+	cbOperationLog.OpType = CbOperationLogTypeSql
 	sessionID, ok := params.Variables["connectionId"]
 	if ok {
 		opSessionID := sessionID.(string)
