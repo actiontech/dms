@@ -89,6 +89,6 @@ func (u *CbOperationLogUsecase) DoClean() {
 		u.log.Errorf("failed to clean CB operation log: %v", err)
 		return
 	}
-	u.log.Infof("CbOperationLog regular cleaned rows: %d before: %s", rowsAffected, cleanTime.Format("2006-01-02 15:04:05"))
+	u.log.Infof("CbOperationLog regular cleaned rows: %d operation time before: %s", rowsAffected, cleanTime.Format("2006-01-02 15:04:05"))
 	return
 }
