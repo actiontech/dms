@@ -112,7 +112,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	dataExportTaskRepo := storage.NewDataExportTaskRepo(logger, st)
 
 	cbOperationRepo := storage.NewCbOperationLogRepo(logger, st)
-	CbOperationLogUsecase := biz.NewCbOperationLogUsecase(logger, cbOperationRepo, opPermissionVerifyUsecase)
+	CbOperationLogUsecase := biz.NewCbOperationLogUsecase(logger, cbOperationRepo, opPermissionVerifyUsecase, dmsProxyTargetRepo)
 	workflowRepo := storage.NewWorkflowRepo(logger, st)
 	DataExportWorkflowUsecase := biz.NewDataExportWorkflowUsecase(logger, tx, workflowRepo, dataExportTaskRepo, dbServiceRepo, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, clusterUsecase, webhookConfigurationUsecase, userUsecase, fmt.Sprintf("%s:%d", opts.ReportHost, opts.APIServiceOpts.Port))
 	dataMasking, err := maskingBiz.NewDataMaskingUseCase(logger)
@@ -122,7 +122,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	}
 	dataMaskingUsecase := biz.NewMaskingUsecase(logger, dataMasking)
 
-	cronTask := biz.NewCronTaskUsecase(logger, DataExportWorkflowUsecase)
+	cronTask := biz.NewCronTaskUsecase(logger, DataExportWorkflowUsecase, CbOperationLogUsecase)
 	err = cronTask.InitialTask()
 	if err != nil {
 		return nil, fmt.Errorf("failed to new cron task: %v", err)
