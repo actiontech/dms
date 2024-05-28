@@ -107,7 +107,7 @@ func (d *CbOperationLogRepo) ListCbOperationLogs(ctx context.Context, opt *biz.L
 
 func (d *CbOperationLogRepo) CleanCbOperationLogOpTimeBefore(ctx context.Context, t time.Time) (rowsAffected int64, err error) {
 	err = transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
-		result := tx.WithContext(ctx).Delete(&model.CbOperationLog{}, "op_time < ?", t)
+		result := tx.WithContext(ctx).Unscoped().Delete(&model.CbOperationLog{}, "op_time < ?", t)
 		if err := result.Error; err != nil {
 			return err
 		}
