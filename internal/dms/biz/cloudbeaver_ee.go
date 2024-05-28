@@ -98,7 +98,7 @@ func (cu *CloudbeaverUsecase) ListAuthDbAccount(ctx context.Context, url, userId
 
 	reply := &ListDBAccountReply{}
 
-	if err := pkgHttp.Get(ctx, fmt.Sprintf("%v/provision/v1/auth/projects//db_accounts?page_size=999&page_index=1&filter_by_used_by_sql_workbench=true&filter_by_password_managed=true&filter_by_status=unlock&filter_by_user=%s", url, userId), header, nil, reply); err != nil {
+	if err := pkgHttp.Get(ctx, fmt.Sprintf("%v/provision/v1/auth/projects//db_accounts?page_size=999&page_index=1&filter_by_password_managed=true&filter_by_status=unlock&filter_by_user=%s", url, userId), header, nil, reply); err != nil {
 		return nil, fmt.Errorf("failed to get db account from %v: %v", url, err)
 	}
 	if reply.Code != 0 {
