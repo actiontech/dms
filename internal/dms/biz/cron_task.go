@@ -6,22 +6,24 @@ import (
 )
 
 type CronTaskUsecase struct {
-	log             *utilLog.Helper
-	cronTask        *cronTask
-	workflowUsecase *DataExportWorkflowUsecase
-	licenseUsecase  *LicenseUsecase
+	log                   *utilLog.Helper
+	cronTask              *cronTask
+	workflowUsecase       *DataExportWorkflowUsecase
+	cbOperationLogUsecase *CbOperationLogUsecase
+	licenseUsecase        *LicenseUsecase
 }
 type cronTask struct {
 	cron *cron.Cron
 }
 
-func NewCronTaskUsecase(log utilLog.Logger, wu *DataExportWorkflowUsecase) *CronTaskUsecase {
+func NewCronTaskUsecase(log utilLog.Logger, wu *DataExportWorkflowUsecase, cu *CbOperationLogUsecase) *CronTaskUsecase {
 	ctu := &CronTaskUsecase{
 		log: utilLog.NewHelper(log, utilLog.WithMessageKey("biz.cronTask")),
 		cronTask: &cronTask{
 			cron: cron.New(),
 		},
-		workflowUsecase: wu,
+		workflowUsecase:       wu,
+		cbOperationLogUsecase: cu,
 	}
 
 	return ctu
@@ -37,6 +39,10 @@ func (ctu *CronTaskUsecase) InitialTask() error {
 	}
 
 	if _, err := ctu.cronTask.cron.AddFunc("@hourly", ctu.workflowUsecase.RecycleDataExportTaskFiles); err != nil {
+		return err
+	}
+
+	if _, err := ctu.cronTask.cron.AddFunc("@hourly", ctu.cbOperationLogUsecase.DoClean); err != nil {
 		return err
 	}
 

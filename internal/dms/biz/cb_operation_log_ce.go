@@ -24,3 +24,7 @@ func (u *CbOperationLogUsecase) UpdateCbOperationLog(ctx context.Context, log *C
 func (u *CbOperationLogUsecase) ListCbOperationLog(ctx context.Context, option *ListCbOperationLogOption, currentUid string, filterPersonID string, projectUid string) ([]*CbOperationLog, int64, error) {
 	return nil, 0, errNotSupportCbOperationLog
 }
+
+func (u *CbOperationLogUsecase) DoClean() {
+	return
+}

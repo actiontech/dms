@@ -20,6 +20,7 @@ type CbOperationLogRepo interface {
 	SaveCbOperationLog(ctx context.Context, log *CbOperationLog) error
 	UpdateCbOperationLog(ctx context.Context, log *CbOperationLog) error
 	ListCbOperationLogs(ctx context.Context, opt *ListCbOperationLogOption) ([]*CbOperationLog, int64, error)
+	CleanCbOperationLogOpTimeBefore(ctx context.Context, t time.Time) (int64, error)
 }
 
 // CbOperationLog 代表操作日志记录
@@ -69,14 +70,16 @@ type ListCbOperationLogOption struct {
 type CbOperationLogUsecase struct {
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	repo                      CbOperationLogRepo
+	dmsProxyTargetRepo        ProxyTargetRepo
 	log                       *utilLog.Helper
 }
 
 // NewCbOperationLogUsecase 创建一个新的操作日志业务逻辑实例
-func NewCbOperationLogUsecase(logger utilLog.Logger, repo CbOperationLogRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase) *CbOperationLogUsecase {
+func NewCbOperationLogUsecase(logger utilLog.Logger, repo CbOperationLogRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, proxyTargetRepo ProxyTargetRepo) *CbOperationLogUsecase {
 	return &CbOperationLogUsecase{
 		repo:                      repo,
 		log:                       utilLog.NewHelper(logger, utilLog.WithMessageKey("biz.cbOperationLog")),
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
+		dmsProxyTargetRepo:        proxyTargetRepo,
 	}
 }
