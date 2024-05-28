@@ -871,7 +871,7 @@ func (cu *CloudbeaverUsecase) operateConnection(ctx context.Context, cloudbeaver
 	for _, dbService := range dbServiceMap {
 		if cloudbeaverConnection, ok := cloudbeaverConnectionMap[getDBPrimaryKey(dbService.UID, dbService.AccountPurpose, dmsUser.UID)]; ok {
 			if cloudbeaverConnection.DMSDBServiceFingerprint != cu.dbServiceUsecase.GetDBServiceFingerprint(dbService) {
-				updateConnections = append(updateConnections, &CloudbeaverConnection{DMSDBServiceID: dbService.UID, Purpose: dbService.AccountPurpose, DMSUserId: dmsUser.UID})
+				updateConnections = append(updateConnections, &CloudbeaverConnection{DMSDBServiceID: dbService.UID, CloudbeaverConnectionID: cloudbeaverConnection.CloudbeaverConnectionID, Purpose: dbService.AccountPurpose, DMSUserId: dmsUser.UID})
 			}
 		} else {
 			createConnections = append(createConnections, &CloudbeaverConnection{DMSDBServiceID: dbService.UID, Purpose: dbService.AccountPurpose, DMSUserId: dmsUser.UID})
@@ -1174,10 +1174,18 @@ func (cu *CloudbeaverUsecase) fillOracleParams(inst *DBService, config map[strin
 	config["driverId"] = "oracle:oracle_thin"
 	config["authModelId"] = "oracle_native"
 	config["databaseName"] = serviceName.Value
-	config["providerProperties"] = map[string]interface{}{
-		"@dbeaver-sid-service@": "SID",
+
+	providerProperties := map[string]interface{}{
+		"@dbeaver-sid-service@": "SERVICE",
 		"oracle.logon-as":       "Normal",
 	}
+	// sys用户不能用normal角色登陆，根据用户名做特殊处理
+	if inst.User == "sys" {
+		providerProperties["oracle.logon-as"] = "SYSDBA"
+	}
+
+	config["providerProperties"] = providerProperties
+
 	// 默认关闭timezoneAsRegion，防止连接Oracle11g报错
 	config["properties"] = map[string]interface{}{
 		"oracle.jdbc.timezoneAsRegion": false,
