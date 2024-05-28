@@ -15,6 +15,7 @@ import (
 
 	v1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/pkg/constant"
+	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver/model"
@@ -46,6 +47,10 @@ type ListDBAccountReply struct {
 	base.GenericResp
 }
 
+func (cu *CloudbeaverUsecase) SupportDBType(dbType pkgConst.DBType) bool {
+	return dbType == constant.DBTypeMySQL || dbType == constant.DBTypeOracle
+}
+
 func (cu *CloudbeaverUsecase) ResetDbServiceByAuth(ctx context.Context, activeDBServices []*DBService, userId string) ([]*DBService, error) {
 	proxyTarget, err := cu.proxyTargetRepo.GetProxyTargetByName(ctx, "provision")
 	if errors.Is(err, pkgErr.ErrStorageNoData) {
@@ -60,31 +65,35 @@ func (cu *CloudbeaverUsecase) ResetDbServiceByAuth(ctx context.Context, activeDB
 	}
 
 	ret := make([]*DBService, 0)
-	for _, dbaccount := range dbaccounts {
-		if dbaccount.ExpiredTime != "" {
-			expiredTime, err := time.Parse(strfmt.RFC3339Millis, dbaccount.ExpiredTime)
-			if err != nil {
-				cu.log.Errorf("failed to parse expired time %v: %v", dbaccount.ExpiredTime, err)
-				continue
-			}
-			if expiredTime.Unix() <= time.Now().Unix() {
-				continue
-			}
+	for _, activeDBService := range activeDBServices {
+		// prov不支持的数据库类型 使用管理员账号密码连接
+		if !cu.SupportDBType(pkgConst.DBType(activeDBService.DBType)) {
+			ret = append(ret, activeDBService)
+			continue
 		}
 
-		for _, activeDBService := range activeDBServices {
-			if activeDBService.DBType != constant.DBTypeMySQL.String() {
-				ret = append(ret, activeDBService)
-			} else {
-				if dbaccount.DbService.Uid == activeDBService.UID {
-					db := *activeDBService
-					db.User = dbaccount.AccountInfo.User
-					db.Password = dbaccount.AccountInfo.Password
-					db.AccountPurpose = dbaccount.AccountInfo.User
-					ret = append(ret, &db)
-					break
+		for _, dbaccount := range dbaccounts {
+
+			if dbaccount.ExpiredTime != "" {
+				expiredTime, err := time.Parse(strfmt.RFC3339Millis, dbaccount.ExpiredTime)
+				if err != nil {
+					cu.log.Errorf("failed to parse expired time %v: %v", dbaccount.ExpiredTime, err)
+					continue
+				}
+				if expiredTime.Unix() <= time.Now().Unix() {
+					continue
 				}
 			}
+
+			if dbaccount.DbService.Uid == activeDBService.UID {
+				db := *activeDBService
+				db.User = dbaccount.AccountInfo.User
+				db.Password = dbaccount.AccountInfo.Password
+				db.AccountPurpose = dbaccount.AccountInfo.User
+				ret = append(ret, &db)
+				break
+			}
+
 		}
 	}
 
