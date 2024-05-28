@@ -66,7 +66,7 @@ func (cu *CloudbeaverUsecase) ResetDbServiceByAuth(ctx context.Context, activeDB
 
 	ret := make([]*DBService, 0)
 	for _, activeDBService := range activeDBServices {
-		// prov不支持的数据库类型 使用管理员账号密码连接
+		// prov不支持的数据库类型 使用数据源账号密码连接
 		if !cu.SupportDBType(pkgConst.DBType(activeDBService.DBType)) {
 			ret = append(ret, activeDBService)
 			continue
