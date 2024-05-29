@@ -1140,6 +1140,8 @@ func (cu *CloudbeaverUsecase) GenerateCloudbeaverConnectionParams(dbService *DBS
 
 func (cu *CloudbeaverUsecase) fillMySQLParams(config map[string]interface{}) error {
 	config["driverId"] = "mysql:mysql8"
+	// https://github.com/actiontech/dms-ee/issues/276
+	config["properties"] = map[string]interface{}{"allowPublicKeyRetrieval": "TRUE"}
 	return nil
 }
 
