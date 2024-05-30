@@ -13,3 +13,7 @@ func (d *DMSService) ListCBOperationLogs(ctx context.Context, req *dmsV1.ListCBO
 func (d *DMSService) GetCBOperationLogTips(ctx context.Context, req *dmsV1.GetCBOperationLogTipsReq, uid string) (reply *dmsV1.GetCBOperationLogTipsReply, err error) {
 	return d.getCBOperationLogTips(ctx, req, uid)
 }
+
+func (d *DMSService) ExportCBOperationLogs(ctx context.Context, req *dmsV1.ExportCBOperationLogsReq, uid string) ([]byte, error) {
+	return d.exportCbOperationLogs(ctx, req, uid)
+}
