@@ -15,7 +15,7 @@ func (cu *CloudbeaverUsecase) ResetDbServiceByAuth(ctx context.Context, activeDB
 	return activeDBServices, nil
 }
 
-func (cu *CloudbeaverUsecase) UpdateCbOp(params *graphql.RawParams, ctx context.Context, resp cloudbeaver.AuditResults) {
+func (cu *CloudbeaverUsecase) UpdateCbOp(ctx context.Context, resp cloudbeaver.AuditResults, taskID *string) {
 	return
 }
 
@@ -23,6 +23,10 @@ func (cu *CloudbeaverUsecase) UpdateCbOpResult(c echo.Context, cloudbeaverResBuf
 	return nil
 }
 
-func (cu *CloudbeaverUsecase) SaveCbOpLog(c echo.Context, dbService *DBService, params *graphql.RawParams, next echo.HandlerFunc) error {
+func (cu *CloudbeaverUsecase) SaveCbOpLog(c echo.Context, dbService *DBService, params *graphql.RawParams, next echo.HandlerFunc) (*string, error) {
+	return nil, nil
+}
+
+func (cu *CloudbeaverUsecase) SaveUiOp(c echo.Context, buf *bytes.Buffer, params *graphql.RawParams) error {
 	return nil
 }
