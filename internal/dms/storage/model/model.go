@@ -531,4 +531,5 @@ type CbOperationLog struct {
 
 	User      *User      `json:"user" gorm:"foreignKey:OpPersonUID"`
 	DbService *DBService `json:"db_service" gorm:"foreignKey:DBServiceUID"`
+	Project   *Project   `json:"project" gorm:"foreignKey:ProjectID"`
 }

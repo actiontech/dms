@@ -2586,7 +2586,28 @@ func (d *DMSController) ListCBOperationLogs(c echo.Context) error {
 //	  200: ExportCBOperationLogsReply
 //	  default: body:GenericResp
 func (d *DMSController) ExportCBOperationLogs(c echo.Context) error {
-	return nil
+	req := &aV1.ExportCBOperationLogsReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	content, err := d.DMS.ExportCBOperationLogs(c.Request().Context(), req, currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+
+	fileName := fmt.Sprintf("CBoperation_%s.csv", time.Now().Format("20060102150405.000"))
+	c.Response().Header().Set(echo.HeaderContentDisposition,
+		mime.FormatMediaType("attachment", map[string]string{"filename": fileName}))
+
+	return c.Blob(http.StatusOK, "text/csv", content)
+
 }
 
 // swagger:route GET /v1/dms/projects/{project_uid}/cb_operation_logs/tips dms GetCBOperationLogTips
