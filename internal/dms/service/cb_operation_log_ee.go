@@ -97,27 +97,24 @@ func (d *DMSService) listCBOperationLogs(ctx context.Context, req *dmsV1.ListCBO
 		return nil, err
 	}
 
-	listOption.PageNumber = 0
-	listOption.LimitPerPage = 999999999
-
-	execSuccessOption := *listOption
+	execSuccessOption := &biz.ListCbOperationLogOption{FilterBy: filterBy}
 	execSuccessOption.FilterBy = append(execSuccessOption.FilterBy, constant.FilterCondition{
 		Field:    string(biz.CbOperationLogFieldExecResult),
 		Operator: constant.FilterOperatorEqual,
 		Value:    biz.CbExecOpSuccess,
 	})
-	execSuccessCount, err := d.CbOperationLogUsecase.CountOperationLogs(ctx, &execSuccessOption, uid, req.FilterOperationPersonUID, req.ProjectUid)
+	execSuccessCount, err := d.CbOperationLogUsecase.CountOperationLogs(ctx, execSuccessOption, uid, req.FilterOperationPersonUID, req.ProjectUid)
 	if err != nil {
 		return nil, err
 	}
 
-	auditFailedOption := *listOption
+	auditFailedOption := &biz.ListCbOperationLogOption{FilterBy: filterBy}
 	auditFailedOption.FilterBy = append(auditFailedOption.FilterBy, constant.FilterCondition{
 		Field:    string(biz.CbOperationLogFieldIsAuditPassed),
 		Operator: constant.FilterOperatorEqual,
 		Value:    "0",
 	})
-	auditFailedSqlCount, err := d.CbOperationLogUsecase.CountOperationLogs(ctx, &auditFailedOption, uid, req.FilterOperationPersonUID, req.ProjectUid)
+	auditFailedSqlCount, err := d.CbOperationLogUsecase.CountOperationLogs(ctx, auditFailedOption, uid, req.FilterOperationPersonUID, req.ProjectUid)
 	if err != nil {
 		return nil, err
 	}
