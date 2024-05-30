@@ -117,22 +117,86 @@ func (cu *CloudbeaverUsecase) ListAuthDbAccount(ctx context.Context, url, userId
 	return reply.Data, nil
 }
 
-func (cu *CloudbeaverUsecase) UpdateCbOp(params *graphql.RawParams, ctx context.Context, resp cloudbeaver.AuditResults) {
-	value, loaded := taskIDAssocUid.LoadAndDelete(params.Variables["taskId"])
-	if loaded {
-		uid, ok := value.(string)
-		if ok {
-			operationLog, err := cu.cbOperationLogUsecase.GetCbOperationLogByID(ctx, uid)
-			if err == nil {
-				operationLog.AuditResults = convertToAuditResults(resp.Results)
-				operationLog.IsAuditPass = &resp.IsSuccess
-				err = cu.cbOperationLogUsecase.UpdateCbOperationLog(ctx, operationLog)
-				if err != nil {
-					cu.log.Error(err)
-				}
-			}
-		}
+func (cu *CloudbeaverUsecase) UpdateCbOp(ctx context.Context, resp cloudbeaver.AuditResults, taskID *string) {
+	if taskID == nil {
+		return
 	}
+
+	value, loaded := taskIDAssocUid.Load(*taskID)
+	if !loaded {
+		return
+	}
+
+	uid, ok := value.(string)
+	if !ok {
+		return
+	}
+
+	operationLog, err := cu.cbOperationLogUsecase.GetCbOperationLogByID(ctx, uid)
+	if err != nil {
+		cu.log.Error(err)
+		return
+	}
+
+	operationLog.AuditResults = convertToAuditResults(resp.Results)
+	operationLog.IsAuditPass = &resp.IsSuccess
+	err = cu.cbOperationLogUsecase.UpdateCbOperationLog(ctx, operationLog)
+	if err != nil {
+		cu.log.Error(err)
+		return
+	}
+
+	return
+}
+
+func (cu *CloudbeaverUsecase) SaveUiOp(c echo.Context, buf *bytes.Buffer, params *graphql.RawParams) error {
+	resp := &struct {
+		Data struct {
+			Result *model.SQLExecuteInfo `json:"result"`
+		} `json:"data"`
+	}{}
+
+	if err := json.Unmarshal(buf.Bytes(), &resp); err != nil {
+		return err
+	}
+
+	dbService, err := cu.getDbService(c.Request().Context(), params)
+	if err != nil {
+		return err
+	}
+
+	uid, err := pkgRand.GenStrUid()
+	if err != nil {
+		return err
+	}
+
+	operationLog, err := newCbOperationLog(c, uid, dbService, params, "")
+	if err != nil {
+		return err
+	}
+
+	result := resp.Data.Result
+	if result != nil {
+		operationLog.ExecResult = CbExecOpSuccess
+		operationLog.ExecTotalSec = int64(result.Duration)
+		results := result.Results
+		if results != nil && len(results) > 0 {
+			operationLog.ResultSetRowCount = int64(*results[0].UpdateRowCount)
+		}
+	} else {
+		marshal, err := json.Marshal(buf.String())
+		if err != nil {
+			return err
+		}
+		operationLog.ExecResult = fmt.Sprintf("执行失败: %s", string(marshal))
+	}
+
+	err = cu.cbOperationLogUsecase.SaveCbOperationLog(c.Request().Context(), &operationLog)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (cu *CloudbeaverUsecase) UpdateCbOpResult(c echo.Context, cloudbeaverResBuf *bytes.Buffer, params *graphql.RawParams, ctx context.Context) error {
@@ -174,13 +238,17 @@ func (cu *CloudbeaverUsecase) UpdateCbOpResult(c echo.Context, cloudbeaverResBuf
 	return nil
 }
 
-func (cu *CloudbeaverUsecase) SaveCbOpLog(c echo.Context, dbService *DBService, params *graphql.RawParams, next echo.HandlerFunc) error {
+func (cu *CloudbeaverUsecase) SaveCbOpLog(c echo.Context, dbService *DBService, params *graphql.RawParams, next echo.HandlerFunc) (*string, error) {
 	uid, err := pkgRand.GenStrUid()
 	if err != nil {
 		cu.log.Error(err)
-		return err
+		return nil, nil
 	}
-	cbOperationLog := newCbOperationLog(c, uid, dbService, params)
+	cbOperationLog, err := newCbOperationLog(c, uid, dbService, params, CbOperationLogTypeSql)
+	if err != nil {
+		cu.log.Error(err)
+		return nil, nil
+	}
 
 	cloudbeaverResBuf := new(bytes.Buffer)
 	mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
@@ -188,27 +256,29 @@ func (cu *CloudbeaverUsecase) SaveCbOpLog(c echo.Context, dbService *DBService, 
 	c.Response().Writer = writer
 
 	if err = next(c); err != nil {
-		return err
+		return nil, err
 	}
 
 	var taskInfo TaskInfo
 	if err := json.Unmarshal(cloudbeaverResBuf.Bytes(), &taskInfo); err != nil {
 		cu.log.Errorf("extract task id err: %v", err)
-		return fmt.Errorf("extract task id err: %v", err)
+		return nil, nil
 	}
 
 	err = cu.cbOperationLogUsecase.SaveCbOperationLog(c.Request().Context(), &cbOperationLog)
 	if err != nil {
 		cu.log.Error(err)
+		return nil, nil
 	} else if taskInfo.Data.TaskInfo != nil {
-		taskID := taskInfo.Data.TaskInfo.ID
-		taskIDAssocUid.Store(taskID, cbOperationLog.UID)
+		taskID := &taskInfo.Data.TaskInfo.ID
+		taskIDAssocUid.Store(*taskID, cbOperationLog.UID)
+		return taskID, nil
 	}
 
-	return nil
+	return nil, nil
 }
 
-func newCbOperationLog(c echo.Context, uid string, dbService *DBService, params *graphql.RawParams) CbOperationLog {
+func newCbOperationLog(c echo.Context, uid string, dbService *DBService, params *graphql.RawParams, opType CbOperationLogType) (CbOperationLog, error) {
 	var cbOperationLog CbOperationLog
 	cbOperationLog.UID = uid
 	cbOperationLog.OpPersonUID = c.Get(dmsUserIdKey).(string)
@@ -216,20 +286,47 @@ func newCbOperationLog(c echo.Context, uid string, dbService *DBService, params 
 	cbOperationLog.OpTime = &now
 	cbOperationLog.DBServiceUID = dbService.UID
 	cbOperationLog.ProjectID = dbService.ProjectUID
-	cbOperationLog.OpType = CbOperationLogTypeSql
+	cbOperationLog.OpType = opType
 	sessionID, ok := params.Variables["connectionId"]
 	if ok {
 		opSessionID := sessionID.(string)
 		cbOperationLog.OpSessionID = &opSessionID
 	}
+	var opDetailReq string
 	query, ok := params.Variables["query"]
 	if ok {
 		query := query.(string)
-		cbOperationLog.OpDetail = query
+		opDetailReq = query
 	}
 	cbOperationLog.OpHost = c.RealIP()
 
-	return cbOperationLog
+	opDetail, ok := params.Variables["deletedRows"]
+	if ok {
+		marshal, err := json.Marshal(opDetail)
+		if err != nil {
+			return CbOperationLog{}, err
+		}
+		opDetailReq = fmt.Sprintf("在数据源:%s中删除了以下数据:%s", dbService.Name, string(marshal))
+	}
+	opDetail, ok = params.Variables["addedRows"]
+	if ok {
+		marshal, err := json.Marshal(opDetail)
+		if err != nil {
+			return CbOperationLog{}, err
+		}
+		opDetailReq = fmt.Sprintf("在数据源:%s中添加了以下数据:%s", dbService.Name, string(marshal))
+	}
+	opDetail, ok = params.Variables["updatedRows"]
+	if ok {
+		marshal, err := json.Marshal(opDetail)
+		if err != nil {
+			return CbOperationLog{}, err
+		}
+		opDetailReq = fmt.Sprintf("在数据源:%s中更新了以下数据:%s", dbService.Name, string(marshal))
+	}
+	cbOperationLog.OpDetail = opDetailReq
+
+	return cbOperationLog, nil
 }
 
 func convertToAuditResults(results []cloudbeaver.AuditSQLResV2) []*AuditResult {
