@@ -117,38 +117,6 @@ func (cu *CloudbeaverUsecase) ListAuthDbAccount(ctx context.Context, url, userId
 	return reply.Data, nil
 }
 
-func (cu *CloudbeaverUsecase) UpdateCbOp(ctx context.Context, resp cloudbeaver.AuditResults, taskID *string) {
-	if taskID == nil {
-		return
-	}
-
-	value, loaded := taskIDAssocUid.Load(*taskID)
-	if !loaded {
-		return
-	}
-
-	uid, ok := value.(string)
-	if !ok {
-		return
-	}
-
-	operationLog, err := cu.cbOperationLogUsecase.GetCbOperationLogByID(ctx, uid)
-	if err != nil {
-		cu.log.Error(err)
-		return
-	}
-
-	operationLog.AuditResults = convertToAuditResults(resp.Results)
-	operationLog.IsAuditPass = &resp.IsSuccess
-	err = cu.cbOperationLogUsecase.UpdateCbOperationLog(ctx, operationLog)
-	if err != nil {
-		cu.log.Error(err)
-		return
-	}
-
-	return
-}
-
 func (cu *CloudbeaverUsecase) SaveUiOp(c echo.Context, buf *bytes.Buffer, params *graphql.RawParams) error {
 	resp := &struct {
 		Data struct {
@@ -238,17 +206,20 @@ func (cu *CloudbeaverUsecase) UpdateCbOpResult(c echo.Context, cloudbeaverResBuf
 	return nil
 }
 
-func (cu *CloudbeaverUsecase) SaveCbOpLog(c echo.Context, dbService *DBService, params *graphql.RawParams, next echo.HandlerFunc) (*string, error) {
+func (cu *CloudbeaverUsecase) SaveCbOpLog(c echo.Context, dbService *DBService, params *graphql.RawParams, resp cloudbeaver.AuditResults, next echo.HandlerFunc) error {
 	uid, err := pkgRand.GenStrUid()
 	if err != nil {
 		cu.log.Error(err)
-		return nil, nil
+		return nil
 	}
 	cbOperationLog, err := newCbOperationLog(c, uid, dbService, params, CbOperationLogTypeSql)
 	if err != nil {
 		cu.log.Error(err)
-		return nil, nil
+		return nil
 	}
+
+	cbOperationLog.AuditResults = convertToAuditResults(resp.Results)
+	cbOperationLog.IsAuditPass = &resp.IsSuccess
 
 	cloudbeaverResBuf := new(bytes.Buffer)
 	mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
@@ -256,26 +227,26 @@ func (cu *CloudbeaverUsecase) SaveCbOpLog(c echo.Context, dbService *DBService, 
 	c.Response().Writer = writer
 
 	if err = next(c); err != nil {
-		return nil, err
+		return err
 	}
 
 	var taskInfo TaskInfo
 	if err := json.Unmarshal(cloudbeaverResBuf.Bytes(), &taskInfo); err != nil {
 		cu.log.Errorf("extract task id err: %v", err)
-		return nil, nil
+		return nil
 	}
 
 	err = cu.cbOperationLogUsecase.SaveCbOperationLog(c.Request().Context(), &cbOperationLog)
 	if err != nil {
 		cu.log.Error(err)
-		return nil, nil
+		return nil
 	} else if taskInfo.Data.TaskInfo != nil {
 		taskID := &taskInfo.Data.TaskInfo.ID
 		taskIDAssocUid.Store(*taskID, cbOperationLog.UID)
-		return taskID, nil
+		return nil
 	}
 
-	return nil, nil
+	return nil
 }
 
 func newCbOperationLog(c echo.Context, uid string, dbService *DBService, params *graphql.RawParams, opType CbOperationLogType) (CbOperationLog, error) {
