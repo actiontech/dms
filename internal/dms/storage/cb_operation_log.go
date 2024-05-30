@@ -50,7 +50,7 @@ func (d *CbOperationLogRepo) UpdateCbOperationLog(ctx context.Context, operation
 
 func (d *CbOperationLogRepo) GetCbOperationLogByID(ctx context.Context, uid string) (*biz.CbOperationLog, error) {
 	var model model.CbOperationLog
-	if err := d.db.WithContext(ctx).Preload("User").Preload("DbService").Where("uid = ?", uid).First(&model).Error; err != nil {
+	if err := d.db.WithContext(ctx).Preload("Project").Preload("User").Preload("DbService").Where("uid = ?", uid).First(&model).Error; err != nil {
 		return nil, fmt.Errorf("failed to get cb operation log by uid: %v", err)
 	}
 
