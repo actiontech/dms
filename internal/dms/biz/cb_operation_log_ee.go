@@ -92,3 +92,23 @@ func (u *CbOperationLogUsecase) DoClean() {
 	u.log.Infof("CbOperationLog regular cleaned rows: %d operation time before: %s", rowsAffected, cleanTime.Format("2006-01-02 15:04:05"))
 	return
 }
+
+func (u *CbOperationLogUsecase) CountOperationLogs(ctx context.Context, option *ListCbOperationLogOption, currentUid string, filterPersonID string, projectUid string) (int64, error) {
+	// 只有管理员可以查看所有操作日志, 其他用户只能查看自己的操作日志
+	if currentUid != pkgConst.UIDOfUserSys {
+		if isAdmin, err := u.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUid, projectUid); err != nil {
+			return 0, err
+		} else if isAdmin {
+			// do nothing,skip to next,because admin can view all operation logs
+		} else if currentUid != filterPersonID {
+			return 0, nil
+		}
+	}
+
+	count, err := u.repo.CountOperationLogs(ctx, option)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
