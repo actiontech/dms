@@ -14,16 +14,14 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/99designs/gqlgen/graphql/executor"
 	"github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver/model"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver/resolver"
-
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	"github.com/actiontech/dms/pkg/dms-common/pkg/aes"
-
-	"github.com/99designs/gqlgen/graphql"
-	"github.com/99designs/gqlgen/graphql/executor"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	"github.com/labstack/echo/v4"
 )
@@ -334,16 +332,10 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				ctx := graphql.StartOperationTrace(context.Background())
 
 				var dbService *DBService
-
 				if params.OperationName == "asyncSqlExecuteQuery" {
 					dbService, err = cu.getDbService(c.Request().Context(), params)
 					if err != nil {
 						cu.log.Error(err)
-						return err
-					}
-
-					err = cu.SaveCbOpLog(c, dbService, params, next)
-					if err != nil {
 						return err
 					}
 
@@ -376,6 +368,70 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 
 					// pass sqle direct audit params
 					ctx = context.WithValue(ctx, cloudbeaver.SQLEDirectAudit, directAuditReq)
+				}
+
+				if params.OperationName == "updateResultsDataBatch" {
+					cloudbeaverResBuf := new(bytes.Buffer)
+					mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
+					writer := &cloudbeaverResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
+					c.Response().Writer = writer
+
+					if err = next(c); err != nil {
+						return err
+					}
+
+					if err := cu.SaveUiOp(c, cloudbeaverResBuf, params); err != nil {
+						cu.log.Errorf("save ui op err: %v", err)
+						return nil
+					}
+
+					return nil
+				}
+
+				if params.OperationName == "getAsyncTaskInfo" {
+					cloudbeaverResBuf := new(bytes.Buffer)
+					mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
+					writer := &cloudbeaverResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
+					c.Response().Writer = writer
+
+					if err = next(c); err != nil {
+						return err
+					}
+
+					cbUid, exist := taskIDAssocUid.Load(params.Variables["taskId"])
+					if !exist {
+						return nil
+					}
+					cbUidStr, ok := cbUid.(string)
+					if !ok {
+						return nil
+					}
+
+					operationLog, err := cu.cbOperationLogUsecase.GetCbOperationLogByID(ctx, cbUidStr)
+					if err != nil {
+						cu.log.Errorf("get cb operation log by id %s failed: %v", cbUidStr, err)
+						return nil
+					} else {
+						var taskInfo TaskInfo
+						if err := json.Unmarshal(cloudbeaverResBuf.Bytes(), &taskInfo); err != nil {
+							cu.log.Errorf("extract task id err: %v", err)
+							return nil
+						}
+
+						task := taskInfo.Data.TaskInfo
+						if task.Running == true || task.Error == nil {
+							return nil
+						}
+
+						operationLog.ExecResult = *task.Error.Message
+						err := cu.cbOperationLogUsecase.UpdateCbOperationLog(ctx, operationLog)
+						if err != nil {
+							cu.log.Error(err)
+							return nil
+						}
+					}
+
+					return nil
 				}
 
 				if params.OperationName == "getSqlExecuteTaskResults" {
@@ -418,9 +474,14 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					cloudbeaverNext = func(c echo.Context) ([]byte, error) {
 						resp, ok = c.Get(cloudbeaver.AuditResultKey).(cloudbeaver.AuditResults)
 						if ok {
-							cu.UpdateCbOp(params, ctx, resp)
 							if !resp.IsSuccess {
+								cu.SaveCbOperationLogWithoutNext(c, dbService, params, resp)
 								return nil, c.JSON(http.StatusOK, convertToResp(resp))
+							} else {
+								err = cu.SaveCbOpLog(c, dbService, params, resp, next)
+								if err != nil {
+									return nil, nil
+								}
 							}
 						}
 
@@ -446,9 +507,16 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				} else {
 					cloudbeaverNext = func(c echo.Context) ([]byte, error) {
 						resp, ok = c.Get(cloudbeaver.AuditResultKey).(cloudbeaver.AuditResults)
-						cu.UpdateCbOp(params, ctx, resp)
-						if !resp.IsSuccess {
-							return nil, c.JSON(http.StatusOK, convertToResp(resp))
+						if ok {
+							if !resp.IsSuccess {
+								cu.SaveCbOperationLogWithoutNext(c, dbService, params, resp)
+								return nil, c.JSON(http.StatusOK, convertToResp(resp))
+							} else {
+								err = cu.SaveCbOpLog(c, dbService, params, resp, next)
+								if err != nil {
+									return nil, nil
+								}
+							}
 						}
 
 						resWrite = &responseProcessWriter{tmp: &bytes.Buffer{}, ResponseWriter: c.Response().Writer}

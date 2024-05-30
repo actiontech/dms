@@ -12,6 +12,8 @@ type CbOperationLogType string
 
 const (
 	CbOperationLogTypeSql CbOperationLogType = "SQL"
+
+	CbExecOpSuccess = "Success"
 )
 
 // CbOperationLogRepo 定义操作日志的存储接口
@@ -21,6 +23,7 @@ type CbOperationLogRepo interface {
 	UpdateCbOperationLog(ctx context.Context, log *CbOperationLog) error
 	ListCbOperationLogs(ctx context.Context, opt *ListCbOperationLogOption) ([]*CbOperationLog, int64, error)
 	CleanCbOperationLogOpTimeBefore(ctx context.Context, t time.Time) (int64, error)
+	CountOperationLogs(ctx context.Context, opt *ListCbOperationLogOption) (int64, error)
 }
 
 // CbOperationLog 代表操作日志记录
@@ -42,6 +45,7 @@ type CbOperationLog struct {
 
 	User      *User
 	DbService *DBService
+	Project   *Project
 }
 
 func (c CbOperationLog) GetOpTime() time.Time {
@@ -56,6 +60,28 @@ func (c CbOperationLog) GetSessionID() string {
 		return *c.OpSessionID
 	}
 	return ""
+}
+
+func (c CbOperationLog) GetUserName() string {
+	if c.User != nil {
+		return c.User.Name
+	}
+	return ""
+}
+
+func (c CbOperationLog) GetProjectName() string {
+	if c.Project != nil {
+		return c.Project.Name
+	}
+	return ""
+}
+
+func (c CbOperationLog) GetDbServiceName() string {
+	if c.DbService != nil {
+		return c.DbService.Name
+	}
+	return ""
+
 }
 
 // ListCbOperationLogOption 用于查询操作日志的选项

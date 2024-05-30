@@ -1188,6 +1188,11 @@ func convertModelCbOperationLog(model *model.CbOperationLog) (*biz.CbOperationLo
 		return nil, err
 	}
 
+	project, err := convertModelProject(model.Project)
+	if err != nil {
+		return nil, err
+	}
+
 	return &biz.CbOperationLog{
 		UID:               model.UID,
 		ProjectID:         model.ProjectID,
@@ -1205,5 +1210,6 @@ func convertModelCbOperationLog(model *model.CbOperationLog) (*biz.CbOperationLo
 		ResultSetRowCount: model.ResultSetRowCount,
 		User:              user,
 		DbService:         dbService,
+		Project:           project,
 	}, nil
 }

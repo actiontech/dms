@@ -264,9 +264,15 @@ var GraphQLHandlerRouters = map[string] /* gql operation name */ gqlBehavior{
 			return err
 		},
 	},
+	"getAsyncTaskInfo": {
+		UseLocalHandler: true,
+	},
 	"getSqlExecuteTaskResults": {
 		UseLocalHandler:     true,
 		NeedModifyRemoteRes: true,
+	},
+	"updateResultsDataBatch": {
+		UseLocalHandler: true,
 	},
 	"getActiveUser": {
 		UseLocalHandler:     true,

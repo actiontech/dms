@@ -50,7 +50,7 @@ func (d *CbOperationLogRepo) UpdateCbOperationLog(ctx context.Context, operation
 
 func (d *CbOperationLogRepo) GetCbOperationLogByID(ctx context.Context, uid string) (*biz.CbOperationLog, error) {
 	var model model.CbOperationLog
-	if err := d.db.WithContext(ctx).Preload("User").Preload("DbService").Where("uid = ?", uid).First(&model).Error; err != nil {
+	if err := d.db.WithContext(ctx).Preload("Project").Preload("User").Preload("DbService").Where("uid = ?", uid).First(&model).Error; err != nil {
 		return nil, fmt.Errorf("failed to get cb operation log by uid: %v", err)
 	}
 
@@ -69,7 +69,7 @@ func (d *CbOperationLogRepo) ListCbOperationLogs(ctx context.Context, opt *biz.L
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		// find models
 		{
-			db := tx.WithContext(ctx).Preload("User").Preload("DbService")
+			db := tx.WithContext(ctx).Preload("Project").Preload("User").Preload("DbService")
 			if opt.OrderBy != "" {
 				db = db.Order(fmt.Sprintf("%s DESC", opt.OrderBy))
 			}
@@ -115,4 +115,20 @@ func (d *CbOperationLogRepo) CleanCbOperationLogOpTimeBefore(ctx context.Context
 		return nil
 	})
 	return
+}
+
+func (d *CbOperationLogRepo) CountOperationLogs(ctx context.Context, opt *biz.ListCbOperationLogOption) (int64, error) {
+	var total int64
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		db := tx.WithContext(ctx).Model(&model.CbOperationLog{})
+		db = gormWheres(ctx, db, opt.FilterBy)
+		if err := db.Count(&total).Error; err != nil {
+			return fmt.Errorf("failed to count cb operation logs: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return 0, err
+	}
+
+	return total, nil
 }
