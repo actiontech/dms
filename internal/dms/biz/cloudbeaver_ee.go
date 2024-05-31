@@ -340,3 +340,30 @@ func convertToAuditResults(results []cloudbeaver.AuditSQLResV2) []*AuditResult {
 
 	return auditResults
 }
+
+func (cu *CloudbeaverUsecase) SaveCbLogSqlAuditNotEnable(c echo.Context, dbService *DBService, params *graphql.RawParams, cloudbeaverResBuf *bytes.Buffer) error {
+	uid, err := pkgRand.GenStrUid()
+	if err != nil {
+		return err
+	}
+
+	cbOperationLog, err := newCbOperationLog(c, uid, dbService, params, CbOperationLogTypeSql)
+	if err != nil {
+		return err
+	}
+
+	var taskInfo TaskInfo
+	if err := json.Unmarshal(cloudbeaverResBuf.Bytes(), &taskInfo); err != nil {
+		return err
+	}
+
+	err = cu.cbOperationLogUsecase.SaveCbOperationLog(c.Request().Context(), &cbOperationLog)
+	if err != nil {
+		return err
+	} else if taskInfo.Data.TaskInfo != nil {
+		taskID := &taskInfo.Data.TaskInfo.ID
+		taskIDAssocUid.Store(*taskID, cbOperationLog.UID)
+	}
+
+	return nil
+}
