@@ -349,6 +349,11 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 							return err
 						}
 
+						err := cu.SaveCbLogSqlAuditNotEnable(c, dbService, params, cloudbeaverResBuf)
+						if err != nil {
+							cu.log.Error(err)
+						}
+
 						return cu.buildTaskIdAssocDataMasking(cloudbeaverResBuf.Bytes(), dbService.IsMaskingSwitch)
 					}
 
