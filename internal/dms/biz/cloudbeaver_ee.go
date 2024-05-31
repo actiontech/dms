@@ -249,6 +249,30 @@ func (cu *CloudbeaverUsecase) SaveCbOpLog(c echo.Context, dbService *DBService, 
 	return nil
 }
 
+func (cu *CloudbeaverUsecase) SaveCbOperationLogWithoutNext(c echo.Context, dbService *DBService, params *graphql.RawParams, resp cloudbeaver.AuditResults) {
+	uid, err := pkgRand.GenStrUid()
+	if err != nil {
+		cu.log.Error(err)
+		return
+	}
+	cbOperationLog, err := newCbOperationLog(c, uid, dbService, params, CbOperationLogTypeSql)
+	if err != nil {
+		cu.log.Error(err)
+		return
+	}
+
+	cbOperationLog.AuditResults = convertToAuditResults(resp.Results)
+	cbOperationLog.IsAuditPass = &resp.IsSuccess
+
+	err = cu.cbOperationLogUsecase.SaveCbOperationLog(c.Request().Context(), &cbOperationLog)
+	if err != nil {
+		cu.log.Error(err)
+		return
+	}
+
+	return
+}
+
 func newCbOperationLog(c echo.Context, uid string, dbService *DBService, params *graphql.RawParams, opType CbOperationLogType) (CbOperationLog, error) {
 	var cbOperationLog CbOperationLog
 	cbOperationLog.UID = uid
