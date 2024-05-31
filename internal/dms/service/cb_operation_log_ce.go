@@ -18,3 +18,7 @@ func (d *DMSService) listCBOperationLogs(ctx context.Context, req *dmsV1.ListCBO
 func (d *DMSService) getCBOperationLogTips(ctx context.Context, req *dmsV1.GetCBOperationLogTipsReq, currentUid string) (*dmsV1.GetCBOperationLogTipsReply, error) {
 	return nil, errNotSupportCBOperationLog
 }
+
+func (d *DMSService) exportCbOperationLogs(ctx context.Context, req *dmsV1.ExportCBOperationLogsReq, uid string) ([]byte, error) {
+	return nil, errNotSupportCBOperationLog
+}
