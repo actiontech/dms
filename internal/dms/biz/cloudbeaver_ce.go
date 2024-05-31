@@ -30,3 +30,7 @@ func (cu *CloudbeaverUsecase) SaveUiOp(c echo.Context, buf *bytes.Buffer, params
 func (cu *CloudbeaverUsecase) SaveCbOperationLogWithoutNext(c echo.Context, dbService *DBService, params *graphql.RawParams, resp cloudbeaver.AuditResults) {
 	return
 }
+
+func (cu *CloudbeaverUsecase) SaveCbLogSqlAuditNotEnable(c echo.Context, dbService *DBService, params *graphql.RawParams, cloudbeaverResBuf *bytes.Buffer) error {
+	return nil
+}
