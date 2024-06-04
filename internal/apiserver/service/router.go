@@ -177,6 +177,10 @@ func (s *APIServer) initRouter() error {
 		maskingV1 := v1.Group("/dms/masking")
 		maskingV1.GET("/rules", s.DMSController.ListMaskingRules)
 
+		statisticRouter := v1.Group("/dms/projects/:project_uid/statistic")
+		statisticRouter.GET("/cb_instances", s.DMSController.GetCBInstanceStatistic)
+		statisticRouter.GET("/cb_operations", s.DMSController.GetCBOperationStatistic)
+
 		if s.CloudbeaverController.CloudbeaverService.CloudbeaverUsecase.IsCloudbeaverConfigured() {
 			cloudbeaverV1 := s.echo.Group(s.CloudbeaverController.CloudbeaverService.CloudbeaverUsecase.GetRootUri())
 			targets, err := s.CloudbeaverController.CloudbeaverService.ProxyUsecase.GetCloudbeaverProxyTarget()

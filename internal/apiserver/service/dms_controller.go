@@ -2636,3 +2636,25 @@ func (a *DMSController) GetCBOperationLogTips(c echo.Context) error {
 
 	return NewOkRespWithReply(c, reply)
 }
+
+// swagger:route GET /v1/dms/projects/{project_uid}/statistic/cb_instances dms GetCBInstanceStatistic
+//
+// Get cb instance statistic.
+//
+//	responses:
+//	  200: body:GetCBInstanceStatisticReply
+//	  default: body:GenericResp
+func (a *DMSController) GetCBInstanceStatistic(c echo.Context) error {
+	return nil
+}
+
+// swagger:route GET /v1/dms/projects/{project_uid}/statistic/cb_operations dms GetCBOperationStatistic
+//
+// Get cb operation statistic.
+//
+//	responses:
+//	  200: body:GetCBOperationStatisticReply
+//	  default: body:GenericResp
+func (a *DMSController) GetCBOperationStatistic(c echo.Context) error {
+	return nil
+}

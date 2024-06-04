@@ -443,6 +443,15 @@ definitions:
                 x-go-name: UID
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CBOperationLogTips:
+        properties:
+            exec_result:
+                items:
+                    type: string
+                type: array
+                x-go-name: ExecResult
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CancelDataExportWorkflowPayload:
         properties:
             data_export_workflow_uids:
@@ -452,6 +461,43 @@ definitions:
                 x-go-name: DataExportWorkflowUids
         required:
             - data_export_workflow_uids
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CbDbServiceStatistic:
+        properties:
+            content:
+                items:
+                    $ref: '#/definitions/CbDbServiceStatisticContent'
+                type: array
+                x-go-name: Content
+            count:
+                format: int64
+                type: integer
+                x-go-name: Count
+            name:
+                type: string
+                x-go-name: Name
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CbDbServiceStatisticContent:
+        properties:
+            schema:
+                type: string
+                x-go-name: Schema
+            table:
+                type: string
+                x-go-name: Table
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CbOperationStatistic:
+        properties:
+            operation_count:
+                format: int64
+                type: integer
+                x-go-name: OperationCount
+            operation_type:
+                type: string
+                x-go-name: OperationType
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CheckDBServiceIsConnectableReply:
@@ -904,6 +950,24 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetCBInstanceStatisticReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/CbDbServiceStatistic'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetCBOperationLogTipsReply:
         properties:
             code:
@@ -912,7 +976,25 @@ definitions:
                 type: integer
                 x-go-name: Code
             data:
-                $ref: '#/definitions/cBOperationLogTips'
+                $ref: '#/definitions/CBOperationLogTips'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetCBOperationStatisticReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/CbOperationStatistic'
+                type: array
+                x-go-name: Data
             message:
                 description: message
                 type: string
@@ -3866,15 +3948,6 @@ definitions:
                 x-go-name: Type
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    cBOperationLogTips:
-        properties:
-            exec_result:
-                items:
-                    type: string
-                type: array
-                x-go-name: ExecResult
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
 info:
     description: Documentation of our dms API.
     title: dms api.
@@ -6026,6 +6099,50 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: List member tips.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/statistic/cb_instances:
+        get:
+            operationId: GetCBInstanceStatistic
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: GetCBInstanceStatisticReply
+                    schema:
+                        $ref: '#/definitions/GetCBInstanceStatisticReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get cb instance statistic.
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/statistic/cb_operations:
+        get:
+            operationId: GetCBOperationStatistic
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: GetCBOperationStatisticReply
+                    schema:
+                        $ref: '#/definitions/GetCBOperationStatisticReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get cb operation statistic.
             tags:
                 - dms
     /v1/dms/projects/{project_uid}/unarchive:
