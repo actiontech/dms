@@ -178,7 +178,7 @@ func (s *APIServer) initRouter() error {
 		maskingV1.GET("/rules", s.DMSController.ListMaskingRules)
 
 		statisticRouter := v1.Group("/dms/projects/:project_uid/statistic")
-		statisticRouter.GET("/cb_instances", s.DMSController.GetCBInstanceStatistic)
+		statisticRouter.GET("/cb_db_services", s.DMSController.GetCBDbServiceStatistic)
 		statisticRouter.GET("/cb_operations", s.DMSController.GetCBOperationStatistic)
 
 		if s.CloudbeaverController.CloudbeaverService.CloudbeaverUsecase.IsCloudbeaverConfigured() {

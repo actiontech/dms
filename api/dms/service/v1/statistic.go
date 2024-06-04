@@ -2,16 +2,16 @@ package v1
 
 import base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 
-// swagger:parameters GetCBInstanceStatistic
-type GetCBInstanceStatisticReq struct {
+// swagger:parameters GetCBDbServiceStatistic
+type GetCBDbServiceStatisticReq struct {
 	// project id
 	// Required: true
 	// in:path
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 }
 
-// swagger:model GetCBInstanceStatisticReply
-type GetCBInstanceStatisticReply struct {
+// swagger:model GetCBDbServiceStatisticReply
+type GetCBDbServiceStatisticReply struct {
 	// Generic reply
 	base.GenericResp
 	Data []*CbDbServiceStatistic `json:"data"`
@@ -26,6 +26,7 @@ type CbDbServiceStatistic struct {
 type CbDbServiceStatisticContent struct {
 	Schema string `json:"schema"`
 	Table  string `json:"table"`
+	Count  int64  `json:"count"`
 }
 
 // swagger:parameters GetCBOperationStatistic

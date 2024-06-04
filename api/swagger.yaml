@@ -481,6 +481,10 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CbDbServiceStatisticContent:
         properties:
+            count:
+                format: int64
+                type: integer
+                x-go-name: Count
             schema:
                 type: string
                 x-go-name: Schema
@@ -950,7 +954,7 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    GetCBInstanceStatisticReply:
+    GetCBDbServiceStatisticReply:
         properties:
             code:
                 description: code
@@ -3424,7 +3428,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -6101,9 +6105,9 @@ paths:
             summary: List member tips.
             tags:
                 - dms
-    /v1/dms/projects/{project_uid}/statistic/cb_instances:
+    /v1/dms/projects/{project_uid}/statistic/cb_db_services:
         get:
-            operationId: GetCBInstanceStatistic
+            operationId: GetCBDbServiceStatistic
             parameters:
                 - description: project id
                   in: path
@@ -6113,16 +6117,16 @@ paths:
                   x-go-name: ProjectUid
             responses:
                 "200":
-                    description: GetCBInstanceStatisticReply
+                    description: GetCBDbServiceStatisticReply
                     schema:
-                        $ref: '#/definitions/GetCBInstanceStatisticReply'
+                        $ref: '#/definitions/GetCBDbServiceStatisticReply'
                 default:
                     description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: Get cb instance statistic.
+            summary: Get cb db service statistic.
             tags:
-                - dms
+                - statistic
     /v1/dms/projects/{project_uid}/statistic/cb_operations:
         get:
             operationId: GetCBOperationStatistic
@@ -6144,7 +6148,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Get cb operation statistic.
             tags:
-                - dms
+                - statistic
     /v1/dms/projects/{project_uid}/unarchive:
         put:
             operationId: UnarchiveProject
