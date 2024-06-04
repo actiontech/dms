@@ -3315,6 +3315,72 @@
         }
       }
     },
+    "/v1/dms/projects/{project_uid}/statistic/cb_db_services": {
+      "get": {
+        "tags": [
+          "statistic"
+        ],
+        "summary": "Get cb db service statistic.",
+        "operationId": "GetCBDbServiceStatistic",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GetCBDbServiceStatisticReply",
+            "schema": {
+              "$ref": "#/definitions/GetCBDbServiceStatisticReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/statistic/cb_operations": {
+      "get": {
+        "tags": [
+          "statistic"
+        ],
+        "summary": "Get cb operation statistic.",
+        "operationId": "GetCBOperationStatistic",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GetCBOperationStatisticReply",
+            "schema": {
+              "$ref": "#/definitions/GetCBOperationStatisticReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/projects/{project_uid}/unarchive": {
       "put": {
         "tags": [
@@ -4738,6 +4804,19 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "CBOperationLogTips": {
+      "type": "object",
+      "properties": {
+        "exec_result": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "ExecResult"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "CancelDataExportWorkflowPayload": {
       "type": "object",
       "required": [
@@ -4750,6 +4829,62 @@
             "type": "string"
           },
           "x-go-name": "DataExportWorkflowUids"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "CbDbServiceStatistic": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CbDbServiceStatisticContent"
+          },
+          "x-go-name": "Content"
+        },
+        "count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Count"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "CbDbServiceStatisticContent": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Count"
+        },
+        "schema": {
+          "type": "string",
+          "x-go-name": "Schema"
+        },
+        "table": {
+          "type": "string",
+          "x-go-name": "Table"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "CbOperationStatistic": {
+      "type": "object",
+      "properties": {
+        "operation_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "OperationCount"
+        },
+        "operation_type": {
+          "type": "string",
+          "x-go-name": "OperationType"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -5328,6 +5463,30 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "GetCBDbServiceStatisticReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CbDbServiceStatistic"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "GetCBOperationLogTipsReply": {
       "type": "object",
       "properties": {
@@ -5338,7 +5497,31 @@
           "x-go-name": "Code"
         },
         "data": {
-          "$ref": "#/definitions/cBOperationLogTips"
+          "$ref": "#/definitions/CBOperationLogTips"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetCBOperationStatisticReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CbOperationStatistic"
+          },
+          "x-go-name": "Data"
         },
         "message": {
           "description": "message",
@@ -8381,7 +8564,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
@@ -9059,19 +9242,6 @@
         "type": {
           "type": "string",
           "x-go-name": "Type"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "cBOperationLogTips": {
-      "type": "object",
-      "properties": {
-        "exec_result": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "x-go-name": "ExecResult"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
