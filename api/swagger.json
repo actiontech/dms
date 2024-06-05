@@ -2691,6 +2691,14 @@
         "operationId": "ImportDBServicesOfOneProject",
         "parameters": [
           {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
             "type": "file",
             "x-go-name": "DBServicesFile",
             "description": "DBServices file.",
