@@ -211,7 +211,7 @@ type GetImportDBServicesTemplateReply struct {
 	File []byte
 }
 
-// swagger:parameters ImportDBServicesOfOneProject ImportDBServicesOfProjects
+// swagger:parameters ImportDBServicesOfProjects
 type ImportDBServicesReq struct {
 	// DBServices file.
 	//
