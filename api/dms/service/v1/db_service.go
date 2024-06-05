@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"bytes"
 	"fmt"
 
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
@@ -267,4 +268,18 @@ type ListDBServiceTipsReply struct {
 
 	// Generic reply
 	base.GenericResp
+}
+
+// swagger:parameters ImportDBServicesOfOneProject
+type ImportDBServiceReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	// DBServices file.
+	//
+	// in: formData
+	//
+	// swagger:file
+	DBServicesFile *bytes.Buffer `json:"db_services_file"`
 }

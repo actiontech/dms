@@ -5678,6 +5678,12 @@ paths:
             description: Import DBServices
             operationId: ImportDBServicesOfOneProject
             parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
                 - description: DBServices file.
                   in: formData
                   name: db_services_file
