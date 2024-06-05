@@ -110,8 +110,8 @@ func (s *APIServer) initRouter() error {
 		projectV1.POST("/preview_import", s.DMSController.PreviewImportProjects)
 		projectV1.GET("/export", s.DMSController.ExportProjects)
 		projectV1.GET("/tips", s.DMSController.GetProjectTips)
-		dbServiceV1.GET("/import_db_services_template", s.DMSController.GetImportDBServicesTemplate)
-		dbServiceV1.POST("/import_db_services", s.DMSController.ImportDBServicesOfProjects)
+		projectV1.GET("/import_db_services_template", s.DMSController.GetImportDBServicesTemplate)
+		projectV1.POST("/import_db_services", s.DMSController.ImportDBServicesOfProjects)
 
 		// oauth2 interface does not require login authentication
 		oauth2V1 := v1.Group("/dms/oauth2")
