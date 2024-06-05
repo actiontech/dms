@@ -1552,6 +1552,53 @@ func (a *DMSController) GetProjectTips(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
+// swagger:route GET /v1/dms/projects/import_db_services_template dms GetImportDBServicesTemplate
+//
+// Get import DBServices template.
+//
+//	responses:
+//	  200: GetImportDBServicesTemplateReply
+//	  default: body:GenericResp
+func (a *DMSController) GetImportDBServicesTemplate(c echo.Context) error {
+	return nil
+}
+
+// swagger:route POST /v1/dms/projects/import_db_services dms ImportDBServicesOfProjects
+//
+// Import DBServices
+//
+//	Consumes:
+//	- multipart/form-data
+//
+//	Produces:
+//	- application/json
+//	- text/csv
+//
+//	responses:
+//	  default: body:GenericResp
+//	  200: ImportDBServicesReply
+func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
+	return nil
+}
+
+// swagger:route POST /v1/dms/projects/{project_uid}/db_services/import dms ImportDBServicesOfOneProject
+//
+// Import DBServices
+//
+//	Consumes:
+//	- multipart/form-data
+//
+//	Produces:
+//	- application/json
+//	- text/csv
+//
+//	responses:
+//	  default: body:GenericResp
+//	  200: ImportDBServicesReply
+func (a *DMSController) ImportDBServicesOfOneProject(c echo.Context) error {
+	return nil
+}
+
 // swagger:route POST /v1/dms/proxy dms RegisterDMSProxyTarget
 //
 // Register dms proxy target.

@@ -203,3 +203,27 @@ type ProjectTips struct {
 	IsFixedBusiness bool     `json:"is_fixed_business"`
 	Business        []string `json:"business"`
 }
+
+// swagger:response GetImportDBServicesTemplateReply
+type GetImportDBServicesTemplateReply struct {
+	// swagger:file
+	// in: body
+	File []byte
+}
+
+// swagger:parameters ImportDBServicesOfOneProject ImportDBServicesOfProjects
+type ImportDBServicesReq struct {
+	// DBServices file.
+	//
+	// in: formData
+	//
+	// swagger:file
+	DBServicesFile *bytes.Buffer `json:"db_services_file"`
+}
+
+// swagger:response ImportDBServicesReply only when produces text/csv
+type ImportDBServicesReply struct {
+	// swagger:file
+	// in:  body
+	File []byte
+}
