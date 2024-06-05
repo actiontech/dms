@@ -5668,6 +5668,32 @@ paths:
             summary: List db service tip.
             tags:
                 - dms
+    /v1/dms/projects/{project_uid}/db_services/import:
+        post:
+            consumes:
+                - multipart/form-data
+            produces:
+                - application/json
+                - text/csv
+            description: Import DBServices
+            operationId: ImportDBServicesOfOneProject
+            parameters:
+                - description: DBServices file.
+                  in: formData
+                  name: db_services_file
+                  type: file
+                  x-go-name: DBServicesFile
+            responses:
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                "200":
+                    description: ImportDBServicesReply only when produces text/csv
+                    schema:
+                        $ref: '#/responses/ImportDBServicesReply'
+            tags:
+                - dms
     /v1/dms/projects/{project_uid}/member_groups:
         get:
             operationId: ListMemberGroups
@@ -6161,6 +6187,45 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: Get project tips.
+            tags:
+                - dms
+    /v1/dms/projects/import_db_services_template:
+        get:
+            operationId: GetImportDBServicesTemplate
+            responses:
+                "200":
+                    $ref: '#/responses/GetImportDBServicesTemplateReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get import projects template.
+            tags:
+                - dms
+    /v1/dms/projects/import_db_services:
+        post:
+            consumes:
+                - multipart/form-data
+            produces:
+                - application/json
+                - text/csv
+            description: Import DBServices
+            operationId: ImportDBServicesOfProjects
+            parameters:
+                - description: DBServices file.
+                  in: formData
+                  name: db_services_file
+                  type: file
+                  x-go-name: DBServicesFile
+            responses:
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                "200":
+                    description: ImportDBServicesReply only when produces text/csv
+                    schema:
+                        $ref: '#/responses/ImportDBServicesReply'
             tags:
                 - dms
     /v1/dms/proxy:
@@ -6734,6 +6799,14 @@ responses:
             message:
                 description: message
                 type: string
+    GetImportDBServicesTemplateReply:
+        description: ""
+        schema:
+            type: file
+    ImportDBServicesReply:
+        description: ""
+        schema:
+            type: file
     GetImportProjectsTemplateReply:
         description: ""
         schema:
