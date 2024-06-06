@@ -1560,7 +1560,20 @@ func (a *DMSController) GetProjectTips(c echo.Context) error {
 //	  200: GetImportDBServicesTemplateReply
 //	  default: body:GenericResp
 func (a *DMSController) GetImportDBServicesTemplate(c echo.Context) error {
-	return nil
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	content, err := a.DMS.GetImportDBServicesTemplate(c.Request().Context(), currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	c.Response().Header().Set(echo.HeaderContentDisposition,
+		mime.FormatMediaType("attachment", map[string]string{"filename": "导入数据源模版.csv"}))
+
+	return c.Blob(http.StatusOK, "text/csv", content)
 }
 
 // swagger:route POST /v1/dms/projects/import_db_services dms ImportDBServicesOfProjects
@@ -1578,7 +1591,29 @@ func (a *DMSController) GetImportDBServicesTemplate(c echo.Context) error {
 //	  default: body:GenericResp
 //	  200: ImportDBServicesReply
 func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
-	return nil
+	fileContent, exist, err := ReadFileContent(c, DBServicesFileParamKey)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	if !exist {
+		return NewErrResp(c, fmt.Errorf("upload file is not exist"), apiError.APIServerErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	content, err := a.DMS.ImportDBServices(c.Request().Context(), currentUserUid, "", fileContent)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	if content != nil {
+		c.Response().Header().Set(echo.HeaderContentDisposition,
+			mime.FormatMediaType("attachment", map[string]string{"filename": "预检审核结果.csv"}))
+		return c.Blob(http.StatusOK, "text/csv", content)
+	}
+	return NewOkResp(c)
 }
 
 // swagger:route POST /v1/dms/projects/{project_uid}/db_services/import dms ImportDBServicesOfOneProject
@@ -1596,7 +1631,35 @@ func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
 //	  default: body:GenericResp
 //	  200: ImportDBServicesReply
 func (a *DMSController) ImportDBServicesOfOneProject(c echo.Context) error {
-	return nil
+	req := new(aV1.ImportDBServiceReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	fileContent, exist, err := ReadFileContent(c, DBServicesFileParamKey)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	if !exist {
+		return NewErrResp(c, fmt.Errorf("upload file is not exist"), apiError.APIServerErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	content, err := a.DMS.ImportDBServices(c.Request().Context(), currentUserUid, req.ProjectUid, fileContent)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	if content != nil {
+		c.Response().Header().Set(echo.HeaderContentDisposition,
+			mime.FormatMediaType("attachment", map[string]string{"filename": "预检审核结果.csv"}))
+		return c.Blob(http.StatusOK, "text/csv", content)
+	}
+	return NewOkResp(c)
 }
 
 // swagger:route POST /v1/dms/proxy dms RegisterDMSProxyTarget
@@ -2110,9 +2173,10 @@ func (d *DMSController) GetLicense(c echo.Context) error {
 }
 
 const (
-	HardwareInfoFileName = "collected.infos"
-	LicenseFileParamKey  = "license_file"
-	ProjectsFileParamKey = "projects_file"
+	HardwareInfoFileName   = "collected.infos"
+	LicenseFileParamKey    = "license_file"
+	ProjectsFileParamKey   = "projects_file"
+	DBServicesFileParamKey = "db_services_file"
 )
 
 // swagger:route GET /v1/dms/configurations/license/info dms GetLicenseInfo

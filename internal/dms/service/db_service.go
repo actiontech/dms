@@ -443,3 +443,15 @@ func (d *DMSService) ListDBServiceDriverOption(ctx context.Context) (reply *dmsV
 		Data: ret,
 	}, nil
 }
+
+func (d *DMSService) ImportDBServices(ctx context.Context, userUid, projectUid, fileContent string) ([]byte, error) {
+	// todo
+	// 解析文件内容
+	// 预检
+	// 预检失败返回预检文件
+	// 预检成功准备参数调用biz层导入方法
+
+	// other todo
+	// 找地方 封装调用 SQLE 获取某项目的 rule templates方法
+	return nil, nil
+}

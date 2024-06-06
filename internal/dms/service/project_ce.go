@@ -30,3 +30,7 @@ func (d *DMSService) previewImportProjects(ctx context.Context, uid string, file
 func (d *DMSService) exportProjects(ctx context.Context, uid string, req *dmsV1.ExportProjectsReq) ([]byte, error) {
 	return nil, errNotSupportProject
 }
+
+func (d *DMSService) getImportDBServicesTemplate(ctx context.Context, uid string) ([]byte, error) {
+	return nil, errNotSupportProject
+}

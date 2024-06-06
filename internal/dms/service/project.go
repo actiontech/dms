@@ -201,3 +201,7 @@ func (d *DMSService) PreviewImportProjects(ctx context.Context, uid string, file
 func (d *DMSService) ExportProjects(ctx context.Context, uid string, req *dmsV1.ExportProjectsReq) ([]byte, error) {
 	return d.exportProjects(ctx, uid, req)
 }
+
+func (d *DMSService) GetImportDBServicesTemplate(ctx context.Context, uid string) ([]byte, error) {
+	return d.getImportDBServicesTemplate(ctx, uid)
+}
