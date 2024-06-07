@@ -71,7 +71,7 @@ upload_rpm:
 
 ############################### check ##################################
 validation_swag:
-	$(DOCKER) run --rm -e VERBOSE=1 --volume=$(shell pwd):/source $(DOCKER_IMAGE_GO_SWAGGER) validate /source/api/swagger.json
+	$(DOCKER) run --rm -e VERBOSE=1 --volume=$(shell pwd):/source $(DOCKER_IMAGE_GO_SWAGGER) validate /source/api/dms/swagger.json
 
 golangci_lint:
 	golangci-lint run -c ./build/golangci-lint/.golangci.yml --timeout=10m
@@ -94,8 +94,8 @@ gen_repo_fields:
 	go run ./internal/dms/cmd/gencli/gencli.go -d generate-node-repo-fields ./internal/dms/storage/model/ ./internal/dms/biz/
 
 gen_swag:
-	./internal/apiserver/cmd/swag/swagger_${ARCH}_amd64 generate spec -m -w ./internal/apiserver/cmd/server/ -o ./api/swagger.yaml
-	./internal/apiserver/cmd/swag/swagger_${ARCH}_amd64 generate spec -i ./api/swagger.yaml -o ./api/swagger.json
+	./internal/apiserver/cmd/swag/swagger_${ARCH}_amd64 generate spec -m -w ./internal/apiserver/cmd/server/ -o ./api/dms/swagger.yaml
+	./internal/apiserver/cmd/swag/swagger_${ARCH}_amd64 generate spec -i ./api/swagger.yaml -o ./api/dms/swagger.json
 
 open_swag_server:
-	./internal/apiserver/cmd/swag/swagger_${ARCH}_amd64 serve --no-open -F=swagger --port 36666 ./api/swagger.yaml
+	./internal/apiserver/cmd/swag/swagger_${ARCH}_amd64 serve --no-open -F=swagger --port 36666 ./api/dms/swagger.yaml

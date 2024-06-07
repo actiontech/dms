@@ -78,6 +78,10 @@ type RegisterDMSProxyTargetArgs struct {
 	ProxyUrlPrefixs []string
 }
 
+func (d *DmsProxyUsecase) GetTargetByName(ctx context.Context, name string) (*ProxyTarget, error) {
+	return d.repo.GetProxyTargetByName(ctx, name)
+}
+
 func (d *DmsProxyUsecase) RegisterDMSProxyTarget(ctx context.Context, currentUserUid string, args RegisterDMSProxyTargetArgs) error {
 	log := utilLog.NewHelper(d.logger, utilLog.WithMessageKey("biz.dmsproxy"))
 
@@ -163,7 +167,7 @@ func (d *DmsProxyUsecase) Next(c echo.Context) *middleware.ProxyTarget {
 
 	for _, t := range d.targets {
 		for _, prefix := range t.GetProxyUrlPrefixs() {
-			if prefix != "" && strings.HasPrefix(c.Request().URL.Path, prefix) {
+			if prefix != "" && strings.HasPrefix(c.Request().RequestURI, prefix) {
 				log.Debugf("url: %s; proxy to target: %s; proxy prefix: %v", c.Request().URL.Path, t.Name, t.Meta[ProxyTargetMetaKey])
 				return &middleware.ProxyTarget{
 					Name: t.Name,

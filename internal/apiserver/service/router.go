@@ -4,21 +4,24 @@ import (
 	"fmt"
 	"strings"
 
+	_ "github.com/actiontech/dms/api"
 	"github.com/actiontech/dms/internal/dms/biz"
-	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
-	pkgLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
-
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	commonLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
-
-	echojwt "github.com/labstack/echo-jwt/v4"
-
+	pkgLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	"github.com/go-kratos/kratos/v2/log"
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 func (s *APIServer) initRouter() error {
+	s.echo.GET("/swagger/*", s.DMSController.SwaggerHandler)
+
+	//s.echo.GET("/swagger/*", s.DMSController.SwaggerHandler, Test)
+	//s.echo.GET("/swagger/*", echoSwagger.WrapHandler)
+
 	v1 := s.echo.Group(dmsV1.CurrentGroupVersion)
 
 	// DMS RESTful resource

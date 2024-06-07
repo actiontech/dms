@@ -6,14 +6,15 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/actiontech/dms/api"
 	aV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/apiserver/conf"
 	apiError "github.com/actiontech/dms/internal/apiserver/pkg/error"
 	"github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/dms/service"
-
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
+	echoSwagger "github.com/swaggo/echo-swagger"
 
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 
@@ -1810,4 +1811,14 @@ func (d *DMSController) UpdateCompanyNotice(c echo.Context) error {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
 	return NewOkResp(c)
+}
+
+func (d *DMSController) SwaggerHandler(c echo.Context) error {
+	err := d.DMS.RegisterSwagger(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+
+	handler := echoSwagger.EchoWrapHandler(api.ConfigList...)
+	return handler(c)
 }

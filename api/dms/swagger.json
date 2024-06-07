@@ -1,0 +1,4159 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "Documentation of our dms API.",
+    "title": "dms api.",
+    "version": "0.1.0"
+  },
+  "basePath": "/",
+  "paths": {
+    "/v1/dms/basic_info": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "get basic info.",
+        "operationId": "GetBasicInfo",
+        "responses": {
+          "200": {
+            "description": "GetBasicInfoReply",
+            "schema": {
+              "$ref": "#/definitions/GetBasicInfoReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/company_notice": {
+      "get": {
+        "description": "get company notice info",
+        "tags": [
+          "dms"
+        ],
+        "operationId": "GetCompanyNotice",
+        "responses": {
+          "200": {
+            "description": "GetCompanyNoticeReply",
+            "schema": {
+              "$ref": "#/definitions/GetCompanyNoticeReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "patch": {
+        "description": "update company notice info",
+        "tags": [
+          "dms"
+        ],
+        "operationId": "UpdateCompanyNotice",
+        "parameters": [
+          {
+            "x-go-name": "UpdateCompanyNotice",
+            "description": "Update a companynotice",
+            "name": "company_notice",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateCompanyNotice"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/feishu": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "get feishu configuration.",
+        "operationId": "GetFeishuConfiguration",
+        "responses": {
+          "200": {
+            "description": "GetFeishuConfigurationReply",
+            "schema": {
+              "$ref": "#/definitions/GetFeishuConfigurationReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "update feishu configuration.",
+        "operationId": "UpdateFeishuConfiguration",
+        "parameters": [
+          {
+            "x-go-name": "UpdateFeishuConfiguration",
+            "description": "update feishu configuration",
+            "name": "update_feishu_configuration",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateFeishuConfiguration"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/feishu/test": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "test feishu configuration.",
+        "operationId": "TestFeishuConfiguration",
+        "parameters": [
+          {
+            "x-go-name": "TestFeishuConfiguration",
+            "description": "test feishu configuration",
+            "name": "test_feishu_configuration",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/TestFeishuConfiguration"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "TestFeishuConfigurationReply",
+            "schema": {
+              "$ref": "#/definitions/TestFeishuConfigurationReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/ldap": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get ldap configuration.",
+        "operationId": "GetLDAPConfiguration",
+        "responses": {
+          "200": {
+            "description": "GetLDAPConfigurationResDataReply",
+            "schema": {
+              "$ref": "#/definitions/GetLDAPConfigurationResDataReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Update ldap configuration.",
+        "operationId": "UpdateLDAPConfiguration",
+        "parameters": [
+          {
+            "x-go-name": "LDAPConfiguration",
+            "description": "update ldap configuration",
+            "name": "ldap",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/LDAPConfiguration"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/oauth2": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get Oauth2 configuration.",
+        "operationId": "GetOauth2Configuration",
+        "responses": {
+          "200": {
+            "description": "GetOauth2ConfigurationResDataReply",
+            "schema": {
+              "$ref": "#/definitions/GetOauth2ConfigurationResDataReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Update Oauth2 configuration..",
+        "operationId": "UpdateOauth2Configuration",
+        "parameters": [
+          {
+            "x-go-name": "Oauth2Configuration",
+            "description": "update oauth2 configuration",
+            "name": "oauth2",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Oauth2Configuration"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/smtp": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "get smtp configuration.",
+        "operationId": "GetSMTPConfiguration",
+        "responses": {
+          "200": {
+            "description": "GetSMTPConfigurationReply",
+            "schema": {
+              "$ref": "#/definitions/GetSMTPConfigurationReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get smtp configuration.",
+        "operationId": "UpdateSMTPConfiguration",
+        "parameters": [
+          {
+            "x-go-name": "UpdateSMTPConfiguration",
+            "description": "update smtp configuration",
+            "name": "smtp_configuration",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateSMTPConfiguration"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/smtp/test": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "test smtp configuration.",
+        "operationId": "TestSMTPConfiguration",
+        "parameters": [
+          {
+            "x-go-name": "TestSMTPConfiguration",
+            "description": "test smtp configuration",
+            "name": "test_smtp_configuration",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/TestSMTPConfiguration"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "TestSMTPConfigurationReply",
+            "schema": {
+              "$ref": "#/definitions/TestSMTPConfigurationReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/sql_query": {
+      "get": {
+        "tags": [
+          "cloudbeaver"
+        ],
+        "summary": "get sql_query configuration.",
+        "operationId": "GetSQLQueryConfiguration",
+        "responses": {
+          "200": {
+            "description": "GetSQLQueryConfigurationReply",
+            "schema": {
+              "$ref": "#/definitions/GetSQLQueryConfigurationReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/webhook": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "get webhook configuration.",
+        "operationId": "GetWebHookConfiguration",
+        "responses": {
+          "200": {
+            "description": "GetWebHookConfigurationReply",
+            "schema": {
+              "$ref": "#/definitions/GetWebHookConfigurationReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "update webhook configuration.",
+        "operationId": "UpdateWebHookConfiguration",
+        "parameters": [
+          {
+            "x-go-name": "UpdateWebHookConfiguration",
+            "description": "test webhook configuration",
+            "name": "webhook_config",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/WebHookConfigurationData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/webhook/test": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "test webhook configuration.",
+        "operationId": "TestWebHookConfiguration",
+        "responses": {
+          "200": {
+            "description": "TestWebHookConfigurationReply",
+            "schema": {
+              "$ref": "#/definitions/TestWebHookConfigurationReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/wechat": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "get wechat configuration.",
+        "operationId": "GetWeChatConfiguration",
+        "responses": {
+          "200": {
+            "description": "GetWeChatConfigurationReply",
+            "schema": {
+              "$ref": "#/definitions/GetWeChatConfigurationReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "update wechat configuration.",
+        "operationId": "UpdateWeChatConfiguration",
+        "parameters": [
+          {
+            "x-go-name": "UpdateWeChatConfiguration",
+            "description": "update wechat configuration",
+            "name": "update_wechat_configuration",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateWeChatConfiguration"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/wechat/test": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "test wechat configuration.",
+        "operationId": "TestWeChatConfiguration",
+        "parameters": [
+          {
+            "x-go-name": "TestWeChatConfiguration",
+            "description": "test wechat configuration",
+            "name": "test_wechat_configuration",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/TestWeChatConfiguration"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "TestWeChatConfigurationReply",
+            "schema": {
+              "$ref": "#/definitions/TestWeChatConfigurationReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/db_services/driver_options": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List db service driver option.",
+        "operationId": "ListDBServiceDriverOption",
+        "responses": {
+          "200": {
+            "description": "ListDBServiceDriverOptionReply",
+            "schema": {
+              "$ref": "#/definitions/ListDBServiceDriverOptionReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/notifications": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "notify message.",
+        "operationId": "Notification",
+        "parameters": [
+          {
+            "x-go-name": "Notification",
+            "description": "notification",
+            "name": "notification",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Notification"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "NotificationReply",
+            "schema": {
+              "$ref": "#/definitions/NotificationReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/oauth2/tips": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get Oauth2 Tips.",
+        "operationId": "GetOauth2Tips",
+        "responses": {
+          "200": {
+            "description": "GetOauth2TipsReply",
+            "schema": {
+              "$ref": "#/definitions/GetOauth2TipsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/oauth2/user/bind": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Bind Oauth2 User.",
+        "operationId": "BindOauth2User",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "UserName",
+            "name": "user_name",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "Pwd",
+            "name": "pwd",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "Oauth2Token",
+            "name": "oauth2_token",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "BindOauth2UserReply",
+            "schema": {
+              "$ref": "#/definitions/BindOauth2UserReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/op_permissions": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List op permission.",
+        "operationId": "ListOpPermissions",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of op permission to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of op permissions to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "name"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "name OpPermissionOrderByName",
+            "x-go-name": "OrderBy",
+            "description": "Order by the specified field\nname OpPermissionOrderByName",
+            "name": "order_by",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "all",
+              "user",
+              "member"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "all OpPermissionTargetAll\nuser OpPermissionTargetUser\nmember OpPermissionTargetMember",
+            "x-go-name": "FilterByTarget",
+            "description": "filter by op permission target\nall OpPermissionTargetAll\nuser OpPermissionTargetUser\nmember OpPermissionTargetMember",
+            "name": "filter_by_target",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListOpPermissionReply",
+            "schema": {
+              "$ref": "#/definitions/ListOpPermissionReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/personalization": {
+      "post": {
+        "description": "personalize [title, logo]",
+        "tags": [
+          "dms"
+        ],
+        "operationId": "Personalization",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Title",
+            "description": "title",
+            "name": "title",
+            "in": "formData"
+          },
+          {
+            "type": "file",
+            "x-go-name": "File",
+            "description": "file upload",
+            "name": "file",
+            "in": "formData"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/personalization/logo": {
+      "get": {
+        "description": "get logo",
+        "produces": [
+          "application/octet-stream"
+        ],
+        "tags": [
+          "dms"
+        ],
+        "operationId": "GetStaticLogo",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetStaticLogoReply"
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/plugin": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Register dms plugin.",
+        "operationId": "RegisterDMSPlugin",
+        "parameters": [
+          {
+            "x-go-name": "Plugin",
+            "description": "Register dms plugin",
+            "name": "plugin",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Plugin"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List projects.",
+        "operationId": "ListProjects",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of Project to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of Projects to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "name"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "name ProjectOrderByName",
+            "x-go-name": "OrderBy",
+            "description": "Multiple of [\"name\"], default is [\"name\"]\nname ProjectOrderByName",
+            "name": "order_by",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByName",
+            "description": "filter the Project name",
+            "name": "filter_by_name",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByUID",
+            "description": "filter the Project UID",
+            "name": "filter_by_uid",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListProjectReply",
+            "schema": {
+              "$ref": "#/definitions/ListProjectReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Add project.",
+        "operationId": "AddProject",
+        "parameters": [
+          {
+            "x-go-name": "Project",
+            "description": "Add new Project",
+            "name": "project",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Project"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddProjectReply",
+            "schema": {
+              "$ref": "#/definitions/AddProjectReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}": {
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "update a project.",
+        "operationId": "UpdateProject",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "Project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "Project",
+            "description": "Update a project",
+            "name": "project",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateProject"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete a project",
+        "tags": [
+          "dms"
+        ],
+        "operationId": "DelProject",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/archive": {
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Archive a project.",
+        "operationId": "ArchiveProject",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "Project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/database_source_services": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List database source service.",
+        "operationId": "ListDatabaseSourceServices",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListDatabaseSourceServicesReply",
+            "schema": {
+              "$ref": "#/definitions/ListDatabaseSourceServicesReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Add database source service.",
+        "operationId": "AddDatabaseSourceService",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "DatabaseSourceService",
+            "description": "add database source service",
+            "name": "database_source_service",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/DatabaseSourceService"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddDatabaseSourceServiceReply",
+            "schema": {
+              "$ref": "#/definitions/AddDatabaseSourceServiceReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/database_source_services/tips": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List database source service tips.",
+        "operationId": "ListDatabaseSourceServiceTips",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListDatabaseSourceServiceTipsReply",
+            "schema": {
+              "$ref": "#/definitions/ListDatabaseSourceServiceTipsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid}": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get database source service.",
+        "operationId": "GetDatabaseSourceService",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "DatabaseSourceServiceUid",
+            "name": "database_source_service_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GetDatabaseSourceServiceReply",
+            "schema": {
+              "$ref": "#/definitions/GetDatabaseSourceServiceReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "update database source service.",
+        "operationId": "UpdateDatabaseSourceService",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "DatabaseSourceServiceUid",
+            "name": "database_source_service_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "DatabaseSourceService",
+            "description": "update database source service",
+            "name": "database_source_service",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/DatabaseSourceService"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Delete database source service.",
+        "operationId": "DeleteDatabaseSourceService",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "DatabaseSourceServiceUid",
+            "name": "database_source_service_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid}/sync": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Sync database source service.",
+        "operationId": "SyncDatabaseSourceService",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "DatabaseSourceServiceUid",
+            "name": "database_source_service_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/db_services": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List db service.",
+        "operationId": "ListDBServices",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of db service to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of users to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "name"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "name DBServiceOrderByName",
+            "x-go-name": "OrderBy",
+            "description": "Multiple of [\"name\"], default is [\"name\"]\nname DBServiceOrderByName",
+            "name": "order_by",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByBusiness",
+            "description": "the db service business name",
+            "name": "filter_by_business",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByHost",
+            "description": "the db service host",
+            "name": "filter_by_host",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByUID",
+            "description": "the db service uid",
+            "name": "filter_by_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByName",
+            "description": "the db service name",
+            "name": "filter_by_name",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByPort",
+            "description": "the db service port",
+            "name": "filter_by_port",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByDBType",
+            "description": "the db service db type",
+            "name": "filter_by_db_type",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "FuzzyKeyword",
+            "description": "the db service fuzzy keyword,include host/port",
+            "name": "fuzzy_keyword",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListDBServiceReply",
+            "schema": {
+              "$ref": "#/definitions/ListDBServiceReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Add DB Service.",
+        "operationId": "AddDBService",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "DBService",
+            "description": "Add new db service",
+            "name": "db_service",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/DBService"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddDBServiceReply",
+            "schema": {
+              "$ref": "#/definitions/AddDBServiceReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/db_services/connection": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "check if the db_service is connectable.",
+        "operationId": "CheckDBServiceIsConnectable",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "DBService",
+            "description": "check db_service is connectable",
+            "name": "db_service",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CheckDbConnectable"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CheckDBServiceIsConnectableReply",
+            "schema": {
+              "$ref": "#/definitions/CheckDBServiceIsConnectableReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/db_services/{db_service_uid}": {
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "update a DB Service.",
+        "operationId": "UpdateDBService",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "DBServiceUid",
+            "description": "db_service_uid",
+            "name": "db_service_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "DBService",
+            "description": "Update a DB service",
+            "name": "db_service",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateDBService"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Delete a DB Service.",
+        "operationId": "DelDBService",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "DBServiceUid",
+            "description": "db service uid",
+            "name": "db_service_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/db_services/{db_service_uid}/connection": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "check if the db_service is connectable.",
+        "operationId": "CheckDBServiceIsConnectableById",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "DBServiceUid",
+            "description": "db service uid",
+            "name": "db_service_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CheckDBServiceIsConnectableReply",
+            "schema": {
+              "$ref": "#/definitions/CheckDBServiceIsConnectableReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/member_groups": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List member group, for front page.",
+        "operationId": "ListMemberGroups",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of member to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of members to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "name"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "name MemberGroupOrderByName",
+            "x-go-name": "OrderBy",
+            "description": "Multiple of [\"name\"], default is [\"name\"]\nname MemberGroupOrderByName",
+            "name": "order_by",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByName",
+            "description": "filter the user group name",
+            "name": "filter_by_name",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListMemberGroupsReply",
+            "schema": {
+              "$ref": "#/definitions/ListMemberGroupsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Add member group.",
+        "operationId": "AddMemberGroup",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "MemberGroup",
+            "description": "Add new member group",
+            "name": "member_group",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/MemberGroup"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddMemberGroupReply",
+            "schema": {
+              "$ref": "#/definitions/AddMemberGroupReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/member_groups/{member_group_uid}": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get member group, for front page.",
+        "operationId": "GetMemberGroup",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "MemberGroupUid",
+            "description": "Member group id",
+            "name": "member_group_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GetMemberGroupReply",
+            "schema": {
+              "$ref": "#/definitions/GetMemberGroupReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "update member group, for front page.",
+        "operationId": "UpdateMemberGroup",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "MemberGroupUid",
+            "description": "Member group id",
+            "name": "member_group_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "MemberGroup",
+            "description": "Update a member group",
+            "name": "member_group",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateMemberGroup"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "delete member group, for front page.",
+        "operationId": "DeleteMemberGroup",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "MemberGroupUid",
+            "description": "member group id",
+            "name": "member_group_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/members": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List member, for front page.",
+        "operationId": "ListMembers",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of member to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of members to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "user_uid"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "user_uid MemberOrderByUserUid",
+            "x-go-name": "OrderBy",
+            "description": "Multiple of [\"name\"], default is [\"name\"]\nuser_uid MemberOrderByUserUid",
+            "name": "order_by",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByUserUid",
+            "description": "filter the member user uid",
+            "name": "filter_by_user_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListMemberReply",
+            "schema": {
+              "$ref": "#/definitions/ListMemberReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Add member.",
+        "operationId": "AddMember",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "Member",
+            "description": "Add new member",
+            "name": "member",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Member"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddMemberReply",
+            "schema": {
+              "$ref": "#/definitions/AddMemberReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/members/internal": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List members, for internal backend service.",
+        "operationId": "ListMembersForInternal",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of member to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of members to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListMembersForInternalReply",
+            "schema": {
+              "$ref": "#/definitions/ListMembersForInternalReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/members/{member_uid}": {
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Update a member.",
+        "operationId": "UpdateMember",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "MemberUid",
+            "description": "Member uid",
+            "name": "member_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "Member",
+            "description": "Update a member",
+            "name": "member",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateMember"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Delete a member.",
+        "operationId": "DelMember",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "MemberUid",
+            "description": "member uid",
+            "name": "member_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/unarchive": {
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Unarchive a project.",
+        "operationId": "UnarchiveProject",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "Project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/proxy": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Register dms proxy target.",
+        "operationId": "RegisterDMSProxyTarget",
+        "parameters": [
+          {
+            "x-go-name": "DMSProxyTarget",
+            "description": "register dms proxy",
+            "name": "dms_proxy_target",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/DMSProxyTarget"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/roles": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List roles.",
+        "operationId": "ListRoles",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of role to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of roles to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "name"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "name RoleOrderByName",
+            "x-go-name": "OrderBy",
+            "description": "Multiple of [\"name\"], default is [\"name\"]\nname RoleOrderByName",
+            "name": "order_by",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByName",
+            "description": "filter the role name",
+            "name": "filter_by_name",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListRoleReply",
+            "schema": {
+              "$ref": "#/definitions/ListRoleReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Add role.",
+        "operationId": "AddRole",
+        "parameters": [
+          {
+            "x-go-name": "Role",
+            "description": "Add new role",
+            "name": "role",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Role"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddRoleReply",
+            "schema": {
+              "$ref": "#/definitions/AddRoleReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/roles/{role_uid}": {
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Update a role.",
+        "operationId": "UpdateRole",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "RoleUid",
+            "description": "Role uid",
+            "name": "role_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "Role",
+            "description": "Update a role",
+            "name": "role",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateRole"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Delete a role.",
+        "operationId": "DelRole",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "RoleUid",
+            "description": "role uid",
+            "name": "role_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/sessions": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Add a session.",
+        "operationId": "AddSession",
+        "parameters": [
+          {
+            "x-go-name": "Session",
+            "description": "Add a new session",
+            "name": "session",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/AddSession"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddSessionReply",
+            "schema": {
+              "$ref": "#/definitions/AddSessionReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "del a session.",
+        "operationId": "DelSession",
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/sessions/user": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get current user.",
+        "operationId": "GetUserBySession",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "UserUid",
+            "name": "user_uid",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GetUserBySessionReply",
+            "schema": {
+              "$ref": "#/definitions/GetUserBySessionReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/user_groups": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List user groups.",
+        "operationId": "ListUserGroups",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of user to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of user groups to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "name"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "name UserGroupOrderByName",
+            "x-go-name": "OrderBy",
+            "description": "Multiple of [\"name\"], default is [\"name\"]\nname UserGroupOrderByName",
+            "name": "order_by",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByName",
+            "description": "filter the user group name",
+            "name": "filter_by_name",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListUserGroupReply",
+            "schema": {
+              "$ref": "#/definitions/ListUserGroupReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Add user group.",
+        "operationId": "AddUserGroup",
+        "parameters": [
+          {
+            "x-go-name": "UserGroup",
+            "description": "Add new user group",
+            "name": "user_group",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UserGroup"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddUserGroupReply",
+            "schema": {
+              "$ref": "#/definitions/AddUserGroupReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/user_groups/{user_group_uid}": {
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Update a user group.",
+        "operationId": "UpdateUserGroup",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "UserGroupUid",
+            "description": "UserGroup uid",
+            "name": "user_group_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "UserGroup",
+            "description": "Update a user group",
+            "name": "user_group",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateUserGroup"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Delete a user group.",
+        "operationId": "DelUserGroup",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "UserGroupUid",
+            "description": "user group uid",
+            "name": "user_group_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/users": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "List users.",
+        "operationId": "ListUsers",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of user to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of users to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "name"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "name UserOrderByName",
+            "x-go-name": "OrderBy",
+            "description": "Multiple of [\"name\"], default is [\"name\"]\nname UserOrderByName",
+            "name": "order_by",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByName",
+            "description": "filter the user name",
+            "name": "filter_by_name",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByUids",
+            "description": "filter the user uids",
+            "name": "filter_by_uids",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "x-go-name": "FilterDeletedUser",
+            "description": "filter deleted user to be return ,default is false",
+            "name": "filter_del_user",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListUserReply",
+            "schema": {
+              "$ref": "#/definitions/ListUserReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Update current user.",
+        "operationId": "UpdateCurrentUser",
+        "parameters": [
+          {
+            "x-go-name": "User",
+            "description": "Update current user",
+            "name": "current_user",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateCurrentUser"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Add user.",
+        "operationId": "AddUser",
+        "parameters": [
+          {
+            "x-go-name": "User",
+            "description": "Add new user",
+            "name": "user",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddUserReply",
+            "schema": {
+              "$ref": "#/definitions/AddUserReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/users/{user_uid}": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get user info, This API is used by other component such as sqle\u0026auth to get user info.",
+        "operationId": "GetUser",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "UserUid",
+            "description": "user uid",
+            "name": "user_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GetUserReply",
+            "schema": {
+              "$ref": "#/definitions/GetUserReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Update a user.",
+        "operationId": "UpdateUser",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "UserUid",
+            "description": "User uid",
+            "name": "user_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "User",
+            "description": "Update a user",
+            "name": "user",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateUser"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Delete a user.",
+        "operationId": "DelUser",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "UserUid",
+            "description": "user uid",
+            "name": "user_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/users/{user_uid}/op_permission": {
+      "get": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "Get user op permission info, This API is used by other component such as sqle\u0026auth to check user permissions.",
+        "operationId": "GetUserOpPermission",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "UserUid",
+            "description": "user uid",
+            "name": "user_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "UserOpPermission",
+            "description": "user op permission info",
+            "name": "user_op_permission",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UserOpPermission"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GetUserOpPermissionReply",
+            "schema": {
+              "$ref": "#/definitions/GetUserOpPermissionReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/webhooks": {
+      "post": {
+        "tags": [
+          "dms"
+        ],
+        "summary": "webhook send message.",
+        "operationId": "WebHookSendMessage",
+        "parameters": [
+          {
+            "x-go-name": "WebHookMessage",
+            "description": "webhooks",
+            "name": "webhook_message",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/WebHooksMessage"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "WebHookSendMessageReply",
+            "schema": {
+              "$ref": "#/definitions/WebHookSendMessageReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AddSession": {
+      "description": "Use this struct to add a new session",
+      "type": "object",
+      "required": [
+        "username",
+        "password"
+      ],
+      "properties": {
+        "password": {
+          "description": "User password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "username": {
+          "description": "User name",
+          "type": "string",
+          "x-go-name": "UserName"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AdditionalParam": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "value": {
+          "type": "string",
+          "x-go-name": "Value"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "CheckDbConnectable": {
+      "type": "object",
+      "required": [
+        "db_type",
+        "user",
+        "host",
+        "port",
+        "password"
+      ],
+      "properties": {
+        "additional_params": {
+          "description": "DB Service Custom connection parameters",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdditionalParam"
+          },
+          "x-go-name": "AdditionalParams"
+        },
+        "db_type": {
+          "description": "DB Service type",
+          "type": "string",
+          "x-go-name": "DBType",
+          "example": "MySQL"
+        },
+        "host": {
+          "description": "DB Service host",
+          "type": "string",
+          "x-go-name": "Host",
+          "example": "127.0.0.1"
+        },
+        "password": {
+          "description": "DB Service admin password",
+          "type": "string",
+          "x-go-name": "Password",
+          "example": "123456"
+        },
+        "port": {
+          "description": "DB Service port",
+          "type": "string",
+          "x-go-name": "Port",
+          "example": "3306"
+        },
+        "user": {
+          "description": "DB Service admin user",
+          "type": "string",
+          "x-go-name": "User",
+          "example": "root"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "DBService": {
+      "description": "A db service",
+      "type": "object",
+      "required": [
+        "name",
+        "db_type",
+        "host",
+        "port",
+        "user",
+        "password",
+        "business",
+        "maintenance_times"
+      ],
+      "properties": {
+        "additional_params": {
+          "description": "DB Service Custom connection parameters",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdditionalParam"
+          },
+          "x-go-name": "AdditionalParams"
+        },
+        "business": {
+          "description": "DB Service business name",
+          "type": "string",
+          "x-go-name": "Business"
+        },
+        "db_type": {
+          "description": "Service DB type",
+          "type": "string",
+          "x-go-name": "DBType"
+        },
+        "desc": {
+          "description": "Service description",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "host": {
+          "description": "DB Service Host",
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "maintenance_times": {
+          "description": "DB Service maintenance time\nempty value means that maintenance time is unlimited",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MaintenanceTime"
+          },
+          "x-go-name": "MaintenanceTimes"
+        },
+        "name": {
+          "description": "Service name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "password": {
+          "description": "DB Service admin password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "port": {
+          "description": "DB Service port",
+          "type": "string",
+          "x-go-name": "Port"
+        },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
+        },
+        "user": {
+          "description": "DB Service admin user",
+          "type": "string",
+          "x-go-name": "User"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DMSProxyTarget": {
+      "description": "A dms proxy target",
+      "type": "object",
+      "required": [
+        "name",
+        "addr",
+        "version",
+        "proxy_url_prefixs"
+      ],
+      "properties": {
+        "addr": {
+          "description": "target addr, eg: http://10.1.2.1:5432",
+          "type": "string",
+          "x-go-name": "Addr"
+        },
+        "name": {
+          "description": "target name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "proxy_url_prefixs": {
+          "description": "url prefix that need to be proxy, eg: /v1/user",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "ProxyUrlPrefixs"
+        },
+        "version": {
+          "description": "version number",
+          "type": "string",
+          "x-go-name": "Version"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "DatabaseSourceService": {
+      "type": "object",
+      "required": [
+        "name",
+        "source",
+        "version",
+        "url",
+        "db_type",
+        "cron_express"
+      ],
+      "properties": {
+        "cron_express": {
+          "description": "cron expression",
+          "type": "string",
+          "x-go-name": "CronExpress",
+          "example": "0 0 * * *"
+        },
+        "db_type": {
+          "description": "database type",
+          "type": "string",
+          "x-go-name": "DbType",
+          "example": "MySQL"
+        },
+        "name": {
+          "description": "name",
+          "type": "string",
+          "x-go-name": "Name",
+          "example": "dmp"
+        },
+        "source": {
+          "description": "source",
+          "type": "string",
+          "x-go-name": "Source",
+          "example": "actiontech-dmp"
+        },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
+        },
+        "url": {
+          "description": "addr",
+          "type": "string",
+          "x-go-name": "URL",
+          "example": "http://10.186.62.56:10000"
+        },
+        "version": {
+          "description": "version",
+          "type": "string",
+          "x-go-name": "Version",
+          "example": "5.23.01.0"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "IPluginDBService": {
+      "type": "object",
+      "properties": {
+        "Business": {
+          "type": "string"
+        },
+        "DBType": {
+          "type": "string"
+        },
+        "Host": {
+          "type": "string"
+        },
+        "Name": {
+          "type": "string"
+        },
+        "Port": {
+          "type": "string"
+        },
+        "SQLERuleTemplateId": {
+          "type": "string"
+        },
+        "SQLERuleTemplateName": {
+          "type": "string"
+        },
+        "User": {
+          "type": "string"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "LDAPConfiguration": {
+      "type": "object",
+      "properties": {
+        "enable_ldap": {
+          "type": "boolean",
+          "x-go-name": "EnableLdap"
+        },
+        "enable_ssl": {
+          "type": "boolean",
+          "x-go-name": "EnableSSL"
+        },
+        "ldap_connect_dn": {
+          "type": "string",
+          "x-go-name": "LdapConnectDn"
+        },
+        "ldap_connect_pwd": {
+          "type": "string",
+          "x-go-name": "LdapConnectPwd"
+        },
+        "ldap_search_base_dn": {
+          "type": "string",
+          "x-go-name": "LdapSearchBaseDn"
+        },
+        "ldap_server_host": {
+          "type": "string",
+          "x-go-name": "LdapServerHost"
+        },
+        "ldap_server_port": {
+          "type": "string",
+          "x-go-name": "LdapServerPort"
+        },
+        "ldap_user_email_rdn_key": {
+          "type": "string",
+          "x-go-name": "LdapUserEmailRdnKey"
+        },
+        "ldap_user_name_rdn_key": {
+          "type": "string",
+          "x-go-name": "LdapUserNameRdnKey"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "MaintenanceTime": {
+      "type": "object",
+      "properties": {
+        "maintenance_start_time": {
+          "$ref": "#/definitions/Time"
+        },
+        "maintenance_stop_time": {
+          "$ref": "#/definitions/Time"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "Member": {
+      "description": "A member",
+      "type": "object",
+      "required": [
+        "user_uid"
+      ],
+      "properties": {
+        "is_project_admin": {
+          "description": "Whether the member has project admin permission",
+          "type": "boolean",
+          "x-go-name": "IsProjectAdmin"
+        },
+        "role_with_op_ranges": {
+          "description": "member role with op ranges",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MemberRoleWithOpRange"
+          },
+          "x-go-name": "RoleWithOpRanges"
+        },
+        "user_uid": {
+          "description": "member user uid",
+          "type": "string",
+          "x-go-name": "UserUid"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "MemberGroup": {
+      "type": "object",
+      "required": [
+        "name",
+        "user_uids"
+      ],
+      "properties": {
+        "is_project_admin": {
+          "description": "Whether the member has project admin permission",
+          "type": "boolean",
+          "x-go-name": "IsProjectAdmin"
+        },
+        "name": {
+          "description": "member group name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "role_with_op_ranges": {
+          "description": "member role with op ranges",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MemberRoleWithOpRange"
+          },
+          "x-go-name": "RoleWithOpRanges"
+        },
+        "user_uids": {
+          "description": "member user uid",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "UserUids"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "MemberRoleWithOpRange": {
+      "type": "object",
+      "properties": {
+        "op_range_type": {
+          "description": "op permission range type, only support db service now\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
+          "type": "string",
+          "enum": [
+            "unknown",
+            "global",
+            "project",
+            "db_service"
+          ],
+          "x-go-enum-desc": "unknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
+          "x-go-name": "OpRangeType"
+        },
+        "range_uids": {
+          "description": "op range uids",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "RangeUIDs"
+        },
+        "role_uid": {
+          "description": "role uid",
+          "type": "string",
+          "x-go-name": "RoleUID"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "Notification": {
+      "type": "object",
+      "properties": {
+        "notification_body": {
+          "type": "string",
+          "x-go-name": "NotificationBody"
+        },
+        "notification_subject": {
+          "type": "string",
+          "x-go-name": "NotificationSubject"
+        },
+        "user_uids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "UserUids"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "Oauth2Configuration": {
+      "type": "object",
+      "properties": {
+        "access_token_tag": {
+          "type": "string",
+          "x-go-name": "AccessTokenTag"
+        },
+        "client_host": {
+          "type": "string",
+          "x-go-name": "ClientHost"
+        },
+        "client_id": {
+          "type": "string",
+          "x-go-name": "ClientID"
+        },
+        "client_key": {
+          "type": "string",
+          "x-go-name": "ClientKey"
+        },
+        "enable_oauth2": {
+          "type": "boolean",
+          "x-go-name": "EnableOauth2"
+        },
+        "login_tip": {
+          "type": "string",
+          "maximum": 28,
+          "x-go-name": "LoginTip"
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Scopes"
+        },
+        "server_auth_url": {
+          "type": "string",
+          "x-go-name": "ServerAuthUrl"
+        },
+        "server_token_url": {
+          "type": "string",
+          "x-go-name": "ServerTokenUrl"
+        },
+        "server_user_id_url": {
+          "type": "string",
+          "x-go-name": "ServerUserIdUrl"
+        },
+        "user_id_tag": {
+          "type": "string",
+          "x-go-name": "UserIdTag"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "Plugin": {
+      "type": "object",
+      "properties": {
+        "add_db_service_pre_check_url": {
+          "description": "添加数据源预检查接口地址, 如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/services/precheck/add",
+          "type": "string",
+          "x-go-name": "AddDBServicePreCheckUrl"
+        },
+        "del_db_service_pre_check_url": {
+          "description": "删除数据源预检查接口地址, 如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/services/precheck/del",
+          "type": "string",
+          "x-go-name": "DelDBServicePreCheckUrl"
+        },
+        "del_user_group_pre_check_url": {
+          "description": "删除用户组预检查接口地址,如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/usergroups/precheck/del",
+          "type": "string",
+          "x-go-name": "DelUserGroupPreCheckUrl"
+        },
+        "del_user_pre_check_url": {
+          "description": "删除用户预检查接口地址,如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/users/precheck/del",
+          "type": "string",
+          "x-go-name": "DelUserPreCheckUrl"
+        },
+        "name": {
+          "description": "插件名称",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "operate_data_resource_handle_url": {
+          "description": "操作资源处理接口地址,如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/data_resource_operate/handle",
+          "type": "string",
+          "x-go-name": "OperateDataResourceHandleUrl"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "Project": {
+      "description": "A Project",
+      "type": "object",
+      "properties": {
+        "desc": {
+          "description": "project desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "name": {
+          "description": "project name",
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "Role": {
+      "description": "A role",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "desc": {
+          "description": "role description",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "name": {
+          "description": "role name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "op_permission_uids": {
+          "description": "op permission uid",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "OpPermissionUids"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "SQLEConfig": {
+      "type": "object",
+      "properties": {
+        "rule_template_id": {
+          "description": "DB Service rule template id",
+          "type": "string",
+          "x-go-name": "RuleTemplateID"
+        },
+        "rule_template_name": {
+          "description": "DB Service rule template name",
+          "type": "string",
+          "x-go-name": "RuleTemplateName"
+        },
+        "sql_query_config": {
+          "$ref": "#/definitions/SQLQueryConfig"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "SQLQueryConfig": {
+      "type": "object",
+      "properties": {
+        "allow_query_when_less_than_audit_level": {
+          "type": "string",
+          "enum": [
+            "normal",
+            "notice",
+            "warn",
+            "error"
+          ],
+          "x-go-enum-desc": "normal AuditLevelNormal\nnotice AuditLevelNotice\nwarn AuditLevelWarn\nerror AuditLevelError",
+          "x-go-name": "AllowQueryWhenLessThanAuditLevel"
+        },
+        "audit_enabled": {
+          "type": "boolean",
+          "x-go-name": "AuditEnabled"
+        },
+        "max_pre_query_rows": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "MaxPreQueryRows"
+        },
+        "query_timeout_second": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "QueryTimeoutSecond"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "TestFeishuConfiguration": {
+      "type": "object",
+      "properties": {
+        "account": {
+          "type": "string",
+          "x-go-name": "Account"
+        },
+        "account_type": {
+          "type": "string",
+          "enum": [
+            "email",
+            "phone"
+          ],
+          "x-go-enum-desc": "email FeishuAccountTypeEmail\nphone FeishuAccountTypePhone",
+          "x-go-name": "AccountType"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "TestSMTPConfiguration": {
+      "type": "object",
+      "properties": {
+        "recipient_addr": {
+          "type": "string",
+          "x-go-name": "RecipientAddr"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "TestWeChatConfiguration": {
+      "type": "object",
+      "properties": {
+        "recipient_id": {
+          "type": "string",
+          "x-go-name": "RecipientID"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "Time": {
+      "type": "object",
+      "properties": {
+        "hour": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Hour"
+        },
+        "minute": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Minute"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "TriggerEventType": {
+      "type": "string",
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "UpdateCompanyNotice": {
+      "description": "A companynotice",
+      "type": "object",
+      "properties": {
+        "notice_str": {
+          "description": "companynotice info",
+          "type": "string",
+          "x-go-name": "NoticeStr"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateCurrentUser": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "description": "User email",
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "old_password": {
+          "description": "User old password",
+          "type": "string",
+          "x-go-name": "OldPassword"
+        },
+        "password": {
+          "description": "User new password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "phone": {
+          "description": "User phone",
+          "type": "string",
+          "x-go-name": "Phone"
+        },
+        "wxid": {
+          "description": "User wxid",
+          "type": "string",
+          "x-go-name": "WxID"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateDBService": {
+      "description": "update db service",
+      "type": "object",
+      "required": [
+        "db_type",
+        "host",
+        "port",
+        "user",
+        "business",
+        "maintenance_times"
+      ],
+      "properties": {
+        "additional_params": {
+          "description": "DB Service Custom connection parameters",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdditionalParam"
+          },
+          "x-go-name": "AdditionalParams"
+        },
+        "business": {
+          "description": "DB Service business name",
+          "type": "string",
+          "x-go-name": "Business"
+        },
+        "db_type": {
+          "description": "Service DB type",
+          "type": "string",
+          "x-go-name": "DBType"
+        },
+        "desc": {
+          "description": "Service description",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "host": {
+          "description": "DB Service Host",
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "maintenance_times": {
+          "description": "DB Service maintenance time",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MaintenanceTime"
+          },
+          "x-go-name": "MaintenanceTimes"
+        },
+        "password": {
+          "description": "DB Service admin password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "port": {
+          "description": "DB Service port",
+          "type": "string",
+          "x-go-name": "Port"
+        },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
+        },
+        "user": {
+          "description": "DB Service admin user",
+          "type": "string",
+          "x-go-name": "User"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateFeishuConfiguration": {
+      "type": "object",
+      "properties": {
+        "app_id": {
+          "type": "string",
+          "x-go-name": "AppID"
+        },
+        "app_secret": {
+          "type": "string",
+          "x-go-name": "AppSecret"
+        },
+        "is_feishu_notification_enabled": {
+          "type": "boolean",
+          "x-go-name": "IsFeishuNotificationEnabled"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateMember": {
+      "type": "object",
+      "properties": {
+        "is_project_admin": {
+          "description": "Whether the member has project admin permission",
+          "type": "boolean",
+          "x-go-name": "IsProjectAdmin"
+        },
+        "role_with_op_ranges": {
+          "description": "member role with op ranges",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MemberRoleWithOpRange"
+          },
+          "x-go-name": "RoleWithOpRanges"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateMemberGroup": {
+      "type": "object",
+      "required": [
+        "user_uids"
+      ],
+      "properties": {
+        "is_project_admin": {
+          "description": "Whether the member has project admin permission",
+          "type": "boolean",
+          "x-go-name": "IsProjectAdmin"
+        },
+        "role_with_op_ranges": {
+          "description": "member role with op ranges",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MemberRoleWithOpRange"
+          },
+          "x-go-name": "RoleWithOpRanges"
+        },
+        "user_uids": {
+          "description": "member user uid",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "UserUids"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateProject": {
+      "type": "object",
+      "properties": {
+        "desc": {
+          "description": "Project desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateRole": {
+      "type": "object",
+      "properties": {
+        "desc": {
+          "description": "Role desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "is_disabled": {
+          "description": "Whether the role is disabled or not",
+          "type": "boolean",
+          "x-go-name": "IsDisabled"
+        },
+        "op_permission_uids": {
+          "description": "Op permission uids",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "OpPermissionUids"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateSMTPConfiguration": {
+      "type": "object",
+      "properties": {
+        "enable_smtp_notify": {
+          "type": "boolean",
+          "x-go-name": "EnableSMTPNotify"
+        },
+        "is_skip_verify": {
+          "type": "boolean",
+          "x-go-name": "IsSkipVerify"
+        },
+        "smtp_host": {
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "smtp_password": {
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "smtp_port": {
+          "type": "string",
+          "x-go-name": "Port"
+        },
+        "smtp_username": {
+          "type": "string",
+          "x-go-name": "Username"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateUser": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "description": "User email",
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "is_disabled": {
+          "description": "Whether the user is disabled or not",
+          "type": "boolean",
+          "x-go-name": "IsDisabled"
+        },
+        "op_permission_uids": {
+          "description": "User operation permission uids",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "OpPermissionUids"
+        },
+        "password": {
+          "description": "User password, User can login with this password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "phone": {
+          "description": "User phone",
+          "type": "string",
+          "x-go-name": "Phone"
+        },
+        "user_group_uids": {
+          "description": "User group uids",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "UserGroupUids"
+        },
+        "wxid": {
+          "description": "User wxid",
+          "type": "string",
+          "x-go-name": "WxID"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateUserGroup": {
+      "type": "object",
+      "properties": {
+        "desc": {
+          "description": "UserGroup description",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "is_disabled": {
+          "description": "Whether the user group is disabled or not",
+          "type": "boolean",
+          "x-go-name": "IsDisabled"
+        },
+        "user_uids": {
+          "description": "User uids",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "UserUids"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateWeChatConfiguration": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "AgentID"
+        },
+        "corp_id": {
+          "type": "string",
+          "x-go-name": "CorpID"
+        },
+        "corp_secret": {
+          "type": "string",
+          "x-go-name": "CorpSecret"
+        },
+        "enable_wechat_notify": {
+          "type": "boolean",
+          "x-go-name": "EnableWeChatNotify"
+        },
+        "proxy_ip": {
+          "type": "string",
+          "x-go-name": "ProxyIP"
+        },
+        "safe_enabled": {
+          "type": "boolean",
+          "x-go-name": "SafeEnabled"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "User": {
+      "description": "A user",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "desc": {
+          "description": "user description",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "email": {
+          "description": "user email",
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "name": {
+          "description": "user name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "op_permission_uids": {
+          "description": "user op permission uid",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "OpPermissionUids"
+        },
+        "password": {
+          "description": "user password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "phone": {
+          "description": "user phone",
+          "type": "string",
+          "x-go-name": "Phone"
+        },
+        "user_group_uids": {
+          "description": "user group uid",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "UserGroupUids"
+        },
+        "wxid": {
+          "description": "user wxid",
+          "type": "string",
+          "x-go-name": "WxID"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UserGroup": {
+      "description": "A user group",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "desc": {
+          "description": "user group description",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "name": {
+          "description": "user group name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "user_uids": {
+          "description": "user uids",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "UserUids"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UserOpPermission": {
+      "type": "object",
+      "properties": {
+        "project_uid": {
+          "description": "uesr project uid",
+          "type": "string",
+          "x-go-name": "ProjectUid"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "WebHookConfigurationData": {
+      "type": "object",
+      "properties": {
+        "enable": {
+          "type": "boolean",
+          "x-go-name": "Enable"
+        },
+        "max_retry_times": {
+          "description": "minlength(3) maxlength(100)",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "MaxRetryTimes"
+        },
+        "retry_interval_seconds": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RetryIntervalSeconds"
+        },
+        "token": {
+          "type": "string",
+          "x-go-name": "Token"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "WebHooksMessage": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "trigger_event_type": {
+          "$ref": "#/definitions/TriggerEventType"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    }
+  },
+  "responses": {
+    "GenericResp": {
+      "description": "GenericResp defines the return code and msg",
+      "headers": {
+        "code": {
+          "type": "integer",
+          "format": "int64",
+          "description": "code"
+        },
+        "message": {
+          "type": "string",
+          "description": "message"
+        }
+      }
+    },
+    "GetStaticLogoReply": {
+      "description": "",
+      "schema": {
+        "type": "file"
+      }
+    }
+  },
+  "securityDefinitions": {
+    "basic": {
+      "type": "basic"
+    }
+  }
+}
