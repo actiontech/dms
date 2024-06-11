@@ -7,7 +7,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
-	"net"
 	"os"
 	"path/filepath"
 	"sort"
@@ -15,6 +14,7 @@ import (
 	"sync"
 
 	"github.com/moby/sys/mountinfo"
+	"github.com/vishvananda/netlink"
 	"golang.org/x/sys/unix"
 )
 
@@ -53,16 +53,18 @@ func collectHardwareInfo() (string, error) {
 
 	keys = append(keys, bootDevUuid)
 
-	netInterfaces, err := net.Interfaces()
+	netInterfaces, err := netlink.LinkList()
 	if err != nil {
-		return "", fmt.Errorf("net.Interfaces(): %v", err)
+		return "", fmt.Errorf("netlink.LinkList(): %v", err)
 	}
 
 	var macs []string
 	for _, netInterface := range netInterfaces {
-		macAddr := netInterface.HardwareAddr.String()
-		if macAddr != "" {
-			macs = append(macs, "HWaddr "+strings.ToUpper(macAddr))
+		if netInterface.Type() == "device" {
+			macAddr := netInterface.Attrs().HardwareAddr.String()
+			if macAddr != "" {
+				macs = append(macs, "HWaddr "+strings.ToUpper(macAddr))
+			}
 		}
 	}
 
