@@ -8,6 +8,7 @@ import (
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/apiserver/conf"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
+	"github.com/actiontech/dms/internal/pkg/cloudbeaver"
 	v1Base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 	v1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
@@ -57,6 +58,12 @@ type DBService struct {
 type DBTypeCount struct {
 	DBType string `json:"db_type"`
 	Count  int64  `json:"count"`
+}
+
+type RuleTemplate struct {
+	RuleTemplateName string `json:"rule_template_name"`
+	RuleTemplateID   string `json:"rule_template_id"`
+	DbType           string `json:"db_type"`
 }
 
 func (d *DBService) GetUID() string {
@@ -115,7 +122,7 @@ func newDBService(args *BizDBServiceArgs) (*DBService, error) {
 type AdditionalParams pkgParams.Param
 
 type DBServiceRepo interface {
-	SaveDBService(ctx context.Context, dbService *DBService) error
+	SaveDBServices(ctx context.Context, dbService []*DBService) error
 	GetDBServicesByIds(ctx context.Context, dbServiceIds []string) (services []*DBService, err error)
 	ListDBServices(ctx context.Context, opt *ListDBServicesOption) (services []*DBService, total int64, err error)
 	DelDBService(ctx context.Context, dbServiceUid string) error
@@ -198,7 +205,7 @@ func (d *DBServiceUsecase) CreateDBService(ctx context.Context, args *BizDBServi
 		return "", fmt.Errorf("precheck db service failed: %w", err)
 	}
 
-	if err = d.repo.SaveDBService(ctx, ds); err != nil {
+	if err = d.repo.SaveDBServices(ctx, []*DBService{ds}); err != nil {
 		return "", err
 	}
 
@@ -208,6 +215,35 @@ func (d *DBServiceUsecase) CreateDBService(ctx context.Context, args *BizDBServi
 	}
 
 	return ds.UID, nil
+}
+
+func (d *DBServiceUsecase) ImportDBServices(ctx context.Context, args []*BizDBServiceArgs) error {
+	dbServices := make([]*DBService, len(args))
+	for k, v := range args {
+		d.log.Debugf("ImportDBServices args[%d]: %v", k, v)
+		ds, err := newDBService(v)
+		if err != nil {
+			return fmt.Errorf("new db service failed: %w", err)
+		}
+		// 调用其他服务对数据源进行预检查
+		if err = d.pluginUsecase.AddDBServicePreCheck(ctx, ds); err != nil {
+			return fmt.Errorf("precheck db service failed: %w", err)
+		}
+
+		dbServices[k] = ds
+	}
+
+	if err := d.repo.SaveDBServices(ctx, dbServices); err != nil {
+		return err
+	}
+
+	for _, ds := range dbServices {
+		err := d.pluginUsecase.OperateDataResourceHandle(ctx, ds.UID, dmsCommonV1.DataResourceTypeDBService, dmsCommonV1.OperationTypeCreate, dmsCommonV1.OperationTimingAfter)
+		if err != nil {
+			return fmt.Errorf("plugin handle after craete db_service err: %v", err)
+		}
+	}
+	return nil
 }
 
 type ListDBServicesOption struct {
@@ -533,4 +569,39 @@ func (d *DBServiceUsecase) GetBusiness(ctx context.Context, projectUid string) (
 	}
 
 	return business, nil
+}
+
+// GetRuleTemplates request SQLE to get the project's all rule templates
+func (d *DBServiceUsecase) GetRuleTemplates(ctx context.Context, projectName string) ([]RuleTemplate, error) {
+	target, err := d.dmsProxyTargetRepo.GetProxyTargetByName(ctx, cloudbeaver.SQLEProxyName)
+	if err != nil {
+		return nil, fmt.Errorf("get target failed: %v", err)
+	}
+
+	header := map[string]string{
+		"Authorization": pkgHttp.DefaultDMSToken,
+	}
+
+	reply := &struct {
+		v1Base.GenericResp
+		Data []RuleTemplate `json:"data"`
+	}{}
+
+	// project's rule templates
+	url1 := target.URL.String() + "/v1/projects/" + projectName + "/rule_template_tips"
+	// default rule templates
+	url2 := target.URL.String() + "/v1/rule_template_tips"
+
+	var result []RuleTemplate
+	for _, url := range []string{url1, url2} {
+		err = pkgHttp.Get(ctx, url, header, nil, reply)
+		if err != nil {
+			return nil, fmt.Errorf("get rule templates failed: %v", err)
+		} else if reply.Code != 0 {
+			return nil, fmt.Errorf("get rule templates failed: %v", reply.Message)
+		}
+		result = append(result, reply.Data...)
+	}
+
+	return result, nil
 }

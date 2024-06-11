@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -14,6 +15,26 @@ type Period struct {
 	StartMinute int `json:"start_minute"`
 	EndHour     int `json:"end_hour"`
 	EndMinute   int `json:"end_minute"`
+}
+
+// ParsePeriods parse string: 09:30-11:30;11:30-13:30;20:30-21:30 to *Periods
+func ParsePeriods(s string) (Periods, error) {
+	start2ends := strings.Split(s, ";")
+	ps := make(Periods, len(start2ends))
+	for k, v := range start2ends {
+		p := Period{}
+		_, err := fmt.Sscanf(v, "%d:%d-%d:%d", &p.StartHour, &p.StartMinute, &p.EndHour, &p.EndMinute)
+		if err != nil {
+			return nil, err
+		}
+		ps[k] = &p
+	}
+
+	if !ps.SelfCheck() {
+		return nil, fmt.Errorf("self check error, invalid period")
+	}
+
+	return ps, nil
 }
 
 // Scan impl sql.Scanner interface

@@ -1571,7 +1571,7 @@ func (a *DMSController) GetImportDBServicesTemplate(c echo.Context) error {
 	}
 
 	c.Response().Header().Set(echo.HeaderContentDisposition,
-		mime.FormatMediaType("attachment", map[string]string{"filename": "导入数据源模版.csv"}))
+		mime.FormatMediaType("attachment", map[string]string{"filename": "import_db_services_template.csv"}))
 
 	return c.Blob(http.StatusOK, "text/csv", content)
 }
@@ -1610,7 +1610,7 @@ func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
 	}
 	if content != nil {
 		c.Response().Header().Set(echo.HeaderContentDisposition,
-			mime.FormatMediaType("attachment", map[string]string{"filename": "预检审核结果.csv"}))
+			mime.FormatMediaType("attachment", map[string]string{"filename": "import_db_services_problems.csv"}))
 		return c.Blob(http.StatusOK, "text/csv", content)
 	}
 	return NewOkResp(c)
@@ -1656,7 +1656,7 @@ func (a *DMSController) ImportDBServicesOfOneProject(c echo.Context) error {
 	}
 	if content != nil {
 		c.Response().Header().Set(echo.HeaderContentDisposition,
-			mime.FormatMediaType("attachment", map[string]string{"filename": "预检审核结果.csv"}))
+			mime.FormatMediaType("attachment", map[string]string{"filename": "import_db_services_problems.csv"}))
 		return c.Blob(http.StatusOK, "text/csv", content)
 	}
 	return NewOkResp(c)
