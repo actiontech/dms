@@ -13,12 +13,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/actiontech/dms/api"
 	aV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/apiserver/conf"
 	apiError "github.com/actiontech/dms/internal/apiserver/pkg/error"
 	"github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/dms/service"
 	"github.com/labstack/echo/v4/middleware"
+	echoSwagger "github.com/swaggo/echo-swagger"
 
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
@@ -2730,4 +2732,14 @@ func (a *DMSController) GetCBOperationLogTips(c echo.Context) error {
 	}
 
 	return NewOkRespWithReply(c, reply)
+}
+
+func (d *DMSController) SwaggerHandler(c echo.Context) error {
+	err := d.DMS.RegisterSwagger(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+
+	handler := echoSwagger.EchoWrapHandler(api.ConfigList...)
+	return handler(c)
 }
