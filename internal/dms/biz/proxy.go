@@ -91,6 +91,10 @@ type RegisterDMSProxyTargetArgs struct {
 	Scenario        ProxyScenario
 }
 
+func (d *DmsProxyUsecase) GetTargetByName(ctx context.Context, name string) (*ProxyTarget, error) {
+	return d.repo.GetProxyTargetByName(ctx, name)
+}
+
 func (d *DmsProxyUsecase) RegisterDMSProxyTarget(ctx context.Context, currentUserUid string, args RegisterDMSProxyTargetArgs) error {
 	log := utilLog.NewHelper(d.logger, utilLog.WithMessageKey("biz.dmsproxy"))
 

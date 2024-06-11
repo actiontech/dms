@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/actiontech/dms/api"
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	pkgLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	"github.com/labstack/echo/v4"
+	echoSwagger "github.com/swaggo/echo-swagger"
 
 	dmsMiddleware "github.com/actiontech/dms/internal/apiserver/middleware"
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -19,6 +21,8 @@ import (
 )
 
 func (s *APIServer) initRouter() error {
+	s.echo.GET("/swagger/*", s.DMSController.SwaggerHandler, SwaggerMiddleWare)
+
 	v1 := s.echo.Group(dmsV1.CurrentGroupVersion)
 
 	// DMS RESTful resource
@@ -199,6 +203,27 @@ func (s *APIServer) initRouter() error {
 		}
 	}
 	return nil
+}
+
+func SwaggerMiddleWare(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		hasPkPrefix := strings.HasPrefix(c.Request().RequestURI, "/swagger/index.html?urls.primaryName=")
+		if hasPkPrefix {
+			// 为了避免404
+			c.Request().RequestURI = "/swagger/index.html"
+		}
+
+		// 设置InstanceName,为了找到正确的swagger配置
+		for swagType := range api.GetAllSwaggerDocs() {
+			urlPath := swagType.GetUrlPath()
+			if strings.HasSuffix(c.Request().RequestURI, urlPath) {
+				config := echoSwagger.InstanceName(urlPath)
+				api.ConfigList = append(api.ConfigList, config)
+			}
+		}
+
+		return next(c)
+	}
 }
 
 func (s *APIServer) installMiddleware() error {
