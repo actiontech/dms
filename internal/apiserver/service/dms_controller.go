@@ -1563,7 +1563,7 @@ func (a *DMSController) GetImportDBServicesTemplate(c echo.Context) error {
 	return nil
 }
 
-// swagger:route POST /v1/dms/projects/import_db_services dms ImportDBServicesOfProjects
+// swagger:route POST /v1/dms/projects/{project_uid}/db_services/import_check dms ImportDBServicesOfOneProjectCheck
 //
 // Import DBServices
 //
@@ -1575,9 +1575,9 @@ func (a *DMSController) GetImportDBServicesTemplate(c echo.Context) error {
 //	- text/csv
 //
 //	responses:
-//	  default: body:GenericResp
-//	  200: ImportDBServicesReply
-func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
+//	  default: body:ImportDBServicesCheckReply
+//	  200: ImportDBServicesCheckCsvReply
+func (a *DMSController) ImportDBServicesOfOneProjectCheck(c echo.Context) error {
 	return nil
 }
 
@@ -1586,6 +1586,22 @@ func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
 // Import DBServices
 //
 //	Consumes:
+//	- application/json
+//
+//	Produces:
+//	- application/json
+//
+//	responses:
+//	  default: body:GenericResp
+func (a *DMSController) ImportDBServicesOfOneProject(c echo.Context) error {
+	return nil
+}
+
+// swagger:route POST /v1/dms/projects/import_db_services_check dms ImportDBServicesOfProjectsCheck
+//
+// Import DBServices
+//
+//	Consumes:
 //	- multipart/form-data
 //
 //	Produces:
@@ -1593,9 +1609,41 @@ func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
 //	- text/csv
 //
 //	responses:
+//	  default: body:ImportDBServicesCheckReply
+//	  200: ImportDBServicesCheckCsvReply
+func (a *DMSController) ImportDBServicesOfProjectsCheck(c echo.Context) error {
+	return nil
+}
+
+// swagger:route POST /v1/dms/projects/import_db_services dms ImportDBServicesOfProjects
+//
+// Import DBServices
+//
+//	Consumes:
+//	- application/json
+//
+//	Produces:
+//	- application/json
+//
+//	responses:
 //	  default: body:GenericResp
-//	  200: ImportDBServicesReply
-func (a *DMSController) ImportDBServicesOfOneProject(c echo.Context) error {
+func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
+	return nil
+}
+
+// swagger:route POST /v1/dms/projects/db_services_connection dms DBServicesConnection
+//
+// DBServices Connection
+//
+//	Consumes:
+//	- application/json
+//
+//	Produces:
+//	- application/json
+//
+//	responses:
+//	  default: DBServicesConnectionReply
+func (a *DMSController) DBServicesConnection(c echo.Context) error {
 	return nil
 }
 
