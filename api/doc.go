@@ -6,7 +6,6 @@ import (
 	"path"
 	"sync"
 
-	echoSwagger "github.com/swaggo/echo-swagger"
 	"github.com/swaggo/swag"
 )
 
@@ -25,8 +24,8 @@ func init() {
 type SwaggerType string
 
 const (
-	SqlSwaggerTypeKey SwaggerType = "sqle"
-	DmsSwaggerTykeKey SwaggerType = "dms"
+	SqleSwaggerTypeKey SwaggerType = "sqle"
+	DmsSwaggerTykeKey  SwaggerType = "dms"
 )
 
 type SwaggerDoc struct {
@@ -44,9 +43,9 @@ func RegisterSwaggerDoc(swaggerType SwaggerType, file []byte) {
 
 	swaggerList[swaggerType] = &SwaggerDoc{file: file}
 
-	url := swaggerType.GetUrlPath()
+	instanceName := swaggerType.GetUrlPath()
 
-	swag.Register(url, &SwaggerDoc{file: file})
+	swag.Register(instanceName, &SwaggerDoc{file: file})
 }
 
 // GetSwaggerDoc returns the Swagger document by the given type
