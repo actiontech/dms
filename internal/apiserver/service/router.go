@@ -42,6 +42,7 @@ func (s *APIServer) initRouter() error {
 		dbServiceV1.PUT("/:db_service_uid", s.DMSController.UpdateDBService)
 		dbServiceV1.POST("/connection", s.DMSController.CheckDBServiceIsConnectable)
 		dbServiceV1.POST("/:db_service_uid/connection", s.DMSController.CheckDBServiceIsConnectableById)
+		dbServiceV1.POST("/import_check", s.DMSController.ImportDBServicesOfOneProjectCheck)
 		dbServiceV1.POST("/import", s.DMSController.ImportDBServicesOfOneProject)
 
 		DatabaseSourceServiceV1 := v1.Group("/dms/projects/:project_uid/database_source_services")
@@ -111,7 +112,9 @@ func (s *APIServer) initRouter() error {
 		projectV1.GET("/export", s.DMSController.ExportProjects)
 		projectV1.GET("/tips", s.DMSController.GetProjectTips)
 		projectV1.GET("/import_db_services_template", s.DMSController.GetImportDBServicesTemplate)
+		projectV1.POST("/import_db_services_check", s.DMSController.ImportDBServicesOfProjectsCheck)
 		projectV1.POST("/import_db_services", s.DMSController.ImportDBServicesOfProjects)
+		projectV1.POST("/db_services_connection", s.DMSController.DBServicesConnection)
 
 		// oauth2 interface does not require login authentication
 		oauth2V1 := v1.Group("/dms/oauth2")

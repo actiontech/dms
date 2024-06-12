@@ -270,8 +270,8 @@ type ListDBServiceTipsReply struct {
 	base.GenericResp
 }
 
-// swagger:parameters ImportDBServicesOfOneProject
-type ImportDBServiceReq struct {
+// swagger:parameters ImportDBServicesOfOneProjectCheck
+type ImportDBServicesOfOneProjectCheckReq struct {
 	// project id
 	// Required: true
 	// in:path
@@ -282,4 +282,23 @@ type ImportDBServiceReq struct {
 	//
 	// swagger:file
 	DBServicesFile *bytes.Buffer `json:"db_services_file"`
+}
+
+// swagger:model ImportDBServicesCheckReply
+type ImportDBServicesCheckReply struct {
+	// db services
+	Data []*DBService `json:"data"`
+	// Generic reply
+	base.GenericResp
+}
+
+// swagger:parameters ImportDBServicesOfOneProject
+type ImportDBServicesOfOneProjectReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	// new db services
+	// in:body
+	DBServices []DBService `json:"db_services" validate:"required"`
 }

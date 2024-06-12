@@ -211,8 +211,8 @@ type GetImportDBServicesTemplateReply struct {
 	File []byte
 }
 
-// swagger:parameters ImportDBServicesOfProjects
-type ImportDBServicesReq struct {
+// swagger:parameters ImportDBServicesOfProjectsCheck
+type ImportDBServicesOfProjectsCheckReq struct {
 	// DBServices file.
 	//
 	// in: formData
@@ -221,9 +221,70 @@ type ImportDBServicesReq struct {
 	DBServicesFile *bytes.Buffer `json:"db_services_file"`
 }
 
-// swagger:response ImportDBServicesReply only when produces text/csv
-type ImportDBServicesReply struct {
+// swagger:response ImportDBServicesCheckCsvReply
+type ImportDBServicesCheckCsvReply struct {
 	// swagger:file
 	// in:  body
 	File []byte
+}
+
+// swagger:parameters ImportDBServicesOfProjects
+type ImportDBServicesOfProjectsReq struct {
+	// new db services
+	// in:body
+	DBServices []DBService `json:"db_services" validate:"required"`
+}
+
+type CheckDbsConnectable struct {
+	// DB Service name
+	// Required: true
+	// example: mysql_1
+	Name string `json:"name"  example:"mysql_1" validate:"required"`
+	// DB Service type
+	// Required: true
+	// example: MySQL
+	DBType string `json:"db_type"  example:"mysql" validate:"required"`
+	// DB Service admin user
+	// Required: true
+	// example: root
+	User string `json:"user"  example:"root" valid:"required"`
+	// DB Service host
+	// Required: true
+	// example: 127.0.0.1
+	Host string `json:"host"  example:"10.10.10.10" valid:"required,ip_addr|uri|hostname|hostname_rfc1123"`
+	// DB Service port
+	// Required: true
+	// example: 3306
+	Port string `json:"port"  example:"3306" valid:"required,port"`
+	// DB Service admin password
+	// Required: true
+	// example: 123456
+	Password string `json:"password"  example:"123456"`
+	// DB Service Custom connection parameters
+	// Required: false
+	AdditionalParams []*dmsCommonV1.AdditionalParam `json:"additional_params" from:"additional_params"`
+}
+
+// swagger:parameters DBServicesConnection
+type DBServiceConnectionReq struct {
+	// check db_service is connectable
+	// in:body
+	DBServices []CheckDbsConnectable `json:"db_services"`
+}
+
+type DBServicesConnectionItem struct {
+	// Successful connection num
+	SuccessfulNum int `json:"successful_num"`
+	// Failed connection num
+	FailedNum int `json:"failed_num"`
+	// Failed DBServices name
+	FailedNames []string `json:"failed_names"`
+}
+
+// swagger:response DBServicesConnectionReply
+type DBServicesConnectionReply struct {
+	// Generic reply
+	base.GenericResp
+	// connection result
+	Data []*DBServicesConnectionItem `json:"data"`
 }
