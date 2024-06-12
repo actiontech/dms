@@ -2740,6 +2740,23 @@ func (d *DMSController) SwaggerHandler(c echo.Context) error {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
 
-	handler := echoSwagger.EchoWrapHandler(api.ConfigList...)
+	optionList := []func(config *echoSwagger.Config){
+		func(config *echoSwagger.Config) {
+			// for clear the default URLs
+			config.URLs = []string{}
+		},
+	}
+
+	// 设置InstanceName,为了找到正确的swagger配置
+	for swagType := range api.GetAllSwaggerDocs() {
+		urlPath := swagType.GetUrlPath()
+		optionList = append(optionList, echoSwagger.URL(urlPath))
+
+		if strings.HasSuffix(c.Request().RequestURI, urlPath) {
+			optionList = append(optionList, echoSwagger.InstanceName(urlPath))
+		}
+	}
+
+	handler := echoSwagger.EchoWrapHandler(optionList...)
 	return handler(c)
 }

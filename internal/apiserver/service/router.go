@@ -4,17 +4,14 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/actiontech/dms/api"
-	"github.com/actiontech/dms/internal/dms/biz"
-	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
-	pkgLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
-	"github.com/labstack/echo/v4"
-	echoSwagger "github.com/swaggo/echo-swagger"
-
 	dmsMiddleware "github.com/actiontech/dms/internal/apiserver/middleware"
+	"github.com/actiontech/dms/internal/dms/biz"
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	commonLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
+	pkgLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	echojwt "github.com/labstack/echo-jwt/v4"
+	"github.com/labstack/echo/v4"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/labstack/echo/v4/middleware"
@@ -207,19 +204,13 @@ func (s *APIServer) initRouter() error {
 
 func SwaggerMiddleWare(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		// swagger 请求分为两种,一种是swagger html页面请求,一种是swagger json请求. eg:
+		// swagger/index.html 获取html
+		// swagger/dms/doc.yaml 获取json
 		hasPkPrefix := strings.HasPrefix(c.Request().RequestURI, "/swagger/index.html?urls.primaryName=")
 		if hasPkPrefix {
 			// 为了避免404
 			c.Request().RequestURI = "/swagger/index.html"
-		}
-
-		// 设置InstanceName,为了找到正确的swagger配置
-		for swagType := range api.GetAllSwaggerDocs() {
-			urlPath := swagType.GetUrlPath()
-			if strings.HasSuffix(c.Request().RequestURI, urlPath) {
-				config := echoSwagger.InstanceName(urlPath)
-				api.ConfigList = append(api.ConfigList, config)
-			}
 		}
 
 		return next(c)
