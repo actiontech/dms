@@ -1114,6 +1114,40 @@
         }
       }
     },
+    "/v1/dms/projects/db_services_connection": {
+      "post": {
+        "description": "DBServices Connection",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "dms"
+        ],
+        "operationId": "DBServicesConnection",
+        "parameters": [
+          {
+            "x-go-name": "DBServices",
+            "description": "check db_service is connectable",
+            "name": "db_services",
+            "in": "body",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/CheckDbsConnectable"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "$ref": "#/responses/DBServicesConnectionReply"
+          }
+        }
+      }
+    },
     "/v1/dms/projects/export": {
       "get": {
         "tags": [
@@ -1199,6 +1233,43 @@
       "post": {
         "description": "Import DBServices",
         "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "dms"
+        ],
+        "operationId": "ImportDBServicesOfProjects",
+        "parameters": [
+          {
+            "x-go-name": "DBServices",
+            "description": "new db services",
+            "name": "db_services",
+            "in": "body",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/DBService"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/import_db_services_check": {
+      "post": {
+        "description": "Import DBServices",
+        "consumes": [
           "multipart/form-data"
         ],
         "produces": [
@@ -1208,7 +1279,7 @@
         "tags": [
           "dms"
         ],
-        "operationId": "ImportDBServicesOfProjects",
+        "operationId": "ImportDBServicesOfProjectsCheck",
         "parameters": [
           {
             "type": "file",
@@ -1220,12 +1291,12 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/responses/ImportDBServicesReply"
+            "$ref": "#/responses/ImportDBServicesCheckCsvReply"
           },
           "default": {
-            "description": "GenericResp",
+            "description": "ImportDBServicesCheckReply",
             "schema": {
-              "$ref": "#/definitions/GenericResp"
+              "$ref": "#/definitions/ImportDBServicesCheckReply"
             }
           }
         }
@@ -2679,6 +2750,51 @@
       "post": {
         "description": "Import DBServices",
         "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "dms"
+        ],
+        "operationId": "ImportDBServicesOfOneProject",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "DBServices",
+            "description": "new db services",
+            "name": "db_services",
+            "in": "body",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/DBService"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/db_services/import_check": {
+      "post": {
+        "description": "Import DBServices",
+        "consumes": [
           "multipart/form-data"
         ],
         "produces": [
@@ -2688,7 +2804,7 @@
         "tags": [
           "dms"
         ],
-        "operationId": "ImportDBServicesOfOneProject",
+        "operationId": "ImportDBServicesOfOneProjectCheck",
         "parameters": [
           {
             "type": "string",
@@ -2708,12 +2824,12 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/responses/ImportDBServicesReply"
+            "$ref": "#/responses/ImportDBServicesCheckCsvReply"
           },
           "default": {
-            "description": "GenericResp",
+            "description": "ImportDBServicesCheckReply",
             "schema": {
-              "$ref": "#/definitions/GenericResp"
+              "$ref": "#/definitions/ImportDBServicesCheckReply"
             }
           }
         }
@@ -4838,6 +4954,19 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "CBOperationLogTips": {
+      "type": "object",
+      "properties": {
+        "exec_result": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "ExecResult"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "CancelDataExportWorkflowPayload": {
       "type": "object",
       "required": [
@@ -4946,6 +5075,64 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "CheckDbsConnectable": {
+      "type": "object",
+      "required": [
+        "name",
+        "db_type",
+        "user",
+        "host",
+        "port",
+        "password"
+      ],
+      "properties": {
+        "additional_params": {
+          "description": "DB Service Custom connection parameters",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdditionalParam"
+          },
+          "x-go-name": "AdditionalParams"
+        },
+        "db_type": {
+          "description": "DB Service type",
+          "type": "string",
+          "x-go-name": "DBType",
+          "example": "MySQL"
+        },
+        "host": {
+          "description": "DB Service host",
+          "type": "string",
+          "x-go-name": "Host",
+          "example": "127.0.0.1"
+        },
+        "name": {
+          "description": "DB Service name",
+          "type": "string",
+          "x-go-name": "Name",
+          "example": "mysql_1"
+        },
+        "password": {
+          "description": "DB Service admin password",
+          "type": "string",
+          "x-go-name": "Password",
+          "example": "123456"
+        },
+        "port": {
+          "description": "DB Service port",
+          "type": "string",
+          "x-go-name": "Port",
+          "example": "3306"
+        },
+        "user": {
+          "description": "DB Service admin user",
+          "type": "string",
+          "x-go-name": "User",
+          "example": "root"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "CheckLicenseReply": {
       "type": "object",
@@ -5083,6 +5270,32 @@
           "description": "DB Service admin user",
           "type": "string",
           "x-go-name": "User"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DBServicesConnectionItem": {
+      "type": "object",
+      "properties": {
+        "failed_names": {
+          "description": "Failed DBServices name",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "FailedNames"
+        },
+        "failed_num": {
+          "description": "Failed connection num",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "FailedNum"
+        },
+        "successful_num": {
+          "description": "Successful connection num",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "SuccessfulNum"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -5438,7 +5651,7 @@
           "x-go-name": "Code"
         },
         "data": {
-          "$ref": "#/definitions/cBOperationLogTips"
+          "$ref": "#/definitions/CBOperationLogTips"
         },
         "message": {
           "description": "message",
@@ -6275,6 +6488,31 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "ImportDBServicesCheckReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "db services",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DBService"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ImportProjects": {
       "type": "object",
@@ -9162,22 +9400,30 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "cBOperationLogTips": {
-      "type": "object",
-      "properties": {
-        "exec_result": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "x-go-name": "ExecResult"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     }
   },
   "responses": {
+    "DBServicesConnectionReply": {
+      "description": "",
+      "headers": {
+        "code": {
+          "type": "integer",
+          "format": "int64",
+          "description": "code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DBServicesConnectionItem"
+          },
+          "description": "connection result"
+        },
+        "message": {
+          "type": "string",
+          "description": "message"
+        }
+      }
+    },
     "DownloadDataExportTaskReply": {
       "description": "",
       "schema": {
@@ -9240,7 +9486,7 @@
         "type": "file"
       }
     },
-    "ImportDBServicesReply": {
+    "ImportDBServicesCheckCsvReply": {
       "description": "",
       "schema": {
         "type": "file"

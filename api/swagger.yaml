@@ -443,6 +443,15 @@ definitions:
                 x-go-name: UID
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CBOperationLogTips:
+        properties:
+            exec_result:
+                items:
+                    type: string
+                type: array
+                x-go-name: ExecResult
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CancelDataExportWorkflowPayload:
         properties:
             data_export_workflow_uids:
@@ -526,6 +535,53 @@ definitions:
             - password
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    CheckDbsConnectable:
+        properties:
+            additional_params:
+                description: DB Service Custom connection parameters
+                items:
+                    $ref: '#/definitions/AdditionalParam'
+                type: array
+                x-go-name: AdditionalParams
+            db_type:
+                description: DB Service type
+                example: MySQL
+                type: string
+                x-go-name: DBType
+            host:
+                description: DB Service host
+                example: 127.0.0.1
+                type: string
+                x-go-name: Host
+            name:
+                description: DB Service name
+                example: mysql_1
+                type: string
+                x-go-name: Name
+            password:
+                description: DB Service admin password
+                example: "123456"
+                type: string
+                x-go-name: Password
+            port:
+                description: DB Service port
+                example: "3306"
+                type: string
+                x-go-name: Port
+            user:
+                description: DB Service admin user
+                example: root
+                type: string
+                x-go-name: User
+        required:
+            - name
+            - db_type
+            - user
+            - host
+            - port
+            - password
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CheckLicenseReply:
         properties:
             code:
@@ -634,6 +690,26 @@ definitions:
             - password
             - business
             - maintenance_times
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DBServicesConnectionItem:
+        properties:
+            failed_names:
+                description: Failed DBServices name
+                items:
+                    type: string
+                type: array
+                x-go-name: FailedNames
+            failed_num:
+                description: Failed connection num
+                format: int64
+                type: integer
+                x-go-name: FailedNum
+            successful_num:
+                description: Successful connection num
+                format: int64
+                type: integer
+                x-go-name: SuccessfulNum
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DMSProxyTarget:
@@ -912,7 +988,7 @@ definitions:
                 type: integer
                 x-go-name: Code
             data:
-                $ref: '#/definitions/cBOperationLogTips'
+                $ref: '#/definitions/CBOperationLogTips'
             message:
                 description: message
                 type: string
@@ -1566,6 +1642,25 @@ definitions:
                 type: string
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    ImportDBServicesCheckReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: db services
+                items:
+                    $ref: '#/definitions/DBService'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ImportProjects:
         properties:
             business:
@@ -3866,15 +3961,6 @@ definitions:
                 x-go-name: Type
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    cBOperationLogTips:
-        properties:
-            exec_result:
-                items:
-                    type: string
-                type: array
-                x-go-name: ExecResult
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
 info:
     description: Documentation of our dms API.
     title: dms api.
@@ -5634,6 +5720,66 @@ paths:
             summary: check if the db_service is connectable.
             tags:
                 - dms
+    /v1/dms/projects/{project_uid}/db_services/import:
+        post:
+            consumes:
+                - application/json
+            description: Import DBServices
+            operationId: ImportDBServicesOfOneProject
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: new db services
+                  in: body
+                  name: db_services
+                  schema:
+                    items:
+                        $ref: '#/definitions/DBService'
+                    type: array
+                  x-go-name: DBServices
+            produces:
+                - application/json
+            responses:
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            tags:
+                - dms
+    /v1/dms/projects/{project_uid}/db_services/import_check:
+        post:
+            consumes:
+                - multipart/form-data
+            description: Import DBServices
+            operationId: ImportDBServicesOfOneProjectCheck
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: DBServices file.
+                  in: formData
+                  name: db_services_file
+                  type: file
+                  x-go-name: DBServicesFile
+            produces:
+                - application/json
+                - text/csv
+            responses:
+                "200":
+                    $ref: '#/responses/ImportDBServicesCheckCsvReply'
+                default:
+                    description: ImportDBServicesCheckReply
+                    schema:
+                        $ref: '#/definitions/ImportDBServicesCheckReply'
+            tags:
+                - dms
     /v1/dms/projects/{project_uid}/db_services/tips:
         get:
             operationId: ListDBServiceTips
@@ -5666,38 +5812,6 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: List db service tip.
-            tags:
-                - dms
-    /v1/dms/projects/{project_uid}/db_services/import:
-        post:
-            consumes:
-                - multipart/form-data
-            produces:
-                - application/json
-                - text/csv
-            description: Import DBServices
-            operationId: ImportDBServicesOfOneProject
-            parameters:
-                - description: project id
-                  in: path
-                  name: project_uid
-                  required: true
-                  type: string
-                  x-go-name: ProjectUid
-                - description: DBServices file.
-                  in: formData
-                  name: db_services_file
-                  type: file
-                  x-go-name: DBServicesFile
-            responses:
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-                "200":
-                    description: ImportDBServicesReply only when produces text/csv
-                    schema:
-                        $ref: '#/responses/ImportDBServicesReply'
             tags:
                 - dms
     /v1/dms/projects/{project_uid}/member_groups:
@@ -6082,6 +6196,28 @@ paths:
             summary: Unarchive a project.
             tags:
                 - dms
+    /v1/dms/projects/db_services_connection:
+        post:
+            consumes:
+                - application/json
+            description: DBServices Connection
+            operationId: DBServicesConnection
+            parameters:
+                - description: check db_service is connectable
+                  in: body
+                  name: db_services
+                  schema:
+                    items:
+                        $ref: '#/definitions/CheckDbsConnectable'
+                    type: array
+                  x-go-name: DBServices
+            produces:
+                - application/json
+            responses:
+                default:
+                    $ref: '#/responses/DBServicesConnectionReply'
+            tags:
+                - dms
     /v1/dms/projects/export:
         get:
             operationId: ExportProjects
@@ -6136,6 +6272,67 @@ paths:
                     description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
+            tags:
+                - dms
+    /v1/dms/projects/import_db_services:
+        post:
+            consumes:
+                - application/json
+            description: Import DBServices
+            operationId: ImportDBServicesOfProjects
+            parameters:
+                - description: new db services
+                  in: body
+                  name: db_services
+                  schema:
+                    items:
+                        $ref: '#/definitions/DBService'
+                    type: array
+                  x-go-name: DBServices
+            produces:
+                - application/json
+            responses:
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            tags:
+                - dms
+    /v1/dms/projects/import_db_services_check:
+        post:
+            consumes:
+                - multipart/form-data
+            description: Import DBServices
+            operationId: ImportDBServicesOfProjectsCheck
+            parameters:
+                - description: DBServices file.
+                  in: formData
+                  name: db_services_file
+                  type: file
+                  x-go-name: DBServicesFile
+            produces:
+                - application/json
+                - text/csv
+            responses:
+                "200":
+                    $ref: '#/responses/ImportDBServicesCheckCsvReply'
+                default:
+                    description: ImportDBServicesCheckReply
+                    schema:
+                        $ref: '#/definitions/ImportDBServicesCheckReply'
+            tags:
+                - dms
+    /v1/dms/projects/import_db_services_template:
+        get:
+            operationId: GetImportDBServicesTemplate
+            responses:
+                "200":
+                    $ref: '#/responses/GetImportDBServicesTemplateReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get import DBServices template.
             tags:
                 - dms
     /v1/dms/projects/import_template:
@@ -6193,45 +6390,6 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: Get project tips.
-            tags:
-                - dms
-    /v1/dms/projects/import_db_services_template:
-        get:
-            operationId: GetImportDBServicesTemplate
-            responses:
-                "200":
-                    $ref: '#/responses/GetImportDBServicesTemplateReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: Get import projects template.
-            tags:
-                - dms
-    /v1/dms/projects/import_db_services:
-        post:
-            consumes:
-                - multipart/form-data
-            produces:
-                - application/json
-                - text/csv
-            description: Import DBServices
-            operationId: ImportDBServicesOfProjects
-            parameters:
-                - description: DBServices file.
-                  in: formData
-                  name: db_services_file
-                  type: file
-                  x-go-name: DBServicesFile
-            responses:
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-                "200":
-                    description: ImportDBServicesReply only when produces text/csv
-                    schema:
-                        $ref: '#/responses/ImportDBServicesReply'
             tags:
                 - dms
     /v1/dms/proxy:
@@ -6779,6 +6937,21 @@ paths:
 produces:
     - application/json
 responses:
+    DBServicesConnectionReply:
+        description: ""
+        headers:
+            code:
+                description: code
+                format: int64
+                type: integer
+            data:
+                description: connection result
+                items:
+                    $ref: '#/definitions/DBServicesConnectionItem'
+                type: array
+            message:
+                description: message
+                type: string
     DownloadDataExportTaskReply:
         description: ""
         schema:
@@ -6809,10 +6982,6 @@ responses:
         description: ""
         schema:
             type: file
-    ImportDBServicesReply:
-        description: ""
-        schema:
-            type: file
     GetImportProjectsTemplateReply:
         description: ""
         schema:
@@ -6822,6 +6991,10 @@ responses:
         schema:
             type: file
     GetStaticLogoReply:
+        description: ""
+        schema:
+            type: file
+    ImportDBServicesCheckCsvReply:
         description: ""
         schema:
             type: file
