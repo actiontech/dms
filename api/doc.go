@@ -37,13 +37,6 @@ func (sd *SwaggerDoc) ReadDoc() string {
 	return string(sd.file)
 }
 
-var ConfigList = []func(*echoSwagger.Config){
-	func(config *echoSwagger.Config) {
-		// for clear the default URLs
-		config.URLs = []string{}
-	},
-}
-
 // RegisterSwaggerDoc registers a Swagger document and adds a config function
 func RegisterSwaggerDoc(swaggerType SwaggerType, file []byte) {
 	swaggerMu.Lock()
@@ -54,10 +47,6 @@ func RegisterSwaggerDoc(swaggerType SwaggerType, file []byte) {
 	url := swaggerType.GetUrlPath()
 
 	swag.Register(url, &SwaggerDoc{file: file})
-	ConfigList = append(ConfigList, func(config *echoSwagger.Config) {
-		config.URLs = append(config.URLs, url)
-		config.InstanceName = url
-	})
 }
 
 // GetSwaggerDoc returns the Swagger document by the given type
