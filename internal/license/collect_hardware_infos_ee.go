@@ -68,6 +68,8 @@ func collectHardwareInfo() (string, error) {
 			}
 		}
 	}
+	// 存在只有虚拟网卡，没有物理网卡的情况
+	// 这种情况下采集虚拟网卡的mac地址
 	// https://github.com/actiontech/sqle-ee/issues/644
 	if len(macs) == 0 {
 		netInterfaces, err := net.Interfaces()
