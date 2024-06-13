@@ -6,6 +6,7 @@ import (
 	"path"
 	"sync"
 
+	_const "github.com/actiontech/dms/pkg/dms-common/pkg/const"
 	"github.com/swaggo/swag"
 )
 
@@ -24,8 +25,8 @@ func init() {
 type SwaggerType string
 
 const (
-	SqleSwaggerTypeKey SwaggerType = "sqle"
-	DmsSwaggerTykeKey  SwaggerType = "dms"
+	SqleSwaggerTypeKey SwaggerType = _const.SqleComponentName
+	DmsSwaggerTykeKey  SwaggerType = _const.DmsComponentName
 )
 
 type SwaggerDoc struct {
