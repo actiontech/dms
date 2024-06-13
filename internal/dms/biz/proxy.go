@@ -163,6 +163,10 @@ func (d *DmsProxyUsecase) ListProxyTargets(ctx context.Context) ([]*ProxyTarget,
 	return d.repo.ListProxyTargets(ctx)
 }
 
+func (d *DmsProxyUsecase) ListProxyTargetsByScenarios(ctx context.Context, scenarios []ProxyScenario) ([]*ProxyTarget, error) {
+	return d.repo.ListProxyTargetsByScenarios(ctx, scenarios)
+}
+
 // AddTarget实现echo的ProxyBalancer接口， 没有实际意义
 func (d *DmsProxyUsecase) AddTarget(target *middleware.ProxyTarget) bool {
 	return true
