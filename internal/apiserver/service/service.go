@@ -2,22 +2,24 @@
 //
 // Documentation of our dms API.
 //
-//	 Schemes: http, https
-//	 BasePath: /
-//	 Version: 0.1.0
+//	Schemes: http, https
+//	BasePath: /
+//	Version: 0.1.0
 //
-//	 Consumes:
-//	 - application/json
+//	Consumes:
+//	- application/json
 //
-//	 Produces:
-//	 - application/json
+//	Produces:
+//	- application/json
 //
-//	 Security:
-//	 - basic
+//	Security:
+//	- basic
 //
 //	SecurityDefinitions:
 //	basic:
-//	  type: basic
+//	 type: apiKey
+//	 in: header
+//	 name: Authorization
 //
 // swagger:meta
 package service
@@ -29,10 +31,10 @@ import (
 	"github.com/actiontech/dms/internal/apiserver/conf"
 	apiError "github.com/actiontech/dms/internal/apiserver/pkg/error"
 	bV1 "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
+	"github.com/labstack/echo/v4"
 
 	utilConf "github.com/actiontech/dms/pkg/dms-common/pkg/config"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
-	"github.com/labstack/echo/v4"
 )
 
 type APIServer struct {
