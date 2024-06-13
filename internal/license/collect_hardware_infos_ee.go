@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"os"
 	"path/filepath"
 	"sort"
@@ -62,6 +63,20 @@ func collectHardwareInfo() (string, error) {
 	for _, netInterface := range netInterfaces {
 		if netInterface.Type() == "device" {
 			macAddr := netInterface.Attrs().HardwareAddr.String()
+			if macAddr != "" {
+				macs = append(macs, "HWaddr "+strings.ToUpper(macAddr))
+			}
+		}
+	}
+	// https://github.com/actiontech/sqle-ee/issues/644
+	if len(macs) == 0 {
+		netInterfaces, err := net.Interfaces()
+		if err != nil {
+			return "", fmt.Errorf("net.Interfaces(): %v", err)
+		}
+
+		for _, netInterface := range netInterfaces {
+			macAddr := netInterface.HardwareAddr.String()
 			if macAddr != "" {
 				macs = append(macs, "HWaddr "+strings.ToUpper(macAddr))
 			}
