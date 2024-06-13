@@ -18,7 +18,7 @@ func (d *DMSService) RegisterSwagger(c echo.Context) error {
 		if !ok {
 			reply, err := d.SwaggerUseCase.GetSwaggerContentByType(c, targetName)
 			if err != nil {
-				d.log.Infof("failed to get swagger content by type: %s, err: %v", targetName, err)
+				d.log.Errorf("failed to get swagger content by type: %s, err: %v", targetName, err)
 				continue
 			}
 			api.RegisterSwaggerDoc(targetName, reply)
