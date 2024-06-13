@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
+	_const "github.com/actiontech/dms/pkg/dms-common/pkg/const"
 
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	"github.com/labstack/echo/v4"
@@ -69,7 +70,7 @@ func NewDmsProxyUsecase(logger utilLog.Logger, repo ProxyTargetRepo, dmsPort int
 		// 将自身定义为默认代理，当无法匹配转发规则时，转发到自身
 		defaultTargetSelf: &ProxyTarget{
 			ProxyTarget: middleware.ProxyTarget{
-				Name: componentDMSName,
+				Name: _const.DmsComponentName,
 				URL:  dmsUrl,
 			},
 		},
