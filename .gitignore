@@ -6,3 +6,4 @@ process_record.json
 *.rpm
 *.rpm.md5
 builddir/
+/.idea/
