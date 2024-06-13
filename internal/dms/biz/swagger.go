@@ -1,8 +1,6 @@
 package biz
 
 import (
-	"fmt"
-
 	"github.com/actiontech/dms/api"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
@@ -27,26 +25,20 @@ func (s *SwaggerUseCase) GetSwaggerContentByType(c echo.Context, targetName api.
 		return nil, err
 	}
 
-	switch targetName {
-	case api.SqleSwaggerTypeKey:
-		url := target.URL.String() + "/swagger_file"
+	url := target.URL.String() + "/swagger_file"
 
-		header := map[string]string{
-			echo.HeaderAuthorization: pkgHttp.DefaultDMSToken,
-		}
-
-		resp := struct {
-			Content []byte `json:"content"`
-		}{}
-
-		err = pkgHttp.Get(c.Request().Context(), url, header, nil, &resp)
-		if err != nil {
-			return nil, err
-		}
-
-		return resp.Content, nil
-
-	default:
-		return nil, fmt.Errorf("unknown swagger type: %v", targetName)
+	header := map[string]string{
+		echo.HeaderAuthorization: pkgHttp.DefaultDMSToken,
 	}
+
+	resp := struct {
+		Content []byte `json:"content"`
+	}{}
+
+	err = pkgHttp.Get(c.Request().Context(), url, header, nil, &resp)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.Content, nil
 }
