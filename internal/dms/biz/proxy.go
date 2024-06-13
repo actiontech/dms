@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
+	_const "github.com/actiontech/dms/pkg/dms-common/pkg/const"
 
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	"github.com/labstack/echo/v4"
@@ -69,7 +70,7 @@ func NewDmsProxyUsecase(logger utilLog.Logger, repo ProxyTargetRepo, dmsPort int
 		// 将自身定义为默认代理，当无法匹配转发规则时，转发到自身
 		defaultTargetSelf: &ProxyTarget{
 			ProxyTarget: middleware.ProxyTarget{
-				Name: componentDMSName,
+				Name: _const.DmsComponentName,
 				URL:  dmsUrl,
 			},
 		},
@@ -89,6 +90,10 @@ type RegisterDMSProxyTargetArgs struct {
 	Version         string
 	ProxyUrlPrefixs []string
 	Scenario        ProxyScenario
+}
+
+func (d *DmsProxyUsecase) GetTargetByName(ctx context.Context, name string) (*ProxyTarget, error) {
+	return d.repo.GetProxyTargetByName(ctx, name)
 }
 
 func (d *DmsProxyUsecase) RegisterDMSProxyTarget(ctx context.Context, currentUserUid string, args RegisterDMSProxyTargetArgs) error {
@@ -156,6 +161,10 @@ func (d *DmsProxyUsecase) checkProxyUrlPrefix(proxyUrlPrefixs []string) error {
 
 func (d *DmsProxyUsecase) ListProxyTargets(ctx context.Context) ([]*ProxyTarget, error) {
 	return d.repo.ListProxyTargets(ctx)
+}
+
+func (d *DmsProxyUsecase) ListProxyTargetsByScenarios(ctx context.Context, scenarios []ProxyScenario) ([]*ProxyTarget, error) {
+	return d.repo.ListProxyTargetsByScenarios(ctx, scenarios)
 }
 
 // AddTarget实现echo的ProxyBalancer接口， 没有实际意义
