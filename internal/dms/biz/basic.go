@@ -7,6 +7,7 @@ import (
 
 	"github.com/actiontech/dms/internal/dms/conf"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+	_const "github.com/actiontech/dms/pkg/dms-common/pkg/const"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 )
 
@@ -48,7 +49,6 @@ type BasicInfo struct {
 }
 
 const (
-	componentDMSName   = "dms"
 	PersonalizationUrl = "/dms/personalization/logo"
 )
 
@@ -66,7 +66,7 @@ func (d *BasicUsecase) GetBasicInfo(ctx context.Context) (*BasicInfo, error) {
 	ret := &BasicInfo{
 		Components: []ComponentNameWithVersion{
 			{
-				Name:    componentDMSName,
+				Name:    _const.DmsComponentName,
 				Version: conf.Version,
 			},
 		},

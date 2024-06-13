@@ -13,12 +13,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/actiontech/dms/api"
 	aV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/apiserver/conf"
 	apiError "github.com/actiontech/dms/internal/apiserver/pkg/error"
 	"github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/dms/service"
 	"github.com/labstack/echo/v4/middleware"
+	echoSwagger "github.com/swaggo/echo-swagger"
 
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
@@ -2730,4 +2732,31 @@ func (a *DMSController) GetCBOperationLogTips(c echo.Context) error {
 	}
 
 	return NewOkRespWithReply(c, reply)
+}
+
+func (d *DMSController) SwaggerHandler(c echo.Context) error {
+	err := d.DMS.RegisterSwagger(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+
+	optionList := []func(config *echoSwagger.Config){
+		func(config *echoSwagger.Config) {
+			// for clear the default URLs
+			config.URLs = []string{}
+		},
+	}
+
+	// 设置InstanceName,为了找到正确的swagger配置
+	for swagType := range api.GetAllSwaggerDocs() {
+		urlPath := swagType.GetUrlPath()
+		optionList = append(optionList, echoSwagger.URL(urlPath))
+
+		if strings.HasSuffix(c.Request().RequestURI, urlPath) {
+			optionList = append(optionList, echoSwagger.InstanceName(urlPath))
+		}
+	}
+
+	handler := echoSwagger.EchoWrapHandler(optionList...)
+	return handler(c)
 }

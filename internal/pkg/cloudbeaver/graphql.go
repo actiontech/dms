@@ -9,6 +9,7 @@ import (
 
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver/model"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver/resolver"
+	_const "github.com/actiontech/dms/pkg/dms-common/pkg/const"
 
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 
@@ -97,7 +98,7 @@ type ContextKey string
 const (
 	UsernamePrefix             = "dms-"
 	SQLEDirectAudit ContextKey = "sqle_direct_audit"
-	SQLEProxyName              = "sqle"
+	SQLEProxyName              = _const.SqleComponentName
 )
 
 func GenerateCloudbeaverUserId(name string) string {

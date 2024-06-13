@@ -39,6 +39,7 @@ type DMSService struct {
 	CbOperationLogUsecase        *biz.CbOperationLogUsecase
 	DataMaskingUsecase           *biz.DataMaskingUsecase
 	AuthAccessTokenUseCase       *biz.AuthAccessTokenUsecase
+	SwaggerUseCase               *biz.SwaggerUseCase
 	log                          *utilLog.Helper
 	shutdownCallback             func() error
 }
@@ -111,6 +112,8 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	LicenseUsecase := biz.NewLicenseUsecase(logger, tx, licenseRepo, userUsecase, dbServiceUseCase, clusterUsecase)
 	dataExportTaskRepo := storage.NewDataExportTaskRepo(logger, st)
 
+	swaggerUseCase := biz.NewSwaggerUseCase(logger, dmsProxyUsecase)
+
 	cbOperationRepo := storage.NewCbOperationLogRepo(logger, st)
 	CbOperationLogUsecase := biz.NewCbOperationLogUsecase(logger, cbOperationRepo, opPermissionVerifyUsecase, dmsProxyTargetRepo)
 	workflowRepo := storage.NewWorkflowRepo(logger, st)
@@ -155,6 +158,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		CbOperationLogUsecase:        CbOperationLogUsecase,
 		DataMaskingUsecase:           dataMaskingUsecase,
 		AuthAccessTokenUseCase:       authAccessTokenUsecase,
+		SwaggerUseCase:               swaggerUseCase,
 		log:                          utilLog.NewHelper(logger, utilLog.WithMessageKey("dms.service")),
 		shutdownCallback: func() error {
 			if err := st.Close(); nil != err {

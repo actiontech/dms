@@ -9495,7 +9495,9 @@
   },
   "securityDefinitions": {
     "basic": {
-      "type": "basic"
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
     }
   }
 }

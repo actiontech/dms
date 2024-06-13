@@ -4,21 +4,22 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/actiontech/dms/internal/dms/biz"
-	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
-	pkgLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
-	"github.com/labstack/echo/v4"
-
 	dmsMiddleware "github.com/actiontech/dms/internal/apiserver/middleware"
+	"github.com/actiontech/dms/internal/dms/biz"
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	commonLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
+	pkgLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	echojwt "github.com/labstack/echo-jwt/v4"
+	"github.com/labstack/echo/v4"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 func (s *APIServer) initRouter() error {
+	s.echo.GET("/swagger/*", s.DMSController.SwaggerHandler, SwaggerMiddleWare)
+
 	v1 := s.echo.Group(dmsV1.CurrentGroupVersion)
 
 	// DMS RESTful resource
@@ -199,6 +200,21 @@ func (s *APIServer) initRouter() error {
 		}
 	}
 	return nil
+}
+
+func SwaggerMiddleWare(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// swagger 请求分为两种,一种是swagger html页面请求,一种是swagger json请求. eg:
+		// swagger/index.html 获取html
+		// swagger/dms/doc.yaml 获取json
+		hasPkPrefix := strings.HasPrefix(c.Request().RequestURI, "/swagger/index.html?urls.primaryName=")
+		if hasPkPrefix {
+			// 为了避免404
+			c.Request().RequestURI = "/swagger/index.html"
+		}
+
+		return next(c)
+	}
 }
 
 func (s *APIServer) installMiddleware() error {

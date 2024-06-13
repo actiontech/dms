@@ -10,6 +10,7 @@ import (
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
+	_const "github.com/actiontech/dms/pkg/dms-common/pkg/const"
 	pkgRand "github.com/actiontech/dms/pkg/rand"
 
 	"github.com/actiontech/dms/pkg/dms-common/pkg/aes"
@@ -22,9 +23,9 @@ import (
 type UserAuthenticationType string
 
 const (
-	UserAuthenticationTypeLDAP   UserAuthenticationType = "ldap"   // user verify through ldap
-	UserAuthenticationTypeDMS    UserAuthenticationType = "dms"    // user verify through dms
-	UserAuthenticationTypeOAUTH2 UserAuthenticationType = "oauth2" // user verify through oauth2
+	UserAuthenticationTypeLDAP   UserAuthenticationType = "ldap"                  // user verify through ldap
+	UserAuthenticationTypeDMS    UserAuthenticationType = _const.DmsComponentName // user verify through dms
+	UserAuthenticationTypeOAUTH2 UserAuthenticationType = "oauth2"                // user verify through oauth2
 )
 
 func (u *UserAuthenticationType) String() string {
