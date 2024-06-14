@@ -120,6 +120,8 @@ type UnarchiveProjectReq struct {
 
 // swagger:parameters ImportProjects
 type ImportProjectsReq struct {
+	// import projects
+	// in:body
 	Projects []*ImportProjects `json:"projects" validate:"required"`
 }
 
@@ -232,7 +234,7 @@ type ImportDBServicesCheckCsvReply struct {
 type ImportDBServicesOfProjectsReq struct {
 	// new db services
 	// in:body
-	DBServices []DBService `json:"db_services" validate:"required"`
+	DBServices []ImportDBService `json:"db_services" validate:"required"`
 }
 
 type CheckDbsConnectable struct {
@@ -281,10 +283,10 @@ type DBServicesConnectionItem struct {
 	FailedNames []string `json:"failed_names"`
 }
 
-// swagger:response DBServicesConnectionReply
+// swagger:model DBServicesConnectionReply
 type DBServicesConnectionReply struct {
 	// Generic reply
 	base.GenericResp
 	// connection result
-	Data []*DBServicesConnectionItem `json:"data"`
+	Data *DBServicesConnectionItem `json:"data"`
 }

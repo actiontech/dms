@@ -1120,9 +1120,6 @@
         "consumes": [
           "application/json"
         ],
-        "produces": [
-          "application/json"
-        ],
         "tags": [
           "dms"
         ],
@@ -1142,8 +1139,17 @@
           }
         ],
         "responses": {
+          "200": {
+            "description": "DBServicesConnectionReply",
+            "schema": {
+              "$ref": "#/definitions/DBServicesConnectionReply"
+            }
+          },
           "default": {
-            "$ref": "#/responses/DBServicesConnectionReply"
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
           }
         }
       }
@@ -1204,13 +1210,16 @@
         "operationId": "ImportProjects",
         "parameters": [
           {
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/ImportProjects"
-            },
             "x-go-name": "Projects",
+            "description": "import projects",
             "name": "projects",
-            "in": "query"
+            "in": "body",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ImportProjects"
+              }
+            }
           }
         ],
         "responses": {
@@ -1251,12 +1260,18 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/DBService"
+                "$ref": "#/definitions/ImportDBService"
               }
             }
           }
         ],
         "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
           "default": {
             "description": "GenericResp",
             "schema": {
@@ -2752,9 +2767,6 @@
         "consumes": [
           "application/json"
         ],
-        "produces": [
-          "application/json"
-        ],
         "tags": [
           "dms"
         ],
@@ -2776,12 +2788,18 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/DBService"
+                "$ref": "#/definitions/ImportDBService"
               }
             }
           }
         ],
         "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
           "default": {
             "description": "GenericResp",
             "schema": {
@@ -5300,6 +5318,26 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "DBServicesConnectionReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/DBServicesConnectionItem"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "DMSProxyTarget": {
       "description": "A dms proxy target",
       "type": "object",
@@ -6217,15 +6255,14 @@
           "$ref": "#/definitions/AccessTokenInfo"
         },
         "authentication_type": {
-          "description": "user authentication type\nldap UserAuthenticationTypeLDAP\ndms UserAuthenticationTypeDMS\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
+          "description": "user authentication type\nldap UserAuthenticationTypeLDAP\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
           "type": "string",
           "enum": [
             "ldap",
-            "dms",
             "oauth2",
             "unknown"
           ],
-          "x-go-enum-desc": "ldap UserAuthenticationTypeLDAP\ndms UserAuthenticationTypeDMS\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
+          "x-go-enum-desc": "ldap UserAuthenticationTypeLDAP\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
           "x-go-name": "AuthenticationType"
         },
         "email": {
@@ -6489,6 +6526,86 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "ImportDBService": {
+      "type": "object",
+      "properties": {
+        "additional_params": {
+          "description": "DB Service Custom connection parameters",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdditionalParam"
+          },
+          "x-go-name": "AdditionalParams"
+        },
+        "business": {
+          "description": "the db service business name",
+          "type": "string",
+          "x-go-name": "Business"
+        },
+        "db_type": {
+          "description": "db service DB type",
+          "type": "string",
+          "x-go-name": "DBType"
+        },
+        "desc": {
+          "description": "DB desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "host": {
+          "description": "db service host",
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "is_enable_masking": {
+          "description": "is enable masking",
+          "type": "boolean",
+          "x-go-name": "IsEnableMasking"
+        },
+        "maintenance_times": {
+          "description": "DB Service maintenance time",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MaintenanceTime"
+          },
+          "x-go-name": "MaintenanceTimes"
+        },
+        "name": {
+          "description": "db service name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "password": {
+          "description": "db service admin encrypted password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "port": {
+          "description": "db service port",
+          "type": "string",
+          "x-go-name": "Port"
+        },
+        "project_uid": {
+          "description": "DB project uid",
+          "type": "string",
+          "x-go-name": "ProjectUID"
+        },
+        "source": {
+          "description": "DB source",
+          "type": "string",
+          "x-go-name": "Source"
+        },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
+        },
+        "user": {
+          "description": "db service admin user",
+          "type": "string",
+          "x-go-name": "User"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "ImportDBServicesCheckReply": {
       "type": "object",
       "properties": {
@@ -6502,7 +6619,7 @@
           "description": "db services",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/DBService"
+            "$ref": "#/definitions/ImportDBService"
           },
           "x-go-name": "Data"
         },
@@ -7707,15 +7824,14 @@
       "type": "object",
       "properties": {
         "authentication_type": {
-          "description": "user authentication type\nldap UserAuthenticationTypeLDAP\ndms UserAuthenticationTypeDMS\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
+          "description": "user authentication type\nldap UserAuthenticationTypeLDAP\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
           "type": "string",
           "enum": [
             "ldap",
-            "dms",
             "oauth2",
             "unknown"
           ],
-          "x-go-enum-desc": "ldap UserAuthenticationTypeLDAP\ndms UserAuthenticationTypeDMS\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
+          "x-go-enum-desc": "ldap UserAuthenticationTypeLDAP\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
           "x-go-name": "AuthenticationType"
         },
         "email": {
@@ -8719,7 +8835,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
@@ -9403,27 +9519,6 @@
     }
   },
   "responses": {
-    "DBServicesConnectionReply": {
-      "description": "",
-      "headers": {
-        "code": {
-          "type": "integer",
-          "format": "int64",
-          "description": "code"
-        },
-        "data": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/DBServicesConnectionItem"
-          },
-          "description": "connection result"
-        },
-        "message": {
-          "type": "string",
-          "description": "message"
-        }
-      }
-    },
     "DownloadDataExportTaskReply": {
       "description": "",
       "schema": {
