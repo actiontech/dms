@@ -9,6 +9,7 @@ import (
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	pkgAes "github.com/actiontech/dms/pkg/dms-common/pkg/aes"
+	"github.com/actiontech/dms/pkg/params"
 	"github.com/actiontech/dms/pkg/periods"
 )
 
@@ -229,6 +230,109 @@ func (d *DMSService) convertPeriodToMaintenanceTime(p periods.Periods) []*dmsCom
 	return periods
 }
 
+func (d *DMSService) convertBizDBServiceArgs2ImportDBService(dbs []*biz.BizDBServiceArgs) []*dmsV1.ImportDBService {
+	ret := make([]*dmsV1.ImportDBService, len(dbs))
+	for i, u := range dbs {
+		ret[i] = &dmsV1.ImportDBService{
+			Name:             u.Name,
+			DBType:           u.DBType,
+			Host:             u.Host,
+			Port:             u.Port,
+			User:             u.User,
+			Password:         *u.Password,
+			Business:         u.Business,
+			MaintenanceTimes: d.convertPeriodToMaintenanceTime(u.MaintenancePeriod),
+			Desc:             *u.Desc,
+			Source:           u.Source,
+			ProjectUID:       u.ProjectUID,
+			SQLEConfig: &dmsCommonV1.SQLEConfig{
+				RuleTemplateName: u.RuleTemplateName,
+				RuleTemplateID:   u.RuleTemplateID,
+				SQLQueryConfig:   nil,
+			},
+			AdditionalParams: nil,
+			IsEnableMasking:  false,
+		}
+
+		if u.AdditionalParams != nil {
+			additionalParams := make([]*dmsCommonV1.AdditionalParam, 0, len(u.AdditionalParams))
+			for _, item := range u.AdditionalParams {
+				additionalParams = append(additionalParams, &dmsCommonV1.AdditionalParam{
+					Name:        item.Key,
+					Value:       item.Value,
+					Description: item.Desc,
+					Type:        string(item.Type),
+				})
+			}
+			ret[i].AdditionalParams = additionalParams
+		}
+
+		if u.SQLQueryConfig != nil {
+			ret[i].SQLEConfig.SQLQueryConfig = &dmsCommonV1.SQLQueryConfig{
+				MaxPreQueryRows:                  u.SQLQueryConfig.MaxPreQueryRows,
+				QueryTimeoutSecond:               u.SQLQueryConfig.QueryTimeoutSecond,
+				AuditEnabled:                     u.SQLQueryConfig.AuditEnabled,
+				AllowQueryWhenLessThanAuditLevel: dmsCommonV1.SQLAllowQueryAuditLevel(u.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel),
+			}
+		}
+	}
+
+	return ret
+}
+
+func (d *DMSService) convertImportDBService2BizDBService(importDbs []dmsV1.ImportDBService) []*biz.DBService {
+	ret := make([]*biz.DBService, len(importDbs))
+	for i, u := range importDbs {
+		ret[i] = &biz.DBService{
+			UID:               "",
+			Name:              u.Name,
+			Desc:              u.Desc,
+			DBType:            u.DBType,
+			Host:              u.Host,
+			Port:              u.Port,
+			User:              u.User,
+			Password:          u.Password,
+			Business:          u.Business,
+			AdditionalParams:  nil,
+			ProjectUID:        u.ProjectUID,
+			MaintenancePeriod: d.convertMaintenanceTimeToPeriod(u.MaintenanceTimes),
+			Source:            u.Source,
+			SQLEConfig:        nil,
+			IsMaskingSwitch:   u.IsEnableMasking,
+			AccountPurpose:    "",
+		}
+
+		if u.AdditionalParams != nil {
+			additionalParams := make([]*params.Param, 0, len(u.AdditionalParams))
+			for _, item := range u.AdditionalParams {
+				additionalParams = append(additionalParams, &params.Param{
+					Key:   item.Name,
+					Value: item.Value,
+					Desc:  item.Description,
+					Type:  params.ParamType(item.Type),
+				})
+			}
+			ret[i].AdditionalParams = additionalParams
+		}
+
+		if u.SQLEConfig != nil {
+			sqlConfig := &biz.SQLEConfig{
+				RuleTemplateName: u.SQLEConfig.RuleTemplateName,
+				RuleTemplateID:   u.SQLEConfig.RuleTemplateID,
+				SQLQueryConfig:   &biz.SQLQueryConfig{},
+			}
+			if u.SQLEConfig.SQLQueryConfig != nil {
+				sqlConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel = string(u.SQLEConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel)
+				sqlConfig.SQLQueryConfig.AuditEnabled = u.SQLEConfig.SQLQueryConfig.AuditEnabled
+				sqlConfig.SQLQueryConfig.MaxPreQueryRows = u.SQLEConfig.SQLQueryConfig.MaxPreQueryRows
+				sqlConfig.SQLQueryConfig.QueryTimeoutSecond = u.SQLEConfig.SQLQueryConfig.QueryTimeoutSecond
+			}
+			ret[i].SQLEConfig = sqlConfig
+		}
+	}
+	return ret
+}
+
 func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDBServiceReq, currentUserUid string) (reply *dmsCommonV1.ListDBServiceReply, err error) {
 	d.log.Infof("ListDBServices.req=%v", req)
 	defer func() {
@@ -442,4 +546,12 @@ func (d *DMSService) ListDBServiceDriverOption(ctx context.Context) (reply *dmsV
 	return &dmsV1.ListDBServiceDriverOptionReply{
 		Data: ret,
 	}, nil
+}
+
+func (d *DMSService) ImportDBServicesOfOneProjectCheck(ctx context.Context, userUid, projectUid, fileContent string) (*dmsV1.ImportDBServicesCheckReply, []byte, error) {
+	return d.importDBServicesOfOneProjectCheck(ctx, userUid, projectUid, fileContent)
+}
+
+func (d *DMSService) ImportDBServicesOfOneProject(ctx context.Context, req *dmsV1.ImportDBServicesOfOneProjectReq, uid string) error {
+	return d.importDBServicesOfOneProject(ctx, req, uid)
 }
