@@ -120,6 +120,8 @@ type UnarchiveProjectReq struct {
 
 // swagger:parameters ImportProjects
 type ImportProjectsReq struct {
+	// import projects
+	// in:body
 	Projects []*ImportProjects `json:"projects" validate:"required"`
 }
 
@@ -281,7 +283,7 @@ type DBServicesConnectionItem struct {
 	FailedNames []string `json:"failed_names"`
 }
 
-// swagger:response DBServicesConnectionReply
+// swagger:model DBServicesConnectionReply
 type DBServicesConnectionReply struct {
 	// Generic reply
 	base.GenericResp
