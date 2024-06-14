@@ -1562,7 +1562,20 @@ func (a *DMSController) GetProjectTips(c echo.Context) error {
 //	  200: GetImportDBServicesTemplateReply
 //	  default: body:GenericResp
 func (a *DMSController) GetImportDBServicesTemplate(c echo.Context) error {
-	return nil
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	importDBServicesTemplate, err := a.DMS.GetImportDBServicesTemplate(c.Request().Context(), currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	c.Response().Header().Set(echo.HeaderContentDisposition,
+		mime.FormatMediaType("attachment", map[string]string{"filename": "import_db_services_template.csv"}))
+
+	return c.Blob(http.StatusOK, "text/csv", importDBServicesTemplate)
 }
 
 // swagger:route POST /v1/dms/projects/{project_uid}/db_services/import_check dms ImportDBServicesOfOneProjectCheck
@@ -1580,7 +1593,36 @@ func (a *DMSController) GetImportDBServicesTemplate(c echo.Context) error {
 //	  200: ImportDBServicesCheckCsvReply
 //	  default: body:ImportDBServicesCheckReply
 func (a *DMSController) ImportDBServicesOfOneProjectCheck(c echo.Context) error {
-	return nil
+	req := new(aV1.ImportDBServicesOfOneProjectCheckReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	fileContent, exist, err := ReadFileContent(c, DBServicesFileParamKey)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	if !exist {
+		return NewErrResp(c, fmt.Errorf("upload file is not exist"), apiError.APIServerErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, csvCheckResult, err := a.DMS.ImportDBServicesOfOneProjectCheck(c.Request().Context(), currentUserUid, req.ProjectUid, fileContent)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	if csvCheckResult != nil {
+		c.Response().Header().Set(echo.HeaderContentDisposition,
+			mime.FormatMediaType("attachment", map[string]string{"filename": "import_db_services_problems.csv"}))
+		return c.Blob(http.StatusOK, "text/csv", csvCheckResult)
+	}
+
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:route POST /v1/dms/projects/{project_uid}/db_services/import dms ImportDBServicesOfOneProject
@@ -1594,7 +1636,23 @@ func (a *DMSController) ImportDBServicesOfOneProjectCheck(c echo.Context) error 
 //	  200: body:GenericResp
 //	  default: body:GenericResp
 func (a *DMSController) ImportDBServicesOfOneProject(c echo.Context) error {
-	return nil
+	req := new(aV1.ImportDBServicesOfOneProjectReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	err = a.DMS.ImportDBServicesOfOneProject(c.Request().Context(), req, currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkResp(c)
 }
 
 // swagger:route POST /v1/dms/projects/import_db_services_check dms ImportDBServicesOfProjectsCheck
@@ -1612,7 +1670,30 @@ func (a *DMSController) ImportDBServicesOfOneProject(c echo.Context) error {
 //	  200: ImportDBServicesCheckCsvReply
 //	  default: body:ImportDBServicesCheckReply
 func (a *DMSController) ImportDBServicesOfProjectsCheck(c echo.Context) error {
-	return nil
+	fileContent, exist, err := ReadFileContent(c, DBServicesFileParamKey)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	if !exist {
+		return NewErrResp(c, fmt.Errorf("upload file is not exist"), apiError.APIServerErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, csvCheckResult, err := a.DMS.ImportDBServicesOfProjectsCheck(c.Request().Context(), currentUserUid, fileContent)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	if csvCheckResult != nil {
+		c.Response().Header().Set(echo.HeaderContentDisposition,
+			mime.FormatMediaType("attachment", map[string]string{"filename": "import_db_services_problems.csv"}))
+		return c.Blob(http.StatusOK, "text/csv", csvCheckResult)
+	}
+
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:route POST /v1/dms/projects/import_db_services dms ImportDBServicesOfProjects
@@ -1629,7 +1710,23 @@ func (a *DMSController) ImportDBServicesOfProjectsCheck(c echo.Context) error {
 //	  200: body:GenericResp
 //	  default: body:GenericResp
 func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
-	return nil
+	req := new(aV1.ImportDBServicesOfProjectsReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	err = a.DMS.ImportDBServicesOfProjects(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkResp(c)
 }
 
 // swagger:route POST /v1/dms/projects/db_services_connection dms DBServicesConnection
@@ -1643,7 +1740,23 @@ func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
 //	  200: DBServicesConnectionReply
 //	  default: body:GenericResp
 func (a *DMSController) DBServicesConnection(c echo.Context) error {
-	return nil
+	req := new(aV1.DBServiceConnectionReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, err := a.DMS.DBServicesConnection(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:route POST /v1/dms/proxy dms RegisterDMSProxyTarget

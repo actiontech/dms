@@ -25,14 +25,22 @@ func NewDBServiceRepo(log utilLog.Logger, s *Storage) *DBServiceRepo {
 	return &DBServiceRepo{Storage: s, log: utilLog.NewHelper(log, utilLog.WithMessageKey("storage.db_service"))}
 }
 
-func (d *DBServiceRepo) SaveDBService(ctx context.Context, ds *biz.DBService) error {
-	model, err := convertBizDBService(ds)
-	if err != nil {
-		return pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert biz db service: %w", err))
+func (d *DBServiceRepo) SaveDBServices(ctx context.Context, ds []*biz.DBService) error {
+	var err error
+	models := make([]*model.DBService, len(ds))
+	for k, v := range ds {
+		if v == nil {
+			return fmt.Errorf("invalid DBService: %v", ds)
+		}
+		models[k], err = convertBizDBService(v)
+		if err != nil {
+			return pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert biz db service: %w", err))
+		}
 	}
+
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
-		if err := tx.WithContext(ctx).Create(model).Error; err != nil {
-			return fmt.Errorf("failed to save db service: %v", err)
+		if err := tx.WithContext(ctx).Create(models).Error; err != nil {
+			return fmt.Errorf("failed to save db services: %v", err)
 		}
 		return nil
 	}); err != nil {

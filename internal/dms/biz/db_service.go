@@ -115,7 +115,7 @@ func newDBService(args *BizDBServiceArgs) (*DBService, error) {
 type AdditionalParams pkgParams.Param
 
 type DBServiceRepo interface {
-	SaveDBService(ctx context.Context, dbService *DBService) error
+	SaveDBServices(ctx context.Context, dbService []*DBService) error
 	GetDBServicesByIds(ctx context.Context, dbServiceIds []string) (services []*DBService, err error)
 	ListDBServices(ctx context.Context, opt *ListDBServicesOption) (services []*DBService, total int64, err error)
 	DelDBService(ctx context.Context, dbServiceUid string) error
@@ -198,7 +198,7 @@ func (d *DBServiceUsecase) CreateDBService(ctx context.Context, args *BizDBServi
 		return "", fmt.Errorf("precheck db service failed: %w", err)
 	}
 
-	if err = d.repo.SaveDBService(ctx, ds); err != nil {
+	if err = d.repo.SaveDBServices(ctx, []*DBService{ds}); err != nil {
 		return "", err
 	}
 
