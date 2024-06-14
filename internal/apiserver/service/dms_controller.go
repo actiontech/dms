@@ -1577,8 +1577,8 @@ func (a *DMSController) GetImportDBServicesTemplate(c echo.Context) error {
 //	- text/csv
 //
 //	responses:
-//	  default: body:ImportDBServicesCheckReply
 //	  200: ImportDBServicesCheckCsvReply
+//	  default: body:ImportDBServicesCheckReply
 func (a *DMSController) ImportDBServicesOfOneProjectCheck(c echo.Context) error {
 	return nil
 }
@@ -1588,9 +1588,6 @@ func (a *DMSController) ImportDBServicesOfOneProjectCheck(c echo.Context) error 
 // Import DBServices
 //
 //	Consumes:
-//	- application/json
-//
-//	Produces:
 //	- application/json
 //
 //	responses:
@@ -1604,16 +1601,16 @@ func (a *DMSController) ImportDBServicesOfOneProject(c echo.Context) error {
 //
 // Import DBServices
 //
-//	Consumes:
-//	- multipart/form-data
+//		Consumes:
+//		- multipart/form-data
 //
-//	Produces:
-//	- application/json
-//	- text/csv
+//		Produces:
+//		- application/json
+//		- text/csv
 //
 //	responses:
-//	  default: body:ImportDBServicesCheckReply
 //	  200: ImportDBServicesCheckCsvReply
+//	  default: body:ImportDBServicesCheckReply
 func (a *DMSController) ImportDBServicesOfProjectsCheck(c echo.Context) error {
 	return nil
 }
@@ -1642,12 +1639,9 @@ func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
 //	Consumes:
 //	- application/json
 //
-//	Produces:
-//	- application/json
-//
 //	responses:
 //	  200: DBServicesConnectionReply
-//	  default: DBServicesConnectionReply
+//	  default: body:GenericResp
 func (a *DMSController) DBServicesConnection(c echo.Context) error {
 	return nil
 }

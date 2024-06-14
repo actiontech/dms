@@ -712,6 +712,21 @@ definitions:
                 x-go-name: SuccessfulNum
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DBServicesConnectionReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/DBServicesConnectionItem'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DMSProxyTarget:
         description: A dms proxy target
         properties:
@@ -1422,18 +1437,15 @@ definitions:
                 description: |-
                     user authentication type
                     ldap UserAuthenticationTypeLDAP
-                    dms UserAuthenticationTypeDMS
                     oauth2 UserAuthenticationTypeOAUTH2
                     unknown UserAuthenticationTypeUnknown
                 enum:
                     - ldap
-                    - dms
                     - oauth2
                     - unknown
                 type: string
                 x-go-enum-desc: |-
                     ldap UserAuthenticationTypeLDAP
-                    dms UserAuthenticationTypeDMS
                     oauth2 UserAuthenticationTypeOAUTH2
                     unknown UserAuthenticationTypeUnknown
                 x-go-name: AuthenticationType
@@ -1642,6 +1654,68 @@ definitions:
                 type: string
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    ImportDBService:
+        properties:
+            additional_params:
+                description: DB Service Custom connection parameters
+                items:
+                    $ref: '#/definitions/AdditionalParam'
+                type: array
+                x-go-name: AdditionalParams
+            business:
+                description: the db service business name
+                type: string
+                x-go-name: Business
+            db_type:
+                description: db service DB type
+                type: string
+                x-go-name: DBType
+            desc:
+                description: DB desc
+                type: string
+                x-go-name: Desc
+            host:
+                description: db service host
+                type: string
+                x-go-name: Host
+            is_enable_masking:
+                description: is enable masking
+                type: boolean
+                x-go-name: IsEnableMasking
+            maintenance_times:
+                description: DB Service maintenance time
+                items:
+                    $ref: '#/definitions/MaintenanceTime'
+                type: array
+                x-go-name: MaintenanceTimes
+            name:
+                description: db service name
+                type: string
+                x-go-name: Name
+            password:
+                description: db service admin encrypted password
+                type: string
+                x-go-name: Password
+            port:
+                description: db service port
+                type: string
+                x-go-name: Port
+            project_uid:
+                description: DB project uid
+                type: string
+                x-go-name: ProjectUID
+            source:
+                description: DB source
+                type: string
+                x-go-name: Source
+            sqle_config:
+                $ref: '#/definitions/SQLEConfig'
+            user:
+                description: db service admin user
+                type: string
+                x-go-name: User
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ImportDBServicesCheckReply:
         properties:
             code:
@@ -1652,7 +1726,7 @@ definitions:
             data:
                 description: db services
                 items:
-                    $ref: '#/definitions/DBService'
+                    $ref: '#/definitions/ImportDBService'
                 type: array
                 x-go-name: Data
             message:
@@ -2599,18 +2673,15 @@ definitions:
                 description: |-
                     user authentication type
                     ldap UserAuthenticationTypeLDAP
-                    dms UserAuthenticationTypeDMS
                     oauth2 UserAuthenticationTypeOAUTH2
                     unknown UserAuthenticationTypeUnknown
                 enum:
                     - ldap
-                    - dms
                     - oauth2
                     - unknown
                 type: string
                 x-go-enum-desc: |-
                     ldap UserAuthenticationTypeLDAP
-                    dms UserAuthenticationTypeDMS
                     oauth2 UserAuthenticationTypeOAUTH2
                     unknown UserAuthenticationTypeUnknown
                 x-go-name: AuthenticationType
@@ -3437,7 +3508,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -5738,12 +5809,14 @@ paths:
                   name: db_services
                   schema:
                     items:
-                        $ref: '#/definitions/DBService'
+                        $ref: '#/definitions/ImportDBService'
                     type: array
                   x-go-name: DBServices
-            produces:
-                - application/json
             responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
                 default:
                     description: GenericResp
                     schema:
@@ -6211,11 +6284,15 @@ paths:
                         $ref: '#/definitions/CheckDbsConnectable'
                     type: array
                   x-go-name: DBServices
-            produces:
-                - application/json
             responses:
+                "200":
+                    description: DBServicesConnectionReply
+                    schema:
+                        $ref: '#/definitions/DBServicesConnectionReply'
                 default:
-                    $ref: '#/responses/DBServicesConnectionReply'
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
             tags:
                 - dms
     /v1/dms/projects/export:
@@ -6257,11 +6334,13 @@ paths:
             description: Import projects
             operationId: ImportProjects
             parameters:
-                - in: query
-                  items:
-                    $ref: '#/definitions/ImportProjects'
+                - description: import projects
+                  in: body
                   name: projects
-                  type: array
+                  schema:
+                    items:
+                        $ref: '#/definitions/ImportProjects'
+                    type: array
                   x-go-name: Projects
             responses:
                 "200":
@@ -6286,12 +6365,16 @@ paths:
                   name: db_services
                   schema:
                     items:
-                        $ref: '#/definitions/DBService'
+                        $ref: '#/definitions/ImportDBService'
                     type: array
                   x-go-name: DBServices
             produces:
                 - application/json
             responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
                 default:
                     description: GenericResp
                     schema:
@@ -6937,21 +7020,6 @@ paths:
 produces:
     - application/json
 responses:
-    DBServicesConnectionReply:
-        description: ""
-        headers:
-            code:
-                description: code
-                format: int64
-                type: integer
-            data:
-                description: connection result
-                items:
-                    $ref: '#/definitions/DBServicesConnectionItem'
-                type: array
-            message:
-                description: message
-                type: string
     DownloadDataExportTaskReply:
         description: ""
         schema:
