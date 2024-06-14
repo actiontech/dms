@@ -1,0 +1,19 @@
+//go:build !enterprise
+
+package service
+
+import (
+	"context"
+	"errors"
+	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
+)
+
+var errNotSupportImportDBServices = errors.New("ImportDBServices related functions are enterprise version functions")
+
+func (d *DMSService) importDBServicesOfOneProjectCheck(ctx context.Context, userUid, projectUid, fileContent string) (*dmsV1.ImportDBServicesCheckReply, []byte, error) {
+	return nil, nil, errNotSupportImportDBServices
+}
+
+func (d *DMSService) importDBServicesOfOneProject(ctx context.Context, req *dmsV1.ImportDBServicesOfOneProjectReq, uid string) error {
+	return errNotSupportImportDBServices
+}
