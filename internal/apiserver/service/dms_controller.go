@@ -1577,8 +1577,8 @@ func (a *DMSController) GetImportDBServicesTemplate(c echo.Context) error {
 //	- text/csv
 //
 //	responses:
-//	  default: body:ImportDBServicesCheckReply
 //	  200: ImportDBServicesCheckCsvReply
+//	  default: body:ImportDBServicesCheckReply
 func (a *DMSController) ImportDBServicesOfOneProjectCheck(c echo.Context) error {
 	return nil
 }
@@ -1590,10 +1590,8 @@ func (a *DMSController) ImportDBServicesOfOneProjectCheck(c echo.Context) error 
 //	Consumes:
 //	- application/json
 //
-//	Produces:
-//	- application/json
-//
 //	responses:
+//	  200: body:GenericResp
 //	  default: body:GenericResp
 func (a *DMSController) ImportDBServicesOfOneProject(c echo.Context) error {
 	return nil
@@ -1603,16 +1601,16 @@ func (a *DMSController) ImportDBServicesOfOneProject(c echo.Context) error {
 //
 // Import DBServices
 //
-//	Consumes:
-//	- multipart/form-data
+//		Consumes:
+//		- multipart/form-data
 //
-//	Produces:
-//	- application/json
-//	- text/csv
+//		Produces:
+//		- application/json
+//		- text/csv
 //
 //	responses:
-//	  default: body:ImportDBServicesCheckReply
 //	  200: ImportDBServicesCheckCsvReply
+//	  default: body:ImportDBServicesCheckReply
 func (a *DMSController) ImportDBServicesOfProjectsCheck(c echo.Context) error {
 	return nil
 }
@@ -1628,6 +1626,7 @@ func (a *DMSController) ImportDBServicesOfProjectsCheck(c echo.Context) error {
 //	- application/json
 //
 //	responses:
+//	  200: body:GenericResp
 //	  default: body:GenericResp
 func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
 	return nil
@@ -1640,11 +1639,9 @@ func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
 //	Consumes:
 //	- application/json
 //
-//	Produces:
-//	- application/json
-//
 //	responses:
-//	  default: DBServicesConnectionReply
+//	  200: DBServicesConnectionReply
+//	  default: body:GenericResp
 func (a *DMSController) DBServicesConnection(c echo.Context) error {
 	return nil
 }
@@ -2160,9 +2157,10 @@ func (d *DMSController) GetLicense(c echo.Context) error {
 }
 
 const (
-	HardwareInfoFileName = "collected.infos"
-	LicenseFileParamKey  = "license_file"
-	ProjectsFileParamKey = "projects_file"
+	HardwareInfoFileName   = "collected.infos"
+	LicenseFileParamKey    = "license_file"
+	ProjectsFileParamKey   = "projects_file"
+	DBServicesFileParamKey = "db_services_file"
 )
 
 // swagger:route GET /v1/dms/configurations/license/info dms GetLicenseInfo
