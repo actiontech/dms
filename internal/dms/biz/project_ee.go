@@ -503,3 +503,10 @@ func (d *ProjectUsecase) UpdateProject(ctx context.Context, currentUserUid, proj
 
 	return nil
 }
+
+//go:embed template/import_db_services_template.csv
+var importDBServicesTemplate []byte
+
+func (d *ProjectUsecase) GetImportDBServicesTemplate(ctx context.Context, uid string) ([]byte, error) {
+	return importDBServicesTemplate, nil
+}

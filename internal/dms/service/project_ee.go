@@ -5,7 +5,6 @@ package service
 import (
 	"context"
 	"fmt"
-
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
@@ -125,4 +124,39 @@ func (d *DMSService) exportProjects(ctx context.Context, uid string, req *dmsV1.
 	}
 
 	return d.ProjectUsecase.ExportProjects(ctx, uid, listOption)
+}
+
+func (d *DMSService) getImportDBServicesTemplate(ctx context.Context, uid string) ([]byte, error) {
+	content, err := d.ProjectUsecase.GetImportDBServicesTemplate(ctx, uid)
+	if err != nil {
+		return nil, fmt.Errorf("get import projects template failed: %w", err)
+	}
+	return content, nil
+}
+
+func (d *DMSService) importDBServicesOfProjectsCheck(ctx context.Context, userUid, fileContent string) (*dmsV1.ImportDBServicesCheckReply, []byte, error) {
+	dbs, resultContent, err := d.DBServiceUsecase.ImportDBServicesOfProjectsCheck(ctx, userUid, fileContent)
+	if err != nil {
+		return nil, nil, err
+	}
+	if resultContent != nil {
+		return nil, resultContent, nil
+	}
+
+	ret := d.convertBizDBServiceArgs2ImportDBService(dbs)
+
+	return &dmsV1.ImportDBServicesCheckReply{Data: ret}, nil, nil
+}
+
+func (d *DMSService) importDBServicesOfProjects(ctx context.Context, req *dmsV1.ImportDBServicesOfProjectsReq, uid string) error {
+	ret := d.convertImportDBService2BizDBService(req.DBServices)
+	return d.DBServiceUsecase.ImportDBServicesOfProjects(ctx, ret, uid)
+}
+
+func (d *DMSService) dbServicesConnection(ctx context.Context, req *dmsV1.DBServiceConnectionReq, uid string) (*dmsV1.DBServicesConnectionReply, error) {
+	items, err := d.DBServiceUsecase.DBServicesConnection(ctx, req.DBServices)
+	if err != nil {
+		return nil, err
+	}
+	return &dmsV1.DBServicesConnectionReply{Data: items}, nil
 }
