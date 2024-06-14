@@ -232,7 +232,7 @@ type ImportDBServicesCheckCsvReply struct {
 type ImportDBServicesOfProjectsReq struct {
 	// new db services
 	// in:body
-	DBServices []DBService `json:"db_services" validate:"required"`
+	DBServices []ImportDBService `json:"db_services" validate:"required"`
 }
 
 type CheckDbsConnectable struct {
@@ -286,5 +286,5 @@ type DBServicesConnectionReply struct {
 	// Generic reply
 	base.GenericResp
 	// connection result
-	Data []*DBServicesConnectionItem `json:"data"`
+	Data *DBServicesConnectionItem `json:"data"`
 }
