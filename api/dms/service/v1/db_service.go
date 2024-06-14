@@ -284,12 +284,35 @@ type ImportDBServicesOfOneProjectCheckReq struct {
 	DBServicesFile *bytes.Buffer `json:"db_services_file"`
 }
 
-// swagger:model ImportDBServicesCheckReply
-type ImportDBServicesCheckReply struct {
-	// db services
-	Data []*DBService `json:"data"`
-	// Generic reply
-	base.GenericResp
+type ImportDBService struct {
+	// db service name
+	Name string `json:"name"`
+	// db service DB type
+	DBType string `json:"db_type"`
+	// db service host
+	Host string `json:"host"`
+	// db service port
+	Port string `json:"port"`
+	// db service admin user
+	User string `json:"user"`
+	// db service admin encrypted password
+	Password string `json:"password"`
+	// the db service business name
+	Business string `json:"business"`
+	// DB Service maintenance time
+	MaintenanceTimes []*dmsCommonV1.MaintenanceTime `json:"maintenance_times"`
+	// DB desc
+	Desc string `json:"desc"`
+	// DB source
+	Source string `json:"source"`
+	// DB project uid
+	ProjectUID string `json:"project_uid"`
+	// sqle config
+	SQLEConfig *dmsCommonV1.SQLEConfig `json:"sqle_config"`
+	// DB Service Custom connection parameters
+	AdditionalParams []*dmsCommonV1.AdditionalParam `json:"additional_params"`
+	// is enable masking
+	IsEnableMasking bool `json:"is_enable_masking"`
 }
 
 // swagger:parameters ImportDBServicesOfOneProject
@@ -300,5 +323,13 @@ type ImportDBServicesOfOneProjectReq struct {
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// new db services
 	// in:body
-	DBServices []DBService `json:"db_services" validate:"required"`
+	DBServices []ImportDBService `json:"db_services" validate:"required"`
+}
+
+// swagger:model ImportDBServicesCheckReply
+type ImportDBServicesCheckReply struct {
+	// db services
+	Data []*ImportDBService `json:"data"`
+	// Generic reply
+	base.GenericResp
 }
