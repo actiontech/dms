@@ -18,7 +18,6 @@ type Period struct {
 }
 
 // ParsePeriods parse string in importing db services csv column like: 09:30-11:30;11:30-13:30;20:30-21:30 to *Periods
-// todo unit test
 func ParsePeriods(s string) (Periods, error) {
 	start2ends := strings.Split(s, ";")
 	ps := make(Periods, len(start2ends))
