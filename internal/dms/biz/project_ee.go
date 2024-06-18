@@ -561,7 +561,11 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	importDBServicesTemplateData = data
+
+	buf := &bytes.Buffer{}
+	buf.WriteString("\xEF\xBB\xBF") // 写入UTF-8 BOM
+	buf.Write(data)
+	importDBServicesTemplateData = buf.Bytes()
 }
 
 func (d *ProjectUsecase) GetImportDBServicesTemplate(ctx context.Context, uid string) ([]byte, error) {
