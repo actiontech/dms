@@ -292,17 +292,125 @@ func TestParsePeriods(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "ok",
-			args: "09:30-11:30;11:30-13:30;20:30-21:30",
+			name:    "blank string",
+			args:    "",
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "invalid string",
+			args:    "whatever",
+			want:    nil,
+			wantErr: true,
+		},
+
+		{
+			name: "ok 1 period",
+			args: "09:30-11:30",
 			want: []*Period{
 				{9, 30, 11, 30},
-				{11, 30, 13, 30},
-				{20, 30, 21, 30},
 			},
 			wantErr: false,
 		},
 		{
-			name: "ok period disorder",
+			name: "ok 1 period, support(-0)",
+			args: "-0:10-11:-0",
+			want: []*Period{
+				{0, 10, 11, 0},
+			},
+			wantErr: false,
+		},
+		{
+			name:    "fail 1 period",
+			args:    "09:30a-11:30",
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "fail 1 period",
+			args:    "09:30 11:30",
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "fail 1 period",
+			args:    "09:00-11:-10",
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "fail 1 period, invalid minute",
+			args:    "09:60-11:30",
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "fail 1 period, invalid hour",
+			args:    "09:30-24:30",
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "fail 1 period",
+			args:    "9:30-11:300",
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "fail 1 period, invalid period",
+			args:    "09:30-08:30",
+			want:    nil,
+			wantErr: true,
+		},
+
+		{
+			name: "ok 2 periods, no leading zero",
+			args: "9:30-11:30;11:30-13:30",
+			want: []*Period{
+				{9, 30, 11, 30},
+				{11, 30, 13, 30},
+			},
+			wantErr: false,
+		},
+		{
+			name: "ok 2 periods, periods disorder",
+			args: "11:30-13:30;9:30-11:30",
+			want: []*Period{
+				{11, 30, 13, 30},
+				{9, 30, 11, 30},
+			},
+			wantErr: false,
+		},
+		{
+			name: "ok 2 periods,support(-0)",
+			args: "-0:-0--0:30;9:-0-11:-0",
+			want: []*Period{
+				{0, 0, 0, 30},
+				{9, 0, 11, 0},
+			},
+			wantErr: false,
+		},
+		{
+			name:    "fail 2 periods,blank",
+			args:    "11:30-13:30;",
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "fail 2 periods, unexpected newline",
+			args:    "11:3-13:3;21:0-\n23:0",
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "fail 2 periods, periods overlap",
+			args:    "9:3-51:30;9:30-21:30",
+			want:    nil,
+			wantErr: true,
+		},
+
+		{
+			name: "ok 3 periods disorder",
 			args: "09:30-11:30;20:30-21:30;11:30-13:30",
 			want: []*Period{
 				{9, 30, 11, 30},
@@ -312,7 +420,7 @@ func TestParsePeriods(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "ok no leading zero",
+			name: "ok 3 periods, no leading zero",
 			args: "9:3-11:30;20:30-21:30;11:30-13:30",
 			want: []*Period{
 				{9, 3, 11, 30},
@@ -322,38 +430,29 @@ func TestParsePeriods(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:    "fail blank string",
-			args:    "",
+			name:    "fail 3 periods, periods overlap",
+			args:    "9:3-51:30;9:30-21:30;11:30-13:30",
 			want:    nil,
 			wantErr: true,
 		},
+
 		{
-			name:    "fail suffix ;",
-			args:    "09:30-11:30;",
-			want:    nil,
-			wantErr: true,
+			name: "ok",
+			args: "01:30-2:00;2:30-3:0;6:30-7:0;3:30-4:0;7:30-8:0;8:30-9:00;9:30-10:0",
+			want: []*Period{
+				{1, 30, 2, 0},
+				{2, 30, 3, 0},
+				{6, 30, 7, 0},
+				{3, 30, 4, 0},
+				{7, 30, 8, 0},
+				{8, 30, 9, 0},
+				{9, 30, 10, 0},
+			},
+			wantErr: false,
 		},
 		{
-			name:    "fail invalid period",
-			args:    "09:30-09:30",
-			want:    nil,
-			wantErr: true,
-		},
-		{
-			name:    "fail invalid period",
-			args:    "09:30-08:30",
-			want:    nil,
-			wantErr: true,
-		},
-		{
-			name:    "fail invalid hour",
-			args:    "09:30-24:30",
-			want:    nil,
-			wantErr: true,
-		},
-		{
-			name:    "fail invalid minute",
-			args:    "09:30-09:60",
+			name:    "fail ;;",
+			args:    "01:30-2:00;2:30-3:0;;6:30-7:0;3:30-4:0;7:30-8:0;8:30-9:00;9:30-10:0",
 			want:    nil,
 			wantErr: true,
 		},

@@ -23,6 +23,7 @@ func ParsePeriods(s string) (Periods, error) {
 	ps := make(Periods, len(start2ends))
 	for k, v := range start2ends {
 		p := Period{}
+		// if sth follows "%d:%d-%d:%d", it will be ignored
 		_, err := fmt.Sscanf(v, "%d:%d-%d:%d", &p.StartHour, &p.StartMinute, &p.EndHour, &p.EndMinute)
 		if err != nil {
 			return nil, err
