@@ -20,6 +20,7 @@ require (
 	github.com/denisenkom/go-mssqldb v0.12.3
 	github.com/go-ldap/ldap/v3 v3.4.5
 	github.com/go-sql-driver/mysql v1.7.0
+	github.com/gocarina/gocsv v0.0.0-20240520201108-78e41c74b4b1
 	github.com/iancoleman/strcase v0.3.0
 	github.com/json-iterator/go v1.1.12
 	github.com/labstack/echo-jwt/v4 v4.1.0

@@ -15,6 +15,7 @@ import (
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	pkgRand "github.com/actiontech/dms/pkg/rand"
+	"github.com/gocarina/gocsv"
 
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
@@ -504,9 +505,65 @@ func (d *ProjectUsecase) UpdateProject(ctx context.Context, currentUserUid, proj
 	return nil
 }
 
-//go:embed template/import_db_services_template.csv
-var importDBServicesTemplate []byte
+var importDBServicesTemplateData []byte
+
+func init() {
+	var importDBServicesTemplateRows = []*ImportDbServicesCsvRow{
+		{
+			DbName:           "mysql_1",
+			ProjName:         "default",
+			Business:         "test",
+			Desc:             "mysql_1",
+			DbType:           "MySQL",
+			Host:             "127.0.0.1",
+			Port:             "3306",
+			User:             "root",
+			Password:         "123456",
+			OracleService:    "",
+			DB2DbName:        "",
+			OpsTime:          "22:30-23:59;00:00-06:00",
+			RuleTemplateName: "default_MySQL",
+			AuditLevel:       "notice",
+		}, {
+			DbName:           "oracle_1",
+			ProjName:         "default",
+			Business:         "test",
+			Desc:             "oracle_1",
+			DbType:           "Oracle",
+			Host:             "127.0.0.1",
+			Port:             "1521",
+			User:             "system",
+			Password:         "123456",
+			OracleService:    "xe",
+			DB2DbName:        "",
+			OpsTime:          "",
+			RuleTemplateName: "default_Oracle",
+			AuditLevel:       "warn",
+		}, {
+			DbName:           "db2_1",
+			ProjName:         "default",
+			Business:         "test",
+			Desc:             "db2_1",
+			DbType:           "DB2",
+			Host:             "127.0.0.1",
+			Port:             "50000",
+			User:             "db2inst1",
+			Password:         "123456",
+			OracleService:    "",
+			DB2DbName:        "testdb",
+			OpsTime:          "9:30-11:30;13:10-18:10",
+			RuleTemplateName: "default_DB2",
+			AuditLevel:       "error",
+		},
+	}
+
+	data, err := gocsv.MarshalBytes(importDBServicesTemplateRows)
+	if err != nil {
+		panic(err)
+	}
+	importDBServicesTemplateData = data
+}
 
 func (d *ProjectUsecase) GetImportDBServicesTemplate(ctx context.Context, uid string) ([]byte, error) {
-	return importDBServicesTemplate, nil
+	return importDBServicesTemplateData, nil
 }
