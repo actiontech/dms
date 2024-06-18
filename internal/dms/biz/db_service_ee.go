@@ -426,7 +426,8 @@ func (d *DBServiceUsecase) ImportDBServicesOfOneProject(ctx context.Context, dbs
 	return d.importDBServices(ctx, dbs)
 }
 
-func (d *DBServiceUsecase) ImportDBServicesOfProjects(ctx context.Context, dbs []*DBService, uid string) error { // 权限校验
+func (d *DBServiceUsecase) ImportDBServicesOfProjects(ctx context.Context, dbs []*DBService, uid string) error {
+	// 权限校验
 	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserDMSAdmin(ctx, uid); err != nil {
 		return fmt.Errorf("check user is dms admin failed: %v", err)
 	} else if !isAdmin {
