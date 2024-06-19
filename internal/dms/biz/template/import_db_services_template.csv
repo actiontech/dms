@@ -1,4 +1,0 @@
-数据源名称,所属项目(平台已有的项目名称),所属业务(项目已有的业务名称),数据源描述,数据源类型,数据源地址,数据源端口,数据源连接用户,数据源密码,服务名(Oracle需填),数据库名(DB2需填),运维时间(非必填，9:30-11:00;14:10-18:30),审核规则模板(项目已有的规则模板),工作台查询的最高审核等级[error|warn|notice|normal]
-mysql_1,default,test,mysql_1,MySQL,127.0.0.1,3306,root,123456,,,21:30-23:30,default_MySQL,notice
-oracle_1,default,test,oracle_1,Oracle,127.0.0.1,1521,system,123456,xe,,,default_Oracle,warn
-db2_1,default,test,db2_1,DB2,127.0.0.1,50000,db2inst1,123456,,testdb,9:30-11:30;13:10-18:10,default_DB2,error

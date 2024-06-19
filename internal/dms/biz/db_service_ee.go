@@ -5,7 +5,6 @@ package biz
 import (
 	"bytes"
 	"context"
-	"encoding/csv"
 	"errors"
 	"fmt"
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
@@ -17,9 +16,24 @@ import (
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 	pkgPeriods "github.com/actiontech/dms/pkg/periods"
 	pkgRand "github.com/actiontech/dms/pkg/rand"
+	"github.com/go-playground/validator/v10"
+	"github.com/gocarina/gocsv"
+	"reflect"
+	"strings"
+	"sync"
 )
 
-const ImportDBServicesCsvColumnsNum = 14
+var validate = validator.New()
+var csvTitleLine string
+
+func init() {
+	csvTitle, _ := gocsv.MarshalString([]*ImportDbServicesCsvRow{})
+	csvTitleLine = "\xEF\xBB\xBF" + strings.TrimSuffix(csvTitle, "\n")
+
+	validate.RegisterTagNameFunc(func(fld reflect.StructField) string {
+		return fld.Tag.Get("csv")
+	})
+}
 
 type RuleTemplate struct {
 	RuleTemplateName string `json:"rule_template_name"`
@@ -34,7 +48,7 @@ func (e ImportDbServicesPreCheckErr) Error() string {
 }
 
 var (
-	IDBPCErrInvalidInput             ImportDbServicesPreCheckErr = "若无特别说明参数均为必填"
+	IDBPCErrInvalidInput             ImportDbServicesPreCheckErr = "若无特别说明每列均为必填"
 	IDBPCErrProjNonExist             ImportDbServicesPreCheckErr = "所属项目不存在"
 	IDBPCErrProjNotActive            ImportDbServicesPreCheckErr = "所属项目状态异常"
 	IDBPCErrProjNotAllowed           ImportDbServicesPreCheckErr = "所属项目不是操作中的项目"
@@ -112,176 +126,230 @@ func (d *DBServiceUsecase) getActiveProjInfo(ctx context.Context, proj *Project)
 	return info, nil
 }
 
-func (d *DBServiceUsecase) readFromImportCsv(fileContent string) ([][]string, error) {
-	r := csv.NewReader(bytes.NewReader([]byte(fileContent)))
-	r.FieldsPerRecord = ImportDBServicesCsvColumnsNum
-	records, err := r.ReadAll()
-	if err != nil || len(records) < 1 {
-		return nil, fmt.Errorf("failed to read csv: %v", err)
-	}
-	return records, nil
+type ImportDbServicesCsvRow struct {
+	DbName           string `csv:"数据源名称" validate:"required"`
+	ProjName         string `csv:"所属项目(平台已有的项目名称)" validate:"required"`
+	Business         string `csv:"所属业务(项目已有的业务名称)" validate:"required"`
+	Desc             string `csv:"数据源描述" validate:"required"`
+	DbType           string `csv:"数据源类型" validate:"required"`
+	Host             string `csv:"数据源地址" validate:"required"`
+	Port             string `csv:"数据源端口" validate:"required"`
+	User             string `csv:"数据源连接用户" validate:"required"`
+	Password         string `csv:"数据源密码" validate:"required"`
+	OracleService    string `csv:"服务名(Oracle需填)" validate:"required_if=DbType Oracle"`
+	DB2DbName        string `csv:"数据库名(DB2需填)" validate:"required_if=DbType DB2"`
+	OpsTime          string `csv:"运维时间(非必填，9:30-11:00;14:10-18:30)"`
+	RuleTemplateName string `csv:"审核规则模板(项目已有的规则模板)" validate:"required"`
+	AuditLevel       string `csv:"工作台查询的最高审核等级[error|warn|notice|normal]" validate:"oneof=error warn notice normal"`
 }
 
-func (d *DBServiceUsecase) handleImportCsvRecord(ctx context.Context, projectInfoMap map[string]*projInfo, isDmsAdmin bool, line []string) (*BizDBServiceArgs, error) {
-	if len(line) != ImportDBServicesCsvColumnsNum {
-		return nil, fmt.Errorf("invalid csv record")
-	}
-	csvDbName := line[0]
-	csvProj := line[1]
-	csvBus := line[2]
-	csvDesc := line[3]
-	csvDbType := line[4]
-	csvHost := line[5]
-	csvPort := line[6]
-	csvUser := line[7]
-	csvPass := line[8]
-	csvOracleService := line[9]
-	csvDB2DbName := line[10]
-	csvOpsTime := line[11]
-	csvRuleTemplate := line[12]
-	csvLevel := line[13]
+type ImportDbServicesCheckResultCsvRow struct {
+	*ImportDbServicesCsvRow
+	Problem string `csv:"问题"`
+}
 
-	switch "" {
-	case csvDbName, csvProj, csvBus, csvDesc, csvDbType, csvHost, csvPort, csvUser, csvPass, csvRuleTemplate:
-		return nil, IDBPCErrInvalidInput
+func (d *DBServiceUsecase) checkImportCsvRow(ctx context.Context, projectInfoMap map[string]*projInfo, isDmsAdmin bool, row *ImportDbServicesCsvRow) error {
+	err := validate.Struct(row)
+	if err != nil {
+		var validationErrors validator.ValidationErrors
+		if errors.As(err, &validationErrors) {
+			var cols []string
+			for _, v := range validationErrors {
+				cols = append(cols, v.Field())
+			}
+			return ImportDbServicesPreCheckErr(fmt.Sprintf("缺失或不规范的列：%s", strings.Join(cols, ";")))
+		}
+		return fmt.Errorf("%w err:%v", IDBPCErrInvalidInput, err)
 	}
 
-	_, projExist := projectInfoMap[csvProj]
+	_, projExist := projectInfoMap[row.ProjName]
 	if isDmsAdmin && !projExist {
-		proj, err := d.projectUsecase.GetProjectByName(ctx, csvProj)
+		proj, err := d.projectUsecase.GetProjectByName(ctx, row.ProjName)
 		if err != nil {
-			d.log.Errorf("get project by name(%s) failed: %v", csvProj, err)
-			return nil, fmt.Errorf("%w get project by name(%s) failed: %v", IDBPCErrProjNonExist, csvProj, err)
+			d.log.Errorf("get project by name(%s) failed: %v", row.ProjName, err)
+			return fmt.Errorf("%w get project by name(%s) failed: %v", IDBPCErrProjNonExist, row.ProjName, err)
 		}
 		info, err := d.getActiveProjInfo(ctx, proj)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		projectInfoMap[proj.Name] = info
 	} else if !projExist {
-		return nil, fmt.Errorf("%w project name:(%s) is not existent", IDBPCErrProjNotAllowed, csvProj)
+		return fmt.Errorf("%w project name:(%s) is not existent", IDBPCErrProjNotAllowed, row.ProjName)
 	}
 
-	if _, businessExist := projectInfoMap[csvProj].business[csvBus]; !businessExist {
-		return nil, fmt.Errorf("%w business name:(%s) proj:(%s)", IDBPCErrBusinessNonExist, csvBus, csvProj)
+	if _, businessExist := projectInfoMap[row.ProjName].business[row.Business]; !businessExist {
+		return fmt.Errorf("%w business name:(%s) proj:(%s)", IDBPCErrBusinessNonExist, row.Business, row.ProjName)
 	}
 
-	var mp pkgPeriods.Periods
-	if csvOpsTime != "" {
-		var err error
-		mp, err = pkgPeriods.ParsePeriods(csvOpsTime)
-		if err != nil {
-			return nil, fmt.Errorf("%w parse MaintenancePeriod failed: %v", IDBPCErrOptTimeInvalid, err)
+	if row.OpsTime != "" {
+		if _, err = pkgPeriods.ParsePeriods(row.OpsTime); err != nil {
+			return fmt.Errorf("%w parse MaintenancePeriod failed: %v", IDBPCErrOptTimeInvalid, err)
 		}
 	}
 
-	additionalParams, err := d.GetDriverParamsByDBType(ctx, csvDbType)
+	additionalParams, err := d.GetDriverParamsByDBType(ctx, row.DbType)
 	if err != nil {
-		return nil, fmt.Errorf("%w err:%v", IDBPCErrDbTypeInvalid, err)
+		return fmt.Errorf("%w err:%v", IDBPCErrDbTypeInvalid, err)
 	}
-	// todo 理论上dms感知不到数据库类型
-	if csvDbType == "Oracle" && (csvOracleService == "" || additionalParams == nil) {
-		return nil, fmt.Errorf("%w err:%v", IDBPCErrOracleServiceNameInvalid, err)
-	} else if csvDbType == "Oracle" && csvOracleService != "" {
-		if err = additionalParams.SetParamValue("service_name", csvOracleService); err != nil {
-			return nil, fmt.Errorf("%w err:%v", IDBPCErrOracleServiceNameInvalid, err)
+
+	if row.DbType == "Oracle" && (row.OracleService == "" || additionalParams == nil) {
+		return fmt.Errorf("%w err:%v", IDBPCErrOracleServiceNameInvalid, err)
+	} else if row.DbType == "Oracle" && row.OracleService != "" {
+		if err = additionalParams.SetParamValue("service_name", row.OracleService); err != nil {
+			return fmt.Errorf("%w err:%v", IDBPCErrOracleServiceNameInvalid, err)
 		}
 	}
-	if csvDbType == "DB2" && (csvDB2DbName == "" || additionalParams == nil) {
-		return nil, fmt.Errorf("%w err:%v", IDBPCErrDB2DbNameInvalid, err)
-	} else if csvDbType == "DB2" && csvDB2DbName != "" {
-		if err = additionalParams.SetParamValue("database_name", csvDB2DbName); err != nil {
-			return nil, fmt.Errorf("%w err:%v", IDBPCErrDB2DbNameInvalid, err)
+	if row.DbType == "DB2" && (row.DB2DbName == "" || additionalParams == nil) {
+		return fmt.Errorf("%w err:%v", IDBPCErrDB2DbNameInvalid, err)
+	} else if row.DbType == "DB2" && row.DB2DbName != "" {
+		if err = additionalParams.SetParamValue("database_name", row.DB2DbName); err != nil {
+			return fmt.Errorf("%w err:%v", IDBPCErrDB2DbNameInvalid, err)
 		}
 	}
 
-	ruleTemplate, ruleTemplateExist := projectInfoMap[csvProj].ruleTemplates[csvRuleTemplate]
-	if !ruleTemplateExist || ruleTemplate.DbType != csvDbType {
-		return nil, fmt.Errorf("%w rule template name:(%s) project:(%s)", IDBPCErrRuleTemplateInvalid, csvRuleTemplate, csvProj)
+	ruleTemplate, ruleTemplateExist := projectInfoMap[row.ProjName].ruleTemplates[row.RuleTemplateName]
+	if !ruleTemplateExist || ruleTemplate.DbType != row.DbType {
+		return fmt.Errorf("%w rule template name:(%s) project:(%s)", IDBPCErrRuleTemplateInvalid, row.RuleTemplateName, row.ProjName)
 	}
 
-	var sqlQueryConfig *SQLQueryConfig
-	switch csvLevel {
+	switch row.AuditLevel {
 	case string(v1.AuditLevelNormal), string(v1.AuditLevelNotice), string(v1.AuditLevelWarn), string(v1.AuditLevelError):
-		sqlQueryConfig = &SQLQueryConfig{
-			MaxPreQueryRows:                  0,
-			QueryTimeoutSecond:               0,
-			AuditEnabled:                     true,
-			AllowQueryWhenLessThanAuditLevel: csvLevel,
-		}
 	default:
-		return nil, fmt.Errorf("%w input:(%s)", IDBPCErrLevelInvalid, csvLevel)
+		return fmt.Errorf("%w input:(%s)", IDBPCErrLevelInvalid, row.AuditLevel)
 	}
 
-	desc, pass := csvDesc, csvPass
-	dbServiceArg := &BizDBServiceArgs{
-		Name:              csvDbName,
-		Desc:              &desc,
-		DBType:            csvDbType,
-		Host:              csvHost,
-		Port:              csvPort,
-		User:              csvUser,
-		Password:          &pass,
-		Business:          csvBus,
-		Source:            string(pkgConst.DBServiceSourceNameSQLE),
-		AdditionalParams:  additionalParams,
-		ProjectUID:        projectInfoMap[csvProj].proj.UID,
-		MaintenancePeriod: mp,
-		RuleTemplateName:  ruleTemplate.RuleTemplateName,
-		RuleTemplateID:    ruleTemplate.RuleTemplateID,
-		SQLQueryConfig:    sqlQueryConfig,
-		IsMaskingSwitch:   false, //todo
-	}
-	return dbServiceArg, nil
+	return nil
 }
 
-func (d *DBServiceUsecase) importDBServicesCheck(ctx context.Context, fileContent string, projectInfoMap map[string]*projInfo, isDmsAdmin bool) ([]*BizDBServiceArgs, []byte, error) {
-	records, err := d.readFromImportCsv(fileContent)
+func (d *DBServiceUsecase) checkImportCsvRows(ctx context.Context, projectInfoMap map[string]*projInfo, isDmsAdmin bool, rows []*ImportDbServicesCsvRow) (map[int]ImportDbServicesPreCheckErr, error) {
+	checkErrs := make(map[int]ImportDbServicesPreCheckErr)
+	for i, row := range rows {
+		var lineErr ImportDbServicesPreCheckErr
+		err := d.checkImportCsvRow(ctx, projectInfoMap, isDmsAdmin, row)
+		if err != nil && !errors.As(err, &lineErr) {
+			return nil, err
+		} else if err != nil {
+			checkErrs[i] = lineErr
+			d.log.Debugf("checkImportCsvRow: %v, ImportDbServicesPreCheckErr: %v", row, lineErr)
+		}
+	}
+	return checkErrs, nil
+}
+
+func (d *DBServiceUsecase) genImportDbServicesCheckResultCsv(inputRows []*ImportDbServicesCsvRow, inputErrs map[int]ImportDbServicesPreCheckErr) ([]byte, error) {
+	resultRows := make([]*ImportDbServicesCheckResultCsvRow, len(inputRows))
+	for k := range inputRows {
+		problem := "无"
+		if _, exist := inputErrs[k]; exist {
+			problem = inputErrs[k].Error()
+		}
+		resultRows[k] = &ImportDbServicesCheckResultCsvRow{
+			ImportDbServicesCsvRow: inputRows[k],
+			Problem:                problem,
+		}
+	}
+
+	data, err := gocsv.MarshalBytes(resultRows)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	buf := &bytes.Buffer{}
 	buf.WriteString("\xEF\xBB\xBF") // 写入UTF-8 BOM
-	csvWriter := csv.NewWriter(buf)
-	// 在csv每行末尾增加一列用以描述该行预检问题，最终形成预检审核结果文件
-	writeLine := make([]string, 0, ImportDBServicesCsvColumnsNum+1)
+	buf.Write(data)
 
-	var errLines int
-	results := make([]*BizDBServiceArgs, 0, len(records)-1)
-	for k, v := range records {
-		if k == 0 { // 标题行
-			writeLine = append(append(writeLine, records[0]...), "问题")
-			if err := csvWriter.Write(writeLine); err != nil {
-				return nil, nil, err
+	return buf.Bytes(), nil
+}
+
+func (d *DBServiceUsecase) genBizDBServiceArgs4Import(ctx context.Context, projectInfoMap map[string]*projInfo, rows []*ImportDbServicesCsvRow) ([]*BizDBServiceArgs, error) {
+	bizDBServiceArgs := make([]*BizDBServiceArgs, 0, len(rows))
+	for _, row := range rows {
+		var mp pkgPeriods.Periods
+		if row.OpsTime != "" {
+			var err error
+			mp, err = pkgPeriods.ParsePeriods(row.OpsTime)
+			if err != nil {
+				return nil, fmt.Errorf("%w parse MaintenancePeriod failed: %v", IDBPCErrOptTimeInvalid, err)
 			}
-			continue
 		}
 
-		var lineErr ImportDbServicesPreCheckErr = "无"
-		bizDb, err := d.handleImportCsvRecord(ctx, projectInfoMap, isDmsAdmin, v)
-		if err != nil && !errors.As(err, &lineErr) {
-			return nil, nil, err
-		} else if err != nil {
-			errLines++
-			d.log.Debugf("handleLine %d ImportDbServicesPreCheckErr: %v", k+2, lineErr)
+		additionalParams, err := d.GetDriverParamsByDBType(ctx, row.DbType)
+		if err != nil {
+			return nil, fmt.Errorf("%w err:%v", IDBPCErrDbTypeInvalid, err)
+		}
+		if row.DbType == "Oracle" && additionalParams != nil {
+			if err = additionalParams.SetParamValue("service_name", row.OracleService); err != nil {
+				return nil, fmt.Errorf("%w err:%v", IDBPCErrOracleServiceNameInvalid, err)
+			}
+		}
+		if row.DbType == "DB2" && additionalParams != nil {
+			if err = additionalParams.SetParamValue("database_name", row.DB2DbName); err != nil {
+				return nil, fmt.Errorf("%w err:%v", IDBPCErrDB2DbNameInvalid, err)
+			}
 		}
 
-		results = append(results, bizDb)
-		writeLine = append(append(writeLine[:0], records[k]...), lineErr.Error())
-		if err := csvWriter.Write(writeLine); err != nil {
-			return nil, nil, err
+		ruleTemplate, ruleTemplateExist := projectInfoMap[row.ProjName].ruleTemplates[row.RuleTemplateName]
+		if !ruleTemplateExist || ruleTemplate.DbType != row.DbType {
+			return nil, fmt.Errorf("%w rule template name:(%s) project:(%s)", IDBPCErrRuleTemplateInvalid, row.RuleTemplateName, row.ProjName)
 		}
+
+		sqlQueryConfig := &SQLQueryConfig{
+			MaxPreQueryRows:                  0,
+			QueryTimeoutSecond:               0,
+			AuditEnabled:                     true,
+			AllowQueryWhenLessThanAuditLevel: row.AuditLevel,
+		}
+
+		pass, desc := row.Password, row.Desc
+		bizDBServiceArgs = append(bizDBServiceArgs, &BizDBServiceArgs{
+			Name:              row.DbName,
+			Desc:              &desc,
+			DBType:            row.DbType,
+			Host:              row.Host,
+			Port:              row.Port,
+			User:              row.User,
+			Password:          &pass,
+			Business:          row.Business,
+			Source:            string(pkgConst.DBServiceSourceNameSQLE),
+			AdditionalParams:  additionalParams,
+			ProjectUID:        projectInfoMap[row.ProjName].proj.UID,
+			MaintenancePeriod: mp,
+			RuleTemplateName:  ruleTemplate.RuleTemplateName,
+			RuleTemplateID:    ruleTemplate.RuleTemplateID,
+			SQLQueryConfig:    sqlQueryConfig,
+			IsMaskingSwitch:   false,
+		})
 	}
 
-	// 预检未通过，生成预检审核结果
-	if errLines > 0 {
-		csvWriter.Flush()
-		return nil, buf.Bytes(), nil
+	return bizDBServiceArgs, nil
+}
+
+func (d *DBServiceUsecase) importDBServicesCheck(ctx context.Context, fileContent string, projectInfoMap map[string]*projInfo, isDmsAdmin bool) ([]*BizDBServiceArgs, []byte, error) {
+	if !strings.HasPrefix(fileContent, csvTitleLine) {
+		return nil, nil, fmt.Errorf("csv title row is invalid")
 	}
 
-	// 预检通过，返回csv解析结果
-	return results, nil, nil
+	var inputRows []*ImportDbServicesCsvRow
+	if err := gocsv.UnmarshalString(fileContent, &inputRows); err != nil {
+		return nil, nil, err
+	}
+
+	// 预检
+	checkErrs, err := d.checkImportCsvRows(ctx, projectInfoMap, isDmsAdmin, inputRows)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// 预检未通过
+	if len(checkErrs) > 0 {
+		resultCsv, err := d.genImportDbServicesCheckResultCsv(inputRows, checkErrs)
+		return nil, resultCsv, err
+	}
+
+	// 预检通过
+	bizDBServiceArgs, err := d.genBizDBServiceArgs4Import(ctx, projectInfoMap, inputRows)
+	return bizDBServiceArgs, nil, err
 }
 
 func (d *DBServiceUsecase) ImportDBServicesOfOneProjectCheck(ctx context.Context, userUid, projectUid, fileContent string) ([]*BizDBServiceArgs, []byte, error) {
@@ -358,7 +426,8 @@ func (d *DBServiceUsecase) ImportDBServicesOfOneProject(ctx context.Context, dbs
 	return d.importDBServices(ctx, dbs)
 }
 
-func (d *DBServiceUsecase) ImportDBServicesOfProjects(ctx context.Context, dbs []*DBService, uid string) error { // 权限校验
+func (d *DBServiceUsecase) ImportDBServicesOfProjects(ctx context.Context, dbs []*DBService, uid string) error {
+	// 权限校验
 	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserDMSAdmin(ctx, uid); err != nil {
 		return fmt.Errorf("check user is dms admin failed: %v", err)
 	} else if !isAdmin {
@@ -370,32 +439,43 @@ func (d *DBServiceUsecase) ImportDBServicesOfProjects(ctx context.Context, dbs [
 
 func (d *DBServiceUsecase) DBServicesConnection(ctx context.Context, dbs []dmsV1.CheckDbsConnectable) (*dmsV1.DBServicesConnectionItem, error) {
 	ret := &dmsV1.DBServicesConnectionItem{}
-	for _, v := range dbs {
-		connectable, err := d.IsConnectable(ctx, v1.CheckDbConnectable{
-			DBType:           v.DBType,
-			User:             v.User,
-			Host:             v.Host,
-			Port:             v.Port,
-			Password:         v.Password,
-			AdditionalParams: v.AdditionalParams,
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		ok := true
-		for _, c := range connectable {
-			if !c.IsConnectable {
+	mtx := sync.Mutex{}
+	wg := sync.WaitGroup{}
+	wg.Add(len(dbs))
+	for k := range dbs {
+		go func(v dmsV1.CheckDbsConnectable) {
+			defer wg.Done()
+			ok := true
+			connectable, err := d.IsConnectable(ctx, v1.CheckDbConnectable{
+				DBType:           v.DBType,
+				User:             v.User,
+				Host:             v.Host,
+				Port:             v.Port,
+				Password:         v.Password,
+				AdditionalParams: v.AdditionalParams,
+			})
+			if err != nil {
 				ok = false
-				break
+				d.log.Errorf("check db connectable err: %v", err)
+			} else {
+				for _, c := range connectable {
+					if !c.IsConnectable {
+						ok = false
+						break
+					}
+				}
 			}
-		}
-		if !ok {
-			ret.FailedNum++
-			ret.FailedNames = append(ret.FailedNames, v.Name)
-		} else {
-			ret.SuccessfulNum++
-		}
+
+			mtx.Lock()
+			defer mtx.Unlock()
+			if !ok {
+				ret.FailedNum++
+				ret.FailedNames = append(ret.FailedNames, v.Name)
+			} else {
+				ret.SuccessfulNum++
+			}
+		}(dbs[k])
 	}
+	wg.Wait()
 	return ret, nil
 }
