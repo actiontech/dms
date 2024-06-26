@@ -52,7 +52,7 @@ var (
 	IDBPCErrProjNonExist             ImportDbServicesPreCheckErr = "所属项目不存在"
 	IDBPCErrProjNotActive            ImportDbServicesPreCheckErr = "所属项目状态异常"
 	IDBPCErrProjNotAllowed           ImportDbServicesPreCheckErr = "所属项目不是操作中的项目"
-	IDBPCErrBusinessNonExist         ImportDbServicesPreCheckErr = "所属业务不存在"
+	IDBPCErrBusinessNonExist         ImportDbServicesPreCheckErr = "项目业务固定且所属业务不存在"
 	IDBPCErrOptTimeInvalid           ImportDbServicesPreCheckErr = "运维时间不规范"
 	IDBPCErrDbTypeInvalid            ImportDbServicesPreCheckErr = "数据源类型不规范或对应插件未安装"
 	IDBPCErrOracleServiceNameInvalid ImportDbServicesPreCheckErr = "Oracle服务名错误"
@@ -178,7 +178,7 @@ func (d *DBServiceUsecase) checkImportCsvRow(ctx context.Context, projectInfoMap
 		return fmt.Errorf("%w project name:(%s) is not existent", IDBPCErrProjNotAllowed, row.ProjName)
 	}
 
-	if _, businessExist := projectInfoMap[row.ProjName].business[row.Business]; !businessExist {
+	if _, businessExist := projectInfoMap[row.ProjName].business[row.Business]; !businessExist && projectInfoMap[row.ProjName].proj.IsFixedBusiness {
 		return fmt.Errorf("%w business name:(%s) proj:(%s)", IDBPCErrBusinessNonExist, row.Business, row.ProjName)
 	}
 
