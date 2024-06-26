@@ -28,7 +28,7 @@ var csvTitleLine string
 
 func init() {
 	csvTitle, _ := gocsv.MarshalString([]*ImportDbServicesCsvRow{})
-	csvTitleLine = "\xEF\xBB\xBF" + strings.TrimSuffix(csvTitle, "\n")
+	csvTitleLine = strings.TrimSuffix(csvTitle, "\n")
 
 	validate.RegisterTagNameFunc(func(fld reflect.StructField) string {
 		return fld.Tag.Get("csv")
@@ -326,8 +326,8 @@ func (d *DBServiceUsecase) genBizDBServiceArgs4Import(ctx context.Context, proje
 }
 
 func (d *DBServiceUsecase) importDBServicesCheck(ctx context.Context, fileContent string, projectInfoMap map[string]*projInfo, isDmsAdmin bool) ([]*BizDBServiceArgs, []byte, error) {
-	if !strings.HasPrefix(fileContent, csvTitleLine) {
-		return nil, nil, fmt.Errorf("csv title row is invalid")
+	if !strings.HasPrefix(strings.TrimPrefix(fileContent, "\xEF\xBB\xBF"), csvTitleLine) {
+		return nil, nil, fmt.Errorf("csv title row is invalid, or it's not encoded with UTF-8")
 	}
 
 	var inputRows []*ImportDbServicesCsvRow
