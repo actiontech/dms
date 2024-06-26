@@ -28,7 +28,7 @@ var csvTitleLine string
 
 func init() {
 	csvTitle, _ := gocsv.MarshalString([]*ImportDbServicesCsvRow{})
-	csvTitleLine = "\xEF\xBB\xBF" + strings.TrimSuffix(csvTitle, "\n")
+	csvTitleLine = strings.TrimSuffix(csvTitle, "\n")
 
 	validate.RegisterTagNameFunc(func(fld reflect.StructField) string {
 		return fld.Tag.Get("csv")
@@ -52,7 +52,7 @@ var (
 	IDBPCErrProjNonExist             ImportDbServicesPreCheckErr = "所属项目不存在"
 	IDBPCErrProjNotActive            ImportDbServicesPreCheckErr = "所属项目状态异常"
 	IDBPCErrProjNotAllowed           ImportDbServicesPreCheckErr = "所属项目不是操作中的项目"
-	IDBPCErrBusinessNonExist         ImportDbServicesPreCheckErr = "所属业务不存在"
+	IDBPCErrBusinessNonExist         ImportDbServicesPreCheckErr = "项目业务固定且所属业务不存在"
 	IDBPCErrOptTimeInvalid           ImportDbServicesPreCheckErr = "运维时间不规范"
 	IDBPCErrDbTypeInvalid            ImportDbServicesPreCheckErr = "数据源类型不规范或对应插件未安装"
 	IDBPCErrOracleServiceNameInvalid ImportDbServicesPreCheckErr = "Oracle服务名错误"
@@ -178,7 +178,7 @@ func (d *DBServiceUsecase) checkImportCsvRow(ctx context.Context, projectInfoMap
 		return fmt.Errorf("%w project name:(%s) is not existent", IDBPCErrProjNotAllowed, row.ProjName)
 	}
 
-	if _, businessExist := projectInfoMap[row.ProjName].business[row.Business]; !businessExist {
+	if _, businessExist := projectInfoMap[row.ProjName].business[row.Business]; !businessExist && projectInfoMap[row.ProjName].proj.IsFixedBusiness {
 		return fmt.Errorf("%w business name:(%s) proj:(%s)", IDBPCErrBusinessNonExist, row.Business, row.ProjName)
 	}
 
@@ -326,8 +326,8 @@ func (d *DBServiceUsecase) genBizDBServiceArgs4Import(ctx context.Context, proje
 }
 
 func (d *DBServiceUsecase) importDBServicesCheck(ctx context.Context, fileContent string, projectInfoMap map[string]*projInfo, isDmsAdmin bool) ([]*BizDBServiceArgs, []byte, error) {
-	if !strings.HasPrefix(fileContent, csvTitleLine) {
-		return nil, nil, fmt.Errorf("csv title row is invalid")
+	if !strings.HasPrefix(strings.TrimPrefix(fileContent, "\xEF\xBB\xBF"), csvTitleLine) {
+		return nil, nil, fmt.Errorf("csv title row is invalid, or it's not encoded with UTF-8")
 	}
 
 	var inputRows []*ImportDbServicesCsvRow
