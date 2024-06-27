@@ -62,7 +62,7 @@ func (a *DMSController) Shutdown() error {
 	return nil
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/db_services dms AddDBService
+// swagger:route POST /v1/dms/projects/{project_uid}/db_services DBService AddDBService
 //
 // Add DB Service.
 //
@@ -89,7 +89,7 @@ func (d *DMSController) AddDBService(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/db_services dms ListDBServices
+// swagger:route GET /v1/dms/projects/{project_uid}/db_services DBService ListDBServices
 //
 // List db service.
 //
@@ -113,7 +113,7 @@ func (d *DMSController) ListDBServices(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/db_services/tips dms ListDBServiceTips
+// swagger:route GET /v1/dms/projects/{project_uid}/db_services/tips DBService ListDBServiceTips
 //
 // List db service tip.
 //
@@ -138,7 +138,7 @@ func (d *DMSController) ListDBServiceTips(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/db_services/driver_options dms ListDBServiceDriverOption
+// swagger:route GET /v1/dms/db_services/driver_options DBService ListDBServiceDriverOption
 //
 // List db service driver option.
 //
@@ -153,7 +153,7 @@ func (d *DMSController) ListDBServiceDriverOption(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route DELETE /v1/dms/projects/{project_uid}/db_services/{db_service_uid} dms DelDBService
+// swagger:route DELETE /v1/dms/projects/{project_uid}/db_services/{db_service_uid} DBService DelDBService
 //
 // Delete a DB Service.
 //
@@ -178,7 +178,7 @@ func (a *DMSController) DelDBService(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/projects/{project_uid}/db_services/{db_service_uid} dms UpdateDBService
+// swagger:route PUT /v1/dms/projects/{project_uid}/db_services/{db_service_uid} DBService UpdateDBService
 //
 // update a DB Service.
 //
@@ -203,7 +203,7 @@ func (a *DMSController) UpdateDBService(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/db_services/connection dms CheckDBServiceIsConnectable
+// swagger:route POST /v1/dms/projects/{project_uid}/db_services/connection DBService CheckDBServiceIsConnectable
 //
 // check if the db_service is connectable.
 //
@@ -224,7 +224,7 @@ func (d *DMSController) CheckDBServiceIsConnectable(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/db_services/{db_service_uid}/connection dms CheckDBServiceIsConnectableById
+// swagger:route POST /v1/dms/projects/{project_uid}/db_services/{db_service_uid}/connection DBService CheckDBServiceIsConnectableById
 //
 // check if the db_service is connectable.
 //
@@ -245,7 +245,7 @@ func (d *DMSController) CheckDBServiceIsConnectableById(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services dms ListDatabaseSourceServices
+// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services DatabaseSourceService ListDatabaseSourceServices
 //
 // List database source service.
 //
@@ -270,7 +270,7 @@ func (d *DMSController) ListDatabaseSourceServices(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} dms GetDatabaseSourceService
+// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} DatabaseSourceService GetDatabaseSourceService
 //
 // Get database source service.
 //
@@ -295,7 +295,7 @@ func (d *DMSController) GetDatabaseSourceService(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/database_source_services dms AddDatabaseSourceService
+// swagger:route POST /v1/dms/projects/{project_uid}/database_source_services DatabaseSourceService AddDatabaseSourceService
 //
 // Add database source service.
 //
@@ -322,7 +322,7 @@ func (d *DMSController) AddDatabaseSourceService(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PUT /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} dms UpdateDatabaseSourceService
+// swagger:route PUT /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} DatabaseSourceService UpdateDatabaseSourceService
 //
 // update database source service.
 //
@@ -347,7 +347,7 @@ func (d *DMSController) UpdateDatabaseSourceService(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route DELETE /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} dms DeleteDatabaseSourceService
+// swagger:route DELETE /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} DatabaseSourceService DeleteDatabaseSourceService
 //
 // Delete database source service.
 //
@@ -372,7 +372,7 @@ func (d *DMSController) DeleteDatabaseSourceService(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services/tips dms ListDatabaseSourceServiceTips
+// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services/tips DatabaseSourceService ListDatabaseSourceServiceTips
 //
 // List database source service tips.
 //
@@ -387,7 +387,7 @@ func (d *DMSController) ListDatabaseSourceServiceTips(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid}/sync dms SyncDatabaseSourceService
+// swagger:route POST /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid}/sync DatabaseSourceService SyncDatabaseSourceService
 //
 // Sync database source service.
 //
@@ -413,7 +413,7 @@ func (d *DMSController) SyncDatabaseSourceService(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/basic_info dms GetBasicInfo
+// swagger:route GET /v1/dms/basic_info BasicInfo GetBasicInfo
 //
 // get basic info.
 //
@@ -428,7 +428,7 @@ func (d *DMSController) GetBasicInfo(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/personalization/logo dms GetStaticLogo
+// swagger:route GET /v1/dms/personalization/logo BasicInfo GetStaticLogo
 //
 // get logo
 //
@@ -447,7 +447,7 @@ func (d *DMSController) GetStaticLogo(c echo.Context) error {
 	return c.Blob(http.StatusOK, contentType, reply.File)
 }
 
-// swagger:route POST /v1/dms/personalization dms Personalization
+// swagger:route POST /v1/dms/personalization BasicInfo Personalization
 //
 // personalize [title, logo]
 //
@@ -477,7 +477,7 @@ func (d *DMSController) Personalization(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/sessions dms AddSession
+// swagger:route POST /v1/dms/sessions Session AddSession
 //
 // Add a session.
 //
@@ -530,7 +530,7 @@ func (a *DMSController) AddSession(c echo.Context) error {
 	})
 }
 
-// swagger:route DELETE /v1/dms/sessions dms DelSession
+// swagger:route DELETE /v1/dms/sessions Session DelSession
 //
 // del a session.
 //
@@ -549,7 +549,7 @@ func (a *DMSController) DelSession(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/sessions/user dms GetUserBySession
+// swagger:route GET /v1/dms/sessions/user Session GetUserBySession
 //
 // Get current user.
 //
@@ -568,7 +568,7 @@ func (a *DMSController) GetUserBySession(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/users dms AddUser
+// swagger:route POST /v1/dms/users User AddUser
 //
 // Add user.
 //
@@ -595,7 +595,7 @@ func (d *DMSController) AddUser(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PUT /v1/dms/users/{user_uid} dms UpdateUser
+// swagger:route PUT /v1/dms/users/{user_uid} User UpdateUser
 //
 // Update a user.
 //
@@ -622,7 +622,7 @@ func (d *DMSController) UpdateUser(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/users dms UpdateCurrentUser
+// swagger:route PUT /v1/dms/users User UpdateCurrentUser
 //
 // Update current user.
 //
@@ -649,7 +649,7 @@ func (d *DMSController) UpdateCurrentUser(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route DELETE /v1/dms/users/{user_uid} dms DelUser
+// swagger:route DELETE /v1/dms/users/{user_uid} User DelUser
 //
 // Delete a user.
 //
@@ -676,7 +676,7 @@ func (a *DMSController) DelUser(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/users dms ListUsers
+// swagger:route GET /v1/dms/users User ListUsers
 //
 // List users.
 //
@@ -697,7 +697,7 @@ func (d *DMSController) ListUsers(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/users/{user_uid}/op_permission dms GetUserOpPermission
+// swagger:route GET /v1/dms/users/{user_uid}/op_permission User GetUserOpPermission
 //
 // Get user op permission info, This API is used by other component such as sqle&auth to check user permissions.
 //
@@ -717,7 +717,7 @@ func (a *DMSController) GetUserOpPermission(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/users/{user_uid} dms GetUser
+// swagger:route GET /v1/dms/users/{user_uid} User GetUser
 //
 // Get user info, This API is used by other component such as sqle&auth to get user info.
 //
@@ -737,7 +737,7 @@ func (a *DMSController) GetUser(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/users/gen_token dms GenAccessToken
+// swagger:route POST /v1/dms/users/gen_token User GenAccessToken
 //
 // Gen user access token.
 //
@@ -764,7 +764,7 @@ func (a *DMSController) GenAccessToken(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/user_groups dms AddUserGroup
+// swagger:route POST /v1/dms/user_groups UserGroup AddUserGroup
 //
 // Add user group.
 //
@@ -791,7 +791,7 @@ func (d *DMSController) AddUserGroup(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PUT /v1/dms/user_groups/{user_group_uid} dms UpdateUserGroup
+// swagger:route PUT /v1/dms/user_groups/{user_group_uid} UserGroup UpdateUserGroup
 //
 // Update a user group.
 //
@@ -818,7 +818,7 @@ func (d *DMSController) UpdateUserGroup(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route DELETE /v1/dms/user_groups/{user_group_uid} dms DelUserGroup
+// swagger:route DELETE /v1/dms/user_groups/{user_group_uid} UserGroup DelUserGroup
 //
 // Delete a user group.
 //
@@ -845,7 +845,7 @@ func (a *DMSController) DelUserGroup(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/user_groups dms ListUserGroups
+// swagger:route GET /v1/dms/user_groups UserGroup ListUserGroups
 //
 // List user groups.
 //
@@ -866,7 +866,7 @@ func (d *DMSController) ListUserGroups(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/roles dms AddRole
+// swagger:route POST /v1/dms/roles Role AddRole
 //
 // Add role.
 //
@@ -893,7 +893,7 @@ func (d *DMSController) AddRole(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PUT /v1/dms/roles/{role_uid} dms UpdateRole
+// swagger:route PUT /v1/dms/roles/{role_uid} Role UpdateRole
 //
 // Update a role.
 //
@@ -920,7 +920,7 @@ func (d *DMSController) UpdateRole(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route DELETE /v1/dms/roles/{role_uid} dms DelRole
+// swagger:route DELETE /v1/dms/roles/{role_uid} Role DelRole
 //
 // Delete a role.
 //
@@ -947,7 +947,7 @@ func (a *DMSController) DelRole(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/roles dms ListRoles
+// swagger:route GET /v1/dms/roles Role ListRoles
 //
 // List roles.
 //
@@ -968,7 +968,7 @@ func (d *DMSController) ListRoles(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/members dms AddMember
+// swagger:route POST /v1/dms/projects/{project_uid}/members Member AddMember
 //
 // Add member.
 //
@@ -995,7 +995,7 @@ func (d *DMSController) AddMember(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/members/tips dms ListMemberTips
+// swagger:route GET /v1/dms/projects/{project_uid}/members/tips Member ListMemberTips
 //
 // List member tips.
 //
@@ -1016,7 +1016,7 @@ func (d *DMSController) ListMemberTips(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/members dms ListMembers
+// swagger:route GET /v1/dms/projects/{project_uid}/members Member ListMembers
 //
 // List member, for front page.
 //
@@ -1037,7 +1037,7 @@ func (d *DMSController) ListMembers(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/members/internal dms ListMembersForInternal
+// swagger:route GET /v1/dms/projects/{project_uid}/members/internal Member ListMembersForInternal
 //
 // List members, for internal backend service.
 //
@@ -1058,7 +1058,7 @@ func (d *DMSController) ListMembersForInternal(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PUT /v1/dms/projects/{project_uid}/members/{member_uid} dms UpdateMember
+// swagger:route PUT /v1/dms/projects/{project_uid}/members/{member_uid} Member UpdateMember
 //
 // Update a member.
 //
@@ -1085,7 +1085,7 @@ func (d *DMSController) UpdateMember(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route DELETE /v1/dms/projects/{project_uid}/members/{member_uid} dms DelMember
+// swagger:route DELETE /v1/dms/projects/{project_uid}/members/{member_uid} Member DelMember
 //
 // Delete a member.
 //
@@ -1112,7 +1112,7 @@ func (a *DMSController) DelMember(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/member_groups dms ListMemberGroups
+// swagger:route GET /v1/dms/projects/{project_uid}/member_groups MemberGroup ListMemberGroups
 //
 // List member group, for front page.
 //
@@ -1133,7 +1133,7 @@ func (d *DMSController) ListMemberGroups(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/member_groups/{member_group_uid} dms GetMemberGroup
+// swagger:route GET /v1/dms/projects/{project_uid}/member_groups/{member_group_uid} MemberGroup GetMemberGroup
 //
 // Get member group, for front page.
 //
@@ -1154,7 +1154,7 @@ func (d *DMSController) GetMemberGroup(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/member_groups dms AddMemberGroup
+// swagger:route POST /v1/dms/projects/{project_uid}/member_groups MemberGroup AddMemberGroup
 //
 // Add member group.
 //
@@ -1181,7 +1181,7 @@ func (d *DMSController) AddMemberGroup(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PUT /v1/dms/projects/{project_uid}/member_groups/{member_group_uid} dms UpdateMemberGroup
+// swagger:route PUT /v1/dms/projects/{project_uid}/member_groups/{member_group_uid} MemberGroup UpdateMemberGroup
 //
 // update member group, for front page.
 //
@@ -1209,7 +1209,7 @@ func (d *DMSController) UpdateMemberGroup(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route DELETE  /v1/dms/projects/{project_uid}/member_groups/{member_group_uid} dms DeleteMemberGroup
+// swagger:route DELETE  /v1/dms/projects/{project_uid}/member_groups/{member_group_uid} MemberGroup DeleteMemberGroup
 //
 // delete member group, for front page.
 //
@@ -1237,7 +1237,7 @@ func (d *DMSController) DeleteMemberGroup(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/op_permissions dms ListOpPermissions
+// swagger:route GET /v1/dms/op_permissions OpPermission ListOpPermissions
 //
 // List op permission.
 //
@@ -1258,7 +1258,7 @@ func (d *DMSController) ListOpPermissions(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects dms ListProjects
+// swagger:route GET /v1/dms/projects Project ListProjects
 //
 // List projects.
 //
@@ -1285,7 +1285,7 @@ func (d *DMSController) ListProjects(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/projects dms AddProject
+// swagger:route POST /v1/dms/projects Project AddProject
 //
 // Add project.
 //
@@ -1311,7 +1311,7 @@ func (d *DMSController) AddProject(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route DELETE /v1/dms/projects/{project_uid} dms DelProject
+// swagger:route DELETE /v1/dms/projects/{project_uid} Project DelProject
 //
 // Delete a project
 //
@@ -1336,7 +1336,7 @@ func (a *DMSController) DelProject(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/projects/{project_uid} dms UpdateProject
+// swagger:route PUT /v1/dms/projects/{project_uid} Project UpdateProject
 //
 // update a project.
 //
@@ -1361,7 +1361,7 @@ func (a *DMSController) UpdateProject(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/projects/{project_uid}/archive dms ArchiveProject
+// swagger:route PUT /v1/dms/projects/{project_uid}/archive Project ArchiveProject
 //
 // Archive a project.
 //
@@ -1387,7 +1387,7 @@ func (a *DMSController) ArchiveProject(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/projects/{project_uid}/unarchive dms UnarchiveProject
+// swagger:route PUT /v1/dms/projects/{project_uid}/unarchive Project UnarchiveProject
 //
 // Unarchive a project.
 //
@@ -1413,7 +1413,7 @@ func (a *DMSController) UnarchiveProject(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/projects/import dms ImportProjects
+// swagger:route POST /v1/dms/projects/import Project ImportProjects
 //
 // Import projects
 //
@@ -1440,7 +1440,7 @@ func (a *DMSController) ImportProjects(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/projects/preview_import dms PreviewImportProjects
+// swagger:route POST /v1/dms/projects/preview_import Project PreviewImportProjects
 //
 // Preview import projects
 //
@@ -1472,7 +1472,7 @@ func (a *DMSController) PreviewImportProjects(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/import_template dms GetImportProjectsTemplate
+// swagger:route GET /v1/dms/projects/import_template Project GetImportProjectsTemplate
 //
 // Get import projects template.
 //
@@ -1496,7 +1496,7 @@ func (a *DMSController) GetImportProjectsTemplate(c echo.Context) error {
 	return c.Blob(http.StatusOK, "text/csv", content)
 }
 
-// swagger:route GET /v1/dms/projects/export dms ExportProjects
+// swagger:route GET /v1/dms/projects/export Project ExportProjects
 //
 // Export projects file.
 //
@@ -1527,7 +1527,7 @@ func (a *DMSController) ExportProjects(c echo.Context) error {
 	return c.Blob(http.StatusOK, "text/csv", content)
 }
 
-// swagger:route GET /v1/dms/projects/tips dms GetProjectTips
+// swagger:route GET /v1/dms/projects/tips Project GetProjectTips
 //
 // Get project tips.
 //
@@ -1554,7 +1554,7 @@ func (a *DMSController) GetProjectTips(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/import_db_services_template dms GetImportDBServicesTemplate
+// swagger:route GET /v1/dms/projects/import_db_services_template Project GetImportDBServicesTemplate
 //
 // Get import DBServices template.
 //
@@ -1578,9 +1578,9 @@ func (a *DMSController) GetImportDBServicesTemplate(c echo.Context) error {
 	return c.Blob(http.StatusOK, "text/csv", importDBServicesTemplate)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/db_services/import_check dms ImportDBServicesOfOneProjectCheck
+// swagger:route POST /v1/dms/projects/{project_uid}/db_services/import_check DBService ImportDBServicesOfOneProjectCheck
 //
-// Import DBServices
+// Import DBServices.
 //
 //	Consumes:
 //	- multipart/form-data
@@ -1625,9 +1625,9 @@ func (a *DMSController) ImportDBServicesOfOneProjectCheck(c echo.Context) error 
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/db_services/import dms ImportDBServicesOfOneProject
+// swagger:route POST /v1/dms/projects/{project_uid}/db_services/import DBService ImportDBServicesOfOneProject
 //
-// Import DBServices
+// Import DBServices.
 //
 //	Consumes:
 //	- application/json
@@ -1655,7 +1655,7 @@ func (a *DMSController) ImportDBServicesOfOneProject(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/projects/import_db_services_check dms ImportDBServicesOfProjectsCheck
+// swagger:route POST /v1/dms/projects/import_db_services_check Project ImportDBServicesOfProjectsCheck
 //
 // Import DBServices
 //
@@ -1696,7 +1696,7 @@ func (a *DMSController) ImportDBServicesOfProjectsCheck(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/projects/import_db_services dms ImportDBServicesOfProjects
+// swagger:route POST /v1/dms/projects/import_db_services Project ImportDBServicesOfProjects
 //
 // Import DBServices
 //
@@ -1729,7 +1729,7 @@ func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/projects/db_services_connection dms DBServicesConnection
+// swagger:route POST /v1/dms/projects/db_services_connection Project DBServicesConnection
 //
 // DBServices Connection
 //
@@ -1759,7 +1759,7 @@ func (a *DMSController) DBServicesConnection(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/proxy dms RegisterDMSProxyTarget
+// swagger:route POST /v1/dms/proxy dmsProxy RegisterDMSProxyTarget
 //
 // Register dms proxy target.
 //
@@ -1786,7 +1786,7 @@ func (d *DMSController) RegisterDMSProxyTarget(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/plugin dms RegisterDMSPlugin
+// swagger:route POST /v1/dms/plugin dmsPlugin RegisterDMSPlugin
 //
 // Register dms plugin.
 //
@@ -1813,7 +1813,7 @@ func (d *DMSController) RegisterDMSPlugin(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/configurations/oauth2 dms GetOauth2Configuration
+// swagger:route GET /v1/dms/configurations/oauth2 Configuration_OAuth2 GetOauth2Configuration
 //
 // Get Oauth2 configuration.
 //
@@ -1828,7 +1828,7 @@ func (d *DMSController) GetOauth2Configuration(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PATCH /v1/dms/configurations/oauth2 dms UpdateOauth2Configuration
+// swagger:route PATCH /v1/dms/configurations/oauth2 Configuration_OAuth2 UpdateOauth2Configuration
 //
 // Update Oauth2 configuration..
 //
@@ -1848,7 +1848,7 @@ func (d *DMSController) UpdateOauth2Configuration(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/oauth2/tips dms GetOauth2Tips
+// swagger:route GET /v1/dms/oauth2/tips OAuth2 GetOauth2Tips
 //
 // Get Oauth2 Tips.
 //
@@ -1863,7 +1863,7 @@ func (d *DMSController) GetOauth2Tips(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/oauth2/link
+// swagger:route GET /v1/dms/oauth2/link OAuth2 Oauth2Link
 //
 // Oauth2 Link.
 func (d *DMSController) Oauth2Link(c echo.Context) error {
@@ -1897,7 +1897,7 @@ func (d *DMSController) Oauth2Callback(c echo.Context) error {
 	return c.Redirect(http.StatusFound, uri)
 }
 
-// swagger:route POST /v1/dms/oauth2/user/bind dms BindOauth2User
+// swagger:route POST /v1/dms/oauth2/user/bind OAuth2 BindOauth2User
 //
 // Bind Oauth2 User.
 //
@@ -1923,7 +1923,7 @@ func (d *DMSController) BindOauth2User(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PATCH /v1/dms/configurations/ldap dms UpdateLDAPConfiguration
+// swagger:route PATCH /v1/dms/configurations/ldap Configuration UpdateLDAPConfiguration
 //
 // Update ldap configuration.
 //
@@ -1943,7 +1943,7 @@ func (d *DMSController) UpdateLDAPConfiguration(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/configurations/ldap dms GetLDAPConfiguration
+// swagger:route GET /v1/dms/configurations/ldap Configuration GetLDAPConfiguration
 //
 // Get ldap configuration.
 //
@@ -1958,7 +1958,7 @@ func (d *DMSController) GetLDAPConfiguration(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/configurations/smtp dms GetSMTPConfiguration
+// swagger:route GET /v1/dms/configurations/smtp Configuration GetSMTPConfiguration
 //
 // get smtp configuration.
 //
@@ -1973,7 +1973,7 @@ func (d *DMSController) GetSMTPConfiguration(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PATCH /v1/dms/configurations/smtp dms UpdateSMTPConfiguration
+// swagger:route PATCH /v1/dms/configurations/smtp Configuration UpdateSMTPConfiguration
 //
 // Get smtp configuration.
 //
@@ -1993,7 +1993,7 @@ func (d *DMSController) UpdateSMTPConfiguration(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/configurations/smtp/test dms TestSMTPConfiguration
+// swagger:route POST /v1/dms/configurations/smtp/test Configuration TestSMTPConfiguration
 //
 // test smtp configuration.
 //
@@ -2013,7 +2013,7 @@ func (d *DMSController) TestSMTPConfiguration(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/configurations/wechat dms GetWeChatConfiguration
+// swagger:route GET /v1/dms/configurations/wechat Configuration GetWeChatConfiguration
 //
 // get wechat configuration.
 //
@@ -2028,7 +2028,7 @@ func (d *DMSController) GetWeChatConfiguration(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PATCH /v1/dms/configurations/wechat dms UpdateWeChatConfiguration
+// swagger:route PATCH /v1/dms/configurations/wechat Configuration UpdateWeChatConfiguration
 //
 // update wechat configuration.
 //
@@ -2048,7 +2048,7 @@ func (d *DMSController) UpdateWeChatConfiguration(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/configurations/wechat/test dms TestWeChatConfiguration
+// swagger:route POST /v1/dms/configurations/wechat/test Configuration TestWeChatConfiguration
 //
 // test wechat configuration.
 //
@@ -2068,7 +2068,7 @@ func (d *DMSController) TestWeChatConfiguration(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/configurations/feishu dms GetFeishuConfiguration
+// swagger:route GET /v1/dms/configurations/feishu Configuration GetFeishuConfiguration
 //
 // get feishu configuration.
 //
@@ -2083,7 +2083,7 @@ func (d *DMSController) GetFeishuConfiguration(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PATCH /v1/dms/configurations/feishu dms UpdateFeishuConfiguration
+// swagger:route PATCH /v1/dms/configurations/feishu Configuration UpdateFeishuConfiguration
 //
 // update feishu configuration.
 //
@@ -2103,7 +2103,7 @@ func (d *DMSController) UpdateFeishuConfiguration(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/configurations/feishu/test dms TestFeishuConfiguration
+// swagger:route POST /v1/dms/configurations/feishu/test Configuration TestFeishuConfiguration
 //
 // test feishu configuration.
 //
@@ -2123,7 +2123,7 @@ func (d *DMSController) TestFeishuConfig(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/configurations/webhook dms GetWebHookConfiguration
+// swagger:route GET /v1/dms/configurations/webhook Configuration GetWebHookConfiguration
 //
 // get webhook configuration.
 //
@@ -2138,7 +2138,7 @@ func (d *DMSController) GetWebHookConfiguration(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PATCH /v1/dms/configurations/webhook dms UpdateWebHookConfiguration
+// swagger:route PATCH /v1/dms/configurations/webhook Configuration UpdateWebHookConfiguration
 //
 // update webhook configuration.
 //
@@ -2158,7 +2158,7 @@ func (d *DMSController) UpdateWebHookConfiguration(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/configurations/webhook/test dms TestWebHookConfiguration
+// swagger:route POST /v1/dms/configurations/webhook/test Configuration TestWebHookConfiguration
 //
 // test webhook configuration.
 //
@@ -2174,7 +2174,7 @@ func (d *DMSController) TestWebHookConfiguration(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/notifications dms Notification
+// swagger:route POST /v1/dms/notifications Notification Notification
 //
 // notify message.
 //
@@ -2194,7 +2194,7 @@ func (d *DMSController) Notify(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/webhooks dms WebHookSendMessage
+// swagger:route POST /v1/dms/webhooks Webhook WebHookSendMessage
 //
 // webhook send message.
 //
@@ -2214,7 +2214,7 @@ func (d *DMSController) WebHookSendMessage(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/company_notice dms GetCompanyNotice
+// swagger:route GET /v1/dms/company_notice CompanyNotice GetCompanyNotice
 //
 // get company notice info
 //
@@ -2234,7 +2234,7 @@ func (d *DMSController) GetCompanyNotice(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PATCH /v1/dms/company_notice dms UpdateCompanyNotice
+// swagger:route PATCH /v1/dms/company_notice CompanyNotice UpdateCompanyNotice
 //
 // update company notice info
 //
@@ -2254,7 +2254,7 @@ func (d *DMSController) UpdateCompanyNotice(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/configurations/license dms GetLicense
+// swagger:route GET /v1/dms/configurations/license Configuration_License GetLicense
 //
 // get license.
 //
@@ -2276,7 +2276,7 @@ const (
 	DBServicesFileParamKey = "db_services_file"
 )
 
-// swagger:route GET /v1/dms/configurations/license/info dms GetLicenseInfo
+// swagger:route GET /v1/dms/configurations/license/info Configuration_License GetLicenseInfo
 //
 // get generate license info.
 //
@@ -2294,7 +2294,7 @@ func (d *DMSController) GetLicenseInfo(c echo.Context) error {
 	return c.Blob(http.StatusOK, echo.MIMEOctetStream, []byte(data))
 }
 
-// swagger:route GET /v1/dms/configurations/license/usage dms GetLicenseUsage
+// swagger:route GET /v1/dms/configurations/license/usage Configuration_License GetLicenseUsage
 //
 // get license usage.
 //
@@ -2310,7 +2310,7 @@ func (d *DMSController) GetLicenseUsage(c echo.Context) error {
 	return NewOkRespWithReply(c, usage)
 }
 
-// swagger:route POST /v1/dms/configurations/license dms SetLicense
+// swagger:route POST /v1/dms/configurations/license Configuration_License SetLicense
 //
 // import license.
 //
@@ -2335,7 +2335,7 @@ func (d *DMSController) SetLicense(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/configurations/license/check dms CheckLicense
+// swagger:route POST /v1/dms/configurations/license/check Configuration_License CheckLicense
 //
 // notify message.
 //
@@ -2384,7 +2384,7 @@ func ReadFileContent(c echo.Context, name string) (content string, fileExist boo
 	return string(data), true, nil
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows dms AddDataExportWorkflow
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows DataExportWorkflows AddDataExportWorkflow
 //
 // Add data_export workflow.
 //
@@ -2411,7 +2411,7 @@ func (d *DMSController) AddDataExportWorkflow(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/approve dms ApproveDataExportWorkflow
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/approve DataExportWorkflows ApproveDataExportWorkflow
 //
 // Approve data_export workflow.
 //
@@ -2437,7 +2437,7 @@ func (d *DMSController) ApproveDataExportWorkflow(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/reject dms RejectDataExportWorkflow
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/reject DataExportWorkflows RejectDataExportWorkflow
 //
 // Reject data_export workflow.
 //
@@ -2463,7 +2463,7 @@ func (d *DMSController) RejectDataExportWorkflow(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflows dms ListDataExportWorkflows
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflows DataExportWorkflows ListDataExportWorkflows
 //
 // List data_export workflow.
 //
@@ -2488,7 +2488,7 @@ func (d *DMSController) ListDataExportWorkflows(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid} dms GetDataExportWorkflow
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid} DataExportWorkflows GetDataExportWorkflow
 //
 // Get data_export workflow.
 //
@@ -2513,7 +2513,7 @@ func (d *DMSController) GetDataExportWorkflow(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/cancel dms CancelDataExportWorkflow
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/cancel DataExportWorkflows CancelDataExportWorkflow
 //
 // Cancel data export workflows.
 //
@@ -2539,7 +2539,7 @@ func (d *DMSController) CancelDataExportWorkflow(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/export dms ExportDataExportWorkflow
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/export DataExportWorkflows ExportDataExportWorkflow
 //
 // exec data_export workflow.
 //
@@ -2565,7 +2565,7 @@ func (d *DMSController) ExportDataExportWorkflow(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/data_export_tasks dms AddDataExportTask
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_tasks DataExportTask AddDataExportTask
 //
 // Add data_export task.
 //
@@ -2593,7 +2593,7 @@ func (d *DMSController) AddDataExportTask(c echo.Context) error {
 
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks dms BatchGetDataExportTask
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks DataExportTask BatchGetDataExportTask
 //
 // Batch get data_export task.
 //
@@ -2618,7 +2618,7 @@ func (d *DMSController) BatchGetDataExportTask(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/data_export_task_sqls dms ListDataExportTaskSQLs
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/data_export_task_sqls DataExportTask ListDataExportTaskSQLs
 //
 // List data_export workflow.
 //
@@ -2643,7 +2643,7 @@ func (d *DMSController) ListDataExportTaskSQLs(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/data_export_task_sqls/download dms DownloadDataExportTaskSQLs
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/data_export_task_sqls/download DataExportTask DownloadDataExportTaskSQLs
 //
 // dowload data_export sqls.
 //
@@ -2671,7 +2671,7 @@ func (d *DMSController) DownloadDataExportTaskSQLs(c echo.Context) error {
 	return c.Blob(http.StatusOK, echo.MIMETextPlain, content)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/download dms DownloadDataExportTask
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/download DataExportTask DownloadDataExportTask
 //
 // download task file.
 //
@@ -2738,7 +2738,7 @@ func (d *DMSController) proxyDownloadDataExportTask(c echo.Context, reportHost s
 	return
 }
 
-// swagger:route GET /v1/dms/masking/rules dms ListMaskingRules
+// swagger:route GET /v1/dms/masking/rules Masking ListMaskingRules
 //
 // List masking rules.
 //
@@ -2759,7 +2759,7 @@ func (d *DMSController) ListMaskingRules(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/cb_operation_logs dms ListCBOperationLogs
+// swagger:route GET /v1/dms/projects/{project_uid}/cb_operation_logs CBOperationLogs ListCBOperationLogs
 //
 // List cb operation logs.
 //
@@ -2786,7 +2786,7 @@ func (d *DMSController) ListCBOperationLogs(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/cb_operation_logs/export dms ExportCBOperationLogs
+// swagger:route GET /v1/dms/projects/{project_uid}/cb_operation_logs/export CBOperationLogs ExportCBOperationLogs
 //
 // Export cb operation logs.
 //
@@ -2818,7 +2818,7 @@ func (d *DMSController) ExportCBOperationLogs(c echo.Context) error {
 
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/cb_operation_logs/tips dms GetCBOperationLogTips
+// swagger:route GET /v1/dms/projects/{project_uid}/cb_operation_logs/tips CBOperationLogs GetCBOperationLogTips
 //
 // Get cb operation log tips.
 //
