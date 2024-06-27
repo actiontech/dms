@@ -4051,7 +4051,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: get basic info.
             tags:
-                - dms
+                - BasicInfo
     /v1/dms/company_notice:
         get:
             description: get company notice info
@@ -4066,7 +4066,7 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             tags:
-                - dms
+                - CompanyNotice
         patch:
             description: update company notice info
             operationId: UpdateCompanyNotice
@@ -4087,7 +4087,7 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             tags:
-                - dms
+                - CompanyNotice
     /v1/dms/configurations/feishu:
         get:
             operationId: GetFeishuConfiguration
@@ -4102,7 +4102,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: get feishu configuration.
             tags:
-                - dms
+                - Configuration
         patch:
             operationId: UpdateFeishuConfiguration
             parameters:
@@ -4123,7 +4123,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: update feishu configuration.
             tags:
-                - dms
+                - Configuration
     /v1/dms/configurations/feishu/test:
         post:
             operationId: TestFeishuConfiguration
@@ -4145,7 +4145,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: test feishu configuration.
             tags:
-                - dms
+                - Configuration
     /v1/dms/configurations/ldap:
         get:
             operationId: GetLDAPConfiguration
@@ -4160,7 +4160,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Get ldap configuration.
             tags:
-                - dms
+                - Configuration
         patch:
             operationId: UpdateLDAPConfiguration
             parameters:
@@ -4181,7 +4181,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Update ldap configuration.
             tags:
-                - dms
+                - Configuration
     /v1/dms/configurations/license:
         get:
             operationId: GetLicense
@@ -4196,7 +4196,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: get license.
             tags:
-                - dms
+                - Configuration_License
         post:
             consumes:
                 - multipart/form-data
@@ -4218,7 +4218,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: import license.
             tags:
-                - dms
+                - Configuration_License
     /v1/dms/configurations/license/check:
         post:
             consumes:
@@ -4241,7 +4241,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: notify message.
             tags:
-                - dms
+                - Configuration_License
     /v1/dms/configurations/license/info:
         get:
             operationId: GetLicenseInfo
@@ -4254,7 +4254,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: get generate license info.
             tags:
-                - dms
+                - Configuration_License
     /v1/dms/configurations/license/usage:
         get:
             operationId: GetLicenseUsage
@@ -4269,7 +4269,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: get license usage.
             tags:
-                - dms
+                - Configuration_License
     /v1/dms/configurations/oauth2:
         get:
             operationId: GetOauth2Configuration
@@ -4284,7 +4284,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Get Oauth2 configuration.
             tags:
-                - dms
+                - Configuration_OAuth2
         patch:
             operationId: UpdateOauth2Configuration
             parameters:
@@ -4305,7 +4305,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Update Oauth2 configuration..
             tags:
-                - dms
+                - Configuration_OAuth2
     /v1/dms/configurations/smtp:
         get:
             operationId: GetSMTPConfiguration
@@ -4320,7 +4320,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: get smtp configuration.
             tags:
-                - dms
+                - Configuration
         patch:
             operationId: UpdateSMTPConfiguration
             parameters:
@@ -4341,7 +4341,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Get smtp configuration.
             tags:
-                - dms
+                - Configuration
     /v1/dms/configurations/smtp/test:
         post:
             operationId: TestSMTPConfiguration
@@ -4363,7 +4363,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: test smtp configuration.
             tags:
-                - dms
+                - Configuration
     /v1/dms/configurations/sql_query:
         get:
             operationId: GetSQLQueryConfiguration
@@ -4393,7 +4393,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: get webhook configuration.
             tags:
-                - dms
+                - Configuration
         patch:
             operationId: UpdateWebHookConfiguration
             parameters:
@@ -4414,7 +4414,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: update webhook configuration.
             tags:
-                - dms
+                - Configuration
     /v1/dms/configurations/webhook/test:
         post:
             operationId: TestWebHookConfiguration
@@ -4429,7 +4429,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: test webhook configuration.
             tags:
-                - dms
+                - Configuration
     /v1/dms/configurations/wechat:
         get:
             operationId: GetWeChatConfiguration
@@ -4444,7 +4444,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: get wechat configuration.
             tags:
-                - dms
+                - Configuration
         patch:
             operationId: UpdateWeChatConfiguration
             parameters:
@@ -4465,7 +4465,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: update wechat configuration.
             tags:
-                - dms
+                - Configuration
     /v1/dms/configurations/wechat/test:
         post:
             operationId: TestWeChatConfiguration
@@ -4487,7 +4487,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: test wechat configuration.
             tags:
-                - dms
+                - Configuration
     /v1/dms/db_services/driver_options:
         get:
             operationId: ListDBServiceDriverOption
@@ -4502,7 +4502,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: List db service driver option.
             tags:
-                - dms
+                - DBService
     /v1/dms/masking/rules:
         get:
             operationId: ListMaskingRules
@@ -4517,7 +4517,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: List masking rules.
             tags:
-                - dms
+                - Masking
     /v1/dms/notifications:
         post:
             operationId: Notification
@@ -4539,7 +4539,13 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: notify message.
             tags:
-                - dms
+                - Notification
+    /v1/dms/oauth2/link:
+        get:
+            operationId: Oauth2Link
+            summary: Oauth2 Link.
+            tags:
+                - OAuth2
     /v1/dms/oauth2/tips:
         get:
             operationId: GetOauth2Tips
@@ -4554,7 +4560,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Get Oauth2 Tips.
             tags:
-                - dms
+                - OAuth2
     /v1/dms/oauth2/user/bind:
         post:
             operationId: BindOauth2User
@@ -4582,7 +4588,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Bind Oauth2 User.
             tags:
-                - dms
+                - OAuth2
     /v1/dms/op_permissions:
         get:
             operationId: ListOpPermissions
@@ -4638,7 +4644,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: List op permission.
             tags:
-                - dms
+                - OpPermission
     /v1/dms/personalization:
         post:
             description: personalize [title, logo]
@@ -4664,7 +4670,7 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             tags:
-                - dms
+                - BasicInfo
     /v1/dms/personalization/logo:
         get:
             description: get logo
@@ -4679,7 +4685,7 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             tags:
-                - dms
+                - BasicInfo
     /v1/dms/plugin:
         post:
             operationId: RegisterDMSPlugin
@@ -4701,7 +4707,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Register dms plugin.
             tags:
-                - dms
+                - dmsPlugin
     /v1/dms/projects:
         get:
             operationId: ListProjects
@@ -4750,7 +4756,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: List projects.
             tags:
-                - dms
+                - Project
         post:
             operationId: AddProject
             parameters:
@@ -4771,7 +4777,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Add project.
             tags:
-                - dms
+                - Project
     /v1/dms/projects/{project_uid}:
         delete:
             description: Delete a project
@@ -4793,7 +4799,7 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             tags:
-                - dms
+                - Project
         put:
             operationId: UpdateProject
             parameters:
@@ -4820,7 +4826,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: update a project.
             tags:
-                - dms
+                - Project
     /v1/dms/projects/{project_uid}/archive:
         put:
             operationId: ArchiveProject
@@ -4842,7 +4848,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Archive a project.
             tags:
-                - dms
+                - Project
     /v1/dms/projects/{project_uid}/cb_operation_logs:
         get:
             operationId: ListCBOperationLogs
@@ -4902,7 +4908,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: List cb operation logs.
             tags:
-                - dms
+                - CBOperationLogs
     /v1/dms/projects/{project_uid}/cb_operation_logs/export:
         get:
             operationId: ExportCBOperationLogs
@@ -4947,7 +4953,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Export cb operation logs.
             tags:
-                - dms
+                - CBOperationLogs
     /v1/dms/projects/{project_uid}/cb_operation_logs/tips:
         get:
             operationId: GetCBOperationLogTips
@@ -4969,7 +4975,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Get cb operation log tips.
             tags:
-                - dms
+                - CBOperationLogs
     /v1/dms/projects/{project_uid}/data_export_tasks:
         get:
             operationId: BatchGetDataExportTask
@@ -4996,7 +5002,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Batch get data_export task.
             tags:
-                - dms
+                - DataExportTask
         post:
             operationId: AddDataExportTask
             parameters:
@@ -5025,7 +5031,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Add data_export task.
             tags:
-                - dms
+                - DataExportTask
     /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/data_export_task_sqls:
         get:
             operationId: ListDataExportTaskSQLs
@@ -5065,7 +5071,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: List data_export workflow.
             tags:
-                - dms
+                - DataExportTask
     /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/data_export_task_sqls/download:
         get:
             operationId: DownloadDataExportTaskSQLs
@@ -5090,7 +5096,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: dowload data_export sqls.
             tags:
-                - dms
+                - DataExportTask
     /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/download:
         get:
             operationId: DownloadDataExportTask
@@ -5115,7 +5121,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: download task file.
             tags:
-                - dms
+                - DataExportTask
     /v1/dms/projects/{project_uid}/data_export_workflows:
         get:
             operationId: ListDataExportWorkflows
@@ -5209,7 +5215,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: List data_export workflow.
             tags:
-                - dms
+                - DataExportWorkflows
         post:
             operationId: AddDataExportWorkflow
             parameters:
@@ -5236,7 +5242,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Add data_export workflow.
             tags:
-                - dms
+                - DataExportWorkflows
     /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}:
         get:
             operationId: GetDataExportWorkflow
@@ -5263,7 +5269,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Get data_export workflow.
             tags:
-                - dms
+                - DataExportWorkflows
     /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/approve:
         post:
             operationId: ApproveDataExportWorkflow
@@ -5290,7 +5296,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Approve data_export workflow.
             tags:
-                - dms
+                - DataExportWorkflows
     /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/export:
         post:
             operationId: ExportDataExportWorkflow
@@ -5317,7 +5323,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: exec data_export workflow.
             tags:
-                - dms
+                - DataExportWorkflows
     /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/reject:
         post:
             operationId: RejectDataExportWorkflow
@@ -5350,7 +5356,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Reject data_export workflow.
             tags:
-                - dms
+                - DataExportWorkflows
     /v1/dms/projects/{project_uid}/data_export_workflows/cancel:
         post:
             operationId: CancelDataExportWorkflow
@@ -5378,7 +5384,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Cancel data export workflows.
             tags:
-                - dms
+                - DataExportWorkflows
     /v1/dms/projects/{project_uid}/database_source_services:
         get:
             operationId: ListDatabaseSourceServices
@@ -5400,7 +5406,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: List database source service.
             tags:
-                - dms
+                - DatabaseSourceService
         post:
             operationId: AddDatabaseSourceService
             parameters:
@@ -5427,7 +5433,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Add database source service.
             tags:
-                - dms
+                - DatabaseSourceService
     /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid}:
         delete:
             operationId: DeleteDatabaseSourceService
@@ -5454,7 +5460,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Delete database source service.
             tags:
-                - dms
+                - DatabaseSourceService
         get:
             operationId: GetDatabaseSourceService
             parameters:
@@ -5480,7 +5486,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Get database source service.
             tags:
-                - dms
+                - DatabaseSourceService
         put:
             operationId: UpdateDatabaseSourceService
             parameters:
@@ -5512,7 +5518,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: update database source service.
             tags:
-                - dms
+                - DatabaseSourceService
     /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid}/sync:
         post:
             operationId: SyncDatabaseSourceService
@@ -5539,7 +5545,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Sync database source service.
             tags:
-                - dms
+                - DatabaseSourceService
     /v1/dms/projects/{project_uid}/database_source_services/tips:
         get:
             operationId: ListDatabaseSourceServiceTips
@@ -5561,7 +5567,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: List database source service tips.
             tags:
-                - dms
+                - DatabaseSourceService
     /v1/dms/projects/{project_uid}/db_services:
         get:
             operationId: ListDBServices
@@ -5646,7 +5652,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: List db service.
             tags:
-                - dms
+                - DBService
         post:
             operationId: AddDBService
             parameters:
@@ -5673,7 +5679,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Add DB Service.
             tags:
-                - dms
+                - DBService
     /v1/dms/projects/{project_uid}/db_services/{db_service_uid}:
         delete:
             operationId: DelDBService
@@ -5701,7 +5707,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Delete a DB Service.
             tags:
-                - dms
+                - DBService
         put:
             operationId: UpdateDBService
             parameters:
@@ -5734,7 +5740,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: update a DB Service.
             tags:
-                - dms
+                - DBService
     /v1/dms/projects/{project_uid}/db_services/{db_service_uid}/connection:
         post:
             operationId: CheckDBServiceIsConnectableById
@@ -5762,7 +5768,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: check if the db_service is connectable.
             tags:
-                - dms
+                - DBService
     /v1/dms/projects/{project_uid}/db_services/connection:
         post:
             operationId: CheckDBServiceIsConnectable
@@ -5790,12 +5796,11 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: check if the db_service is connectable.
             tags:
-                - dms
+                - DBService
     /v1/dms/projects/{project_uid}/db_services/import:
         post:
             consumes:
                 - application/json
-            description: Import DBServices
             operationId: ImportDBServicesOfOneProject
             parameters:
                 - description: project id
@@ -5821,13 +5826,13 @@ paths:
                     description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
+            summary: Import DBServices.
             tags:
-                - dms
+                - DBService
     /v1/dms/projects/{project_uid}/db_services/import_check:
         post:
             consumes:
                 - multipart/form-data
-            description: Import DBServices
             operationId: ImportDBServicesOfOneProjectCheck
             parameters:
                 - description: project id
@@ -5851,8 +5856,9 @@ paths:
                     description: ImportDBServicesCheckReply
                     schema:
                         $ref: '#/definitions/ImportDBServicesCheckReply'
+            summary: Import DBServices.
             tags:
-                - dms
+                - DBService
     /v1/dms/projects/{project_uid}/db_services/tips:
         get:
             operationId: ListDBServiceTips
@@ -5886,7 +5892,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: List db service tip.
             tags:
-                - dms
+                - DBService
     /v1/dms/projects/{project_uid}/member_groups:
         get:
             operationId: ListMemberGroups
@@ -5936,7 +5942,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: List member group, for front page.
             tags:
-                - dms
+                - MemberGroup
         post:
             operationId: AddMemberGroup
             parameters:
@@ -5963,7 +5969,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Add member group.
             tags:
-                - dms
+                - MemberGroup
     /v1/dms/projects/{project_uid}/member_groups/{member_group_uid}:
         delete:
             operationId: DeleteMemberGroup
@@ -5991,7 +5997,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: delete member group, for front page.
             tags:
-                - dms
+                - MemberGroup
         get:
             operationId: GetMemberGroup
             parameters:
@@ -6018,7 +6024,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Get member group, for front page.
             tags:
-                - dms
+                - MemberGroup
         put:
             operationId: UpdateMemberGroup
             parameters:
@@ -6051,7 +6057,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: update member group, for front page.
             tags:
-                - dms
+                - MemberGroup
     /v1/dms/projects/{project_uid}/members:
         get:
             operationId: ListMembers
@@ -6101,7 +6107,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: List member, for front page.
             tags:
-                - dms
+                - Member
         post:
             operationId: AddMember
             parameters:
@@ -6128,7 +6134,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Add member.
             tags:
-                - dms
+                - Member
     /v1/dms/projects/{project_uid}/members/{member_uid}:
         delete:
             operationId: DelMember
@@ -6156,7 +6162,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Delete a member.
             tags:
-                - dms
+                - Member
         put:
             operationId: UpdateMember
             parameters:
@@ -6189,7 +6195,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Update a member.
             tags:
-                - dms
+                - Member
     /v1/dms/projects/{project_uid}/members/internal:
         get:
             operationId: ListMembersForInternal
@@ -6224,7 +6230,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: List members, for internal backend service.
             tags:
-                - dms
+                - Member
     /v1/dms/projects/{project_uid}/members/tips:
         get:
             operationId: ListMemberTips
@@ -6246,7 +6252,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: List member tips.
             tags:
-                - dms
+                - Member
     /v1/dms/projects/{project_uid}/unarchive:
         put:
             operationId: UnarchiveProject
@@ -6268,7 +6274,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Unarchive a project.
             tags:
-                - dms
+                - Project
     /v1/dms/projects/db_services_connection:
         post:
             consumes:
@@ -6294,7 +6300,7 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             tags:
-                - dms
+                - Project
     /v1/dms/projects/export:
         get:
             operationId: ExportProjects
@@ -6328,7 +6334,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Export projects file.
             tags:
-                - dms
+                - Project
     /v1/dms/projects/import:
         post:
             description: Import projects
@@ -6352,7 +6358,7 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             tags:
-                - dms
+                - Project
     /v1/dms/projects/import_db_services:
         post:
             consumes:
@@ -6380,7 +6386,7 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             tags:
-                - dms
+                - Project
     /v1/dms/projects/import_db_services_check:
         post:
             consumes:
@@ -6404,7 +6410,7 @@ paths:
                     schema:
                         $ref: '#/definitions/ImportDBServicesCheckReply'
             tags:
-                - dms
+                - Project
     /v1/dms/projects/import_db_services_template:
         get:
             operationId: GetImportDBServicesTemplate
@@ -6417,7 +6423,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Get import DBServices template.
             tags:
-                - dms
+                - Project
     /v1/dms/projects/import_template:
         get:
             operationId: GetImportProjectsTemplate
@@ -6430,7 +6436,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Get import projects template.
             tags:
-                - dms
+                - Project
     /v1/dms/projects/preview_import:
         post:
             consumes:
@@ -6453,7 +6459,7 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             tags:
-                - dms
+                - Project
     /v1/dms/projects/tips:
         get:
             operationId: GetProjectTips
@@ -6474,7 +6480,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Get project tips.
             tags:
-                - dms
+                - Project
     /v1/dms/proxy:
         post:
             operationId: RegisterDMSProxyTarget
@@ -6496,7 +6502,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Register dms proxy target.
             tags:
-                - dms
+                - dmsProxy
     /v1/dms/roles:
         get:
             operationId: ListRoles
@@ -6540,7 +6546,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: List roles.
             tags:
-                - dms
+                - Role
         post:
             operationId: AddRole
             parameters:
@@ -6561,7 +6567,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Add role.
             tags:
-                - dms
+                - Role
     /v1/dms/roles/{role_uid}:
         delete:
             operationId: DelRole
@@ -6583,7 +6589,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Delete a role.
             tags:
-                - dms
+                - Role
         put:
             operationId: UpdateRole
             parameters:
@@ -6610,7 +6616,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Update a role.
             tags:
-                - dms
+                - Role
     /v1/dms/sessions:
         delete:
             operationId: DelSession
@@ -6625,7 +6631,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: del a session.
             tags:
-                - dms
+                - Session
         post:
             operationId: AddSession
             parameters:
@@ -6646,7 +6652,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Add a session.
             tags:
-                - dms
+                - Session
     /v1/dms/sessions/user:
         get:
             operationId: GetUserBySession
@@ -6666,7 +6672,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Get current user.
             tags:
-                - dms
+                - Session
     /v1/dms/user_groups:
         get:
             operationId: ListUserGroups
@@ -6710,7 +6716,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: List user groups.
             tags:
-                - dms
+                - UserGroup
         post:
             operationId: AddUserGroup
             parameters:
@@ -6731,7 +6737,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Add user group.
             tags:
-                - dms
+                - UserGroup
     /v1/dms/user_groups/{user_group_uid}:
         delete:
             operationId: DelUserGroup
@@ -6753,7 +6759,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Delete a user group.
             tags:
-                - dms
+                - UserGroup
         put:
             operationId: UpdateUserGroup
             parameters:
@@ -6780,7 +6786,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Update a user group.
             tags:
-                - dms
+                - UserGroup
     /v1/dms/users:
         get:
             operationId: ListUsers
@@ -6834,7 +6840,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: List users.
             tags:
-                - dms
+                - User
         post:
             operationId: AddUser
             parameters:
@@ -6855,7 +6861,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Add user.
             tags:
-                - dms
+                - User
         put:
             operationId: UpdateCurrentUser
             parameters:
@@ -6876,7 +6882,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Update current user.
             tags:
-                - dms
+                - User
     /v1/dms/users/{user_uid}:
         delete:
             operationId: DelUser
@@ -6898,7 +6904,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Delete a user.
             tags:
-                - dms
+                - User
         get:
             operationId: GetUser
             parameters:
@@ -6919,7 +6925,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Get user info, This API is used by other component such as sqle&auth to get user info.
             tags:
-                - dms
+                - User
         put:
             operationId: UpdateUser
             parameters:
@@ -6946,7 +6952,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Update a user.
             tags:
-                - dms
+                - User
     /v1/dms/users/{user_uid}/op_permission:
         get:
             operationId: GetUserOpPermission
@@ -6974,7 +6980,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Get user op permission info, This API is used by other component such as sqle&auth to check user permissions.
             tags:
-                - dms
+                - User
     /v1/dms/users/gen_token:
         post:
             operationId: GenAccessToken
@@ -6994,7 +7000,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Gen user access token.
             tags:
-                - dms
+                - User
     /v1/dms/webhooks:
         post:
             operationId: WebHookSendMessage
@@ -7016,7 +7022,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: webhook send message.
             tags:
-                - dms
+                - Webhook
 produces:
     - application/json
 responses:

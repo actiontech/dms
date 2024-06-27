@@ -20,7 +20,7 @@
     "/v1/dms/basic_info": {
       "get": {
         "tags": [
-          "dms"
+          "BasicInfo"
         ],
         "summary": "get basic info.",
         "operationId": "GetBasicInfo",
@@ -44,7 +44,7 @@
       "get": {
         "description": "get company notice info",
         "tags": [
-          "dms"
+          "CompanyNotice"
         ],
         "operationId": "GetCompanyNotice",
         "responses": {
@@ -65,7 +65,7 @@
       "patch": {
         "description": "update company notice info",
         "tags": [
-          "dms"
+          "CompanyNotice"
         ],
         "operationId": "UpdateCompanyNotice",
         "parameters": [
@@ -98,7 +98,7 @@
     "/v1/dms/configurations/feishu": {
       "get": {
         "tags": [
-          "dms"
+          "Configuration"
         ],
         "summary": "get feishu configuration.",
         "operationId": "GetFeishuConfiguration",
@@ -119,7 +119,7 @@
       },
       "patch": {
         "tags": [
-          "dms"
+          "Configuration"
         ],
         "summary": "update feishu configuration.",
         "operationId": "UpdateFeishuConfiguration",
@@ -153,7 +153,7 @@
     "/v1/dms/configurations/feishu/test": {
       "post": {
         "tags": [
-          "dms"
+          "Configuration"
         ],
         "summary": "test feishu configuration.",
         "operationId": "TestFeishuConfiguration",
@@ -187,7 +187,7 @@
     "/v1/dms/configurations/ldap": {
       "get": {
         "tags": [
-          "dms"
+          "Configuration"
         ],
         "summary": "Get ldap configuration.",
         "operationId": "GetLDAPConfiguration",
@@ -208,7 +208,7 @@
       },
       "patch": {
         "tags": [
-          "dms"
+          "Configuration"
         ],
         "summary": "Update ldap configuration.",
         "operationId": "UpdateLDAPConfiguration",
@@ -242,7 +242,7 @@
     "/v1/dms/configurations/license": {
       "get": {
         "tags": [
-          "dms"
+          "Configuration_License"
         ],
         "summary": "get license.",
         "operationId": "GetLicense",
@@ -266,7 +266,7 @@
           "multipart/form-data"
         ],
         "tags": [
-          "dms"
+          "Configuration_License"
         ],
         "summary": "import license.",
         "operationId": "SetLicense",
@@ -301,7 +301,7 @@
           "multipart/form-data"
         ],
         "tags": [
-          "dms"
+          "Configuration_License"
         ],
         "summary": "notify message.",
         "operationId": "CheckLicense",
@@ -333,7 +333,7 @@
     "/v1/dms/configurations/license/info": {
       "get": {
         "tags": [
-          "dms"
+          "Configuration_License"
         ],
         "summary": "get generate license info.",
         "operationId": "GetLicenseInfo",
@@ -353,7 +353,7 @@
     "/v1/dms/configurations/license/usage": {
       "get": {
         "tags": [
-          "dms"
+          "Configuration_License"
         ],
         "summary": "get license usage.",
         "operationId": "GetLicenseUsage",
@@ -376,7 +376,7 @@
     "/v1/dms/configurations/oauth2": {
       "get": {
         "tags": [
-          "dms"
+          "Configuration_OAuth2"
         ],
         "summary": "Get Oauth2 configuration.",
         "operationId": "GetOauth2Configuration",
@@ -397,7 +397,7 @@
       },
       "patch": {
         "tags": [
-          "dms"
+          "Configuration_OAuth2"
         ],
         "summary": "Update Oauth2 configuration..",
         "operationId": "UpdateOauth2Configuration",
@@ -431,7 +431,7 @@
     "/v1/dms/configurations/smtp": {
       "get": {
         "tags": [
-          "dms"
+          "Configuration"
         ],
         "summary": "get smtp configuration.",
         "operationId": "GetSMTPConfiguration",
@@ -452,7 +452,7 @@
       },
       "patch": {
         "tags": [
-          "dms"
+          "Configuration"
         ],
         "summary": "Get smtp configuration.",
         "operationId": "UpdateSMTPConfiguration",
@@ -486,7 +486,7 @@
     "/v1/dms/configurations/smtp/test": {
       "post": {
         "tags": [
-          "dms"
+          "Configuration"
         ],
         "summary": "test smtp configuration.",
         "operationId": "TestSMTPConfiguration",
@@ -543,7 +543,7 @@
     "/v1/dms/configurations/webhook": {
       "get": {
         "tags": [
-          "dms"
+          "Configuration"
         ],
         "summary": "get webhook configuration.",
         "operationId": "GetWebHookConfiguration",
@@ -564,7 +564,7 @@
       },
       "patch": {
         "tags": [
-          "dms"
+          "Configuration"
         ],
         "summary": "update webhook configuration.",
         "operationId": "UpdateWebHookConfiguration",
@@ -598,7 +598,7 @@
     "/v1/dms/configurations/webhook/test": {
       "post": {
         "tags": [
-          "dms"
+          "Configuration"
         ],
         "summary": "test webhook configuration.",
         "operationId": "TestWebHookConfiguration",
@@ -621,7 +621,7 @@
     "/v1/dms/configurations/wechat": {
       "get": {
         "tags": [
-          "dms"
+          "Configuration"
         ],
         "summary": "get wechat configuration.",
         "operationId": "GetWeChatConfiguration",
@@ -642,7 +642,7 @@
       },
       "patch": {
         "tags": [
-          "dms"
+          "Configuration"
         ],
         "summary": "update wechat configuration.",
         "operationId": "UpdateWeChatConfiguration",
@@ -676,7 +676,7 @@
     "/v1/dms/configurations/wechat/test": {
       "post": {
         "tags": [
-          "dms"
+          "Configuration"
         ],
         "summary": "test wechat configuration.",
         "operationId": "TestWeChatConfiguration",
@@ -710,7 +710,7 @@
     "/v1/dms/db_services/driver_options": {
       "get": {
         "tags": [
-          "dms"
+          "DBService"
         ],
         "summary": "List db service driver option.",
         "operationId": "ListDBServiceDriverOption",
@@ -733,7 +733,7 @@
     "/v1/dms/masking/rules": {
       "get": {
         "tags": [
-          "dms"
+          "Masking"
         ],
         "summary": "List masking rules.",
         "operationId": "ListMaskingRules",
@@ -756,7 +756,7 @@
     "/v1/dms/notifications": {
       "post": {
         "tags": [
-          "dms"
+          "Notification"
         ],
         "summary": "notify message.",
         "operationId": "Notification",
@@ -787,10 +787,19 @@
         }
       }
     },
+    "/v1/dms/oauth2/link": {
+      "get": {
+        "tags": [
+          "OAuth2"
+        ],
+        "summary": "Oauth2 Link.",
+        "operationId": "Oauth2Link"
+      }
+    },
     "/v1/dms/oauth2/tips": {
       "get": {
         "tags": [
-          "dms"
+          "OAuth2"
         ],
         "summary": "Get Oauth2 Tips.",
         "operationId": "GetOauth2Tips",
@@ -813,7 +822,7 @@
     "/v1/dms/oauth2/user/bind": {
       "post": {
         "tags": [
-          "dms"
+          "OAuth2"
         ],
         "summary": "Bind Oauth2 User.",
         "operationId": "BindOauth2User",
@@ -856,7 +865,7 @@
     "/v1/dms/op_permissions": {
       "get": {
         "tags": [
-          "dms"
+          "OpPermission"
         ],
         "summary": "List op permission.",
         "operationId": "ListOpPermissions",
@@ -923,7 +932,7 @@
       "post": {
         "description": "personalize [title, logo]",
         "tags": [
-          "dms"
+          "BasicInfo"
         ],
         "operationId": "Personalization",
         "parameters": [
@@ -965,7 +974,7 @@
           "application/octet-stream"
         ],
         "tags": [
-          "dms"
+          "BasicInfo"
         ],
         "operationId": "GetStaticLogo",
         "responses": {
@@ -984,7 +993,7 @@
     "/v1/dms/plugin": {
       "post": {
         "tags": [
-          "dms"
+          "dmsPlugin"
         ],
         "summary": "Register dms plugin.",
         "operationId": "RegisterDMSPlugin",
@@ -1018,7 +1027,7 @@
     "/v1/dms/projects": {
       "get": {
         "tags": [
-          "dms"
+          "Project"
         ],
         "summary": "List projects.",
         "operationId": "ListProjects",
@@ -1083,7 +1092,7 @@
       },
       "post": {
         "tags": [
-          "dms"
+          "Project"
         ],
         "summary": "Add project.",
         "operationId": "AddProject",
@@ -1121,7 +1130,7 @@
           "application/json"
         ],
         "tags": [
-          "dms"
+          "Project"
         ],
         "operationId": "DBServicesConnection",
         "parameters": [
@@ -1157,7 +1166,7 @@
     "/v1/dms/projects/export": {
       "get": {
         "tags": [
-          "dms"
+          "Project"
         ],
         "summary": "Export projects file.",
         "operationId": "ExportProjects",
@@ -1205,7 +1214,7 @@
       "post": {
         "description": "Import projects",
         "tags": [
-          "dms"
+          "Project"
         ],
         "operationId": "ImportProjects",
         "parameters": [
@@ -1248,7 +1257,7 @@
           "application/json"
         ],
         "tags": [
-          "dms"
+          "Project"
         ],
         "operationId": "ImportDBServicesOfProjects",
         "parameters": [
@@ -1292,7 +1301,7 @@
           "text/csv"
         ],
         "tags": [
-          "dms"
+          "Project"
         ],
         "operationId": "ImportDBServicesOfProjectsCheck",
         "parameters": [
@@ -1320,7 +1329,7 @@
     "/v1/dms/projects/import_db_services_template": {
       "get": {
         "tags": [
-          "dms"
+          "Project"
         ],
         "summary": "Get import DBServices template.",
         "operationId": "GetImportDBServicesTemplate",
@@ -1340,7 +1349,7 @@
     "/v1/dms/projects/import_template": {
       "get": {
         "tags": [
-          "dms"
+          "Project"
         ],
         "summary": "Get import projects template.",
         "operationId": "GetImportProjectsTemplate",
@@ -1364,7 +1373,7 @@
           "multipart/form-data"
         ],
         "tags": [
-          "dms"
+          "Project"
         ],
         "operationId": "PreviewImportProjects",
         "parameters": [
@@ -1395,7 +1404,7 @@
     "/v1/dms/projects/tips": {
       "get": {
         "tags": [
-          "dms"
+          "Project"
         ],
         "summary": "Get project tips.",
         "operationId": "GetProjectTips",
@@ -1427,7 +1436,7 @@
     "/v1/dms/projects/{project_uid}": {
       "put": {
         "tags": [
-          "dms"
+          "Project"
         ],
         "summary": "update a project.",
         "operationId": "UpdateProject",
@@ -1468,7 +1477,7 @@
       "delete": {
         "description": "Delete a project",
         "tags": [
-          "dms"
+          "Project"
         ],
         "operationId": "DelProject",
         "parameters": [
@@ -1500,7 +1509,7 @@
     "/v1/dms/projects/{project_uid}/archive": {
       "put": {
         "tags": [
-          "dms"
+          "Project"
         ],
         "summary": "Archive a project.",
         "operationId": "ArchiveProject",
@@ -1533,7 +1542,7 @@
     "/v1/dms/projects/{project_uid}/cb_operation_logs": {
       "get": {
         "tags": [
-          "dms"
+          "CBOperationLogs"
         ],
         "summary": "List cb operation logs.",
         "operationId": "ListCBOperationLogs",
@@ -1620,7 +1629,7 @@
     "/v1/dms/projects/{project_uid}/cb_operation_logs/export": {
       "get": {
         "tags": [
-          "dms"
+          "CBOperationLogs"
         ],
         "summary": "Export cb operation logs.",
         "operationId": "ExportCBOperationLogs",
@@ -1687,7 +1696,7 @@
     "/v1/dms/projects/{project_uid}/cb_operation_logs/tips": {
       "get": {
         "tags": [
-          "dms"
+          "CBOperationLogs"
         ],
         "summary": "Get cb operation log tips.",
         "operationId": "GetCBOperationLogTips",
@@ -1720,7 +1729,7 @@
     "/v1/dms/projects/{project_uid}/data_export_tasks": {
       "get": {
         "tags": [
-          "dms"
+          "DataExportTask"
         ],
         "summary": "Batch get data_export task.",
         "operationId": "BatchGetDataExportTask",
@@ -1758,7 +1767,7 @@
       },
       "post": {
         "tags": [
-          "dms"
+          "DataExportTask"
         ],
         "summary": "Add data_export task.",
         "operationId": "AddDataExportTask",
@@ -1803,7 +1812,7 @@
     "/v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/data_export_task_sqls": {
       "get": {
         "tags": [
-          "dms"
+          "DataExportTask"
         ],
         "summary": "List data_export workflow.",
         "operationId": "ListDataExportTaskSQLs",
@@ -1860,7 +1869,7 @@
     "/v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/data_export_task_sqls/download": {
       "get": {
         "tags": [
-          "dms"
+          "DataExportTask"
         ],
         "summary": "dowload data_export sqls.",
         "operationId": "DownloadDataExportTaskSQLs",
@@ -1897,7 +1906,7 @@
     "/v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/download": {
       "get": {
         "tags": [
-          "dms"
+          "DataExportTask"
         ],
         "summary": "download task file.",
         "operationId": "DownloadDataExportTask",
@@ -1934,7 +1943,7 @@
     "/v1/dms/projects/{project_uid}/data_export_workflows": {
       "get": {
         "tags": [
-          "dms"
+          "DataExportWorkflows"
         ],
         "summary": "List data_export workflow.",
         "operationId": "ListDataExportWorkflows",
@@ -2041,7 +2050,7 @@
       },
       "post": {
         "tags": [
-          "dms"
+          "DataExportWorkflows"
         ],
         "summary": "Add data_export workflow.",
         "operationId": "AddDataExportWorkflow",
@@ -2083,7 +2092,7 @@
     "/v1/dms/projects/{project_uid}/data_export_workflows/cancel": {
       "post": {
         "tags": [
-          "dms"
+          "DataExportWorkflows"
         ],
         "summary": "Cancel data export workflows.",
         "operationId": "CancelDataExportWorkflow",
@@ -2125,7 +2134,7 @@
     "/v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}": {
       "get": {
         "tags": [
-          "dms"
+          "DataExportWorkflows"
         ],
         "summary": "Get data_export workflow.",
         "operationId": "GetDataExportWorkflow",
@@ -2165,7 +2174,7 @@
     "/v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/approve": {
       "post": {
         "tags": [
-          "dms"
+          "DataExportWorkflows"
         ],
         "summary": "Approve data_export workflow.",
         "operationId": "ApproveDataExportWorkflow",
@@ -2205,7 +2214,7 @@
     "/v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/export": {
       "post": {
         "tags": [
-          "dms"
+          "DataExportWorkflows"
         ],
         "summary": "exec data_export workflow.",
         "operationId": "ExportDataExportWorkflow",
@@ -2245,7 +2254,7 @@
     "/v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/reject": {
       "post": {
         "tags": [
-          "dms"
+          "DataExportWorkflows"
         ],
         "summary": "Reject data_export workflow.",
         "operationId": "RejectDataExportWorkflow",
@@ -2294,7 +2303,7 @@
     "/v1/dms/projects/{project_uid}/database_source_services": {
       "get": {
         "tags": [
-          "dms"
+          "DatabaseSourceService"
         ],
         "summary": "List database source service.",
         "operationId": "ListDatabaseSourceServices",
@@ -2325,7 +2334,7 @@
       },
       "post": {
         "tags": [
-          "dms"
+          "DatabaseSourceService"
         ],
         "summary": "Add database source service.",
         "operationId": "AddDatabaseSourceService",
@@ -2367,7 +2376,7 @@
     "/v1/dms/projects/{project_uid}/database_source_services/tips": {
       "get": {
         "tags": [
-          "dms"
+          "DatabaseSourceService"
         ],
         "summary": "List database source service tips.",
         "operationId": "ListDatabaseSourceServiceTips",
@@ -2400,7 +2409,7 @@
     "/v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid}": {
       "get": {
         "tags": [
-          "dms"
+          "DatabaseSourceService"
         ],
         "summary": "Get database source service.",
         "operationId": "GetDatabaseSourceService",
@@ -2438,7 +2447,7 @@
       },
       "put": {
         "tags": [
-          "dms"
+          "DatabaseSourceService"
         ],
         "summary": "update database source service.",
         "operationId": "UpdateDatabaseSourceService",
@@ -2485,7 +2494,7 @@
       },
       "delete": {
         "tags": [
-          "dms"
+          "DatabaseSourceService"
         ],
         "summary": "Delete database source service.",
         "operationId": "DeleteDatabaseSourceService",
@@ -2525,7 +2534,7 @@
     "/v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid}/sync": {
       "post": {
         "tags": [
-          "dms"
+          "DatabaseSourceService"
         ],
         "summary": "Sync database source service.",
         "operationId": "SyncDatabaseSourceService",
@@ -2565,7 +2574,7 @@
     "/v1/dms/projects/{project_uid}/db_services": {
       "get": {
         "tags": [
-          "dms"
+          "DBService"
         ],
         "summary": "List db service.",
         "operationId": "ListDBServices",
@@ -2680,7 +2689,7 @@
       },
       "post": {
         "tags": [
-          "dms"
+          "DBService"
         ],
         "summary": "Add DB Service.",
         "operationId": "AddDBService",
@@ -2722,7 +2731,7 @@
     "/v1/dms/projects/{project_uid}/db_services/connection": {
       "post": {
         "tags": [
-          "dms"
+          "DBService"
         ],
         "summary": "check if the db_service is connectable.",
         "operationId": "CheckDBServiceIsConnectable",
@@ -2763,13 +2772,13 @@
     },
     "/v1/dms/projects/{project_uid}/db_services/import": {
       "post": {
-        "description": "Import DBServices",
         "consumes": [
           "application/json"
         ],
         "tags": [
-          "dms"
+          "DBService"
         ],
+        "summary": "Import DBServices.",
         "operationId": "ImportDBServicesOfOneProject",
         "parameters": [
           {
@@ -2811,7 +2820,6 @@
     },
     "/v1/dms/projects/{project_uid}/db_services/import_check": {
       "post": {
-        "description": "Import DBServices",
         "consumes": [
           "multipart/form-data"
         ],
@@ -2820,8 +2828,9 @@
           "text/csv"
         ],
         "tags": [
-          "dms"
+          "DBService"
         ],
+        "summary": "Import DBServices.",
         "operationId": "ImportDBServicesOfOneProjectCheck",
         "parameters": [
           {
@@ -2856,7 +2865,7 @@
     "/v1/dms/projects/{project_uid}/db_services/tips": {
       "get": {
         "tags": [
-          "dms"
+          "DBService"
         ],
         "summary": "List db service tip.",
         "operationId": "ListDBServiceTips",
@@ -2906,7 +2915,7 @@
     "/v1/dms/projects/{project_uid}/db_services/{db_service_uid}": {
       "put": {
         "tags": [
-          "dms"
+          "DBService"
         ],
         "summary": "update a DB Service.",
         "operationId": "UpdateDBService",
@@ -2954,7 +2963,7 @@
       },
       "delete": {
         "tags": [
-          "dms"
+          "DBService"
         ],
         "summary": "Delete a DB Service.",
         "operationId": "DelDBService",
@@ -2995,7 +3004,7 @@
     "/v1/dms/projects/{project_uid}/db_services/{db_service_uid}/connection": {
       "post": {
         "tags": [
-          "dms"
+          "DBService"
         ],
         "summary": "check if the db_service is connectable.",
         "operationId": "CheckDBServiceIsConnectableById",
@@ -3036,7 +3045,7 @@
     "/v1/dms/projects/{project_uid}/member_groups": {
       "get": {
         "tags": [
-          "dms"
+          "MemberGroup"
         ],
         "summary": "List member group, for front page.",
         "operationId": "ListMemberGroups",
@@ -3102,7 +3111,7 @@
       },
       "post": {
         "tags": [
-          "dms"
+          "MemberGroup"
         ],
         "summary": "Add member group.",
         "operationId": "AddMemberGroup",
@@ -3144,7 +3153,7 @@
     "/v1/dms/projects/{project_uid}/member_groups/{member_group_uid}": {
       "get": {
         "tags": [
-          "dms"
+          "MemberGroup"
         ],
         "summary": "Get member group, for front page.",
         "operationId": "GetMemberGroup",
@@ -3183,7 +3192,7 @@
       },
       "put": {
         "tags": [
-          "dms"
+          "MemberGroup"
         ],
         "summary": "update member group, for front page.",
         "operationId": "UpdateMemberGroup",
@@ -3231,7 +3240,7 @@
       },
       "delete": {
         "tags": [
-          "dms"
+          "MemberGroup"
         ],
         "summary": "delete member group, for front page.",
         "operationId": "DeleteMemberGroup",
@@ -3272,7 +3281,7 @@
     "/v1/dms/projects/{project_uid}/members": {
       "get": {
         "tags": [
-          "dms"
+          "Member"
         ],
         "summary": "List member, for front page.",
         "operationId": "ListMembers",
@@ -3338,7 +3347,7 @@
       },
       "post": {
         "tags": [
-          "dms"
+          "Member"
         ],
         "summary": "Add member.",
         "operationId": "AddMember",
@@ -3380,7 +3389,7 @@
     "/v1/dms/projects/{project_uid}/members/internal": {
       "get": {
         "tags": [
-          "dms"
+          "Member"
         ],
         "summary": "List members, for internal backend service.",
         "operationId": "ListMembersForInternal",
@@ -3430,7 +3439,7 @@
     "/v1/dms/projects/{project_uid}/members/tips": {
       "get": {
         "tags": [
-          "dms"
+          "Member"
         ],
         "summary": "List member tips.",
         "operationId": "ListMemberTips",
@@ -3463,7 +3472,7 @@
     "/v1/dms/projects/{project_uid}/members/{member_uid}": {
       "put": {
         "tags": [
-          "dms"
+          "Member"
         ],
         "summary": "Update a member.",
         "operationId": "UpdateMember",
@@ -3511,7 +3520,7 @@
       },
       "delete": {
         "tags": [
-          "dms"
+          "Member"
         ],
         "summary": "Delete a member.",
         "operationId": "DelMember",
@@ -3552,7 +3561,7 @@
     "/v1/dms/projects/{project_uid}/unarchive": {
       "put": {
         "tags": [
-          "dms"
+          "Project"
         ],
         "summary": "Unarchive a project.",
         "operationId": "UnarchiveProject",
@@ -3585,7 +3594,7 @@
     "/v1/dms/proxy": {
       "post": {
         "tags": [
-          "dms"
+          "dmsProxy"
         ],
         "summary": "Register dms proxy target.",
         "operationId": "RegisterDMSProxyTarget",
@@ -3619,7 +3628,7 @@
     "/v1/dms/roles": {
       "get": {
         "tags": [
-          "dms"
+          "Role"
         ],
         "summary": "List roles.",
         "operationId": "ListRoles",
@@ -3677,7 +3686,7 @@
       },
       "post": {
         "tags": [
-          "dms"
+          "Role"
         ],
         "summary": "Add role.",
         "operationId": "AddRole",
@@ -3711,7 +3720,7 @@
     "/v1/dms/roles/{role_uid}": {
       "put": {
         "tags": [
-          "dms"
+          "Role"
         ],
         "summary": "Update a role.",
         "operationId": "UpdateRole",
@@ -3751,7 +3760,7 @@
       },
       "delete": {
         "tags": [
-          "dms"
+          "Role"
         ],
         "summary": "Delete a role.",
         "operationId": "DelRole",
@@ -3784,7 +3793,7 @@
     "/v1/dms/sessions": {
       "post": {
         "tags": [
-          "dms"
+          "Session"
         ],
         "summary": "Add a session.",
         "operationId": "AddSession",
@@ -3816,7 +3825,7 @@
       },
       "delete": {
         "tags": [
-          "dms"
+          "Session"
         ],
         "summary": "del a session.",
         "operationId": "DelSession",
@@ -3839,7 +3848,7 @@
     "/v1/dms/sessions/user": {
       "get": {
         "tags": [
-          "dms"
+          "Session"
         ],
         "summary": "Get current user.",
         "operationId": "GetUserBySession",
@@ -3870,7 +3879,7 @@
     "/v1/dms/user_groups": {
       "get": {
         "tags": [
-          "dms"
+          "UserGroup"
         ],
         "summary": "List user groups.",
         "operationId": "ListUserGroups",
@@ -3928,7 +3937,7 @@
       },
       "post": {
         "tags": [
-          "dms"
+          "UserGroup"
         ],
         "summary": "Add user group.",
         "operationId": "AddUserGroup",
@@ -3962,7 +3971,7 @@
     "/v1/dms/user_groups/{user_group_uid}": {
       "put": {
         "tags": [
-          "dms"
+          "UserGroup"
         ],
         "summary": "Update a user group.",
         "operationId": "UpdateUserGroup",
@@ -4002,7 +4011,7 @@
       },
       "delete": {
         "tags": [
-          "dms"
+          "UserGroup"
         ],
         "summary": "Delete a user group.",
         "operationId": "DelUserGroup",
@@ -4035,7 +4044,7 @@
     "/v1/dms/users": {
       "get": {
         "tags": [
-          "dms"
+          "User"
         ],
         "summary": "List users.",
         "operationId": "ListUsers",
@@ -4107,7 +4116,7 @@
       },
       "put": {
         "tags": [
-          "dms"
+          "User"
         ],
         "summary": "Update current user.",
         "operationId": "UpdateCurrentUser",
@@ -4139,7 +4148,7 @@
       },
       "post": {
         "tags": [
-          "dms"
+          "User"
         ],
         "summary": "Add user.",
         "operationId": "AddUser",
@@ -4173,7 +4182,7 @@
     "/v1/dms/users/gen_token": {
       "post": {
         "tags": [
-          "dms"
+          "User"
         ],
         "summary": "Gen user access token.",
         "operationId": "GenAccessToken",
@@ -4204,7 +4213,7 @@
     "/v1/dms/users/{user_uid}": {
       "get": {
         "tags": [
-          "dms"
+          "User"
         ],
         "summary": "Get user info, This API is used by other component such as sqle\u0026auth to get user info.",
         "operationId": "GetUser",
@@ -4235,7 +4244,7 @@
       },
       "put": {
         "tags": [
-          "dms"
+          "User"
         ],
         "summary": "Update a user.",
         "operationId": "UpdateUser",
@@ -4275,7 +4284,7 @@
       },
       "delete": {
         "tags": [
-          "dms"
+          "User"
         ],
         "summary": "Delete a user.",
         "operationId": "DelUser",
@@ -4308,7 +4317,7 @@
     "/v1/dms/users/{user_uid}/op_permission": {
       "get": {
         "tags": [
-          "dms"
+          "User"
         ],
         "summary": "Get user op permission info, This API is used by other component such as sqle\u0026auth to check user permissions.",
         "operationId": "GetUserOpPermission",
@@ -4350,7 +4359,7 @@
     "/v1/dms/webhooks": {
       "post": {
         "tags": [
-          "dms"
+          "Webhook"
         ],
         "summary": "webhook send message.",
         "operationId": "WebHookSendMessage",
