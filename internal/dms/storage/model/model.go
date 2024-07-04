@@ -317,7 +317,7 @@ type IMConfiguration struct {
 	IsEnable    bool   `json:"is_enable" gorm:"column:is_enable"`
 	ProcessCode string `json:"process_code" gorm:"size:255;column:process_code"`
 	// 类型唯一
-	Type string `json:"type" gorm:"unique"`
+	Type string `json:"type" gorm:"index:unique,size:255"`
 }
 
 type CloudbeaverUserCache struct {
