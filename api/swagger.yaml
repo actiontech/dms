@@ -50,6 +50,12 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddDBServiceReq:
+        properties:
+            db_service:
+                $ref: '#/definitions/DBService'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddDataExportTaskReply:
         properties:
             code:
@@ -74,6 +80,15 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddDataExportTaskReq:
+        properties:
+            data_export_tasks:
+                items:
+                    $ref: '#/definitions/DataExportTask'
+                type: array
+                x-go-name: DataExportTasks
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddDataExportWorkflowReply:
         properties:
             code:
@@ -94,6 +109,12 @@ definitions:
                 description: message
                 type: string
                 x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddDataExportWorkflowReq:
+        properties:
+            data_export_workflow:
+                $ref: '#/definitions/DataExportWorkflow'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddDatabaseSourceServiceReply:
@@ -118,6 +139,12 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddDatabaseSourceServiceReq:
+        properties:
+            database_source_service:
+                $ref: '#/definitions/DatabaseSourceService'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddMemberGroupReply:
         properties:
             code:
@@ -138,6 +165,12 @@ definitions:
                 description: message
                 type: string
                 x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddMemberGroupReq:
+        properties:
+            member_group:
+                $ref: '#/definitions/MemberGroup'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddMemberReply:
@@ -162,6 +195,12 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddMemberReq:
+        properties:
+            member:
+                $ref: '#/definitions/Member'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddProjectReply:
         properties:
             code:
@@ -184,6 +223,12 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddProjectReq:
+        properties:
+            project:
+                $ref: '#/definitions/Project'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddRoleReply:
         properties:
             code:
@@ -204,6 +249,12 @@ definitions:
                 description: message
                 type: string
                 x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddRoleReq:
+        properties:
+            role:
+                $ref: '#/definitions/Role'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddSession:
@@ -244,6 +295,12 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddSessionReq:
+        properties:
+            session:
+                $ref: '#/definitions/AddSession'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddUserGroupReply:
         properties:
             code:
@@ -266,6 +323,12 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddUserGroupReq:
+        properties:
+            user_group:
+                $ref: '#/definitions/UserGroup'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddUserReply:
         properties:
             code:
@@ -286,6 +349,12 @@ definitions:
                 description: message
                 type: string
                 x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddUserReq:
+        properties:
+            user:
+                $ref: '#/definitions/User'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AdditionalParam:
@@ -384,6 +453,19 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    BindOauth2UserReq:
+        properties:
+            oauth2_token:
+                type: string
+                x-go-name: Oauth2Token
+            pwd:
+                type: string
+                x-go-name: Pwd
+            user_name:
+                type: string
+                x-go-name: UserName
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     BindOauth2UserResData:
         properties:
             token:
@@ -395,15 +477,12 @@ definitions:
         properties:
             id:
                 type: string
-                x-go-name: Id
-            is_used:
-                type: boolean
-                x-go-name: IsUsed
+                x-go-name: ID
             name:
                 type: string
                 x-go-name: Name
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CBOperationLog:
         properties:
             audit_result:
@@ -463,6 +542,22 @@ definitions:
             - data_export_workflow_uids
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CancelDataExportWorkflowReq:
+        properties:
+            payload:
+                $ref: '#/definitions/CancelDataExportWorkflowPayload'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CheckDBServiceIsConnectableByIdReq:
+        properties:
+            db_service_uid:
+                type: string
+                x-go-name: DBServiceUid
+            project_uid:
+                type: string
+                x-go-name: ProjectUid
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CheckDBServiceIsConnectableReply:
         properties:
             code:
@@ -492,6 +587,12 @@ definitions:
             is_connectable:
                 type: boolean
                 x-go-name: IsConnectable
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CheckDBServiceIsConnectableReq:
+        properties:
+            db_service:
+                $ref: '#/definitions/CheckDbConnectable'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CheckDbConnectable:
@@ -690,6 +791,15 @@ definitions:
             - password
             - business
             - maintenance_times
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DBServiceConnectionReq:
+        properties:
+            db_services:
+                items:
+                    $ref: '#/definitions/CheckDbsConnectable'
+                type: array
+                x-go-name: DBServices
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DBServicesConnectionItem:
@@ -951,6 +1061,25 @@ definitions:
                 x-go-name: IsFeishuNotificationEnabled
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    FileHeader:
+        properties:
+            Filename:
+                type: string
+            Header:
+                $ref: '#/definitions/MIMEHeader'
+            Size:
+                format: int64
+                type: integer
+        title: A FileHeader describes a file part of a multipart request.
+        type: object
+        x-go-package: mime/multipart
+    GenAccessToken:
+        properties:
+            expiration_days:
+                type: string
+                x-go-name: ExpirationDays
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GenAccessTokenReply:
         properties:
             code:
@@ -1735,6 +1864,24 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ImportDBServicesOfOneProjectReq:
+        properties:
+            db_services:
+                items:
+                    $ref: '#/definitions/ImportDBService'
+                type: array
+                x-go-name: DBServices
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ImportDBServicesOfProjectsReq:
+        properties:
+            db_services:
+                items:
+                    $ref: '#/definitions/ImportDBService'
+                type: array
+                x-go-name: DBServices
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ImportProjects:
         properties:
             business:
@@ -1751,6 +1898,15 @@ definitions:
                 description: Project name
                 type: string
                 x-go-name: Name
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ImportProjectsReq:
+        properties:
+            projects:
+                items:
+                    $ref: '#/definitions/ImportProjects'
+                type: array
+                x-go-name: Projects
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     LDAPConfiguration:
@@ -2828,6 +2984,16 @@ definitions:
                 x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    MIMEHeader:
+        additionalProperties:
+            items:
+                type: string
+            type: array
+        description: |-
+            A MIMEHeader represents a MIME-style header mapping
+            keys to sets of values.
+        type: object
+        x-go-package: net/textproto
     MaintenanceTime:
         properties:
             maintenance_start_time:
@@ -2997,6 +3163,12 @@ definitions:
                 x-go-name: UserWeChatTag
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    Oauth2ConfigurationReq:
+        properties:
+            oauth2:
+                $ref: '#/definitions/Oauth2Configuration'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     OpPermissionItem:
         properties:
             op_permission_type:
@@ -3102,6 +3274,15 @@ definitions:
                 type: string
                 x-go-enum-desc: SQL CbOperationTypeSQL
                 x-go-name: OperationType
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    PersonalizationReq:
+        properties:
+            file:
+                $ref: '#/definitions/FileHeader'
+            title:
+                type: string
+                x-go-name: Title
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     Plugin:
@@ -3217,6 +3398,12 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    RegisterDMSPluginReq:
+        properties:
+            plugin:
+                $ref: '#/definitions/Plugin'
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     RegisterDMSProxyTargetReply:
         properties:
             code:
@@ -3230,6 +3417,12 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    RegisterDMSProxyTargetReq:
+        properties:
+            dms_proxy_target:
+                $ref: '#/definitions/DMSProxyTarget'
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     RejectDataExportWorkflowPayload:
         properties:
             reason:
@@ -3237,6 +3430,12 @@ definitions:
                 x-go-name: Reason
         required:
             - reason
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    RejectDataExportWorkflowReq:
+        properties:
+            payload:
+                $ref: '#/definitions/RejectDataExportWorkflowPayload'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     Role:
@@ -3321,6 +3520,16 @@ definitions:
                 x-go-name: QueryTimeoutSecond
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    SyncDatabaseSourceServiceReq:
+        properties:
+            database_source_service_uid:
+                type: string
+                x-go-name: DatabaseSourceServiceUid
+            project_uid:
+                type: string
+                x-go-name: ProjectUid
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     Task:
         properties:
             task_uid:
@@ -3375,6 +3584,12 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TestFeishuConfigurationReq:
+        properties:
+            test_feishu_configuration:
+                $ref: '#/definitions/TestFeishuConfiguration'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     TestFeishuConfigurationResData:
         properties:
             error_message:
@@ -3407,6 +3622,12 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TestSMTPConfigurationReq:
+        properties:
+            test_smtp_configuration:
+                $ref: '#/definitions/TestSMTPConfiguration'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     TestSMTPConfigurationResData:
         properties:
             is_smtp_send_normal:
@@ -3437,6 +3658,12 @@ definitions:
                 description: message
                 type: string
                 x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TestWeChatConfigurationReq:
+        properties:
+            test_wechat_configuration:
+                $ref: '#/definitions/TestWeChatConfiguration'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     TestWeChatConfigurationResData:
@@ -3508,7 +3735,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -3516,6 +3743,12 @@ definitions:
                 description: companynotice info
                 type: string
                 x-go-name: NoticeStr
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateCompanyNoticeReq:
+        properties:
+            company_notice:
+                $ref: '#/definitions/UpdateCompanyNotice'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCurrentUser:
@@ -3540,6 +3773,12 @@ definitions:
                 description: User wxid
                 type: string
                 x-go-name: WxID
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateCurrentUserReq:
+        properties:
+            current_user:
+                $ref: '#/definitions/UpdateCurrentUser'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateDBService:
@@ -3622,6 +3861,18 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateDBServiceReq:
+        properties:
+            db_service:
+                $ref: '#/definitions/UpdateDBService'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateDatabaseSourceServiceReq:
+        properties:
+            database_source_service:
+                $ref: '#/definitions/DatabaseSourceService'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateFeishuConfiguration:
         properties:
             app_id:
@@ -3633,6 +3884,18 @@ definitions:
             is_feishu_notification_enabled:
                 type: boolean
                 x-go-name: IsFeishuNotificationEnabled
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateFeishuConfigurationReq:
+        properties:
+            update_feishu_configuration:
+                $ref: '#/definitions/UpdateFeishuConfiguration'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateLDAPConfigurationReq:
+        properties:
+            ldap:
+                $ref: '#/definitions/LDAPConfiguration'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateMember:
@@ -3671,6 +3934,18 @@ definitions:
             - user_uids
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateMemberGroupReq:
+        properties:
+            member_group:
+                $ref: '#/definitions/UpdateMemberGroup'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateMemberReq:
+        properties:
+            member:
+                $ref: '#/definitions/UpdateMember'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateProject:
         properties:
             business:
@@ -3689,6 +3964,12 @@ definitions:
                 x-go-name: IsFixedBusiness
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateProjectReq:
+        properties:
+            project:
+                $ref: '#/definitions/UpdateProject'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateRole:
         properties:
             desc:
@@ -3705,6 +3986,12 @@ definitions:
                     type: string
                 type: array
                 x-go-name: OpPermissionUids
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateRoleReq:
+        properties:
+            role:
+                $ref: '#/definitions/UpdateRole'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateSMTPConfiguration:
@@ -3727,6 +4014,12 @@ definitions:
             smtp_username:
                 type: string
                 x-go-name: Username
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateSMTPConfigurationReq:
+        properties:
+            smtp_configuration:
+                $ref: '#/definitions/UpdateSMTPConfiguration'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateUser:
@@ -3783,6 +4076,18 @@ definitions:
                 x-go-name: UserUids
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateUserGroupReq:
+        properties:
+            user_group:
+                $ref: '#/definitions/UpdateUserGroup'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateUserReq:
+        properties:
+            user:
+                $ref: '#/definitions/UpdateUser'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateWeChatConfiguration:
         properties:
             agent_id:
@@ -3804,6 +4109,18 @@ definitions:
             safe_enabled:
                 type: boolean
                 x-go-name: SafeEnabled
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateWeChatConfigurationReq:
+        properties:
+            update_wechat_configuration:
+                $ref: '#/definitions/UpdateWeChatConfiguration'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateWebHookConfigurationReq:
+        properties:
+            webhook_config:
+                $ref: '#/definitions/WebHookConfigurationData'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     User:
@@ -3947,6 +4264,12 @@ definitions:
         type: object
         x-go-name: WebHooksSendMessageReply
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    WebHookSendMessageReq:
+        properties:
+            webhook_message:
+                $ref: '#/definitions/WebHooksMessage'
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     WebHooksMessage:
         properties:
             message:
@@ -4074,9 +4397,9 @@ paths:
                 - description: Update a companynotice
                   in: body
                   name: company_notice
+                  required: true
                   schema:
-                    $ref: '#/definitions/UpdateCompanyNotice'
-                  x-go-name: UpdateCompanyNotice
+                    $ref: '#/definitions/UpdateCompanyNoticeReq'
             responses:
                 "200":
                     description: GenericResp
@@ -4110,8 +4433,7 @@ paths:
                   in: body
                   name: update_feishu_configuration
                   schema:
-                    $ref: '#/definitions/UpdateFeishuConfiguration'
-                  x-go-name: UpdateFeishuConfiguration
+                    $ref: '#/definitions/UpdateFeishuConfigurationReq'
             responses:
                 "200":
                     description: GenericResp
@@ -4131,9 +4453,9 @@ paths:
                 - description: test feishu configuration
                   in: body
                   name: test_feishu_configuration
+                  required: true
                   schema:
-                    $ref: '#/definitions/TestFeishuConfiguration'
-                  x-go-name: TestFeishuConfiguration
+                    $ref: '#/definitions/TestFeishuConfigurationReq'
             responses:
                 "200":
                     description: TestFeishuConfigurationReply
@@ -4167,9 +4489,9 @@ paths:
                 - description: update ldap configuration
                   in: body
                   name: ldap
+                  required: true
                   schema:
-                    $ref: '#/definitions/LDAPConfiguration'
-                  x-go-name: LDAPConfiguration
+                    $ref: '#/definitions/UpdateLDAPConfigurationReq'
             responses:
                 "200":
                     description: GenericResp
@@ -4291,9 +4613,9 @@ paths:
                 - description: update oauth2 configuration
                   in: body
                   name: oauth2
+                  required: true
                   schema:
-                    $ref: '#/definitions/Oauth2Configuration'
-                  x-go-name: Oauth2Configuration
+                    $ref: '#/definitions/Oauth2ConfigurationReq'
             responses:
                 "200":
                     description: GenericResp
@@ -4327,9 +4649,9 @@ paths:
                 - description: update smtp configuration
                   in: body
                   name: smtp_configuration
+                  required: true
                   schema:
-                    $ref: '#/definitions/UpdateSMTPConfiguration'
-                  x-go-name: UpdateSMTPConfiguration
+                    $ref: '#/definitions/UpdateSMTPConfigurationReq'
             responses:
                 "200":
                     description: GenericResp
@@ -4339,7 +4661,7 @@ paths:
                     description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: Get smtp configuration.
+            summary: Update smtp configuration.
             tags:
                 - Configuration
     /v1/dms/configurations/smtp/test:
@@ -4349,9 +4671,9 @@ paths:
                 - description: test smtp configuration
                   in: body
                   name: test_smtp_configuration
+                  required: true
                   schema:
-                    $ref: '#/definitions/TestSMTPConfiguration'
-                  x-go-name: TestSMTPConfiguration
+                    $ref: '#/definitions/TestSMTPConfigurationReq'
             responses:
                 "200":
                     description: TestSMTPConfigurationReply
@@ -4397,12 +4719,11 @@ paths:
         patch:
             operationId: UpdateWebHookConfiguration
             parameters:
-                - description: test webhook configuration
+                - description: webhook configuration
                   in: body
                   name: webhook_config
                   schema:
-                    $ref: '#/definitions/WebHookConfigurationData'
-                  x-go-name: UpdateWebHookConfiguration
+                    $ref: '#/definitions/UpdateWebHookConfigurationReq'
             responses:
                 "200":
                     description: GenericResp
@@ -4452,8 +4773,7 @@ paths:
                   in: body
                   name: update_wechat_configuration
                   schema:
-                    $ref: '#/definitions/UpdateWeChatConfiguration'
-                  x-go-name: UpdateWeChatConfiguration
+                    $ref: '#/definitions/UpdateWeChatConfigurationReq'
             responses:
                 "200":
                     description: GenericResp
@@ -4474,8 +4794,7 @@ paths:
                   in: body
                   name: test_wechat_configuration
                   schema:
-                    $ref: '#/definitions/TestWeChatConfiguration'
-                  x-go-name: TestWeChatConfiguration
+                    $ref: '#/definitions/TestWeChatConfigurationReq'
             responses:
                 "200":
                     description: TestWeChatConfigurationReply
@@ -4565,18 +4884,11 @@ paths:
         post:
             operationId: BindOauth2User
             parameters:
-                - in: query
-                  name: user_name
-                  type: string
-                  x-go-name: UserName
-                - in: query
-                  name: pwd
-                  type: string
-                  x-go-name: Pwd
-                - in: query
-                  name: oauth2_token
-                  type: string
-                  x-go-name: Oauth2Token
+                - in: body
+                  name: BindOauth2UserReq
+                  required: true
+                  schema:
+                    $ref: '#/definitions/BindOauth2UserReq'
             responses:
                 "200":
                     description: BindOauth2UserReply
@@ -4647,19 +4959,16 @@ paths:
                 - OpPermission
     /v1/dms/personalization:
         post:
-            description: personalize [title, logo]
             operationId: Personalization
             parameters:
                 - description: title
                   in: formData
                   name: title
                   type: string
-                  x-go-name: Title
                 - description: file upload
                   in: formData
-                  name: file
+                  name: formData
                   type: file
-                  x-go-name: File
             responses:
                 "200":
                     description: GenericResp
@@ -4669,6 +4978,7 @@ paths:
                     description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
+            summary: personalize [title, logo].
             tags:
                 - BasicInfo
     /v1/dms/personalization/logo:
@@ -4686,16 +4996,16 @@ paths:
                         $ref: '#/definitions/GenericResp'
             tags:
                 - BasicInfo
-    /v1/dms/plugin:
+    /v1/dms/plugins:
         post:
             operationId: RegisterDMSPlugin
             parameters:
                 - description: Register dms plugin
                   in: body
                   name: plugin
+                  required: true
                   schema:
-                    $ref: '#/definitions/Plugin'
-                  x-go-name: Plugin
+                    $ref: '#/definitions/RegisterDMSPluginReq'
             responses:
                 "200":
                     description: GenericResp
@@ -4763,9 +5073,9 @@ paths:
                 - description: Add new Project
                   in: body
                   name: project
+                  required: true
                   schema:
-                    $ref: '#/definitions/Project'
-                  x-go-name: Project
+                    $ref: '#/definitions/AddProjectReq'
             responses:
                 "200":
                     description: AddProjectReply
@@ -4803,18 +5113,17 @@ paths:
         put:
             operationId: UpdateProject
             parameters:
-                - description: Project uid
+                - description: project id
                   in: path
                   name: project_uid
                   required: true
                   type: string
-                  x-go-name: ProjectUid
                 - description: Update a project
                   in: body
                   name: project
+                  required: true
                   schema:
-                    $ref: '#/definitions/UpdateProject'
-                  x-go-name: Project
+                    $ref: '#/definitions/UpdateProjectReq'
             responses:
                 "200":
                     description: GenericResp
@@ -5011,15 +5320,11 @@ paths:
                   name: project_uid
                   required: true
                   type: string
-                  x-go-name: ProjectUid
                 - description: add data export workflow
                   in: body
                   name: data_export_tasks
                   schema:
-                    items:
-                        $ref: '#/definitions/DataExportTask'
-                    type: array
-                  x-go-name: DataExportTasks
+                    $ref: '#/definitions/AddDataExportTaskReq'
             responses:
                 "200":
                     description: AddDataExportTaskReply
@@ -5224,13 +5529,11 @@ paths:
                   name: project_uid
                   required: true
                   type: string
-                  x-go-name: ProjectUid
                 - description: add data export workflow
                   in: body
                   name: data_export_workflow
                   schema:
-                    $ref: '#/definitions/DataExportWorkflow'
-                  x-go-name: DataExportWorkflow
+                    $ref: '#/definitions/AddDataExportWorkflowReq'
             responses:
                 "200":
                     description: AddDataExportWorkflowReply
@@ -5333,18 +5636,15 @@ paths:
                   name: project_uid
                   required: true
                   type: string
-                  x-go-name: ProjectUid
                 - in: path
                   name: data_export_workflow_uid
                   required: true
                   type: string
-                  x-go-name: DataExportWorkflowUid
                 - in: body
                   name: payload
                   required: true
                   schema:
-                    $ref: '#/definitions/RejectDataExportWorkflowPayload'
-                  x-go-name: Payload
+                    $ref: '#/definitions/RejectDataExportWorkflowReq'
             responses:
                 "200":
                     description: GenericResp
@@ -5366,13 +5666,11 @@ paths:
                   name: project_uid
                   required: true
                   type: string
-                  x-go-name: ProjectUid
                 - in: body
                   name: payload
                   required: true
                   schema:
-                    $ref: '#/definitions/CancelDataExportWorkflowPayload'
-                  x-go-name: Payload
+                    $ref: '#/definitions/CancelDataExportWorkflowReq'
             responses:
                 "200":
                     description: GenericResp
@@ -5415,13 +5713,11 @@ paths:
                   name: project_uid
                   required: true
                   type: string
-                  x-go-name: ProjectUid
                 - description: add database source service
                   in: body
                   name: database_source_service
                   schema:
-                    $ref: '#/definitions/DatabaseSourceService'
-                  x-go-name: DatabaseSourceService
+                    $ref: '#/definitions/AddDatabaseSourceServiceReq'
             responses:
                 "200":
                     description: AddDatabaseSourceServiceReply
@@ -5495,18 +5791,15 @@ paths:
                   name: project_uid
                   required: true
                   type: string
-                  x-go-name: ProjectUid
                 - in: path
                   name: database_source_service_uid
                   required: true
                   type: string
-                  x-go-name: DatabaseSourceServiceUid
                 - description: update database source service
                   in: body
                   name: database_source_service
                   schema:
-                    $ref: '#/definitions/DatabaseSourceService'
-                  x-go-name: DatabaseSourceService
+                    $ref: '#/definitions/UpdateDatabaseSourceServiceReq'
             responses:
                 "200":
                     description: GenericResp
@@ -5528,12 +5821,10 @@ paths:
                   name: project_uid
                   required: true
                   type: string
-                  x-go-name: ProjectUid
                 - in: path
                   name: database_source_service_uid
                   required: true
                   type: string
-                  x-go-name: DatabaseSourceServiceUid
             responses:
                 "200":
                     description: GenericResp
@@ -5661,13 +5952,12 @@ paths:
                   name: project_uid
                   required: true
                   type: string
-                  x-go-name: ProjectUid
                 - description: Add new db service
                   in: body
                   name: db_service
+                  required: true
                   schema:
-                    $ref: '#/definitions/DBService'
-                  x-go-name: DBService
+                    $ref: '#/definitions/AddDBServiceReq'
             responses:
                 "200":
                     description: AddDBServiceReply
@@ -5716,19 +6006,16 @@ paths:
                   name: project_uid
                   required: true
                   type: string
-                  x-go-name: ProjectUid
-                - description: db_service_uid
+                - description: db_service_uid id
                   in: path
                   name: db_service_uid
                   required: true
                   type: string
-                  x-go-name: DBServiceUid
                 - description: Update a DB service
                   in: body
                   name: db_service
                   schema:
-                    $ref: '#/definitions/UpdateDBService'
-                  x-go-name: DBService
+                    $ref: '#/definitions/UpdateDBServiceReq'
             responses:
                 "200":
                     description: GenericResp
@@ -5750,13 +6037,11 @@ paths:
                   name: project_uid
                   required: true
                   type: string
-                  x-go-name: ProjectUid
                 - description: db service uid
                   in: path
                   name: db_service_uid
                   required: true
                   type: string
-                  x-go-name: DBServiceUid
             responses:
                 "200":
                     description: CheckDBServiceIsConnectableReply
@@ -5778,13 +6063,11 @@ paths:
                   name: project_uid
                   required: true
                   type: string
-                  x-go-name: ProjectUid
                 - description: check db_service is connectable
                   in: body
                   name: db_service
                   schema:
-                    $ref: '#/definitions/CheckDbConnectable'
-                  x-go-name: DBService
+                    $ref: '#/definitions/CheckDBServiceIsConnectableReq'
             responses:
                 "200":
                     description: CheckDBServiceIsConnectableReply
@@ -5799,8 +6082,6 @@ paths:
                 - DBService
     /v1/dms/projects/{project_uid}/db_services/import:
         post:
-            consumes:
-                - application/json
             operationId: ImportDBServicesOfOneProject
             parameters:
                 - description: project id
@@ -5808,15 +6089,12 @@ paths:
                   name: project_uid
                   required: true
                   type: string
-                  x-go-name: ProjectUid
                 - description: new db services
                   in: body
                   name: db_services
+                  required: true
                   schema:
-                    items:
-                        $ref: '#/definitions/ImportDBService'
-                    type: array
-                  x-go-name: DBServices
+                    $ref: '#/definitions/ImportDBServicesOfOneProjectReq'
             responses:
                 "200":
                     description: GenericResp
@@ -5951,13 +6229,12 @@ paths:
                   name: project_uid
                   required: true
                   type: string
-                  x-go-name: ProjectUid
                 - description: Add new member group
                   in: body
                   name: member_group
+                  required: true
                   schema:
-                    $ref: '#/definitions/MemberGroup'
-                  x-go-name: MemberGroup
+                    $ref: '#/definitions/AddMemberGroupReq'
             responses:
                 "200":
                     description: AddMemberGroupReply
@@ -6033,19 +6310,17 @@ paths:
                   name: project_uid
                   required: true
                   type: string
-                  x-go-name: ProjectUid
                 - description: Member group id
                   in: path
                   name: member_group_uid
                   required: true
                   type: string
-                  x-go-name: MemberGroupUid
                 - description: Update a member group
                   in: body
                   name: member_group
+                  required: true
                   schema:
-                    $ref: '#/definitions/UpdateMemberGroup'
-                  x-go-name: MemberGroup
+                    $ref: '#/definitions/UpdateMemberGroupReq'
             responses:
                 "200":
                     description: GenericResp
@@ -6116,13 +6391,12 @@ paths:
                   name: project_uid
                   required: true
                   type: string
-                  x-go-name: ProjectUid
                 - description: Add new member
                   in: body
                   name: member
+                  required: true
                   schema:
-                    $ref: '#/definitions/Member'
-                  x-go-name: Member
+                    $ref: '#/definitions/AddMemberReq'
             responses:
                 "200":
                     description: AddMemberReply
@@ -6171,19 +6445,17 @@ paths:
                   name: project_uid
                   required: true
                   type: string
-                  x-go-name: ProjectUid
                 - description: Member uid
                   in: path
                   name: member_uid
                   required: true
                   type: string
-                  x-go-name: MemberUid
                 - description: Update a member
                   in: body
                   name: member
+                  required: true
                   schema:
-                    $ref: '#/definitions/UpdateMember'
-                  x-go-name: Member
+                    $ref: '#/definitions/UpdateMemberReq'
             responses:
                 "200":
                     description: GenericResp
@@ -6277,19 +6549,13 @@ paths:
                 - Project
     /v1/dms/projects/db_services_connection:
         post:
-            consumes:
-                - application/json
-            description: DBServices Connection
             operationId: DBServicesConnection
             parameters:
                 - description: check db_service is connectable
                   in: body
                   name: db_services
                   schema:
-                    items:
-                        $ref: '#/definitions/CheckDbsConnectable'
-                    type: array
-                  x-go-name: DBServices
+                    $ref: '#/definitions/DBServiceConnectionReq'
             responses:
                 "200":
                     description: DBServicesConnectionReply
@@ -6299,6 +6565,7 @@ paths:
                     description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
+            summary: DBServices Connection.
             tags:
                 - Project
     /v1/dms/projects/export:
@@ -6337,17 +6604,14 @@ paths:
                 - Project
     /v1/dms/projects/import:
         post:
-            description: Import projects
             operationId: ImportProjects
             parameters:
                 - description: import projects
                   in: body
                   name: projects
+                  required: true
                   schema:
-                    items:
-                        $ref: '#/definitions/ImportProjects'
-                    type: array
-                  x-go-name: Projects
+                    $ref: '#/definitions/ImportProjectsReq'
             responses:
                 "200":
                     description: GenericResp
@@ -6357,25 +6621,19 @@ paths:
                     description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
+            summary: Import projects.
             tags:
                 - Project
     /v1/dms/projects/import_db_services:
         post:
-            consumes:
-                - application/json
-            description: Import DBServices
             operationId: ImportDBServicesOfProjects
             parameters:
                 - description: new db services
                   in: body
                   name: db_services
+                  required: true
                   schema:
-                    items:
-                        $ref: '#/definitions/ImportDBService'
-                    type: array
-                  x-go-name: DBServices
-            produces:
-                - application/json
+                    $ref: '#/definitions/ImportDBServicesOfProjectsReq'
             responses:
                 "200":
                     description: GenericResp
@@ -6385,13 +6643,13 @@ paths:
                     description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
+            summary: Import DBServices.
             tags:
                 - Project
     /v1/dms/projects/import_db_services_check:
         post:
             consumes:
                 - multipart/form-data
-            description: Import DBServices
             operationId: ImportDBServicesOfProjectsCheck
             parameters:
                 - description: DBServices file.
@@ -6409,6 +6667,7 @@ paths:
                     description: ImportDBServicesCheckReply
                     schema:
                         $ref: '#/definitions/ImportDBServicesCheckReply'
+            summary: Import DBServices.
             tags:
                 - Project
     /v1/dms/projects/import_db_services_template:
@@ -6441,7 +6700,6 @@ paths:
         post:
             consumes:
                 - multipart/form-data
-            description: Preview import projects
             operationId: PreviewImportProjects
             parameters:
                 - description: projects file.
@@ -6458,6 +6716,7 @@ paths:
                     description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
+            summary: Preview import projects.
             tags:
                 - Project
     /v1/dms/projects/tips:
@@ -6481,16 +6740,16 @@ paths:
             summary: Get project tips.
             tags:
                 - Project
-    /v1/dms/proxy:
+    /v1/dms/proxys:
         post:
             operationId: RegisterDMSProxyTarget
             parameters:
                 - description: register dms proxy
                   in: body
                   name: dms_proxy_target
+                  required: true
                   schema:
-                    $ref: '#/definitions/DMSProxyTarget'
-                  x-go-name: DMSProxyTarget
+                    $ref: '#/definitions/RegisterDMSProxyTargetReq'
             responses:
                 "200":
                     description: GenericResp
@@ -6553,9 +6812,9 @@ paths:
                 - description: Add new role
                   in: body
                   name: role
+                  required: true
                   schema:
-                    $ref: '#/definitions/Role'
-                  x-go-name: Role
+                    $ref: '#/definitions/AddRoleReq'
             responses:
                 "200":
                     description: AddRoleReply
@@ -6598,13 +6857,12 @@ paths:
                   name: role_uid
                   required: true
                   type: string
-                  x-go-name: RoleUid
                 - description: Update a role
                   in: body
                   name: role
+                  required: true
                   schema:
-                    $ref: '#/definitions/UpdateRole'
-                  x-go-name: Role
+                    $ref: '#/definitions/UpdateRoleReq'
             responses:
                 "200":
                     description: GenericResp
@@ -6638,9 +6896,9 @@ paths:
                 - description: Add a new session
                   in: body
                   name: session
+                  required: true
                   schema:
-                    $ref: '#/definitions/AddSession'
-                  x-go-name: Session
+                    $ref: '#/definitions/AddSessionReq'
             responses:
                 "200":
                     description: AddSessionReply
@@ -6723,9 +6981,9 @@ paths:
                 - description: Add new user group
                   in: body
                   name: user_group
+                  required: true
                   schema:
-                    $ref: '#/definitions/UserGroup'
-                  x-go-name: UserGroup
+                    $ref: '#/definitions/AddUserGroupReq'
             responses:
                 "200":
                     description: AddUserGroupReply
@@ -6768,13 +7026,12 @@ paths:
                   name: user_group_uid
                   required: true
                   type: string
-                  x-go-name: UserGroupUid
                 - description: Update a user group
                   in: body
                   name: user_group
+                  required: true
                   schema:
-                    $ref: '#/definitions/UpdateUserGroup'
-                  x-go-name: UserGroup
+                    $ref: '#/definitions/UpdateUserGroupReq'
             responses:
                 "200":
                     description: GenericResp
@@ -6847,9 +7104,9 @@ paths:
                 - description: Add new user
                   in: body
                   name: user
+                  required: true
                   schema:
-                    $ref: '#/definitions/User'
-                  x-go-name: User
+                    $ref: '#/definitions/AddUserReq'
             responses:
                 "200":
                     description: AddUserReply
@@ -6868,9 +7125,9 @@ paths:
                 - description: Update current user
                   in: body
                   name: current_user
+                  required: true
                   schema:
-                    $ref: '#/definitions/UpdateCurrentUser'
-                  x-go-name: User
+                    $ref: '#/definitions/UpdateCurrentUserReq'
             responses:
                 "200":
                     description: GenericResp
@@ -6934,13 +7191,11 @@ paths:
                   name: user_uid
                   required: true
                   type: string
-                  x-go-name: UserUid
                 - description: Update a user
                   in: body
                   name: user
                   schema:
-                    $ref: '#/definitions/UpdateUser'
-                  x-go-name: User
+                    $ref: '#/definitions/UpdateUserReq'
             responses:
                 "200":
                     description: GenericResp
@@ -6985,10 +7240,11 @@ paths:
         post:
             operationId: GenAccessToken
             parameters:
-                - in: query
+                - in: body
                   name: expiration_days
-                  type: string
-                  x-go-name: ExpirationDays
+                  required: true
+                  schema:
+                    $ref: '#/definitions/GenAccessToken'
             responses:
                 "200":
                     description: GenAccessTokenReply
@@ -7008,9 +7264,9 @@ paths:
                 - description: webhooks
                   in: body
                   name: webhook_message
+                  required: true
                   schema:
-                    $ref: '#/definitions/WebHooksMessage'
-                  x-go-name: WebHookMessage
+                    $ref: '#/definitions/WebHookSendMessageReq'
             responses:
                 "200":
                     description: WebHookSendMessageReply

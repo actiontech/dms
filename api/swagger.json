@@ -70,12 +70,12 @@
         "operationId": "UpdateCompanyNotice",
         "parameters": [
           {
-            "x-go-name": "UpdateCompanyNotice",
             "description": "Update a companynotice",
             "name": "company_notice",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateCompanyNotice"
+              "$ref": "#/definitions/UpdateCompanyNoticeReq"
             }
           }
         ],
@@ -125,12 +125,11 @@
         "operationId": "UpdateFeishuConfiguration",
         "parameters": [
           {
-            "x-go-name": "UpdateFeishuConfiguration",
             "description": "update feishu configuration",
             "name": "update_feishu_configuration",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/UpdateFeishuConfiguration"
+              "$ref": "#/definitions/UpdateFeishuConfigurationReq"
             }
           }
         ],
@@ -159,12 +158,12 @@
         "operationId": "TestFeishuConfiguration",
         "parameters": [
           {
-            "x-go-name": "TestFeishuConfiguration",
             "description": "test feishu configuration",
             "name": "test_feishu_configuration",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/TestFeishuConfiguration"
+              "$ref": "#/definitions/TestFeishuConfigurationReq"
             }
           }
         ],
@@ -214,12 +213,12 @@
         "operationId": "UpdateLDAPConfiguration",
         "parameters": [
           {
-            "x-go-name": "LDAPConfiguration",
             "description": "update ldap configuration",
             "name": "ldap",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/LDAPConfiguration"
+              "$ref": "#/definitions/UpdateLDAPConfigurationReq"
             }
           }
         ],
@@ -403,12 +402,12 @@
         "operationId": "UpdateOauth2Configuration",
         "parameters": [
           {
-            "x-go-name": "Oauth2Configuration",
             "description": "update oauth2 configuration",
             "name": "oauth2",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/Oauth2Configuration"
+              "$ref": "#/definitions/Oauth2ConfigurationReq"
             }
           }
         ],
@@ -454,16 +453,16 @@
         "tags": [
           "Configuration"
         ],
-        "summary": "Get smtp configuration.",
+        "summary": "Update smtp configuration.",
         "operationId": "UpdateSMTPConfiguration",
         "parameters": [
           {
-            "x-go-name": "UpdateSMTPConfiguration",
             "description": "update smtp configuration",
             "name": "smtp_configuration",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateSMTPConfiguration"
+              "$ref": "#/definitions/UpdateSMTPConfigurationReq"
             }
           }
         ],
@@ -492,12 +491,12 @@
         "operationId": "TestSMTPConfiguration",
         "parameters": [
           {
-            "x-go-name": "TestSMTPConfiguration",
             "description": "test smtp configuration",
             "name": "test_smtp_configuration",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/TestSMTPConfiguration"
+              "$ref": "#/definitions/TestSMTPConfigurationReq"
             }
           }
         ],
@@ -570,12 +569,11 @@
         "operationId": "UpdateWebHookConfiguration",
         "parameters": [
           {
-            "x-go-name": "UpdateWebHookConfiguration",
-            "description": "test webhook configuration",
+            "description": "webhook configuration",
             "name": "webhook_config",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/WebHookConfigurationData"
+              "$ref": "#/definitions/UpdateWebHookConfigurationReq"
             }
           }
         ],
@@ -648,12 +646,11 @@
         "operationId": "UpdateWeChatConfiguration",
         "parameters": [
           {
-            "x-go-name": "UpdateWeChatConfiguration",
             "description": "update wechat configuration",
             "name": "update_wechat_configuration",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/UpdateWeChatConfiguration"
+              "$ref": "#/definitions/UpdateWeChatConfigurationReq"
             }
           }
         ],
@@ -682,12 +679,11 @@
         "operationId": "TestWeChatConfiguration",
         "parameters": [
           {
-            "x-go-name": "TestWeChatConfiguration",
             "description": "test wechat configuration",
             "name": "test_wechat_configuration",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/TestWeChatConfiguration"
+              "$ref": "#/definitions/TestWeChatConfigurationReq"
             }
           }
         ],
@@ -828,22 +824,12 @@
         "operationId": "BindOauth2User",
         "parameters": [
           {
-            "type": "string",
-            "x-go-name": "UserName",
-            "name": "user_name",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "x-go-name": "Pwd",
-            "name": "pwd",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "x-go-name": "Oauth2Token",
-            "name": "oauth2_token",
-            "in": "query"
+            "name": "BindOauth2UserReq",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BindOauth2UserReq"
+            }
           }
         ],
         "responses": {
@@ -930,24 +916,22 @@
     },
     "/v1/dms/personalization": {
       "post": {
-        "description": "personalize [title, logo]",
         "tags": [
           "BasicInfo"
         ],
+        "summary": "personalize [title, logo].",
         "operationId": "Personalization",
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "Title",
             "description": "title",
             "name": "title",
             "in": "formData"
           },
           {
             "type": "file",
-            "x-go-name": "File",
             "description": "file upload",
-            "name": "file",
+            "name": "formData",
             "in": "formData"
           }
         ],
@@ -990,7 +974,7 @@
         }
       }
     },
-    "/v1/dms/plugin": {
+    "/v1/dms/plugins": {
       "post": {
         "tags": [
           "dmsPlugin"
@@ -999,12 +983,12 @@
         "operationId": "RegisterDMSPlugin",
         "parameters": [
           {
-            "x-go-name": "Plugin",
             "description": "Register dms plugin",
             "name": "plugin",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/Plugin"
+              "$ref": "#/definitions/RegisterDMSPluginReq"
             }
           }
         ],
@@ -1098,12 +1082,12 @@
         "operationId": "AddProject",
         "parameters": [
           {
-            "x-go-name": "Project",
             "description": "Add new Project",
             "name": "project",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/Project"
+              "$ref": "#/definitions/AddProjectReq"
             }
           }
         ],
@@ -1125,25 +1109,18 @@
     },
     "/v1/dms/projects/db_services_connection": {
       "post": {
-        "description": "DBServices Connection",
-        "consumes": [
-          "application/json"
-        ],
         "tags": [
           "Project"
         ],
+        "summary": "DBServices Connection.",
         "operationId": "DBServicesConnection",
         "parameters": [
           {
-            "x-go-name": "DBServices",
             "description": "check db_service is connectable",
             "name": "db_services",
             "in": "body",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/CheckDbsConnectable"
-              }
+              "$ref": "#/definitions/DBServiceConnectionReq"
             }
           }
         ],
@@ -1212,22 +1189,19 @@
     },
     "/v1/dms/projects/import": {
       "post": {
-        "description": "Import projects",
         "tags": [
           "Project"
         ],
+        "summary": "Import projects.",
         "operationId": "ImportProjects",
         "parameters": [
           {
-            "x-go-name": "Projects",
             "description": "import projects",
             "name": "projects",
             "in": "body",
+            "required": true,
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/ImportProjects"
-              }
+              "$ref": "#/definitions/ImportProjectsReq"
             }
           }
         ],
@@ -1249,28 +1223,19 @@
     },
     "/v1/dms/projects/import_db_services": {
       "post": {
-        "description": "Import DBServices",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
         "tags": [
           "Project"
         ],
+        "summary": "Import DBServices.",
         "operationId": "ImportDBServicesOfProjects",
         "parameters": [
           {
-            "x-go-name": "DBServices",
             "description": "new db services",
             "name": "db_services",
             "in": "body",
+            "required": true,
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/ImportDBService"
-              }
+              "$ref": "#/definitions/ImportDBServicesOfProjectsReq"
             }
           }
         ],
@@ -1292,7 +1257,6 @@
     },
     "/v1/dms/projects/import_db_services_check": {
       "post": {
-        "description": "Import DBServices",
         "consumes": [
           "multipart/form-data"
         ],
@@ -1303,6 +1267,7 @@
         "tags": [
           "Project"
         ],
+        "summary": "Import DBServices.",
         "operationId": "ImportDBServicesOfProjectsCheck",
         "parameters": [
           {
@@ -1368,13 +1333,13 @@
     },
     "/v1/dms/projects/preview_import": {
       "post": {
-        "description": "Preview import projects",
         "consumes": [
           "multipart/form-data"
         ],
         "tags": [
           "Project"
         ],
+        "summary": "Preview import projects.",
         "operationId": "PreviewImportProjects",
         "parameters": [
           {
@@ -1443,19 +1408,18 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "ProjectUid",
-            "description": "Project uid",
+            "description": "project id",
             "name": "project_uid",
             "in": "path",
             "required": true
           },
           {
-            "x-go-name": "Project",
             "description": "Update a project",
             "name": "project",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateProject"
+              "$ref": "#/definitions/UpdateProjectReq"
             }
           }
         ],
@@ -1774,22 +1738,17 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "ProjectUid",
             "description": "project id",
             "name": "project_uid",
             "in": "path",
             "required": true
           },
           {
-            "x-go-name": "DataExportTasks",
             "description": "add data export workflow",
             "name": "data_export_tasks",
             "in": "body",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/DataExportTask"
-              }
+              "$ref": "#/definitions/AddDataExportTaskReq"
             }
           }
         ],
@@ -2057,19 +2016,17 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "ProjectUid",
             "description": "project id",
             "name": "project_uid",
             "in": "path",
             "required": true
           },
           {
-            "x-go-name": "DataExportWorkflow",
             "description": "add data export workflow",
             "name": "data_export_workflow",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/DataExportWorkflow"
+              "$ref": "#/definitions/AddDataExportWorkflowReq"
             }
           }
         ],
@@ -2099,19 +2056,17 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "ProjectUid",
             "description": "project id",
             "name": "project_uid",
             "in": "path",
             "required": true
           },
           {
-            "x-go-name": "Payload",
             "name": "payload",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CancelDataExportWorkflowPayload"
+              "$ref": "#/definitions/CancelDataExportWorkflowReq"
             }
           }
         ],
@@ -2261,7 +2216,6 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "ProjectUid",
             "description": "project id",
             "name": "project_uid",
             "in": "path",
@@ -2269,18 +2223,16 @@
           },
           {
             "type": "string",
-            "x-go-name": "DataExportWorkflowUid",
             "name": "data_export_workflow_uid",
             "in": "path",
             "required": true
           },
           {
-            "x-go-name": "Payload",
             "name": "payload",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/RejectDataExportWorkflowPayload"
+              "$ref": "#/definitions/RejectDataExportWorkflowReq"
             }
           }
         ],
@@ -2341,19 +2293,17 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "ProjectUid",
             "description": "project id",
             "name": "project_uid",
             "in": "path",
             "required": true
           },
           {
-            "x-go-name": "DatabaseSourceService",
             "description": "add database source service",
             "name": "database_source_service",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/DatabaseSourceService"
+              "$ref": "#/definitions/AddDatabaseSourceServiceReq"
             }
           }
         ],
@@ -2454,7 +2404,6 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "ProjectUid",
             "description": "project id",
             "name": "project_uid",
             "in": "path",
@@ -2462,18 +2411,16 @@
           },
           {
             "type": "string",
-            "x-go-name": "DatabaseSourceServiceUid",
             "name": "database_source_service_uid",
             "in": "path",
             "required": true
           },
           {
-            "x-go-name": "DatabaseSourceService",
             "description": "update database source service",
             "name": "database_source_service",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/DatabaseSourceService"
+              "$ref": "#/definitions/UpdateDatabaseSourceServiceReq"
             }
           }
         ],
@@ -2541,7 +2488,6 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "ProjectUid",
             "description": "project id",
             "name": "project_uid",
             "in": "path",
@@ -2549,7 +2495,6 @@
           },
           {
             "type": "string",
-            "x-go-name": "DatabaseSourceServiceUid",
             "name": "database_source_service_uid",
             "in": "path",
             "required": true
@@ -2696,19 +2641,18 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "ProjectUid",
             "description": "project id",
             "name": "project_uid",
             "in": "path",
             "required": true
           },
           {
-            "x-go-name": "DBService",
             "description": "Add new db service",
             "name": "db_service",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/DBService"
+              "$ref": "#/definitions/AddDBServiceReq"
             }
           }
         ],
@@ -2738,19 +2682,17 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "ProjectUid",
             "description": "project id",
             "name": "project_uid",
             "in": "path",
             "required": true
           },
           {
-            "x-go-name": "DBService",
             "description": "check db_service is connectable",
             "name": "db_service",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CheckDbConnectable"
+              "$ref": "#/definitions/CheckDBServiceIsConnectableReq"
             }
           }
         ],
@@ -2772,9 +2714,6 @@
     },
     "/v1/dms/projects/{project_uid}/db_services/import": {
       "post": {
-        "consumes": [
-          "application/json"
-        ],
         "tags": [
           "DBService"
         ],
@@ -2783,22 +2722,18 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "ProjectUid",
             "description": "project id",
             "name": "project_uid",
             "in": "path",
             "required": true
           },
           {
-            "x-go-name": "DBServices",
             "description": "new db services",
             "name": "db_services",
             "in": "body",
+            "required": true,
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/ImportDBService"
-              }
+              "$ref": "#/definitions/ImportDBServicesOfOneProjectReq"
             }
           }
         ],
@@ -2922,7 +2857,6 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "ProjectUid",
             "description": "project id",
             "name": "project_uid",
             "in": "path",
@@ -2930,19 +2864,17 @@
           },
           {
             "type": "string",
-            "x-go-name": "DBServiceUid",
-            "description": "db_service_uid",
+            "description": "db_service_uid id",
             "name": "db_service_uid",
             "in": "path",
             "required": true
           },
           {
-            "x-go-name": "DBService",
             "description": "Update a DB service",
             "name": "db_service",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/UpdateDBService"
+              "$ref": "#/definitions/UpdateDBServiceReq"
             }
           }
         ],
@@ -3011,7 +2943,6 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "ProjectUid",
             "description": "project id",
             "name": "project_uid",
             "in": "path",
@@ -3019,7 +2950,6 @@
           },
           {
             "type": "string",
-            "x-go-name": "DBServiceUid",
             "description": "db service uid",
             "name": "db_service_uid",
             "in": "path",
@@ -3118,19 +3048,18 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "ProjectUid",
             "description": "project id",
             "name": "project_uid",
             "in": "path",
             "required": true
           },
           {
-            "x-go-name": "MemberGroup",
             "description": "Add new member group",
             "name": "member_group",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/MemberGroup"
+              "$ref": "#/definitions/AddMemberGroupReq"
             }
           }
         ],
@@ -3199,7 +3128,6 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "ProjectUid",
             "description": "project id",
             "name": "project_uid",
             "in": "path",
@@ -3207,19 +3135,18 @@
           },
           {
             "type": "string",
-            "x-go-name": "MemberGroupUid",
             "description": "Member group id",
             "name": "member_group_uid",
             "in": "path",
             "required": true
           },
           {
-            "x-go-name": "MemberGroup",
             "description": "Update a member group",
             "name": "member_group",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateMemberGroup"
+              "$ref": "#/definitions/UpdateMemberGroupReq"
             }
           }
         ],
@@ -3354,19 +3281,18 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "ProjectUid",
             "description": "project id",
             "name": "project_uid",
             "in": "path",
             "required": true
           },
           {
-            "x-go-name": "Member",
             "description": "Add new member",
             "name": "member",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/Member"
+              "$ref": "#/definitions/AddMemberReq"
             }
           }
         ],
@@ -3479,7 +3405,6 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "ProjectUid",
             "description": "project id",
             "name": "project_uid",
             "in": "path",
@@ -3487,19 +3412,18 @@
           },
           {
             "type": "string",
-            "x-go-name": "MemberUid",
             "description": "Member uid",
             "name": "member_uid",
             "in": "path",
             "required": true
           },
           {
-            "x-go-name": "Member",
             "description": "Update a member",
             "name": "member",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateMember"
+              "$ref": "#/definitions/UpdateMemberReq"
             }
           }
         ],
@@ -3591,7 +3515,7 @@
         }
       }
     },
-    "/v1/dms/proxy": {
+    "/v1/dms/proxys": {
       "post": {
         "tags": [
           "dmsProxy"
@@ -3600,12 +3524,12 @@
         "operationId": "RegisterDMSProxyTarget",
         "parameters": [
           {
-            "x-go-name": "DMSProxyTarget",
             "description": "register dms proxy",
             "name": "dms_proxy_target",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/DMSProxyTarget"
+              "$ref": "#/definitions/RegisterDMSProxyTargetReq"
             }
           }
         ],
@@ -3692,12 +3616,12 @@
         "operationId": "AddRole",
         "parameters": [
           {
-            "x-go-name": "Role",
             "description": "Add new role",
             "name": "role",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/Role"
+              "$ref": "#/definitions/AddRoleReq"
             }
           }
         ],
@@ -3727,19 +3651,18 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "RoleUid",
             "description": "Role uid",
             "name": "role_uid",
             "in": "path",
             "required": true
           },
           {
-            "x-go-name": "Role",
             "description": "Update a role",
             "name": "role",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateRole"
+              "$ref": "#/definitions/UpdateRoleReq"
             }
           }
         ],
@@ -3799,12 +3722,12 @@
         "operationId": "AddSession",
         "parameters": [
           {
-            "x-go-name": "Session",
             "description": "Add a new session",
             "name": "session",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/AddSession"
+              "$ref": "#/definitions/AddSessionReq"
             }
           }
         ],
@@ -3943,12 +3866,12 @@
         "operationId": "AddUserGroup",
         "parameters": [
           {
-            "x-go-name": "UserGroup",
             "description": "Add new user group",
             "name": "user_group",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/UserGroup"
+              "$ref": "#/definitions/AddUserGroupReq"
             }
           }
         ],
@@ -3978,19 +3901,18 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "UserGroupUid",
             "description": "UserGroup uid",
             "name": "user_group_uid",
             "in": "path",
             "required": true
           },
           {
-            "x-go-name": "UserGroup",
             "description": "Update a user group",
             "name": "user_group",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateUserGroup"
+              "$ref": "#/definitions/UpdateUserGroupReq"
             }
           }
         ],
@@ -4122,12 +4044,12 @@
         "operationId": "UpdateCurrentUser",
         "parameters": [
           {
-            "x-go-name": "User",
             "description": "Update current user",
             "name": "current_user",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateCurrentUser"
+              "$ref": "#/definitions/UpdateCurrentUserReq"
             }
           }
         ],
@@ -4154,12 +4076,12 @@
         "operationId": "AddUser",
         "parameters": [
           {
-            "x-go-name": "User",
             "description": "Add new user",
             "name": "user",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/User"
+              "$ref": "#/definitions/AddUserReq"
             }
           }
         ],
@@ -4188,10 +4110,12 @@
         "operationId": "GenAccessToken",
         "parameters": [
           {
-            "type": "string",
-            "x-go-name": "ExpirationDays",
             "name": "expiration_days",
-            "in": "query"
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GenAccessToken"
+            }
           }
         ],
         "responses": {
@@ -4251,19 +4175,17 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "UserUid",
             "description": "User uid",
             "name": "user_uid",
             "in": "path",
             "required": true
           },
           {
-            "x-go-name": "User",
             "description": "Update a user",
             "name": "user",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/UpdateUser"
+              "$ref": "#/definitions/UpdateUserReq"
             }
           }
         ],
@@ -4365,12 +4287,12 @@
         "operationId": "WebHookSendMessage",
         "parameters": [
           {
-            "x-go-name": "WebHookMessage",
             "description": "webhooks",
             "name": "webhook_message",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/WebHooksMessage"
+              "$ref": "#/definitions/WebHookSendMessageReq"
             }
           }
         ],
@@ -4456,6 +4378,15 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "AddDBServiceReq": {
+      "type": "object",
+      "properties": {
+        "db_service": {
+          "$ref": "#/definitions/DBService"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "AddDataExportTaskReply": {
       "type": "object",
       "properties": {
@@ -4484,6 +4415,19 @@
           "description": "message",
           "type": "string",
           "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddDataExportTaskReq": {
+      "type": "object",
+      "properties": {
+        "data_export_tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DataExportTask"
+          },
+          "x-go-name": "DataExportTasks"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -4517,6 +4461,15 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "AddDataExportWorkflowReq": {
+      "type": "object",
+      "properties": {
+        "data_export_workflow": {
+          "$ref": "#/definitions/DataExportWorkflow"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "AddDatabaseSourceServiceReply": {
       "type": "object",
       "properties": {
@@ -4542,6 +4495,15 @@
           "description": "message",
           "type": "string",
           "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddDatabaseSourceServiceReq": {
+      "type": "object",
+      "properties": {
+        "database_source_service": {
+          "$ref": "#/definitions/DatabaseSourceService"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -4575,6 +4537,15 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "AddMemberGroupReq": {
+      "type": "object",
+      "properties": {
+        "member_group": {
+          "$ref": "#/definitions/MemberGroup"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "AddMemberReply": {
       "type": "object",
       "properties": {
@@ -4600,6 +4571,15 @@
           "description": "message",
           "type": "string",
           "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddMemberReq": {
+      "type": "object",
+      "properties": {
+        "member": {
+          "$ref": "#/definitions/Member"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -4633,6 +4613,15 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "AddProjectReq": {
+      "type": "object",
+      "properties": {
+        "project": {
+          "$ref": "#/definitions/Project"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "AddRoleReply": {
       "type": "object",
       "properties": {
@@ -4658,6 +4647,15 @@
           "description": "message",
           "type": "string",
           "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddRoleReq": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "#/definitions/Role"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -4712,6 +4710,15 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "AddSessionReq": {
+      "type": "object",
+      "properties": {
+        "session": {
+          "$ref": "#/definitions/AddSession"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "AddUserGroupReply": {
       "type": "object",
       "properties": {
@@ -4741,6 +4748,15 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "AddUserGroupReq": {
+      "type": "object",
+      "properties": {
+        "user_group": {
+          "$ref": "#/definitions/UserGroup"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "AddUserReply": {
       "type": "object",
       "properties": {
@@ -4766,6 +4782,15 @@
           "description": "message",
           "type": "string",
           "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddUserReq": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/User"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -4900,6 +4925,24 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "BindOauth2UserReq": {
+      "type": "object",
+      "properties": {
+        "oauth2_token": {
+          "type": "string",
+          "x-go-name": "Oauth2Token"
+        },
+        "pwd": {
+          "type": "string",
+          "x-go-name": "Pwd"
+        },
+        "user_name": {
+          "type": "string",
+          "x-go-name": "UserName"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "BindOauth2UserResData": {
       "type": "object",
       "properties": {
@@ -4915,18 +4958,14 @@
       "properties": {
         "id": {
           "type": "string",
-          "x-go-name": "Id"
-        },
-        "is_used": {
-          "type": "boolean",
-          "x-go-name": "IsUsed"
+          "x-go-name": "ID"
         },
         "name": {
           "type": "string",
           "x-go-name": "Name"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "CBOperationLog": {
       "type": "object",
@@ -5010,6 +5049,29 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "CancelDataExportWorkflowReq": {
+      "type": "object",
+      "properties": {
+        "payload": {
+          "$ref": "#/definitions/CancelDataExportWorkflowPayload"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "CheckDBServiceIsConnectableByIdReq": {
+      "type": "object",
+      "properties": {
+        "db_service_uid": {
+          "type": "string",
+          "x-go-name": "DBServiceUid"
+        },
+        "project_uid": {
+          "type": "string",
+          "x-go-name": "ProjectUid"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "CheckDBServiceIsConnectableReply": {
       "type": "object",
       "properties": {
@@ -5048,6 +5110,15 @@
         "is_connectable": {
           "type": "boolean",
           "x-go-name": "IsConnectable"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "CheckDBServiceIsConnectableReq": {
+      "type": "object",
+      "properties": {
+        "db_service": {
+          "$ref": "#/definitions/CheckDbConnectable"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -5297,6 +5368,19 @@
           "description": "DB Service admin user",
           "type": "string",
           "x-go-name": "User"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DBServiceConnectionReq": {
+      "type": "object",
+      "properties": {
+        "db_services": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CheckDbsConnectable"
+          },
+          "x-go-name": "DBServices"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -5629,6 +5713,33 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "FileHeader": {
+      "type": "object",
+      "title": "A FileHeader describes a file part of a multipart request.",
+      "properties": {
+        "Filename": {
+          "type": "string"
+        },
+        "Header": {
+          "$ref": "#/definitions/MIMEHeader"
+        },
+        "Size": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "x-go-package": "mime/multipart"
+    },
+    "GenAccessToken": {
+      "type": "object",
+      "properties": {
+        "expiration_days": {
+          "type": "string",
+          "x-go-name": "ExpirationDays"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "GenAccessTokenReply": {
       "type": "object",
@@ -6640,6 +6751,32 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "ImportDBServicesOfOneProjectReq": {
+      "type": "object",
+      "properties": {
+        "db_services": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImportDBService"
+          },
+          "x-go-name": "DBServices"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ImportDBServicesOfProjectsReq": {
+      "type": "object",
+      "properties": {
+        "db_services": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImportDBService"
+          },
+          "x-go-name": "DBServices"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "ImportProjects": {
       "type": "object",
       "properties": {
@@ -6660,6 +6797,19 @@
           "description": "Project name",
           "type": "string",
           "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ImportProjectsReq": {
+      "type": "object",
+      "properties": {
+        "projects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImportProjects"
+          },
+          "x-go-name": "Projects"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -8009,6 +8159,17 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "MIMEHeader": {
+      "description": "A MIMEHeader represents a MIME-style header mapping\nkeys to sets of values.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "x-go-package": "net/textproto"
+    },
     "MaintenanceTime": {
       "type": "object",
       "properties": {
@@ -8224,6 +8385,15 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "Oauth2ConfigurationReq": {
+      "type": "object",
+      "properties": {
+        "oauth2": {
+          "$ref": "#/definitions/Oauth2Configuration"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "OpPermissionItem": {
       "type": "object",
       "properties": {
@@ -8304,6 +8474,19 @@
           ],
           "x-go-enum-desc": "SQL CbOperationTypeSQL",
           "x-go-name": "OperationType"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "PersonalizationReq": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "$ref": "#/definitions/FileHeader"
+        },
+        "title": {
+          "type": "string",
+          "x-go-name": "Title"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -8457,6 +8640,15 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "RegisterDMSPluginReq": {
+      "type": "object",
+      "properties": {
+        "plugin": {
+          "$ref": "#/definitions/Plugin"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
     "RegisterDMSProxyTargetReply": {
       "type": "object",
       "properties": {
@@ -8474,6 +8666,15 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "RegisterDMSProxyTargetReq": {
+      "type": "object",
+      "properties": {
+        "dms_proxy_target": {
+          "$ref": "#/definitions/DMSProxyTarget"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
     "RejectDataExportWorkflowPayload": {
       "type": "object",
       "required": [
@@ -8483,6 +8684,15 @@
         "reason": {
           "type": "string",
           "x-go-name": "Reason"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "RejectDataExportWorkflowReq": {
+      "type": "object",
+      "properties": {
+        "payload": {
+          "$ref": "#/definitions/RejectDataExportWorkflowPayload"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -8591,6 +8801,20 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "SyncDatabaseSourceServiceReq": {
+      "type": "object",
+      "properties": {
+        "database_source_service_uid": {
+          "type": "string",
+          "x-go-name": "DatabaseSourceServiceUid"
+        },
+        "project_uid": {
+          "type": "string",
+          "x-go-name": "ProjectUid"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "Task": {
       "type": "object",
       "properties": {
@@ -8662,6 +8886,15 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "TestFeishuConfigurationReq": {
+      "type": "object",
+      "properties": {
+        "test_feishu_configuration": {
+          "$ref": "#/definitions/TestFeishuConfiguration"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "TestFeishuConfigurationResData": {
       "type": "object",
       "properties": {
@@ -8706,6 +8939,15 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "TestSMTPConfigurationReq": {
+      "type": "object",
+      "properties": {
+        "test_smtp_configuration": {
+          "$ref": "#/definitions/TestSMTPConfiguration"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "TestSMTPConfigurationResData": {
       "type": "object",
       "properties": {
@@ -8746,6 +8988,15 @@
           "description": "message",
           "type": "string",
           "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "TestWeChatConfigurationReq": {
+      "type": "object",
+      "properties": {
+        "test_wechat_configuration": {
+          "$ref": "#/definitions/TestWeChatConfiguration"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -8844,7 +9095,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
@@ -8854,6 +9105,15 @@
           "description": "companynotice info",
           "type": "string",
           "x-go-name": "NoticeStr"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateCompanyNoticeReq": {
+      "type": "object",
+      "properties": {
+        "company_notice": {
+          "$ref": "#/definitions/UpdateCompanyNotice"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -8885,6 +9145,15 @@
           "description": "User wxid",
           "type": "string",
           "x-go-name": "WxID"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateCurrentUserReq": {
+      "type": "object",
+      "properties": {
+        "current_user": {
+          "$ref": "#/definitions/UpdateCurrentUser"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -8992,6 +9261,24 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "UpdateDBServiceReq": {
+      "type": "object",
+      "properties": {
+        "db_service": {
+          "$ref": "#/definitions/UpdateDBService"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateDatabaseSourceServiceReq": {
+      "type": "object",
+      "properties": {
+        "database_source_service": {
+          "$ref": "#/definitions/DatabaseSourceService"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "UpdateFeishuConfiguration": {
       "type": "object",
       "properties": {
@@ -9006,6 +9293,24 @@
         "is_feishu_notification_enabled": {
           "type": "boolean",
           "x-go-name": "IsFeishuNotificationEnabled"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateFeishuConfigurationReq": {
+      "type": "object",
+      "properties": {
+        "update_feishu_configuration": {
+          "$ref": "#/definitions/UpdateFeishuConfiguration"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateLDAPConfigurationReq": {
+      "type": "object",
+      "properties": {
+        "ldap": {
+          "$ref": "#/definitions/LDAPConfiguration"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -9059,6 +9364,24 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "UpdateMemberGroupReq": {
+      "type": "object",
+      "properties": {
+        "member_group": {
+          "$ref": "#/definitions/UpdateMemberGroup"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateMemberReq": {
+      "type": "object",
+      "properties": {
+        "member": {
+          "$ref": "#/definitions/UpdateMember"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "UpdateProject": {
       "type": "object",
       "properties": {
@@ -9083,6 +9406,15 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "UpdateProjectReq": {
+      "type": "object",
+      "properties": {
+        "project": {
+          "$ref": "#/definitions/UpdateProject"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "UpdateRole": {
       "type": "object",
       "properties": {
@@ -9103,6 +9435,15 @@
             "type": "string"
           },
           "x-go-name": "OpPermissionUids"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateRoleReq": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "#/definitions/UpdateRole"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -9133,6 +9474,15 @@
         "smtp_username": {
           "type": "string",
           "x-go-name": "Username"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateSMTPConfigurationReq": {
+      "type": "object",
+      "properties": {
+        "smtp_configuration": {
+          "$ref": "#/definitions/UpdateSMTPConfiguration"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -9208,6 +9558,24 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "UpdateUserGroupReq": {
+      "type": "object",
+      "properties": {
+        "user_group": {
+          "$ref": "#/definitions/UpdateUserGroup"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateUserReq": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/UpdateUser"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "UpdateWeChatConfiguration": {
       "type": "object",
       "properties": {
@@ -9235,6 +9603,24 @@
         "safe_enabled": {
           "type": "boolean",
           "x-go-name": "SafeEnabled"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateWeChatConfigurationReq": {
+      "type": "object",
+      "properties": {
+        "update_wechat_configuration": {
+          "$ref": "#/definitions/UpdateWeChatConfiguration"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateWebHookConfigurationReq": {
+      "type": "object",
+      "properties": {
+        "webhook_config": {
+          "$ref": "#/definitions/WebHookConfigurationData"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -9424,6 +9810,15 @@
         }
       },
       "x-go-name": "WebHooksSendMessageReply",
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "WebHookSendMessageReq": {
+      "type": "object",
+      "properties": {
+        "webhook_message": {
+          "$ref": "#/definitions/WebHooksMessage"
+        }
+      },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "WebHooksMessage": {
