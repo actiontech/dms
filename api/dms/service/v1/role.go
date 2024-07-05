@@ -17,10 +17,8 @@ type Role struct {
 	OpPermissionUids []string `json:"op_permission_uids"`
 }
 
-// swagger:parameters AddRole
+// swagger:model
 type AddRoleReq struct {
-	// Add new role
-	// in:body
 	Role *Role `json:"role" validate:"required"`
 }
 
@@ -121,14 +119,10 @@ type UpdateRole struct {
 	OpPermissionUids *[]string `json:"op_permission_uids" validate:"required"`
 }
 
-// swagger:parameters UpdateRole
+// swagger:model
 type UpdateRoleReq struct {
-	// Role uid
-	// Required: true
-	// in:path
+	// swagger:ignore
 	RoleUid string `param:"role_uid" json:"role_uid" validate:"required"`
-	// Update a role
-	// in:body
 	Role *UpdateRole `json:"role" validate:"required"`
 }
 

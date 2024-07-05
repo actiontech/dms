@@ -2,6 +2,7 @@ package v1
 
 import (
 	"mime/multipart"
+
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 )
 
@@ -29,16 +30,8 @@ type GetStaticLogoReply struct {
 	File []byte
 }
 
-// swagger:parameters Personalization
+// swagger:model
 type PersonalizationReq struct {
-	// title
-	// Required: false
-	// in: formData
 	Title string `json:"title" form:"title"`
-
-	// file upload
-	// Required: false
-	// in: formData
-	// swagger:file
 	File *multipart.FileHeader `json:"file" form:"file"`
 }
