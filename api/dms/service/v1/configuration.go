@@ -27,10 +27,8 @@ type GetOauth2ConfigurationReply struct {
 	base.GenericResp
 }
 
-// swagger:parameters UpdateOauth2Configuration
+// swagger:model
 type Oauth2ConfigurationReq struct {
-	// update oauth2 configuration
-	// in:body
 	Oauth2Configuration Oauth2Configuration `json:"oauth2" validate:"required"`
 }
 type Oauth2Configuration struct {
@@ -65,7 +63,7 @@ type GetOauth2TipsResData struct {
 	LoginTip     string `json:"login_tip"`
 }
 
-// swagger:parameters BindOauth2User
+// swagger:model
 type BindOauth2UserReq struct {
 	UserName    string `json:"user_name" form:"user_name" validate:"required"`
 	Pwd         string `json:"pwd" form:"pwd" validate:"required"`
@@ -109,10 +107,8 @@ type LDAPConfigurationResData struct {
 	LdapUserEmailRdnKey string `json:"ldap_user_email_rdn_key"`
 }
 
-// swagger:parameters UpdateLDAPConfiguration
+// swagger:model
 type UpdateLDAPConfigurationReq struct {
-	// update ldap configuration
-	// in:body
 	LDAPConfiguration LDAPConfiguration `json:"ldap" validate:"required"`
 }
 
@@ -144,10 +140,8 @@ type SMTPConfigurationResData struct {
 	IsSkipVerify     bool   `json:"is_skip_verify"`
 }
 
-// swagger:parameters UpdateSMTPConfiguration
+// swagger:model
 type UpdateSMTPConfigurationReq struct {
-	// update smtp configuration
-	// in:body
 	UpdateSMTPConfiguration UpdateSMTPConfiguration `json:"smtp_configuration" validate:"required"`
 }
 
@@ -160,10 +154,8 @@ type UpdateSMTPConfiguration struct {
 	IsSkipVerify     *bool   `json:"is_skip_verify" form:"is_skip_verify" description:"是否启用邮件通知"`
 }
 
-// swagger:parameters TestSMTPConfiguration
+// swagger:model
 type TestSMTPConfigurationReq struct {
-	// test smtp configuration
-	// in:body
 	TestSMTPConfiguration TestSMTPConfiguration `json:"test_smtp_configuration" validate:"required,email"`
 }
 
@@ -200,10 +192,8 @@ type WeChatConfigurationResData struct {
 	ProxyIP            string `json:"proxy_ip"`
 }
 
-// swagger:parameters UpdateWeChatConfiguration
+// swagger:model
 type UpdateWeChatConfigurationReq struct {
-	// update wechat configuration
-	// in:body
 	UpdateWeChatConfiguration UpdateWeChatConfiguration `json:"update_wechat_configuration"`
 }
 
@@ -216,10 +206,8 @@ type UpdateWeChatConfiguration struct {
 	ProxyIP            *string `json:"proxy_ip" from:"proxy_ip" description:"企业微信代理服务器IP"`
 }
 
-// swagger:parameters TestWeChatConfiguration
+// swagger:model
 type TestWeChatConfigurationReq struct {
-	// test wechat configuration
-	// in:body
 	TestWeChatConfiguration TestWeChatConfiguration `json:"test_wechat_configuration"`
 }
 
@@ -253,10 +241,8 @@ type FeishuConfigurationResData struct {
 	IsFeishuNotificationEnabled bool   `json:"is_feishu_notification_enabled"`
 }
 
-// swagger:parameters UpdateFeishuConfiguration
+// swagger:model
 type UpdateFeishuConfigurationReq struct {
-	// update feishu configuration
-	// in:body
 	UpdateFeishuConfiguration UpdateFeishuConfiguration `json:"update_feishu_configuration"`
 }
 
@@ -266,10 +252,8 @@ type UpdateFeishuConfiguration struct {
 	IsFeishuNotificationEnabled *bool   `json:"is_feishu_notification_enabled" from:"is_feishu_notification_enabled" description:"是否启用飞书推送"`
 }
 
-// swagger:parameters TestFeishuConfiguration
+// swagger:model
 type TestFeishuConfigurationReq struct {
-	// test feishu configuration
-	// in:body
 	TestFeishuConfiguration TestFeishuConfiguration `json:"test_feishu_configuration" validate:"required"`
 }
 
@@ -325,10 +309,8 @@ type WebHookConfigurationData struct {
 	URL                  *string `json:"url" description:"回调API URL"`
 }
 
-// swagger:parameters UpdateWebHookConfiguration
+// swagger:model
 type UpdateWebHookConfigurationReq struct {
-	// test webhook configuration
-	// in:body
 	UpdateWebHookConfiguration WebHookConfigurationData `json:"webhook_config"`
 }
 

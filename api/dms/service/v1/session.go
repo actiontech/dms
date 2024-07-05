@@ -12,10 +12,8 @@ type AddSession struct {
 	Password string `json:"password" example:"admin" description:"password" validate:"required"`
 }
 
-// swagger:parameters AddSession
+// swagger:model
 type AddSessionReq struct {
-	// Add a new session
-	// in:body
 	Session *AddSession `json:"session" validate:"required"`
 }
 

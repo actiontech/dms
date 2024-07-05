@@ -6,14 +6,10 @@ import (
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 )
 
-// swagger:parameters AddDataExportWorkflow
+// swagger:model
 type AddDataExportWorkflowReq struct {
-	// project id
-	// Required: true
-	// in:path
+	// swagger:ignore
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-	// add data export workflow
-	// in:body
 	DataExportWorkflow DataExportWorkflow `json:"data_export_workflow"`
 }
 
@@ -202,17 +198,12 @@ type RejectDataExportWorkflowPayload struct {
 	Reason string `json:"reason" validate:"required"`
 }
 
-// swagger:parameters RejectDataExportWorkflow
+// swagger:model
 type RejectDataExportWorkflowReq struct {
-	// project id
-	// Required: true
-	// in:path
+	// swagger:ignore
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-	// Required: true
-	// in:path
+	// swagger:ignore
 	DataExportWorkflowUid string `param:"data_export_workflow_uid" json:"data_export_workflow_uid" validate:"required"`
-	// Required: true
-	// in:body
 	Payload RejectDataExportWorkflowPayload `json:"payload" validate:"required"`
 }
 
@@ -221,13 +212,9 @@ type CancelDataExportWorkflowPayload struct {
 	DataExportWorkflowUids []string `json:"data_export_workflow_uids" validate:"required"`
 }
 
-// swagger:parameters CancelDataExportWorkflow
+// swagger:model
 type CancelDataExportWorkflowReq struct {
-	// project id
-	// Required: true
-	// in:path
+	// swagger:ignore
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-	// Required: true
-	// in:body
 	Payload CancelDataExportWorkflowPayload `json:"payload" validate:"required"`
 }

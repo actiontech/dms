@@ -20,10 +20,8 @@ type Project struct {
 	Business []string `json:"business"`
 }
 
-// swagger:parameters AddProject
+// swagger:model
 type AddProjectReq struct {
-	// Add new Project
-	// in:body
 	Project *Project `json:"project" validate:"required"`
 }
 
@@ -81,14 +79,10 @@ type Business struct {
 	Name string `json:"name"`
 }
 
-// swagger:parameters UpdateProject
+// swagger:model
 type UpdateProjectReq struct {
-	// Project uid
-	// Required: true
-	// in:path
+    // swagger:ignore
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-	// Update a project
-	// in:body
 	Project *UpdateProject `json:"project" validate:"required"`
 }
 
@@ -118,10 +112,8 @@ type UnarchiveProjectReq struct {
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 }
 
-// swagger:parameters ImportProjects
+// swagger:model
 type ImportProjectsReq struct {
-	// import projects
-	// in:body
 	Projects []*ImportProjects `json:"projects" validate:"required"`
 }
 
@@ -230,10 +222,8 @@ type ImportDBServicesCheckCsvReply struct {
 	File []byte
 }
 
-// swagger:parameters ImportDBServicesOfProjects
+// swagger:model
 type ImportDBServicesOfProjectsReq struct {
-	// new db services
-	// in:body
 	DBServices []ImportDBService `json:"db_services" validate:"required"`
 }
 
@@ -267,10 +257,8 @@ type CheckDbsConnectable struct {
 	AdditionalParams []*dmsCommonV1.AdditionalParam `json:"additional_params" from:"additional_params"`
 }
 
-// swagger:parameters DBServicesConnection
+// swagger:model
 type DBServiceConnectionReq struct {
-	// check db_service is connectable
-	// in:body
 	DBServices []CheckDbsConnectable `json:"db_services"`
 }
 
