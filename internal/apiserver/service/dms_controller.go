@@ -2218,7 +2218,7 @@ func (a *DMSController) DBServicesConnection(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:operation POST /v1/dms/proxys dmsProxy RegisterDMSProxyTarget
+// swagger:operation POST /v1/dms/proxys DMSProxy RegisterDMSProxyTarget
 //
 // Register dms proxy target.
 //
@@ -2259,7 +2259,7 @@ func (d *DMSController) RegisterDMSProxyTarget(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:operation POST /v1/dms/plugins dmsPlugin RegisterDMSPlugin
+// swagger:operation POST /v1/dms/plugins DMSPlugin RegisterDMSPlugin
 //
 // Register dms plugin.
 //
@@ -2300,7 +2300,7 @@ func (d *DMSController) RegisterDMSPlugin(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/configurations/oauth2 Configuration_OAuth2 GetOauth2Configuration
+// swagger:route GET /v1/dms/configurations/oauth2 Configuration GetOauth2Configuration
 //
 // Get Oauth2 configuration.
 //
@@ -2315,7 +2315,7 @@ func (d *DMSController) GetOauth2Configuration(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:operation PATCH /v1/dms/configurations/oauth2 Configuration_OAuth2 UpdateOauth2Configuration
+// swagger:operation PATCH /v1/dms/configurations/oauth2 Configuration UpdateOauth2Configuration
 //
 // Update Oauth2 configuration..
 //
@@ -2904,7 +2904,7 @@ func (d *DMSController) UpdateCompanyNotice(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/configurations/license Configuration_License GetLicense
+// swagger:route GET /v1/dms/configurations/license Configuration GetLicense
 //
 // get license.
 //
@@ -2926,7 +2926,7 @@ const (
 	DBServicesFileParamKey = "db_services_file"
 )
 
-// swagger:route GET /v1/dms/configurations/license/info Configuration_License GetLicenseInfo
+// swagger:route GET /v1/dms/configurations/license/info Configuration GetLicenseInfo
 //
 // get generate license info.
 //
@@ -2944,7 +2944,7 @@ func (d *DMSController) GetLicenseInfo(c echo.Context) error {
 	return c.Blob(http.StatusOK, echo.MIMEOctetStream, []byte(data))
 }
 
-// swagger:route GET /v1/dms/configurations/license/usage Configuration_License GetLicenseUsage
+// swagger:route GET /v1/dms/configurations/license/usage Configuration GetLicenseUsage
 //
 // get license usage.
 //
@@ -2960,7 +2960,7 @@ func (d *DMSController) GetLicenseUsage(c echo.Context) error {
 	return NewOkRespWithReply(c, usage)
 }
 
-// swagger:route POST /v1/dms/configurations/license Configuration_License SetLicense
+// swagger:route POST /v1/dms/configurations/license Configuration SetLicense
 //
 // import license.
 //
@@ -2985,7 +2985,7 @@ func (d *DMSController) SetLicense(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/configurations/license/check Configuration_License CheckLicense
+// swagger:route POST /v1/dms/configurations/license/check Configuration CheckLicense
 //
 // notify message.
 //
