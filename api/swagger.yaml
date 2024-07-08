@@ -4518,7 +4518,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: get license.
             tags:
-                - Configuration_License
+                - Configuration
         post:
             consumes:
                 - multipart/form-data
@@ -4540,7 +4540,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: import license.
             tags:
-                - Configuration_License
+                - Configuration
     /v1/dms/configurations/license/check:
         post:
             consumes:
@@ -4563,7 +4563,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: notify message.
             tags:
-                - Configuration_License
+                - Configuration
     /v1/dms/configurations/license/info:
         get:
             operationId: GetLicenseInfo
@@ -4576,7 +4576,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: get generate license info.
             tags:
-                - Configuration_License
+                - Configuration
     /v1/dms/configurations/license/usage:
         get:
             operationId: GetLicenseUsage
@@ -4591,7 +4591,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: get license usage.
             tags:
-                - Configuration_License
+                - Configuration
     /v1/dms/configurations/oauth2:
         get:
             operationId: GetOauth2Configuration
@@ -4606,7 +4606,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Get Oauth2 configuration.
             tags:
-                - Configuration_OAuth2
+                - Configuration
         patch:
             operationId: UpdateOauth2Configuration
             parameters:
@@ -4627,7 +4627,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Update Oauth2 configuration..
             tags:
-                - Configuration_OAuth2
+                - Configuration
     /v1/dms/configurations/smtp:
         get:
             operationId: GetSMTPConfiguration
@@ -5017,7 +5017,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Register dms plugin.
             tags:
-                - dmsPlugin
+                - DMSPlugin
     /v1/dms/projects:
         get:
             operationId: ListProjects
@@ -6761,7 +6761,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: Register dms proxy target.
             tags:
-                - dmsProxy
+                - DMSProxy
     /v1/dms/roles:
         get:
             operationId: ListRoles
