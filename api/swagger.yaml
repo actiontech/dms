@@ -4700,7 +4700,7 @@ paths:
                         $ref: '#/definitions/GenericResp'
             summary: get sql_query configuration.
             tags:
-                - cloudbeaver
+                - CloudBeaver
     /v1/dms/configurations/webhook:
         get:
             operationId: GetWebHookConfiguration
