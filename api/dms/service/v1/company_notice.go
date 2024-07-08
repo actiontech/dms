@@ -20,10 +20,8 @@ type GetCompanyNoticeReply struct {
 	base.GenericResp
 }
 
-// swagger:parameters UpdateCompanyNotice
+// swagger:model
 type UpdateCompanyNoticeReq struct {
-	// Update a companynotice
-	// in:body
 	UpdateCompanyNotice UpdateCompanyNotice `json:"company_notice"  validate:"required"`
 }
 

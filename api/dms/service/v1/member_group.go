@@ -100,14 +100,10 @@ type MemberGroup struct {
 	RoleWithOpRanges []MemberRoleWithOpRange `json:"role_with_op_ranges"`
 }
 
-// swagger:parameters AddMemberGroup
+// swagger:model
 type AddMemberGroupReq struct {
-	// project id
-	// Required: true
-	// in:path
+	// swagger:ignore
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-	// Add new member group
-	// in:body
 	MemberGroup MemberGroup `json:"member_group" validate:"required"`
 }
 
@@ -133,18 +129,12 @@ type UpdateMemberGroup struct {
 	RoleWithOpRanges []MemberRoleWithOpRange `json:"role_with_op_ranges"`
 }
 
-// swagger:parameters UpdateMemberGroup
+// swagger:model
 type UpdateMemberGroupReq struct {
-	// project id
-	// Required: true
-	// in:path
+	// swagger:ignore
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-	// Member group id
-	// Required: true
-	// in:path
+	// swagger:ignore
 	MemberGroupUid string `param:"member_group_uid" json:"member_group_uid" validate:"required"`
-	// Update a member group
-	// in:body
 	MemberGroup *UpdateMemberGroup `json:"member_group" validate:"required"`
 }
 

@@ -38,7 +38,7 @@ func (cc *CloudbeaverController) Shutdown() error {
 	return nil
 }
 
-// swagger:route GET /v1/dms/configurations/sql_query cloudbeaver GetSQLQueryConfiguration
+// swagger:route GET /v1/dms/configurations/sql_query CloudBeaver GetSQLQueryConfiguration
 //
 // get sql_query configuration.
 //

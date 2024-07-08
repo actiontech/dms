@@ -48,14 +48,10 @@ type DBService struct {
 	IsEnableMasking bool `json:"is_enable_masking"`
 }
 
-// swagger:parameters AddDBService
+// swagger:model AddDBServiceReq
 type AddDBServiceReq struct {
-	// project id
-	// Required: true
-	// in:path
+    // swagger:ignore
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-	// Add new db service
-	// in:body
 	DBService *DBService `json:"db_service" validate:"required"`
 }
 
@@ -85,14 +81,10 @@ func (u *AddDBServiceReply) String() string {
 	return fmt.Sprintf("AddDBServiceReply{Uid:%s}", u.Data.Uid)
 }
 
-// swagger:parameters CheckDBServiceIsConnectable
+// swagger:model
 type CheckDBServiceIsConnectableReq struct {
-	// project id
-	// Required: true
-	// in:path
+	// swagger:ignore
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-	// check db_service is connectable
-	// in:body
 	DBService dmsCommonV1.CheckDbConnectable `json:"db_service"`
 }
 
@@ -109,14 +101,9 @@ type CheckDBServiceIsConnectableReply struct {
 	base.GenericResp
 }
 
-// swagger:parameters CheckDBServiceIsConnectableById
+// swagger:model
 type CheckDBServiceIsConnectableByIdReq struct {
-	// project id
-	// Required: true
-	// in:path
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-	// db service uid
-	// in:path
 	DBServiceUid string `param:"db_service_uid" json:"db_service_uid" validate:"required"`
 }
 
@@ -138,18 +125,12 @@ func (u *DelDBServiceReq) String() string {
 	return fmt.Sprintf("DelDBServiceReq{Uid:%s}", u.DBServiceUid)
 }
 
-// swagger:parameters UpdateDBService
+// swagger:model
 type UpdateDBServiceReq struct {
-	// project id
-	// Required: true
-	// in:path
+	// swagger:ignore
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-	// db_service_uid
-	// Required: true
-	// in:path
+	// swagger:ignore
 	DBServiceUid string `param:"db_service_uid" json:"db_service_uid" validate:"required"`
-	// Update a DB service
-	// in:body
 	DBService *UpdateDBService `json:"db_service" validate:"required"`
 }
 
@@ -315,14 +296,10 @@ type ImportDBService struct {
 	IsEnableMasking bool `json:"is_enable_masking"`
 }
 
-// swagger:parameters ImportDBServicesOfOneProject
+// swagger:model
 type ImportDBServicesOfOneProjectReq struct {
-	// project id
-	// Required: true
-	// in:path
+    // swagger:ignore
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-	// new db services
-	// in:body
 	DBServices []ImportDBService `json:"db_services" validate:"required"`
 }
 

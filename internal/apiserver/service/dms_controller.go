@@ -62,13 +62,32 @@ func (a *DMSController) Shutdown() error {
 	return nil
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/db_services dms AddDBService
+// swagger:operation POST /v1/dms/projects/{project_uid}/db_services DBService AddDBService
 //
 // Add DB Service.
 //
-//	responses:
-//	  200: body:AddDBServiceReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: db_service
+//     description: Add new db service
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/AddDBServiceReq"
+// responses:
+//   '200':
+//     description: AddDBServiceReply
+//     schema:
+//       "$ref": "#/definitions/AddDBServiceReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddDBService(c echo.Context) error {
 	req := new(aV1.AddDBServiceReq)
 	err := bindAndValidateReq(c, req)
@@ -89,7 +108,7 @@ func (d *DMSController) AddDBService(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/db_services dms ListDBServices
+// swagger:route GET /v1/dms/projects/{project_uid}/db_services DBService ListDBServices
 //
 // List db service.
 //
@@ -113,7 +132,7 @@ func (d *DMSController) ListDBServices(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/db_services/tips dms ListDBServiceTips
+// swagger:route GET /v1/dms/projects/{project_uid}/db_services/tips DBService ListDBServiceTips
 //
 // List db service tip.
 //
@@ -138,7 +157,7 @@ func (d *DMSController) ListDBServiceTips(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/db_services/driver_options dms ListDBServiceDriverOption
+// swagger:route GET /v1/dms/db_services/driver_options DBService ListDBServiceDriverOption
 //
 // List db service driver option.
 //
@@ -153,7 +172,7 @@ func (d *DMSController) ListDBServiceDriverOption(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route DELETE /v1/dms/projects/{project_uid}/db_services/{db_service_uid} dms DelDBService
+// swagger:route DELETE /v1/dms/projects/{project_uid}/db_services/{db_service_uid} DBService DelDBService
 //
 // Delete a DB Service.
 //
@@ -178,13 +197,36 @@ func (a *DMSController) DelDBService(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/projects/{project_uid}/db_services/{db_service_uid} dms UpdateDBService
+// swagger:operation PUT /v1/dms/projects/{project_uid}/db_services/{db_service_uid} DBService UpdateDBService
 //
 // update a DB Service.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: db_service_uid
+//     description: db_service_uid id
+//     in: path
+//     required: true
+//     type: string
+//   - name: db_service
+//     description: Update a DB service
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateDBServiceReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (a *DMSController) UpdateDBService(c echo.Context) error {
 	req := &aV1.UpdateDBServiceReq{}
 	err := bindAndValidateReq(c, req)
@@ -203,13 +245,31 @@ func (a *DMSController) UpdateDBService(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/db_services/connection dms CheckDBServiceIsConnectable
+// swagger:operation POST /v1/dms/projects/{project_uid}/db_services/connection DBService CheckDBServiceIsConnectable
 //
 // check if the db_service is connectable.
 //
-//	responses:
-//	  200: body:CheckDBServiceIsConnectableReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: db_service
+//     in: body
+//     description: check db_service is connectable
+//     schema:
+//       "$ref": "#/definitions/CheckDBServiceIsConnectableReq"
+// responses:
+//   '200':
+//     description: CheckDBServiceIsConnectableReply
+//     schema:
+//       "$ref": "#/definitions/CheckDBServiceIsConnectableReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) CheckDBServiceIsConnectable(c echo.Context) error {
 	var req aV1.CheckDBServiceIsConnectableReq
 	err := bindAndValidateReq(c, &req)
@@ -224,13 +284,31 @@ func (d *DMSController) CheckDBServiceIsConnectable(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/db_services/{db_service_uid}/connection dms CheckDBServiceIsConnectableById
+// swagger:operation POST /v1/dms/projects/{project_uid}/db_services/{db_service_uid}/connection DBService CheckDBServiceIsConnectableById
 //
 // check if the db_service is connectable.
 //
-//	responses:
-//	  200: body:CheckDBServiceIsConnectableReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: db_service_uid
+//     description: db service uid
+//     in: path
+//     required: true
+//     type: string
+// responses:
+//   '200':
+//     description: CheckDBServiceIsConnectableReply
+//     schema:
+//       "$ref": "#/definitions/CheckDBServiceIsConnectableReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) CheckDBServiceIsConnectableById(c echo.Context) error {
 	var req aV1.CheckDBServiceIsConnectableByIdReq
 	err := bindAndValidateReq(c, &req)
@@ -245,7 +323,7 @@ func (d *DMSController) CheckDBServiceIsConnectableById(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services dms ListDatabaseSourceServices
+// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services DatabaseSourceService ListDatabaseSourceServices
 //
 // List database source service.
 //
@@ -270,7 +348,7 @@ func (d *DMSController) ListDatabaseSourceServices(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} dms GetDatabaseSourceService
+// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} DatabaseSourceService GetDatabaseSourceService
 //
 // Get database source service.
 //
@@ -295,13 +373,31 @@ func (d *DMSController) GetDatabaseSourceService(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/database_source_services dms AddDatabaseSourceService
+// swagger:operation POST /v1/dms/projects/{project_uid}/database_source_services DatabaseSourceService AddDatabaseSourceService
 //
 // Add database source service.
 //
-//	responses:
-//	  200: body:AddDatabaseSourceServiceReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: database_source_service
+//     in: body
+//     description: add database source service
+//     schema:
+//       "$ref": "#/definitions/AddDatabaseSourceServiceReq"
+// responses:
+//   '200':
+//     description: AddDatabaseSourceServiceReply
+//     schema:
+//       "$ref": "#/definitions/AddDatabaseSourceServiceReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddDatabaseSourceService(c echo.Context) error {
 	req := new(aV1.AddDatabaseSourceServiceReq)
 	err := bindAndValidateReq(c, req)
@@ -322,13 +418,35 @@ func (d *DMSController) AddDatabaseSourceService(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PUT /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} dms UpdateDatabaseSourceService
+// swagger:operation PUT /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} DatabaseSourceService UpdateDatabaseSourceService
 //
 // update database source service.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: database_source_service_uid
+//     in: path
+//     required: true
+//     type: string
+//   - name: database_source_service
+//     description: update database source service
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateDatabaseSourceServiceReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateDatabaseSourceService(c echo.Context) error {
 	req := &aV1.UpdateDatabaseSourceServiceReq{}
 	err := bindAndValidateReq(c, req)
@@ -347,7 +465,7 @@ func (d *DMSController) UpdateDatabaseSourceService(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route DELETE /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} dms DeleteDatabaseSourceService
+// swagger:route DELETE /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} DatabaseSourceService DeleteDatabaseSourceService
 //
 // Delete database source service.
 //
@@ -372,7 +490,7 @@ func (d *DMSController) DeleteDatabaseSourceService(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services/tips dms ListDatabaseSourceServiceTips
+// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services/tips DatabaseSourceService ListDatabaseSourceServiceTips
 //
 // List database source service tips.
 //
@@ -387,13 +505,30 @@ func (d *DMSController) ListDatabaseSourceServiceTips(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid}/sync dms SyncDatabaseSourceService
+// swagger:operation POST /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid}/sync DatabaseSourceService SyncDatabaseSourceService
 //
 // Sync database source service.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: database_source_service_uid
+//     in: path
+//     required: true
+//     type: string
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) SyncDatabaseSourceService(c echo.Context) error {
 	req := &aV1.SyncDatabaseSourceServiceReq{}
 	err := bindAndValidateReq(c, req)
@@ -413,7 +548,7 @@ func (d *DMSController) SyncDatabaseSourceService(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/basic_info dms GetBasicInfo
+// swagger:route GET /v1/dms/basic_info BasicInfo GetBasicInfo
 //
 // get basic info.
 //
@@ -428,7 +563,7 @@ func (d *DMSController) GetBasicInfo(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/personalization/logo dms GetStaticLogo
+// swagger:route GET /v1/dms/personalization/logo BasicInfo GetStaticLogo
 //
 // get logo
 //
@@ -447,13 +582,31 @@ func (d *DMSController) GetStaticLogo(c echo.Context) error {
 	return c.Blob(http.StatusOK, contentType, reply.File)
 }
 
-// swagger:route POST /v1/dms/personalization dms Personalization
+// swagger:operation POST /v1/dms/personalization BasicInfo Personalization
 //
-// personalize [title, logo]
+// personalize [title, logo].
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: title
+//     description: title
+//     in: formData
+//     required: false
+//     type: string
+//   - name: formData
+//     description: file upload
+//     in: formData
+//     required: false
+//     type: file
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) Personalization(c echo.Context) error {
 	req := &aV1.PersonalizationReq{}
 
@@ -477,13 +630,27 @@ func (d *DMSController) Personalization(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/sessions dms AddSession
+// swagger:operation POST /v1/dms/sessions Session AddSession
 //
 // Add a session.
 //
-//	responses:
-//	  200: body:AddSessionReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: session
+//     in: body
+//     required: true
+//     description: Add a new session
+//     schema:
+//       "$ref": "#/definitions/AddSessionReq"
+// responses:
+//   '200':
+//     description: AddSessionReply
+//     schema:
+//       "$ref": "#/definitions/AddSessionReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (a *DMSController) AddSession(c echo.Context) error {
 	req := new(aV1.AddSessionReq)
 	err := bindAndValidateReq(c, req)
@@ -530,7 +697,7 @@ func (a *DMSController) AddSession(c echo.Context) error {
 	})
 }
 
-// swagger:route DELETE /v1/dms/sessions dms DelSession
+// swagger:route DELETE /v1/dms/sessions Session DelSession
 //
 // del a session.
 //
@@ -549,7 +716,7 @@ func (a *DMSController) DelSession(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/sessions/user dms GetUserBySession
+// swagger:route GET /v1/dms/sessions/user Session GetUserBySession
 //
 // Get current user.
 //
@@ -568,13 +735,27 @@ func (a *DMSController) GetUserBySession(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/users dms AddUser
+// swagger:operation POST /v1/dms/users User AddUser
 //
 // Add user.
 //
-//	responses:
-//	  200: body:AddUserReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: user
+//     in: body
+//     required: true
+//     description: Add new user
+//     schema:
+//       "$ref": "#/definitions/AddUserReq"
+// responses:
+//   '200':
+//     description: AddUserReply
+//     schema:
+//       "$ref": "#/definitions/AddUserReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddUser(c echo.Context) error {
 	req := new(aV1.AddUserReq)
 	err := bindAndValidateReq(c, req)
@@ -595,13 +776,31 @@ func (d *DMSController) AddUser(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PUT /v1/dms/users/{user_uid} dms UpdateUser
+// swagger:operation PUT /v1/dms/users/{user_uid} User UpdateUser
 //
 // Update a user.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: user_uid
+//     description: User uid
+//     in: path
+//     required: true
+//     type: string
+//   - name: user
+//     description: Update a user
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateUserReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateUser(c echo.Context) error {
 	req := new(aV1.UpdateUserReq)
 	err := bindAndValidateReq(c, req)
@@ -622,13 +821,27 @@ func (d *DMSController) UpdateUser(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/users dms UpdateCurrentUser
+// swagger:operation PUT /v1/dms/users User UpdateCurrentUser
 //
 // Update current user.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: current_user
+//     description: Update current user
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateCurrentUserReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateCurrentUser(c echo.Context) error {
 	req := new(aV1.UpdateCurrentUserReq)
 	err := bindAndValidateReq(c, req)
@@ -649,7 +862,7 @@ func (d *DMSController) UpdateCurrentUser(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route DELETE /v1/dms/users/{user_uid} dms DelUser
+// swagger:route DELETE /v1/dms/users/{user_uid} User DelUser
 //
 // Delete a user.
 //
@@ -676,7 +889,7 @@ func (a *DMSController) DelUser(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/users dms ListUsers
+// swagger:route GET /v1/dms/users User ListUsers
 //
 // List users.
 //
@@ -697,7 +910,7 @@ func (d *DMSController) ListUsers(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/users/{user_uid}/op_permission dms GetUserOpPermission
+// swagger:route GET /v1/dms/users/{user_uid}/op_permission User GetUserOpPermission
 //
 // Get user op permission info, This API is used by other component such as sqle&auth to check user permissions.
 //
@@ -717,7 +930,7 @@ func (a *DMSController) GetUserOpPermission(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/users/{user_uid} dms GetUser
+// swagger:route GET /v1/dms/users/{user_uid} User GetUser
 //
 // Get user info, This API is used by other component such as sqle&auth to get user info.
 //
@@ -737,13 +950,26 @@ func (a *DMSController) GetUser(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/users/gen_token dms GenAccessToken
+// swagger:operation POST /v1/dms/users/gen_token User GenAccessToken
 //
 // Gen user access token.
 //
-//	responses:
-//	  200: body:GenAccessTokenReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: expiration_days
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/GenAccessToken"
+// responses:
+//   '200':
+//     description: GenAccessTokenReply
+//     schema:
+//       "$ref": "#/definitions/GenAccessTokenReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (a *DMSController) GenAccessToken(c echo.Context) error {
 	req := new(dmsV1.GenAccessToken)
 	err := bindAndValidateReq(c, req)
@@ -764,13 +990,27 @@ func (a *DMSController) GenAccessToken(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/user_groups dms AddUserGroup
+// swagger:operation POST /v1/dms/user_groups UserGroup AddUserGroup
 //
 // Add user group.
 //
-//	responses:
-//	  200: body:AddUserGroupReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: user_group
+//     description: Add new user group
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/AddUserGroupReq"
+// responses:
+//   '200':
+//     description: AddUserGroupReply
+//     schema:
+//       "$ref": "#/definitions/AddUserGroupReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddUserGroup(c echo.Context) error {
 	req := new(aV1.AddUserGroupReq)
 	err := bindAndValidateReq(c, req)
@@ -791,13 +1031,32 @@ func (d *DMSController) AddUserGroup(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PUT /v1/dms/user_groups/{user_group_uid} dms UpdateUserGroup
+// swagger:operation PUT /v1/dms/user_groups/{user_group_uid} UserGroup UpdateUserGroup
 //
 // Update a user group.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: user_group_uid
+//     description: UserGroup uid
+//     in: path
+//     required: true
+//     type: string
+//   - name: user_group
+//     description: Update a user group
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateUserGroupReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateUserGroup(c echo.Context) error {
 	req := new(aV1.UpdateUserGroupReq)
 	err := bindAndValidateReq(c, req)
@@ -818,7 +1077,7 @@ func (d *DMSController) UpdateUserGroup(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route DELETE /v1/dms/user_groups/{user_group_uid} dms DelUserGroup
+// swagger:route DELETE /v1/dms/user_groups/{user_group_uid} UserGroup DelUserGroup
 //
 // Delete a user group.
 //
@@ -845,7 +1104,7 @@ func (a *DMSController) DelUserGroup(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/user_groups dms ListUserGroups
+// swagger:route GET /v1/dms/user_groups UserGroup ListUserGroups
 //
 // List user groups.
 //
@@ -866,13 +1125,27 @@ func (d *DMSController) ListUserGroups(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/roles dms AddRole
+// swagger:operation POST /v1/dms/roles Role AddRole
 //
 // Add role.
 //
-//	responses:
-//	  200: body:AddRoleReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: role
+//     description: Add new role
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/AddRoleReq"
+// responses:
+//   '200':
+//     description: AddRoleReply
+//     schema:
+//       "$ref": "#/definitions/AddRoleReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddRole(c echo.Context) error {
 	req := new(aV1.AddRoleReq)
 	err := bindAndValidateReq(c, req)
@@ -893,13 +1166,32 @@ func (d *DMSController) AddRole(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PUT /v1/dms/roles/{role_uid} dms UpdateRole
+// swagger:operation PUT /v1/dms/roles/{role_uid} Role UpdateRole
 //
 // Update a role.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: role_uid
+//     description: Role uid
+//     in: path
+//     required: true
+//     type: string
+//   - name: role
+//     description: Update a role
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateRoleReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateRole(c echo.Context) error {
 	req := new(aV1.UpdateRoleReq)
 	err := bindAndValidateReq(c, req)
@@ -920,7 +1212,7 @@ func (d *DMSController) UpdateRole(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route DELETE /v1/dms/roles/{role_uid} dms DelRole
+// swagger:route DELETE /v1/dms/roles/{role_uid} Role DelRole
 //
 // Delete a role.
 //
@@ -947,7 +1239,7 @@ func (a *DMSController) DelRole(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/roles dms ListRoles
+// swagger:route GET /v1/dms/roles Role ListRoles
 //
 // List roles.
 //
@@ -968,13 +1260,32 @@ func (d *DMSController) ListRoles(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/members dms AddMember
+// swagger:operation POST /v1/dms/projects/{project_uid}/members Member AddMember
 //
 // Add member.
 //
-//	responses:
-//	  200: body:AddMemberReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: member
+//     description: Add new member
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/AddMemberReq"
+// responses:
+//   '200':
+//     description: AddMemberReply
+//     schema:
+//       "$ref": "#/definitions/AddMemberReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddMember(c echo.Context) error {
 	req := new(aV1.AddMemberReq)
 	err := bindAndValidateReq(c, req)
@@ -995,7 +1306,7 @@ func (d *DMSController) AddMember(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/members/tips dms ListMemberTips
+// swagger:route GET /v1/dms/projects/{project_uid}/members/tips Member ListMemberTips
 //
 // List member tips.
 //
@@ -1016,7 +1327,7 @@ func (d *DMSController) ListMemberTips(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/members dms ListMembers
+// swagger:route GET /v1/dms/projects/{project_uid}/members Member ListMembers
 //
 // List member, for front page.
 //
@@ -1037,7 +1348,7 @@ func (d *DMSController) ListMembers(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/members/internal dms ListMembersForInternal
+// swagger:route GET /v1/dms/projects/{project_uid}/members/internal Member ListMembersForInternal
 //
 // List members, for internal backend service.
 //
@@ -1058,13 +1369,37 @@ func (d *DMSController) ListMembersForInternal(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PUT /v1/dms/projects/{project_uid}/members/{member_uid} dms UpdateMember
+// swagger:operation PUT /v1/dms/projects/{project_uid}/members/{member_uid} Member UpdateMember
 //
 // Update a member.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: member_uid
+//     description: Member uid
+//     in: path
+//     required: true
+//     type: string
+//   - name: member
+//     description: Update a member
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateMemberReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateMember(c echo.Context) error {
 	req := new(aV1.UpdateMemberReq)
 	err := bindAndValidateReq(c, req)
@@ -1085,7 +1420,7 @@ func (d *DMSController) UpdateMember(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route DELETE /v1/dms/projects/{project_uid}/members/{member_uid} dms DelMember
+// swagger:route DELETE /v1/dms/projects/{project_uid}/members/{member_uid} Member DelMember
 //
 // Delete a member.
 //
@@ -1112,7 +1447,7 @@ func (a *DMSController) DelMember(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/member_groups dms ListMemberGroups
+// swagger:route GET /v1/dms/projects/{project_uid}/member_groups MemberGroup ListMemberGroups
 //
 // List member group, for front page.
 //
@@ -1133,7 +1468,7 @@ func (d *DMSController) ListMemberGroups(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/member_groups/{member_group_uid} dms GetMemberGroup
+// swagger:route GET /v1/dms/projects/{project_uid}/member_groups/{member_group_uid} MemberGroup GetMemberGroup
 //
 // Get member group, for front page.
 //
@@ -1154,13 +1489,32 @@ func (d *DMSController) GetMemberGroup(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/member_groups dms AddMemberGroup
+// swagger:operation POST /v1/dms/projects/{project_uid}/member_groups MemberGroup AddMemberGroup
 //
 // Add member group.
 //
-//	responses:
-//	  200: body:AddMemberGroupReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: member_group
+//     description: Add new member group
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/AddMemberGroupReq"
+// responses:
+//   '200':
+//     description: AddMemberGroupReply
+//     schema:
+//       "$ref": "#/definitions/AddMemberGroupReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddMemberGroup(c echo.Context) error {
 	req := new(aV1.AddMemberGroupReq)
 	err := bindAndValidateReq(c, req)
@@ -1181,13 +1535,37 @@ func (d *DMSController) AddMemberGroup(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PUT /v1/dms/projects/{project_uid}/member_groups/{member_group_uid} dms UpdateMemberGroup
+// swagger:operation PUT /v1/dms/projects/{project_uid}/member_groups/{member_group_uid} MemberGroup UpdateMemberGroup
 //
 // update member group, for front page.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: member_group_uid
+//     description: Member group id
+//     in: path
+//     required: true
+//     type: string
+//   - name: member_group
+//     description: Update a member group
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateMemberGroupReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateMemberGroup(c echo.Context) error {
 	req := new(aV1.UpdateMemberGroupReq)
 	err := bindAndValidateReq(c, req)
@@ -1209,7 +1587,7 @@ func (d *DMSController) UpdateMemberGroup(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route DELETE  /v1/dms/projects/{project_uid}/member_groups/{member_group_uid} dms DeleteMemberGroup
+// swagger:route DELETE  /v1/dms/projects/{project_uid}/member_groups/{member_group_uid} MemberGroup DeleteMemberGroup
 //
 // delete member group, for front page.
 //
@@ -1237,7 +1615,7 @@ func (d *DMSController) DeleteMemberGroup(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/op_permissions dms ListOpPermissions
+// swagger:route GET /v1/dms/op_permissions OpPermission ListOpPermissions
 //
 // List op permission.
 //
@@ -1258,7 +1636,7 @@ func (d *DMSController) ListOpPermissions(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects dms ListProjects
+// swagger:route GET /v1/dms/projects Project ListProjects
 //
 // List projects.
 //
@@ -1285,13 +1663,27 @@ func (d *DMSController) ListProjects(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/projects dms AddProject
+// swagger:operation POST /v1/dms/projects Project AddProject
 //
 // Add project.
 //
-//	responses:
-//	  200: body:AddProjectReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: project
+//     description: Add new Project
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/AddProjectReq"
+// responses:
+//   '200':
+//     description: AddProjectReply
+//     schema:
+//       "$ref": "#/definitions/AddProjectReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddProject(c echo.Context) error {
 	req := new(aV1.AddProjectReq)
 	err := bindAndValidateReq(c, req)
@@ -1311,7 +1703,7 @@ func (d *DMSController) AddProject(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route DELETE /v1/dms/projects/{project_uid} dms DelProject
+// swagger:route DELETE /v1/dms/projects/{project_uid} Project DelProject
 //
 // Delete a project
 //
@@ -1336,13 +1728,32 @@ func (a *DMSController) DelProject(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/projects/{project_uid} dms UpdateProject
+// swagger:operation PUT /v1/dms/projects/{project_uid} Project UpdateProject
 //
 // update a project.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: project
+//     description: Update a project
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateProjectReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (a *DMSController) UpdateProject(c echo.Context) error {
 	req := &aV1.UpdateProjectReq{}
 	err := bindAndValidateReq(c, req)
@@ -1361,7 +1772,7 @@ func (a *DMSController) UpdateProject(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/projects/{project_uid}/archive dms ArchiveProject
+// swagger:route PUT /v1/dms/projects/{project_uid}/archive Project ArchiveProject
 //
 // Archive a project.
 //
@@ -1387,7 +1798,7 @@ func (a *DMSController) ArchiveProject(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route PUT /v1/dms/projects/{project_uid}/unarchive dms UnarchiveProject
+// swagger:route PUT /v1/dms/projects/{project_uid}/unarchive Project UnarchiveProject
 //
 // Unarchive a project.
 //
@@ -1413,13 +1824,27 @@ func (a *DMSController) UnarchiveProject(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/projects/import dms ImportProjects
+// swagger:operation POST /v1/dms/projects/import Project ImportProjects
 //
-// Import projects
+// Import projects.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: projects
+//     description: import projects
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/ImportProjectsReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (a *DMSController) ImportProjects(c echo.Context) error {
 	req := new(aV1.ImportProjectsReq)
 	err := bindAndValidateReq(c, req)
@@ -1440,9 +1865,9 @@ func (a *DMSController) ImportProjects(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/projects/preview_import dms PreviewImportProjects
+// swagger:route POST /v1/dms/projects/preview_import Project PreviewImportProjects
 //
-// Preview import projects
+// Preview import projects.
 //
 //	Consumes:
 //	- multipart/form-data
@@ -1472,7 +1897,7 @@ func (a *DMSController) PreviewImportProjects(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/import_template dms GetImportProjectsTemplate
+// swagger:route GET /v1/dms/projects/import_template Project GetImportProjectsTemplate
 //
 // Get import projects template.
 //
@@ -1496,7 +1921,7 @@ func (a *DMSController) GetImportProjectsTemplate(c echo.Context) error {
 	return c.Blob(http.StatusOK, "text/csv", content)
 }
 
-// swagger:route GET /v1/dms/projects/export dms ExportProjects
+// swagger:route GET /v1/dms/projects/export Project ExportProjects
 //
 // Export projects file.
 //
@@ -1527,7 +1952,7 @@ func (a *DMSController) ExportProjects(c echo.Context) error {
 	return c.Blob(http.StatusOK, "text/csv", content)
 }
 
-// swagger:route GET /v1/dms/projects/tips dms GetProjectTips
+// swagger:route GET /v1/dms/projects/tips Project GetProjectTips
 //
 // Get project tips.
 //
@@ -1554,7 +1979,7 @@ func (a *DMSController) GetProjectTips(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/import_db_services_template dms GetImportDBServicesTemplate
+// swagger:route GET /v1/dms/projects/import_db_services_template Project GetImportDBServicesTemplate
 //
 // Get import DBServices template.
 //
@@ -1578,9 +2003,9 @@ func (a *DMSController) GetImportDBServicesTemplate(c echo.Context) error {
 	return c.Blob(http.StatusOK, "text/csv", importDBServicesTemplate)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/db_services/import_check dms ImportDBServicesOfOneProjectCheck
+// swagger:route POST /v1/dms/projects/{project_uid}/db_services/import_check DBService ImportDBServicesOfOneProjectCheck
 //
-// Import DBServices
+// Import DBServices.
 //
 //	Consumes:
 //	- multipart/form-data
@@ -1625,16 +2050,32 @@ func (a *DMSController) ImportDBServicesOfOneProjectCheck(c echo.Context) error 
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/db_services/import dms ImportDBServicesOfOneProject
+// swagger:operation POST /v1/dms/projects/{project_uid}/db_services/import DBService ImportDBServicesOfOneProject
 //
-// Import DBServices
+// Import DBServices.
 //
-//	Consumes:
-//	- application/json
-//
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: db_services
+//     description: new db services
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/ImportDBServicesOfOneProjectReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (a *DMSController) ImportDBServicesOfOneProject(c echo.Context) error {
 	req := new(aV1.ImportDBServicesOfOneProjectReq)
 	err := bindAndValidateReq(c, req)
@@ -1655,9 +2096,9 @@ func (a *DMSController) ImportDBServicesOfOneProject(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/projects/import_db_services_check dms ImportDBServicesOfProjectsCheck
+// swagger:route POST /v1/dms/projects/import_db_services_check Project ImportDBServicesOfProjectsCheck
 //
-// Import DBServices
+// Import DBServices.
 //
 //		Consumes:
 //		- multipart/form-data
@@ -1696,19 +2137,27 @@ func (a *DMSController) ImportDBServicesOfProjectsCheck(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/projects/import_db_services dms ImportDBServicesOfProjects
+// swagger:operation POST /v1/dms/projects/import_db_services Project ImportDBServicesOfProjects
 //
-// Import DBServices
+// Import DBServices.
 //
-//	Consumes:
-//	- application/json
-//
-//	Produces:
-//	- application/json
-//
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: db_services
+//     description: new db services
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/ImportDBServicesOfProjectsReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
 	req := new(aV1.ImportDBServicesOfProjectsReq)
 	err := bindAndValidateReq(c, req)
@@ -1729,16 +2178,26 @@ func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/projects/db_services_connection dms DBServicesConnection
+// swagger:operation POST /v1/dms/projects/db_services_connection Project DBServicesConnection
 //
-// DBServices Connection
+// DBServices Connection.
 //
-//	Consumes:
-//	- application/json
-//
-//	responses:
-//	  200: DBServicesConnectionReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: db_services
+//     description: check db_service is connectable
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/DBServiceConnectionReq"
+// responses:
+//   '200':
+//     description: DBServicesConnectionReply
+//     schema:
+//       "$ref": "#/definitions/DBServicesConnectionReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (a *DMSController) DBServicesConnection(c echo.Context) error {
 	req := new(aV1.DBServiceConnectionReq)
 	err := bindAndValidateReq(c, req)
@@ -1759,13 +2218,27 @@ func (a *DMSController) DBServicesConnection(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/proxy dms RegisterDMSProxyTarget
+// swagger:operation POST /v1/dms/proxys DMSProxy RegisterDMSProxyTarget
 //
 // Register dms proxy target.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: dms_proxy_target
+//     description: register dms proxy
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/RegisterDMSProxyTargetReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) RegisterDMSProxyTarget(c echo.Context) error {
 	req := new(dmsV1.RegisterDMSProxyTargetReq)
 	err := bindAndValidateReq(c, req)
@@ -1786,13 +2259,27 @@ func (d *DMSController) RegisterDMSProxyTarget(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/plugin dms RegisterDMSPlugin
+// swagger:operation POST /v1/dms/plugins DMSPlugin RegisterDMSPlugin
 //
 // Register dms plugin.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: plugin
+//     description: Register dms plugin
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/RegisterDMSPluginReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) RegisterDMSPlugin(c echo.Context) error {
 	req := new(dmsV1.RegisterDMSPluginReq)
 	err := bindAndValidateReq(c, req)
@@ -1813,7 +2300,7 @@ func (d *DMSController) RegisterDMSPlugin(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/configurations/oauth2 dms GetOauth2Configuration
+// swagger:route GET /v1/dms/configurations/oauth2 Configuration GetOauth2Configuration
 //
 // Get Oauth2 configuration.
 //
@@ -1828,13 +2315,27 @@ func (d *DMSController) GetOauth2Configuration(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PATCH /v1/dms/configurations/oauth2 dms UpdateOauth2Configuration
+// swagger:operation PATCH /v1/dms/configurations/oauth2 Configuration UpdateOauth2Configuration
 //
 // Update Oauth2 configuration..
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: oauth2
+//     description: update oauth2 configuration
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/Oauth2ConfigurationReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateOauth2Configuration(c echo.Context) error {
 	req := new(aV1.Oauth2ConfigurationReq)
 	err := bindAndValidateReq(c, req)
@@ -1848,7 +2349,7 @@ func (d *DMSController) UpdateOauth2Configuration(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/oauth2/tips dms GetOauth2Tips
+// swagger:route GET /v1/dms/oauth2/tips OAuth2 GetOauth2Tips
 //
 // Get Oauth2 Tips.
 //
@@ -1863,7 +2364,7 @@ func (d *DMSController) GetOauth2Tips(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/oauth2/link
+// swagger:route GET /v1/dms/oauth2/link OAuth2 Oauth2Link
 //
 // Oauth2 Link.
 func (d *DMSController) Oauth2Link(c echo.Context) error {
@@ -1897,13 +2398,26 @@ func (d *DMSController) Oauth2Callback(c echo.Context) error {
 	return c.Redirect(http.StatusFound, uri)
 }
 
-// swagger:route POST /v1/dms/oauth2/user/bind dms BindOauth2User
+// swagger:operation POST /v1/dms/oauth2/user/bind OAuth2 BindOauth2User
 //
 // Bind Oauth2 User.
 //
-//	responses:
-//	  200: body:BindOauth2UserReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: BindOauth2UserReq
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/BindOauth2UserReq"
+// responses:
+//   '200':
+//     description: BindOauth2UserReply
+//     schema:
+//       "$ref": "#/definitions/BindOauth2UserReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) BindOauth2User(c echo.Context) error {
 	req := new(aV1.BindOauth2UserReq)
 	err := bindAndValidateReq(c, req)
@@ -1923,13 +2437,27 @@ func (d *DMSController) BindOauth2User(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PATCH /v1/dms/configurations/ldap dms UpdateLDAPConfiguration
+// swagger:operation PATCH /v1/dms/configurations/ldap Configuration UpdateLDAPConfiguration
 //
 // Update ldap configuration.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: ldap
+//     description: update ldap configuration
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateLDAPConfigurationReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateLDAPConfiguration(c echo.Context) error {
 	req := new(aV1.UpdateLDAPConfigurationReq)
 	err := bindAndValidateReq(c, req)
@@ -1943,7 +2471,7 @@ func (d *DMSController) UpdateLDAPConfiguration(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/configurations/ldap dms GetLDAPConfiguration
+// swagger:route GET /v1/dms/configurations/ldap Configuration GetLDAPConfiguration
 //
 // Get ldap configuration.
 //
@@ -1958,7 +2486,7 @@ func (d *DMSController) GetLDAPConfiguration(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/configurations/smtp dms GetSMTPConfiguration
+// swagger:route GET /v1/dms/configurations/smtp Configuration GetSMTPConfiguration
 //
 // get smtp configuration.
 //
@@ -1973,13 +2501,27 @@ func (d *DMSController) GetSMTPConfiguration(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PATCH /v1/dms/configurations/smtp dms UpdateSMTPConfiguration
+// swagger:operation PATCH /v1/dms/configurations/smtp Configuration UpdateSMTPConfiguration
 //
-// Get smtp configuration.
+// Update smtp configuration.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: smtp_configuration
+//     description: update smtp configuration
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateSMTPConfigurationReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateSMTPConfiguration(c echo.Context) error {
 	req := new(aV1.UpdateSMTPConfigurationReq)
 	err := bindAndValidateReq(c, req)
@@ -1993,13 +2535,27 @@ func (d *DMSController) UpdateSMTPConfiguration(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/configurations/smtp/test dms TestSMTPConfiguration
+// swagger:operation POST /v1/dms/configurations/smtp/test Configuration TestSMTPConfiguration
 //
 // test smtp configuration.
 //
-//	responses:
-//	  200: body:TestSMTPConfigurationReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: test_smtp_configuration
+//     description: test smtp configuration
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/TestSMTPConfigurationReq"
+// responses:
+//   '200':
+//     description: TestSMTPConfigurationReply
+//     schema:
+//       "$ref": "#/definitions/TestSMTPConfigurationReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) TestSMTPConfiguration(c echo.Context) error {
 	req := new(aV1.TestSMTPConfigurationReq)
 	err := bindAndValidateReq(c, req)
@@ -2013,7 +2569,7 @@ func (d *DMSController) TestSMTPConfiguration(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/configurations/wechat dms GetWeChatConfiguration
+// swagger:route GET /v1/dms/configurations/wechat Configuration GetWeChatConfiguration
 //
 // get wechat configuration.
 //
@@ -2028,13 +2584,26 @@ func (d *DMSController) GetWeChatConfiguration(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PATCH /v1/dms/configurations/wechat dms UpdateWeChatConfiguration
+// swagger:operation PATCH /v1/dms/configurations/wechat Configuration UpdateWeChatConfiguration
 //
 // update wechat configuration.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: update_wechat_configuration
+//     description: update wechat configuration
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateWeChatConfigurationReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateWeChatConfiguration(c echo.Context) error {
 	req := new(aV1.UpdateWeChatConfigurationReq)
 	err := bindAndValidateReq(c, req)
@@ -2048,13 +2617,26 @@ func (d *DMSController) UpdateWeChatConfiguration(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/configurations/wechat/test dms TestWeChatConfiguration
+// swagger:operation POST /v1/dms/configurations/wechat/test Configuration TestWeChatConfiguration
 //
 // test wechat configuration.
 //
-//	responses:
-//	  200: body:TestWeChatConfigurationReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: test_wechat_configuration
+//     description: test wechat configuration
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/TestWeChatConfigurationReq"
+// responses:
+//   '200':
+//     description: TestWeChatConfigurationReply
+//     schema:
+//       "$ref": "#/definitions/TestWeChatConfigurationReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) TestWeChatConfiguration(c echo.Context) error {
 	req := new(aV1.TestWeChatConfigurationReq)
 	err := bindAndValidateReq(c, req)
@@ -2068,7 +2650,7 @@ func (d *DMSController) TestWeChatConfiguration(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/configurations/feishu dms GetFeishuConfiguration
+// swagger:route GET /v1/dms/configurations/feishu Configuration GetFeishuConfiguration
 //
 // get feishu configuration.
 //
@@ -2083,13 +2665,26 @@ func (d *DMSController) GetFeishuConfiguration(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PATCH /v1/dms/configurations/feishu dms UpdateFeishuConfiguration
+// swagger:operation PATCH /v1/dms/configurations/feishu Configuration UpdateFeishuConfiguration
 //
 // update feishu configuration.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: update_feishu_configuration
+//     description: update feishu configuration
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateFeishuConfigurationReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateFeishuConfiguration(c echo.Context) error {
 	req := new(aV1.UpdateFeishuConfigurationReq)
 	err := bindAndValidateReq(c, req)
@@ -2103,13 +2698,27 @@ func (d *DMSController) UpdateFeishuConfiguration(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/configurations/feishu/test dms TestFeishuConfiguration
+// swagger:operation POST /v1/dms/configurations/feishu/test Configuration TestFeishuConfiguration
 //
 // test feishu configuration.
 //
-//	responses:
-//	  200: body:TestFeishuConfigurationReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: test_feishu_configuration
+//     description: test feishu configuration
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/TestFeishuConfigurationReq"
+// responses:
+//   '200':
+//     description: TestFeishuConfigurationReply
+//     schema:
+//       "$ref": "#/definitions/TestFeishuConfigurationReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) TestFeishuConfig(c echo.Context) error {
 	req := new(aV1.TestFeishuConfigurationReq)
 	err := bindAndValidateReq(c, req)
@@ -2123,7 +2732,7 @@ func (d *DMSController) TestFeishuConfig(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/configurations/webhook dms GetWebHookConfiguration
+// swagger:route GET /v1/dms/configurations/webhook Configuration GetWebHookConfiguration
 //
 // get webhook configuration.
 //
@@ -2138,13 +2747,26 @@ func (d *DMSController) GetWebHookConfiguration(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PATCH /v1/dms/configurations/webhook dms UpdateWebHookConfiguration
+// swagger:operation PATCH /v1/dms/configurations/webhook Configuration UpdateWebHookConfiguration
 //
 // update webhook configuration.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: webhook_config
+//     description: webhook configuration
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateWebHookConfigurationReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateWebHookConfiguration(c echo.Context) error {
 	req := new(aV1.UpdateWebHookConfigurationReq)
 	err := bindAndValidateReq(c, req)
@@ -2158,7 +2780,7 @@ func (d *DMSController) UpdateWebHookConfiguration(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/configurations/webhook/test dms TestWebHookConfiguration
+// swagger:route POST /v1/dms/configurations/webhook/test Configuration TestWebHookConfiguration
 //
 // test webhook configuration.
 //
@@ -2174,7 +2796,7 @@ func (d *DMSController) TestWebHookConfiguration(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/notifications dms Notification
+// swagger:route POST /v1/dms/notifications Notification Notification
 //
 // notify message.
 //
@@ -2194,13 +2816,27 @@ func (d *DMSController) Notify(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/webhooks dms WebHookSendMessage
+// swagger:operation POST /v1/dms/webhooks Webhook WebHookSendMessage
 //
 // webhook send message.
 //
-//	responses:
-//	  200: body:WebHookSendMessageReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: webhook_message
+//     description: webhooks
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/WebHookSendMessageReq"
+// responses:
+//   '200':
+//     description: WebHookSendMessageReply
+//     schema:
+//       "$ref": "#/definitions/WebHookSendMessageReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) WebHookSendMessage(c echo.Context) error {
 	req := new(dmsV1.WebHookSendMessageReq)
 	err := bindAndValidateReq(c, req)
@@ -2214,7 +2850,7 @@ func (d *DMSController) WebHookSendMessage(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/company_notice dms GetCompanyNotice
+// swagger:route GET /v1/dms/company_notice CompanyNotice GetCompanyNotice
 //
 // get company notice info
 //
@@ -2234,13 +2870,27 @@ func (d *DMSController) GetCompanyNotice(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PATCH /v1/dms/company_notice dms UpdateCompanyNotice
+// swagger:operation PATCH /v1/dms/company_notice CompanyNotice UpdateCompanyNotice
 //
 // update company notice info
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: company_notice
+//     description: Update a companynotice
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateCompanyNoticeReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateCompanyNotice(c echo.Context) error {
 	req := new(aV1.UpdateCompanyNoticeReq)
 	err := bindAndValidateReq(c, req)
@@ -2254,7 +2904,7 @@ func (d *DMSController) UpdateCompanyNotice(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/configurations/license dms GetLicense
+// swagger:route GET /v1/dms/configurations/license Configuration GetLicense
 //
 // get license.
 //
@@ -2276,7 +2926,7 @@ const (
 	DBServicesFileParamKey = "db_services_file"
 )
 
-// swagger:route GET /v1/dms/configurations/license/info dms GetLicenseInfo
+// swagger:route GET /v1/dms/configurations/license/info Configuration GetLicenseInfo
 //
 // get generate license info.
 //
@@ -2294,7 +2944,7 @@ func (d *DMSController) GetLicenseInfo(c echo.Context) error {
 	return c.Blob(http.StatusOK, echo.MIMEOctetStream, []byte(data))
 }
 
-// swagger:route GET /v1/dms/configurations/license/usage dms GetLicenseUsage
+// swagger:route GET /v1/dms/configurations/license/usage Configuration GetLicenseUsage
 //
 // get license usage.
 //
@@ -2310,7 +2960,7 @@ func (d *DMSController) GetLicenseUsage(c echo.Context) error {
 	return NewOkRespWithReply(c, usage)
 }
 
-// swagger:route POST /v1/dms/configurations/license dms SetLicense
+// swagger:route POST /v1/dms/configurations/license Configuration SetLicense
 //
 // import license.
 //
@@ -2335,7 +2985,7 @@ func (d *DMSController) SetLicense(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/configurations/license/check dms CheckLicense
+// swagger:route POST /v1/dms/configurations/license/check Configuration CheckLicense
 //
 // notify message.
 //
@@ -2384,13 +3034,31 @@ func ReadFileContent(c echo.Context, name string) (content string, fileExist boo
 	return string(data), true, nil
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows dms AddDataExportWorkflow
+// swagger:operation POST /v1/dms/projects/{project_uid}/data_export_workflows DataExportWorkflows AddDataExportWorkflow
 //
 // Add data_export workflow.
 //
-//	responses:
-//	  200: body:AddDataExportWorkflowReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: data_export_workflow
+//     description: add data export workflow
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/AddDataExportWorkflowReq"
+// responses:
+//   '200':
+//     description: AddDataExportWorkflowReply
+//     schema:
+//       "$ref": "#/definitions/AddDataExportWorkflowReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddDataExportWorkflow(c echo.Context) error {
 	req := new(aV1.AddDataExportWorkflowReq)
 	err := bindAndValidateReq(c, req)
@@ -2411,7 +3079,7 @@ func (d *DMSController) AddDataExportWorkflow(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/approve dms ApproveDataExportWorkflow
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/approve DataExportWorkflows ApproveDataExportWorkflow
 //
 // Approve data_export workflow.
 //
@@ -2437,13 +3105,35 @@ func (d *DMSController) ApproveDataExportWorkflow(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/reject dms RejectDataExportWorkflow
+// swagger:operation POST /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/reject DataExportWorkflows RejectDataExportWorkflow
 //
 // Reject data_export workflow.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: data_export_workflow_uid
+//     in: path
+//     required: true
+//     type: string
+//   - name: payload
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/RejectDataExportWorkflowReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) RejectDataExportWorkflow(c echo.Context) error {
 	req := &aV1.RejectDataExportWorkflowReq{}
 	err := bindAndValidateReq(c, req)
@@ -2463,7 +3153,7 @@ func (d *DMSController) RejectDataExportWorkflow(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflows dms ListDataExportWorkflows
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflows DataExportWorkflows ListDataExportWorkflows
 //
 // List data_export workflow.
 //
@@ -2488,7 +3178,7 @@ func (d *DMSController) ListDataExportWorkflows(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid} dms GetDataExportWorkflow
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid} DataExportWorkflows GetDataExportWorkflow
 //
 // Get data_export workflow.
 //
@@ -2513,13 +3203,31 @@ func (d *DMSController) GetDataExportWorkflow(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/cancel dms CancelDataExportWorkflow
+// swagger:operation POST /v1/dms/projects/{project_uid}/data_export_workflows/cancel DataExportWorkflows CancelDataExportWorkflow
 //
 // Cancel data export workflows.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: payload
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/CancelDataExportWorkflowReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) CancelDataExportWorkflow(c echo.Context) error {
 	req := &aV1.CancelDataExportWorkflowReq{}
 	err := bindAndValidateReq(c, req)
@@ -2539,7 +3247,7 @@ func (d *DMSController) CancelDataExportWorkflow(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/export dms ExportDataExportWorkflow
+// swagger:route POST /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/export DataExportWorkflows ExportDataExportWorkflow
 //
 // exec data_export workflow.
 //
@@ -2565,13 +3273,31 @@ func (d *DMSController) ExportDataExportWorkflow(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route POST /v1/dms/projects/{project_uid}/data_export_tasks dms AddDataExportTask
+// swagger:operation POST /v1/dms/projects/{project_uid}/data_export_tasks DataExportTask AddDataExportTask
 //
 // Add data_export task.
 //
-//	responses:
-//	  200: body:AddDataExportTaskReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: data_export_tasks
+//     description: add data export workflow
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/AddDataExportTaskReq"
+// responses:
+//   '200':
+//     description: AddDataExportTaskReply
+//     schema:
+//       "$ref": "#/definitions/AddDataExportTaskReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddDataExportTask(c echo.Context) error {
 	req := new(aV1.AddDataExportTaskReq)
 	err := bindAndValidateReq(c, req)
@@ -2593,7 +3319,7 @@ func (d *DMSController) AddDataExportTask(c echo.Context) error {
 
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks dms BatchGetDataExportTask
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks DataExportTask BatchGetDataExportTask
 //
 // Batch get data_export task.
 //
@@ -2618,7 +3344,7 @@ func (d *DMSController) BatchGetDataExportTask(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/data_export_task_sqls dms ListDataExportTaskSQLs
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/data_export_task_sqls DataExportTask ListDataExportTaskSQLs
 //
 // List data_export workflow.
 //
@@ -2643,7 +3369,7 @@ func (d *DMSController) ListDataExportTaskSQLs(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/data_export_task_sqls/download dms DownloadDataExportTaskSQLs
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/data_export_task_sqls/download DataExportTask DownloadDataExportTaskSQLs
 //
 // dowload data_export sqls.
 //
@@ -2671,7 +3397,7 @@ func (d *DMSController) DownloadDataExportTaskSQLs(c echo.Context) error {
 	return c.Blob(http.StatusOK, echo.MIMETextPlain, content)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/download dms DownloadDataExportTask
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_tasks/{data_export_task_uid}/download DataExportTask DownloadDataExportTask
 //
 // download task file.
 //
@@ -2738,7 +3464,7 @@ func (d *DMSController) proxyDownloadDataExportTask(c echo.Context, reportHost s
 	return
 }
 
-// swagger:route GET /v1/dms/masking/rules dms ListMaskingRules
+// swagger:route GET /v1/dms/masking/rules Masking ListMaskingRules
 //
 // List masking rules.
 //
@@ -2759,7 +3485,7 @@ func (d *DMSController) ListMaskingRules(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/cb_operation_logs dms ListCBOperationLogs
+// swagger:route GET /v1/dms/projects/{project_uid}/cb_operation_logs CBOperationLogs ListCBOperationLogs
 //
 // List cb operation logs.
 //
@@ -2786,7 +3512,7 @@ func (d *DMSController) ListCBOperationLogs(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/cb_operation_logs/export dms ExportCBOperationLogs
+// swagger:route GET /v1/dms/projects/{project_uid}/cb_operation_logs/export CBOperationLogs ExportCBOperationLogs
 //
 // Export cb operation logs.
 //
@@ -2818,7 +3544,7 @@ func (d *DMSController) ExportCBOperationLogs(c echo.Context) error {
 
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/cb_operation_logs/tips dms GetCBOperationLogTips
+// swagger:route GET /v1/dms/projects/{project_uid}/cb_operation_logs/tips CBOperationLogs GetCBOperationLogTips
 //
 // Get cb operation log tips.
 //

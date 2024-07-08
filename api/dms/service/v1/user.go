@@ -27,10 +27,8 @@ type User struct {
 	OpPermissionUids []string `json:"op_permission_uids"`
 }
 
-// swagger:parameters AddUser
+// swagger:model
 type AddUserReq struct {
-	// Add new user
-	// in:body
 	User *User `json:"user" validate:"required"`
 }
 
@@ -91,14 +89,10 @@ type UpdateUser struct {
 	OpPermissionUids *[]string `json:"op_permission_uids" validate:"required"`
 }
 
-// swagger:parameters UpdateUser
+// swagger:model
 type UpdateUserReq struct {
-	// User uid
-	// Required: true
-	// in:path
+    // swagger:ignore
 	UserUid string `param:"user_uid" json:"user_uid" validate:"required"`
-	// Update a user
-	// in:body
 	User *UpdateUser `json:"user" validate:"required"`
 }
 
@@ -112,10 +106,8 @@ func (u *UpdateUserReq) String() string {
 	return fmt.Sprintf("UpdateUserReq{Uid:%s}", u.UserUid)
 }
 
-// swagger:parameters UpdateCurrentUser
+// swagger:model
 type UpdateCurrentUserReq struct {
-	// Update current user
-	// in:body
 	User *UpdateCurrentUser `json:"current_user" validate:"required"`
 }
 

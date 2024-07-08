@@ -17,10 +17,8 @@ type UserGroup struct {
 	UserUids []string `json:"user_uids"`
 }
 
-// swagger:parameters AddUserGroup
+// swagger:model
 type AddUserGroupReq struct {
-	// Add new user group
-	// in:body
 	UserGroup *UserGroup `json:"user_group" validate:"required"`
 }
 
@@ -121,14 +119,10 @@ type UpdateUserGroup struct {
 	UserUids *[]string `json:"user_uids" validate:"required"`
 }
 
-// swagger:parameters UpdateUserGroup
+// swagger:model
 type UpdateUserGroupReq struct {
-	// UserGroup uid
-	// Required: true
-	// in:path
+    // swagger:ignore
 	UserGroupUid string `param:"user_group_uid" json:"user_group_uid" validate:"required"`
-	// Update a user group
-	// in:body
 	UserGroup *UpdateUserGroup `json:"user_group" validate:"required"`
 }
 
