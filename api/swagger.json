@@ -519,7 +519,7 @@
     "/v1/dms/configurations/sql_query": {
       "get": {
         "tags": [
-          "cloudbeaver"
+          "CloudBeaver"
         ],
         "summary": "get sql_query configuration.",
         "operationId": "GetSQLQueryConfiguration",
