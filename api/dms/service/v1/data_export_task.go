@@ -6,14 +6,10 @@ import (
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 )
 
-// swagger:parameters AddDataExportTask
+// swagger:model
 type AddDataExportTaskReq struct {
-	// project id
-	// Required: true
-	// in:path
+    // swagger:ignore
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-	// add data export workflow
-	// in:body
 	DataExportTasks []DataExportTask `json:"data_export_tasks"`
 }
 

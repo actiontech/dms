@@ -87,14 +87,10 @@ type DatabaseSourceService struct {
 	SQLEConfig *dmsCommonV1.SQLEConfig `json:"sqle_config"`
 }
 
-// swagger:parameters AddDatabaseSourceService
+// swagger:model
 type AddDatabaseSourceServiceReq struct {
-	// project id
-	// Required: true
-	// in:path
+	// swagger:ignore
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-	// add database source service
-	// in:body
 	DatabaseSourceService DatabaseSourceService `json:"database_source_service"`
 }
 
@@ -110,17 +106,12 @@ type AddDatabaseSourceServiceReply struct {
 	base.GenericResp
 }
 
-// swagger:parameters UpdateDatabaseSourceService
+// swagger:model
 type UpdateDatabaseSourceServiceReq struct {
-	// project id
-	// Required: true
-	// in:path
+    // swagger:ignore
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-	// Required: true
-	// in:path
+	// swagger:ignore
 	DatabaseSourceServiceUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
-	// update database source service
-	// in:body
 	DatabaseSourceService DatabaseSourceService `json:"database_source_service" validate:"required"`
 }
 
@@ -160,13 +151,8 @@ type ListDatabaseSourceServiceTipsReq struct {
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 }
 
-// swagger:parameters SyncDatabaseSourceService
+// swagger:model
 type SyncDatabaseSourceServiceReq struct {
-	// project id
-	// Required: true
-	// in:path
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-	// Required: true
-	// in:path
 	DatabaseSourceServiceUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
 }
