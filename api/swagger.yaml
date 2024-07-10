@@ -2418,6 +2418,104 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListGlobalDBService:
+        properties:
+            additional_params:
+                description: DB Service Custom connection parameters
+                items:
+                    $ref: '#/definitions/AdditionalParam'
+                type: array
+                x-go-name: AdditionalParams
+            business:
+                description: the db service business name
+                type: string
+                x-go-name: Business
+            db_type:
+                description: db service DB type
+                type: string
+                x-go-name: DBType
+            desc:
+                description: DB desc
+                type: string
+                x-go-name: Desc
+            host:
+                description: db service host
+                type: string
+                x-go-name: Host
+            is_enable_masking:
+                description: is enable masking
+                type: boolean
+                x-go-name: IsEnableMasking
+            maintenance_times:
+                description: DB Service maintenance time
+                items:
+                    $ref: '#/definitions/MaintenanceTime'
+                type: array
+                x-go-name: MaintenanceTimes
+            name:
+                description: db service name
+                type: string
+                x-go-name: Name
+            password:
+                description: db service admin encrypted password
+                type: string
+                x-go-name: Password
+            port:
+                description: db service port
+                type: string
+                x-go-name: Port
+            project_name:
+                description: db service project_name
+                type: string
+                x-go-name: ProjectName
+            project_uid:
+                description: DB project uid
+                type: string
+                x-go-name: ProjectUID
+            source:
+                description: DB source
+                type: string
+                x-go-name: Source
+            sqle_config:
+                $ref: '#/definitions/SQLEConfig'
+            uid:
+                description: db service uid
+                type: string
+                x-go-name: DBServiceUid
+            unfinished_workflow_num:
+                description: db service unfinished workflow num
+                format: int64
+                type: integer
+                x-go-name: UnfinishedWorkflowNum
+            user:
+                description: db service admin user
+                type: string
+                x-go-name: User
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListGlobalDBServicesReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: List global db service reply
+                items:
+                    $ref: '#/definitions/ListGlobalDBService'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMaskingRulesData:
         properties:
             description:
@@ -4807,6 +4905,90 @@ paths:
             summary: test wechat configuration.
             tags:
                 - Configuration
+    /v1/dms/db_services:
+        get:
+            description: list global DBServices
+            operationId: ListGlobalDBServices
+            parameters:
+                - description: the maximum count of db service to be returned
+                  format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of users to be returned, default is 0
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - description: |-
+                    Multiple of ["name"], default is ["name"]
+                    name DBServiceOrderByName
+                  enum:
+                    - name
+                  in: query
+                  name: order_by
+                  type: string
+                  x-go-enum-desc: name DBServiceOrderByName
+                  x-go-name: OrderBy
+                - description: the db service business name
+                  in: query
+                  name: filter_by_business
+                  type: string
+                  x-go-name: FilterByBusiness
+                - description: the db service host
+                  in: query
+                  name: filter_by_host
+                  type: string
+                  x-go-name: FilterByHost
+                - description: the db service uid
+                  in: query
+                  name: filter_by_uid
+                  type: string
+                  x-go-name: FilterByUID
+                - description: the db service name
+                  in: query
+                  name: filter_by_name
+                  type: string
+                  x-go-name: FilterByName
+                - description: the db service port
+                  in: query
+                  name: filter_by_port
+                  type: string
+                  x-go-name: FilterByPort
+                - description: the db service db type
+                  in: query
+                  name: filter_by_db_type
+                  type: string
+                  x-go-name: FilterByDBType
+                - description: the db service project id
+                  in: query
+                  name: filter_by_project_uid
+                  type: string
+                  x-go-name: FilterByProjectUid
+                - description: the db service fuzzy keyword
+                  in: query
+                  name: fuzzy_keyword
+                  type: string
+                  x-go-name: FuzzyKeyword
+                - description: is masking
+                  in: query
+                  name: is_enable_masking
+                  type: boolean
+                  x-go-name: IsEnableMasking
+            responses:
+                "200":
+                    description: ListGlobalDBServicesReply
+                    schema:
+                        $ref: '#/definitions/ListGlobalDBServicesReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            tags:
+                - DBService
     /v1/dms/db_services/driver_options:
         get:
             operationId: ListDBServiceDriverOption
