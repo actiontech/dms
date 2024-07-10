@@ -28,6 +28,7 @@ func (s *APIServer) initRouter() error {
 		v1.GET(biz.PersonalizationUrl, s.DMSController.GetStaticLogo)
 		v1.POST("/dms/personalization", s.DMSController.Personalization)
 		v1.GET("/dms/db_services/driver_options", s.DMSController.ListDBServiceDriverOption)
+		v1.GET("/dms/db_services", s.DMSController.ListGlobalDBServices)
 
 		dmsProxyV1 := v1.Group(dmsV1.ProxyRouterGroup)
 		dmsProxyV1.POST("", s.DMSController.RegisterDMSProxyTarget)
