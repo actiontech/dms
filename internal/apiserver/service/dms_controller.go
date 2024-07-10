@@ -593,7 +593,7 @@ func (d *DMSController) GetStaticLogo(c echo.Context) error {
 //     in: formData
 //     required: false
 //     type: string
-//   - name: formData
+//   - name: file
 //     description: file upload
 //     in: formData
 //     required: false

@@ -931,7 +931,7 @@
           {
             "type": "file",
             "description": "file upload",
-            "name": "formData",
+            "name": "file",
             "in": "formData"
           }
         ],
@@ -4958,6 +4958,24 @@
       "properties": {
         "id": {
           "type": "string",
+          "x-go-name": "Id"
+        },
+        "is_used": {
+          "type": "boolean",
+          "x-go-name": "IsUsed"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "BusinessForUpdate": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
           "x-go-name": "ID"
         },
         "name": {
@@ -6375,14 +6393,15 @@
           "$ref": "#/definitions/AccessTokenInfo"
         },
         "authentication_type": {
-          "description": "user authentication type\nldap UserAuthenticationTypeLDAP\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
+          "description": "user authentication type\nldap UserAuthenticationTypeLDAP\ndms UserAuthenticationTypeDMS\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
           "type": "string",
           "enum": [
             "ldap",
+            "dms",
             "oauth2",
             "unknown"
           ],
-          "x-go-enum-desc": "ldap UserAuthenticationTypeLDAP\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
+          "x-go-enum-desc": "ldap UserAuthenticationTypeLDAP\ndms UserAuthenticationTypeDMS\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
           "x-go-name": "AuthenticationType"
         },
         "email": {
@@ -7983,14 +8002,15 @@
       "type": "object",
       "properties": {
         "authentication_type": {
-          "description": "user authentication type\nldap UserAuthenticationTypeLDAP\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
+          "description": "user authentication type\nldap UserAuthenticationTypeLDAP\ndms UserAuthenticationTypeDMS\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
           "type": "string",
           "enum": [
             "ldap",
+            "dms",
             "oauth2",
             "unknown"
           ],
-          "x-go-enum-desc": "ldap UserAuthenticationTypeLDAP\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
+          "x-go-enum-desc": "ldap UserAuthenticationTypeLDAP\ndms UserAuthenticationTypeDMS\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
           "x-go-name": "AuthenticationType"
         },
         "email": {
@@ -9095,7 +9115,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
@@ -9389,7 +9409,7 @@
           "description": "Project business",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Business"
+            "$ref": "#/definitions/BusinessForUpdate"
           },
           "x-go-name": "Business"
         },
