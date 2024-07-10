@@ -430,7 +430,7 @@ func (d *ProjectUsecase) ExportProjects(ctx context.Context, uid string, option 
 	return buff.Bytes(), nil
 }
 
-func (d *ProjectUsecase) UpdateProject(ctx context.Context, currentUserUid, projectUid string, desc *string, isFixBusiness *bool, business []v1.Business) (err error) {
+func (d *ProjectUsecase) UpdateProject(ctx context.Context, currentUserUid, projectUid string, desc *string, isFixBusiness *bool, business []v1.BusinessForUpdate) (err error) {
 	if err := d.checkUserCanUpdateProject(ctx, currentUserUid, projectUid); err != nil {
 		return fmt.Errorf("user can't update project: %v", err)
 	}
