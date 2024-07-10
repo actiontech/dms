@@ -172,6 +172,30 @@ func (d *DMSController) ListDBServiceDriverOption(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
+// swagger:route GET /v1/dms/db_services DBService ListGlobalDBServices
+//
+// list global DBServices
+//
+//	responses:
+//	  200: body:ListGlobalDBServicesReply
+//	  default: body:GenericResp
+func (d *DMSController) ListGlobalDBServices(c echo.Context) error {
+	req := new(aV1.ListGlobalDBServicesReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	reply, err := d.DMS.ListGlobalDBServices(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
 // swagger:route DELETE /v1/dms/projects/{project_uid}/db_services/{db_service_uid} DBService DelDBService
 //
 // Delete a DB Service.
