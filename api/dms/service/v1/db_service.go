@@ -310,3 +310,62 @@ type ImportDBServicesCheckReply struct {
 	// Generic reply
 	base.GenericResp
 }
+
+// swagger:parameters ListGlobalDBServices
+type ListGlobalDBServicesReq struct {
+	// the maximum count of db service to be returned
+	// in:query
+	// Required: true
+	PageSize uint32 `query:"page_size" json:"page_size" validate:"required"`
+	// the offset of users to be returned, default is 0
+	// in:query
+	PageIndex uint32 `query:"page_index" json:"page_index"`
+	// Multiple of ["name"], default is ["name"]
+	// in:query
+	OrderBy dmsCommonV1.DBServiceOrderByField `query:"order_by" json:"order_by"`
+	// the db service business name
+	// in:query
+	FilterByBusiness string `query:"filter_by_business" json:"filter_by_business"`
+	// the db service host
+	// in:query
+	FilterByHost string `query:"filter_by_host" json:"filter_by_host"`
+	// the db service uid
+	// in:query
+	FilterByUID string `query:"filter_by_uid" json:"filter_by_uid"`
+	// the db service name
+	// in:query
+	FilterByName string `query:"filter_by_name" json:"filter_by_name"`
+	// the db service port
+	// in:query
+	FilterByPort string `query:"filter_by_port" json:"filter_by_port"`
+	// the db service db type
+	// in:query
+	FilterByDBType string `query:"filter_by_db_type" json:"filter_by_db_type"`
+	// the db service project id
+	// in:query
+	FilterByProjectUid string `query:"filter_by_project_uid" json:"filter_by_project_uid"`
+	// the db service fuzzy keyword
+	// in:query
+	FuzzyKeyword string `query:"fuzzy_keyword" json:"fuzzy_keyword"`
+	// is masking
+	// in:query
+	IsEnableMasking *bool `query:"is_enable_masking" json:"is_enable_masking"`
+}
+
+// swagger:model ListGlobalDBServicesReply
+type ListGlobalDBServicesReply struct {
+	// List global db service reply
+	Data  []*ListGlobalDBService `json:"data"`
+	Total int64                  `json:"total_nums"`
+
+	// Generic reply
+	base.GenericResp
+}
+
+type ListGlobalDBService struct {
+	dmsCommonV1.ListDBService
+	// db service project_name
+	ProjectName string `json:"project_name"`
+	// db service unfinished workflow num
+	UnfinishedWorkflowNum int64 `json:"unfinished_workflow_num"`
+}
