@@ -71,10 +71,10 @@ type UpdateProject struct {
 	// is fixed business
 	IsFixedBusiness *bool `json:"is_fixed_business"`
 	// Project business
-	Business []Business `json:"business"`
+	Business []BusinessForUpdate `json:"business"`
 }
 
-type Business struct {
+type BusinessForUpdate struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 }
