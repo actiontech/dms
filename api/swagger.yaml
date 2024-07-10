@@ -477,6 +477,19 @@ definitions:
         properties:
             id:
                 type: string
+                x-go-name: Id
+            is_used:
+                type: boolean
+                x-go-name: IsUsed
+            name:
+                type: string
+                x-go-name: Name
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    BusinessForUpdate:
+        properties:
+            id:
+                type: string
                 x-go-name: ID
             name:
                 type: string
@@ -1566,15 +1579,18 @@ definitions:
                 description: |-
                     user authentication type
                     ldap UserAuthenticationTypeLDAP
+                    dms UserAuthenticationTypeDMS
                     oauth2 UserAuthenticationTypeOAUTH2
                     unknown UserAuthenticationTypeUnknown
                 enum:
                     - ldap
+                    - dms
                     - oauth2
                     - unknown
                 type: string
                 x-go-enum-desc: |-
                     ldap UserAuthenticationTypeLDAP
+                    dms UserAuthenticationTypeDMS
                     oauth2 UserAuthenticationTypeOAUTH2
                     unknown UserAuthenticationTypeUnknown
                 x-go-name: AuthenticationType
@@ -2829,15 +2845,18 @@ definitions:
                 description: |-
                     user authentication type
                     ldap UserAuthenticationTypeLDAP
+                    dms UserAuthenticationTypeDMS
                     oauth2 UserAuthenticationTypeOAUTH2
                     unknown UserAuthenticationTypeUnknown
                 enum:
                     - ldap
+                    - dms
                     - oauth2
                     - unknown
                 type: string
                 x-go-enum-desc: |-
                     ldap UserAuthenticationTypeLDAP
+                    dms UserAuthenticationTypeDMS
                     oauth2 UserAuthenticationTypeOAUTH2
                     unknown UserAuthenticationTypeUnknown
                 x-go-name: AuthenticationType
@@ -3735,7 +3754,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -3951,7 +3970,7 @@ definitions:
             business:
                 description: Project business
                 items:
-                    $ref: '#/definitions/Business'
+                    $ref: '#/definitions/BusinessForUpdate'
                 type: array
                 x-go-name: Business
             desc:
@@ -4967,7 +4986,7 @@ paths:
                   type: string
                 - description: file upload
                   in: formData
-                  name: formData
+                  name: file
                   type: file
             responses:
                 "200":

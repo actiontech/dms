@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
-	_const "github.com/actiontech/dms/pkg/dms-common/pkg/const"
 )
 
 // swagger:parameters GetUser
@@ -73,9 +72,9 @@ type UidWithName struct {
 type UserAuthenticationType string
 
 const (
-	UserAuthenticationTypeLDAP    UserAuthenticationType = "ldap"                  // user verify through ldap
-	UserAuthenticationTypeDMS     UserAuthenticationType = _const.DmsComponentName // user verify through dms
-	UserAuthenticationTypeOAUTH2  UserAuthenticationType = "oauth2"                // user verify through oauth2
+	UserAuthenticationTypeLDAP    UserAuthenticationType = "ldap"   // user verify through ldap
+	UserAuthenticationTypeDMS     UserAuthenticationType = "dms"    // user verify through dms
+	UserAuthenticationTypeOAUTH2  UserAuthenticationType = "oauth2" // user verify through oauth2
 	UserAuthenticationTypeUnknown UserAuthenticationType = "unknown"
 )
 
