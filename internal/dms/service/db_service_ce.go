@@ -9,6 +9,7 @@ import (
 )
 
 var errNotSupportImportDBServices = errors.New("ImportDBServices related functions are enterprise version functions")
+var errNotSupportGlobalDBServices = errors.New("GlobalDBServices related functions are enterprise version functions")
 
 func (d *DMSService) importDBServicesOfOneProjectCheck(ctx context.Context, userUid, projectUid, fileContent string) (*dmsV1.ImportDBServicesCheckReply, []byte, error) {
 	return nil, nil, errNotSupportImportDBServices
@@ -16,4 +17,8 @@ func (d *DMSService) importDBServicesOfOneProjectCheck(ctx context.Context, user
 
 func (d *DMSService) importDBServicesOfOneProject(ctx context.Context, req *dmsV1.ImportDBServicesOfOneProjectReq, uid string) error {
 	return errNotSupportImportDBServices
+}
+
+func (d *DMSService) listGlobalDBServices(ctx context.Context, req *dmsV1.ListGlobalDBServicesReq, currentUserUid string) (reply *dmsV1.ListGlobalDBServicesReply, err error) {
+	return nil, errNotSupportGlobalDBServices
 }
