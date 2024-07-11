@@ -549,7 +549,7 @@ func (d *DMSService) ListDBServiceDriverOption(ctx context.Context) (reply *dmsV
 }
 
 func (d *DMSService) ListGlobalDBServices(ctx context.Context, req *dmsV1.ListGlobalDBServicesReq, currentUserUid string) (reply *dmsV1.ListGlobalDBServicesReply, err error) {
-	return nil, nil
+	return d.listGlobalDBServices(ctx, req, currentUserUid)
 }
 
 func (d *DMSService) ImportDBServicesOfOneProjectCheck(ctx context.Context, userUid, projectUid, fileContent string) (*dmsV1.ImportDBServicesCheckReply, []byte, error) {

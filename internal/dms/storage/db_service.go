@@ -56,7 +56,7 @@ func (d *DBServiceRepo) ListDBServices(ctx context.Context, opt *biz.ListDBServi
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		// find models
 		{
-			db := tx.WithContext(ctx).Order(opt.OrderBy)
+			db := tx.WithContext(ctx).Order(string(opt.OrderBy))
 			db = gormWheres(ctx, db, opt.FilterBy)
 			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber))))).Find(&models)
 			if err := db.Error; err != nil {
