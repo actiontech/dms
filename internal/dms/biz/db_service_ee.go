@@ -479,3 +479,98 @@ func (d *DBServiceUsecase) DBServicesConnection(ctx context.Context, dbs []dmsV1
 	wg.Wait()
 	return ret, nil
 }
+
+type GlobalDBService struct {
+	DBService
+	ProjectName           string
+	UnfinishedWorkflowNum int64
+}
+
+func (d *DBServiceUsecase) ListGlobalDBServices(ctx context.Context, option *ListDBServicesOption, currentUserUid string) (globalDBServices []*GlobalDBService, total int64, err error) {
+	projectWithOpPermissions, err := d.opPermissionVerifyUsecase.GetUserProjectOpPermission(ctx, currentUserUid)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to get user project with op permission")
+	}
+	userBindProjects := d.opPermissionVerifyUsecase.GetUserManagerProject(ctx, projectWithOpPermissions)
+
+	projectID2Name := make(map[string]string)
+	var managedProjectIDs []string
+	for k := range userBindProjects {
+		if userBindProjects[k].IsManager {
+			managedProjectIDs = append(managedProjectIDs, userBindProjects[k].ProjectID)
+			projectID2Name[userBindProjects[k].ProjectID] = userBindProjects[k].ProjectName
+		}
+	}
+	if len(managedProjectIDs) == 0 {
+		return nil, 0, fmt.Errorf("the user does not manage any project")
+	}
+
+	option.FilterBy = append(option.FilterBy, pkgConst.FilterCondition{
+		Field:    string(DBServiceFieldProjectUID),
+		Operator: pkgConst.FilterOperatorIn,
+		Value:    managedProjectIDs,
+	})
+
+	dbServices, total, err := d.repo.ListDBServices(ctx, option)
+	if err != nil {
+		return nil, 0, fmt.Errorf("list db services failed: %w", err)
+	}
+
+	var unfinishedNumMap map[string]int64
+	if len(dbServices) > 0 {
+		dbServicesIds := make([]string, 0, len(dbServices))
+		for _, v := range dbServices {
+			dbServicesIds = append(dbServicesIds, v.UID)
+		}
+		// todo: 临时方案，直接调用sqle接口获取，后续需调整
+		unfinishedNumMap, err = d.getUnfinishedWorkflowsCountOfDBServices(ctx, dbServicesIds)
+		if err != nil {
+			return nil, 0, err
+		}
+	}
+
+	globalDBServices = make([]*GlobalDBService, len(dbServices))
+	for i, v := range dbServices {
+		globalDBServices[i] = &GlobalDBService{
+			DBService:             *v,
+			ProjectName:           projectID2Name[v.ProjectUID],
+			UnfinishedWorkflowNum: unfinishedNumMap[v.UID],
+		}
+	}
+
+	return globalDBServices, total, nil
+}
+
+// getUnfinishedWorkflowsCountOfDBServices return map: dbServicesId -> UnfinishedWorkflowNum
+func (d *DBServiceUsecase) getUnfinishedWorkflowsCountOfDBServices(ctx context.Context, dbServicesIds []string) (map[string]int64, error) {
+	target, err := d.dmsProxyTargetRepo.GetProxyTargetByName(ctx, cloudbeaver.SQLEProxyName)
+	if err != nil {
+		return nil, fmt.Errorf("get proxy target failed: %v", err)
+	}
+	url := target.URL.String() + "/v1/workflows/statistic_of_instances?instance_id=" +
+		strings.Join(dbServicesIds, "&instance_id=")
+
+	header := map[string]string{"Authorization": pkgHttp.DefaultDMSToken}
+
+	reply := &struct {
+		v1Base.GenericResp
+		Data []*struct {
+			InstanceId      int64 `json:"instance_id"`
+			UnfinishedCount int64 `json:"unfinished_count"`
+		} `json:"data"`
+	}{}
+
+	err = pkgHttp.Get(ctx, url, header, nil, reply)
+	if err != nil {
+		return nil, fmt.Errorf("get unfinished workflow num err: %v", err)
+	} else if reply.Code != 0 {
+		return nil, fmt.Errorf("get unfinished workflow num failed: %v", reply.Message)
+	}
+
+	result := make(map[string]int64, len(reply.Data))
+	for _, v := range reply.Data {
+		result[fmt.Sprint(v.InstanceId)] = v.UnfinishedCount
+	}
+
+	return result, nil
+}
