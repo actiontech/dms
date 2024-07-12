@@ -4,12 +4,10 @@ package service
 
 import (
 	"context"
-	"fmt"
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
-	pkgAes "github.com/actiontech/dms/pkg/dms-common/pkg/aes"
 )
 
 func (d *DMSService) importDBServicesOfOneProjectCheck(ctx context.Context, userUid, projectUid, fileContent string) (*dmsV1.ImportDBServicesCheckReply, []byte, error) {
@@ -139,10 +137,6 @@ func (d *DMSService) listGlobalDBServices(ctx context.Context, req *dmsV1.ListGl
 
 	ret := make([]*dmsV1.ListGlobalDBService, len(service))
 	for i, u := range service {
-		password, err := pkgAes.AesEncrypt(u.Password)
-		if err != nil {
-			return nil, fmt.Errorf("failed to encrypt password: %w", err)
-		}
 		ret[i] = &dmsV1.ListGlobalDBService{
 			ListDBService: dmsCommonV1.ListDBService{
 				DBServiceUid:     u.GetUID(),
@@ -151,7 +145,7 @@ func (d *DMSService) listGlobalDBServices(ctx context.Context, req *dmsV1.ListGl
 				Host:             u.Host,
 				Port:             u.Port,
 				User:             u.User,
-				Password:         password,
+				Password: "",
 				Business:         u.Business,
 				MaintenanceTimes: d.convertPeriodToMaintenanceTime(u.MaintenancePeriod),
 				Desc:             u.Desc,

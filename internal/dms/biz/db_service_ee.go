@@ -522,6 +522,7 @@ func (d *DBServiceUsecase) ListGlobalDBServices(ctx context.Context, option *Lis
 		for _, v := range dbServices {
 			dbServicesIds = append(dbServicesIds, v.UID)
 		}
+		// todo: 临时方案，直接调用sqle接口获取，后续需调整
 		unfinishedNumMap, err = d.getUnfinishedWorkflowsCountOfDBServices(ctx, dbServicesIds)
 		if err != nil {
 			return nil, 0, err
@@ -546,7 +547,7 @@ func (d *DBServiceUsecase) getUnfinishedWorkflowsCountOfDBServices(ctx context.C
 	if err != nil {
 		return nil, fmt.Errorf("get proxy target failed: %v", err)
 	}
-	url := target.URL.String() + "/v1/unfinished_workflows_count?instance_id=" +
+	url := target.URL.String() + "/v1/workflows/statistic_of_instances?instance_id=" +
 		strings.Join(dbServicesIds, "&instance_id=")
 
 	header := map[string]string{"Authorization": pkgHttp.DefaultDMSToken}
