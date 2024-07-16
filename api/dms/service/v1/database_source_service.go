@@ -75,9 +75,9 @@ type DBServiceSyncTask struct {
 	SQLEConfig *dmsCommonV1.SQLEConfig `json:"sqle_config"`
 }
 
-// swagger:model
+// swagger:parameters AddDBServiceSyncTask
 type AddDBServiceSyncTaskReq struct {
-	// swagger:ignore
+	// in:body
 	DBServiceSyncTask DBServiceSyncTask `json:"db_service_sync_task"`
 }
 
@@ -93,11 +93,14 @@ type AddDBServiceSyncTaskReply struct {
 	base.GenericResp
 }
 
-// swagger:model
+// swagger:parameters UpdateDBServiceSyncTask
 type UpdateDBServiceSyncTaskReq struct {
-	// swagger:ignore
-	DBServiceSyncTaskUid string            `param:"db_service_sync_task_uid" json:"db_service_sync_task_uid" validate:"required"`
-	DBServiceSyncTask    DBServiceSyncTask `json:"db_service_sync_task" validate:"required"`
+	// Required: true
+	// in:path
+	DBServiceSyncTaskUid string `param:"db_service_sync_task_uid" json:"db_service_sync_task_uid" validate:"required"`
+	// Required: true
+	// in:body
+	DBServiceSyncTask DBServiceSyncTask `json:"db_service_sync_task" validate:"required"`
 }
 
 // swagger:parameters DeleteDBServiceSyncTask
@@ -122,7 +125,9 @@ type DBServiceSyncTaskTip struct {
 	Params pkgParams.Params             `json:"params,omitempty"`
 }
 
-// swagger:model
+// swagger:parameters SyncDBServices
 type SyncDBServicesReq struct {
+	// Required: true
+	// in:path
 	DBServiceSyncTaskUid string `param:"db_service_sync_task_uid" json:"db_service_sync_task_uid" validate:"required"`
 }
