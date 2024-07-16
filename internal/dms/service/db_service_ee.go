@@ -71,11 +71,11 @@ func (d *DMSService) listGlobalDBServices(ctx context.Context, req *dmsV1.ListGl
 		})
 	}
 
-	if biz.IsDMS() && req.IsEnableMasking != nil {
+	if biz.IsDMS() && req.FilterByIsEnableMasking != nil {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldIsEnableMasking),
 			Operator: pkgConst.FilterOperatorEqual,
-			Value:    *req.IsEnableMasking,
+			Value:    *req.FilterByIsEnableMasking,
 		})
 	}
 
@@ -138,51 +138,24 @@ func (d *DMSService) listGlobalDBServices(ctx context.Context, req *dmsV1.ListGl
 	ret := make([]*dmsV1.ListGlobalDBService, len(service))
 	for i, u := range service {
 		ret[i] = &dmsV1.ListGlobalDBService{
-			ListDBService: dmsCommonV1.ListDBService{
-				DBServiceUid:     u.GetUID(),
-				Name:             u.Name,
-				DBType:           u.DBType,
-				Host:             u.Host,
-				Port:             u.Port,
-				User:             u.User,
-				Password: "",
-				Business:         u.Business,
-				MaintenanceTimes: d.convertPeriodToMaintenanceTime(u.MaintenancePeriod),
-				Desc:             u.Desc,
-				Source:           u.Source,
-				ProjectUID:       u.ProjectUID,
-				IsEnableMasking:  u.IsMaskingSwitch,
-			},
+			DBServiceUid:          u.GetUID(),
+			Name:                  u.Name,
+			DBType:                u.DBType,
+			Host:                  u.Host,
+			Port:                  u.Port,
+			Business:              u.Business,
+			MaintenanceTimes:      d.convertPeriodToMaintenanceTime(u.MaintenancePeriod),
+			Desc:                  u.Desc,
+			Source:                u.Source,
+			ProjectUID:            u.ProjectUID,
 			ProjectName:           u.ProjectName,
+			IsEnableAudit:         false,
+			IsEnableMasking:       u.IsMaskingSwitch,
 			UnfinishedWorkflowNum: u.UnfinishedWorkflowNum,
 		}
 
-		if u.AdditionalParams != nil {
-			additionalParams := make([]*dmsCommonV1.AdditionalParam, 0, len(u.AdditionalParams))
-			for _, item := range u.AdditionalParams {
-				additionalParams = append(additionalParams, &dmsCommonV1.AdditionalParam{
-					Name:        item.Key,
-					Value:       item.Value,
-					Description: item.Desc,
-					Type:        string(item.Type),
-				})
-			}
-			ret[i].ListDBService.AdditionalParams = additionalParams
-		}
-
-		if u.SQLEConfig != nil {
-			sqlConfig := &dmsCommonV1.SQLEConfig{
-				RuleTemplateName: u.SQLEConfig.RuleTemplateName,
-				RuleTemplateID:   u.SQLEConfig.RuleTemplateID,
-				SQLQueryConfig:   &dmsCommonV1.SQLQueryConfig{},
-			}
-			if u.SQLEConfig.SQLQueryConfig != nil {
-				sqlConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel = dmsCommonV1.SQLAllowQueryAuditLevel(u.SQLEConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel)
-				sqlConfig.SQLQueryConfig.AuditEnabled = u.SQLEConfig.SQLQueryConfig.AuditEnabled
-				sqlConfig.SQLQueryConfig.MaxPreQueryRows = u.SQLEConfig.SQLQueryConfig.MaxPreQueryRows
-				sqlConfig.SQLQueryConfig.QueryTimeoutSecond = u.SQLEConfig.SQLQueryConfig.QueryTimeoutSecond
-			}
-			ret[i].ListDBService.SQLEConfig = sqlConfig
+		if u.SQLEConfig != nil && u.SQLEConfig.SQLQueryConfig != nil {
+			ret[i].IsEnableAudit = u.SQLEConfig.SQLQueryConfig.AuditEnabled
 		}
 	}
 
