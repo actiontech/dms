@@ -842,6 +842,29 @@
         }
       }
     },
+    "/v1/dms/db_services/tips": {
+      "get": {
+        "description": "list global DBServices tips",
+        "tags": [
+          "DBService"
+        ],
+        "operationId": "ListGlobalDBServicesTips",
+        "responses": {
+          "200": {
+            "description": "ListGlobalDBServicesTipsReply",
+            "schema": {
+              "$ref": "#/definitions/ListGlobalDBServicesTipsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/masking/rules": {
       "get": {
         "tags": [
@@ -7688,6 +7711,19 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "ListGlobalDBServiceTips": {
+      "type": "object",
+      "properties": {
+        "db_type": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "DBType"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "ListGlobalDBServicesReply": {
       "type": "object",
       "properties": {
@@ -7714,6 +7750,26 @@
           "type": "integer",
           "format": "int64",
           "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListGlobalDBServicesTipsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/ListGlobalDBServiceTips"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"

@@ -392,3 +392,16 @@ type ListGlobalDBService struct {
 	// db service unfinished workflow num
 	UnfinishedWorkflowNum int64 `json:"unfinished_workflow_num"`
 }
+
+// swagger:model ListGlobalDBServicesTipsReply
+type ListGlobalDBServicesTipsReply struct {
+	// List global db service tips reply
+	Data *ListGlobalDBServiceTips `json:"data"`
+
+	// Generic reply
+	base.GenericResp
+}
+
+type ListGlobalDBServiceTips struct {
+	DBType []string `json:"db_type"`
+}
