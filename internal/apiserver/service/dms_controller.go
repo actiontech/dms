@@ -347,34 +347,28 @@ func (d *DMSController) CheckDBServiceIsConnectableById(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services DBServiceSyncTask ListDBServiceSyncTasks
+// swagger:route GET /v1/dms/db_service_sync_tasks DBServiceSyncTask ListDBServiceSyncTasks
 //
-// List database source service.
+// List database synchronization tasks.
 //
 //	responses:
 //	  200: body:ListDBServiceSyncTasksReply
 //	  default: body:GenericResp
 func (d *DMSController) ListDBServiceSyncTasks(c echo.Context) error {
-	req := new(aV1.ListDBServiceSyncTasksReq)
-	err := bindAndValidateReq(c, req)
-	if nil != err {
-		return NewErrResp(c, err, apiError.BadRequestErr)
-	}
-
 	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	reply, err := d.DMS.ListDBServiceSyncTask(c.Request().Context(), req, currentUserUid)
+	reply, err := d.DMS.ListDBServiceSyncTask(c.Request().Context(), currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} DBServiceSyncTask GetDBServiceSyncTask
+// swagger:route GET /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask GetDBServiceSyncTask
 //
-// Get database source service.
+// Get database synchronization task.
 //
 //	responses:
 //	  200: body:GetDBServiceSyncTaskReply
@@ -397,31 +391,13 @@ func (d *DMSController) GetDBServiceSyncTask(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:operation POST /v1/dms/projects/{project_uid}/database_source_services DBServiceSyncTask AddDBServiceSyncTask
+// swagger:route POST /v1/dms/db_service_sync_tasks DBServiceSyncTask AddDBServiceSyncTask
 //
-// Add database source service.
+// Add database synchronization task.
 //
-// ---
-// parameters:
-//   - name: project_uid
-//     description: project id
-//     in: path
-//     required: true
-//     type: string
-//   - name: database_source_service
-//     in: body
-//     description: add database source service
-//     schema:
-//       "$ref": "#/definitions/AddDBServiceSyncTaskReq"
 // responses:
-//   '200':
-//     description: AddDBServiceSyncTaskReply
-//     schema:
-//       "$ref": "#/definitions/AddDBServiceSyncTaskReply"
-//   default:
-//     description: GenericResp
-//     schema:
-//       "$ref": "#/definitions/GenericResp"
+//    200: body:AddDBServiceSyncTaskReply
+//    default: body:GenericResp
 func (d *DMSController) AddDBServiceSyncTask(c echo.Context) error {
 	req := new(aV1.AddDBServiceSyncTaskReq)
 	err := bindAndValidateReq(c, req)
@@ -442,35 +418,13 @@ func (d *DMSController) AddDBServiceSyncTask(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:operation PUT /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} DBServiceSyncTask UpdateDBServiceSyncTask
+// swagger:route PUT /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask UpdateDBServiceSyncTask
 //
-// update database source service.
+// update database synchronization task.
 //
-// ---
-// parameters:
-//   - name: project_uid
-//     description: project id
-//     in: path
-//     required: true
-//     type: string
-//   - name: database_source_service_uid
-//     in: path
-//     required: true
-//     type: string
-//   - name: database_source_service
-//     description: update database source service
-//     in: body
-//     schema:
-//       "$ref": "#/definitions/UpdateDBServiceSyncTaskReq"
-// responses:
-//   '200':
-//     description: GenericResp
-//     schema:
-//       "$ref": "#/definitions/GenericResp"
-//   default:
-//     description: GenericResp
-//     schema:
-//       "$ref": "#/definitions/GenericResp"
+//  responses:
+//    200: body:GenericResp
+//    default: body:GenericResp
 func (d *DMSController) UpdateDBServiceSyncTask(c echo.Context) error {
 	req := &aV1.UpdateDBServiceSyncTaskReq{}
 	err := bindAndValidateReq(c, req)
@@ -489,9 +443,9 @@ func (d *DMSController) UpdateDBServiceSyncTask(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route DELETE /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} DBServiceSyncTask DeleteDBServiceSyncTask
+// swagger:route DELETE /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask DeleteDBServiceSyncTask
 //
-// Delete database source service.
+// Delete database synchronization task.
 //
 //	responses:
 //	  200: body:GenericResp
@@ -514,9 +468,9 @@ func (d *DMSController) DeleteDBServiceSyncTask(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services/tips DBServiceSyncTask ListDBServiceSyncTaskTips
+// swagger:route GET /v1/dms/db_service_sync_tasks/tips DBServiceSyncTask ListDBServiceSyncTaskTips
 //
-// List database source service tips.
+// List database synchronization task tips.
 //
 //	responses:
 //	  200: body:ListDBServiceSyncTaskTipsReply
@@ -529,32 +483,15 @@ func (d *DMSController) ListDBServiceSyncTaskTips(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:operation POST /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid}/sync DBServiceSyncTask SyncDBServiceSyncTask
+// swagger:route POST /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid}/sync DBServiceSyncTask SyncDBServices
 //
-// Sync database source service.
+// Sync db service.
 //
-// ---
-// parameters:
-//   - name: project_uid
-//     description: project id
-//     in: path
-//     required: true
-//     type: string
-//   - name: database_source_service_uid
-//     in: path
-//     required: true
-//     type: string
-// responses:
-//   '200':
-//     description: GenericResp
-//     schema:
-//       "$ref": "#/definitions/GenericResp"
-//   default:
-//     description: GenericResp
-//     schema:
-//       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) SyncDBServiceSyncTask(c echo.Context) error {
-	req := &aV1.SyncDBServiceSyncTaskReq{}
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) SyncDBServices(c echo.Context) error {
+	req := &aV1.SyncDBServicesReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
@@ -564,7 +501,7 @@ func (d *DMSController) SyncDBServiceSyncTask(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	err = d.DMS.SyncDBServiceSyncTask(c.Request().Context(), req, currentUserUid)
+	err = d.DMS.SyncDBServices(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
