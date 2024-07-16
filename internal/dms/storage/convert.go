@@ -122,7 +122,6 @@ func convertModelDBServiceSyncTask(m *model.DBServiceSyncTask) (*biz.DBServiceSy
 		URL:         m.URL,
 		DbType:      m.DbType,
 		CronExpress: m.CronExpress,
-		ProjectUID:  m.ProjectUID,
 		LastSyncErr: m.LastSyncErr,
 	}
 
@@ -206,7 +205,6 @@ func convertBizDBServiceSyncTask(u *biz.DBServiceSyncTaskParams) *model.DBServic
 		URL:                 u.URL,
 		DbType:              u.DbType,
 		CronExpress:         u.CronExpress,
-		ProjectUID:          u.ProjectUID,
 		LastSyncErr:         u.LastSyncErr,
 		LastSyncSuccessTime: u.LastSyncSuccessTime,
 	}

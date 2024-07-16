@@ -341,7 +341,6 @@ type DBServiceSyncTask struct {
 	Version    string `json:"version" gorm:"size:255;not null"`
 	URL        string `json:"url" gorm:"size:255;not null"`
 	DbType     string `json:"db_type" gorm:"size:255;not null"`
-	ProjectUID string `json:"project_uid" gorm:"size:32;column:project_uid;index:project_uid_name,unique"`
 	// Cron表达式
 	CronExpress         string          `json:"cron_express" gorm:"size:255;column:cron_express; not null"`
 	LastSyncErr         string          `json:"last_sync_err" gorm:"column:last_sync_err"`

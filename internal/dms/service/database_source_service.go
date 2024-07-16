@@ -6,22 +6,11 @@ import (
 
 	v1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
-	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
 
-func (d *DMSService) ListDBServiceSyncTask(ctx context.Context, req *v1.ListDBServiceSyncTasksReq, currentUserUid string) (reply *v1.ListDBServiceSyncTasksReply, err error) {
-	conditions := make([]pkgConst.FilterCondition, 0)
-
-	if req.ProjectUid != "" {
-		conditions = append(conditions, pkgConst.FilterCondition{
-			Field:    string(biz.DBServiceSyncTaskFieldProjectUID),
-			Operator: pkgConst.FilterOperatorEqual,
-			Value:    req.ProjectUid,
-		})
-	}
-
-	syncTasks, err := d.DBServiceSyncTaskUsecase.ListDBServiceSyncTasks(ctx, conditions, req.ProjectUid, currentUserUid)
+func (d *DMSService) ListDBServiceSyncTask(ctx context.Context, currentUserUid string) (reply *v1.ListDBServiceSyncTasksReply, err error) {
+	syncTasks, err := d.DBServiceSyncTaskUsecase.ListDBServiceSyncTasks(ctx, currentUserUid)
 	if nil != err {
 		return nil, err
 	}
@@ -30,7 +19,6 @@ func (d *DMSService) ListDBServiceSyncTask(ctx context.Context, req *v1.ListDBSe
 	for _, task := range syncTasks {
 		item := &v1.ListDBServiceSyncTask{
 			UID:        task.UID,
-			ProjectUid: task.ProjectUID,
 			DBServiceSyncTask: v1.DBServiceSyncTask{
 				Name:        task.Name,
 				Source:      task.Source,
@@ -73,14 +61,13 @@ func (d *DMSService) buildReplySqleConfig(params *biz.SQLEConfig) *dmsCommonV1.S
 }
 
 func (d *DMSService) GetDBServiceSyncTask(ctx context.Context, req *v1.GetDBServiceSyncTaskReq, currentUserUid string) (reply *v1.GetDBServiceSyncTaskReply, err error) {
-	syncTask, err := d.DBServiceSyncTaskUsecase.GetDBServiceSyncTask(ctx, req.DBServiceSyncTaskUid, req.ProjectUid, currentUserUid)
+	syncTask, err := d.DBServiceSyncTaskUsecase.GetDBServiceSyncTask(ctx, req.DBServiceSyncTaskUid, currentUserUid)
 	if nil != err {
 		return nil, err
 	}
 
 	item := &v1.GetDBServiceSyncTask{
 		UID:        syncTask.UID,
-		ProjectUid: syncTask.ProjectUID,
 		DBServiceSyncTask: v1.DBServiceSyncTask{
 			Name:        syncTask.Name,
 			Source:      syncTask.Source,
@@ -106,7 +93,6 @@ func (d *DMSService) AddDBServiceSyncTask(ctx context.Context, req *v1.AddDBServ
 		URL:         req.DBServiceSyncTask.URL,
 		DbType:      req.DBServiceSyncTask.DbType,
 		CronExpress: req.DBServiceSyncTask.CronExpress,
-		ProjectUID:  req.ProjectUid,
 		SQLEConfig:  d.buildSQLEConfig(req.DBServiceSyncTask.SQLEConfig),
 	}
 
@@ -153,7 +139,6 @@ func (d *DMSService) UpdateDBServiceSyncTask(ctx context.Context, req *v1.Update
 		URL:         req.DBServiceSyncTask.URL,
 		DbType:      req.DBServiceSyncTask.DbType,
 		CronExpress: req.DBServiceSyncTask.CronExpress,
-		ProjectUID:  req.ProjectUid,
 		SQLEConfig:  d.buildSQLEConfig(req.DBServiceSyncTask.SQLEConfig),
 	}
 
@@ -179,7 +164,7 @@ func (d *DMSService) ListDBServiceSyncTaskTips(ctx context.Context) (*v1.ListDBS
 	if err != nil {
 		return nil, fmt.Errorf("list db_service_sync_task tips failed: %w", err)
 	}
-	v1Tips := make([]v1.DBServiceSyncTaskTip , 0, len(tips))
+	v1Tips := make([]v1.DBServiceSyncTaskTip, 0, len(tips))
 	for _, tip := range tips {
 		v1Tips = append(v1Tips, convertDBServiceSyncTaskTips(tip))
 	}
@@ -188,8 +173,8 @@ func (d *DMSService) ListDBServiceSyncTaskTips(ctx context.Context) (*v1.ListDBS
 	}, nil
 }
 
-func convertDBServiceSyncTaskTips(meta biz.ListDBServiceSyncTaskTips) v1.DBServiceSyncTaskTip  {
-	return v1.DBServiceSyncTaskTip {
+func convertDBServiceSyncTaskTips(meta biz.ListDBServiceSyncTaskTips) v1.DBServiceSyncTaskTip {
+	return v1.DBServiceSyncTaskTip{
 		Type:   meta.Type,
 		Desc:   meta.Desc,
 		DBType: meta.DBTypes,

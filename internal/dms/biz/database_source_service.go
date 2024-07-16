@@ -47,7 +47,6 @@ type DBServiceSyncTaskParams struct {
 	URL                 string     `json:"url"`
 	DbType              string     `json:"db_type"`
 	CronExpress         string     `json:"cron_express"`
-	ProjectUID          string     `json:"project_uid"`
 	LastSyncErr         string     `json:"last_sync_err"`
 	LastSyncSuccessTime *time.Time `json:"last_sync_success_time"`
 	AdditionalParams    pkgParams.Params
