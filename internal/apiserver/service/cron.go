@@ -10,7 +10,7 @@ import (
 var cronManagerMap = map[string]cronImpl{}
 
 const (
-	DatabaseSourceService = "database_source_service"
+	DBServiceSyncTask = "database_source_service"
 )
 
 type cronImpl interface {
@@ -21,7 +21,7 @@ type cronImpl interface {
 func init() {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	cronManagerMap[DatabaseSourceService] = &databaseSourceServiceCronManager{
+	cronManagerMap[DBServiceSyncTask] = &databaseSourceServiceCronManager{
 		ctx:    ctx,
 		cancel: cancel,
 	}
@@ -64,18 +64,18 @@ func (c *databaseSourceServiceCronManager) start(server *APIServer, groupCtx con
 
 		ticker.Stop()
 
-		c.apiServer.DMSController.DMS.DatabaseSourceServiceUsecase.StartSyncDatabaseSourceService()
+		c.apiServer.DMSController.DMS.DBServiceSyncTaskUsecase.StartSyncDBServiceSyncTask()
 
 		select {
 		case <-groupCtx.Done():
 			logger.Infof("cron terminal, err: %s", groupCtx.Err())
 
-			c.apiServer.DMSController.DMS.DatabaseSourceServiceUsecase.StopSyncDatabaseSourceService()
+			c.apiServer.DMSController.DMS.DBServiceSyncTaskUsecase.StopSyncDBServiceSyncTask()
 			return
 		case <-c.ctx.Done():
 			logger.Infof("cron terminal, err: %s", groupCtx.Err())
 
-			c.apiServer.DMSController.DMS.DatabaseSourceServiceUsecase.StopSyncDatabaseSourceService()
+			c.apiServer.DMSController.DMS.DBServiceSyncTaskUsecase.StopSyncDBServiceSyncTask()
 			return
 		}
 	}()

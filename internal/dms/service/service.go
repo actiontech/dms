@@ -16,7 +16,7 @@ type DMSService struct {
 	BasicUsecase                 *biz.BasicUsecase
 	PluginUsecase                *biz.PluginUsecase
 	DBServiceUsecase             *biz.DBServiceUsecase
-	DatabaseSourceServiceUsecase *biz.DatabaseSourceServiceUsecase
+	DBServiceSyncTaskUsecase *biz.DBServiceSyncTaskUsecase
 	UserUsecase                  *biz.UserUsecase
 	UserGroupUsecase             *biz.UserGroupUsecase
 	RoleUsecase                  *biz.RoleUsecase
@@ -73,8 +73,8 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	dbServiceRepo := storage.NewDBServiceRepo(logger, st)
 	dmsProxyTargetRepo := storage.NewProxyTargetRepo(logger, st)
 	dbServiceUseCase := biz.NewDBServiceUsecase(logger, dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, opts.DatabaseDriverOptions)
-	databaseSourceServiceRepo := storage.NewDatabaseSourceServiceRepo(logger, st)
-	databaseSourceServiceUsecase := biz.NewDatabaseSourceServiceUsecase(logger, databaseSourceServiceRepo, opPermissionVerifyUsecase, projectUsecase, dbServiceUseCase)
+	databaseSourceServiceRepo := storage.NewDBServiceSyncTaskRepo(logger, st)
+	databaseSourceServiceUsecase := biz.NewDBServiceSyncTaskUsecase(logger, databaseSourceServiceRepo, opPermissionVerifyUsecase, projectUsecase, dbServiceUseCase)
 	ldapConfigurationRepo := storage.NewLDAPConfigurationRepo(logger, st)
 	ldapConfigurationUsecase := biz.NewLDAPConfigurationUsecase(logger, tx, ldapConfigurationRepo)
 	userRepo := storage.NewUserRepo(logger, st)
@@ -135,7 +135,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		BasicUsecase:                 basicUsecase,
 		PluginUsecase:                pluginUseCase,
 		DBServiceUsecase:             dbServiceUseCase,
-		DatabaseSourceServiceUsecase: databaseSourceServiceUsecase,
+		DBServiceSyncTaskUsecase: databaseSourceServiceUsecase,
 		UserUsecase:                  userUsecase,
 		UserGroupUsecase:             userGroupUsecase,
 		RoleUsecase:                  roleUsecase,

@@ -112,9 +112,9 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 	return dbService, nil
 }
 
-func convertModelDatabaseSourceService(m *model.DatabaseSourceService) (*biz.DatabaseSourceServiceParams, error) {
+func convertModelDBServiceSyncTask(m *model.DBServiceSyncTask) (*biz.DBServiceSyncTaskParams, error) {
 
-	ret := &biz.DatabaseSourceServiceParams{
+	ret := &biz.DBServiceSyncTaskParams{
 		UID:         m.UID,
 		Name:        m.Name,
 		Source:      m.Source,
@@ -197,8 +197,8 @@ func convertBizCloudbeaverConnection(u *biz.CloudbeaverConnection) *model.Cloudb
 	}
 }
 
-func convertBizDatabaseSourceService(u *biz.DatabaseSourceServiceParams) *model.DatabaseSourceService {
-	m := &model.DatabaseSourceService{
+func convertBizDBServiceSyncTask(u *biz.DBServiceSyncTaskParams) *model.DBServiceSyncTask {
+	m := &model.DBServiceSyncTask{
 		Model:               model.Model{UID: u.UID},
 		Name:                u.Name,
 		Source:              u.Source,

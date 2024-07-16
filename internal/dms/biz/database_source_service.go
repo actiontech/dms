@@ -10,18 +10,18 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
-type DatabaseSourceServiceRepo interface {
-	ListDatabaseSourceServices(ctx context.Context, conditions []pkgConst.FilterCondition) ([]*DatabaseSourceServiceParams, error)
-	SaveDatabaseSourceService(ctx context.Context, params *DatabaseSourceServiceParams) error
-	UpdateDatabaseSourceService(ctx context.Context, params *DatabaseSourceServiceParams) error
-	UpdateSyncDatabaseSourceService(ctx context.Context, id string, fields map[string]interface{}) error
-	DeleteDatabaseSourceService(ctx context.Context, id string) error
-	GetDatabaseSourceServiceById(ctx context.Context, id string) (*DatabaseSourceServiceParams, error)
+type DBServiceSyncTaskRepo interface {
+	ListDBServiceSyncTasks(ctx context.Context, conditions []pkgConst.FilterCondition) ([]*DBServiceSyncTaskParams, error)
+	SaveDBServiceSyncTask(ctx context.Context, params *DBServiceSyncTaskParams) error
+	UpdateDBServiceSyncTask(ctx context.Context, params *DBServiceSyncTaskParams) error
+	UpdateSyncDBServiceSyncTask(ctx context.Context, id string, fields map[string]interface{}) error
+	DeleteDBServiceSyncTask(ctx context.Context, id string) error
+	GetDBServiceSyncTaskById(ctx context.Context, id string) (*DBServiceSyncTaskParams, error)
 }
 
-type DatabaseSourceServiceUsecase struct {
+type DBServiceSyncTaskUsecase struct {
 	log                       *utilLog.Helper
-	repo                      DatabaseSourceServiceRepo
+	repo                      DBServiceSyncTaskRepo
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	projectUsecase            *ProjectUsecase
 	dbServiceUsecase          *DBServiceUsecase
@@ -29,8 +29,8 @@ type DatabaseSourceServiceUsecase struct {
 	lastSyncTime              time.Time
 }
 
-func NewDatabaseSourceServiceUsecase(log utilLog.Logger, repo DatabaseSourceServiceRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, dbServiceUsecase *DBServiceUsecase) *DatabaseSourceServiceUsecase {
-	return &DatabaseSourceServiceUsecase{
+func NewDBServiceSyncTaskUsecase(log utilLog.Logger, repo DBServiceSyncTaskRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, dbServiceUsecase *DBServiceUsecase) *DBServiceSyncTaskUsecase {
+	return &DBServiceSyncTaskUsecase{
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.database_source_service")),
 		repo:                      repo,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
@@ -39,7 +39,7 @@ func NewDatabaseSourceServiceUsecase(log utilLog.Logger, repo DatabaseSourceServ
 	}
 }
 
-type DatabaseSourceServiceParams struct {
+type DBServiceSyncTaskParams struct {
 	UID                 string     `json:"uid"`
 	Name                string     `json:"name"`
 	Source              string     `json:"source"`
@@ -54,7 +54,7 @@ type DatabaseSourceServiceParams struct {
 	SQLEConfig          *SQLEConfig
 }
 
-type ListDatabaseSourceServiceTipsParams struct {
+type ListDBServiceSyncTaskTipsParams struct {
 	Source  pkgConst.DBServiceSourceName `json:"source"`
 	DbTypes []pkgConst.DBType            `json:"db_types"`
 }

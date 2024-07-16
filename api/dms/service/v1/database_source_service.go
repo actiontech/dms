@@ -7,49 +7,49 @@ import (
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
 
-// swagger:parameters ListDatabaseSourceServices
-type ListDatabaseSourceServicesReq struct {
+// swagger:parameters ListDBServiceSyncTasks
+type ListDBServiceSyncTasksReq struct {
 	// project id
 	// Required: true
 	// in:path
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 }
 
-// swagger:model ListDatabaseSourceServicesReply
-type ListDatabaseSourceServicesReply struct {
-	Data []*ListDatabaseSourceService `json:"data"`
+// swagger:model ListDBServiceSyncTasksReply
+type ListDBServiceSyncTasksReply struct {
+	Data []*ListDBServiceSyncTask `json:"data"`
 
 	// Generic reply
 	base.GenericResp
 }
 
-// swagger:parameters GetDatabaseSourceService
-type GetDatabaseSourceServiceReq struct {
+// swagger:parameters GetDBServiceSyncTask
+type GetDBServiceSyncTaskReq struct {
 	// Required: true
 	// in:path
-	DatabaseSourceServiceUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
+	DBServiceSyncTaskUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
 	// project id
 	// Required: true
 	// in:path
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 }
 
-// swagger:model GetDatabaseSourceServiceReply
-type GetDatabaseSourceServiceReply struct {
-	Data *GetDatabaseSourceService `json:"data"`
+// swagger:model GetDBServiceSyncTaskReply
+type GetDBServiceSyncTaskReply struct {
+	Data *GetDBServiceSyncTask `json:"data"`
 
 	// Generic reply
 	base.GenericResp
 }
 
-type GetDatabaseSourceService struct {
-	DatabaseSourceService
+type GetDBServiceSyncTask struct {
+	DBServiceSyncTask
 	UID        string `json:"uid"`
 	ProjectUid string `json:"project_uid"`
 }
 
-type ListDatabaseSourceService struct {
-	DatabaseSourceService
+type ListDBServiceSyncTask struct {
+	DBServiceSyncTask
 	UID        string `json:"uid"`
 	ProjectUid string `json:"project_uid"`
 
@@ -58,7 +58,7 @@ type ListDatabaseSourceService struct {
 	LastSyncSuccessTime *time.Time `json:"last_sync_success_time"`
 }
 
-type DatabaseSourceService struct {
+type DBServiceSyncTask struct {
 	// name
 	// Required: true
 	// example: dmp
@@ -88,14 +88,14 @@ type DatabaseSourceService struct {
 }
 
 // swagger:model
-type AddDatabaseSourceServiceReq struct {
+type AddDBServiceSyncTaskReq struct {
 	// swagger:ignore
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-	DatabaseSourceService DatabaseSourceService `json:"database_source_service"`
+	DBServiceSyncTask DBServiceSyncTask `json:"database_source_service"`
 }
 
-// swagger:model AddDatabaseSourceServiceReply
-type AddDatabaseSourceServiceReply struct {
+// swagger:model AddDBServiceSyncTaskReply
+type AddDBServiceSyncTaskReply struct {
 	// add database source service reply
 	Data struct {
 		// db service UID
@@ -107,23 +107,23 @@ type AddDatabaseSourceServiceReply struct {
 }
 
 // swagger:model
-type UpdateDatabaseSourceServiceReq struct {
+type UpdateDBServiceSyncTaskReq struct {
     // swagger:ignore
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// swagger:ignore
-	DatabaseSourceServiceUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
-	DatabaseSourceService DatabaseSourceService `json:"database_source_service" validate:"required"`
+	DBServiceSyncTaskUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
+	DBServiceSyncTask DBServiceSyncTask `json:"database_source_service" validate:"required"`
 }
 
-// swagger:parameters DeleteDatabaseSourceService
-type DeleteDatabaseSourceServiceReq struct {
+// swagger:parameters DeleteDBServiceSyncTask
+type DeleteDBServiceSyncTaskReq struct {
 	// project id
 	// Required: true
 	// in:path
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// Required: true
 	// in:path
-	DatabaseSourceServiceUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
+	DBServiceSyncTaskUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
 }
 
 type DatabaseSource struct {
@@ -135,16 +135,16 @@ type DatabaseSource struct {
 	Source string `json:"source"`
 }
 
-// swagger:model ListDatabaseSourceServiceTipsReply
-type ListDatabaseSourceServiceTipsReply struct {
+// swagger:model ListDBServiceSyncTaskTipsReply
+type ListDBServiceSyncTaskTipsReply struct {
 	Data []*DatabaseSource `json:"data"`
 
 	// Generic reply
 	base.GenericResp
 }
 
-// swagger:parameters ListDatabaseSourceServiceTips
-type ListDatabaseSourceServiceTipsReq struct {
+// swagger:parameters ListDBServiceSyncTaskTips
+type ListDBServiceSyncTaskTipsReq struct {
 	// project id
 	// Required: true
 	// in:path
@@ -152,7 +152,7 @@ type ListDatabaseSourceServiceTipsReq struct {
 }
 
 // swagger:model
-type SyncDatabaseSourceServiceReq struct {
+type SyncDBServiceSyncTaskReq struct {
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-	DatabaseSourceServiceUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
+	DBServiceSyncTaskUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
 }

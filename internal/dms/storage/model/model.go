@@ -35,7 +35,7 @@ var AutoMigrateList = []interface{}{
 	IMConfiguration{},
 	CloudbeaverUserCache{},
 	CloudbeaverConnectionCache{},
-	DatabaseSourceService{},
+	DBServiceSyncTask{},
 	BasicConfig{},
 	CompanyNotice{},
 	ClusterLeader{},
@@ -334,7 +334,7 @@ type CloudbeaverConnectionCache struct {
 	Purpose                 string `json:"purpose" gorm:"size:20;column:purpose;primaryKey"`
 }
 
-type DatabaseSourceService struct {
+type DBServiceSyncTask struct {
 	Model
 	Name       string `json:"name" gorm:"size:200;not null;index:project_uid_name,unique" example:""`
 	Source     string `json:"source" gorm:"size:255;not null"`
@@ -347,6 +347,10 @@ type DatabaseSourceService struct {
 	LastSyncErr         string          `json:"last_sync_err" gorm:"column:last_sync_err"`
 	LastSyncSuccessTime *time.Time      `json:"last_sync_success_time" gorm:"column:last_sync_success_time"`
 	ExtraParameters     ExtraParameters `json:"extra_parameters" gorm:"TYPE:json"`
+}
+
+func (DBServiceSyncTask) TableName()string {
+	return "database_source_services"
 }
 
 type BasicConfig struct {

@@ -9,38 +9,38 @@ import (
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 )
 
-var errNotDatabaseSourceService = errors.New("database source service related functions are enterprise version functions")
+var errNotDBServiceSyncTask = errors.New("database source service related functions are enterprise version functions")
 
-func (d *DatabaseSourceServiceUsecase) ListDatabaseSourceServices(ctx context.Context, conditions []pkgConst.FilterCondition, projectId string, currentUserId string) ([]*DatabaseSourceServiceParams, error) {
-	return nil, errNotDatabaseSourceService
+func (d *DBServiceSyncTaskUsecase) ListDBServiceSyncTasks(ctx context.Context, conditions []pkgConst.FilterCondition, projectId string, currentUserId string) ([]*DBServiceSyncTaskParams, error) {
+	return nil, errNotDBServiceSyncTask
 }
 
-func (d *DatabaseSourceServiceUsecase) GetDatabaseSourceService(ctx context.Context, databaseSourceServiceId, projectId, currentUserId string) (*DatabaseSourceServiceParams, error) {
-	return nil, errNotDatabaseSourceService
+func (d *DBServiceSyncTaskUsecase) GetDBServiceSyncTask(ctx context.Context, databaseSourceServiceId, projectId, currentUserId string) (*DBServiceSyncTaskParams, error) {
+	return nil, errNotDBServiceSyncTask
 }
 
-func (d *DatabaseSourceServiceUsecase) AddDatabaseSourceService(ctx context.Context, params *DatabaseSourceServiceParams, currentUserId string) (string, error) {
-	return "", errNotDatabaseSourceService
+func (d *DBServiceSyncTaskUsecase) AddDBServiceSyncTask(ctx context.Context, params *DBServiceSyncTaskParams, currentUserId string) (string, error) {
+	return "", errNotDBServiceSyncTask
 }
 
-func (d *DatabaseSourceServiceUsecase) UpdateDatabaseSourceService(ctx context.Context, databaseSourceServiceId string, params *DatabaseSourceServiceParams, currentUserId string) error {
-	return errNotDatabaseSourceService
+func (d *DBServiceSyncTaskUsecase) UpdateDBServiceSyncTask(ctx context.Context, databaseSourceServiceId string, params *DBServiceSyncTaskParams, currentUserId string) error {
+	return errNotDBServiceSyncTask
 }
 
-func (d *DatabaseSourceServiceUsecase) DeleteDatabaseSourceService(ctx context.Context, databaseSourceServiceId, currentUserId string) error {
-	return errNotDatabaseSourceService
+func (d *DBServiceSyncTaskUsecase) DeleteDBServiceSyncTask(ctx context.Context, databaseSourceServiceId, currentUserId string) error {
+	return errNotDBServiceSyncTask
 }
 
-func (d *DatabaseSourceServiceUsecase) ListDatabaseSourceServiceTips(ctx context.Context) ([]ListDatabaseSourceServiceTipsParams, error) {
-	return nil, errNotDatabaseSourceService
+func (d *DBServiceSyncTaskUsecase) ListDBServiceSyncTaskTips(ctx context.Context) ([]ListDBServiceSyncTaskTipsParams, error) {
+	return nil, errNotDBServiceSyncTask
 }
 
-func (d *DatabaseSourceServiceUsecase) SyncDatabaseSourceService(ctx context.Context, databaseSourceServiceId, currentUserId string) error {
-	return errNotDatabaseSourceService
+func (d *DBServiceSyncTaskUsecase) SyncDBServiceSyncTask(ctx context.Context, databaseSourceServiceId, currentUserId string) error {
+	return errNotDBServiceSyncTask
 }
 
-func (d *DatabaseSourceServiceUsecase) StartSyncDatabaseSourceService() {
+func (d *DBServiceSyncTaskUsecase) StartSyncDBServiceSyncTask() {
 }
 
-func (d *DatabaseSourceServiceUsecase) StopSyncDatabaseSourceService() {
+func (d *DBServiceSyncTaskUsecase) StopSyncDBServiceSyncTask() {
 }

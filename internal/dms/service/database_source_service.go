@@ -10,28 +10,28 @@ import (
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
 
-func (d *DMSService) ListDatabaseSourceService(ctx context.Context, req *v1.ListDatabaseSourceServicesReq, currentUserUid string) (reply *v1.ListDatabaseSourceServicesReply, err error) {
+func (d *DMSService) ListDBServiceSyncTask(ctx context.Context, req *v1.ListDBServiceSyncTasksReq, currentUserUid string) (reply *v1.ListDBServiceSyncTasksReply, err error) {
 	conditions := make([]pkgConst.FilterCondition, 0)
 
 	if req.ProjectUid != "" {
 		conditions = append(conditions, pkgConst.FilterCondition{
-			Field:    string(biz.DatabaseSourceServiceFieldProjectUID),
+			Field:    string(biz.DBServiceSyncTaskFieldProjectUID),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.ProjectUid,
 		})
 	}
 
-	services, err := d.DatabaseSourceServiceUsecase.ListDatabaseSourceServices(ctx, conditions, req.ProjectUid, currentUserUid)
+	services, err := d.DBServiceSyncTaskUsecase.ListDBServiceSyncTasks(ctx, conditions, req.ProjectUid, currentUserUid)
 	if nil != err {
 		return nil, err
 	}
 
-	ret := make([]*v1.ListDatabaseSourceService, 0, len(services))
+	ret := make([]*v1.ListDBServiceSyncTask, 0, len(services))
 	for _, service := range services {
-		item := &v1.ListDatabaseSourceService{
+		item := &v1.ListDBServiceSyncTask{
 			UID:        service.UID,
 			ProjectUid: service.ProjectUID,
-			DatabaseSourceService: v1.DatabaseSourceService{
+			DBServiceSyncTask: v1.DBServiceSyncTask{
 				Name:        service.Name,
 				Source:      service.Source,
 				Version:     service.Version,
@@ -47,7 +47,7 @@ func (d *DMSService) ListDatabaseSourceService(ctx context.Context, req *v1.List
 		ret = append(ret, item)
 	}
 
-	return &v1.ListDatabaseSourceServicesReply{
+	return &v1.ListDBServiceSyncTasksReply{
 		Data: ret,
 	}, nil
 }
@@ -72,16 +72,16 @@ func (d *DMSService) buildReplySqleConfig(params *biz.SQLEConfig) *dmsCommonV1.S
 	return sqlConfig
 }
 
-func (d *DMSService) GetDatabaseSourceService(ctx context.Context, req *v1.GetDatabaseSourceServiceReq, currentUserUid string) (reply *v1.GetDatabaseSourceServiceReply, err error) {
-	service, err := d.DatabaseSourceServiceUsecase.GetDatabaseSourceService(ctx, req.DatabaseSourceServiceUid, req.ProjectUid, currentUserUid)
+func (d *DMSService) GetDBServiceSyncTask(ctx context.Context, req *v1.GetDBServiceSyncTaskReq, currentUserUid string) (reply *v1.GetDBServiceSyncTaskReply, err error) {
+	service, err := d.DBServiceSyncTaskUsecase.GetDBServiceSyncTask(ctx, req.DBServiceSyncTaskUid, req.ProjectUid, currentUserUid)
 	if nil != err {
 		return nil, err
 	}
 
-	item := &v1.GetDatabaseSourceService{
+	item := &v1.GetDBServiceSyncTask{
 		UID:        service.UID,
 		ProjectUid: service.ProjectUID,
-		DatabaseSourceService: v1.DatabaseSourceService{
+		DBServiceSyncTask: v1.DBServiceSyncTask{
 			Name:        service.Name,
 			Source:      service.Source,
 			Version:     service.Version,
@@ -92,30 +92,30 @@ func (d *DMSService) GetDatabaseSourceService(ctx context.Context, req *v1.GetDa
 		},
 	}
 
-	return &v1.GetDatabaseSourceServiceReply{
+	return &v1.GetDBServiceSyncTaskReply{
 		Data: item,
 	}, nil
 }
 
-func (d *DMSService) AddDatabaseSourceService(ctx context.Context, req *v1.AddDatabaseSourceServiceReq, currentUserId string) (reply *v1.AddDatabaseSourceServiceReply, err error) {
+func (d *DMSService) AddDBServiceSyncTask(ctx context.Context, req *v1.AddDBServiceSyncTaskReq, currentUserId string) (reply *v1.AddDBServiceSyncTaskReply, err error) {
 
-	databaseSourceParams := &biz.DatabaseSourceServiceParams{
-		Name:        req.DatabaseSourceService.Name,
-		Source:      req.DatabaseSourceService.Source,
-		Version:     req.DatabaseSourceService.Version,
-		URL:         req.DatabaseSourceService.URL,
-		DbType:      req.DatabaseSourceService.DbType,
-		CronExpress: req.DatabaseSourceService.CronExpress,
+	databaseSourceParams := &biz.DBServiceSyncTaskParams{
+		Name:        req.DBServiceSyncTask.Name,
+		Source:      req.DBServiceSyncTask.Source,
+		Version:     req.DBServiceSyncTask.Version,
+		URL:         req.DBServiceSyncTask.URL,
+		DbType:      req.DBServiceSyncTask.DbType,
+		CronExpress: req.DBServiceSyncTask.CronExpress,
 		ProjectUID:  req.ProjectUid,
-		SQLEConfig:  d.buildSQLEConfig(req.DatabaseSourceService.SQLEConfig),
+		SQLEConfig:  d.buildSQLEConfig(req.DBServiceSyncTask.SQLEConfig),
 	}
 
-	uid, err := d.DatabaseSourceServiceUsecase.AddDatabaseSourceService(ctx, databaseSourceParams, currentUserId)
+	uid, err := d.DBServiceSyncTaskUsecase.AddDBServiceSyncTask(ctx, databaseSourceParams, currentUserId)
 	if err != nil {
 		return nil, fmt.Errorf("create database_source_service failed: %w", err)
 	}
 
-	return &v1.AddDatabaseSourceServiceReply{
+	return &v1.AddDBServiceSyncTaskReply{
 		Data: struct {
 			Uid string `json:"uid"`
 		}{Uid: uid},
@@ -144,20 +144,20 @@ func (d *DMSService) buildSQLEConfig(params *dmsCommonV1.SQLEConfig) *biz.SQLECo
 	return sqleConf
 }
 
-func (d *DMSService) UpdateDatabaseSourceService(ctx context.Context, req *v1.UpdateDatabaseSourceServiceReq, currentUserId string) error {
+func (d *DMSService) UpdateDBServiceSyncTask(ctx context.Context, req *v1.UpdateDBServiceSyncTaskReq, currentUserId string) error {
 
-	databaseSourceParams := &biz.DatabaseSourceServiceParams{
-		Name:        req.DatabaseSourceService.Name,
-		Source:      req.DatabaseSourceService.Source,
-		Version:     req.DatabaseSourceService.Version,
-		URL:         req.DatabaseSourceService.URL,
-		DbType:      req.DatabaseSourceService.DbType,
-		CronExpress: req.DatabaseSourceService.CronExpress,
+	databaseSourceParams := &biz.DBServiceSyncTaskParams{
+		Name:        req.DBServiceSyncTask.Name,
+		Source:      req.DBServiceSyncTask.Source,
+		Version:     req.DBServiceSyncTask.Version,
+		URL:         req.DBServiceSyncTask.URL,
+		DbType:      req.DBServiceSyncTask.DbType,
+		CronExpress: req.DBServiceSyncTask.CronExpress,
 		ProjectUID:  req.ProjectUid,
-		SQLEConfig:  d.buildSQLEConfig(req.DatabaseSourceService.SQLEConfig),
+		SQLEConfig:  d.buildSQLEConfig(req.DBServiceSyncTask.SQLEConfig),
 	}
 
-	err := d.DatabaseSourceServiceUsecase.UpdateDatabaseSourceService(ctx, req.DatabaseSourceServiceUid, databaseSourceParams, currentUserId)
+	err := d.DBServiceSyncTaskUsecase.UpdateDBServiceSyncTask(ctx, req.DBServiceSyncTaskUid, databaseSourceParams, currentUserId)
 	if err != nil {
 		return fmt.Errorf("update database_source_service failed: %w", err)
 	}
@@ -165,8 +165,8 @@ func (d *DMSService) UpdateDatabaseSourceService(ctx context.Context, req *v1.Up
 	return nil
 }
 
-func (d *DMSService) DeleteDatabaseSourceService(ctx context.Context, req *v1.DeleteDatabaseSourceServiceReq, currentUserId string) (err error) {
-	err = d.DatabaseSourceServiceUsecase.DeleteDatabaseSourceService(ctx, req.DatabaseSourceServiceUid, currentUserId)
+func (d *DMSService) DeleteDBServiceSyncTask(ctx context.Context, req *v1.DeleteDBServiceSyncTaskReq, currentUserId string) (err error) {
+	err = d.DBServiceSyncTaskUsecase.DeleteDBServiceSyncTask(ctx, req.DBServiceSyncTaskUid, currentUserId)
 	if err != nil {
 		return fmt.Errorf("delete database_source_service failed: %w", err)
 	}
@@ -174,8 +174,8 @@ func (d *DMSService) DeleteDatabaseSourceService(ctx context.Context, req *v1.De
 	return nil
 }
 
-func (d *DMSService) ListDatabaseSourceServiceTips(ctx context.Context) (*v1.ListDatabaseSourceServiceTipsReply, error) {
-	sources, err := d.DatabaseSourceServiceUsecase.ListDatabaseSourceServiceTips(ctx)
+func (d *DMSService) ListDBServiceSyncTaskTips(ctx context.Context) (*v1.ListDBServiceSyncTaskTipsReply, error) {
+	sources, err := d.DBServiceSyncTaskUsecase.ListDBServiceSyncTaskTips(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("list database_source_service tips failed: %w", err)
 	}
@@ -193,13 +193,13 @@ func (d *DMSService) ListDatabaseSourceServiceTips(ctx context.Context) (*v1.Lis
 		})
 	}
 
-	return &v1.ListDatabaseSourceServiceTipsReply{
+	return &v1.ListDBServiceSyncTaskTipsReply{
 		Data: ret,
 	}, nil
 }
 
-func (d *DMSService) SyncDatabaseSourceService(ctx context.Context, req *v1.SyncDatabaseSourceServiceReq, currentUserId string) (err error) {
-	err = d.DatabaseSourceServiceUsecase.SyncDatabaseSourceService(ctx, req.DatabaseSourceServiceUid, currentUserId)
+func (d *DMSService) SyncDBServiceSyncTask(ctx context.Context, req *v1.SyncDBServiceSyncTaskReq, currentUserId string) (err error) {
+	err = d.DBServiceSyncTaskUsecase.SyncDBServiceSyncTask(ctx, req.DBServiceSyncTaskUid, currentUserId)
 	if err != nil {	
 		d.log.Errorf("sync database_source_service failed: %w", err)
 		return fmt.Errorf("sync database_source_service failed")

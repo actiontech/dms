@@ -21,7 +21,7 @@ type DataExportTaskField string
 
 type DataExportTaskRecordField string
 
-type DatabaseSourceServiceField string
+type DBServiceSyncTaskField string
 
 type IMConfigurationField string
 
@@ -173,17 +173,17 @@ const (
 )
 
 const (
-	DatabaseSourceServiceFieldUID                 DatabaseSourceServiceField = "uid"
-	DatabaseSourceServiceFieldName                DatabaseSourceServiceField = "name"
-	DatabaseSourceServiceFieldSource              DatabaseSourceServiceField = "source"
-	DatabaseSourceServiceFieldVersion             DatabaseSourceServiceField = "version"
-	DatabaseSourceServiceFieldURL                 DatabaseSourceServiceField = "url"
-	DatabaseSourceServiceFieldDbType              DatabaseSourceServiceField = "dbtype"
-	DatabaseSourceServiceFieldProjectUID          DatabaseSourceServiceField = "project_uid"
-	DatabaseSourceServiceFieldCronExpress         DatabaseSourceServiceField = "cron_express"
-	DatabaseSourceServiceFieldLastSyncErr         DatabaseSourceServiceField = "last_sync_err"
-	DatabaseSourceServiceFieldLastSyncSuccessTime DatabaseSourceServiceField = "last_sync_success_time"
-	DatabaseSourceServiceFieldExtraParameters     DatabaseSourceServiceField = "extraparameters"
+	DBServiceSyncTaskFieldUID                 DBServiceSyncTaskField = "uid"
+	DBServiceSyncTaskFieldName                DBServiceSyncTaskField = "name"
+	DBServiceSyncTaskFieldSource              DBServiceSyncTaskField = "source"
+	DBServiceSyncTaskFieldVersion             DBServiceSyncTaskField = "version"
+	DBServiceSyncTaskFieldURL                 DBServiceSyncTaskField = "url"
+	DBServiceSyncTaskFieldDbType              DBServiceSyncTaskField = "dbtype"
+	DBServiceSyncTaskFieldProjectUID          DBServiceSyncTaskField = "project_uid"
+	DBServiceSyncTaskFieldCronExpress         DBServiceSyncTaskField = "cron_express"
+	DBServiceSyncTaskFieldLastSyncErr         DBServiceSyncTaskField = "last_sync_err"
+	DBServiceSyncTaskFieldLastSyncSuccessTime DBServiceSyncTaskField = "last_sync_success_time"
+	DBServiceSyncTaskFieldExtraParameters     DBServiceSyncTaskField = "extraparameters"
 )
 
 const (
