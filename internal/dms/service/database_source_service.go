@@ -198,9 +198,9 @@ func (d *DMSService) ListDBServiceSyncTaskTips(ctx context.Context) (*v1.ListDBS
 	}, nil
 }
 
-func (d *DMSService) SyncDBServiceSyncTask(ctx context.Context, req *v1.SyncDBServiceSyncTaskReq, currentUserId string) (err error) {
-	err = d.DBServiceSyncTaskUsecase.SyncDBServiceSyncTask(ctx, req.DBServiceSyncTaskUid, currentUserId)
-	if err != nil {	
+func (d *DMSService) SyncDBServices(ctx context.Context, req *v1.SyncDBServicesReq, currentUserId string) (err error) {
+	err = d.DBServiceSyncTaskUsecase.SyncDBServices(ctx, req.DBServiceSyncTaskUid, currentUserId)
+	if err != nil {
 		d.log.Errorf("sync database_source_service failed: %w", err)
 		return fmt.Errorf("sync database_source_service failed")
 	}

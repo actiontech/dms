@@ -35,12 +35,12 @@ func (d *DBServiceSyncTaskUsecase) ListDBServiceSyncTaskTips(ctx context.Context
 	return nil, errNotDBServiceSyncTask
 }
 
-func (d *DBServiceSyncTaskUsecase) SyncDBServiceSyncTask(ctx context.Context, databaseSourceServiceId, currentUserId string) error {
+func (d *DBServiceSyncTaskUsecase) SyncDBServices(ctx context.Context, databaseSourceServiceId, currentUserId string) error {
 	return errNotDBServiceSyncTask
 }
 
-func (d *DBServiceSyncTaskUsecase) StartSyncDBServiceSyncTask() {
+func (d *DBServiceSyncTaskUsecase) StartSyncDBServices() {
 }
 
-func (d *DBServiceSyncTaskUsecase) StopSyncDBServiceSyncTask() {
+func (d *DBServiceSyncTaskUsecase) StopSyncDBServices() {
 }

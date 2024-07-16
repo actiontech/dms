@@ -90,7 +90,7 @@ type DBServiceSyncTask struct {
 // swagger:model
 type AddDBServiceSyncTaskReq struct {
 	// swagger:ignore
-	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	ProjectUid        string            `param:"project_uid" json:"project_uid" validate:"required"`
 	DBServiceSyncTask DBServiceSyncTask `json:"database_source_service"`
 }
 
@@ -108,11 +108,11 @@ type AddDBServiceSyncTaskReply struct {
 
 // swagger:model
 type UpdateDBServiceSyncTaskReq struct {
-    // swagger:ignore
+	// swagger:ignore
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// swagger:ignore
-	DBServiceSyncTaskUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
-	DBServiceSyncTask DBServiceSyncTask `json:"database_source_service" validate:"required"`
+	DBServiceSyncTaskUid string            `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
+	DBServiceSyncTask    DBServiceSyncTask `json:"database_source_service" validate:"required"`
 }
 
 // swagger:parameters DeleteDBServiceSyncTask
@@ -152,7 +152,7 @@ type ListDBServiceSyncTaskTipsReq struct {
 }
 
 // swagger:model
-type SyncDBServiceSyncTaskReq struct {
-	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+type SyncDBServicesReq struct {
+	ProjectUid           string `param:"project_uid" json:"project_uid" validate:"required"`
 	DBServiceSyncTaskUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
 }

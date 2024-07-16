@@ -64,18 +64,18 @@ func (c *databaseSourceServiceCronManager) start(server *APIServer, groupCtx con
 
 		ticker.Stop()
 
-		c.apiServer.DMSController.DMS.DBServiceSyncTaskUsecase.StartSyncDBServiceSyncTask()
+		c.apiServer.DMSController.DMS.DBServiceSyncTaskUsecase.StartSyncDBServices()
 
 		select {
 		case <-groupCtx.Done():
 			logger.Infof("cron terminal, err: %s", groupCtx.Err())
 
-			c.apiServer.DMSController.DMS.DBServiceSyncTaskUsecase.StopSyncDBServiceSyncTask()
+			c.apiServer.DMSController.DMS.DBServiceSyncTaskUsecase.StopSyncDBServices()
 			return
 		case <-c.ctx.Done():
 			logger.Infof("cron terminal, err: %s", groupCtx.Err())
 
-			c.apiServer.DMSController.DMS.DBServiceSyncTaskUsecase.StopSyncDBServiceSyncTask()
+			c.apiServer.DMSController.DMS.DBServiceSyncTaskUsecase.StopSyncDBServices()
 			return
 		}
 	}()

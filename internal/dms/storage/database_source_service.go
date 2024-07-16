@@ -74,7 +74,7 @@ func (d *DBServiceSyncTaskRepo) UpdateDBServiceSyncTask(ctx context.Context, par
 	})
 }
 
-func (d *DBServiceSyncTaskRepo) UpdateSyncDBServiceSyncTask(ctx context.Context, dbServiceSyncTaskUid string, fields map[string]interface{}) error {
+func (d *DBServiceSyncTaskRepo) UpdateSyncDBServices(ctx context.Context, dbServiceSyncTaskUid string, fields map[string]interface{}) error {
 	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Model(&model.DBServiceSyncTask{}).Where("uid = ?", dbServiceSyncTaskUid).Updates(fields).Error; err != nil {
 			return fmt.Errorf("failed to update database_source_service: %v", err)
