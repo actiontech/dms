@@ -31,7 +31,7 @@ func (d *DBServiceSyncTaskUsecase) DeleteDBServiceSyncTask(ctx context.Context, 
 	return errNotDBServiceSyncTask
 }
 
-func (d *DBServiceSyncTaskUsecase) ListDBServiceSyncTaskTips(ctx context.Context) ([]ListDBServiceSyncTaskTipsParams, error) {
+func (d *DBServiceSyncTaskUsecase) ListDBServiceSyncTaskTips(ctx context.Context) ([]ListDBServiceSyncTaskTips, error) {
 	return nil, errNotDBServiceSyncTask
 }
 

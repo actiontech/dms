@@ -2,7 +2,8 @@ package v1
 
 import (
 	"time"
-
+	pkgParams "github.com/actiontech/dms/pkg/params"
+	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
@@ -126,29 +127,19 @@ type DeleteDBServiceSyncTaskReq struct {
 	DBServiceSyncTaskUid string `param:"db_service_sync_task_uid" json:"db_service_sync_task_uid" validate:"required"`
 }
 
-type DatabaseSource struct {
-	// database type
-	// example: MySQL
-	DbTypes []string `json:"db_types"`
-	// database source
-	// example: actiontech-dmp
-	Source string `json:"source"`
-}
-
 // swagger:model ListDBServiceSyncTaskTipsReply
 type ListDBServiceSyncTaskTipsReply struct {
-	Data []*DatabaseSource `json:"data"`
+	Tips []DBServiceSyncTaskTip `json:"tips"`
 
 	// Generic reply
 	base.GenericResp
 }
 
-// swagger:parameters ListDBServiceSyncTaskTips
-type ListDBServiceSyncTaskTipsReq struct {
-	// project id
-	// Required: true
-	// in:path
-	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+type DBServiceSyncTaskTip struct {
+	Type   pkgConst.DBServiceSourceName `json:"service_source_name"`
+	Desc   string                       `json:"description"`
+	DBType []pkgConst.DBType            `json:"db_type"` // 使用constant.DBType
+	Params pkgParams.Params             `json:"params,omitempty"`
 }
 
 // swagger:model

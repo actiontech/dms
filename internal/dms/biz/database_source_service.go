@@ -58,3 +58,10 @@ type ListDBServiceSyncTaskTipsParams struct {
 	Source  pkgConst.DBServiceSourceName `json:"source"`
 	DbTypes []pkgConst.DBType            `json:"db_types"`
 }
+
+type ListDBServiceSyncTaskTips struct {
+	Type    pkgConst.DBServiceSourceName `json:"service_source_name"`
+	Desc    string                       `json:"description"`
+	DBTypes []pkgConst.DBType            `json:"db_type"`
+	Params  pkgParams.Params             `json:"params,omitempty"`
+}

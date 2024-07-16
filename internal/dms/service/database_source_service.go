@@ -179,23 +179,22 @@ func (d *DMSService) ListDBServiceSyncTaskTips(ctx context.Context) (*v1.ListDBS
 	if err != nil {
 		return nil, fmt.Errorf("list db_service_sync_task tips failed: %w", err)
 	}
-
-	ret := make([]*v1.DatabaseSource, 0, len(tips))
+	v1Tips := make([]v1.DBServiceSyncTaskTip , 0, len(tips))
 	for _, tip := range tips {
-		dbTypes := make([]string, 0, len(tip.DbTypes))
-		for _, val := range tip.DbTypes {
-			dbTypes = append(dbTypes, string(val))
-		}
-
-		ret = append(ret, &v1.DatabaseSource{
-			DbTypes: dbTypes,
-			Source:  string(tip.Source),
-		})
+		v1Tips = append(v1Tips, convertDBServiceSyncTaskTips(tip))
 	}
-
 	return &v1.ListDBServiceSyncTaskTipsReply{
-		Data: ret,
+		Tips: v1Tips,
 	}, nil
+}
+
+func convertDBServiceSyncTaskTips(meta biz.ListDBServiceSyncTaskTips) v1.DBServiceSyncTaskTip  {
+	return v1.DBServiceSyncTaskTip {
+		Type:   meta.Type,
+		Desc:   meta.Desc,
+		DBType: meta.DBTypes,
+		Params: meta.Params,
+	}
 }
 
 func (d *DMSService) SyncDBServices(ctx context.Context, req *v1.SyncDBServicesReq, currentUserId string) (err error) {
