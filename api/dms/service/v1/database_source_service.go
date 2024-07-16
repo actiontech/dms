@@ -2,19 +2,12 @@ package v1
 
 import (
 	"time"
-	pkgParams "github.com/actiontech/dms/pkg/params"
+
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+	pkgParams "github.com/actiontech/dms/pkg/params"
 )
-
-// swagger:parameters ListDBServiceSyncTasks
-type ListDBServiceSyncTasksReq struct {
-	// project id
-	// Required: true
-	// in:path
-	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-}
 
 // swagger:model ListDBServiceSyncTasksReply
 type ListDBServiceSyncTasksReply struct {
@@ -29,10 +22,6 @@ type GetDBServiceSyncTaskReq struct {
 	// Required: true
 	// in:path
 	DBServiceSyncTaskUid string `param:"db_service_sync_task_uid" json:"db_service_sync_task_uid" validate:"required"`
-	// project id
-	// Required: true
-	// in:path
-	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 }
 
 // swagger:model GetDBServiceSyncTaskReply
@@ -45,14 +34,12 @@ type GetDBServiceSyncTaskReply struct {
 
 type GetDBServiceSyncTask struct {
 	DBServiceSyncTask
-	UID        string `json:"uid"`
-	ProjectUid string `json:"project_uid"`
+	UID string `json:"uid"`
 }
 
 type ListDBServiceSyncTask struct {
 	DBServiceSyncTask
-	UID        string `json:"uid"`
-	ProjectUid string `json:"project_uid"`
+	UID string `json:"uid"`
 
 	// last sync error message
 	LastSyncErr         string     `json:"last_sync_err"`
@@ -91,7 +78,6 @@ type DBServiceSyncTask struct {
 // swagger:model
 type AddDBServiceSyncTaskReq struct {
 	// swagger:ignore
-	ProjectUid        string            `param:"project_uid" json:"project_uid" validate:"required"`
 	DBServiceSyncTask DBServiceSyncTask `json:"db_service_sync_task"`
 }
 
@@ -110,18 +96,12 @@ type AddDBServiceSyncTaskReply struct {
 // swagger:model
 type UpdateDBServiceSyncTaskReq struct {
 	// swagger:ignore
-	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-	// swagger:ignore
 	DBServiceSyncTaskUid string            `param:"db_service_sync_task_uid" json:"db_service_sync_task_uid" validate:"required"`
 	DBServiceSyncTask    DBServiceSyncTask `json:"db_service_sync_task" validate:"required"`
 }
 
 // swagger:parameters DeleteDBServiceSyncTask
 type DeleteDBServiceSyncTaskReq struct {
-	// project id
-	// Required: true
-	// in:path
-	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// Required: true
 	// in:path
 	DBServiceSyncTaskUid string `param:"db_service_sync_task_uid" json:"db_service_sync_task_uid" validate:"required"`
@@ -144,6 +124,5 @@ type DBServiceSyncTaskTip struct {
 
 // swagger:model
 type SyncDBServicesReq struct {
-	ProjectUid           string `param:"project_uid" json:"project_uid" validate:"required"`
 	DBServiceSyncTaskUid string `param:"db_service_sync_task_uid" json:"db_service_sync_task_uid" validate:"required"`
 }
