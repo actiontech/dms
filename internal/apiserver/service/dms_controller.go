@@ -357,7 +357,7 @@ func (d *DMSController) CheckDBServiceIsConnectableById(c echo.Context) error {
 
 // swagger:route GET /v1/dms/projects/{project_uid}/db_service_sync_tasks DBServiceSyncTask ListDBServiceSyncTasks
 //
-// List database source service.
+// List database synchronization tasks.
 //
 //	responses:
 //	  200: body:ListDBServiceSyncTasksReply
@@ -382,7 +382,7 @@ func (d *DMSController) ListDBServiceSyncTasks(c echo.Context) error {
 
 // swagger:route GET /v1/dms/projects/{project_uid}/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask GetDBServiceSyncTask
 //
-// Get database source service.
+// Get database synchronization task.
 //
 //	responses:
 //	  200: body:GetDBServiceSyncTaskReply
@@ -407,7 +407,7 @@ func (d *DMSController) GetDBServiceSyncTask(c echo.Context) error {
 
 // swagger:operation POST /v1/dms/projects/{project_uid}/db_service_sync_tasks DBServiceSyncTask AddDBServiceSyncTask
 //
-// Add database source service.
+// Add database synchronization task.
 //
 // ---
 // parameters:
@@ -418,7 +418,7 @@ func (d *DMSController) GetDBServiceSyncTask(c echo.Context) error {
 //     type: string
 //   - name: db_service_sync_task
 //     in: body
-//     description: add database source service
+//     description: add database synchronization tasks
 //     schema:
 //     "$ref": "#/definitions/AddDBServiceSyncTaskReq"
 //
@@ -454,7 +454,7 @@ func (d *DMSController) AddDBServiceSyncTask(c echo.Context) error {
 
 // swagger:operation PUT /v1/dms/projects/{project_uid}/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask UpdateDBServiceSyncTask
 //
-// update database source service.
+// update database synchronization task.
 //
 // ---
 // parameters:
@@ -468,7 +468,7 @@ func (d *DMSController) AddDBServiceSyncTask(c echo.Context) error {
 //     required: true
 //     type: string
 //   - name: db_service_sync_task
-//     description: update database source service
+//     description: update database synchronization task.
 //     in: body
 //     schema:
 //     "$ref": "#/definitions/UpdateDBServiceSyncTaskReq"
@@ -503,7 +503,7 @@ func (d *DMSController) UpdateDBServiceSyncTask(c echo.Context) error {
 
 // swagger:route DELETE /v1/dms/projects/{project_uid}/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask DeleteDBServiceSyncTask
 //
-// Delete database source service.
+// Delete database synchronization task.
 //
 //	responses:
 //	  200: body:GenericResp
@@ -528,7 +528,7 @@ func (d *DMSController) DeleteDBServiceSyncTask(c echo.Context) error {
 
 // swagger:route GET /v1/dms/projects/{project_uid}/db_service_sync_tasks/tips DBServiceSyncTask ListDBServiceSyncTaskTips
 //
-// List database source service tips.
+// List database synchronization task tips.
 //
 //	responses:
 //	  200: body:ListDBServiceSyncTaskTipsReply
@@ -543,7 +543,7 @@ func (d *DMSController) ListDBServiceSyncTaskTips(c echo.Context) error {
 
 // swagger:operation POST /v1/dms/projects/{project_uid}/db_service_sync_tasks/{db_service_sync_task_uid}/sync DBServiceSyncTask SyncDBServices
 //
-// Sync database source service.
+// Sync db service.
 //
 // ---
 // parameters:
