@@ -99,7 +99,7 @@ func (d *DMSService) GetDBServiceSyncTask(ctx context.Context, req *v1.GetDBServ
 
 func (d *DMSService) AddDBServiceSyncTask(ctx context.Context, req *v1.AddDBServiceSyncTaskReq, currentUserId string) (reply *v1.AddDBServiceSyncTaskReply, err error) {
 
-	databaseSourceParams := &biz.DBServiceSyncTaskParams{
+	dbServiceTaskParams := &biz.DBServiceSyncTaskParams{
 		Name:        req.DBServiceSyncTask.Name,
 		Source:      req.DBServiceSyncTask.Source,
 		Version:     req.DBServiceSyncTask.Version,
@@ -110,7 +110,7 @@ func (d *DMSService) AddDBServiceSyncTask(ctx context.Context, req *v1.AddDBServ
 		SQLEConfig:  d.buildSQLEConfig(req.DBServiceSyncTask.SQLEConfig),
 	}
 
-	uid, err := d.DBServiceSyncTaskUsecase.AddDBServiceSyncTask(ctx, databaseSourceParams, currentUserId)
+	uid, err := d.DBServiceSyncTaskUsecase.AddDBServiceSyncTask(ctx, dbServiceTaskParams, currentUserId)
 	if err != nil {
 		return nil, fmt.Errorf("create db_service_sync_task failed: %w", err)
 	}
@@ -146,7 +146,7 @@ func (d *DMSService) buildSQLEConfig(params *dmsCommonV1.SQLEConfig) *biz.SQLECo
 
 func (d *DMSService) UpdateDBServiceSyncTask(ctx context.Context, req *v1.UpdateDBServiceSyncTaskReq, currentUserId string) error {
 
-	databaseSourceParams := &biz.DBServiceSyncTaskParams{
+	dbServiceTaskParams := &biz.DBServiceSyncTaskParams{
 		Name:        req.DBServiceSyncTask.Name,
 		Source:      req.DBServiceSyncTask.Source,
 		Version:     req.DBServiceSyncTask.Version,
@@ -157,7 +157,7 @@ func (d *DMSService) UpdateDBServiceSyncTask(ctx context.Context, req *v1.Update
 		SQLEConfig:  d.buildSQLEConfig(req.DBServiceSyncTask.SQLEConfig),
 	}
 
-	err := d.DBServiceSyncTaskUsecase.UpdateDBServiceSyncTask(ctx, req.DBServiceSyncTaskUid, databaseSourceParams, currentUserId)
+	err := d.DBServiceSyncTaskUsecase.UpdateDBServiceSyncTask(ctx, req.DBServiceSyncTaskUid, dbServiceTaskParams, currentUserId)
 	if err != nil {
 		return fmt.Errorf("update db_service_sync_task failed: %w", err)
 	}
