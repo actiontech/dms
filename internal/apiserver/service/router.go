@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
 
 	dmsMiddleware "github.com/actiontech/dms/internal/apiserver/middleware"
@@ -46,15 +47,25 @@ func (s *APIServer) initRouter() error {
 		dbServiceV1.POST("/:db_service_uid/connection", s.DMSController.CheckDBServiceIsConnectableById)
 		dbServiceV1.POST("/import_check", s.DMSController.ImportDBServicesOfOneProjectCheck)
 		dbServiceV1.POST("/import", s.DMSController.ImportDBServicesOfOneProject)
+		
+		dbServiceSyncTaskV1 := v1.Group("dms/db_service_sync_tasks")
+		dbServiceSyncTaskV1.GET("/tips", s.DMSController.ListDatabaseSourceServiceTips)
+		dbServiceSyncTaskV1.GET("", s.DMSController.ListDatabaseSourceServices)
+		dbServiceSyncTaskV1.POST("", s.DMSController.AddDatabaseSourceService)
+		dbServiceSyncTaskV1.GET("/:db_service_sync_task_uid", s.DMSController.GetDatabaseSourceService)
+		dbServiceSyncTaskV1.PUT("/:db_service_sync_task_uid", s.DMSController.UpdateDatabaseSourceService)
+		dbServiceSyncTaskV1.DELETE("/:db_service_sync_task_uid", s.DMSController.DeleteDatabaseSourceService)
+		dbServiceSyncTaskV1.POST("/:db_service_sync_task_uid/sync", s.DMSController.SyncDatabaseSourceService)
 
 		DatabaseSourceServiceV1 := v1.Group("/dms/projects/:project_uid/database_source_services")
-		DatabaseSourceServiceV1.GET("/tips", s.DMSController.ListDatabaseSourceServiceTips)
-		DatabaseSourceServiceV1.POST("/:database_source_service_uid/sync", s.DMSController.SyncDatabaseSourceService)
-		DatabaseSourceServiceV1.GET("", s.DMSController.ListDatabaseSourceServices)
-		DatabaseSourceServiceV1.GET("/:database_source_service_uid", s.DMSController.GetDatabaseSourceService)
+		DatabaseSourceServiceV1.GET("/tips", DeprecatedBy(dmsV1.GroupV1))                               
+		DatabaseSourceServiceV1.POST("/:database_source_service_uid/sync", DeprecatedBy(dmsV1.GroupV1)) 
+		DatabaseSourceServiceV1.GET("", DeprecatedBy(dmsV1.GroupV1))                                    
+		DatabaseSourceServiceV1.GET("/:database_source_service_uid", DeprecatedBy(dmsV1.GroupV1))     
 		DatabaseSourceServiceV1.POST("", s.DMSController.AddDatabaseSourceService)
-		DatabaseSourceServiceV1.PUT("/:database_source_service_uid", s.DMSController.UpdateDatabaseSourceService)
-		DatabaseSourceServiceV1.DELETE("/:database_source_service_uid", s.DMSController.DeleteDatabaseSourceService)
+		DatabaseSourceServiceV1.PUT("/:database_source_service_uid", DeprecatedBy(dmsV1.GroupV1))  
+		DatabaseSourceServiceV1.DELETE("/:database_source_service_uid", DeprecatedBy(dmsV1.GroupV1)) 
+
 
 		userV1 := v1.Group(dmsV1.UserRouterGroup)
 		userV1.POST("", s.DMSController.AddUser)
@@ -323,4 +334,12 @@ func (s *APIServer) Shutdown() error {
 		return fmt.Errorf("failed to shutdown dmsController: %v", err)
 	}
 	return nil
+}
+
+// DeprecatedBy is a controller used to mark deprecated and used to replace the original controller.
+func DeprecatedBy(version string) func(echo.Context) error {
+	return func(ctx echo.Context) error {
+		return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf(
+			"the API has been deprecated, please using the %s version", version))
+	}
 }
