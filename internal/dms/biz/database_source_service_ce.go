@@ -9,7 +9,7 @@ import (
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 )
 
-var errNotDBServiceSyncTask = errors.New("database source service related functions are enterprise version functions")
+var errNotDBServiceSyncTask = errors.New("db service sync task related functions are enterprise version functions")
 
 func (d *DBServiceSyncTaskUsecase) ListDBServiceSyncTasks(ctx context.Context, conditions []pkgConst.FilterCondition, projectId string, currentUserId string) ([]*DBServiceSyncTaskParams, error) {
 	return nil, errNotDBServiceSyncTask

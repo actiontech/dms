@@ -21,27 +21,27 @@ func (d *DMSService) ListDBServiceSyncTask(ctx context.Context, req *v1.ListDBSe
 		})
 	}
 
-	services, err := d.DBServiceSyncTaskUsecase.ListDBServiceSyncTasks(ctx, conditions, req.ProjectUid, currentUserUid)
+	syncTasks, err := d.DBServiceSyncTaskUsecase.ListDBServiceSyncTasks(ctx, conditions, req.ProjectUid, currentUserUid)
 	if nil != err {
 		return nil, err
 	}
 
-	ret := make([]*v1.ListDBServiceSyncTask, 0, len(services))
-	for _, service := range services {
+	ret := make([]*v1.ListDBServiceSyncTask, 0, len(syncTasks))
+	for _, task := range syncTasks {
 		item := &v1.ListDBServiceSyncTask{
-			UID:        service.UID,
-			ProjectUid: service.ProjectUID,
+			UID:        task.UID,
+			ProjectUid: task.ProjectUID,
 			DBServiceSyncTask: v1.DBServiceSyncTask{
-				Name:        service.Name,
-				Source:      service.Source,
-				Version:     service.Version,
-				URL:         service.URL,
-				DbType:      service.DbType,
-				CronExpress: service.CronExpress,
-				SQLEConfig:  d.buildReplySqleConfig(service.SQLEConfig),
+				Name:        task.Name,
+				Source:      task.Source,
+				Version:     task.Version,
+				URL:         task.URL,
+				DbType:      task.DbType,
+				CronExpress: task.CronExpress,
+				SQLEConfig:  d.buildReplySqleConfig(task.SQLEConfig),
 			},
-			LastSyncErr:         service.LastSyncErr,
-			LastSyncSuccessTime: service.LastSyncSuccessTime,
+			LastSyncErr:         task.LastSyncErr,
+			LastSyncSuccessTime: task.LastSyncSuccessTime,
 		}
 
 		ret = append(ret, item)
@@ -73,22 +73,22 @@ func (d *DMSService) buildReplySqleConfig(params *biz.SQLEConfig) *dmsCommonV1.S
 }
 
 func (d *DMSService) GetDBServiceSyncTask(ctx context.Context, req *v1.GetDBServiceSyncTaskReq, currentUserUid string) (reply *v1.GetDBServiceSyncTaskReply, err error) {
-	service, err := d.DBServiceSyncTaskUsecase.GetDBServiceSyncTask(ctx, req.DBServiceSyncTaskUid, req.ProjectUid, currentUserUid)
+	syncTask, err := d.DBServiceSyncTaskUsecase.GetDBServiceSyncTask(ctx, req.DBServiceSyncTaskUid, req.ProjectUid, currentUserUid)
 	if nil != err {
 		return nil, err
 	}
 
 	item := &v1.GetDBServiceSyncTask{
-		UID:        service.UID,
-		ProjectUid: service.ProjectUID,
+		UID:        syncTask.UID,
+		ProjectUid: syncTask.ProjectUID,
 		DBServiceSyncTask: v1.DBServiceSyncTask{
-			Name:        service.Name,
-			Source:      service.Source,
-			Version:     service.Version,
-			URL:         service.URL,
-			DbType:      service.DbType,
-			CronExpress: service.CronExpress,
-			SQLEConfig:  d.buildReplySqleConfig(service.SQLEConfig),
+			Name:        syncTask.Name,
+			Source:      syncTask.Source,
+			Version:     syncTask.Version,
+			URL:         syncTask.URL,
+			DbType:      syncTask.DbType,
+			CronExpress: syncTask.CronExpress,
+			SQLEConfig:  d.buildReplySqleConfig(syncTask.SQLEConfig),
 		},
 	}
 
@@ -175,21 +175,21 @@ func (d *DMSService) DeleteDBServiceSyncTask(ctx context.Context, req *v1.Delete
 }
 
 func (d *DMSService) ListDBServiceSyncTaskTips(ctx context.Context) (*v1.ListDBServiceSyncTaskTipsReply, error) {
-	sources, err := d.DBServiceSyncTaskUsecase.ListDBServiceSyncTaskTips(ctx)
+	tips, err := d.DBServiceSyncTaskUsecase.ListDBServiceSyncTaskTips(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("list db_service_sync_task tips failed: %w", err)
 	}
 
-	ret := make([]*v1.DatabaseSource, 0, len(sources))
-	for _, item := range sources {
-		dbTypes := make([]string, 0, len(item.DbTypes))
-		for _, val := range item.DbTypes {
+	ret := make([]*v1.DatabaseSource, 0, len(tips))
+	for _, tip := range tips {
+		dbTypes := make([]string, 0, len(tip.DbTypes))
+		for _, val := range tip.DbTypes {
 			dbTypes = append(dbTypes, string(val))
 		}
 
 		ret = append(ret, &v1.DatabaseSource{
 			DbTypes: dbTypes,
-			Source:  string(item.Source),
+			Source:  string(tip.Source),
 		})
 	}
 
