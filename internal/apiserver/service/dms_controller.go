@@ -78,18 +78,16 @@ func (a *DMSController) Shutdown() error {
 //     in: body
 //     required: true
 //     schema:
-//     "$ref": "#/definitions/AddDBServiceReq"
-//
+//       "$ref": "#/definitions/AddDBServiceReq"
 // responses:
-//
-//	'200':
-//	  description: AddDBServiceReply
-//	  schema:
-//	    "$ref": "#/definitions/AddDBServiceReply"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: AddDBServiceReply
+//     schema:
+//       "$ref": "#/definitions/AddDBServiceReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddDBService(c echo.Context) error {
 	req := new(aV1.AddDBServiceReq)
 	err := bindAndValidateReq(c, req)
@@ -243,18 +241,16 @@ func (a *DMSController) DelDBService(c echo.Context) error {
 //     description: Update a DB service
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/UpdateDBServiceReq"
-//
+//       "$ref": "#/definitions/UpdateDBServiceReq"
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (a *DMSController) UpdateDBService(c echo.Context) error {
 	req := &aV1.UpdateDBServiceReq{}
 	err := bindAndValidateReq(c, req)
@@ -288,18 +284,16 @@ func (a *DMSController) UpdateDBService(c echo.Context) error {
 //     in: body
 //     description: check db_service is connectable
 //     schema:
-//     "$ref": "#/definitions/CheckDBServiceIsConnectableReq"
-//
+//       "$ref": "#/definitions/CheckDBServiceIsConnectableReq"
 // responses:
-//
-//	'200':
-//	  description: CheckDBServiceIsConnectableReply
-//	  schema:
-//	    "$ref": "#/definitions/CheckDBServiceIsConnectableReply"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: CheckDBServiceIsConnectableReply
+//     schema:
+//       "$ref": "#/definitions/CheckDBServiceIsConnectableReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) CheckDBServiceIsConnectable(c echo.Context) error {
 	var req aV1.CheckDBServiceIsConnectableReq
 	err := bindAndValidateReq(c, &req)
@@ -330,17 +324,15 @@ func (d *DMSController) CheckDBServiceIsConnectable(c echo.Context) error {
 //     in: path
 //     required: true
 //     type: string
-//
 // responses:
-//
-//	'200':
-//	  description: CheckDBServiceIsConnectableReply
-//	  schema:
-//	    "$ref": "#/definitions/CheckDBServiceIsConnectableReply"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: CheckDBServiceIsConnectableReply
+//     schema:
+//       "$ref": "#/definitions/CheckDBServiceIsConnectableReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) CheckDBServiceIsConnectableById(c echo.Context) error {
 	var req aV1.CheckDBServiceIsConnectableByIdReq
 	err := bindAndValidateReq(c, &req)
@@ -355,28 +347,34 @@ func (d *DMSController) CheckDBServiceIsConnectableById(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/db_service_sync_tasks DBServiceSyncTask ListDBServiceSyncTasks
+// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services DBServiceSyncTask ListDBServiceSyncTasks
 //
-// List database synchronization tasks.
+// List database source service.
 //
 //	responses:
 //	  200: body:ListDBServiceSyncTasksReply
 //	  default: body:GenericResp
 func (d *DMSController) ListDBServiceSyncTasks(c echo.Context) error {
+	req := new(aV1.ListDBServiceSyncTasksReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
 	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	reply, err := d.DMS.ListDBServiceSyncTask(c.Request().Context(), currentUserUid)
+	reply, err := d.DMS.ListDBServiceSyncTask(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask GetDBServiceSyncTask
+// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} DBServiceSyncTask GetDBServiceSyncTask
 //
-// Get database synchronization task.
+// Get database source service.
 //
 //	responses:
 //	  200: body:GetDBServiceSyncTaskReply
@@ -399,13 +397,31 @@ func (d *DMSController) GetDBServiceSyncTask(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/db_service_sync_tasks DBServiceSyncTask AddDBServiceSyncTask
+// swagger:operation POST /v1/dms/projects/{project_uid}/database_source_services DBServiceSyncTask AddDBServiceSyncTask
 //
-// Add database synchronization task.
+// Add database source service.
 //
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: database_source_service
+//     in: body
+//     description: add database source service
+//     schema:
+//       "$ref": "#/definitions/AddDBServiceSyncTaskReq"
 // responses:
-//    200: body:AddDBServiceSyncTaskReply
-//    default: body:GenericResp
+//   '200':
+//     description: AddDBServiceSyncTaskReply
+//     schema:
+//       "$ref": "#/definitions/AddDBServiceSyncTaskReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddDBServiceSyncTask(c echo.Context) error {
 	req := new(aV1.AddDBServiceSyncTaskReq)
 	err := bindAndValidateReq(c, req)
@@ -426,13 +442,35 @@ func (d *DMSController) AddDBServiceSyncTask(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route PUT /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask UpdateDBServiceSyncTask
+// swagger:operation PUT /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} DBServiceSyncTask UpdateDBServiceSyncTask
 //
-// update database synchronization task.
+// update database source service.
 //
-//  responses:
-//    200: body:GenericResp
-//    default: body:GenericResp
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: database_source_service_uid
+//     in: path
+//     required: true
+//     type: string
+//   - name: database_source_service
+//     description: update database source service
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateDBServiceSyncTaskReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateDBServiceSyncTask(c echo.Context) error {
 	req := &aV1.UpdateDBServiceSyncTaskReq{}
 	err := bindAndValidateReq(c, req)
@@ -451,9 +489,9 @@ func (d *DMSController) UpdateDBServiceSyncTask(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route DELETE /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask DeleteDBServiceSyncTask
+// swagger:route DELETE /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} DBServiceSyncTask DeleteDBServiceSyncTask
 //
-// Delete database synchronization task.
+// Delete database source service.
 //
 //	responses:
 //	  200: body:GenericResp
@@ -476,9 +514,9 @@ func (d *DMSController) DeleteDBServiceSyncTask(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/db_service_sync_tasks/tips DBServiceSyncTask ListDBServiceSyncTaskTips
+// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services/tips DBServiceSyncTask ListDBServiceSyncTaskTips
 //
-// List database synchronization task tips.
+// List database source service tips.
 //
 //	responses:
 //	  200: body:ListDBServiceSyncTaskTipsReply
@@ -491,15 +529,32 @@ func (d *DMSController) ListDBServiceSyncTaskTips(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid}/sync DBServiceSyncTask SyncDBServices
+// swagger:operation POST /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid}/sync DBServiceSyncTask SyncDBServiceSyncTask
 //
-// Sync db service.
+// Sync database source service.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
-func (d *DMSController) SyncDBServices(c echo.Context) error {
-	req := &aV1.SyncDBServicesReq{}
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: database_source_service_uid
+//     in: path
+//     required: true
+//     type: string
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (d *DMSController) SyncDBServiceSyncTask(c echo.Context) error {
+	req := &aV1.SyncDBServiceSyncTaskReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
@@ -509,7 +564,7 @@ func (d *DMSController) SyncDBServices(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	err = d.DMS.SyncDBServices(c.Request().Context(), req, currentUserUid)
+	err = d.DMS.SyncDBServiceSyncTask(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -567,17 +622,15 @@ func (d *DMSController) GetStaticLogo(c echo.Context) error {
 //     in: formData
 //     required: false
 //     type: file
-//
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) Personalization(c echo.Context) error {
 	req := &aV1.PersonalizationReq{}
 
@@ -612,18 +665,16 @@ func (d *DMSController) Personalization(c echo.Context) error {
 //     required: true
 //     description: Add a new session
 //     schema:
-//     "$ref": "#/definitions/AddSessionReq"
-//
+//       "$ref": "#/definitions/AddSessionReq"
 // responses:
-//
-//	'200':
-//	  description: AddSessionReply
-//	  schema:
-//	    "$ref": "#/definitions/AddSessionReply"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: AddSessionReply
+//     schema:
+//       "$ref": "#/definitions/AddSessionReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (a *DMSController) AddSession(c echo.Context) error {
 	req := new(aV1.AddSessionReq)
 	err := bindAndValidateReq(c, req)
@@ -719,18 +770,16 @@ func (a *DMSController) GetUserBySession(c echo.Context) error {
 //     required: true
 //     description: Add new user
 //     schema:
-//     "$ref": "#/definitions/AddUserReq"
-//
+//       "$ref": "#/definitions/AddUserReq"
 // responses:
-//
-//	'200':
-//	  description: AddUserReply
-//	  schema:
-//	    "$ref": "#/definitions/AddUserReply"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: AddUserReply
+//     schema:
+//       "$ref": "#/definitions/AddUserReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddUser(c echo.Context) error {
 	req := new(aV1.AddUserReq)
 	err := bindAndValidateReq(c, req)
@@ -766,18 +815,16 @@ func (d *DMSController) AddUser(c echo.Context) error {
 //     description: Update a user
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/UpdateUserReq"
-//
+//       "$ref": "#/definitions/UpdateUserReq"
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateUser(c echo.Context) error {
 	req := new(aV1.UpdateUserReq)
 	err := bindAndValidateReq(c, req)
@@ -809,18 +856,16 @@ func (d *DMSController) UpdateUser(c echo.Context) error {
 //     required: true
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/UpdateCurrentUserReq"
-//
+//       "$ref": "#/definitions/UpdateCurrentUserReq"
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateCurrentUser(c echo.Context) error {
 	req := new(aV1.UpdateCurrentUserReq)
 	err := bindAndValidateReq(c, req)
@@ -939,18 +984,16 @@ func (a *DMSController) GetUser(c echo.Context) error {
 //     in: body
 //     required: true
 //     schema:
-//     "$ref": "#/definitions/GenAccessToken"
-//
+//       "$ref": "#/definitions/GenAccessToken"
 // responses:
-//
-//	'200':
-//	  description: GenAccessTokenReply
-//	  schema:
-//	    "$ref": "#/definitions/GenAccessTokenReply"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenAccessTokenReply
+//     schema:
+//       "$ref": "#/definitions/GenAccessTokenReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (a *DMSController) GenAccessToken(c echo.Context) error {
 	req := new(dmsV1.GenAccessToken)
 	err := bindAndValidateReq(c, req)
@@ -982,18 +1025,16 @@ func (a *DMSController) GenAccessToken(c echo.Context) error {
 //     in: body
 //     required: true
 //     schema:
-//     "$ref": "#/definitions/AddUserGroupReq"
-//
+//       "$ref": "#/definitions/AddUserGroupReq"
 // responses:
-//
-//	'200':
-//	  description: AddUserGroupReply
-//	  schema:
-//	    "$ref": "#/definitions/AddUserGroupReply"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: AddUserGroupReply
+//     schema:
+//       "$ref": "#/definitions/AddUserGroupReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddUserGroup(c echo.Context) error {
 	req := new(aV1.AddUserGroupReq)
 	err := bindAndValidateReq(c, req)
@@ -1030,18 +1071,16 @@ func (d *DMSController) AddUserGroup(c echo.Context) error {
 //     required: true
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/UpdateUserGroupReq"
-//
+//       "$ref": "#/definitions/UpdateUserGroupReq"
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateUserGroup(c echo.Context) error {
 	req := new(aV1.UpdateUserGroupReq)
 	err := bindAndValidateReq(c, req)
@@ -1121,18 +1160,16 @@ func (d *DMSController) ListUserGroups(c echo.Context) error {
 //     in: body
 //     required: true
 //     schema:
-//     "$ref": "#/definitions/AddRoleReq"
-//
+//       "$ref": "#/definitions/AddRoleReq"
 // responses:
-//
-//	'200':
-//	  description: AddRoleReply
-//	  schema:
-//	    "$ref": "#/definitions/AddRoleReply"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: AddRoleReply
+//     schema:
+//       "$ref": "#/definitions/AddRoleReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddRole(c echo.Context) error {
 	req := new(aV1.AddRoleReq)
 	err := bindAndValidateReq(c, req)
@@ -1169,18 +1206,16 @@ func (d *DMSController) AddRole(c echo.Context) error {
 //     required: true
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/UpdateRoleReq"
-//
+//       "$ref": "#/definitions/UpdateRoleReq"
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateRole(c echo.Context) error {
 	req := new(aV1.UpdateRoleReq)
 	err := bindAndValidateReq(c, req)
@@ -1265,18 +1300,16 @@ func (d *DMSController) ListRoles(c echo.Context) error {
 //     in: body
 //     required: true
 //     schema:
-//     "$ref": "#/definitions/AddMemberReq"
-//
+//       "$ref": "#/definitions/AddMemberReq"
 // responses:
-//
-//	'200':
-//	  description: AddMemberReply
-//	  schema:
-//	    "$ref": "#/definitions/AddMemberReply"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: AddMemberReply
+//     schema:
+//       "$ref": "#/definitions/AddMemberReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddMember(c echo.Context) error {
 	req := new(aV1.AddMemberReq)
 	err := bindAndValidateReq(c, req)
@@ -1381,18 +1414,16 @@ func (d *DMSController) ListMembersForInternal(c echo.Context) error {
 //     required: true
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/UpdateMemberReq"
-//
+//       "$ref": "#/definitions/UpdateMemberReq"
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateMember(c echo.Context) error {
 	req := new(aV1.UpdateMemberReq)
 	err := bindAndValidateReq(c, req)
@@ -1498,18 +1529,16 @@ func (d *DMSController) GetMemberGroup(c echo.Context) error {
 //     in: body
 //     required: true
 //     schema:
-//     "$ref": "#/definitions/AddMemberGroupReq"
-//
+//       "$ref": "#/definitions/AddMemberGroupReq"
 // responses:
-//
-//	'200':
-//	  description: AddMemberGroupReply
-//	  schema:
-//	    "$ref": "#/definitions/AddMemberGroupReply"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: AddMemberGroupReply
+//     schema:
+//       "$ref": "#/definitions/AddMemberGroupReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddMemberGroup(c echo.Context) error {
 	req := new(aV1.AddMemberGroupReq)
 	err := bindAndValidateReq(c, req)
@@ -1551,18 +1580,16 @@ func (d *DMSController) AddMemberGroup(c echo.Context) error {
 //     required: true
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/UpdateMemberGroupReq"
-//
+//       "$ref": "#/definitions/UpdateMemberGroupReq"
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateMemberGroup(c echo.Context) error {
 	req := new(aV1.UpdateMemberGroupReq)
 	err := bindAndValidateReq(c, req)
@@ -1671,18 +1698,16 @@ func (d *DMSController) ListProjects(c echo.Context) error {
 //     in: body
 //     required: true
 //     schema:
-//     "$ref": "#/definitions/AddProjectReq"
-//
+//       "$ref": "#/definitions/AddProjectReq"
 // responses:
-//
-//	'200':
-//	  description: AddProjectReply
-//	  schema:
-//	    "$ref": "#/definitions/AddProjectReply"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: AddProjectReply
+//     schema:
+//       "$ref": "#/definitions/AddProjectReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddProject(c echo.Context) error {
 	req := new(aV1.AddProjectReq)
 	err := bindAndValidateReq(c, req)
@@ -1743,18 +1768,16 @@ func (a *DMSController) DelProject(c echo.Context) error {
 //     required: true
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/UpdateProjectReq"
-//
+//       "$ref": "#/definitions/UpdateProjectReq"
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (a *DMSController) UpdateProject(c echo.Context) error {
 	req := &aV1.UpdateProjectReq{}
 	err := bindAndValidateReq(c, req)
@@ -1836,18 +1859,16 @@ func (a *DMSController) UnarchiveProject(c echo.Context) error {
 //     in: body
 //     required: true
 //     schema:
-//     "$ref": "#/definitions/ImportProjectsReq"
-//
+//       "$ref": "#/definitions/ImportProjectsReq"
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (a *DMSController) ImportProjects(c echo.Context) error {
 	req := new(aV1.ImportProjectsReq)
 	err := bindAndValidateReq(c, req)
@@ -2069,18 +2090,16 @@ func (a *DMSController) ImportDBServicesOfOneProjectCheck(c echo.Context) error 
 //     in: body
 //     required: true
 //     schema:
-//     "$ref": "#/definitions/ImportDBServicesOfOneProjectReq"
-//
+//       "$ref": "#/definitions/ImportDBServicesOfOneProjectReq"
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (a *DMSController) ImportDBServicesOfOneProject(c echo.Context) error {
 	req := new(aV1.ImportDBServicesOfOneProjectReq)
 	err := bindAndValidateReq(c, req)
@@ -2153,18 +2172,16 @@ func (a *DMSController) ImportDBServicesOfProjectsCheck(c echo.Context) error {
 //     in: body
 //     required: true
 //     schema:
-//     "$ref": "#/definitions/ImportDBServicesOfProjectsReq"
-//
+//       "$ref": "#/definitions/ImportDBServicesOfProjectsReq"
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
 	req := new(aV1.ImportDBServicesOfProjectsReq)
 	err := bindAndValidateReq(c, req)
@@ -2195,18 +2212,16 @@ func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
 //     description: check db_service is connectable
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/DBServiceConnectionReq"
-//
+//       "$ref": "#/definitions/DBServiceConnectionReq"
 // responses:
-//
-//	'200':
-//	  description: DBServicesConnectionReply
-//	  schema:
-//	    "$ref": "#/definitions/DBServicesConnectionReply"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: DBServicesConnectionReply
+//     schema:
+//       "$ref": "#/definitions/DBServicesConnectionReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (a *DMSController) DBServicesConnection(c echo.Context) error {
 	req := new(aV1.DBServiceConnectionReq)
 	err := bindAndValidateReq(c, req)
@@ -2238,18 +2253,16 @@ func (a *DMSController) DBServicesConnection(c echo.Context) error {
 //     required: true
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/RegisterDMSProxyTargetReq"
-//
+//       "$ref": "#/definitions/RegisterDMSProxyTargetReq"
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) RegisterDMSProxyTarget(c echo.Context) error {
 	req := new(dmsV1.RegisterDMSProxyTargetReq)
 	err := bindAndValidateReq(c, req)
@@ -2281,18 +2294,16 @@ func (d *DMSController) RegisterDMSProxyTarget(c echo.Context) error {
 //     required: true
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/RegisterDMSPluginReq"
-//
+//       "$ref": "#/definitions/RegisterDMSPluginReq"
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) RegisterDMSPlugin(c echo.Context) error {
 	req := new(dmsV1.RegisterDMSPluginReq)
 	err := bindAndValidateReq(c, req)
@@ -2339,18 +2350,16 @@ func (d *DMSController) GetOauth2Configuration(c echo.Context) error {
 //     required: true
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/Oauth2ConfigurationReq"
-//
+//       "$ref": "#/definitions/Oauth2ConfigurationReq"
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateOauth2Configuration(c echo.Context) error {
 	req := new(aV1.Oauth2ConfigurationReq)
 	err := bindAndValidateReq(c, req)
@@ -2423,18 +2432,16 @@ func (d *DMSController) Oauth2Callback(c echo.Context) error {
 //     required: true
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/BindOauth2UserReq"
-//
+//       "$ref": "#/definitions/BindOauth2UserReq"
 // responses:
-//
-//	'200':
-//	  description: BindOauth2UserReply
-//	  schema:
-//	    "$ref": "#/definitions/BindOauth2UserReply"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: BindOauth2UserReply
+//     schema:
+//       "$ref": "#/definitions/BindOauth2UserReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) BindOauth2User(c echo.Context) error {
 	req := new(aV1.BindOauth2UserReq)
 	err := bindAndValidateReq(c, req)
@@ -2465,18 +2472,16 @@ func (d *DMSController) BindOauth2User(c echo.Context) error {
 //     required: true
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/UpdateLDAPConfigurationReq"
-//
+//       "$ref": "#/definitions/UpdateLDAPConfigurationReq"
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateLDAPConfiguration(c echo.Context) error {
 	req := new(aV1.UpdateLDAPConfigurationReq)
 	err := bindAndValidateReq(c, req)
@@ -2531,18 +2536,16 @@ func (d *DMSController) GetSMTPConfiguration(c echo.Context) error {
 //     required: true
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/UpdateSMTPConfigurationReq"
-//
+//       "$ref": "#/definitions/UpdateSMTPConfigurationReq"
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateSMTPConfiguration(c echo.Context) error {
 	req := new(aV1.UpdateSMTPConfigurationReq)
 	err := bindAndValidateReq(c, req)
@@ -2567,18 +2570,16 @@ func (d *DMSController) UpdateSMTPConfiguration(c echo.Context) error {
 //     required: true
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/TestSMTPConfigurationReq"
-//
+//       "$ref": "#/definitions/TestSMTPConfigurationReq"
 // responses:
-//
-//	'200':
-//	  description: TestSMTPConfigurationReply
-//	  schema:
-//	    "$ref": "#/definitions/TestSMTPConfigurationReply"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: TestSMTPConfigurationReply
+//     schema:
+//       "$ref": "#/definitions/TestSMTPConfigurationReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) TestSMTPConfiguration(c echo.Context) error {
 	req := new(aV1.TestSMTPConfigurationReq)
 	err := bindAndValidateReq(c, req)
@@ -2617,18 +2618,16 @@ func (d *DMSController) GetWeChatConfiguration(c echo.Context) error {
 //     description: update wechat configuration
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/UpdateWeChatConfigurationReq"
-//
+//       "$ref": "#/definitions/UpdateWeChatConfigurationReq"
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateWeChatConfiguration(c echo.Context) error {
 	req := new(aV1.UpdateWeChatConfigurationReq)
 	err := bindAndValidateReq(c, req)
@@ -2652,18 +2651,16 @@ func (d *DMSController) UpdateWeChatConfiguration(c echo.Context) error {
 //     description: test wechat configuration
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/TestWeChatConfigurationReq"
-//
+//       "$ref": "#/definitions/TestWeChatConfigurationReq"
 // responses:
-//
-//	'200':
-//	  description: TestWeChatConfigurationReply
-//	  schema:
-//	    "$ref": "#/definitions/TestWeChatConfigurationReply"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: TestWeChatConfigurationReply
+//     schema:
+//       "$ref": "#/definitions/TestWeChatConfigurationReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) TestWeChatConfiguration(c echo.Context) error {
 	req := new(aV1.TestWeChatConfigurationReq)
 	err := bindAndValidateReq(c, req)
@@ -2702,18 +2699,16 @@ func (d *DMSController) GetFeishuConfiguration(c echo.Context) error {
 //     description: update feishu configuration
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/UpdateFeishuConfigurationReq"
-//
+//       "$ref": "#/definitions/UpdateFeishuConfigurationReq"
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateFeishuConfiguration(c echo.Context) error {
 	req := new(aV1.UpdateFeishuConfigurationReq)
 	err := bindAndValidateReq(c, req)
@@ -2738,18 +2733,16 @@ func (d *DMSController) UpdateFeishuConfiguration(c echo.Context) error {
 //     required: true
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/TestFeishuConfigurationReq"
-//
+//       "$ref": "#/definitions/TestFeishuConfigurationReq"
 // responses:
-//
-//	'200':
-//	  description: TestFeishuConfigurationReply
-//	  schema:
-//	    "$ref": "#/definitions/TestFeishuConfigurationReply"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: TestFeishuConfigurationReply
+//     schema:
+//       "$ref": "#/definitions/TestFeishuConfigurationReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) TestFeishuConfig(c echo.Context) error {
 	req := new(aV1.TestFeishuConfigurationReq)
 	err := bindAndValidateReq(c, req)
@@ -2788,18 +2781,16 @@ func (d *DMSController) GetWebHookConfiguration(c echo.Context) error {
 //     description: webhook configuration
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/UpdateWebHookConfigurationReq"
-//
+//       "$ref": "#/definitions/UpdateWebHookConfigurationReq"
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateWebHookConfiguration(c echo.Context) error {
 	req := new(aV1.UpdateWebHookConfigurationReq)
 	err := bindAndValidateReq(c, req)
@@ -2860,18 +2851,16 @@ func (d *DMSController) Notify(c echo.Context) error {
 //     required: true
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/WebHookSendMessageReq"
-//
+//       "$ref": "#/definitions/WebHookSendMessageReq"
 // responses:
-//
-//	'200':
-//	  description: WebHookSendMessageReply
-//	  schema:
-//	    "$ref": "#/definitions/WebHookSendMessageReply"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: WebHookSendMessageReply
+//     schema:
+//       "$ref": "#/definitions/WebHookSendMessageReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) WebHookSendMessage(c echo.Context) error {
 	req := new(dmsV1.WebHookSendMessageReq)
 	err := bindAndValidateReq(c, req)
@@ -2916,18 +2905,16 @@ func (d *DMSController) GetCompanyNotice(c echo.Context) error {
 //     required: true
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/UpdateCompanyNoticeReq"
-//
+//       "$ref": "#/definitions/UpdateCompanyNoticeReq"
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateCompanyNotice(c echo.Context) error {
 	req := new(aV1.UpdateCompanyNoticeReq)
 	err := bindAndValidateReq(c, req)
@@ -3086,18 +3073,16 @@ func ReadFileContent(c echo.Context, name string) (content string, fileExist boo
 //     description: add data export workflow
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/AddDataExportWorkflowReq"
-//
+//       "$ref": "#/definitions/AddDataExportWorkflowReq"
 // responses:
-//
-//	'200':
-//	  description: AddDataExportWorkflowReply
-//	  schema:
-//	    "$ref": "#/definitions/AddDataExportWorkflowReply"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: AddDataExportWorkflowReply
+//     schema:
+//       "$ref": "#/definitions/AddDataExportWorkflowReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddDataExportWorkflow(c echo.Context) error {
 	req := new(aV1.AddDataExportWorkflowReq)
 	err := bindAndValidateReq(c, req)
@@ -3163,18 +3148,16 @@ func (d *DMSController) ApproveDataExportWorkflow(c echo.Context) error {
 //     required: true
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/RejectDataExportWorkflowReq"
-//
+//       "$ref": "#/definitions/RejectDataExportWorkflowReq"
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) RejectDataExportWorkflow(c echo.Context) error {
 	req := &aV1.RejectDataExportWorkflowReq{}
 	err := bindAndValidateReq(c, req)
@@ -3259,18 +3242,16 @@ func (d *DMSController) GetDataExportWorkflow(c echo.Context) error {
 //     required: true
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/CancelDataExportWorkflowReq"
-//
+//       "$ref": "#/definitions/CancelDataExportWorkflowReq"
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) CancelDataExportWorkflow(c echo.Context) error {
 	req := &aV1.CancelDataExportWorkflowReq{}
 	err := bindAndValidateReq(c, req)
@@ -3331,18 +3312,16 @@ func (d *DMSController) ExportDataExportWorkflow(c echo.Context) error {
 //     description: add data export workflow
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/AddDataExportTaskReq"
-//
+//       "$ref": "#/definitions/AddDataExportTaskReq"
 // responses:
-//
-//	'200':
-//	  description: AddDataExportTaskReply
-//	  schema:
-//	    "$ref": "#/definitions/AddDataExportTaskReply"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: AddDataExportTaskReply
+//     schema:
+//       "$ref": "#/definitions/AddDataExportTaskReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddDataExportTask(c echo.Context) error {
 	req := new(aV1.AddDataExportTaskReq)
 	err := bindAndValidateReq(c, req)
