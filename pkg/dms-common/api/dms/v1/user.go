@@ -92,9 +92,13 @@ type GetUserOpPermissionReq struct {
 	// user uid
 	// in:path
 	UserUid string `param:"user_uid" json:"user_uid" validate:"required"`
+
+	// in:query
+	// uesr project uid
+	ProjectUid string `json:"project_uid" query:"project_uid"`
 	// user op permission info
 	// in:body
-	UserOpPermission *UserOpPermission `json:"user_op_permission" validate:"required"`
+	UserOpPermission *UserOpPermission `json:"user_op_permission" `
 }
 
 type UserOpPermission struct {

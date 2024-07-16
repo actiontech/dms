@@ -374,12 +374,18 @@ func (d *DMSService) ListUserGroups(ctx context.Context, req *dmsV1.ListUserGrou
 }
 
 func (d *DMSService) GetUserOpPermission(ctx context.Context, req *dmsCommonV1.GetUserOpPermissionReq) (reply *dmsCommonV1.GetUserOpPermissionReply, err error) {
-	isAdmin, err := d.OpPermissionVerifyUsecase.IsUserProjectAdmin(ctx, req.UserUid, req.UserOpPermission.ProjectUid)
+	// 兼容新旧版本获取项目ID方式
+	projectUid := req.ProjectUid
+	if projectUid == "" {
+		projectUid = req.UserOpPermission.ProjectUid
+	}
+
+	isAdmin, err := d.OpPermissionVerifyUsecase.IsUserProjectAdmin(ctx, req.UserUid, projectUid)
 	if err != nil {
 		return nil, fmt.Errorf("check user admin error: %v", err)
 	}
 
-	permissions, err := d.OpPermissionVerifyUsecase.GetUserOpPermissionInProject(ctx, req.UserUid, req.UserOpPermission.ProjectUid)
+	permissions, err := d.OpPermissionVerifyUsecase.GetUserOpPermissionInProject(ctx, req.UserUid, projectUid)
 	if err != nil {
 		return nil, fmt.Errorf("get user op permission error: %v", err)
 	}
