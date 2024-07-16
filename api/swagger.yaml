@@ -2497,6 +2497,15 @@ definitions:
                 x-go-name: UnfinishedWorkflowNum
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListGlobalDBServiceTips:
+        properties:
+            db_type:
+                items:
+                    type: string
+                type: array
+                x-go-name: DBType
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListGlobalDBServicesReply:
         properties:
             code:
@@ -2518,6 +2527,21 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Total
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListGlobalDBServicesTipsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/ListGlobalDBServiceTips'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMaskingRulesData:
@@ -5009,6 +5033,21 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: List db service driver option.
+            tags:
+                - DBService
+    /v1/dms/db_services/tips:
+        get:
+            description: list global DBServices tips
+            operationId: ListGlobalDBServicesTips
+            responses:
+                "200":
+                    description: ListGlobalDBServicesTipsReply
+                    schema:
+                        $ref: '#/definitions/ListGlobalDBServicesTipsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
             tags:
                 - DBService
     /v1/dms/masking/rules:

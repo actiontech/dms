@@ -22,3 +22,7 @@ func (d *DMSService) importDBServicesOfOneProject(ctx context.Context, req *dmsV
 func (d *DMSService) listGlobalDBServices(ctx context.Context, req *dmsV1.ListGlobalDBServicesReq, currentUserUid string) (reply *dmsV1.ListGlobalDBServicesReply, err error) {
 	return nil, errNotSupportGlobalDBServices
 }
+
+func (d *DMSService) listGlobalDBServicesTips(ctx context.Context, currentUserUid string) (reply *dmsV1.ListGlobalDBServicesTipsReply, err error) {
+	return nil, errNotSupportGlobalDBServices
+}

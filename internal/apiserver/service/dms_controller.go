@@ -196,6 +196,25 @@ func (d *DMSController) ListGlobalDBServices(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
+// swagger:route GET /v1/dms/db_services/tips DBService ListGlobalDBServicesTips
+//
+// list global DBServices tips
+//
+//	responses:
+//	  200: body:ListGlobalDBServicesTipsReply
+//	  default: body:GenericResp
+func (d *DMSController) ListGlobalDBServicesTips(c echo.Context) error {
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	reply, err := d.DMS.ListGlobalDBServicesTips(c.Request().Context(), currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
 // swagger:route DELETE /v1/dms/projects/{project_uid}/db_services/{db_service_uid} DBService DelDBService
 //
 // Delete a DB Service.
