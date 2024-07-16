@@ -112,7 +112,7 @@ func (d *DMSService) AddDBServiceSyncTask(ctx context.Context, req *v1.AddDBServ
 
 	uid, err := d.DBServiceSyncTaskUsecase.AddDBServiceSyncTask(ctx, databaseSourceParams, currentUserId)
 	if err != nil {
-		return nil, fmt.Errorf("create database_source_service failed: %w", err)
+		return nil, fmt.Errorf("create db_service_sync_task failed: %w", err)
 	}
 
 	return &v1.AddDBServiceSyncTaskReply{
@@ -159,7 +159,7 @@ func (d *DMSService) UpdateDBServiceSyncTask(ctx context.Context, req *v1.Update
 
 	err := d.DBServiceSyncTaskUsecase.UpdateDBServiceSyncTask(ctx, req.DBServiceSyncTaskUid, databaseSourceParams, currentUserId)
 	if err != nil {
-		return fmt.Errorf("update database_source_service failed: %w", err)
+		return fmt.Errorf("update db_service_sync_task failed: %w", err)
 	}
 
 	return nil
@@ -168,7 +168,7 @@ func (d *DMSService) UpdateDBServiceSyncTask(ctx context.Context, req *v1.Update
 func (d *DMSService) DeleteDBServiceSyncTask(ctx context.Context, req *v1.DeleteDBServiceSyncTaskReq, currentUserId string) (err error) {
 	err = d.DBServiceSyncTaskUsecase.DeleteDBServiceSyncTask(ctx, req.DBServiceSyncTaskUid, currentUserId)
 	if err != nil {
-		return fmt.Errorf("delete database_source_service failed: %w", err)
+		return fmt.Errorf("delete db_service_sync_task failed: %w", err)
 	}
 
 	return nil
@@ -177,7 +177,7 @@ func (d *DMSService) DeleteDBServiceSyncTask(ctx context.Context, req *v1.Delete
 func (d *DMSService) ListDBServiceSyncTaskTips(ctx context.Context) (*v1.ListDBServiceSyncTaskTipsReply, error) {
 	sources, err := d.DBServiceSyncTaskUsecase.ListDBServiceSyncTaskTips(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("list database_source_service tips failed: %w", err)
+		return nil, fmt.Errorf("list db_service_sync_task tips failed: %w", err)
 	}
 
 	ret := make([]*v1.DatabaseSource, 0, len(sources))
@@ -201,8 +201,8 @@ func (d *DMSService) ListDBServiceSyncTaskTips(ctx context.Context) (*v1.ListDBS
 func (d *DMSService) SyncDBServices(ctx context.Context, req *v1.SyncDBServicesReq, currentUserId string) (err error) {
 	err = d.DBServiceSyncTaskUsecase.SyncDBServices(ctx, req.DBServiceSyncTaskUid, currentUserId)
 	if err != nil {
-		d.log.Errorf("sync database_source_service failed: %w", err)
-		return fmt.Errorf("sync database_source_service failed")
+		d.log.Errorf("sync db_service_sync_task failed: %w", err)
+		return fmt.Errorf("sync db_service_sync_task failed")
 	}
 
 	return nil

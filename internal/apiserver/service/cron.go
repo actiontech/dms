@@ -10,7 +10,7 @@ import (
 var cronManagerMap = map[string]cronImpl{}
 
 const (
-	DBServiceSyncTask = "database_source_service"
+	DBServiceSyncTask = "db_service_sync_task"
 )
 
 type cronImpl interface {

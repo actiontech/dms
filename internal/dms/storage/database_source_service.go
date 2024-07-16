@@ -20,7 +20,7 @@ type DBServiceSyncTaskRepo struct {
 }
 
 func NewDBServiceSyncTaskRepo(log utilLog.Logger, s *Storage) *DBServiceSyncTaskRepo {
-	return &DBServiceSyncTaskRepo{Storage: s, log: utilLog.NewHelper(log, utilLog.WithMessageKey("storage.database_source_service"))}
+	return &DBServiceSyncTaskRepo{Storage: s, log: utilLog.NewHelper(log, utilLog.WithMessageKey("storage.db_service_sync_task"))}
 }
 
 func (d *DBServiceSyncTaskRepo) ListDBServiceSyncTasks(ctx context.Context, conditions []pkgConst.FilterCondition) ([]*biz.DBServiceSyncTaskParams, error) {
@@ -33,7 +33,7 @@ func (d *DBServiceSyncTaskRepo) ListDBServiceSyncTasks(ctx context.Context, cond
 		}
 
 		if err := db.Find(&items).Error; err != nil {
-			return fmt.Errorf("failed to list database_source_service: %v", err)
+			return fmt.Errorf("failed to list db_service_sync_task: %v", err)
 		}
 
 		return nil
@@ -46,7 +46,7 @@ func (d *DBServiceSyncTaskRepo) ListDBServiceSyncTasks(ctx context.Context, cond
 	for _, item := range items {
 		ds, err := convertModelDBServiceSyncTask(item)
 		if err != nil {
-			return nil, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert database_source_service: %w", err))
+			return nil, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert db_service_sync_task: %w", err))
 		}
 		ret = append(ret, ds)
 	}
@@ -57,7 +57,7 @@ func (d *DBServiceSyncTaskRepo) ListDBServiceSyncTasks(ctx context.Context, cond
 func (d *DBServiceSyncTaskRepo) SaveDBServiceSyncTask(ctx context.Context, params *biz.DBServiceSyncTaskParams) error {
 	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Create(convertBizDBServiceSyncTask(params)).Error; err != nil {
-			return fmt.Errorf("failed to save database_source_service: %v", err)
+			return fmt.Errorf("failed to save db_service_sync_task: %v", err)
 		}
 
 		return nil
@@ -67,7 +67,7 @@ func (d *DBServiceSyncTaskRepo) SaveDBServiceSyncTask(ctx context.Context, param
 func (d *DBServiceSyncTaskRepo) UpdateDBServiceSyncTask(ctx context.Context, params *biz.DBServiceSyncTaskParams) error {
 	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Omit("created_at").Save(convertBizDBServiceSyncTask(params)).Error; err != nil {
-			return fmt.Errorf("failed to update database_source_service: %v", err)
+			return fmt.Errorf("failed to update db_service_sync_task: %v", err)
 		}
 
 		return nil
@@ -77,7 +77,7 @@ func (d *DBServiceSyncTaskRepo) UpdateDBServiceSyncTask(ctx context.Context, par
 func (d *DBServiceSyncTaskRepo) UpdateSyncDBServices(ctx context.Context, dbServiceSyncTaskUid string, fields map[string]interface{}) error {
 	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Model(&model.DBServiceSyncTask{}).Where("uid = ?", dbServiceSyncTaskUid).Updates(fields).Error; err != nil {
-			return fmt.Errorf("failed to update database_source_service: %v", err)
+			return fmt.Errorf("failed to update db_service_sync_task: %v", err)
 		}
 
 		return nil
@@ -87,7 +87,7 @@ func (d *DBServiceSyncTaskRepo) UpdateSyncDBServices(ctx context.Context, dbServ
 func (d *DBServiceSyncTaskRepo) DeleteDBServiceSyncTask(ctx context.Context, dbServiceSyncTaskUid string) error {
 	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Where("uid = ?", dbServiceSyncTaskUid).Delete(&model.DBServiceSyncTask{}).Error; err != nil {
-			return pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to delete database_source_service: %v", err))
+			return pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to delete db_service_sync_task: %v", err))
 		}
 		return nil
 	})
@@ -97,7 +97,7 @@ func (d *DBServiceSyncTaskRepo) GetDBServiceSyncTaskById(ctx context.Context, id
 	var dbServiceSyncTask *model.DBServiceSyncTask
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		if err := tx.First(&dbServiceSyncTask, "uid = ?", id).Error; err != nil {
-			return fmt.Errorf("failed to get database_source_service: %v", err)
+			return fmt.Errorf("failed to get db_service_sync_task: %v", err)
 		}
 		return nil
 	}); err != nil {
@@ -106,7 +106,7 @@ func (d *DBServiceSyncTaskRepo) GetDBServiceSyncTaskById(ctx context.Context, id
 
 	ret, err := convertModelDBServiceSyncTask(dbServiceSyncTask)
 	if err != nil {
-		return nil, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert model database_source_service: %w", err))
+		return nil, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert model db_service_sync_task: %w", err))
 	}
 
 	return ret, nil

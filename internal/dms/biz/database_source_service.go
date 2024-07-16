@@ -31,7 +31,7 @@ type DBServiceSyncTaskUsecase struct {
 
 func NewDBServiceSyncTaskUsecase(log utilLog.Logger, repo DBServiceSyncTaskRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, dbServiceUsecase *DBServiceUsecase) *DBServiceSyncTaskUsecase {
 	return &DBServiceSyncTaskUsecase{
-		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.database_source_service")),
+		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.db_service_sync_task")),
 		repo:                      repo,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 		projectUsecase:            projectUsecase,

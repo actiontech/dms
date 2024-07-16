@@ -355,7 +355,7 @@ func (d *DMSController) CheckDBServiceIsConnectableById(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services DBServiceSyncTask ListDBServiceSyncTasks
+// swagger:route GET /v1/dms/projects/{project_uid}/db_service_sync_tasks DBServiceSyncTask ListDBServiceSyncTasks
 //
 // List database source service.
 //
@@ -380,7 +380,7 @@ func (d *DMSController) ListDBServiceSyncTasks(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} DBServiceSyncTask GetDBServiceSyncTask
+// swagger:route GET /v1/dms/projects/{project_uid}/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask GetDBServiceSyncTask
 //
 // Get database source service.
 //
@@ -405,7 +405,7 @@ func (d *DMSController) GetDBServiceSyncTask(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:operation POST /v1/dms/projects/{project_uid}/database_source_services DBServiceSyncTask AddDBServiceSyncTask
+// swagger:operation POST /v1/dms/projects/{project_uid}/db_service_sync_tasks DBServiceSyncTask AddDBServiceSyncTask
 //
 // Add database source service.
 //
@@ -416,7 +416,7 @@ func (d *DMSController) GetDBServiceSyncTask(c echo.Context) error {
 //     in: path
 //     required: true
 //     type: string
-//   - name: database_source_service
+//   - name: db_service_sync_task
 //     in: body
 //     description: add database source service
 //     schema:
@@ -452,7 +452,7 @@ func (d *DMSController) AddDBServiceSyncTask(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:operation PUT /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} DBServiceSyncTask UpdateDBServiceSyncTask
+// swagger:operation PUT /v1/dms/projects/{project_uid}/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask UpdateDBServiceSyncTask
 //
 // update database source service.
 //
@@ -463,11 +463,11 @@ func (d *DMSController) AddDBServiceSyncTask(c echo.Context) error {
 //     in: path
 //     required: true
 //     type: string
-//   - name: database_source_service_uid
+//   - name: db_service_sync_task_uid
 //     in: path
 //     required: true
 //     type: string
-//   - name: database_source_service
+//   - name: db_service_sync_task
 //     description: update database source service
 //     in: body
 //     schema:
@@ -501,7 +501,7 @@ func (d *DMSController) UpdateDBServiceSyncTask(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route DELETE /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid} DBServiceSyncTask DeleteDBServiceSyncTask
+// swagger:route DELETE /v1/dms/projects/{project_uid}/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask DeleteDBServiceSyncTask
 //
 // Delete database source service.
 //
@@ -526,7 +526,7 @@ func (d *DMSController) DeleteDBServiceSyncTask(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/database_source_services/tips DBServiceSyncTask ListDBServiceSyncTaskTips
+// swagger:route GET /v1/dms/projects/{project_uid}/db_service_sync_tasks/tips DBServiceSyncTask ListDBServiceSyncTaskTips
 //
 // List database source service tips.
 //
@@ -541,7 +541,7 @@ func (d *DMSController) ListDBServiceSyncTaskTips(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:operation POST /v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid}/sync DBServiceSyncTask SyncDBServices
+// swagger:operation POST /v1/dms/projects/{project_uid}/db_service_sync_tasks/{db_service_sync_task_uid}/sync DBServiceSyncTask SyncDBServices
 //
 // Sync database source service.
 //
@@ -552,7 +552,7 @@ func (d *DMSController) ListDBServiceSyncTaskTips(c echo.Context) error {
 //     in: path
 //     required: true
 //     type: string
-//   - name: database_source_service_uid
+//   - name: db_service_sync_task_uid
 //     in: path
 //     required: true
 //     type: string

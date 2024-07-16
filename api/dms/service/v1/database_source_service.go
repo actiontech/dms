@@ -27,7 +27,7 @@ type ListDBServiceSyncTasksReply struct {
 type GetDBServiceSyncTaskReq struct {
 	// Required: true
 	// in:path
-	DBServiceSyncTaskUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
+	DBServiceSyncTaskUid string `param:"db_service_sync_task_uid" json:"db_service_sync_task_uid" validate:"required"`
 	// project id
 	// Required: true
 	// in:path
@@ -91,7 +91,7 @@ type DBServiceSyncTask struct {
 type AddDBServiceSyncTaskReq struct {
 	// swagger:ignore
 	ProjectUid        string            `param:"project_uid" json:"project_uid" validate:"required"`
-	DBServiceSyncTask DBServiceSyncTask `json:"database_source_service"`
+	DBServiceSyncTask DBServiceSyncTask `json:"db_service_sync_task"`
 }
 
 // swagger:model AddDBServiceSyncTaskReply
@@ -111,8 +111,8 @@ type UpdateDBServiceSyncTaskReq struct {
 	// swagger:ignore
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// swagger:ignore
-	DBServiceSyncTaskUid string            `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
-	DBServiceSyncTask    DBServiceSyncTask `json:"database_source_service" validate:"required"`
+	DBServiceSyncTaskUid string            `param:"db_service_sync_task_uid" json:"db_service_sync_task_uid" validate:"required"`
+	DBServiceSyncTask    DBServiceSyncTask `json:"db_service_sync_task" validate:"required"`
 }
 
 // swagger:parameters DeleteDBServiceSyncTask
@@ -123,7 +123,7 @@ type DeleteDBServiceSyncTaskReq struct {
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// Required: true
 	// in:path
-	DBServiceSyncTaskUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
+	DBServiceSyncTaskUid string `param:"db_service_sync_task_uid" json:"db_service_sync_task_uid" validate:"required"`
 }
 
 type DatabaseSource struct {
@@ -154,5 +154,5 @@ type ListDBServiceSyncTaskTipsReq struct {
 // swagger:model
 type SyncDBServicesReq struct {
 	ProjectUid           string `param:"project_uid" json:"project_uid" validate:"required"`
-	DBServiceSyncTaskUid string `param:"database_source_service_uid" json:"database_source_service_uid" validate:"required"`
+	DBServiceSyncTaskUid string `param:"db_service_sync_task_uid" json:"db_service_sync_task_uid" validate:"required"`
 }
