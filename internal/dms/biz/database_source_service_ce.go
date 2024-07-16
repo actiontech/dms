@@ -15,7 +15,7 @@ func (d *DBServiceSyncTaskUsecase) ListDBServiceSyncTasks(ctx context.Context, c
 	return nil, errNotDBServiceSyncTask
 }
 
-func (d *DBServiceSyncTaskUsecase) GetDBServiceSyncTask(ctx context.Context, databaseSourceServiceId, projectId, currentUserId string) (*DBServiceSyncTaskParams, error) {
+func (d *DBServiceSyncTaskUsecase) GetDBServiceSyncTask(ctx context.Context, dbServiceTaskId, projectId, currentUserId string) (*DBServiceSyncTaskParams, error) {
 	return nil, errNotDBServiceSyncTask
 }
 
@@ -23,11 +23,11 @@ func (d *DBServiceSyncTaskUsecase) AddDBServiceSyncTask(ctx context.Context, par
 	return "", errNotDBServiceSyncTask
 }
 
-func (d *DBServiceSyncTaskUsecase) UpdateDBServiceSyncTask(ctx context.Context, databaseSourceServiceId string, params *DBServiceSyncTaskParams, currentUserId string) error {
+func (d *DBServiceSyncTaskUsecase) UpdateDBServiceSyncTask(ctx context.Context, dbServiceTaskId string, params *DBServiceSyncTaskParams, currentUserId string) error {
 	return errNotDBServiceSyncTask
 }
 
-func (d *DBServiceSyncTaskUsecase) DeleteDBServiceSyncTask(ctx context.Context, databaseSourceServiceId, currentUserId string) error {
+func (d *DBServiceSyncTaskUsecase) DeleteDBServiceSyncTask(ctx context.Context, dbServiceTaskId, currentUserId string) error {
 	return errNotDBServiceSyncTask
 }
 
@@ -35,7 +35,7 @@ func (d *DBServiceSyncTaskUsecase) ListDBServiceSyncTaskTips(ctx context.Context
 	return nil, errNotDBServiceSyncTask
 }
 
-func (d *DBServiceSyncTaskUsecase) SyncDBServices(ctx context.Context, databaseSourceServiceId, currentUserId string) error {
+func (d *DBServiceSyncTaskUsecase) SyncDBServices(ctx context.Context, dbServiceTaskId, currentUserId string) error {
 	return errNotDBServiceSyncTask
 }
 

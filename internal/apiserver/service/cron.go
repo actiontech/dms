@@ -21,7 +21,7 @@ type cronImpl interface {
 func init() {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	cronManagerMap[DBServiceSyncTask] = &databaseSourceServiceCronManager{
+	cronManagerMap[DBServiceSyncTask] = &dbServiceTaskCronManager{
 		ctx:    ctx,
 		cancel: cancel,
 	}
@@ -41,13 +41,13 @@ func StopAllCronJob() {
 
 const CronManager = "dms.cronmanager"
 
-type databaseSourceServiceCronManager struct {
+type dbServiceTaskCronManager struct {
 	apiServer *APIServer
 	ctx       context.Context
 	cancel    context.CancelFunc
 }
 
-func (c *databaseSourceServiceCronManager) start(server *APIServer, groupCtx context.Context) {
+func (c *dbServiceTaskCronManager) start(server *APIServer, groupCtx context.Context) {
 	c.apiServer = server
 
 	go func() {
@@ -81,6 +81,6 @@ func (c *databaseSourceServiceCronManager) start(server *APIServer, groupCtx con
 	}()
 }
 
-func (c *databaseSourceServiceCronManager) stop() {
+func (c *dbServiceTaskCronManager) stop() {
 	c.cancel()
 }
