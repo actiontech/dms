@@ -2436,12 +2436,6 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListGlobalDBService:
         properties:
-            additional_params:
-                description: DB Service Custom connection parameters
-                items:
-                    $ref: '#/definitions/AdditionalParam'
-                type: array
-                x-go-name: AdditionalParams
             business:
                 description: the db service business name
                 type: string
@@ -2458,6 +2452,10 @@ definitions:
                 description: db service host
                 type: string
                 x-go-name: Host
+            is_enable_audit:
+                description: is enable audit
+                type: boolean
+                x-go-name: IsEnableAudit
             is_enable_masking:
                 description: is enable masking
                 type: boolean
@@ -2472,10 +2470,6 @@ definitions:
                 description: db service name
                 type: string
                 x-go-name: Name
-            password:
-                description: db service admin encrypted password
-                type: string
-                x-go-name: Password
             port:
                 description: db service port
                 type: string
@@ -2492,8 +2486,6 @@ definitions:
                 description: DB source
                 type: string
                 x-go-name: Source
-            sqle_config:
-                $ref: '#/definitions/SQLEConfig'
             uid:
                 description: db service uid
                 type: string
@@ -2503,10 +2495,6 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: UnfinishedWorkflowNum
-            user:
-                description: db service admin user
-                type: string
-                x-go-name: User
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListGlobalDBServicesReply:
@@ -4987,16 +4975,16 @@ paths:
                   name: filter_by_project_uid
                   type: string
                   x-go-name: FilterByProjectUid
+                - description: is masking
+                  in: query
+                  name: filter_by_is_enable_masking
+                  type: boolean
+                  x-go-name: FilterByIsEnableMasking
                 - description: the db service fuzzy keyword
                   in: query
                   name: fuzzy_keyword
                   type: string
                   x-go-name: FuzzyKeyword
-                - description: is masking
-                  in: query
-                  name: is_enable_masking
-                  type: boolean
-                  x-go-name: IsEnableMasking
             responses:
                 "200":
                     description: ListGlobalDBServicesReply
