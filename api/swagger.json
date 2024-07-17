@@ -789,17 +789,17 @@
             "in": "query"
           },
           {
+            "type": "boolean",
+            "x-go-name": "FilterByIsEnableMasking",
+            "description": "is masking",
+            "name": "filter_by_is_enable_masking",
+            "in": "query"
+          },
+          {
             "type": "string",
             "x-go-name": "FuzzyKeyword",
             "description": "the db service fuzzy keyword",
             "name": "fuzzy_keyword",
-            "in": "query"
-          },
-          {
-            "type": "boolean",
-            "x-go-name": "IsEnableMasking",
-            "description": "is masking",
-            "name": "is_enable_masking",
             "in": "query"
           }
         ],
@@ -831,6 +831,29 @@
             "description": "ListDBServiceDriverOptionReply",
             "schema": {
               "$ref": "#/definitions/ListDBServiceDriverOptionReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/db_services/tips": {
+      "get": {
+        "description": "list global DBServices tips",
+        "tags": [
+          "DBService"
+        ],
+        "operationId": "ListGlobalDBServicesTips",
+        "responses": {
+          "200": {
+            "description": "ListGlobalDBServicesTipsReply",
+            "schema": {
+              "$ref": "#/definitions/ListGlobalDBServicesTipsReply"
             }
           },
           "default": {
@@ -7611,14 +7634,6 @@
     "ListGlobalDBService": {
       "type": "object",
       "properties": {
-        "additional_params": {
-          "description": "DB Service Custom connection parameters",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/AdditionalParam"
-          },
-          "x-go-name": "AdditionalParams"
-        },
         "business": {
           "description": "the db service business name",
           "type": "string",
@@ -7639,6 +7654,11 @@
           "type": "string",
           "x-go-name": "Host"
         },
+        "is_enable_audit": {
+          "description": "is enable audit",
+          "type": "boolean",
+          "x-go-name": "IsEnableAudit"
+        },
         "is_enable_masking": {
           "description": "is enable masking",
           "type": "boolean",
@@ -7656,11 +7676,6 @@
           "description": "db service name",
           "type": "string",
           "x-go-name": "Name"
-        },
-        "password": {
-          "description": "db service admin encrypted password",
-          "type": "string",
-          "x-go-name": "Password"
         },
         "port": {
           "description": "db service port",
@@ -7682,9 +7697,6 @@
           "type": "string",
           "x-go-name": "Source"
         },
-        "sqle_config": {
-          "$ref": "#/definitions/SQLEConfig"
-        },
         "uid": {
           "description": "db service uid",
           "type": "string",
@@ -7695,11 +7707,19 @@
           "type": "integer",
           "format": "int64",
           "x-go-name": "UnfinishedWorkflowNum"
-        },
-        "user": {
-          "description": "db service admin user",
-          "type": "string",
-          "x-go-name": "User"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListGlobalDBServiceTips": {
+      "type": "object",
+      "properties": {
+        "db_type": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "DBType"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -7730,6 +7750,26 @@
           "type": "integer",
           "format": "int64",
           "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListGlobalDBServicesTipsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/ListGlobalDBServiceTips"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"

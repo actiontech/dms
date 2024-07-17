@@ -344,12 +344,12 @@ type ListGlobalDBServicesReq struct {
 	// the db service project id
 	// in:query
 	FilterByProjectUid string `query:"filter_by_project_uid" json:"filter_by_project_uid"`
+	// is masking
+	// in:query
+	FilterByIsEnableMasking *bool `query:"filter_by_is_enable_masking" json:"filter_by_is_enable_masking"`
 	// the db service fuzzy keyword
 	// in:query
 	FuzzyKeyword string `query:"fuzzy_keyword" json:"fuzzy_keyword"`
-	// is masking
-	// in:query
-	IsEnableMasking *bool `query:"is_enable_masking" json:"is_enable_masking"`
 }
 
 // swagger:model ListGlobalDBServicesReply
@@ -363,9 +363,45 @@ type ListGlobalDBServicesReply struct {
 }
 
 type ListGlobalDBService struct {
-	dmsCommonV1.ListDBService
+	// db service uid
+	DBServiceUid string `json:"uid"`
+	// db service name
+	Name string `json:"name"`
+	// db service DB type
+	DBType string `json:"db_type"`
+	// db service host
+	Host string `json:"host"`
+	// db service port
+	Port string `json:"port"`
+	// the db service business name
+	Business string `json:"business"`
+	// DB Service maintenance time
+	MaintenanceTimes []*dmsCommonV1.MaintenanceTime `json:"maintenance_times"`
+	// DB desc
+	Desc string `json:"desc"`
+	// DB source
+	Source string `json:"source"`
+	// DB project uid
+	ProjectUID string `json:"project_uid"`
 	// db service project_name
 	ProjectName string `json:"project_name"`
+	// is enable audit
+	IsEnableAudit bool `json:"is_enable_audit"`
+	// is enable masking
+	IsEnableMasking bool `json:"is_enable_masking"`
 	// db service unfinished workflow num
 	UnfinishedWorkflowNum int64 `json:"unfinished_workflow_num"`
+}
+
+// swagger:model ListGlobalDBServicesTipsReply
+type ListGlobalDBServicesTipsReply struct {
+	// List global db service tips reply
+	Data *ListGlobalDBServiceTips `json:"data"`
+
+	// Generic reply
+	base.GenericResp
+}
+
+type ListGlobalDBServiceTips struct {
+	DBType []string `json:"db_type"`
 }
