@@ -288,3 +288,12 @@ WHERE project_uid = ?;
 
 	return businessList, nil
 }
+
+func (d *DBServiceRepo) GetFieldDistinctValue(ctx context.Context, field biz.DBServiceField, results interface{}) error {
+	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Model(&model.DBService{}).Select(string(field)).Group(string(field)).Find(results).Error; err != nil {
+			return fmt.Errorf("DBServiceRepo failed to GroupByField: %v", err)
+		}
+		return nil
+	})
+}

@@ -125,6 +125,7 @@ type DBServiceRepo interface {
 	UpdateDBService(ctx context.Context, dbService *DBService) error
 	CountDBService(ctx context.Context) ([]DBTypeCount, error)
 	GetBusinessByProjectUID(ctx context.Context, projectUid string) ([]string, error)
+	GetFieldDistinctValue(ctx context.Context, field DBServiceField, results interface{}) error
 }
 
 type DBServiceUsecase struct {
