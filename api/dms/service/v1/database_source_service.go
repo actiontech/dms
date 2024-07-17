@@ -55,10 +55,6 @@ type DBServiceSyncTask struct {
 	// Required: true
 	// example: actiontech-dmp
 	Source string `json:"source" validate:"required"`
-	// version
-	// Required: true
-	// example: 5.23.01.0
-	Version string `json:"version" validate:"required"`
 	// addr
 	// Required: true
 	// example: http://10.186.62.56:10000
@@ -71,8 +67,44 @@ type DBServiceSyncTask struct {
 	// Required: true
 	// example: 0 0 * * *
 	CronExpress string `json:"cron_express" validate:"required"`
+	// additional params
+	// Required: false
+	AdditionalParam pkgParams.Params `json:"additional_params"`
+	// db service default config
+	// Required: false
+	DBServiceDefaultConfig DBServiceDefaultConfig `json:"db_service_default_config"`
+}
+
+type DBServiceDefaultConfig struct {
+	// Service name
+	// Required: false
+	Name string `json:"name" validate:"required"`
+	// DB Service port
+	// Required: false
+	Port string `json:"port" validate:"required"`
+	// DB Service admin user
+	// Required: false
+	User string `json:"user" validate:"required"`
+	// DB Service admin password
+	// Required: false
+	Password string `json:"password" validate:"required"`
+	// DB Service business name
+	// Required: false
+	Business string `json:"business" validate:"required"`
+	// DB Service maintenance time
+	// empty value means that maintenance time is unlimited
+	// Required: false
+	MaintenanceTimes []*dmsCommonV1.MaintenanceTime `json:"maintenance_times"`
+	// DB Service Custom connection parameters
+	// Required: false
+	AdditionalParams []*dmsCommonV1.AdditionalParam `json:"additional_params"`
+	// Service description
+	Desc string `json:"desc"`
 	// SQLE config
 	SQLEConfig *dmsCommonV1.SQLEConfig `json:"sqle_config"`
+	// data masking switch
+	// Required: false
+	IsEnableMasking bool `json:"is_enable_masking"`
 }
 
 // swagger:parameters AddDBServiceSyncTask
