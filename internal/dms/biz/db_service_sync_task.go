@@ -40,17 +40,16 @@ func NewDBServiceSyncTaskUsecase(log utilLog.Logger, repo DBServiceSyncTaskRepo,
 }
 
 type DBServiceSyncTaskParams struct {
-	UID                 string     `json:"uid"`
-	Name                string     `json:"name"`
-	Source              string     `json:"source"`
-	Version             string     `json:"version"`
-	URL                 string     `json:"url"`
-	DbType              string     `json:"db_type"`
-	CronExpress         string     `json:"cron_express"`
-	LastSyncErr         string     `json:"last_sync_err"`
-	LastSyncSuccessTime *time.Time `json:"last_sync_success_time"`
-	AdditionalParams    pkgParams.Params
-	SQLEConfig          *SQLEConfig
+	UID                    string            `json:"uid"`
+	Name                   string            `json:"name"`
+	Source                 string            `json:"source"`
+	URL                    string            `json:"url"`
+	DbType                 string            `json:"db_type"`
+	CronExpress            string            `json:"cron_express"`
+	LastSyncErr            string            `json:"last_sync_err"`
+	LastSyncSuccessTime    *time.Time        `json:"last_sync_success_time"`
+	AdditionalParams       pkgParams.Params  `json:"additional_params"`
+	DBServiceDefaultConfig *BizDBServiceArgs `json:"db_service_args"`
 }
 
 type ListDBServiceSyncTaskTipsParams struct {
