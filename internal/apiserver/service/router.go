@@ -58,12 +58,12 @@ func (s *APIServer) initRouter() error {
 		dbServiceSyncTaskV1.POST("/:db_service_sync_task_uid/sync", s.DMSController.SyncDBServices)
 
 		DatabaseSourceServiceV1 := v1.Group("/dms/projects/:project_uid/database_source_services")
-		DatabaseSourceServiceV1.GET("/tips", DeprecatedBy(dmsV1.GroupV1))
-		DatabaseSourceServiceV1.POST("/:database_source_service_uid/sync", DeprecatedBy(dmsV1.GroupV1))
-		DatabaseSourceServiceV1.GET("", DeprecatedBy(dmsV1.GroupV1))
-		DatabaseSourceServiceV1.GET("/:database_source_service_uid", DeprecatedBy(dmsV1.GroupV1))
-		DatabaseSourceServiceV1.POST("", DeprecatedBy(dmsV1.GroupV1))
-		DatabaseSourceServiceV1.PUT("/:database_source_service_uid", DeprecatedBy(dmsV1.GroupV1))
+		DatabaseSourceServiceV1.GET("/tips", Deprecated())
+		DatabaseSourceServiceV1.POST("/:database_source_service_uid/sync",Deprecated())
+		DatabaseSourceServiceV1.GET("", Deprecated())
+		DatabaseSourceServiceV1.GET("/:database_source_service_uid", Deprecated())
+		DatabaseSourceServiceV1.POST("", Deprecated())
+		DatabaseSourceServiceV1.PUT("/:database_source_service_uid", Deprecated())
 		DatabaseSourceServiceV1.DELETE("/:database_source_service_uid", DeprecatedBy(dmsV1.GroupV1))
 
 		userV1 := v1.Group(dmsV1.UserRouterGroup)
@@ -340,5 +340,12 @@ func DeprecatedBy(version string) func(echo.Context) error {
 	return func(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf(
 			"the API has been deprecated, please using the %s version", version))
+	}
+}
+
+// Deprecatedis a controller used to mark deprecated.
+func Deprecated() func(echo.Context) error {
+	return func(ctx echo.Context) error {
+		return echo.NewHTTPError(http.StatusForbidden, "the API has been deprecated")
 	}
 }
