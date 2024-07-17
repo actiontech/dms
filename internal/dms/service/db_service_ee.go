@@ -164,3 +164,16 @@ func (d *DMSService) listGlobalDBServices(ctx context.Context, req *dmsV1.ListGl
 		Total: total,
 	}, nil
 }
+
+func (d *DMSService) listGlobalDBServicesTips(ctx context.Context, currentUserUid string) (reply *dmsV1.ListGlobalDBServicesTipsReply, err error) {
+	tips, err := d.DBServiceUsecase.ListGlobalDBServicesTips(ctx, currentUserUid)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dmsV1.ListGlobalDBServicesTipsReply{
+		Data: &dmsV1.ListGlobalDBServiceTips{
+			DBType: tips.DbType,
+		},
+	}, nil
+}
