@@ -376,7 +376,7 @@ func (d *DMSService) ListUserGroups(ctx context.Context, req *dmsV1.ListUserGrou
 func (d *DMSService) GetUserOpPermission(ctx context.Context, req *dmsCommonV1.GetUserOpPermissionReq) (reply *dmsCommonV1.GetUserOpPermissionReply, err error) {
 	// 兼容新旧版本获取项目ID方式
 	projectUid := req.ProjectUid
-	if projectUid == "" {
+	if projectUid == "" && req.UserOpPermission != nil {
 		projectUid = req.UserOpPermission.ProjectUid
 	}
 
