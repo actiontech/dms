@@ -5456,6 +5456,66 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "DBServiceDefaultConfig": {
+      "type": "object",
+      "properties": {
+        "additional_params": {
+          "description": "DB Service Custom connection parameters",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdditionalParam"
+          },
+          "x-go-name": "AdditionalParams"
+        },
+        "business": {
+          "description": "DB Service business name",
+          "type": "string",
+          "x-go-name": "Business"
+        },
+        "desc": {
+          "description": "Service description",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "is_enable_masking": {
+          "description": "data masking switch",
+          "type": "boolean",
+          "x-go-name": "IsEnableMasking"
+        },
+        "maintenance_times": {
+          "description": "DB Service maintenance time\nempty value means that maintenance time is unlimited",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MaintenanceTime"
+          },
+          "x-go-name": "MaintenanceTimes"
+        },
+        "name": {
+          "description": "Service name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "password": {
+          "description": "DB Service admin password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "port": {
+          "description": "DB Service port",
+          "type": "string",
+          "x-go-name": "Port"
+        },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
+        },
+        "user": {
+          "description": "DB Service admin user",
+          "type": "string",
+          "x-go-name": "User"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "DBServiceSourceName": {
       "type": "string",
       "x-go-package": "github.com/actiontech/dms/internal/dms/pkg/constant"
@@ -5465,17 +5525,22 @@
       "required": [
         "name",
         "source",
-        "version",
         "url",
         "db_type",
         "cron_express"
       ],
       "properties": {
+        "additional_params": {
+          "$ref": "#/definitions/Params"
+        },
         "cron_express": {
           "description": "cron expression",
           "type": "string",
           "x-go-name": "CronExpress",
           "example": "0 0 * * *"
+        },
+        "db_service_default_config": {
+          "$ref": "#/definitions/DBServiceDefaultConfig"
         },
         "db_type": {
           "description": "database type",
@@ -5495,20 +5560,11 @@
           "x-go-name": "Source",
           "example": "actiontech-dmp"
         },
-        "sqle_config": {
-          "$ref": "#/definitions/SQLEConfig"
-        },
         "url": {
           "description": "addr",
           "type": "string",
           "x-go-name": "URL",
           "example": "http://10.186.62.56:10000"
-        },
-        "version": {
-          "description": "version",
-          "type": "string",
-          "x-go-name": "Version",
-          "example": "5.23.01.0"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -5925,17 +5981,22 @@
       "required": [
         "name",
         "source",
-        "version",
         "url",
         "db_type",
         "cron_express"
       ],
       "properties": {
+        "additional_params": {
+          "$ref": "#/definitions/Params"
+        },
         "cron_express": {
           "description": "cron expression",
           "type": "string",
           "x-go-name": "CronExpress",
           "example": "0 0 * * *"
+        },
+        "db_service_default_config": {
+          "$ref": "#/definitions/DBServiceDefaultConfig"
         },
         "db_type": {
           "description": "database type",
@@ -5955,9 +6016,6 @@
           "x-go-name": "Source",
           "example": "actiontech-dmp"
         },
-        "sqle_config": {
-          "$ref": "#/definitions/SQLEConfig"
-        },
         "uid": {
           "type": "string",
           "x-go-name": "UID"
@@ -5967,12 +6025,6 @@
           "type": "string",
           "x-go-name": "URL",
           "example": "http://10.186.62.56:10000"
-        },
-        "version": {
-          "description": "version",
-          "type": "string",
-          "x-go-name": "Version",
-          "example": "5.23.01.0"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -7234,17 +7286,22 @@
       "required": [
         "name",
         "source",
-        "version",
         "url",
         "db_type",
         "cron_express"
       ],
       "properties": {
+        "additional_params": {
+          "$ref": "#/definitions/Params"
+        },
         "cron_express": {
           "description": "cron expression",
           "type": "string",
           "x-go-name": "CronExpress",
           "example": "0 0 * * *"
+        },
+        "db_service_default_config": {
+          "$ref": "#/definitions/DBServiceDefaultConfig"
         },
         "db_type": {
           "description": "database type",
@@ -7274,9 +7331,6 @@
           "x-go-name": "Source",
           "example": "actiontech-dmp"
         },
-        "sqle_config": {
-          "$ref": "#/definitions/SQLEConfig"
-        },
         "uid": {
           "type": "string",
           "x-go-name": "UID"
@@ -7286,12 +7340,6 @@
           "type": "string",
           "x-go-name": "URL",
           "example": "http://10.186.62.56:10000"
-        },
-        "version": {
-          "description": "version",
-          "type": "string",
-          "x-go-name": "Version",
-          "example": "5.23.01.0"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
