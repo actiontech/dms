@@ -58,7 +58,6 @@ var (
 	IDBPCErrOracleServiceNameInvalid ImportDbServicesPreCheckErr = "Oracle服务名错误"
 	IDBPCErrDB2DbNameInvalid         ImportDbServicesPreCheckErr = "DB2数据库名错误"
 	IDBPCErrRuleTemplateInvalid      ImportDbServicesPreCheckErr = "审核规则模板不存在或数据源类型不匹配"
-	IDBPCErrLevelInvalid             ImportDbServicesPreCheckErr = "工作台查询的最高审核等级不规范"
 )
 
 type projInfo struct {
@@ -140,7 +139,7 @@ type ImportDbServicesCsvRow struct {
 	DB2DbName        string `csv:"数据库名(DB2需填)" validate:"required_if=DbType DB2"`
 	OpsTime          string `csv:"运维时间(非必填，9:30-11:00;14:10-18:30)"`
 	RuleTemplateName string `csv:"审核规则模板(项目已有的规则模板)" validate:"required"`
-	AuditLevel       string `csv:"工作台查询的最高审核等级[error|warn|notice|normal]" validate:"oneof=error warn notice normal"`
+	AuditLevel       string `csv:"工作台查询的最高审核等级[error|warn|notice|normal]" validate:"oneof='' error warn notice normal"`
 }
 
 type ImportDbServicesCheckResultCsvRow struct {
@@ -211,12 +210,6 @@ func (d *DBServiceUsecase) checkImportCsvRow(ctx context.Context, projectInfoMap
 	ruleTemplate, ruleTemplateExist := projectInfoMap[row.ProjName].ruleTemplates[row.RuleTemplateName]
 	if !ruleTemplateExist || ruleTemplate.DbType != row.DbType {
 		return fmt.Errorf("%w rule template name:(%s) project:(%s)", IDBPCErrRuleTemplateInvalid, row.RuleTemplateName, row.ProjName)
-	}
-
-	switch row.AuditLevel {
-	case string(v1.AuditLevelNormal), string(v1.AuditLevelNotice), string(v1.AuditLevelWarn), string(v1.AuditLevelError):
-	default:
-		return fmt.Errorf("%w input:(%s)", IDBPCErrLevelInvalid, row.AuditLevel)
 	}
 
 	return nil
@@ -294,11 +287,10 @@ func (d *DBServiceUsecase) genBizDBServiceArgs4Import(ctx context.Context, proje
 			return nil, fmt.Errorf("%w rule template name:(%s) project:(%s)", IDBPCErrRuleTemplateInvalid, row.RuleTemplateName, row.ProjName)
 		}
 
-		sqlQueryConfig := &SQLQueryConfig{
-			MaxPreQueryRows:                  0,
-			QueryTimeoutSecond:               0,
-			AuditEnabled:                     true,
-			AllowQueryWhenLessThanAuditLevel: row.AuditLevel,
+		sqlQueryConfig := &SQLQueryConfig{}
+		if row.AuditLevel != "" {
+			sqlQueryConfig.AuditEnabled = true
+			sqlQueryConfig.AllowQueryWhenLessThanAuditLevel = row.AuditLevel
 		}
 
 		pass, desc := row.Password, row.Desc
