@@ -4392,6 +4392,12 @@
             "required": true
           },
           {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "name": "project_uid",
+            "in": "query"
+          },
+          {
             "x-go-name": "UserOpPermission",
             "description": "user op permission info",
             "name": "user_op_permission",

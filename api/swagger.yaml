@@ -7446,6 +7446,10 @@ paths:
                   required: true
                   type: string
                   x-go-name: UserUid
+                - in: query
+                  name: project_uid
+                  type: string
+                  x-go-name: ProjectUid
                 - description: user op permission info
                   in: body
                   name: user_op_permission
