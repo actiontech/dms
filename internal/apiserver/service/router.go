@@ -64,7 +64,7 @@ func (s *APIServer) initRouter() error {
 		DatabaseSourceServiceV1.GET("/:database_source_service_uid", Deprecated())
 		DatabaseSourceServiceV1.POST("", Deprecated())
 		DatabaseSourceServiceV1.PUT("/:database_source_service_uid", Deprecated())
-		DatabaseSourceServiceV1.DELETE("/:database_source_service_uid", DeprecatedBy(dmsV1.GroupV1))
+		DatabaseSourceServiceV1.DELETE("/:database_source_service_uid", Deprecated())
 
 		userV1 := v1.Group(dmsV1.UserRouterGroup)
 		userV1.POST("", s.DMSController.AddUser)
