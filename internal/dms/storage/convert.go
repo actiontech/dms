@@ -118,7 +118,6 @@ func convertModelDBServiceSyncTask(m *model.DBServiceSyncTask) (*biz.DBServiceSy
 		UID:         m.UID,
 		Name:        m.Name,
 		Source:      m.Source,
-		Version:     m.Version,
 		URL:         m.URL,
 		DbType:      m.DbType,
 		CronExpress: m.CronExpress,
@@ -131,20 +130,29 @@ func convertModelDBServiceSyncTask(m *model.DBServiceSyncTask) (*biz.DBServiceSy
 
 	modelSqleConfig := m.ExtraParameters.SqleConfig
 	if modelSqleConfig != nil {
-		ret.SQLEConfig = &biz.SQLEConfig{
-			RuleTemplateID:   modelSqleConfig.RuleTemplateID,
-			RuleTemplateName: modelSqleConfig.RuleTemplateName,
-		}
-
+		ret.DBServiceDefaultConfig = &biz.BizDBServiceArgs{}
+		ret.DBServiceDefaultConfig.RuleTemplateID = modelSqleConfig.RuleTemplateID
+		ret.DBServiceDefaultConfig.RuleTemplateName = modelSqleConfig.RuleTemplateName
 		sqleQueryConfig := modelSqleConfig.SqlQueryConfig
 		if sqleQueryConfig != nil {
-			ret.SQLEConfig.SQLQueryConfig = &biz.SQLQueryConfig{
+			ret.DBServiceDefaultConfig.SQLQueryConfig = &biz.SQLQueryConfig{
 				AllowQueryWhenLessThanAuditLevel: sqleQueryConfig.AllowQueryWhenLessThanAuditLevel,
 				AuditEnabled:                     sqleQueryConfig.AuditEnabled,
 				MaxPreQueryRows:                  sqleQueryConfig.MaxPreQueryRows,
 				QueryTimeoutSecond:               sqleQueryConfig.QueryTimeoutSecond,
 			}
 		}
+	}
+	modelDBDefaultConfig := m.ExtraParameters.DBServiceDefaultConfig
+	if modelDBDefaultConfig != nil {
+		ret.DBServiceDefaultConfig.AdditionalParams = modelDBDefaultConfig.AdditionalParams
+		ret.DBServiceDefaultConfig.MaintenancePeriod = modelDBDefaultConfig.MaintenanceTimes
+		ret.DBServiceDefaultConfig.Name = modelDBDefaultConfig.Name
+		ret.DBServiceDefaultConfig.User = modelDBDefaultConfig.User
+		ret.DBServiceDefaultConfig.Password = &modelDBDefaultConfig.Password
+		ret.DBServiceDefaultConfig.Business = modelDBDefaultConfig.Business
+		ret.DBServiceDefaultConfig.Desc = &modelDBDefaultConfig.Desc
+		ret.DBServiceDefaultConfig.IsMaskingSwitch = modelDBDefaultConfig.IsEnableMasking
 	}
 
 	return ret, nil
@@ -201,7 +209,6 @@ func convertBizDBServiceSyncTask(u *biz.DBServiceSyncTaskParams) *model.DBServic
 		Model:               model.Model{UID: u.UID},
 		Name:                u.Name,
 		Source:              u.Source,
-		Version:             u.Version,
 		URL:                 u.URL,
 		DbType:              u.DbType,
 		CronExpress:         u.CronExpress,
@@ -210,14 +217,25 @@ func convertBizDBServiceSyncTask(u *biz.DBServiceSyncTaskParams) *model.DBServic
 	}
 
 	// add sqle config
-	if u.SQLEConfig != nil {
+	if u.DBServiceDefaultConfig != nil {
 		m.ExtraParameters = model.ExtraParameters{
 			SqleConfig: &model.SQLEConfig{
-				RuleTemplateName: u.SQLEConfig.RuleTemplateName,
-				RuleTemplateID:   u.SQLEConfig.RuleTemplateID,
+				RuleTemplateName: u.DBServiceDefaultConfig.RuleTemplateName,
+				RuleTemplateID:   u.DBServiceDefaultConfig.RuleTemplateID,
+			},
+			DBServiceDefaultConfig: &model.DBServiceDefaultConfig{
+				Name:             u.DBServiceDefaultConfig.Name,
+				Port:             u.DBServiceDefaultConfig.Port,
+				User:             u.DBServiceDefaultConfig.User,
+				Password:         *u.DBServiceDefaultConfig.Password,
+				Business:         u.DBServiceDefaultConfig.Business,
+				MaintenanceTimes: u.DBServiceDefaultConfig.MaintenancePeriod,
+				AdditionalParams: u.AdditionalParams,
+				Desc:             *u.DBServiceDefaultConfig.Desc,
+				IsEnableMasking:  u.DBServiceDefaultConfig.IsMaskingSwitch,
 			},
 		}
-		sqleQueryConfig := u.SQLEConfig.SQLQueryConfig
+		sqleQueryConfig := u.DBServiceDefaultConfig.SQLQueryConfig
 		if sqleQueryConfig != nil {
 			m.ExtraParameters.SqleConfig.SqlQueryConfig = &model.SqlQueryConfig{
 				AllowQueryWhenLessThanAuditLevel: sqleQueryConfig.AllowQueryWhenLessThanAuditLevel,

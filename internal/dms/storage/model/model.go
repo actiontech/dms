@@ -74,7 +74,8 @@ type DBService struct {
 }
 
 type ExtraParameters struct {
-	SqleConfig *SQLEConfig `json:"sqle_config"`
+	SqleConfig             *SQLEConfig             `json:"sqle_config"`
+	DBServiceDefaultConfig *DBServiceDefaultConfig `json:"db_service_default_config"`
 }
 
 func (e ExtraParameters) Value() (driver.Value, error) {
@@ -97,6 +98,18 @@ type SqlQueryConfig struct {
 	QueryTimeoutSecond               int    `json:"query_timeout_second"`
 	AuditEnabled                     bool   `json:"audit_enabled"`
 	AllowQueryWhenLessThanAuditLevel string `json:"allow_query_when_less_than_audit_level"`
+}
+
+type DBServiceDefaultConfig struct {
+	Name             string          `json:"name"`
+	Port             string          `json:"port"`
+	User             string          `json:"user"`
+	Password         string          `json:"password"`
+	Business         string          `json:"business"`
+	MaintenanceTimes periods.Periods `json:"maintenance_times"`
+	AdditionalParams params.Params   `json:"additional_params"`
+	Desc             string          `json:"desc"`
+	IsEnableMasking  bool            `json:"is_enable_masking"`
 }
 
 type User struct {
@@ -336,11 +349,11 @@ type CloudbeaverConnectionCache struct {
 
 type DBServiceSyncTask struct {
 	Model
-	Name       string `json:"name" gorm:"size:200;not null;index:project_uid_name,unique" example:""`
-	Source     string `json:"source" gorm:"size:255;not null"`
-	Version    string `json:"version" gorm:"size:255;not null"`
-	URL        string `json:"url" gorm:"size:255;not null"`
-	DbType     string `json:"db_type" gorm:"size:255;not null"`
+	Name    string `json:"name" gorm:"size:200;not null;index:project_uid_name,unique" example:""`
+	Source  string `json:"source" gorm:"size:255;not null"`
+	Version string `json:"version" gorm:"size:255;not null"`
+	URL     string `json:"url" gorm:"size:255;not null"`
+	DbType  string `json:"db_type" gorm:"size:255;not null"`
 	// Cron表达式
 	CronExpress         string          `json:"cron_express" gorm:"size:255;column:cron_express; not null"`
 	LastSyncErr         string          `json:"last_sync_err" gorm:"column:last_sync_err"`
@@ -348,7 +361,7 @@ type DBServiceSyncTask struct {
 	ExtraParameters     ExtraParameters `json:"extra_parameters" gorm:"TYPE:json"`
 }
 
-func (DBServiceSyncTask) TableName()string {
+func (DBServiceSyncTask) TableName() string {
 	return "database_source_services"
 }
 
