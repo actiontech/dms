@@ -3640,3 +3640,80 @@ func (d *DMSController) SwaggerHandler(c echo.Context) error {
 	handler := echoSwagger.EchoWrapHandler(optionList...)
 	return handler(c)
 }
+
+// swagger:route GET /v1/dms/db_service_sync_tasks DBServiceSyncTask ListDBServiceSyncTasks
+//
+// List database synchronization tasks.
+//
+//	responses:
+//	  200: body:ListDBServiceSyncTasksReply
+//	  default: body:GenericResp
+func (d *DMSController) ListDBServiceSyncTasks(c echo.Context) error {
+	return nil
+}
+
+// swagger:route GET /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask GetDBServiceSyncTask
+//
+// Get database synchronization task.
+//
+//	responses:
+//	  200: body:GetDBServiceSyncTaskReply
+//	  default: body:GenericResp
+func (d *DMSController) GetDBServiceSyncTask(c echo.Context) error {
+	return nil
+}
+
+// swagger:route POST /v1/dms/db_service_sync_tasks DBServiceSyncTask AddDBServiceSyncTask
+//
+// Add database synchronization task.
+//
+// responses:
+//    200: body:AddDBServiceSyncTaskReply
+//    default: body:GenericResp
+func (d *DMSController) AddDBServiceSyncTask(c echo.Context) error {
+	return nil
+}
+
+// swagger:route PUT /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask UpdateDBServiceSyncTask
+//
+// update database synchronization task.
+//
+//  responses:
+//    200: body:GenericResp
+//    default: body:GenericResp
+func (d *DMSController) UpdateDBServiceSyncTask(c echo.Context) error {
+	return nil
+}
+
+// swagger:route DELETE /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask DeleteDBServiceSyncTask
+//
+// Delete database synchronization task.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) DeleteDBServiceSyncTask(c echo.Context) error {
+	return nil
+}
+
+// swagger:route GET /v1/dms/db_service_sync_tasks/tips DBServiceSyncTask ListDBServiceSyncTaskTips
+//
+// List database synchronization task tips.
+//
+//	responses:
+//	  200: body:ListDBServiceSyncTaskTipsReply
+//	  default: body:GenericResp
+func (d *DMSController) ListDBServiceSyncTaskTips(c echo.Context) error {
+	return nil
+}
+
+// swagger:route POST /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid}/sync DBServiceSyncTask SyncDBServices
+//
+// Sync db service.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (d *DMSController) SyncDBServices(c echo.Context) error {
+	return nil
+}
