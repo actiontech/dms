@@ -541,6 +541,16 @@ func (d *DBServiceUsecase) ListGlobalDBServices(ctx context.Context, option *Lis
 	return globalDBServices, total, nil
 }
 
+type GlobalDBServiceTips struct {
+	DbType []string
+}
+
+func (d *DBServiceUsecase) ListGlobalDBServicesTips(ctx context.Context, currentUserUid string) (*GlobalDBServiceTips, error) {
+	var globalDBServiceTips GlobalDBServiceTips
+	err := d.repo.GetFieldDistinctValue(ctx, DBServiceFieldDBType, &globalDBServiceTips.DbType)
+	return &globalDBServiceTips, err
+}
+
 // getUnfinishedWorkflowsCountOfDBServices return map: dbServicesId -> UnfinishedWorkflowNum
 func (d *DBServiceUsecase) getUnfinishedWorkflowsCountOfDBServices(ctx context.Context, dbServicesIds []string) (map[string]int64, error) {
 	target, err := d.dmsProxyTargetRepo.GetProxyTargetByName(ctx, cloudbeaver.SQLEProxyName)
