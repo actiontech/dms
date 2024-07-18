@@ -864,6 +864,8 @@ definitions:
                 example: actiontech-dmp
                 type: string
                 x-go-name: Source
+            sqle_config:
+                $ref: '#/definitions/SQLEConfig'
             url:
                 description: addr
                 example: http://10.186.62.56:10000
@@ -1272,6 +1274,8 @@ definitions:
                 example: actiontech-dmp
                 type: string
                 x-go-name: Source
+            sqle_config:
+                $ref: '#/definitions/SQLEConfig'
             uid:
                 type: string
                 x-go-name: UID
@@ -2349,6 +2353,8 @@ definitions:
                 example: actiontech-dmp
                 type: string
                 x-go-name: Source
+            sqle_config:
+                $ref: '#/definitions/SQLEConfig'
             uid:
                 type: string
                 x-go-name: UID
@@ -2372,15 +2378,15 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/DBServiceSyncTaskTip'
+                type: array
+                x-go-name: Data
             message:
                 description: message
                 type: string
                 x-go-name: Message
-            tips:
-                items:
-                    $ref: '#/definitions/DBServiceSyncTaskTip'
-                type: array
-                x-go-name: Tips
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListDBServiceSyncTasksReply:
@@ -4107,7 +4113,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
