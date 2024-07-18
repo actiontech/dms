@@ -6,6 +6,7 @@ import (
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 	pkgParams "github.com/actiontech/dms/pkg/params"
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
 
 // swagger:model ListDBServiceSyncTasksReply
@@ -69,6 +70,8 @@ type DBServiceSyncTask struct {
 	// additional params
 	// Required: false
 	AdditionalParam pkgParams.Params `json:"additional_params"`
+	// SQLE config
+	SQLEConfig *dmsCommonV1.SQLEConfig `json:"sqle_config"`
 }
 
 
@@ -109,7 +112,7 @@ type DeleteDBServiceSyncTaskReq struct {
 
 // swagger:model ListDBServiceSyncTaskTipsReply
 type ListDBServiceSyncTaskTipsReply struct {
-	Tips []DBServiceSyncTaskTip `json:"tips"`
+	Data []DBServiceSyncTaskTip `json:"data"`
 
 	// Generic reply
 	base.GenericResp

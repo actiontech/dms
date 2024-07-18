@@ -5828,6 +5828,9 @@
           "x-go-name": "Source",
           "example": "actiontech-dmp"
         },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
+        },
         "url": {
           "description": "addr",
           "type": "string",
@@ -6354,6 +6357,9 @@
           "type": "string",
           "x-go-name": "Source",
           "example": "actiontech-dmp"
+        },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
         },
         "uid": {
           "type": "string",
@@ -7748,6 +7754,9 @@
           "x-go-name": "Source",
           "example": "actiontech-dmp"
         },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
+        },
         "uid": {
           "type": "string",
           "x-go-name": "UID"
@@ -7770,17 +7779,17 @@
           "format": "int64",
           "x-go-name": "Code"
         },
-        "message": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Message"
-        },
-        "tips": {
+        "data": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/DBServiceSyncTaskTip"
           },
-          "x-go-name": "Tips"
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -9929,7 +9938,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
