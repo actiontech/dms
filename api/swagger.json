@@ -703,6 +703,216 @@
         }
       }
     },
+    "/v1/dms/db_service_sync_tasks": {
+      "get": {
+        "tags": [
+          "DBServiceSyncTask"
+        ],
+        "summary": "List database synchronization tasks.",
+        "operationId": "ListDBServiceSyncTasks",
+        "responses": {
+          "200": {
+            "description": "ListDBServiceSyncTasksReply",
+            "schema": {
+              "$ref": "#/definitions/ListDBServiceSyncTasksReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "DBServiceSyncTask"
+        ],
+        "summary": "Add database synchronization task.",
+        "operationId": "AddDBServiceSyncTask",
+        "parameters": [
+          {
+            "x-go-name": "DBServiceSyncTask",
+            "name": "db_service_sync_task",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/DBServiceSyncTask"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddDBServiceSyncTaskReply",
+            "schema": {
+              "$ref": "#/definitions/AddDBServiceSyncTaskReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/db_service_sync_tasks/tips": {
+      "get": {
+        "tags": [
+          "DBServiceSyncTask"
+        ],
+        "summary": "List database synchronization task tips.",
+        "operationId": "ListDBServiceSyncTaskTips",
+        "responses": {
+          "200": {
+            "description": "ListDBServiceSyncTaskTipsReply",
+            "schema": {
+              "$ref": "#/definitions/ListDBServiceSyncTaskTipsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/db_service_sync_tasks/{db_service_sync_task_uid}": {
+      "get": {
+        "tags": [
+          "DBServiceSyncTask"
+        ],
+        "summary": "Get database synchronization task.",
+        "operationId": "GetDBServiceSyncTask",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "DBServiceSyncTaskUid",
+            "name": "db_service_sync_task_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GetDBServiceSyncTaskReply",
+            "schema": {
+              "$ref": "#/definitions/GetDBServiceSyncTaskReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "DBServiceSyncTask"
+        ],
+        "summary": "update database synchronization task.",
+        "operationId": "UpdateDBServiceSyncTask",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "DBServiceSyncTaskUid",
+            "name": "db_service_sync_task_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "DBServiceSyncTask",
+            "name": "db_service_sync_task",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DBServiceSyncTask"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "DBServiceSyncTask"
+        ],
+        "summary": "Delete database synchronization task.",
+        "operationId": "DeleteDBServiceSyncTask",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "DBServiceSyncTaskUid",
+            "name": "db_service_sync_task_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/db_service_sync_tasks/{db_service_sync_task_uid}/sync": {
+      "post": {
+        "tags": [
+          "DBServiceSyncTask"
+        ],
+        "summary": "Sync db service.",
+        "operationId": "SyncDBServices",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "DBServiceSyncTaskUid",
+            "name": "db_service_sync_task_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/db_services": {
       "get": {
         "description": "list global DBServices",
@@ -4532,6 +4742,35 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "AddDBServiceSyncTaskReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "add database source service reply",
+          "type": "object",
+          "properties": {
+            "uid": {
+              "description": "db service UID",
+              "type": "string",
+              "x-go-name": "Uid"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "AddDataExportTaskReply": {
       "type": "object",
       "properties": {
@@ -5548,6 +5787,79 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "DBServiceSourceName": {
+      "type": "string",
+      "x-go-package": "github.com/actiontech/dms/internal/dms/pkg/constant"
+    },
+    "DBServiceSyncTask": {
+      "type": "object",
+      "required": [
+        "name",
+        "source",
+        "url",
+        "db_type",
+        "cron_express"
+      ],
+      "properties": {
+        "additional_params": {
+          "$ref": "#/definitions/Params"
+        },
+        "cron_express": {
+          "description": "cron expression",
+          "type": "string",
+          "x-go-name": "CronExpress",
+          "example": "0 0 * * *"
+        },
+        "db_type": {
+          "description": "database type",
+          "type": "string",
+          "x-go-name": "DbType",
+          "example": "MySQL"
+        },
+        "name": {
+          "description": "name",
+          "type": "string",
+          "x-go-name": "Name",
+          "example": "dmp"
+        },
+        "source": {
+          "description": "source",
+          "type": "string",
+          "x-go-name": "Source",
+          "example": "actiontech-dmp"
+        },
+        "url": {
+          "description": "addr",
+          "type": "string",
+          "x-go-name": "URL",
+          "example": "http://10.186.62.56:10000"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DBServiceSyncTaskTip": {
+      "type": "object",
+      "properties": {
+        "db_type": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DBType"
+          },
+          "x-go-name": "DBType"
+        },
+        "description": {
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "params": {
+          "$ref": "#/definitions/Params"
+        },
+        "service_source_name": {
+          "$ref": "#/definitions/DBServiceSourceName"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "DBServicesConnectionItem": {
       "type": "object",
       "properties": {
@@ -5593,6 +5905,10 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DBType": {
+      "type": "string",
+      "x-go-package": "github.com/actiontech/dms/internal/dms/pkg/constant"
     },
     "DMSProxyTarget": {
       "description": "A dms proxy target",
@@ -5993,6 +6309,76 @@
         },
         "data": {
           "$ref": "#/definitions/CompanyNotice"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetDBServiceSyncTask": {
+      "type": "object",
+      "required": [
+        "name",
+        "source",
+        "url",
+        "db_type",
+        "cron_express"
+      ],
+      "properties": {
+        "additional_params": {
+          "$ref": "#/definitions/Params"
+        },
+        "cron_express": {
+          "description": "cron expression",
+          "type": "string",
+          "x-go-name": "CronExpress",
+          "example": "0 0 * * *"
+        },
+        "db_type": {
+          "description": "database type",
+          "type": "string",
+          "x-go-name": "DbType",
+          "example": "MySQL"
+        },
+        "name": {
+          "description": "name",
+          "type": "string",
+          "x-go-name": "Name",
+          "example": "dmp"
+        },
+        "source": {
+          "description": "source",
+          "type": "string",
+          "x-go-name": "Source",
+          "example": "actiontech-dmp"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "UID"
+        },
+        "url": {
+          "description": "addr",
+          "type": "string",
+          "x-go-name": "URL",
+          "example": "http://10.186.62.56:10000"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetDBServiceSyncTaskReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/GetDBServiceSyncTask"
         },
         "message": {
           "description": "message",
@@ -7314,6 +7700,114 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "ListDBServiceSyncTask": {
+      "type": "object",
+      "required": [
+        "name",
+        "source",
+        "url",
+        "db_type",
+        "cron_express"
+      ],
+      "properties": {
+        "additional_params": {
+          "$ref": "#/definitions/Params"
+        },
+        "cron_express": {
+          "description": "cron expression",
+          "type": "string",
+          "x-go-name": "CronExpress",
+          "example": "0 0 * * *"
+        },
+        "db_type": {
+          "description": "database type",
+          "type": "string",
+          "x-go-name": "DbType",
+          "example": "MySQL"
+        },
+        "last_sync_err": {
+          "description": "last sync error message",
+          "type": "string",
+          "x-go-name": "LastSyncErr"
+        },
+        "last_sync_success_time": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "LastSyncSuccessTime"
+        },
+        "name": {
+          "description": "name",
+          "type": "string",
+          "x-go-name": "Name",
+          "example": "dmp"
+        },
+        "source": {
+          "description": "source",
+          "type": "string",
+          "x-go-name": "Source",
+          "example": "actiontech-dmp"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "UID"
+        },
+        "url": {
+          "description": "addr",
+          "type": "string",
+          "x-go-name": "URL",
+          "example": "http://10.186.62.56:10000"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListDBServiceSyncTaskTipsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "tips": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DBServiceSyncTaskTip"
+          },
+          "x-go-name": "Tips"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListDBServiceSyncTasksReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListDBServiceSyncTask"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ListDBServiceTipItem": {
       "type": "object",
@@ -8785,6 +9279,38 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "Param": {
+      "type": "object",
+      "properties": {
+        "desc": {
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "key": {
+          "type": "string",
+          "x-go-name": "Key"
+        },
+        "type": {
+          "$ref": "#/definitions/ParamType"
+        },
+        "value": {
+          "type": "string",
+          "x-go-name": "Value"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/params"
+    },
+    "ParamType": {
+      "type": "string",
+      "x-go-package": "github.com/actiontech/dms/pkg/params"
+    },
+    "Params": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Param"
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/params"
     },
     "PersonalizationReq": {
       "type": "object",

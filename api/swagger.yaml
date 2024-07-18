@@ -56,6 +56,28 @@ definitions:
                 $ref: '#/definitions/DBService'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddDBServiceSyncTaskReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: add database source service reply
+                properties:
+                    uid:
+                        description: db service UID
+                        type: string
+                        x-go-name: Uid
+                type: object
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddDataExportTaskReply:
         properties:
             code:
@@ -815,6 +837,62 @@ definitions:
                 x-go-name: DBServices
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DBServiceSourceName:
+        type: string
+        x-go-package: github.com/actiontech/dms/internal/dms/pkg/constant
+    DBServiceSyncTask:
+        properties:
+            additional_params:
+                $ref: '#/definitions/Params'
+            cron_express:
+                description: cron expression
+                example: 0 0 * * *
+                type: string
+                x-go-name: CronExpress
+            db_type:
+                description: database type
+                example: MySQL
+                type: string
+                x-go-name: DbType
+            name:
+                description: name
+                example: dmp
+                type: string
+                x-go-name: Name
+            source:
+                description: source
+                example: actiontech-dmp
+                type: string
+                x-go-name: Source
+            url:
+                description: addr
+                example: http://10.186.62.56:10000
+                type: string
+                x-go-name: URL
+        required:
+            - name
+            - source
+            - url
+            - db_type
+            - cron_express
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DBServiceSyncTaskTip:
+        properties:
+            db_type:
+                items:
+                    $ref: '#/definitions/DBType'
+                type: array
+                x-go-name: DBType
+            description:
+                type: string
+                x-go-name: Desc
+            params:
+                $ref: '#/definitions/Params'
+            service_source_name:
+                $ref: '#/definitions/DBServiceSourceName'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DBServicesConnectionItem:
         properties:
             failed_names:
@@ -850,6 +928,9 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DBType:
+        type: string
+        x-go-package: github.com/actiontech/dms/internal/dms/pkg/constant
     DMSProxyTarget:
         description: A dms proxy target
         properties:
@@ -1161,6 +1242,61 @@ definitions:
                 x-go-name: Code
             data:
                 $ref: '#/definitions/CompanyNotice'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetDBServiceSyncTask:
+        properties:
+            additional_params:
+                $ref: '#/definitions/Params'
+            cron_express:
+                description: cron expression
+                example: 0 0 * * *
+                type: string
+                x-go-name: CronExpress
+            db_type:
+                description: database type
+                example: MySQL
+                type: string
+                x-go-name: DbType
+            name:
+                description: name
+                example: dmp
+                type: string
+                x-go-name: Name
+            source:
+                description: source
+                example: actiontech-dmp
+                type: string
+                x-go-name: Source
+            uid:
+                type: string
+                x-go-name: UID
+            url:
+                description: addr
+                example: http://10.186.62.56:10000
+                type: string
+                x-go-name: URL
+        required:
+            - name
+            - source
+            - url
+            - db_type
+            - cron_express
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetDBServiceSyncTaskReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/GetDBServiceSyncTask'
             message:
                 description: message
                 type: string
@@ -2181,6 +2317,90 @@ definitions:
                 x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    ListDBServiceSyncTask:
+        properties:
+            additional_params:
+                $ref: '#/definitions/Params'
+            cron_express:
+                description: cron expression
+                example: 0 0 * * *
+                type: string
+                x-go-name: CronExpress
+            db_type:
+                description: database type
+                example: MySQL
+                type: string
+                x-go-name: DbType
+            last_sync_err:
+                description: last sync error message
+                type: string
+                x-go-name: LastSyncErr
+            last_sync_success_time:
+                format: date-time
+                type: string
+                x-go-name: LastSyncSuccessTime
+            name:
+                description: name
+                example: dmp
+                type: string
+                x-go-name: Name
+            source:
+                description: source
+                example: actiontech-dmp
+                type: string
+                x-go-name: Source
+            uid:
+                type: string
+                x-go-name: UID
+            url:
+                description: addr
+                example: http://10.186.62.56:10000
+                type: string
+                x-go-name: URL
+        required:
+            - name
+            - source
+            - url
+            - db_type
+            - cron_express
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListDBServiceSyncTaskTipsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            tips:
+                items:
+                    $ref: '#/definitions/DBServiceSyncTaskTip'
+                type: array
+                x-go-name: Tips
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListDBServiceSyncTasksReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/ListDBServiceSyncTask'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListDBServiceTipItem:
         properties:
             db_type:
@@ -3405,6 +3625,29 @@ definitions:
                 x-go-name: OperationType
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    Param:
+        properties:
+            desc:
+                type: string
+                x-go-name: Desc
+            key:
+                type: string
+                x-go-name: Key
+            type:
+                $ref: '#/definitions/ParamType'
+            value:
+                type: string
+                x-go-name: Value
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/params
+    ParamType:
+        type: string
+        x-go-package: github.com/actiontech/dms/pkg/params
+    Params:
+        items:
+            $ref: '#/definitions/Param'
+        type: array
+        x-go-package: github.com/actiontech/dms/pkg/params
     PersonalizationReq:
         properties:
             file:
@@ -4936,6 +5179,144 @@ paths:
             summary: test wechat configuration.
             tags:
                 - Configuration
+    /v1/dms/db_service_sync_tasks:
+        get:
+            operationId: ListDBServiceSyncTasks
+            responses:
+                "200":
+                    description: ListDBServiceSyncTasksReply
+                    schema:
+                        $ref: '#/definitions/ListDBServiceSyncTasksReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List database synchronization tasks.
+            tags:
+                - DBServiceSyncTask
+        post:
+            operationId: AddDBServiceSyncTask
+            parameters:
+                - in: body
+                  name: db_service_sync_task
+                  schema:
+                    $ref: '#/definitions/DBServiceSyncTask'
+                  x-go-name: DBServiceSyncTask
+            responses:
+                "200":
+                    description: AddDBServiceSyncTaskReply
+                    schema:
+                        $ref: '#/definitions/AddDBServiceSyncTaskReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Add database synchronization task.
+            tags:
+                - DBServiceSyncTask
+    /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid}:
+        delete:
+            operationId: DeleteDBServiceSyncTask
+            parameters:
+                - in: path
+                  name: db_service_sync_task_uid
+                  required: true
+                  type: string
+                  x-go-name: DBServiceSyncTaskUid
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Delete database synchronization task.
+            tags:
+                - DBServiceSyncTask
+        get:
+            operationId: GetDBServiceSyncTask
+            parameters:
+                - in: path
+                  name: db_service_sync_task_uid
+                  required: true
+                  type: string
+                  x-go-name: DBServiceSyncTaskUid
+            responses:
+                "200":
+                    description: GetDBServiceSyncTaskReply
+                    schema:
+                        $ref: '#/definitions/GetDBServiceSyncTaskReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get database synchronization task.
+            tags:
+                - DBServiceSyncTask
+        put:
+            operationId: UpdateDBServiceSyncTask
+            parameters:
+                - in: path
+                  name: db_service_sync_task_uid
+                  required: true
+                  type: string
+                  x-go-name: DBServiceSyncTaskUid
+                - in: body
+                  name: db_service_sync_task
+                  required: true
+                  schema:
+                    $ref: '#/definitions/DBServiceSyncTask'
+                  x-go-name: DBServiceSyncTask
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: update database synchronization task.
+            tags:
+                - DBServiceSyncTask
+    /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid}/sync:
+        post:
+            operationId: SyncDBServices
+            parameters:
+                - in: path
+                  name: db_service_sync_task_uid
+                  required: true
+                  type: string
+                  x-go-name: DBServiceSyncTaskUid
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Sync db service.
+            tags:
+                - DBServiceSyncTask
+    /v1/dms/db_service_sync_tasks/tips:
+        get:
+            operationId: ListDBServiceSyncTaskTips
+            responses:
+                "200":
+                    description: ListDBServiceSyncTaskTipsReply
+                    schema:
+                        $ref: '#/definitions/ListDBServiceSyncTaskTipsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List database synchronization task tips.
+            tags:
+                - DBServiceSyncTask
     /v1/dms/db_services:
         get:
             description: list global DBServices
