@@ -17,10 +17,17 @@ type ListDBServiceSyncTasksReply struct {
 	base.GenericResp
 }
 
-// swagger:parameters GetDBServiceSyncTask
+type ListDBServiceSyncTask struct {
+	DBServiceSyncTask
+	UID string `json:"uid"`
+
+	// last sync error message
+	LastSyncErr         string     `json:"last_sync_err"`
+	LastSyncSuccessTime *time.Time `json:"last_sync_success_time"`
+}
+
 type GetDBServiceSyncTaskReq struct {
-	// Required: true
-	// in:path
+	// swagger:ignore
 	DBServiceSyncTaskUid string `param:"db_service_sync_task_uid" json:"db_service_sync_task_uid" validate:"required"`
 }
 
@@ -37,14 +44,6 @@ type GetDBServiceSyncTask struct {
 	UID string `json:"uid"`
 }
 
-type ListDBServiceSyncTask struct {
-	DBServiceSyncTask
-	UID string `json:"uid"`
-
-	// last sync error message
-	LastSyncErr         string     `json:"last_sync_err"`
-	LastSyncSuccessTime *time.Time `json:"last_sync_success_time"`
-}
 
 type DBServiceSyncTask struct {
 	// name
@@ -74,10 +73,8 @@ type DBServiceSyncTask struct {
 	SQLEConfig *dmsCommonV1.SQLEConfig `json:"sqle_config"`
 }
 
-
-// swagger:parameters AddDBServiceSyncTask
+// swagger:model AddDBServiceSyncTaskReq
 type AddDBServiceSyncTaskReq struct {
-	// in:body
 	DBServiceSyncTask DBServiceSyncTask `json:"db_service_sync_task"`
 }
 
@@ -93,20 +90,15 @@ type AddDBServiceSyncTaskReply struct {
 	base.GenericResp
 }
 
-// swagger:parameters UpdateDBServiceSyncTask
+// swagger:model UpdateDBServiceSyncTaskReq
 type UpdateDBServiceSyncTaskReq struct {
-	// Required: true
-	// in:path
+	// swagger:ignore
 	DBServiceSyncTaskUid string `param:"db_service_sync_task_uid" json:"db_service_sync_task_uid" validate:"required"`
-	// Required: true
-	// in:body
 	DBServiceSyncTask DBServiceSyncTask `json:"db_service_sync_task" validate:"required"`
 }
 
-// swagger:parameters DeleteDBServiceSyncTask
 type DeleteDBServiceSyncTaskReq struct {
-	// Required: true
-	// in:path
+	// swagger:ignore
 	DBServiceSyncTaskUid string `param:"db_service_sync_task_uid" json:"db_service_sync_task_uid" validate:"required"`
 }
 
@@ -125,9 +117,7 @@ type DBServiceSyncTaskTip struct {
 	Params pkgParams.Params             `json:"params,omitempty"`
 }
 
-// swagger:parameters SyncDBServices
 type SyncDBServicesReq struct {
-	// Required: true
-	// in:path
+	// swagger:ignore
 	DBServiceSyncTaskUid string `param:"db_service_sync_task_uid" json:"db_service_sync_task_uid" validate:"required"`
 }

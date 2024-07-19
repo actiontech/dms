@@ -733,19 +733,20 @@
         "operationId": "AddDBServiceSyncTask",
         "parameters": [
           {
-            "x-go-name": "DBServiceSyncTask",
+            "description": "Add new db service sync task",
             "name": "db_service_sync_task",
             "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/DBServiceSyncTask"
+              "$ref": "#/definitions/AddDBServiceSyncTaskReq"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "AddDBServiceSyncTaskReply",
+            "description": "AddDBServiceReply",
             "schema": {
-              "$ref": "#/definitions/AddDBServiceSyncTaskReply"
+              "$ref": "#/definitions/AddDBServiceReply"
             }
           },
           "default": {
@@ -790,7 +791,7 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "DBServiceSyncTaskUid",
+            "description": "db service sync task uid",
             "name": "db_service_sync_task_uid",
             "in": "path",
             "required": true
@@ -820,18 +821,18 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "DBServiceSyncTaskUid",
+            "description": "db service sync task uid",
             "name": "db_service_sync_task_uid",
             "in": "path",
             "required": true
           },
           {
-            "x-go-name": "DBServiceSyncTask",
+            "description": "update db service sync task",
             "name": "db_service_sync_task",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/DBServiceSyncTask"
+              "$ref": "#/definitions/UpdateDBServiceSyncTaskReq"
             }
           }
         ],
@@ -859,7 +860,7 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "DBServiceSyncTaskUid",
+            "description": "db service sync task uid",
             "name": "db_service_sync_task_uid",
             "in": "path",
             "required": true
@@ -891,7 +892,7 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "DBServiceSyncTaskUid",
+            "description": "db service sync task uid",
             "name": "db_service_sync_task_uid",
             "in": "path",
             "required": true
@@ -4767,6 +4768,15 @@
           "description": "message",
           "type": "string",
           "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddDBServiceSyncTaskReq": {
+      "type": "object",
+      "properties": {
+        "db_service_sync_task": {
+          "$ref": "#/definitions/DBServiceSyncTask"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -9938,7 +9948,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
@@ -10109,6 +10119,15 @@
       "properties": {
         "db_service": {
           "$ref": "#/definitions/UpdateDBService"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateDBServiceSyncTaskReq": {
+      "type": "object",
+      "properties": {
+        "db_service_sync_task": {
+          "$ref": "#/definitions/DBServiceSyncTask"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"

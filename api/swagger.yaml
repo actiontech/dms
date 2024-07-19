@@ -78,6 +78,12 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddDBServiceSyncTaskReq:
+        properties:
+            db_service_sync_task:
+                $ref: '#/definitions/DBServiceSyncTask'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddDataExportTaskReply:
         properties:
             code:
@@ -4113,7 +4119,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -4243,6 +4249,12 @@ definitions:
         properties:
             db_service:
                 $ref: '#/definitions/UpdateDBService'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateDBServiceSyncTaskReq:
+        properties:
+            db_service_sync_task:
+                $ref: '#/definitions/DBServiceSyncTask'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateDatabaseSourceServiceReq:
@@ -5203,16 +5215,17 @@ paths:
         post:
             operationId: AddDBServiceSyncTask
             parameters:
-                - in: body
+                - description: Add new db service sync task
+                  in: body
                   name: db_service_sync_task
+                  required: true
                   schema:
-                    $ref: '#/definitions/DBServiceSyncTask'
-                  x-go-name: DBServiceSyncTask
+                    $ref: '#/definitions/AddDBServiceSyncTaskReq'
             responses:
                 "200":
-                    description: AddDBServiceSyncTaskReply
+                    description: AddDBServiceReply
                     schema:
-                        $ref: '#/definitions/AddDBServiceSyncTaskReply'
+                        $ref: '#/definitions/AddDBServiceReply'
                 default:
                     description: GenericResp
                     schema:
@@ -5224,11 +5237,11 @@ paths:
         delete:
             operationId: DeleteDBServiceSyncTask
             parameters:
-                - in: path
+                - description: db service sync task uid
+                  in: path
                   name: db_service_sync_task_uid
                   required: true
                   type: string
-                  x-go-name: DBServiceSyncTaskUid
             responses:
                 "200":
                     description: GenericResp
@@ -5244,11 +5257,11 @@ paths:
         get:
             operationId: GetDBServiceSyncTask
             parameters:
-                - in: path
+                - description: db service sync task uid
+                  in: path
                   name: db_service_sync_task_uid
                   required: true
                   type: string
-                  x-go-name: DBServiceSyncTaskUid
             responses:
                 "200":
                     description: GetDBServiceSyncTaskReply
@@ -5264,17 +5277,17 @@ paths:
         put:
             operationId: UpdateDBServiceSyncTask
             parameters:
-                - in: path
+                - description: db service sync task uid
+                  in: path
                   name: db_service_sync_task_uid
                   required: true
                   type: string
-                  x-go-name: DBServiceSyncTaskUid
-                - in: body
+                - description: update db service sync task
+                  in: body
                   name: db_service_sync_task
                   required: true
                   schema:
-                    $ref: '#/definitions/DBServiceSyncTask'
-                  x-go-name: DBServiceSyncTask
+                    $ref: '#/definitions/UpdateDBServiceSyncTaskReq'
             responses:
                 "200":
                     description: GenericResp
@@ -5291,11 +5304,11 @@ paths:
         post:
             operationId: SyncDBServices
             parameters:
-                - in: path
+                - description: db service sync task uid
+                  in: path
                   name: db_service_sync_task_uid
                   required: true
                   type: string
-                  x-go-name: DBServiceSyncTaskUid
             responses:
                 "200":
                     description: GenericResp
