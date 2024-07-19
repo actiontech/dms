@@ -112,45 +112,6 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 	return dbService, nil
 }
 
-func convertModelDatabaseSourceService(m *model.DatabaseSourceService) (*biz.DatabaseSourceServiceParams, error) {
-
-	ret := &biz.DatabaseSourceServiceParams{
-		UID:         m.UID,
-		Name:        m.Name,
-		Source:      m.Source,
-		Version:     m.Version,
-		URL:         m.URL,
-		DbType:      m.DbType,
-		CronExpress: m.CronExpress,
-		ProjectUID:  m.ProjectUID,
-		LastSyncErr: m.LastSyncErr,
-	}
-
-	if m.LastSyncSuccessTime != nil {
-		ret.LastSyncSuccessTime = m.LastSyncSuccessTime
-	}
-
-	modelSqleConfig := m.ExtraParameters.SqleConfig
-	if modelSqleConfig != nil {
-		ret.SQLEConfig = &biz.SQLEConfig{
-			RuleTemplateID:   modelSqleConfig.RuleTemplateID,
-			RuleTemplateName: modelSqleConfig.RuleTemplateName,
-		}
-
-		sqleQueryConfig := modelSqleConfig.SqlQueryConfig
-		if sqleQueryConfig != nil {
-			ret.SQLEConfig.SQLQueryConfig = &biz.SQLQueryConfig{
-				AllowQueryWhenLessThanAuditLevel: sqleQueryConfig.AllowQueryWhenLessThanAuditLevel,
-				AuditEnabled:                     sqleQueryConfig.AuditEnabled,
-				MaxPreQueryRows:                  sqleQueryConfig.MaxPreQueryRows,
-				QueryTimeoutSecond:               sqleQueryConfig.QueryTimeoutSecond,
-			}
-		}
-	}
-
-	return ret, nil
-}
-
 func convertBizUser(u *biz.User) (*model.User, error) {
 	encrypted, err := pkgAes.AesEncrypt(u.Password)
 	if err != nil {
@@ -197,41 +158,6 @@ func convertBizCloudbeaverConnection(u *biz.CloudbeaverConnection) *model.Cloudb
 	}
 }
 
-func convertBizDatabaseSourceService(u *biz.DatabaseSourceServiceParams) *model.DatabaseSourceService {
-	m := &model.DatabaseSourceService{
-		Model:               model.Model{UID: u.UID},
-		Name:                u.Name,
-		Source:              u.Source,
-		Version:             u.Version,
-		URL:                 u.URL,
-		DbType:              u.DbType,
-		CronExpress:         u.CronExpress,
-		ProjectUID:          u.ProjectUID,
-		LastSyncErr:         u.LastSyncErr,
-		LastSyncSuccessTime: u.LastSyncSuccessTime,
-	}
-
-	// add sqle config
-	if u.SQLEConfig != nil {
-		m.ExtraParameters = model.ExtraParameters{
-			SqleConfig: &model.SQLEConfig{
-				RuleTemplateName: u.SQLEConfig.RuleTemplateName,
-				RuleTemplateID:   u.SQLEConfig.RuleTemplateID,
-			},
-		}
-		sqleQueryConfig := u.SQLEConfig.SQLQueryConfig
-		if sqleQueryConfig != nil {
-			m.ExtraParameters.SqleConfig.SqlQueryConfig = &model.SqlQueryConfig{
-				AllowQueryWhenLessThanAuditLevel: sqleQueryConfig.AllowQueryWhenLessThanAuditLevel,
-				AuditEnabled:                     sqleQueryConfig.AuditEnabled,
-				MaxPreQueryRows:                  sqleQueryConfig.MaxPreQueryRows,
-				QueryTimeoutSecond:               sqleQueryConfig.QueryTimeoutSecond,
-			}
-		}
-	}
-
-	return m
-}
 
 func convertBizBasicConfig(u *biz.BasicConfigParams) *model.BasicConfig {
 	m := &model.BasicConfig{

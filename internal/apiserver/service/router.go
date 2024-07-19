@@ -56,15 +56,6 @@ func (s *APIServer) initRouter() error {
 		dbServiceSyncTaskV1.PUT("/:db_service_sync_task_uid", s.DMSController.UpdateDBServiceSyncTask)
 		dbServiceSyncTaskV1.DELETE("/:db_service_sync_task_uid", s.DMSController.DeleteDBServiceSyncTask)
 		dbServiceSyncTaskV1.POST("/:db_service_sync_task_uid/sync", s.DMSController.SyncDBServices)
-		
-		DatabaseSourceServiceV1 := v1.Group("/dms/projects/:project_uid/database_source_services")
-		DatabaseSourceServiceV1.GET("/tips", s.DMSController.ListDatabaseSourceServiceTips)
-		DatabaseSourceServiceV1.POST("/:database_source_service_uid/sync", s.DMSController.SyncDatabaseSourceService)
-		DatabaseSourceServiceV1.GET("", s.DMSController.ListDatabaseSourceServices)
-		DatabaseSourceServiceV1.GET("/:database_source_service_uid", s.DMSController.GetDatabaseSourceService)
-		DatabaseSourceServiceV1.POST("", s.DMSController.AddDatabaseSourceService)
-		DatabaseSourceServiceV1.PUT("/:database_source_service_uid", s.DMSController.UpdateDatabaseSourceService)
-		DatabaseSourceServiceV1.DELETE("/:database_source_service_uid", s.DMSController.DeleteDatabaseSourceService)
 
 		userV1 := v1.Group(dmsV1.UserRouterGroup)
 		userV1.POST("", s.DMSController.AddUser)
