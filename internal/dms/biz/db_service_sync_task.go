@@ -12,7 +12,7 @@ import (
 
 type DBServiceSyncTaskRepo interface {
 	SaveDBServiceSyncTask(ctx context.Context, syncTask *DBServiceSyncTask) error
-	UpdateDBServiceSyncTask(ctx context.Context, id string, syncTask *DBServiceSyncTask) error
+	UpdateDBServiceSyncTask(ctx context.Context, syncTask *DBServiceSyncTask) error
 	GetDBServiceSyncTaskById(ctx context.Context, id string) (*DBServiceSyncTask, error)
 	ListDBServiceSyncTasks(ctx context.Context) ([]*DBServiceSyncTask, error)
 	ListDBServiceSyncTaskTips() ([]ListDBServiceSyncTaskTips, error)
