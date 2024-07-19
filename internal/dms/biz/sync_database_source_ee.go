@@ -4,10 +4,12 @@ package biz
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
+	pkgError "github.com/actiontech/dms/internal/dms/pkg/errors"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 )
 
@@ -269,8 +271,7 @@ func getOrCreateProject(ctx context.Context, projectName, projectDesc string, sy
 	if err == nil {
 		return project, nil
 	}
-
-	if !strings.Contains(err.Error(), "record not found") {
+	if !errors.Is(err, pkgError.ErrStorageNoData) {
 		return nil, err
 	}
 
