@@ -48,6 +48,15 @@ func (s *APIServer) initRouter() error {
 		dbServiceV1.POST("/import_check", s.DMSController.ImportDBServicesOfOneProjectCheck)
 		dbServiceV1.POST("/import", s.DMSController.ImportDBServicesOfOneProject)
 
+		dbServiceSyncTaskV1 := v1.Group("/dms/db_service_sync_tasks")
+		dbServiceSyncTaskV1.GET("/tips", s.DMSController.ListDBServiceSyncTaskTips)
+		dbServiceSyncTaskV1.GET("", s.DMSController.ListDBServiceSyncTasks)
+		dbServiceSyncTaskV1.POST("", s.DMSController.AddDBServiceSyncTask)
+		dbServiceSyncTaskV1.GET("/:db_service_sync_task_uid", s.DMSController.GetDBServiceSyncTask)
+		dbServiceSyncTaskV1.PUT("/:db_service_sync_task_uid", s.DMSController.UpdateDBServiceSyncTask)
+		dbServiceSyncTaskV1.DELETE("/:db_service_sync_task_uid", s.DMSController.DeleteDBServiceSyncTask)
+		dbServiceSyncTaskV1.POST("/:db_service_sync_task_uid/sync", s.DMSController.SyncDBServices)
+		
 		DatabaseSourceServiceV1 := v1.Group("/dms/projects/:project_uid/database_source_services")
 		DatabaseSourceServiceV1.GET("/tips", s.DMSController.ListDatabaseSourceServiceTips)
 		DatabaseSourceServiceV1.POST("/:database_source_service_uid/sync", s.DMSController.SyncDatabaseSourceService)

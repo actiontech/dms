@@ -3656,7 +3656,15 @@ func (d *DMSController) SwaggerHandler(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) ListDBServiceSyncTasks(c echo.Context) error {
-	return nil
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	reply, err := d.DMS.ListDBServiceSyncTask(c.Request().Context(), currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:operation GET /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask GetDBServiceSyncTask
@@ -3680,7 +3688,21 @@ func (d *DMSController) ListDBServiceSyncTasks(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) GetDBServiceSyncTask(c echo.Context) error {
-	return nil
+	req := new(aV1.GetDBServiceSyncTaskReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	reply, err := d.DMS.GetDBServiceSyncTask(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:operation POST /v1/dms/db_service_sync_tasks DBServiceSyncTask AddDBServiceSyncTask
@@ -3705,7 +3727,23 @@ func (d *DMSController) GetDBServiceSyncTask(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddDBServiceSyncTask(c echo.Context) error {
-	return nil
+	req := new(aV1.AddDBServiceSyncTaskReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, err := d.DMS.AddDBServiceSyncTask(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:operation PUT /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask UpdateDBServiceSyncTask
@@ -3735,7 +3773,21 @@ func (d *DMSController) AddDBServiceSyncTask(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateDBServiceSyncTask(c echo.Context) error {
-	return nil
+	req := &aV1.UpdateDBServiceSyncTaskReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	err = d.DMS.UpdateDBServiceSyncTask(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkResp(c)
 }
 
 // swagger:operation DELETE /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask DeleteDBServiceSyncTask
@@ -3759,7 +3811,21 @@ func (d *DMSController) UpdateDBServiceSyncTask(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) DeleteDBServiceSyncTask(c echo.Context) error {
-	return nil
+	req := &aV1.DeleteDBServiceSyncTaskReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	err = d.DMS.DeleteDBServiceSyncTask(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkResp(c)
 }
 
 // swagger:operation GET /v1/dms/db_service_sync_tasks/tips DBServiceSyncTask ListDBServiceSyncTaskTips
@@ -3777,7 +3843,11 @@ func (d *DMSController) DeleteDBServiceSyncTask(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) ListDBServiceSyncTaskTips(c echo.Context) error {
-	return nil
+	reply, err := d.DMS.ListDBServiceSyncTaskTips(c.Request().Context())
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:operation POST /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid}/sync DBServiceSyncTask SyncDBServices
@@ -3801,5 +3871,20 @@ func (d *DMSController) ListDBServiceSyncTaskTips(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) SyncDBServices(c echo.Context) error {
-	return nil
+	req := &aV1.SyncDBServicesReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	err = d.DMS.SyncDBServices(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkResp(c)
 }
