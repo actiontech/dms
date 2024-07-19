@@ -6,6 +6,7 @@ import (
 
 	v1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
 
 func (d *DMSService) AddDBServiceSyncTask(ctx context.Context, req *v1.AddDBServiceSyncTaskReq, currentUserId string) (reply *v1.AddDBServiceSyncTaskReply, err error) {
@@ -92,6 +93,27 @@ func toApiDBServiceSyncTask(d *DMSService, syncTask *biz.DBServiceSyncTask) v1.D
 		AdditionalParam: syncTask.AdditionalParam,
 		SQLEConfig:      d.buildReplySqleConfig(syncTask.SQLEConfig),
 	}
+}
+
+
+func (d *DMSService) buildReplySqleConfig(params *biz.SQLEConfig) *dmsCommonV1.SQLEConfig {
+	if params == nil {
+		return nil
+	}
+
+	sqlConfig := &dmsCommonV1.SQLEConfig{
+		RuleTemplateName: params.RuleTemplateName,
+		RuleTemplateID:   params.RuleTemplateID,
+		SQLQueryConfig:   &dmsCommonV1.SQLQueryConfig{},
+	}
+	if params.SQLQueryConfig != nil {
+		sqlConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel = dmsCommonV1.SQLAllowQueryAuditLevel(params.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel)
+		sqlConfig.SQLQueryConfig.AuditEnabled = params.SQLQueryConfig.AuditEnabled
+		sqlConfig.SQLQueryConfig.MaxPreQueryRows = params.SQLQueryConfig.MaxPreQueryRows
+		sqlConfig.SQLQueryConfig.QueryTimeoutSecond = params.SQLQueryConfig.QueryTimeoutSecond
+	}
+
+	return sqlConfig
 }
 
 func (d *DMSService) ListDBServiceSyncTaskTips(ctx context.Context) (*v1.ListDBServiceSyncTaskTipsReply, error) {
