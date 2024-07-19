@@ -17,6 +17,7 @@ type DMSService struct {
 	PluginUsecase                *biz.PluginUsecase
 	DBServiceUsecase             *biz.DBServiceUsecase
 	DatabaseSourceServiceUsecase *biz.DatabaseSourceServiceUsecase
+	DBServiceSyncTaskUsecase     *biz.DBServiceSyncTaskUsecase
 	UserUsecase                  *biz.UserUsecase
 	UserGroupUsecase             *biz.UserGroupUsecase
 	RoleUsecase                  *biz.RoleUsecase
@@ -75,6 +76,8 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	dbServiceUseCase := biz.NewDBServiceUsecase(logger, dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, opts.DatabaseDriverOptions)
 	databaseSourceServiceRepo := storage.NewDatabaseSourceServiceRepo(logger, st)
 	databaseSourceServiceUsecase := biz.NewDatabaseSourceServiceUsecase(logger, databaseSourceServiceRepo, opPermissionVerifyUsecase, projectUsecase, dbServiceUseCase)
+	dbServiceTaskRepo := storage.NewDBServiceSyncTaskRepo(logger, st)
+	dbServiceTaskUsecase := biz.NewDBServiceSyncTaskUsecase(logger, dbServiceTaskRepo, opPermissionVerifyUsecase, projectUsecase, dbServiceUseCase)
 	ldapConfigurationRepo := storage.NewLDAPConfigurationRepo(logger, st)
 	ldapConfigurationUsecase := biz.NewLDAPConfigurationUsecase(logger, tx, ldapConfigurationRepo)
 	userRepo := storage.NewUserRepo(logger, st)
@@ -136,6 +139,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		PluginUsecase:                pluginUseCase,
 		DBServiceUsecase:             dbServiceUseCase,
 		DatabaseSourceServiceUsecase: databaseSourceServiceUsecase,
+		DBServiceSyncTaskUsecase:     dbServiceTaskUsecase,
 		UserUsecase:                  userUsecase,
 		UserGroupUsecase:             userGroupUsecase,
 		RoleUsecase:                  roleUsecase,
