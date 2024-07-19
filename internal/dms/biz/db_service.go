@@ -33,25 +33,25 @@ type SQLEConfig struct {
 type DBService struct {
 	Base
 
-	UID               string
-	Name              string
-	Desc              string
-	DBType            string
-	Host              string
-	Port              string
-	User              string
-	Password          string
-	Business          string
-	AdditionalParams  pkgParams.Params
-	ProjectUID        string
-	MaintenancePeriod pkgPeriods.Periods
-	Source            string
+	UID               string             `json:"uid"`
+	Name              string             `json:"name"`
+	Desc              string             `json:"desc"`
+	DBType            string             `json:"db_type"`
+	Host              string             `json:"host"`
+	Port              string             `json:"port"`
+	User              string             `json:"user"`
+	Password          string             `json:"password"`
+	Business          string             `json:"business"`
+	AdditionalParams  pkgParams.Params   `json:"additional_params"`
+	ProjectUID        string             `json:"project_uid"`
+	MaintenancePeriod pkgPeriods.Periods `json:"maintenance_period"`
+	Source            string             `json:"source"`
 
 	// sqle config
-	SQLEConfig      *SQLEConfig
-	IsMaskingSwitch bool
+	SQLEConfig      *SQLEConfig `json:"sqle_config"`
+	IsMaskingSwitch bool        `json:"is_masking_switch"`
 	// PROV config
-	AccountPurpose string
+	AccountPurpose string `json:"account_purpose"`
 }
 
 type DBTypeCount struct {
