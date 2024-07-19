@@ -1213,3 +1213,71 @@ func convertModelCbOperationLog(model *model.CbOperationLog) (*biz.CbOperationLo
 		Project:           project,
 	}, nil
 }
+
+
+func toModelDBServiceSyncTask(u *biz.DBServiceSyncTask) *model.DBServiceSyncTask {
+	ret := &model.DBServiceSyncTask{
+		Model:               model.Model{UID: u.UID},
+		Name:                u.Name,
+		Source:              u.Source,
+		URL:                 u.URL,
+		DbType:              u.DbType,
+		CronExpress:         u.CronExpress,
+		LastSyncErr:         u.LastSyncErr,
+		LastSyncSuccessTime: u.LastSyncSuccessTime,
+	}
+	if u.LastSyncSuccessTime != nil {
+		ret.LastSyncSuccessTime = u.LastSyncSuccessTime
+	}
+	if u.SQLEConfig != nil {
+		ret.ExtraParameters.SqleConfig = &model.SQLEConfig{
+			RuleTemplateName: u.SQLEConfig.RuleTemplateName,
+			RuleTemplateID:   u.SQLEConfig.RuleTemplateID,
+		}
+		if u.SQLEConfig.SQLQueryConfig != nil {
+			ret.ExtraParameters.SqleConfig.SqlQueryConfig = &model.SqlQueryConfig{
+				MaxPreQueryRows:                  u.SQLEConfig.SQLQueryConfig.QueryTimeoutSecond,
+				QueryTimeoutSecond:               u.SQLEConfig.SQLQueryConfig.QueryTimeoutSecond,
+				AuditEnabled:                     u.SQLEConfig.SQLQueryConfig.AuditEnabled,
+				AllowQueryWhenLessThanAuditLevel: u.SQLEConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel,
+			}
+		}
+	}
+	if u.AdditionalParam != nil {
+		ret.ExtraParameters.AdditionalParam = u.AdditionalParam
+	}
+	return ret
+}
+
+func toBizDBServiceSyncTask(m *model.DBServiceSyncTask) *biz.DBServiceSyncTask {
+	ret := &biz.DBServiceSyncTask{
+		UID:         m.UID,
+		Name:        m.Name,
+		Source:      m.Source,
+		URL:         m.URL,
+		DbType:      m.DbType,
+		CronExpress: m.CronExpress,
+		LastSyncErr: m.LastSyncErr,
+	}
+	if m.LastSyncSuccessTime != nil {
+		ret.LastSyncSuccessTime = m.LastSyncSuccessTime
+	}
+	if m.ExtraParameters.SqleConfig != nil {
+		ret.SQLEConfig = &biz.SQLEConfig{
+			RuleTemplateName: m.ExtraParameters.SqleConfig.RuleTemplateName,
+			RuleTemplateID:   m.ExtraParameters.SqleConfig.RuleTemplateID,
+		}
+		if m.ExtraParameters.SqleConfig.SqlQueryConfig != nil {
+			ret.SQLEConfig.SQLQueryConfig = &biz.SQLQueryConfig{
+				MaxPreQueryRows:                  m.ExtraParameters.SqleConfig.SqlQueryConfig.QueryTimeoutSecond,
+				QueryTimeoutSecond:               m.ExtraParameters.SqleConfig.SqlQueryConfig.QueryTimeoutSecond,
+				AuditEnabled:                     m.ExtraParameters.SqleConfig.SqlQueryConfig.AuditEnabled,
+				AllowQueryWhenLessThanAuditLevel: m.ExtraParameters.SqleConfig.SqlQueryConfig.AllowQueryWhenLessThanAuditLevel,
+			}
+		}
+	}
+	if m.ExtraParameters.AdditionalParam != nil {
+		ret.AdditionalParam = m.ExtraParameters.AdditionalParam
+	}
+	return ret
+}
