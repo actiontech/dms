@@ -47,7 +47,7 @@ func (d *DBServiceSyncTaskRepo) GetDBServiceSyncTaskById(ctx context.Context, id
 	return toBizDBServiceSyncTask(dbServiceSyncTask), nil
 }
 
-func (d *DBServiceSyncTaskRepo) UpdateDBServiceSyncTask(ctx context.Context, dbServiceSyncTaskUid string, syncTask *biz.DBServiceSyncTask) error {
+func (d *DBServiceSyncTaskRepo) UpdateDBServiceSyncTask(ctx context.Context, syncTask *biz.DBServiceSyncTask) error {
 	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Omit("created_at").Save(toModelDBServiceSyncTask(syncTask)).Error; err != nil {
 			return fmt.Errorf("failed to update db_service_sync_task: %v", err)
