@@ -62,10 +62,10 @@ func (uc *DBServiceSyncTaskUsecase) UpdateDBServiceSyncTask(ctx context.Context,
 	updateValues.LastSyncErr = syncTask.LastSyncErr
 	updateValues.LastSyncSuccessTime = syncTask.LastSyncSuccessTime
 
-	if err = uc.repo.UpdateDBServiceSyncTask(ctx, syncTaskId, updateValues); err != nil {
+	if err = uc.repo.UpdateDBServiceSyncTask(ctx, updateValues); err != nil {
 		return err
 	}
-	
+
 	uc.RestartSyncDBServiceSyncTask()
 	return nil
 }
