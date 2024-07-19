@@ -4,10 +4,12 @@ package biz
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
+	pkgError "github.com/actiontech/dms/internal/dms/pkg/errors"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 )
 
@@ -17,25 +19,25 @@ const (
 )
 
 type DatabaseSourceImpl interface {
-	SyncDatabaseSource(context.Context, *DatabaseSourceServiceParams, *DatabaseSourceServiceUsecase, string) error
+	SyncDatabaseSource(context.Context, *DBServiceSyncTask, string) error
 }
 
-var databaseSourceMap = map[pkgConst.DBServiceSourceName]DatabaseSourceImpl{}
-
-func GetDatabaseSourceImpl(name pkgConst.DBServiceSourceName) (DatabaseSourceImpl, error) {
-	databaseSourceImpl, ok := databaseSourceMap[name]
-	if ok {
-		return databaseSourceImpl, nil
+func NewDatabaseSourceImpl(name pkgConst.DBServiceSourceName, syncTaskUsecase *DBServiceSyncTaskUsecase) (DatabaseSourceImpl, error) {
+	switch name {
+	case pkgConst.DBServiceSourceNameDMP:
+		return dmpManager{
+			syncTaskUsecase: syncTaskUsecase,
+		}, nil
+	case pkgConst.DBServiceSourceNameExpandService:
+		return expandService{
+			syncTaskUsecase: syncTaskUsecase,
+		}, nil
 	}
-
 	return nil, fmt.Errorf("%s hasn't implemented", name)
 }
 
-func init() {
-	databaseSourceMap[pkgConst.DBServiceSourceNameDMP] = dmpManager{}
-}
-
 type dmpManager struct {
+	syncTaskUsecase *DBServiceSyncTaskUsecase
 }
 
 type Tag struct {
@@ -73,9 +75,10 @@ type DmpDatabaseSourceResp struct {
 	TotalNums uint32 `json:"total_nums"`
 }
 
-func (d dmpManager) SyncDatabaseSource(ctx context.Context, params *DatabaseSourceServiceParams, serviceUsecase *DatabaseSourceServiceUsecase, currentUserId string) error {
-	if params.Version < databaseSourceDMPSupportedVersion {
-		return fmt.Errorf("dmp version %s not supported", params.Version)
+func (d dmpManager) SyncDatabaseSource(ctx context.Context, params *DBServiceSyncTask, currentUserId string) error {
+	dmpVersion := params.AdditionalParam.GetParam("version").String()
+	if dmpVersion < databaseSourceDMPSupportedVersion {
+		return fmt.Errorf("dmp version %s not supported", dmpVersion)
 	}
 
 	dbType, err := pkgConst.ParseDBType(params.DbType)
@@ -109,11 +112,11 @@ func (d dmpManager) SyncDatabaseSource(ctx context.Context, params *DatabaseSour
 		{
 			Field:    string(DatabaseSourceServiceFieldProjectUID),
 			Operator: pkgConst.FilterOperatorEqual,
-			Value:    params.ProjectUID,
+			Value:    pkgConst.UIDOfProjectDefault,
 		},
 	}
 
-	dbServices, err := serviceUsecase.dbServiceUsecase.repo.GetDBServices(ctx, conditions)
+	dbServices, err := d.syncTaskUsecase.dbServiceUsecase.repo.GetDBServices(ctx, conditions)
 	if err != nil {
 		return err
 	}
@@ -131,7 +134,7 @@ func (d dmpManager) SyncDatabaseSource(ctx context.Context, params *DatabaseSour
 		}
 
 		if item.DataSrcSip == "" {
-			serviceUsecase.log.Errorf("dmp data source %s sip is empty", item.DataSrcID)
+			d.syncTaskUsecase.log.Errorf("dmp data source %s sip is empty", item.DataSrcID)
 			continue
 		}
 
@@ -143,7 +146,7 @@ func (d dmpManager) SyncDatabaseSource(ctx context.Context, params *DatabaseSour
 		}
 		// 业务为空不支持同步
 		if len(businessArr) == 0 {
-			serviceUsecase.projectUsecase.log.Warnf("can not get business from remote: %s, port %s", item.DataSrcSip, item.DataSrcPort)
+			d.syncTaskUsecase.projectUsecase.log.Warnf("can not get business from remote: %s, port %s", item.DataSrcSip, item.DataSrcPort)
 			continue
 		}
 
@@ -159,7 +162,7 @@ func (d dmpManager) SyncDatabaseSource(ctx context.Context, params *DatabaseSour
 			User:       item.DataSrcUser,
 			Password:   &password,
 			Business:   strings.Join(businessArr, ","),
-			ProjectUID: params.ProjectUID,
+			ProjectUID: pkgConst.UIDOfProjectDefault,
 			Source:     string(pkgConst.DBServiceSourceNameDMP),
 		}
 
@@ -180,12 +183,12 @@ func (d dmpManager) SyncDatabaseSource(ctx context.Context, params *DatabaseSour
 		dbService, ok := dbServiceSourceAddrMap[sourceId]
 		if !ok {
 			// create
-			_, err = serviceUsecase.dbServiceUsecase.CreateDBService(ctx, dbServiceParams, currentUserId)
+			_, err = d.syncTaskUsecase.dbServiceUsecase.CreateDBService(ctx, dbServiceParams, currentUserId)
 		} else {
 			remainDBServiceSourceMap[sourceId] = dbService.UID
 			// update
 			if dbService.Host != item.DataSrcSip || dbService.Port != item.DataSrcPort || dbService.User != item.DataSrcUser || dbService.Password != password {
-				err = serviceUsecase.dbServiceUsecase.UpdateDBService(ctx, dbService.UID, dbServiceParams, currentUserId)
+				err = d.syncTaskUsecase.dbServiceUsecase.UpdateDBService(ctx, dbService.UID, dbServiceParams, currentUserId)
 			}
 		}
 
@@ -197,7 +200,7 @@ func (d dmpManager) SyncDatabaseSource(ctx context.Context, params *DatabaseSour
 	for sourceId, dbService := range dbServiceSourceAddrMap {
 		if _, ok := remainDBServiceSourceMap[sourceId]; !ok {
 			// delete db service
-			if err = serviceUsecase.dbServiceUsecase.DelDBService(ctx, dbService.UID, currentUserId); err != nil {
+			if err = d.syncTaskUsecase.dbServiceUsecase.DelDBService(ctx, dbService.UID, currentUserId); err != nil {
 				return err
 			}
 		}
@@ -221,4 +224,138 @@ func (d dmpManager) getDmpFilterType(dbType pkgConst.DBType) string {
 	default:
 		return ""
 	}
+}
+
+type expandService struct {
+	syncTaskUsecase *DBServiceSyncTaskUsecase
+}
+
+type SyncDBServiceResV1 struct {
+	DBServices []SyncDBService `json:"db_services"`
+}
+
+type SyncDBService struct {
+	DBService
+	ProjectName string `json:"project_name"`
+}
+
+func (s expandService) SyncDatabaseSource(ctx context.Context, syncTask *DBServiceSyncTask, currentUserId string) error {
+	var header = map[string]string{"Content-Type": "application/json"}
+	var resp = &SyncDBServiceResV1{}
+
+	if err := pkgHttp.Get(ctx, syncTask.URL, header, nil, resp); err != nil {
+		return fmt.Errorf("when sync database source, get data from %v failed, err:%v", syncTask.URL, err)
+	}
+	// map db services by project name
+	projectSyncDBServiceMap := make(map[string] /*project name*/ []*SyncDBService, len(resp.DBServices))
+	for _, dbService := range resp.DBServices {
+		db := dbService
+		db.Source = syncTask.Name
+		projectSyncDBServiceMap[dbService.ProjectName] = append(projectSyncDBServiceMap[dbService.ProjectName], &db)
+	}
+	// update db services by project
+	for projectName, dbServices := range projectSyncDBServiceMap {
+		project, err := getOrCreateProject(ctx, projectName, fmt.Sprintf("project sync by external database sync task, named: %v", syncTask.Name), s.syncTaskUsecase)
+		if err != nil {
+			return fmt.Errorf("when sync database source, getOrCreateProject failed, err:%v", err)
+		}
+		if err := s.syncDBServices(ctx, dbServices, project, syncTask, currentUserId); err != nil {
+			return fmt.Errorf("when sync database source, syncDBServices, err:%v", err)
+		}
+	}
+	return nil
+}
+
+func getOrCreateProject(ctx context.Context, projectName, projectDesc string, syncTaskUsecase *DBServiceSyncTaskUsecase) (*Project, error) {
+	project, err := syncTaskUsecase.projectUsecase.GetProjectByName(ctx, projectName)
+	if err == nil {
+		return project, nil
+	}
+	if !errors.Is(err, pkgError.ErrStorageNoData) {
+		return nil, err
+	}
+
+	project, err = NewProject(pkgConst.UIDOfUserAdmin, projectName, projectDesc, false, nil)
+	if err != nil {
+		return nil, err
+	}
+	if err = syncTaskUsecase.projectUsecase.CreateProject(ctx, project, pkgConst.UIDOfUserAdmin); err != nil {
+		return nil, err
+	}
+	return syncTaskUsecase.projectUsecase.GetProjectByName(ctx, projectName)
+}
+
+func (s expandService) syncDBServices(ctx context.Context, syncDBServices []*SyncDBService, project *Project, syncTask *DBServiceSyncTask, currentUserId string) error {
+	// get db services from project
+	currentDBServices, err := s.syncTaskUsecase.dbServiceUsecase.repo.GetDBServices(ctx, []pkgConst.FilterCondition{
+		{
+			Field:    string(DatabaseSourceServiceFieldSource),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    syncTask.Name,
+		},
+		{
+			Field:    string(DatabaseSourceServiceFieldProjectUID),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    project.UID,
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("when sync db service get db service in project failed, project uid: %v, db type: %v, err: %v", project.UID, syncTask.DbType, err)
+	}
+	// map current db service by name
+	currentDBServiceMap := make(map[string] /*db service name*/ *DBService, len(currentDBServices))
+	for _, currentDBService := range currentDBServices {
+		db := currentDBService
+		currentDBServiceMap[currentDBService.Name] = db
+	}
+	
+	for _, dbService := range syncDBServices {
+		dbServiceParams := convertDbServiceToDbParams(dbService, project)
+		if db, exist := currentDBServiceMap[dbServiceParams.Name]; exist {
+			// if exist update db service
+			err = s.syncTaskUsecase.dbServiceUsecase.UpdateDBService(ctx, db.UID, &dbServiceParams, currentUserId)
+			if err != nil {
+				return err
+			}
+			// delete updated db service from map
+			delete(currentDBServiceMap, dbServiceParams.Name)
+		} else {
+			// if not exist create db service
+			_, err := s.syncTaskUsecase.dbServiceUsecase.CreateDBService(ctx, &dbServiceParams, currentUserId)
+			if err != nil {
+				return err
+			}
+		}
+
+	}
+	// delete remaining databases
+	for _, dbService := range currentDBServiceMap {
+		return s.syncTaskUsecase.dbServiceUsecase.DelDBService(ctx, dbService.UID, currentUserId)
+	}
+	return nil
+}
+
+func convertDbServiceToDbParams(dbService *SyncDBService, project *Project) BizDBServiceArgs {
+	dbServiceParams := BizDBServiceArgs{
+		Name:              dbService.Name,
+		Desc:              &dbService.Desc,
+		DBType:            dbService.DBType,
+		Host:              dbService.Host,
+		Port:              dbService.Port,
+		User:              dbService.User,
+		Password:          &dbService.Password,
+		Business:          dbService.Business,
+		Source:            dbService.Source,
+		AdditionalParams:  dbService.AdditionalParams,
+		ProjectUID:        project.UID,
+		MaintenancePeriod: dbService.MaintenancePeriod,
+		IsMaskingSwitch:   dbService.IsMaskingSwitch,
+	}
+
+	if dbService.SQLEConfig != nil {
+		dbServiceParams.RuleTemplateName = dbService.SQLEConfig.RuleTemplateName
+		dbServiceParams.RuleTemplateID = dbService.SQLEConfig.RuleTemplateID
+		dbServiceParams.SQLQueryConfig = dbService.SQLEConfig.SQLQueryConfig
+	}
+	return dbServiceParams
 }
