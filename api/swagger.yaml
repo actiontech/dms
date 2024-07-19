@@ -1153,9 +1153,6 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    DeleteDBServiceSyncTaskReq:
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     FeishuConfigurationResData:
         properties:
             app_id:
@@ -1314,9 +1311,6 @@ definitions:
                 description: message
                 type: string
                 x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    GetDBServiceSyncTaskReq:
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetDataExportTask:
@@ -3910,9 +3904,6 @@ definitions:
                 x-go-name: QueryTimeoutSecond
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    SyncDBServicesReq:
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     SyncDatabaseSourceServiceReq:
         properties:
             database_source_service_uid:
@@ -4128,7 +4119,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:

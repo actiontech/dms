@@ -26,7 +26,6 @@ type ListDBServiceSyncTask struct {
 	LastSyncSuccessTime *time.Time `json:"last_sync_success_time"`
 }
 
-// swagger:model GetDBServiceSyncTaskReq
 type GetDBServiceSyncTaskReq struct {
 	// swagger:ignore
 	DBServiceSyncTaskUid string `param:"db_service_sync_task_uid" json:"db_service_sync_task_uid" validate:"required"`
@@ -98,7 +97,6 @@ type UpdateDBServiceSyncTaskReq struct {
 	DBServiceSyncTask DBServiceSyncTask `json:"db_service_sync_task" validate:"required"`
 }
 
-// swagger:model DeleteDBServiceSyncTaskReq
 type DeleteDBServiceSyncTaskReq struct {
 	// swagger:ignore
 	DBServiceSyncTaskUid string `param:"db_service_sync_task_uid" json:"db_service_sync_task_uid" validate:"required"`
@@ -119,7 +117,6 @@ type DBServiceSyncTaskTip struct {
 	Params pkgParams.Params             `json:"params,omitempty"`
 }
 
-// swagger:model SyncDBServicesReq
 type SyncDBServicesReq struct {
 	// swagger:ignore
 	DBServiceSyncTaskUid string `param:"db_service_sync_task_uid" json:"db_service_sync_task_uid" validate:"required"`

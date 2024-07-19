@@ -6192,10 +6192,6 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
-    "DeleteDBServiceSyncTaskReq": {
-      "type": "object",
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
     "FeishuConfigurationResData": {
       "type": "object",
       "properties": {
@@ -6406,10 +6402,6 @@
           "x-go-name": "Message"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "GetDBServiceSyncTaskReq": {
-      "type": "object",
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetDataExportTask": {
@@ -9662,10 +9654,6 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
-    "SyncDBServicesReq": {
-      "type": "object",
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
     "SyncDatabaseSourceServiceReq": {
       "type": "object",
       "properties": {
@@ -9960,7 +9948,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
