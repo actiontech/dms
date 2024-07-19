@@ -3641,79 +3641,165 @@ func (d *DMSController) SwaggerHandler(c echo.Context) error {
 	return handler(c)
 }
 
-// swagger:route GET /v1/dms/db_service_sync_tasks DBServiceSyncTask ListDBServiceSyncTasks
+// swagger:operation GET /v1/dms/db_service_sync_tasks DBServiceSyncTask ListDBServiceSyncTasks
 //
 // List database synchronization tasks.
 //
-//	responses:
-//	  200: body:ListDBServiceSyncTasksReply
-//	  default: body:GenericResp
+// ---
+// responses:
+//   '200':
+//     description: ListDBServiceSyncTasksReply
+//     schema:
+//       "$ref": "#/definitions/ListDBServiceSyncTasksReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) ListDBServiceSyncTasks(c echo.Context) error {
 	return nil
 }
 
-// swagger:route GET /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask GetDBServiceSyncTask
+// swagger:operation GET /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask GetDBServiceSyncTask
 //
 // Get database synchronization task.
 //
-//	responses:
-//	  200: body:GetDBServiceSyncTaskReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: db_service_sync_task_uid
+//     description: db service sync task uid
+//     in: path
+//     required: true
+//     type: string
+// responses:
+//   '200':
+//     description: GetDBServiceSyncTaskReply
+//     schema:
+//       "$ref": "#/definitions/GetDBServiceSyncTaskReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) GetDBServiceSyncTask(c echo.Context) error {
 	return nil
 }
 
-// swagger:route POST /v1/dms/db_service_sync_tasks DBServiceSyncTask AddDBServiceSyncTask
+// swagger:operation POST /v1/dms/db_service_sync_tasks DBServiceSyncTask AddDBServiceSyncTask
 //
 // Add database synchronization task.
 //
+// ---
+// parameters:
+//   - name: db_service_sync_task
+//     description: Add new db service sync task
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/AddDBServiceSyncTaskReq"
 // responses:
-//    200: body:AddDBServiceSyncTaskReply
-//    default: body:GenericResp
+//   '200':
+//     description: AddDBServiceReply
+//     schema:
+//       "$ref": "#/definitions/AddDBServiceReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddDBServiceSyncTask(c echo.Context) error {
 	return nil
 }
 
-// swagger:route PUT /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask UpdateDBServiceSyncTask
+// swagger:operation PUT /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask UpdateDBServiceSyncTask
 //
 // update database synchronization task.
 //
-//  responses:
-//    200: body:GenericResp
-//    default: body:GenericResp
+// ---
+// parameters:
+//   - name: db_service_sync_task_uid
+//     description: db service sync task uid
+//     in: path
+//     required: true
+//     type: string
+//   - name: db_service_sync_task
+//     description: update db service sync task
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/UpdateDBServiceSyncTaskReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateDBServiceSyncTask(c echo.Context) error {
 	return nil
 }
 
-// swagger:route DELETE /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask DeleteDBServiceSyncTask
+// swagger:operation DELETE /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid} DBServiceSyncTask DeleteDBServiceSyncTask
 //
 // Delete database synchronization task.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: db_service_sync_task_uid
+//     description: db service sync task uid
+//     in: path
+//     required: true
+//     type: string
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) DeleteDBServiceSyncTask(c echo.Context) error {
 	return nil
 }
 
-// swagger:route GET /v1/dms/db_service_sync_tasks/tips DBServiceSyncTask ListDBServiceSyncTaskTips
+// swagger:operation GET /v1/dms/db_service_sync_tasks/tips DBServiceSyncTask ListDBServiceSyncTaskTips
 //
 // List database synchronization task tips.
 //
-//	responses:
-//	  200: body:ListDBServiceSyncTaskTipsReply
-//	  default: body:GenericResp
+// ---
+// responses:
+//   '200':
+//     description: ListDBServiceSyncTaskTipsReply
+//     schema:
+//       "$ref": "#/definitions/ListDBServiceSyncTaskTipsReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) ListDBServiceSyncTaskTips(c echo.Context) error {
 	return nil
 }
 
-// swagger:route POST /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid}/sync DBServiceSyncTask SyncDBServices
+// swagger:operation POST /v1/dms/db_service_sync_tasks/{db_service_sync_task_uid}/sync DBServiceSyncTask SyncDBServices
 //
 // Sync db service.
 //
-//	responses:
-//	  200: body:GenericResp
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: db_service_sync_task_uid
+//     description: db service sync task uid
+//     in: path
+//     required: true
+//     type: string
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) SyncDBServices(c echo.Context) error {
 	return nil
 }
