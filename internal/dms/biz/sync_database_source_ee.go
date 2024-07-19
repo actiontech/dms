@@ -234,7 +234,6 @@ type SyncDBServiceResV1 struct {
 
 type SyncDBService struct {
 	DBService
-	Action      string `json:"action"`
 	ProjectName string `json:"project_name"`
 }
 
@@ -243,16 +242,23 @@ func (s expandService) SyncDatabaseSource(ctx context.Context, syncTask *DBServi
 	var resp = &SyncDBServiceResV1{}
 
 	if err := pkgHttp.Get(ctx, syncTask.URL, header, nil, resp); err != nil {
-		return err
+		return fmt.Errorf("when sync database source, get data from %v failed, err:%v", syncTask.URL, err)
 	}
-
+	// map db services by project name
+	projectSyncDBServiceMap := make(map[string] /*project name*/ []*SyncDBService, len(resp.DBServices))
 	for _, dbService := range resp.DBServices {
-		project, err := getOrCreateProject(ctx, dbService.ProjectName, dbService.Desc, s.syncTaskUsecase)
+		db := dbService
+		db.Source = syncTask.Name
+		projectSyncDBServiceMap[dbService.ProjectName] = append(projectSyncDBServiceMap[dbService.ProjectName], &db)
+	}
+	// update db services by project
+	for projectName, dbServices := range projectSyncDBServiceMap {
+		project, err := getOrCreateProject(ctx, projectName, fmt.Sprintf("project sync by external database sync task, named: %v", syncTask.Name), s.syncTaskUsecase)
 		if err != nil {
-			return err
+			return fmt.Errorf("when sync database source, getOrCreateProject failed, err:%v", err)
 		}
-		if err := s.syncDBServices(ctx, dbService, project, syncTask, currentUserId); err != nil {
-			return err
+		if err := s.syncDBServices(ctx, dbServices, project, syncTask, currentUserId); err != nil {
+			return fmt.Errorf("when sync database source, syncDBServices, err:%v", err)
 		}
 	}
 	return nil
@@ -278,37 +284,57 @@ func getOrCreateProject(ctx context.Context, projectName, projectDesc string, sy
 	return syncTaskUsecase.projectUsecase.GetProjectByName(ctx, projectName)
 }
 
-func (s expandService) syncDBServices(ctx context.Context, dbService SyncDBService, project *Project, syncTask *DBServiceSyncTask, currentUserId string) error {
-	dbServiceParams := convertDbServiceToDbParams(dbService, project, syncTask)
-
-	actionMap := map[string]func() error{
-		"CREATE": func() error {
+func (s expandService) syncDBServices(ctx context.Context, syncDBServices []*SyncDBService, project *Project, syncTask *DBServiceSyncTask, currentUserId string) error {
+	// get db services from project
+	currentDBServices, err := s.syncTaskUsecase.dbServiceUsecase.repo.GetDBServices(ctx, []pkgConst.FilterCondition{
+		{
+			Field:    string(DatabaseSourceServiceFieldSource),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    syncTask.Name,
+		},
+		{
+			Field:    string(DatabaseSourceServiceFieldProjectUID),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    project.UID,
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("when sync db service get db service in project failed, project uid: %v, db type: %v, err: %v", project.UID, syncTask.DbType, err)
+	}
+	// map current db service by name
+	currentDBServiceMap := make(map[string] /*db service name*/ *DBService, len(currentDBServices))
+	for _, currentDBService := range currentDBServices {
+		db := currentDBService
+		currentDBServiceMap[currentDBService.Name] = db
+	}
+	
+	for _, dbService := range syncDBServices {
+		dbServiceParams := convertDbServiceToDbParams(dbService, project)
+		if db, exist := currentDBServiceMap[dbServiceParams.Name]; exist {
+			// if exist update db service
+			err = s.syncTaskUsecase.dbServiceUsecase.UpdateDBService(ctx, db.UID, &dbServiceParams, currentUserId)
+			if err != nil {
+				return err
+			}
+			// delete updated db service from map
+			delete(currentDBServiceMap, dbServiceParams.Name)
+		} else {
+			// if not exist create db service
 			_, err := s.syncTaskUsecase.dbServiceUsecase.CreateDBService(ctx, &dbServiceParams, currentUserId)
-			return err
-		},
-		"UPDATE": func() error {
-			db, err := getDatabase(ctx, project.UID, dbService.Name, s.syncTaskUsecase)
 			if err != nil {
 				return err
 			}
-			return s.syncTaskUsecase.dbServiceUsecase.UpdateDBService(ctx, db.UID, &dbServiceParams, currentUserId)
-		},
-		"DELETE": func() error {
-			db, err := getDatabase(ctx, project.UID, dbService.Name, s.syncTaskUsecase)
-			if err != nil {
-				return err
-			}
-			return s.syncTaskUsecase.dbServiceUsecase.DelDBService(ctx, db.UID, currentUserId)
-		},
-	}
+		}
 
-	if syncFunc, exists := actionMap[dbService.Action]; exists {
-		return syncFunc()
 	}
-	return fmt.Errorf("unknown action: %s", dbService.Action)
+	// delete remaining databases
+	for _, dbService := range currentDBServiceMap {
+		return s.syncTaskUsecase.dbServiceUsecase.DelDBService(ctx, dbService.UID, currentUserId)
+	}
+	return nil
 }
 
-func convertDbServiceToDbParams(dbService SyncDBService, project *Project, syncTask *DBServiceSyncTask) BizDBServiceArgs {
+func convertDbServiceToDbParams(dbService *SyncDBService, project *Project) BizDBServiceArgs {
 	dbServiceParams := BizDBServiceArgs{
 		Name:              dbService.Name,
 		Desc:              &dbService.Desc,
@@ -331,16 +357,4 @@ func convertDbServiceToDbParams(dbService SyncDBService, project *Project, syncT
 		dbServiceParams.SQLQueryConfig = dbService.SQLEConfig.SQLQueryConfig
 	}
 	return dbServiceParams
-}
-
-func getDatabase(ctx context.Context, projectUid, DBServiceName string, serviceUsecase *DBServiceSyncTaskUsecase) (*DBService, error) {
-	conditions := []pkgConst.FilterCondition{
-		{Field: string(DBServiceFieldProjectUID), Operator: pkgConst.FilterOperatorEqual, Value: projectUid},
-		{Field: string(DBServiceFieldName), Operator: pkgConst.FilterOperatorEqual, Value: DBServiceName},
-	}
-	dbs, err := serviceUsecase.dbServiceUsecase.repo.GetDBServices(ctx, conditions)
-	if err != nil || len(dbs) < 1 {
-		return nil, fmt.Errorf("get wrong numbers of database: %v", err)
-	}
-	return dbs[0], nil
 }
