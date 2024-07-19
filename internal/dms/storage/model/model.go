@@ -522,7 +522,7 @@ type CbOperationLog struct {
 
 type DBServiceSyncTask struct {
 	Model
-	Name                string          `json:"name" gorm:"size:200;not null;index:project_uid_name,unique" example:""`
+	Name                string          `json:"name" gorm:"size:200;not null;unique" example:""`
 	Source              string          `json:"source" gorm:"size:255;not null"`
 	URL                 string          `json:"url" gorm:"size:255;not null"`
 	DbType              string          `json:"db_type" gorm:"size:255;not null"`
@@ -530,9 +530,4 @@ type DBServiceSyncTask struct {
 	LastSyncErr         string          `json:"last_sync_err" gorm:"column:last_sync_err"`
 	LastSyncSuccessTime *time.Time      `json:"last_sync_success_time" gorm:"column:last_sync_success_time"`
 	ExtraParameters     ExtraParameters `json:"extra_parameters" gorm:"TYPE:json"`
-}
-
-// 兼容旧版本数据库同步任务对应的数据库表数据，这里使用相同的表名
-func (m *DBServiceSyncTask) TableName() string {
-	return "database_source_services"
 }
