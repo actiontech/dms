@@ -321,7 +321,7 @@ func (s expandService) syncDBServices(ctx context.Context, syncDBServices []*Syn
 			delete(currentDBServiceMap, dbServiceParams.Name)
 		} else {
 			// if not exist create db service
-			_, err := s.syncTaskUsecase.dbServiceUsecase.CreateDBService(ctx, &dbServiceParams, currentUserId)
+			_, err := s.syncTaskUsecase.dbServiceUsecase.CreateDBService(ctx, setDefaultSQLEConfig(&dbServiceParams, syncTask), currentUserId)
 			if err != nil {
 				return err
 			}
@@ -356,6 +356,25 @@ func convertDbServiceToDbParams(dbService *SyncDBService, project *Project) BizD
 		dbServiceParams.RuleTemplateName = dbService.SQLEConfig.RuleTemplateName
 		dbServiceParams.RuleTemplateID = dbService.SQLEConfig.RuleTemplateID
 		dbServiceParams.SQLQueryConfig = dbService.SQLEConfig.SQLQueryConfig
+	}
+	return dbServiceParams
+}
+
+func setDefaultSQLEConfig(dbServiceParams *BizDBServiceArgs, syncTask *DBServiceSyncTask) *BizDBServiceArgs {
+	if syncTask.SQLEConfig == nil {
+		return dbServiceParams
+	}
+	if dbServiceParams.RuleTemplateID == "" {
+		dbServiceParams.RuleTemplateID = syncTask.SQLEConfig.RuleTemplateID
+		dbServiceParams.RuleTemplateName = syncTask.SQLEConfig.RuleTemplateName
+	}
+	if dbServiceParams.SQLQueryConfig == nil {
+		dbServiceParams.SQLQueryConfig = &SQLQueryConfig{
+			AllowQueryWhenLessThanAuditLevel: syncTask.SQLEConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel,
+			AuditEnabled:                     syncTask.SQLEConfig.SQLQueryConfig.AuditEnabled,
+			MaxPreQueryRows:                  syncTask.SQLEConfig.SQLQueryConfig.MaxPreQueryRows,
+			QueryTimeoutSecond:               syncTask.SQLEConfig.SQLQueryConfig.QueryTimeoutSecond,
+		}
 	}
 	return dbServiceParams
 }
