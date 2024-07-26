@@ -77,6 +77,12 @@ func WithAuditPlanName(name string) CustomClaimFunc {
 	}
 }
 
+func WithKeyValue(key, value string) CustomClaimFunc {
+	return func(claims jwt.MapClaims) {
+		claims[key] = value
+	}
+}
+
 func WithExpiredTime(duration time.Duration) CustomClaimFunc {
 	return func(claims jwt.MapClaims) {
 		claims[JWTExpiredTime] = jwt.NewNumericDate(time.Now().Add(duration))
@@ -119,6 +125,25 @@ func parseJwtTokenStr(tokenStr string) (*jwt.Token, error) {
 	}
 
 	return token, nil
+}
+
+func ParseValueByKey(key, tokenStr string) (string, error) {
+	token, err := parseJwtTokenStr(tokenStr)
+	if err != nil {
+		return "", err
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", fmt.Errorf("failed to convert token claims to jwt")
+	}
+
+	value, ok := claims[key]
+	if !ok {
+		return "", jwt.NewValidationError("unknown token", jwt.ValidationErrorClaimsInvalid)
+	}
+
+	return fmt.Sprintf("%v", value), nil
 }
 
 // ParseAuditPlanName used by echo middleware which only verify api request to audit plan related.
