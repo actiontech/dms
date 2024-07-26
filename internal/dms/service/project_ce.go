@@ -20,7 +20,15 @@ func (d *DMSService) getImportProjectsTemplate(ctx context.Context, uid string) 
 }
 
 func (d *DMSService) getProjectTips(ctx context.Context, uid string, req *dmsV1.GetProjectTipsReq, err error) (*dmsV1.GetProjectTipsReply, error) {
-	return nil, errNotSupportProject
+	business, err := d.DBServiceUsecase.GetBusiness(ctx, req.ProjectUid)
+	if err != nil {
+		return nil, err
+	}
+	return &dmsV1.GetProjectTipsReply{
+		Data: []*dmsV1.ProjectTips{
+			{Business: business},
+		},
+	}, nil
 }
 
 func (d *DMSService) previewImportProjects(ctx context.Context, uid string, file string, err error) (*dmsV1.PreviewImportProjectsReply, error) {
