@@ -2602,270 +2602,6 @@
         }
       }
     },
-    "/v1/dms/projects/{project_uid}/database_source_services": {
-      "get": {
-        "tags": [
-          "DatabaseSourceService"
-        ],
-        "summary": "List database source service.",
-        "operationId": "ListDatabaseSourceServices",
-        "parameters": [
-          {
-            "type": "string",
-            "x-go-name": "ProjectUid",
-            "description": "project id",
-            "name": "project_uid",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "ListDatabaseSourceServicesReply",
-            "schema": {
-              "$ref": "#/definitions/ListDatabaseSourceServicesReply"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "DatabaseSourceService"
-        ],
-        "summary": "Add database source service.",
-        "operationId": "AddDatabaseSourceService",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "project id",
-            "name": "project_uid",
-            "in": "path",
-            "required": true
-          },
-          {
-            "description": "add database source service",
-            "name": "database_source_service",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/AddDatabaseSourceServiceReq"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "AddDatabaseSourceServiceReply",
-            "schema": {
-              "$ref": "#/definitions/AddDatabaseSourceServiceReply"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      }
-    },
-    "/v1/dms/projects/{project_uid}/database_source_services/tips": {
-      "get": {
-        "tags": [
-          "DatabaseSourceService"
-        ],
-        "summary": "List database source service tips.",
-        "operationId": "ListDatabaseSourceServiceTips",
-        "parameters": [
-          {
-            "type": "string",
-            "x-go-name": "ProjectUid",
-            "description": "project id",
-            "name": "project_uid",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "ListDatabaseSourceServiceTipsReply",
-            "schema": {
-              "$ref": "#/definitions/ListDatabaseSourceServiceTipsReply"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      }
-    },
-    "/v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid}": {
-      "get": {
-        "tags": [
-          "DatabaseSourceService"
-        ],
-        "summary": "Get database source service.",
-        "operationId": "GetDatabaseSourceService",
-        "parameters": [
-          {
-            "type": "string",
-            "x-go-name": "DatabaseSourceServiceUid",
-            "name": "database_source_service_uid",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "x-go-name": "ProjectUid",
-            "description": "project id",
-            "name": "project_uid",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "GetDatabaseSourceServiceReply",
-            "schema": {
-              "$ref": "#/definitions/GetDatabaseSourceServiceReply"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "DatabaseSourceService"
-        ],
-        "summary": "update database source service.",
-        "operationId": "UpdateDatabaseSourceService",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "project id",
-            "name": "project_uid",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "database_source_service_uid",
-            "in": "path",
-            "required": true
-          },
-          {
-            "description": "update database source service",
-            "name": "database_source_service",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/UpdateDatabaseSourceServiceReq"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "DatabaseSourceService"
-        ],
-        "summary": "Delete database source service.",
-        "operationId": "DeleteDatabaseSourceService",
-        "parameters": [
-          {
-            "type": "string",
-            "x-go-name": "ProjectUid",
-            "description": "project id",
-            "name": "project_uid",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "x-go-name": "DatabaseSourceServiceUid",
-            "name": "database_source_service_uid",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      }
-    },
-    "/v1/dms/projects/{project_uid}/database_source_services/{database_source_service_uid}/sync": {
-      "post": {
-        "tags": [
-          "DatabaseSourceService"
-        ],
-        "summary": "Sync database source service.",
-        "operationId": "SyncDatabaseSourceService",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "project id",
-            "name": "project_uid",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "database_source_service_uid",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      }
-    },
     "/v1/dms/projects/{project_uid}/db_services": {
       "get": {
         "tags": [
@@ -4864,44 +4600,6 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
-    "AddDatabaseSourceServiceReply": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "code",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Code"
-        },
-        "data": {
-          "description": "add database source service reply",
-          "type": "object",
-          "properties": {
-            "uid": {
-              "description": "db service UID",
-              "type": "string",
-              "x-go-name": "Uid"
-            }
-          },
-          "x-go-name": "Data"
-        },
-        "message": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Message"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "AddDatabaseSourceServiceReq": {
-      "type": "object",
-      "properties": {
-        "database_source_service": {
-          "$ref": "#/definitions/DatabaseSourceService"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
     "AddMemberGroupReply": {
       "type": "object",
       "properties": {
@@ -5207,6 +4905,20 @@
         "value": {
           "type": "string",
           "x-go-name": "Value"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "AuditPlanTypes": {
+      "type": "object",
+      "properties": {
+        "desc": {
+          "type": "string",
+          "x-go-name": "AuditPlanTypeDesc"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "AuditPlanType"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -6067,80 +5779,6 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
-    "DatabaseSource": {
-      "type": "object",
-      "properties": {
-        "db_types": {
-          "description": "database type",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "x-go-name": "DbTypes",
-          "example": "MySQL"
-        },
-        "source": {
-          "description": "database source",
-          "type": "string",
-          "x-go-name": "Source",
-          "example": "actiontech-dmp"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "DatabaseSourceService": {
-      "type": "object",
-      "required": [
-        "name",
-        "source",
-        "version",
-        "url",
-        "db_type",
-        "cron_express"
-      ],
-      "properties": {
-        "cron_express": {
-          "description": "cron expression",
-          "type": "string",
-          "x-go-name": "CronExpress",
-          "example": "0 0 * * *"
-        },
-        "db_type": {
-          "description": "database type",
-          "type": "string",
-          "x-go-name": "DbType",
-          "example": "MySQL"
-        },
-        "name": {
-          "description": "name",
-          "type": "string",
-          "x-go-name": "Name",
-          "example": "dmp"
-        },
-        "source": {
-          "description": "source",
-          "type": "string",
-          "x-go-name": "Source",
-          "example": "actiontech-dmp"
-        },
-        "sqle_config": {
-          "$ref": "#/definitions/SQLEConfig"
-        },
-        "url": {
-          "description": "addr",
-          "type": "string",
-          "x-go-name": "URL",
-          "example": "http://10.186.62.56:10000"
-        },
-        "version": {
-          "description": "version",
-          "type": "string",
-          "x-go-name": "Version",
-          "example": "5.23.01.0"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
     "DelDBServicePreCheckReply": {
       "type": "object",
       "properties": {
@@ -6501,87 +6139,6 @@
         },
         "data": {
           "$ref": "#/definitions/GetDataExportWorkflow"
-        },
-        "message": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Message"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "GetDatabaseSourceService": {
-      "type": "object",
-      "required": [
-        "name",
-        "source",
-        "version",
-        "url",
-        "db_type",
-        "cron_express"
-      ],
-      "properties": {
-        "cron_express": {
-          "description": "cron expression",
-          "type": "string",
-          "x-go-name": "CronExpress",
-          "example": "0 0 * * *"
-        },
-        "db_type": {
-          "description": "database type",
-          "type": "string",
-          "x-go-name": "DbType",
-          "example": "MySQL"
-        },
-        "name": {
-          "description": "name",
-          "type": "string",
-          "x-go-name": "Name",
-          "example": "dmp"
-        },
-        "project_uid": {
-          "type": "string",
-          "x-go-name": "ProjectUid"
-        },
-        "source": {
-          "description": "source",
-          "type": "string",
-          "x-go-name": "Source",
-          "example": "actiontech-dmp"
-        },
-        "sqle_config": {
-          "$ref": "#/definitions/SQLEConfig"
-        },
-        "uid": {
-          "type": "string",
-          "x-go-name": "UID"
-        },
-        "url": {
-          "description": "addr",
-          "type": "string",
-          "x-go-name": "URL",
-          "example": "http://10.186.62.56:10000"
-        },
-        "version": {
-          "description": "version",
-          "type": "string",
-          "x-go-name": "Version",
-          "example": "5.23.01.0"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "GetDatabaseSourceServiceReply": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "code",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Code"
-        },
-        "data": {
-          "$ref": "#/definitions/GetDatabaseSourceService"
         },
         "message": {
           "description": "message",
@@ -7588,6 +7145,14 @@
           },
           "x-go-name": "AdditionalParams"
         },
+        "audit_plan_types": {
+          "description": "audit plan types",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AuditPlanTypes"
+          },
+          "x-go-name": "AuditPlanTypes"
+        },
         "business": {
           "description": "the db service business name",
           "type": "string",
@@ -7607,6 +7172,12 @@
           "description": "db service host",
           "type": "string",
           "x-go-name": "Host"
+        },
+        "instance_audit_plan_id": {
+          "description": "instance audit plan id",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "InstanceAuditPlanID"
         },
         "is_enable_masking": {
           "description": "is enable masking",
@@ -8027,125 +7598,6 @@
           "type": "integer",
           "format": "int64",
           "x-go-name": "Total"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "ListDatabaseSourceService": {
-      "type": "object",
-      "required": [
-        "name",
-        "source",
-        "version",
-        "url",
-        "db_type",
-        "cron_express"
-      ],
-      "properties": {
-        "cron_express": {
-          "description": "cron expression",
-          "type": "string",
-          "x-go-name": "CronExpress",
-          "example": "0 0 * * *"
-        },
-        "db_type": {
-          "description": "database type",
-          "type": "string",
-          "x-go-name": "DbType",
-          "example": "MySQL"
-        },
-        "last_sync_err": {
-          "description": "last sync error message",
-          "type": "string",
-          "x-go-name": "LastSyncErr"
-        },
-        "last_sync_success_time": {
-          "type": "string",
-          "format": "date-time",
-          "x-go-name": "LastSyncSuccessTime"
-        },
-        "name": {
-          "description": "name",
-          "type": "string",
-          "x-go-name": "Name",
-          "example": "dmp"
-        },
-        "project_uid": {
-          "type": "string",
-          "x-go-name": "ProjectUid"
-        },
-        "source": {
-          "description": "source",
-          "type": "string",
-          "x-go-name": "Source",
-          "example": "actiontech-dmp"
-        },
-        "sqle_config": {
-          "$ref": "#/definitions/SQLEConfig"
-        },
-        "uid": {
-          "type": "string",
-          "x-go-name": "UID"
-        },
-        "url": {
-          "description": "addr",
-          "type": "string",
-          "x-go-name": "URL",
-          "example": "http://10.186.62.56:10000"
-        },
-        "version": {
-          "description": "version",
-          "type": "string",
-          "x-go-name": "Version",
-          "example": "5.23.01.0"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "ListDatabaseSourceServiceTipsReply": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "code",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Code"
-        },
-        "data": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/DatabaseSource"
-          },
-          "x-go-name": "Data"
-        },
-        "message": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Message"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "ListDatabaseSourceServicesReply": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "code",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Code"
-        },
-        "data": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ListDatabaseSourceService"
-          },
-          "x-go-name": "Data"
-        },
-        "message": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -9654,20 +9106,6 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
-    "SyncDatabaseSourceServiceReq": {
-      "type": "object",
-      "properties": {
-        "database_source_service_uid": {
-          "type": "string",
-          "x-go-name": "DatabaseSourceServiceUid"
-        },
-        "project_uid": {
-          "type": "string",
-          "x-go-name": "ProjectUid"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
     "Task": {
       "type": "object",
       "properties": {
@@ -10128,15 +9566,6 @@
       "properties": {
         "db_service_sync_task": {
           "$ref": "#/definitions/DBServiceSyncTask"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "UpdateDatabaseSourceServiceReq": {
-      "type": "object",
-      "properties": {
-        "database_source_service": {
-          "$ref": "#/definitions/DatabaseSourceService"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
