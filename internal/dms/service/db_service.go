@@ -446,19 +446,21 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 			return nil, fmt.Errorf("failed to encrypt password: %w", err)
 		}
 		ret[i] = &dmsCommonV1.ListDBService{
-			DBServiceUid:     u.GetUID(),
-			Name:             u.Name,
-			DBType:           u.DBType,
-			Host:             u.Host,
-			Port:             u.Port,
-			User:             u.User,
-			Password:         password,
-			Business:         u.Business,
-			MaintenanceTimes: d.convertPeriodToMaintenanceTime(u.MaintenancePeriod),
-			Desc:             u.Desc,
-			Source:           u.Source,
-			ProjectUID:       u.ProjectUID,
-			IsEnableMasking:  u.IsMaskingSwitch,
+			DBServiceUid:        u.GetUID(),
+			Name:                u.Name,
+			DBType:              u.DBType,
+			Host:                u.Host,
+			Port:                u.Port,
+			User:                u.User,
+			Password:            password,
+			Business:            u.Business,
+			MaintenanceTimes:    d.convertPeriodToMaintenanceTime(u.MaintenancePeriod),
+			Desc:                u.Desc,
+			Source:              u.Source,
+			ProjectUID:          u.ProjectUID,
+			IsEnableMasking:     u.IsMaskingSwitch,
+			InstanceAuditPlanID: u.InstanceAuditPlanID,
+			AuditPlanTypes:      u.AuditPlanTypes,
 		}
 
 		if u.AdditionalParams != nil {
