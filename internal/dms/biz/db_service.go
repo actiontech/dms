@@ -30,12 +30,6 @@ type SQLEConfig struct {
 	SQLQueryConfig *SQLQueryConfig `json:"sql_query_config"`
 }
 
-// 智能扫描类型
-type AuditPlanTypes struct {
-	AuditPlanType     string `json:"type"`
-	AuditPlanTypeDesc string `json:"desc"`
-}
-
 // 数据源
 type DBService struct {
 	Base
@@ -60,7 +54,7 @@ type DBService struct {
 	// PROV config
 	AccountPurpose string `json:"account_purpose"`
 	// audit plan types
-	AuditPlanTypes []*AuditPlanTypes `json:"audit_plan_types"`
+	AuditPlanTypes []*dmsCommonV1.AuditPlanTypes `json:"audit_plan_types"`
 	// instance audit plan id
 	InstanceAuditPlanID uint `json:"instance_audit_plan_id"`
 }
@@ -253,11 +247,11 @@ type instanceAuditPlanReply struct {
 }
 
 type InstanceAuditPlan struct {
-	InstanceAuditPlanId uint              `json:"instance_audit_plan_id"`
-	InstanceName        string            `json:"instance_name"`
-	Business            string            `json:"business"`
-	InstanceType        string            `json:"instance_type"`
-	AuditPlanTypes      []*AuditPlanTypes `json:"audit_plan_types"`
+	InstanceAuditPlanId uint                          `json:"instance_audit_plan_id"`
+	InstanceName        string                        `json:"instance_name"`
+	Business            string                        `json:"business"`
+	InstanceType        string                        `json:"instance_type"`
+	AuditPlanTypes      []*dmsCommonV1.AuditPlanTypes `json:"audit_plan_types"`
 }
 
 // TODO 临时实现, 当前请求获取扫描任务的url和参数写死
