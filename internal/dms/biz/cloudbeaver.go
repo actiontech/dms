@@ -1188,7 +1188,7 @@ func (cu *CloudbeaverUsecase) GenerateCloudbeaverConnectionParams(dbService *DBS
 		err = cu.fillMySQLParams(config)
 	case constant.DBTypeTiDB:
 		err = cu.fillTiDBParams(config)
-	case constant.DBTypePostgreSQL:
+	case constant.DBTypePostgreSQL, constant.DBTypeTBase:
 		err = cu.fillPGSQLParams(config)
 	case constant.DBTypeSQLServer:
 		err = cu.fillMSSQLParams(config)
