@@ -10,6 +10,7 @@ import (
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	v1Base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 	v1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+	_const "github.com/actiontech/dms/pkg/dms-common/pkg/const"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	pkgParams "github.com/actiontech/dms/pkg/params"
@@ -52,6 +53,10 @@ type DBService struct {
 	IsMaskingSwitch bool        `json:"is_masking_switch"`
 	// PROV config
 	AccountPurpose string `json:"account_purpose"`
+	// audit plan types
+	AuditPlanTypes []*dmsCommonV1.AuditPlanTypes `json:"audit_plan_types"`
+	// instance audit plan id
+	InstanceAuditPlanID uint `json:"instance_audit_plan_id"`
 }
 
 type DBTypeCount struct {
@@ -228,7 +233,65 @@ func (d *DBServiceUsecase) ListDBService(ctx context.Context, option *ListDBServ
 	if err != nil {
 		return nil, 0, fmt.Errorf("list db services failed: %w", err)
 	}
+	err = d.AddInstanceAuditPlanForDBServiceFromSqle(ctx, projectUid, services)
+	if err != nil {
+		d.log.Warn("get instance audit Plan from sqle: %w", err)
+	}
 	return services, total, nil
+}
+
+type instanceAuditPlanReply struct {
+	Code    int                 `json:"code" example:"0"`
+	Message string              `json:"message" example:"ok"`
+	Data    []InstanceAuditPlan `json:"data"`
+}
+
+type InstanceAuditPlan struct {
+	InstanceAuditPlanId uint                          `json:"instance_audit_plan_id"`
+	InstanceName        string                        `json:"instance_name"`
+	Business            string                        `json:"business"`
+	InstanceType        string                        `json:"instance_type"`
+	AuditPlanTypes      []*dmsCommonV1.AuditPlanTypes `json:"audit_plan_types"`
+}
+
+// TODO 临时实现, 当前请求获取扫描任务的url和参数写死
+func (d *DBServiceUsecase) AddInstanceAuditPlanForDBServiceFromSqle(ctx context.Context, projectUid string, dbServices []*DBService) error {
+	project, err := d.projectUsecase.GetProject(ctx, projectUid)
+	if err != nil {
+		return fmt.Errorf("get project failed: %v", err)
+	}
+	target, err := d.dmsProxyTargetRepo.GetProxyTargetByName(ctx, _const.SqleComponentName)
+	if err != nil {
+		return fmt.Errorf("get proxy target by name failed: %v", err)
+	}
+	sqleAddr := fmt.Sprintf("%s/v1/projects/%s/instance_audit_plans", target.URL.String(), project.Name)
+	header := map[string]string{
+		"Authorization": pkgHttp.DefaultDMSToken,
+	}
+	reqBody := struct {
+		PageIndex uint32 `json:"page_index"`
+		PageSize  uint32 `json:"page_size"`
+	}{
+		PageIndex: 1,
+		PageSize:  999,
+	}
+	reply := &instanceAuditPlanReply{}
+	if err = pkgHttp.Get(ctx, sqleAddr, header, reqBody, reply); err != nil {
+		return fmt.Errorf("get instance audit plan from sqle failed: %v", err)
+	}
+	if reply.Code != 0 {
+		return fmt.Errorf("get instance audit plan from sqle reply code(%v) error: %v", reply.Code, reply.Message)
+	}
+
+	for _, dbService := range dbServices {
+		for _, instAuditPlan := range reply.Data {
+			if dbService.Name == instAuditPlan.InstanceName && dbService.DBType == instAuditPlan.InstanceType {
+				dbService.InstanceAuditPlanID = instAuditPlan.InstanceAuditPlanId
+				dbService.AuditPlanTypes = instAuditPlan.AuditPlanTypes
+			}
+		}
+	}
+	return nil
 }
 
 func (d *DBServiceUsecase) ListDBServiceTips(ctx context.Context, req *dmsV1.ListDBServiceTipsReq, userId string) ([]*DBService, error) {
