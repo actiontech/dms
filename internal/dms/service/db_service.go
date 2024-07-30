@@ -460,7 +460,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 			ProjectUID:          u.ProjectUID,
 			IsEnableMasking:     u.IsMaskingSwitch,
 			InstanceAuditPlanID: u.InstanceAuditPlanID,
-			AuditPlanTypes:      d.convertAuditPlanTypesToRes(u.AuditPlanTypes),
+			AuditPlanTypes:      u.AuditPlanTypes,
 		}
 
 		if u.AdditionalParams != nil {
@@ -496,17 +496,6 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 		Data:  ret,
 		Total: total,
 	}, nil
-}
-
-func (d *DMSService) convertAuditPlanTypesToRes(apTypes []*biz.AuditPlanTypes) []*dmsCommonV1.AuditPlanTypes {
-	apTypesRes := make([]*dmsCommonV1.AuditPlanTypes, len(apTypes))
-	for i, apType := range apTypes {
-		apTypesRes[i] = &dmsCommonV1.AuditPlanTypes{
-			AuditPlanType:     apType.AuditPlanType,
-			AuditPlanTypeDesc: apType.AuditPlanTypeDesc,
-		}
-	}
-	return apTypesRes
 }
 
 func (d *DMSService) ListDBServiceTips(ctx context.Context, req *dmsV1.ListDBServiceTipsReq, userId string) (reply *dmsV1.ListDBServiceTipsReply, err error) {
