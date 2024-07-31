@@ -375,6 +375,10 @@ definitions:
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     AuditPlanTypes:
         properties:
+            audit_plan_id:
+                format: uint64
+                type: integer
+                x-go-name: AuditPlanId
             desc:
                 type: string
                 x-go-name: AuditPlanTypeDesc
