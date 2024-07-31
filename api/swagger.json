@@ -4912,6 +4912,11 @@
     "AuditPlanTypes": {
       "type": "object",
       "properties": {
+        "audit_plan_id": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "AuditPlanId"
+        },
         "desc": {
           "type": "string",
           "x-go-name": "AuditPlanTypeDesc"
