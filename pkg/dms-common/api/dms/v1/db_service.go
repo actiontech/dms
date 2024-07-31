@@ -96,6 +96,7 @@ type Time struct {
 }
 
 type AuditPlanTypes struct {
+	AuditPlanId       uint   `json:"audit_plan_id"`
 	AuditPlanType     string `json:"type"`
 	AuditPlanTypeDesc string `json:"desc"`
 }
