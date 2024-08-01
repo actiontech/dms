@@ -38,7 +38,8 @@ ifeq ($(PRODUCT_CATEGORY),dms)
     GO_BUILD_TAGS :=$(GO_BUILD_TAGS),dms
 endif
 
-# Two cases:
+ifeq ($(IS_PRODUCTION_RELEASE),true)
+# When performing a publishing operation, two cases:
 # 1. if there is tag on current commit, means that
 # 	 we release new version on current branch just now.
 #    Set rpm name with tag name(v1.2109.0 -> 1.2109.0).
@@ -46,7 +47,11 @@ endif
 # 2. if there is no tag on current commit, means that
 #    current branch is on process.
 #    Set rpm name with current branch name(release-1.2109.x-ee or release-1.2109.x -> 1.2109.x).
-PROJECT_VERSION = $(shell if [ "$$(git tag --points-at HEAD | tail -n1)" ]; then git tag --points-at HEAD | tail -n1 | sed 's/v\(.*\)/\1/'; else git rev-parse --abbrev-ref HEAD | sed 's/release-\(.*\)/\1/' | tr '-' '\n' | head -n1; fi)
+    PROJECT_VERSION = $(shell if [ "$$(git tag --points-at HEAD | tail -n1)" ]; then git tag --points-at HEAD | tail -n1 | sed 's/v\(.*\)/\1/'; else git rev-parse --abbrev-ref HEAD | sed 's/release-\(.*\)/\1/' | tr '-' '\n' | head -n1; fi)
+else
+#    When performing daily packaging, set rpm name with current branch name(release-1.2109.x-ee or release-1.2109.x -> 1.2109.x).
+    PROJECT_VERSION = $(shell git rev-parse --abbrev-ref HEAD | sed 's/release-\(.*\)/\1/' | tr '-' '\n' | head -n1)
+endif
 
 override RPM_NAME = $(PROJECT_NAME)-$(EDITION)-$(PROJECT_VERSION).$(RELEASE).$(OS_VERSION).$(RPMBUILD_TARGET).rpm
 
