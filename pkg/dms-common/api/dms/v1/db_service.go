@@ -136,7 +136,7 @@ type ListDBService struct {
 	// audit plan types
 	AuditPlanTypes []*AuditPlanTypes `json:"audit_plan_types"`
 	// instance audit plan id
-	InstanceAuditPlanID uint `json:"instance_audit_plan_id"`
+	InstanceAuditPlanID uint `json:"instance_audit_plan_id,omitempty"`
 }
 
 type SQLEConfig struct {
