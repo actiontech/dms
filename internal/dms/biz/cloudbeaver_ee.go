@@ -20,6 +20,7 @@ import (
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver/model"
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
+	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 	pkgRand "github.com/actiontech/dms/pkg/rand"
 	"github.com/go-openapi/strfmt"
@@ -59,9 +60,22 @@ func (cu *CloudbeaverUsecase) ResetDbServiceByAuth(ctx context.Context, activeDB
 	if err != nil {
 		return nil, err
 	}
-	dbaccounts, err := cu.ListAuthDbAccount(ctx, proxyTarget.URL.String(), userId)
-	if err != nil {
-		return nil, err
+
+	dbaccounts := make(map[string]*TempDBAccount, 0)
+	projectTips := make(map[string]struct{}, 0)
+	for _, db := range activeDBServices {
+		if _, ok := projectTips[db.ProjectUID]; ok {
+			continue
+		}
+		projectTips[db.ProjectUID] = struct{}{}
+		accounts, err := cu.ListAuthDbAccount(ctx, proxyTarget.URL.String(), db.ProjectUID, userId)
+		if err != nil {
+			return nil, err
+		}
+		for _, account := range accounts {
+			dbaccounts[account.DBAccountUid] = account
+		}
+
 	}
 
 	ret := make([]*DBService, 0)
@@ -100,14 +114,19 @@ func (cu *CloudbeaverUsecase) ResetDbServiceByAuth(ctx context.Context, activeDB
 	return ret, nil
 }
 
-func (cu *CloudbeaverUsecase) ListAuthDbAccount(ctx context.Context, url, userId string) ([]*TempDBAccount, error) {
+func (cu *CloudbeaverUsecase) ListAuthDbAccount(ctx context.Context, url, projectUid, userId string) ([]*TempDBAccount, error) {
+	// gen token with claims
+	token, err := jwt.GenJwtToken(jwt.WithUserId(userId))
+	if nil != err {
+		return nil, err
+	}
 	header := map[string]string{
-		"Authorization": pkgHttp.DefaultDMSToken,
+		"Authorization": fmt.Sprintf("Bearer %s", token),
 	}
 
 	reply := &ListDBAccountReply{}
 
-	if err := pkgHttp.Get(ctx, fmt.Sprintf("%v/provision/v1/auth/projects//db_accounts?page_size=999&page_index=1&filter_by_password_managed=true&filter_by_status=unlock&filter_by_user=%s", url, userId), header, nil, reply); err != nil {
+	if err := pkgHttp.Get(ctx, fmt.Sprintf("%v/provision/v1/auth/projects/%s/db_accounts?page_size=999&page_index=1&filter_by_password_managed=true&filter_by_status=unlock", url, projectUid), header, nil, reply); err != nil {
 		return nil, fmt.Errorf("failed to get db account from %v: %v", url, err)
 	}
 	if reply.Code != 0 {
