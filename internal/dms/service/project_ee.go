@@ -57,22 +57,26 @@ func (d *DMSService) getProjectTips(ctx context.Context, uid string, req *dmsV1.
 	resp := make([]*dmsV1.ProjectTips, len(projects))
 	for i, p := range projects {
 		businessList := make([]string, 0)
+		businessMap := make(map[string]struct{}, 0)
 		for _, business := range p.Business {
 			businessList = append(businessList, business.Name)
+			businessMap[business.Name] = struct{}{}
 		}
 
-		resp[i] = &dmsV1.ProjectTips{
-			IsFixedBusiness: p.IsFixedBusiness,
-			Business:        businessList,
-		}
-
-		business, err := d.DBServiceUsecase.GetBusiness(ctx, req.ProjectUid)
+		dbBusinesses, err := d.DBServiceUsecase.GetBusiness(ctx, req.ProjectUid)
 		if err != nil {
 			d.log.Errorf("get business from db service failed: %v", err)
 			continue
 		}
-		resp[i].Business = append(resp[i].Business, business...)
-
+		for _, dbBusiness := range dbBusinesses {
+			if _, ok := businessMap[dbBusiness]; !ok {
+				businessList = append(businessList, dbBusiness)
+			}
+		}
+		resp[i] = &dmsV1.ProjectTips{
+			IsFixedBusiness: p.IsFixedBusiness,
+			Business:        businessList,
+		}
 	}
 
 	return &dmsV1.GetProjectTipsReply{
