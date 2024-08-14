@@ -440,20 +440,6 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				}
 
 				if params.OperationName == "getSqlExecuteTaskResults" {
-					cloudbeaverResBuf := new(bytes.Buffer)
-					mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
-					writer := &cloudbeaverResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
-					c.Response().Writer = writer
-
-					if err = next(c); err != nil {
-						return err
-					}
-
-					err = cu.UpdateCbOpResult(c, cloudbeaverResBuf, params, ctx)
-					if err != nil {
-						return err
-					}
-
 					taskIdAssocMaskingVal, exist := taskIdAssocMasking.LoadAndDelete(params.Variables["taskId"])
 					if !exist {
 						return next(c)
@@ -501,6 +487,13 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 							return nil, err
 						}
 
+						if params.OperationName == "getSqlExecuteTaskResults" {
+							err = cu.UpdateCbOpResult(c, cloudbeaverResBuf, params, ctx)
+							if err != nil {
+								return nil, err
+							}
+						}
+
 						if params.OperationName == "asyncSqlExecuteQuery" {
 							if err := cu.buildTaskIdAssocDataMasking(cloudbeaverResBuf.Bytes(), dbService.IsMaskingSwitch); err != nil {
 								return nil, err
@@ -529,6 +522,13 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 
 						if err = next(c); err != nil {
 							return nil, err
+						}
+
+						if params.OperationName == "getSqlExecuteTaskResults" {
+							err = cu.UpdateCbOpResult(c, resWrite.tmp, params, ctx)
+							if err != nil {
+								return nil, err
+							}
 						}
 
 						return resWrite.tmp.Bytes(), nil
