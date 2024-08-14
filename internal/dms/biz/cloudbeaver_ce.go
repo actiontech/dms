@@ -19,7 +19,7 @@ func (cu *CloudbeaverUsecase) UpdateCbOpResult(c echo.Context, cloudbeaverResBuf
 	return nil
 }
 
-func (cu *CloudbeaverUsecase) SaveCbOpLog(c echo.Context, dbService *DBService, params *graphql.RawParams, resp cloudbeaver.AuditResults, next echo.HandlerFunc) error {
+func (cu *CloudbeaverUsecase) SaveCbOpLog(c echo.Context, dbService *DBService, params *graphql.RawParams, resp cloudbeaver.AuditResults, cloudbeaverResBuf *bytes.Buffer) error {
 	return nil
 }
 
