@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -225,7 +224,7 @@ func (cu *CloudbeaverUsecase) UpdateCbOpResult(c echo.Context, cloudbeaverResBuf
 	return nil
 }
 
-func (cu *CloudbeaverUsecase) SaveCbOpLog(c echo.Context, dbService *DBService, params *graphql.RawParams, resp cloudbeaver.AuditResults, next echo.HandlerFunc) error {
+func (cu *CloudbeaverUsecase) SaveCbOpLog(c echo.Context, dbService *DBService, params *graphql.RawParams, resp cloudbeaver.AuditResults, cloudbeaverResBuf *bytes.Buffer) error {
 	uid, err := pkgRand.GenStrUid()
 	if err != nil {
 		cu.log.Error(err)
@@ -239,15 +238,6 @@ func (cu *CloudbeaverUsecase) SaveCbOpLog(c echo.Context, dbService *DBService, 
 
 	cbOperationLog.AuditResults = convertToAuditResults(resp.Results)
 	cbOperationLog.IsAuditPass = &resp.IsSuccess
-
-	cloudbeaverResBuf := new(bytes.Buffer)
-	mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
-	writer := &cloudbeaverResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
-	c.Response().Writer = writer
-
-	if err = next(c); err != nil {
-		return err
-	}
 
 	var taskInfo TaskInfo
 	if err := json.Unmarshal(cloudbeaverResBuf.Bytes(), &taskInfo); err != nil {
