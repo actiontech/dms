@@ -69,6 +69,9 @@ func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
 }
 
 func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
+	if ds == nil {
+		return nil, nil
+	}
 	decrypted, err := pkgAes.AesDecrypt(ds.Password)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decrypt password: %v", err)
@@ -158,7 +161,6 @@ func convertBizCloudbeaverConnection(u *biz.CloudbeaverConnection) *model.Cloudb
 	}
 }
 
-
 func convertBizBasicConfig(u *biz.BasicConfigParams) *model.BasicConfig {
 	m := &model.BasicConfig{
 		Model: model.Model{UID: u.UID, CreatedAt: u.CreatedAt},
@@ -179,6 +181,9 @@ func convertModelBasicConfig(m *model.BasicConfig) *biz.BasicConfigParams {
 }
 
 func convertModelUser(u *model.User) (*biz.User, error) {
+	if u == nil {
+		return nil, nil
+	}
 	decrypted, err := pkgAes.AesDecrypt(u.Password)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decrypt password: %v", err)
@@ -1139,7 +1144,6 @@ func convertModelCbOperationLog(model *model.CbOperationLog) (*biz.CbOperationLo
 		Project:           project,
 	}, nil
 }
-
 
 func toModelDBServiceSyncTask(u *biz.DBServiceSyncTask) *model.DBServiceSyncTask {
 	ret := &model.DBServiceSyncTask{
