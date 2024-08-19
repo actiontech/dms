@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/actiontech/dms/pkg/dms-common/locale"
 	"io"
 	"mime"
 	"net/http"
@@ -722,7 +723,8 @@ func (d *DMSController) ListUsers(c echo.Context) error {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	reply, err := d.DMS.ListUsers(c.Request().Context(), req)
+	localizer := locale.GetLocalizerByAcceptLanguage(c)
+	reply, err := d.DMS.ListUsers(c.Request().Context(), localizer, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -762,7 +764,8 @@ func (a *DMSController) GetUser(c echo.Context) error {
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	reply, err := a.DMS.GetUser(c.Request().Context(), req)
+	localizer := locale.GetLocalizerByAcceptLanguage(c)
+	reply, err := a.DMS.GetUser(c.Request().Context(), localizer, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -937,7 +940,8 @@ func (d *DMSController) ListUserGroups(c echo.Context) error {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	reply, err := d.DMS.ListUserGroups(c.Request().Context(), req)
+	localizer := locale.GetLocalizerByAcceptLanguage(c)
+	reply, err := d.DMS.ListUserGroups(c.Request().Context(), localizer, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1072,7 +1076,8 @@ func (d *DMSController) ListRoles(c echo.Context) error {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	reply, err := d.DMS.ListRoles(c.Request().Context(), req)
+	localizer := locale.GetLocalizerByAcceptLanguage(c)
+	reply, err := d.DMS.ListRoles(c.Request().Context(), localizer, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1448,7 +1453,8 @@ func (d *DMSController) ListOpPermissions(c echo.Context) error {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	reply, err := d.DMS.ListOpPermissions(c.Request().Context(), req)
+	localizer := locale.GetLocalizerByAcceptLanguage(c)
+	reply, err := d.DMS.ListOpPermissions(c.Request().Context(), localizer, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}

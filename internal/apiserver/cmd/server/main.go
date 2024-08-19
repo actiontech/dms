@@ -5,6 +5,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/actiontech/dms/pkg/dms-common/locale"
 	"log"
 	"os"
 	"os/signal"
@@ -41,6 +42,7 @@ func init() {
 
 func run(logger utilLog.Logger, opts *conf.DMSOptions) error {
 	log_ := utilLog.NewHelper(logger, utilLog.WithMessageKey(Name))
+	locale.MustInit(log_)
 
 	gctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
