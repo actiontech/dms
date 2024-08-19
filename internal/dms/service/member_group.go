@@ -3,13 +3,15 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/actiontech/dms/pkg/dms-common/locale"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 )
 
-func (d *DMSService) ListMemberGroups(ctx context.Context, req *dmsV1.ListMemberGroupsReq) (reply *dmsV1.ListMemberGroupsReply, err error) {
+func (d *DMSService) ListMemberGroups(ctx context.Context, localizer *i18n.Localizer, req *dmsV1.ListMemberGroupsReq) (reply *dmsV1.ListMemberGroupsReply, err error) {
 	var orderBy biz.MemberGroupField
 	switch req.OrderBy {
 	case dmsV1.MemberGroupOrderByName:
@@ -61,7 +63,7 @@ func (d *DMSService) ListMemberGroups(ctx context.Context, req *dmsV1.ListMember
 			})
 		}
 
-		roleWithOpRanges, err := d.buildRoleWithOpRanges(ctx, memberGroup.RoleWithOpRanges)
+		roleWithOpRanges, err := d.buildRoleWithOpRanges(ctx, localizer, memberGroup.RoleWithOpRanges)
 		if err != nil {
 			return nil, err
 		}
@@ -83,7 +85,7 @@ func (d *DMSService) ListMemberGroups(ctx context.Context, req *dmsV1.ListMember
 	}, nil
 }
 
-func (d *DMSService) buildRoleWithOpRanges(ctx context.Context, roleWithOpRanges []biz.MemberRoleWithOpRange) ([]dmsV1.ListMemberRoleWithOpRange, error) {
+func (d *DMSService) buildRoleWithOpRanges(ctx context.Context, localizer *i18n.Localizer, roleWithOpRanges []biz.MemberRoleWithOpRange) ([]dmsV1.ListMemberRoleWithOpRange, error) {
 	ret := make([]dmsV1.ListMemberRoleWithOpRange, 0, len(roleWithOpRanges))
 
 	// 遍历成员的角色&权限范围用于展示
@@ -123,7 +125,11 @@ func (d *DMSService) buildRoleWithOpRanges(ctx context.Context, roleWithOpRanges
 				return nil, fmt.Errorf("unsupported op range type: %v", r.OpRangeType)
 			}
 		}
-
+		if role.UID == pkgConst.UIDOfRoleProjectAdmin || role.UID == pkgConst.UIDOfRoleSQLEAdmin || role.UID == pkgConst.UIDOfRoleProvisionAdmin {
+			// built in role, localize name and desc
+			role.Name = locale.ShouldLocalizeMsg(localizer, RoleNameByUID[role.GetUID()])
+			role.Desc = locale.ShouldLocalizeMsg(localizer, RoleDescByUID[role.GetUID()])
+		}
 		ret = append(ret, dmsV1.ListMemberRoleWithOpRange{
 			RoleUID:     dmsV1.UidWithName{Uid: role.GetUID(), Name: role.Name},
 			OpRangeType: opRangeTyp,
@@ -134,7 +140,7 @@ func (d *DMSService) buildRoleWithOpRanges(ctx context.Context, roleWithOpRanges
 	return ret, nil
 }
 
-func (d *DMSService) GetMemberGroup(ctx context.Context, req *dmsV1.GetMemberGroupReq) (reply *dmsV1.GetMemberGroupReply, err error) {
+func (d *DMSService) GetMemberGroup(ctx context.Context, localizer *i18n.Localizer, req *dmsV1.GetMemberGroupReq) (reply *dmsV1.GetMemberGroupReply, err error) {
 	memberGroup, err := d.MemberGroupUsecase.GetMemberGroup(ctx, req.MemberGroupUid, req.ProjectUid)
 	if err != nil {
 		return nil, err
@@ -153,7 +159,7 @@ func (d *DMSService) GetMemberGroup(ctx context.Context, req *dmsV1.GetMemberGro
 		})
 	}
 
-	roleWithOpRanges, err := d.buildRoleWithOpRanges(ctx, memberGroup.RoleWithOpRanges)
+	roleWithOpRanges, err := d.buildRoleWithOpRanges(ctx, localizer, memberGroup.RoleWithOpRanges)
 	if err != nil {
 		return nil, err
 	}
