@@ -3,11 +3,25 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/actiontech/dms/pkg/dms-common/locale"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 )
+
+var RoleNameByUID = map[string]*i18n.Message{
+	pkgConst.UIDOfRoleProjectAdmin:   locale.NameRoleProjectAdmin,
+	pkgConst.UIDOfRoleSQLEAdmin:      locale.NameRoleSQLEAdmin,
+	pkgConst.UIDOfRoleProvisionAdmin: locale.NameRoleProvisionAdmin,
+}
+
+var RoleDescByUID = map[string]*i18n.Message{
+	pkgConst.UIDOfRoleProjectAdmin:   locale.DescRoleProjectAdmin,
+	pkgConst.UIDOfRoleSQLEAdmin:      locale.DescRoleSQLEAdmin,
+	pkgConst.UIDOfRoleProvisionAdmin: locale.DescRoleProvisionAdmin,
+}
 
 func (d *DMSService) AddRole(ctx context.Context, currentUserUid string, req *dmsV1.AddRoleReq) (reply *dmsV1.AddRoleReply, err error) {
 	d.log.Infof("AddRoles.req=%v", req)
@@ -55,7 +69,7 @@ func (d *DMSService) DelRole(ctx context.Context, currentUserUid string, req *dm
 	return nil
 }
 
-func (d *DMSService) ListRoles(ctx context.Context, req *dmsV1.ListRoleReq) (reply *dmsV1.ListRoleReply, err error) {
+func (d *DMSService) ListRoles(ctx context.Context, localizer *i18n.Localizer, req *dmsV1.ListRoleReq) (reply *dmsV1.ListRoleReply, err error) {
 	d.log.Infof("ListRoles.req=%v", req)
 	defer func() {
 		d.log.Infof("ListRoles.req=%v;reply=%v;error=%v", req, reply, err)
@@ -92,6 +106,11 @@ func (d *DMSService) ListRoles(ctx context.Context, req *dmsV1.ListRoleReq) (rep
 
 	ret := make([]*dmsV1.ListRole, len(roles))
 	for i, r := range roles {
+		if r.UID == pkgConst.UIDOfRoleProjectAdmin || r.UID == pkgConst.UIDOfRoleSQLEAdmin || r.UID == pkgConst.UIDOfRoleProvisionAdmin {
+			// built in role, localize name and desc
+			r.Name = locale.ShouldLocalizeMsg(localizer, RoleNameByUID[r.GetUID()])
+			r.Desc = locale.ShouldLocalizeMsg(localizer, RoleDescByUID[r.GetUID()])
+		}
 		ret[i] = &dmsV1.ListRole{
 			RoleUid: r.GetUID(),
 			Name:    r.Name,
@@ -101,11 +120,11 @@ func (d *DMSService) ListRoles(ctx context.Context, req *dmsV1.ListRoleReq) (rep
 		// 获取角色状态
 		switch r.Stat {
 		case biz.RoleStatOK:
-			ret[i].Stat = dmsV1.StatOK
+			ret[i].Stat = dmsV1.Stat(locale.ShouldLocalizeMsg(localizer, locale.StatOK))
 		case biz.RoleStatDisable:
-			ret[i].Stat = dmsV1.StatDisable
+			ret[i].Stat = dmsV1.Stat(locale.ShouldLocalizeMsg(localizer, locale.StatDisable))
 		default:
-			ret[i].Stat = dmsV1.StatUnknown
+			ret[i].Stat = dmsV1.Stat(locale.ShouldLocalizeMsg(localizer, locale.StatUnknown))
 		}
 
 		// 获取角色的操作权限
@@ -114,7 +133,10 @@ func (d *DMSService) ListRoles(ctx context.Context, req *dmsV1.ListRoleReq) (rep
 			return nil, err
 		}
 		for _, op := range ops {
-			ret[i].OpPermissions = append(ret[i].OpPermissions, dmsV1.UidWithName{Uid: op.GetUID(), Name: op.Name})
+			ret[i].OpPermissions = append(ret[i].OpPermissions, dmsV1.UidWithName{
+				Uid:  op.GetUID(),
+				Name: locale.ShouldLocalizeMsg(localizer, OpPermissionNameByUID[op.GetUID()]),
+			})
 		}
 
 	}
