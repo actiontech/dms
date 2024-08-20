@@ -258,7 +258,7 @@ func (cu *CloudbeaverUsecase) SaveCbOpLog(c echo.Context, dbService *DBService, 
 	return nil
 }
 
-func (cu *CloudbeaverUsecase) SaveCbOperationLogWithoutNext(c echo.Context, dbService *DBService, params *graphql.RawParams, resp cloudbeaver.AuditResults) {
+func (cu *CloudbeaverUsecase) SaveCbOperationLog(c echo.Context, dbService *DBService, params *graphql.RawParams, resp cloudbeaver.AuditResults) {
 	uid, err := pkgRand.GenStrUid()
 	if err != nil {
 		cu.log.Error(err)
