@@ -1,14 +1,17 @@
 package locale
 
 import (
+	"context"
 	"embed"
 	"fmt"
+
 	"github.com/BurntSushi/toml"
-	//"github.com/actiontech/sqle/sqle/log"
 	"github.com/labstack/echo/v4"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"golang.org/x/text/language"
 )
+
+const LocalizerCtxKey = "localizer"
 
 //go:embed active.*.toml
 var LocaleFS embed.FS
@@ -18,7 +21,8 @@ var bundle *i18n.Bundle
 var newEntry log
 
 type log interface {
-	Error(...interface{})
+	Warnf(string, ...interface{})
+	Errorf(string, ...interface{})
 }
 
 func MustInit(l log) {
@@ -35,35 +39,30 @@ func MustInit(l log) {
 	}
 }
 
-func I18nEchoMiddleware() echo.MiddlewareFunc {
+func EchoMiddlewareI18nByAcceptLanguage() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			accept := c.Request().Header.Get("Accept-Language")
-			localizer := i18n.NewLocalizer(bundle, accept)
+			lang := c.Request().Header.Get("Accept-Language")
+			localizer := i18n.NewLocalizer(bundle, lang)
 
-			c.Set("localizer", localizer)
+			ctx := context.WithValue(c.Request().Context(), LocalizerCtxKey, localizer)
+			ctx = context.WithValue(ctx, "Accept-Language", lang)
+			c.SetRequest(c.Request().WithContext(ctx))
 			return next(c)
 		}
 	}
 }
 
-func MustGetLocaleFromCtx(c echo.Context) *i18n.Localizer {
-	localizer, ok := c.Get("localizer").(*i18n.Localizer)
+func ShouldLocalizeMsg(ctx context.Context, msg *i18n.Message) string {
+	l, ok := ctx.Value(LocalizerCtxKey).(*i18n.Localizer)
 	if !ok {
-		return i18n.NewLocalizer(bundle)
+		l = i18n.NewLocalizer(bundle)
+		newEntry.Warnf("No localizer in context when localize msg: %v, use default", msg.ID)
 	}
-	return localizer
-}
 
-func GetLocalizerByAcceptLanguage(c echo.Context) *i18n.Localizer {
-	accept := c.Request().Header.Get("Accept-Language")
-	return i18n.NewLocalizer(bundle, accept)
-}
-
-func ShouldLocalizeMsg(localizer *i18n.Localizer, msg *i18n.Message) string {
-	m, err := localizer.LocalizeMessage(msg)
-	if err != nil && newEntry != nil {
-		newEntry.Error("LocalizeMessage:", msg, "failed:", err)
+	m, err := l.LocalizeMessage(msg)
+	if err != nil {
+		newEntry.Errorf("LocalizeMessage: %v failed: %v", msg.ID, err)
 	}
 	return m
 }

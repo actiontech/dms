@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
@@ -64,7 +63,7 @@ func (d *DMSService) ListMemberTips(ctx context.Context, projectId string) (repl
 	}, nil
 }
 
-func (d *DMSService) ListMembers(ctx context.Context, localizer *i18n.Localizer, req *dmsV1.ListMemberReq) (reply *dmsV1.ListMemberReply, err error) {
+func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) (reply *dmsV1.ListMemberReply, err error) {
 	var orderBy biz.MemberField
 	switch req.OrderBy {
 	case dmsV1.MemberOrderByUserUid:
@@ -108,7 +107,7 @@ func (d *DMSService) ListMembers(ctx context.Context, localizer *i18n.Localizer,
 			return nil, fmt.Errorf("get user failed: %v", err)
 		}
 
-		roleWithOpRanges, err := d.buildRoleWithOpRanges(ctx, localizer, m.RoleWithOpRanges)
+		roleWithOpRanges, err := d.buildRoleWithOpRanges(ctx, m.RoleWithOpRanges)
 		if err != nil {
 			return nil, err
 		}

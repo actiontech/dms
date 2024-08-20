@@ -3,8 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/actiontech/dms/pkg/dms-common/locale"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"strconv"
 	"strings"
 	"time"
@@ -12,6 +10,7 @@ import (
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
+	"github.com/actiontech/dms/pkg/dms-common/locale"
 
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	jwtPkg "github.com/actiontech/dms/pkg/dms-common/api/jwt"
@@ -140,7 +139,7 @@ func (d *DMSService) DelUser(ctx context.Context, currentUserUid string, req *dm
 	return nil
 }
 
-func (d *DMSService) ListUsers(ctx context.Context, localizer *i18n.Localizer, req *dmsCommonV1.ListUserReq) (reply *dmsCommonV1.ListUserReply, err error) {
+func (d *DMSService) ListUsers(ctx context.Context, req *dmsCommonV1.ListUserReq) (reply *dmsCommonV1.ListUserReply, err error) {
 	d.log.Infof("ListUsers.req=%v", req)
 	defer func() {
 		d.log.Infof("ListUsers.req=%v;reply=%v;error=%v", req, reply, err)
@@ -210,11 +209,11 @@ func (d *DMSService) ListUsers(ctx context.Context, localizer *i18n.Localizer, r
 		// 获取用户状态
 		switch u.Stat {
 		case biz.UserStatOK:
-			ret[i].Stat = dmsCommonV1.Stat(locale.ShouldLocalizeMsg(localizer, locale.StatOK))
+			ret[i].Stat = dmsCommonV1.Stat(locale.ShouldLocalizeMsg(ctx, locale.StatOK))
 		case biz.UserStatDisable:
-			ret[i].Stat = dmsCommonV1.Stat(locale.ShouldLocalizeMsg(localizer, locale.StatDisable))
+			ret[i].Stat = dmsCommonV1.Stat(locale.ShouldLocalizeMsg(ctx, locale.StatDisable))
 		default:
-			ret[i].Stat = dmsCommonV1.Stat(locale.ShouldLocalizeMsg(localizer, locale.StatUnknown))
+			ret[i].Stat = dmsCommonV1.Stat(locale.ShouldLocalizeMsg(ctx, locale.StatUnknown))
 		}
 
 		// 获取用户鉴权类型
@@ -246,7 +245,7 @@ func (d *DMSService) ListUsers(ctx context.Context, localizer *i18n.Localizer, r
 		for _, op := range ops {
 			ret[i].OpPermissions = append(ret[i].OpPermissions, dmsCommonV1.UidWithName{
 				Uid:  op.GetUID(),
-				Name: locale.ShouldLocalizeMsg(localizer, OpPermissionNameByUID[op.GetUID()]),
+				Name: locale.ShouldLocalizeMsg(ctx, OpPermissionNameByUID[op.GetUID()]),
 			})
 		}
 
@@ -309,7 +308,7 @@ func (d *DMSService) DelUserGroup(ctx context.Context, currentUserUid string, re
 	return nil
 }
 
-func (d *DMSService) ListUserGroups(ctx context.Context, localizer *i18n.Localizer, req *dmsV1.ListUserGroupReq) (reply *dmsV1.ListUserGroupReply, err error) {
+func (d *DMSService) ListUserGroups(ctx context.Context, req *dmsV1.ListUserGroupReq) (reply *dmsV1.ListUserGroupReply, err error) {
 	d.log.Infof("ListUserGroups.req=%v", req)
 	defer func() {
 		d.log.Infof("ListUserGroups.req=%v;reply=%v;error=%v", req, reply, err)
@@ -355,11 +354,11 @@ func (d *DMSService) ListUserGroups(ctx context.Context, localizer *i18n.Localiz
 		// 获取用户组状态
 		switch g.Stat {
 		case biz.UserGroupStatOK:
-			ret[i].Stat = dmsV1.Stat(locale.ShouldLocalizeMsg(localizer, locale.StatOK))
+			ret[i].Stat = dmsV1.Stat(locale.ShouldLocalizeMsg(ctx, locale.StatOK))
 		case biz.UserGroupStatDisable:
-			ret[i].Stat = dmsV1.Stat(locale.ShouldLocalizeMsg(localizer, locale.StatDisable))
+			ret[i].Stat = dmsV1.Stat(locale.ShouldLocalizeMsg(ctx, locale.StatDisable))
 		default:
-			ret[i].Stat = dmsV1.Stat(locale.ShouldLocalizeMsg(localizer, locale.StatUnknown))
+			ret[i].Stat = dmsV1.Stat(locale.ShouldLocalizeMsg(ctx, locale.StatUnknown))
 		}
 
 		// 获取用户所属的用户组
@@ -434,7 +433,7 @@ func (d *DMSService) GetUserOpPermission(ctx context.Context, req *dmsCommonV1.G
 	return reply, nil
 }
 
-func (d *DMSService) GetUser(ctx context.Context, localizer *i18n.Localizer, req *dmsCommonV1.GetUserReq) (reply *dmsCommonV1.GetUserReply, err error) {
+func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (reply *dmsCommonV1.GetUserReply, err error) {
 	d.log.Infof("GetUser.req=%v", req)
 	defer func() {
 		d.log.Infof("GetUser.req=%v;error=%v", req, err)
@@ -457,11 +456,11 @@ func (d *DMSService) GetUser(ctx context.Context, localizer *i18n.Localizer, req
 	// 获取用户状态
 	switch u.Stat {
 	case biz.UserStatOK:
-		dmsCommonUser.Stat = dmsCommonV1.Stat(locale.ShouldLocalizeMsg(localizer, locale.StatOK))
+		dmsCommonUser.Stat = dmsCommonV1.Stat(locale.ShouldLocalizeMsg(ctx, locale.StatOK))
 	case biz.UserStatDisable:
-		dmsCommonUser.Stat = dmsCommonV1.Stat(locale.ShouldLocalizeMsg(localizer, locale.StatDisable))
+		dmsCommonUser.Stat = dmsCommonV1.Stat(locale.ShouldLocalizeMsg(ctx, locale.StatDisable))
 	default:
-		dmsCommonUser.Stat = dmsCommonV1.Stat(locale.ShouldLocalizeMsg(localizer, locale.StatUnknown))
+		dmsCommonUser.Stat = dmsCommonV1.Stat(locale.ShouldLocalizeMsg(ctx, locale.StatUnknown))
 	}
 
 	// 获取用户鉴权类型
@@ -493,7 +492,7 @@ func (d *DMSService) GetUser(ctx context.Context, localizer *i18n.Localizer, req
 	for _, op := range ops {
 		dmsCommonUser.OpPermissions = append(dmsCommonUser.OpPermissions, dmsCommonV1.UidWithName{
 			Uid:  op.GetUID(),
-			Name: locale.ShouldLocalizeMsg(localizer, OpPermissionNameByUID[op.GetUID()]),
+			Name: locale.ShouldLocalizeMsg(ctx, OpPermissionNameByUID[op.GetUID()]),
 		})
 	}
 	isAdmin, err := d.UserUsecase.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, u.GetUID())
