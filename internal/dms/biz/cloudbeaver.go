@@ -465,7 +465,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					cloudbeaverNext = func(c echo.Context) ([]byte, error) {
 						resp, ok = c.Get(cloudbeaver.AuditResultKey).(cloudbeaver.AuditResults)
 						if ok && !resp.IsSuccess {
-							cu.SaveCbOperationLogWithoutNext(c, dbService, params, resp)
+							cu.SaveCbOperationLog(c, dbService, params, resp)
 							return nil, c.JSON(http.StatusOK, convertToResp(resp))
 						}
 
@@ -504,7 +504,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					cloudbeaverNext = func(c echo.Context) ([]byte, error) {
 						resp, ok = c.Get(cloudbeaver.AuditResultKey).(cloudbeaver.AuditResults)
 						if ok && !resp.IsSuccess {
-							cu.SaveCbOperationLogWithoutNext(c, dbService, params, resp)
+							cu.SaveCbOperationLog(c, dbService, params, resp)
 							return nil, c.JSON(http.StatusOK, convertToResp(resp))
 						}
 

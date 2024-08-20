@@ -27,7 +27,7 @@ func (cu *CloudbeaverUsecase) SaveUiOp(c echo.Context, buf *bytes.Buffer, params
 	return nil
 }
 
-func (cu *CloudbeaverUsecase) SaveCbOperationLogWithoutNext(c echo.Context, dbService *DBService, params *graphql.RawParams, resp cloudbeaver.AuditResults) {
+func (cu *CloudbeaverUsecase) SaveCbOperationLog(c echo.Context, dbService *DBService, params *graphql.RawParams, resp cloudbeaver.AuditResults) {
 	return
 }
 
