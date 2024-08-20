@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/actiontech/dms/pkg/dms-common/locale"
 	"io"
 	"mime"
 	"net/http"
@@ -723,8 +722,7 @@ func (d *DMSController) ListUsers(c echo.Context) error {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	localizer := locale.GetLocalizerByAcceptLanguage(c)
-	reply, err := d.DMS.ListUsers(c.Request().Context(), localizer, req)
+	reply, err := d.DMS.ListUsers(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -764,8 +762,7 @@ func (a *DMSController) GetUser(c echo.Context) error {
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	localizer := locale.GetLocalizerByAcceptLanguage(c)
-	reply, err := a.DMS.GetUser(c.Request().Context(), localizer, req)
+	reply, err := a.DMS.GetUser(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -940,8 +937,7 @@ func (d *DMSController) ListUserGroups(c echo.Context) error {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	localizer := locale.GetLocalizerByAcceptLanguage(c)
-	reply, err := d.DMS.ListUserGroups(c.Request().Context(), localizer, req)
+	reply, err := d.DMS.ListUserGroups(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1076,8 +1072,7 @@ func (d *DMSController) ListRoles(c echo.Context) error {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	localizer := locale.GetLocalizerByAcceptLanguage(c)
-	reply, err := d.DMS.ListRoles(c.Request().Context(), localizer, req)
+	reply, err := d.DMS.ListRoles(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1165,8 +1160,7 @@ func (d *DMSController) ListMembers(c echo.Context) error {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	localizer := locale.GetLocalizerByAcceptLanguage(c)
-	reply, err := d.DMS.ListMembers(c.Request().Context(), localizer, req)
+	reply, err := d.DMS.ListMembers(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1286,8 +1280,7 @@ func (d *DMSController) ListMemberGroups(c echo.Context) error {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	localizer := locale.GetLocalizerByAcceptLanguage(c)
-	reply, err := d.DMS.ListMemberGroups(c.Request().Context(), localizer, req)
+	reply, err := d.DMS.ListMemberGroups(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1307,8 +1300,7 @@ func (d *DMSController) GetMemberGroup(c echo.Context) error {
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	localizer := locale.GetLocalizerByAcceptLanguage(c)
-	reply, err := d.DMS.GetMemberGroup(c.Request().Context(), localizer, req)
+	reply, err := d.DMS.GetMemberGroup(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1455,8 +1447,7 @@ func (d *DMSController) ListOpPermissions(c echo.Context) error {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	localizer := locale.GetLocalizerByAcceptLanguage(c)
-	reply, err := d.DMS.ListOpPermissions(c.Request().Context(), localizer, req)
+	reply, err := d.DMS.ListOpPermissions(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
