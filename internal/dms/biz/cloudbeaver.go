@@ -440,20 +440,6 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				}
 
 				if params.OperationName == "getSqlExecuteTaskResults" {
-					cloudbeaverResBuf := new(bytes.Buffer)
-					mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
-					writer := &cloudbeaverResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
-					c.Response().Writer = writer
-
-					if err = next(c); err != nil {
-						return err
-					}
-
-					err = cu.UpdateCbOpResult(c, cloudbeaverResBuf, params, ctx)
-					if err != nil {
-						return err
-					}
-
 					taskIdAssocMaskingVal, exist := taskIdAssocMasking.LoadAndDelete(params.Variables["taskId"])
 					if !exist {
 						return next(c)
@@ -478,27 +464,42 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				if !cloudbeaverHandle.NeedModifyRemoteRes {
 					cloudbeaverNext = func(c echo.Context) ([]byte, error) {
 						resp, ok = c.Get(cloudbeaver.AuditResultKey).(cloudbeaver.AuditResults)
-						if ok {
-							if !resp.IsSuccess {
-								cu.SaveCbOperationLogWithoutNext(c, dbService, params, resp)
-								return nil, c.JSON(http.StatusOK, convertToResp(resp))
+						if ok && !resp.IsSuccess {
+							err = cu.SaveCbOpLog(c, dbService, params, resp.Results, resp.IsSuccess, nil)
+							if err != nil {
+								cu.log.Errorf("save cb operation log err: %v", err)
+							}
+
+							return nil, c.JSON(http.StatusOK, convertToResp(resp))
+						}
+
+						cloudbeaverResBuf := new(bytes.Buffer)
+						mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
+						writer := &cloudbeaverResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
+						c.Response().Writer = writer
+
+						if err = next(c); err != nil {
+							return nil, err
+						}
+
+						if ok && resp.IsSuccess {
+							var taskInfo TaskInfo
+							err = json.Unmarshal(cloudbeaverResBuf.Bytes(), &taskInfo)
+							if err != nil {
+								cu.log.Errorf("extract task id err: %v", err)
 							} else {
-								err = cu.SaveCbOpLog(c, dbService, params, resp, next)
+								err = cu.SaveCbOpLog(c, dbService, params, resp.Results, resp.IsSuccess, &taskInfo.Data.TaskInfo.ID)
 								if err != nil {
-									return nil, nil
+									cu.log.Errorf("save cb operation log err: %v", err)
 								}
 							}
 						}
 
-						cloudbeaverResBuf := new(bytes.Buffer)
-						if params.OperationName == "asyncSqlExecuteQuery" {
-							mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
-							writer := &cloudbeaverResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
-							c.Response().Writer = writer
-						}
-
-						if err = next(c); err != nil {
-							return nil, err
+						if params.OperationName == "getSqlExecuteTaskResults" {
+							err = cu.UpdateCbOpResult(c, cloudbeaverResBuf, params, ctx)
+							if err != nil {
+								cu.log.Errorf("update cb operation result err: %v", err)
+							}
 						}
 
 						if params.OperationName == "asyncSqlExecuteQuery" {
@@ -512,16 +513,13 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				} else {
 					cloudbeaverNext = func(c echo.Context) ([]byte, error) {
 						resp, ok = c.Get(cloudbeaver.AuditResultKey).(cloudbeaver.AuditResults)
-						if ok {
-							if !resp.IsSuccess {
-								cu.SaveCbOperationLogWithoutNext(c, dbService, params, resp)
-								return nil, c.JSON(http.StatusOK, convertToResp(resp))
-							} else {
-								err = cu.SaveCbOpLog(c, dbService, params, resp, next)
-								if err != nil {
-									return nil, nil
-								}
+						if ok && !resp.IsSuccess {
+							err = cu.SaveCbOpLog(c, dbService, params, resp.Results, resp.IsSuccess, nil)
+							if err != nil {
+								cu.log.Errorf("save cb operation log err: %v", err)
 							}
+
+							return nil, c.JSON(http.StatusOK, convertToResp(resp))
 						}
 
 						resWrite = &responseProcessWriter{tmp: &bytes.Buffer{}, ResponseWriter: c.Response().Writer}
@@ -529,6 +527,26 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 
 						if err = next(c); err != nil {
 							return nil, err
+						}
+
+						if ok && resp.IsSuccess {
+							var taskInfo TaskInfo
+							err = json.Unmarshal(resWrite.tmp.Bytes(), &taskInfo)
+							if err != nil {
+								cu.log.Errorf("extract task id err: %v", err)
+							} else {
+								err = cu.SaveCbOpLog(c, dbService, params, resp.Results, resp.IsSuccess, &taskInfo.Data.TaskInfo.ID)
+								if err != nil {
+									cu.log.Errorf("save cb operation log err: %v", err)
+								}
+							}
+						}
+
+						if params.OperationName == "getSqlExecuteTaskResults" {
+							err = cu.UpdateCbOpResult(c, resWrite.tmp, params, ctx)
+							if err != nil {
+								cu.log.Errorf("update cb operation result err: %v", err)
+							}
 						}
 
 						return resWrite.tmp.Bytes(), nil
