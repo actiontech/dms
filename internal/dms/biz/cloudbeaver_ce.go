@@ -19,16 +19,12 @@ func (cu *CloudbeaverUsecase) UpdateCbOpResult(c echo.Context, cloudbeaverResBuf
 	return nil
 }
 
-func (cu *CloudbeaverUsecase) SaveCbOpLog(c echo.Context, dbService *DBService, params *graphql.RawParams, resp cloudbeaver.AuditResults, cloudbeaverResBuf *bytes.Buffer) error {
+func (cu *CloudbeaverUsecase) SaveCbOpLog(c echo.Context, dbService *DBService, params *graphql.RawParams, auditResult []cloudbeaver.AuditSQLResV2, isAuditPass bool, taskID *string) error {
 	return nil
 }
 
 func (cu *CloudbeaverUsecase) SaveUiOp(c echo.Context, buf *bytes.Buffer, params *graphql.RawParams) error {
 	return nil
-}
-
-func (cu *CloudbeaverUsecase) SaveCbOperationLog(c echo.Context, dbService *DBService, params *graphql.RawParams, resp cloudbeaver.AuditResults) {
-	return
 }
 
 func (cu *CloudbeaverUsecase) SaveCbLogSqlAuditNotEnable(c echo.Context, dbService *DBService, params *graphql.RawParams, cloudbeaverResBuf *bytes.Buffer) error {

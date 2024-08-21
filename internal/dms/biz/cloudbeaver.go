@@ -465,7 +465,11 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					cloudbeaverNext = func(c echo.Context) ([]byte, error) {
 						resp, ok = c.Get(cloudbeaver.AuditResultKey).(cloudbeaver.AuditResults)
 						if ok && !resp.IsSuccess {
-							cu.SaveCbOperationLog(c, dbService, params, resp)
+							err = cu.SaveCbOpLog(c, dbService, params, resp.Results, resp.IsSuccess, nil)
+							if err != nil {
+								cu.log.Errorf("save cb operation log err: %v", err)
+							}
+
 							return nil, c.JSON(http.StatusOK, convertToResp(resp))
 						}
 
@@ -479,16 +483,22 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						}
 
 						if ok && resp.IsSuccess {
-							err = cu.SaveCbOpLog(c, dbService, params, resp, cloudbeaverResBuf)
+							var taskInfo TaskInfo
+							err = json.Unmarshal(cloudbeaverResBuf.Bytes(), &taskInfo)
 							if err != nil {
-								return nil, nil
+								cu.log.Errorf("extract task id err: %v", err)
+							} else {
+								err = cu.SaveCbOpLog(c, dbService, params, resp.Results, resp.IsSuccess, &taskInfo.Data.TaskInfo.ID)
+								if err != nil {
+									cu.log.Errorf("save cb operation log err: %v", err)
+								}
 							}
 						}
 
 						if params.OperationName == "getSqlExecuteTaskResults" {
 							err = cu.UpdateCbOpResult(c, cloudbeaverResBuf, params, ctx)
 							if err != nil {
-								return nil, err
+								cu.log.Errorf("update cb operation result err: %v", err)
 							}
 						}
 
@@ -504,7 +514,11 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					cloudbeaverNext = func(c echo.Context) ([]byte, error) {
 						resp, ok = c.Get(cloudbeaver.AuditResultKey).(cloudbeaver.AuditResults)
 						if ok && !resp.IsSuccess {
-							cu.SaveCbOperationLog(c, dbService, params, resp)
+							err = cu.SaveCbOpLog(c, dbService, params, resp.Results, resp.IsSuccess, nil)
+							if err != nil {
+								cu.log.Errorf("save cb operation log err: %v", err)
+							}
+
 							return nil, c.JSON(http.StatusOK, convertToResp(resp))
 						}
 
@@ -516,16 +530,22 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						}
 
 						if ok && resp.IsSuccess {
-							err = cu.SaveCbOpLog(c, dbService, params, resp, resWrite.tmp)
+							var taskInfo TaskInfo
+							err = json.Unmarshal(resWrite.tmp.Bytes(), &taskInfo)
 							if err != nil {
-								return nil, nil
+								cu.log.Errorf("extract task id err: %v", err)
+							} else {
+								err = cu.SaveCbOpLog(c, dbService, params, resp.Results, resp.IsSuccess, &taskInfo.Data.TaskInfo.ID)
+								if err != nil {
+									cu.log.Errorf("save cb operation log err: %v", err)
+								}
 							}
 						}
 
 						if params.OperationName == "getSqlExecuteTaskResults" {
 							err = cu.UpdateCbOpResult(c, resWrite.tmp, params, ctx)
 							if err != nil {
-								return nil, err
+								cu.log.Errorf("update cb operation result err: %v", err)
 							}
 						}
 
