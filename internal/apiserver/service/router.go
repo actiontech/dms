@@ -221,8 +221,11 @@ func SwaggerMiddleWare(next echo.HandlerFunc) echo.HandlerFunc {
 
 func (s *APIServer) installMiddleware() error {
 	// Middleware
+
 	s.echo.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Skipper: middleware.DefaultSkipper,
+		Skipper: func(echo.Context) bool {
+			return pkgLog.ParseLevel(s.opts.ServiceOpts.Log.Level) > pkgLog.LevelDebug
+		},
 		Format: `${time_custom} ECHO id:${id}, remote_ip:${remote_ip}, ` +
 			`host:${host}, method:${method}, uri:${uri}, user_agent:${user_agent}, ` +
 			`status:${status}, error:${error}, latency:${latency}, latency_human:${latency_human}` +
