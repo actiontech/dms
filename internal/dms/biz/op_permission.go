@@ -135,6 +135,12 @@ func initOpPermission() []*OpPermission {
 			RangeType: OpRangeTypeDBService,
 			Desc:      "查看他人创建的智能调优；拥有该权限的用户可以查看他人创建的智能调优",
 		},
+		{
+			UID:       pkgConst.UIDOfOpPermissionCreatePipeline,
+			Name:      "配置流水线",
+			RangeType: OpRangeTypeDBService,
+			Desc:      "配置流水线；拥有该权限的用户可以为数据源配置流水线",
+		},
 	}
 }
 

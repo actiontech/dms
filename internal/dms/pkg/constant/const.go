@@ -22,6 +22,7 @@ const (
 	UIDOfOpPermissionExportCreate           = "700012"
 	UIDOfOpPermissionCreateOptimization     = "700013"
 	UIDOfOpPermissionViewOthersOptimization = "700014"
+	UIDOfOpPermissionCreatePipeline         = "700015"
 
 	UIDOfDMSConfig = "700100"
 
@@ -61,6 +62,8 @@ func ConvertPermissionIdToType(opPermissionUid string) (apiOpPermissionTyp dmsCo
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeAuditExportWorkflow
 	case UIDOfOpPermissionExportCreate:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeExportCreate
+	case UIDOfOpPermissionCreatePipeline:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeCreatePipeline
 	default:
 		return dmsCommonV1.OpPermissionTypeUnknown, fmt.Errorf("get user op permission type error: invalid op permission uid: %v", opPermissionUid)
 
@@ -94,6 +97,8 @@ func ConvertPermissionTypeToId(opPermissionType dmsCommonV1.OpPermissionType) (p
 		permissionId = UIDOfOpPermissionExportApprovalReject
 	case dmsCommonV1.OpPermissionTypeExportCreate:
 		permissionId = UIDOfOpPermissionExportCreate
+	case dmsCommonV1.OpPermissionTypeCreatePipeline:
+		permissionId = UIDOfOpPermissionCreatePipeline
 	default:
 		return "", fmt.Errorf("get user op permission id error: invalid op permission type: %v", opPermissionType)
 	}
