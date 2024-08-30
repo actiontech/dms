@@ -591,6 +591,8 @@ func convertBizOpPermission(opPermissionUid string) (apiOpPermissionTyp dmsCommo
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeCreateOptimization
 	case pkgConst.UIDOfOpPermissionViewOthersOptimization:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeViewOthersOptimization
+	case pkgConst.UIDOfOpPermissionCreatePipeline:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeCreatePipeline
 	default:
 		return dmsCommonV1.OpPermissionTypeUnknown, fmt.Errorf("get user op permission type error: invalid op permission uid: %v", opPermissionUid)
 

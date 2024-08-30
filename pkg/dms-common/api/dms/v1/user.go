@@ -187,6 +187,8 @@ const (
 	OpPermissionTypeCreateOptimization OpPermissionType = "create_optimization"
 	// 查看他人创建的智能调优
 	OpPermissionTypeViewOthersOptimization OpPermissionType = "view_others_optimization"
+	// 配置流水线
+	OpPermissionTypeCreatePipeline OpPermissionType = "create_pipeline"
 )
 
 func ParseOpPermissionType(typ string) (OpPermissionType, error) {
@@ -219,6 +221,8 @@ func ParseOpPermissionType(typ string) (OpPermissionType, error) {
 		return OpPermissionTypeCreateOptimization, nil
 	case string(OpPermissionTypeViewOthersOptimization):
 		return OpPermissionTypeViewOthersOptimization, nil
+	case string(OpPermissionTypeCreatePipeline):
+		return OpPermissionTypeCreatePipeline, nil
 	default:
 		return "", fmt.Errorf("invalid op permission type: %s", typ)
 	}
@@ -252,6 +256,8 @@ func GetOperationTypeDesc(opType OpPermissionType) string {
 		return "创建智能调优"
 	case OpPermissionTypeViewOthersOptimization:
 		return "查看他人创建的智能调优"
+	case OpPermissionTypeCreatePipeline:
+		return "配置流水线"
 	default:
 		return "未知操作类型"
 	}
