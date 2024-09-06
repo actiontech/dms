@@ -6,6 +6,7 @@ import (
 
 	dmsMiddleware "github.com/actiontech/dms/internal/apiserver/middleware"
 	"github.com/actiontech/dms/internal/dms/biz"
+	"github.com/actiontech/dms/internal/pkg/locale"
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	commonLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
@@ -296,6 +297,8 @@ func (s *APIServer) installMiddleware() error {
 		Balancer: s.DMSController.DMS.DmsProxyUsecase.GetEchoProxyBalancer(),
 		Rewrite:  s.DMSController.DMS.DmsProxyUsecase.GetEchoProxyRewrite(),
 	}))
+
+	s.echo.Use(locale.Bundle.EchoMiddlewareByAcceptLanguage())
 
 	return nil
 }

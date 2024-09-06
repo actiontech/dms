@@ -65,7 +65,7 @@ func initRole() []*Role {
 	return []*Role{
 		{
 			UID:  pkgConst.UIDOfRoleProjectAdmin,
-			Name: "项目管理员",
+			Name: "项目管理员", // todo i18n 返回时会根据uid国际化，name、desc已弃用；数据库name字段是唯一键，故暂时保留
 			Desc: "project admin",
 		},
 		{

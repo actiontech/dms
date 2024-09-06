@@ -1300,7 +1300,6 @@ func (d *DMSController) GetMemberGroup(c echo.Context) error {
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-
 	reply, err := d.DMS.GetMemberGroup(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
