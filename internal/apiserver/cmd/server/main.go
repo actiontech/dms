@@ -5,12 +5,13 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/actiontech/dms/pkg/dms-common/locale"
 	"log"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"syscall"
+
+	"github.com/actiontech/dms/internal/pkg/locale"
 
 	"github.com/actiontech/dms/internal/apiserver/conf"
 	"github.com/actiontech/dms/internal/apiserver/service"

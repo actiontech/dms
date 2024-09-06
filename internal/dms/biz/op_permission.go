@@ -53,7 +53,7 @@ func initOpPermission() []*OpPermission {
 	return []*OpPermission{
 		{
 			UID:       pkgConst.UIDOfOpPermissionCreateProject,
-			Name:      "创建项目",
+			Name:      "创建项目", // todo i18n 返回时会根据uid国际化，name、desc已弃用；数据库name字段是唯一键，故暂时保留
 			RangeType: OpRangeTypeGlobal,
 			Desc:      "创建项目；创建项目的用户自动拥有该项目管理权限",
 		},

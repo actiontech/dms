@@ -6,9 +6,9 @@ import (
 
 	dmsMiddleware "github.com/actiontech/dms/internal/apiserver/middleware"
 	"github.com/actiontech/dms/internal/dms/biz"
+	"github.com/actiontech/dms/internal/pkg/locale"
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
-	"github.com/actiontech/dms/pkg/dms-common/locale"
 	commonLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	pkgLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	echojwt "github.com/labstack/echo-jwt/v4"
@@ -298,7 +298,7 @@ func (s *APIServer) installMiddleware() error {
 		Rewrite:  s.DMSController.DMS.DmsProxyUsecase.GetEchoProxyRewrite(),
 	}))
 
-	s.echo.Use(locale.EchoMiddlewareI18nByAcceptLanguage())
+	s.echo.Use(locale.Bundle.EchoMiddlewareByAcceptLanguage())
 
 	return nil
 }
