@@ -8,6 +8,7 @@ import (
 	e "errors"
 
 	v1 "github.com/actiontech/dms/api/dms/service/v1"
+	"github.com/actiontech/dms/internal/pkg/locale"
 )
 
 type License struct {
@@ -15,23 +16,23 @@ type License struct {
 
 var ErrNoLicenseRequired = e.New("dms-qa version has unlimited resources does not need to set license")
 
-func (d *LicenseUsecase) GetLicense(c context.Context) (*v1.GetLicenseReply, error) {
+func (d *LicenseUsecase) GetLicense(ctx context.Context) (*v1.GetLicenseReply, error) {
 	return &v1.GetLicenseReply{
 		License: []v1.LicenseItem{
 			{
-				Description: "实例数",
+				Description: locale.Bundle.ShouldLocalizeMsg(ctx, locale.LicenseInstanceNum),
 				Name:        "instance_num",
-				Limit:       "无限制",
+				Limit:       locale.Bundle.ShouldLocalizeMsg(ctx, locale.LicenseUnlimited),
 			},
 			{
-				Description: "用户数",
+				Description: locale.Bundle.ShouldLocalizeMsg(ctx, locale.LicenseUserNum),
 				Name:        "user",
-				Limit:       "无限制",
+				Limit:       locale.Bundle.ShouldLocalizeMsg(ctx, locale.LicenseUnlimited),
 			},
 			{
-				Description: "授权运行时长(天)",
+				Description: locale.Bundle.ShouldLocalizeMsg(ctx, locale.LicenseAuthorizedDurationDay),
 				Name:        "work duration day",
-				Limit:       "无限制",
+				Limit:       locale.Bundle.ShouldLocalizeMsg(ctx, locale.LicenseUnlimited),
 			},
 		},
 	}, nil
@@ -67,7 +68,7 @@ func (d *LicenseUsecase) GetLicenseUsage(ctx context.Context) (*v1.GetLicenseUsa
 		Data: &v1.LicenseUsage{
 			UsersUsage: v1.LicenseUsageItem{
 				ResourceType:     "user",
-				ResourceTypeDesc: "用户",
+				ResourceTypeDesc: locale.Bundle.ShouldLocalizeMsg(ctx, locale.LicenseResourceTypeUser),
 				Used:             uint(usersTotal),
 				Limit:            0,
 				IsLimited:        false,

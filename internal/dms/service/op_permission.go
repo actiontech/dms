@@ -4,9 +4,47 @@ import (
 	"context"
 	"fmt"
 
+	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
+	"github.com/actiontech/dms/internal/pkg/locale"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
 )
+
+var OpPermissionNameByUID = map[string]*i18n.Message{
+	pkgConst.UIDOfOpPermissionCreateProject:          locale.NameOpPermissionCreateProject,
+	pkgConst.UIDOfOpPermissionProjectAdmin:           locale.NameOpPermissionProjectAdmin,
+	pkgConst.UIDOfOpPermissionCreateWorkflow:         locale.NameOpPermissionCreateWorkflow,
+	pkgConst.UIDOfOpPermissionAuditWorkflow:          locale.NameOpPermissionAuditWorkflow,
+	pkgConst.UIDOfOpPermissionAuthDBServiceData:      locale.NameOpPermissionAuthDBServiceData,
+	pkgConst.UIDOfOpPermissionExecuteWorkflow:        locale.NameOpPermissionExecuteWorkflow,
+	pkgConst.UIDOfOpPermissionViewOthersWorkflow:     locale.NameOpPermissionViewOthersWorkflow,
+	pkgConst.UIDOfOpPermissionSaveAuditPlan:          locale.NameOpPermissionSaveAuditPlan,
+	pkgConst.UIDOfOpPermissionViewOthersAuditPlan:    locale.NameOpPermissionViewOthersAuditPlan,
+	pkgConst.UIDOfOpPermissionSQLQuery:               locale.NameOpPermissionSQLQuery,
+	pkgConst.UIDOfOpPermissionExportApprovalReject:   locale.NameOpPermissionExportApprovalReject,
+	pkgConst.UIDOfOpPermissionExportCreate:           locale.NameOpPermissionExportCreate,
+	pkgConst.UIDOfOpPermissionCreateOptimization:     locale.NameOpPermissionCreateOptimization,
+	pkgConst.UIDOfOpPermissionViewOthersOptimization: locale.NameOpPermissionViewOthersOptimization,
+}
+
+var OpPermissionDescByUID = map[string]*i18n.Message{
+	pkgConst.UIDOfOpPermissionCreateProject:          locale.DescOpPermissionCreateProject,
+	pkgConst.UIDOfOpPermissionProjectAdmin:           locale.DescOpPermissionProjectAdmin,
+	pkgConst.UIDOfOpPermissionCreateWorkflow:         locale.DescOpPermissionCreateWorkflow,
+	pkgConst.UIDOfOpPermissionAuditWorkflow:          locale.DescOpPermissionAuditWorkflow,
+	pkgConst.UIDOfOpPermissionAuthDBServiceData:      locale.DescOpPermissionAuthDBServiceData,
+	pkgConst.UIDOfOpPermissionExecuteWorkflow:        locale.DescOpPermissionExecuteWorkflow,
+	pkgConst.UIDOfOpPermissionViewOthersWorkflow:     locale.DescOpPermissionViewOthersWorkflow,
+	pkgConst.UIDOfOpPermissionSaveAuditPlan:          locale.DescOpPermissionSaveAuditPlan,
+	pkgConst.UIDOfOpPermissionViewOthersAuditPlan:    locale.DescOpPermissionViewOthersAuditPlan,
+	pkgConst.UIDOfOpPermissionSQLQuery:               locale.DescOpPermissionSQLQuery,
+	pkgConst.UIDOfOpPermissionExportApprovalReject:   locale.DescOpPermissionExportApprovalReject,
+	pkgConst.UIDOfOpPermissionExportCreate:           locale.DescOpPermissionExportCreate,
+	pkgConst.UIDOfOpPermissionCreateOptimization:     locale.DescOpPermissionCreateOptimization,
+	pkgConst.UIDOfOpPermissionViewOthersOptimization: locale.DescOpPermissionViewOthersOptimization,
+}
 
 func (d *DMSService) ListOpPermissions(ctx context.Context, req *dmsV1.ListOpPermissionReq) (reply *dmsV1.ListOpPermissionReply, err error) {
 	d.log.Infof("ListOpPermissions.req=%v", req)
@@ -57,13 +95,16 @@ func (d *DMSService) ListOpPermissions(ctx context.Context, req *dmsV1.ListOpPer
 			return nil, fmt.Errorf("parse op range type failed: %v", err)
 		}
 		ret[i] = &dmsV1.ListOpPermission{
-			OpPermission: dmsV1.UidWithName{Uid: o.GetUID(), Name: o.Name},
-			Description:  o.Desc,
-			RangeType:    opRangeTyp,
+			OpPermission: dmsV1.UidWithName{
+				Uid:  o.GetUID(),
+				Name: locale.Bundle.ShouldLocalizeMsg(ctx, OpPermissionNameByUID[o.GetUID()]),
+			},
+			Description: locale.Bundle.ShouldLocalizeMsg(ctx, OpPermissionDescByUID[o.GetUID()]),
+			RangeType:   opRangeTyp,
 		}
 	}
 
 	return &dmsV1.ListOpPermissionReply{
-		Data:  ret, Total: total,
+		Data: ret, Total: total,
 	}, nil
 }
