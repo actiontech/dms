@@ -17,6 +17,7 @@ require (
 
 require (
 	github.com/99designs/gqlgen v0.17.20
+	github.com/BurntSushi/toml v1.3.2
 	github.com/denisenkom/go-mssqldb v0.12.3
 	github.com/go-ldap/ldap/v3 v3.4.5
 	github.com/go-sql-driver/mysql v1.7.0
@@ -25,6 +26,7 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/labstack/echo-jwt/v4 v4.1.0
 	github.com/moby/sys/mountinfo v0.5.0
+	github.com/nicksnyder/go-i18n/v2 v2.4.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sijms/go-ora/v2 v2.8.9
 	github.com/stretchr/testify v1.8.2
@@ -105,7 +107,7 @@ require (
 	golang.org/x/crypto v0.17.0 // indirect
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/sys v0.15.0
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/text v0.14.0
 	golang.org/x/time v0.3.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 )
