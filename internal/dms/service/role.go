@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/actiontech/dms/pkg/dms-common/locale"
+	"github.com/actiontech/dms/internal/pkg/locale"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
@@ -109,8 +109,8 @@ func (d *DMSService) ListRoles(ctx context.Context, req *dmsV1.ListRoleReq) (rep
 	for i, r := range roles {
 		if r.UID == pkgConst.UIDOfRoleProjectAdmin || r.UID == pkgConst.UIDOfRoleSQLEAdmin || r.UID == pkgConst.UIDOfRoleProvisionAdmin {
 			// built in role, localize name and desc
-			r.Name = locale.ShouldLocalizeMsg(ctx, RoleNameByUID[r.GetUID()])
-			r.Desc = locale.ShouldLocalizeMsg(ctx, RoleDescByUID[r.GetUID()])
+			r.Name = locale.Bundle.ShouldLocalizeMsg(ctx, RoleNameByUID[r.GetUID()])
+			r.Desc = locale.Bundle.ShouldLocalizeMsg(ctx, RoleDescByUID[r.GetUID()])
 		}
 		ret[i] = &dmsV1.ListRole{
 			RoleUid: r.GetUID(),
@@ -121,11 +121,11 @@ func (d *DMSService) ListRoles(ctx context.Context, req *dmsV1.ListRoleReq) (rep
 		// 获取角色状态
 		switch r.Stat {
 		case biz.RoleStatOK:
-			ret[i].Stat = dmsV1.Stat(locale.ShouldLocalizeMsg(ctx, locale.StatOK))
+			ret[i].Stat = dmsV1.Stat(locale.Bundle.ShouldLocalizeMsg(ctx, locale.StatOK))
 		case biz.RoleStatDisable:
-			ret[i].Stat = dmsV1.Stat(locale.ShouldLocalizeMsg(ctx, locale.StatDisable))
+			ret[i].Stat = dmsV1.Stat(locale.Bundle.ShouldLocalizeMsg(ctx, locale.StatDisable))
 		default:
-			ret[i].Stat = dmsV1.Stat(locale.ShouldLocalizeMsg(ctx, locale.StatUnknown))
+			ret[i].Stat = dmsV1.Stat(locale.Bundle.ShouldLocalizeMsg(ctx, locale.StatUnknown))
 		}
 
 		// 获取角色的操作权限
@@ -136,7 +136,7 @@ func (d *DMSService) ListRoles(ctx context.Context, req *dmsV1.ListRoleReq) (rep
 		for _, op := range ops {
 			ret[i].OpPermissions = append(ret[i].OpPermissions, dmsV1.UidWithName{
 				Uid:  op.GetUID(),
-				Name: locale.ShouldLocalizeMsg(ctx, OpPermissionNameByUID[op.GetUID()]),
+				Name: locale.Bundle.ShouldLocalizeMsg(ctx, OpPermissionNameByUID[op.GetUID()]),
 			})
 		}
 

@@ -5,11 +5,11 @@ import (
 	"fmt"
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
+	"github.com/actiontech/dms/internal/pkg/locale"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
-	"github.com/actiontech/dms/pkg/dms-common/locale"
 )
 
 var OpPermissionNameByUID = map[string]*i18n.Message{
@@ -97,9 +97,9 @@ func (d *DMSService) ListOpPermissions(ctx context.Context, req *dmsV1.ListOpPer
 		ret[i] = &dmsV1.ListOpPermission{
 			OpPermission: dmsV1.UidWithName{
 				Uid:  o.GetUID(),
-				Name: locale.ShouldLocalizeMsg(ctx, OpPermissionNameByUID[o.GetUID()]),
+				Name: locale.Bundle.ShouldLocalizeMsg(ctx, OpPermissionNameByUID[o.GetUID()]),
 			},
-			Description: locale.ShouldLocalizeMsg(ctx, OpPermissionDescByUID[o.GetUID()]),
+			Description: locale.Bundle.ShouldLocalizeMsg(ctx, OpPermissionDescByUID[o.GetUID()]),
 			RangeType:   opRangeTyp,
 		}
 	}

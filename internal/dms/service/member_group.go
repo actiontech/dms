@@ -7,7 +7,7 @@ import (
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
-	"github.com/actiontech/dms/pkg/dms-common/locale"
+	"github.com/actiontech/dms/internal/pkg/locale"
 )
 
 func (d *DMSService) ListMemberGroups(ctx context.Context, req *dmsV1.ListMemberGroupsReq) (reply *dmsV1.ListMemberGroupsReply, err error) {
@@ -126,8 +126,8 @@ func (d *DMSService) buildRoleWithOpRanges(ctx context.Context, roleWithOpRanges
 		}
 		if role.UID == pkgConst.UIDOfRoleProjectAdmin || role.UID == pkgConst.UIDOfRoleSQLEAdmin || role.UID == pkgConst.UIDOfRoleProvisionAdmin {
 			// built in role, localize name and desc
-			role.Name = locale.ShouldLocalizeMsg(ctx, RoleNameByUID[role.GetUID()])
-			role.Desc = locale.ShouldLocalizeMsg(ctx, RoleDescByUID[role.GetUID()])
+			role.Name = locale.Bundle.ShouldLocalizeMsg(ctx, RoleNameByUID[role.GetUID()])
+			role.Desc = locale.Bundle.ShouldLocalizeMsg(ctx, RoleDescByUID[role.GetUID()])
 		}
 		ret = append(ret, dmsV1.ListMemberRoleWithOpRange{
 			RoleUID:     dmsV1.UidWithName{Uid: role.GetUID(), Name: role.Name},

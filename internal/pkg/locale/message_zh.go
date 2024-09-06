@@ -54,3 +54,18 @@ var (
 	DescRoleSQLEAdmin      = &i18n.Message{ID: "DescRoleSQLEAdmin", Other: "拥有该权限的用户可以创建/编辑工单，审核/驳回工单，上线工单,创建/编辑扫描任务"}
 	DescRoleProvisionAdmin = &i18n.Message{ID: "DescRoleProvisionAdmin", Other: "拥有该权限的用户可以授权数据源数据权限"}
 )
+
+// license
+var (
+	LicenseInstanceNum           = &i18n.Message{ID: "LicenseInstanceNum", Other: "实例数"}
+	LicenseUserNum               = &i18n.Message{ID: "LicenseUserNum", Other: "用户数"}
+	LicenseAuthorizedDurationDay = &i18n.Message{ID: "LicenseAuthorizedDurationDay", Other: "授权运行时长(天)"}
+	LicenseUnlimited             = &i18n.Message{ID: "LicenseUnlimited", Other: "无限制"}
+	LicenseDurationOfRunning     = &i18n.Message{ID: "LicenseDurationOfRunning", Other: "已运行时长(天)"}
+	LicenseEstimatedMaturity     = &i18n.Message{ID: "LicenseEstimatedMaturity", Other: "预计到期时间"}
+	LicenseResourceTypeUser      = &i18n.Message{ID: "LicenseResourceTypeUser", Other: "用户"}
+	LicenseInstanceNumOfType     = &i18n.Message{ID: "LicenseInstanceNumOfType", Other: "[%v]类型实例数"}
+	LicenseMachineInfo           = &i18n.Message{ID: "LicenseMachineInfo", Other: "机器信息"}
+	LicenseMachineInfoOfNode     = &i18n.Message{ID: "LicenseMachineInfoOfNode", Other: "节点[%s]机器信息"}
+	LicenseDmsVersion            = &i18n.Message{ID: "LicenseDmsVersion", Other: "DMS版本"}
+)

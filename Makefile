@@ -170,7 +170,7 @@ open_swag_server:
 
 ######################################## i18n ##########################################################
 GOBIN = ${shell pwd}/bin
-LOCALE_PATH   = ${shell pwd}/pkg/dms-common/locale
+LOCALE_PATH   = ${shell pwd}/internal/pkg/locale
 
 install_i18n_tool:
 	GOBIN=$(GOBIN) go install -v github.com/nicksnyder/go-i18n/v2/goi18n@latest
