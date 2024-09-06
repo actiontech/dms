@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"syscall"
 
+	"github.com/actiontech/dms/internal/pkg/locale"
+
 	"github.com/actiontech/dms/internal/apiserver/conf"
 	"github.com/actiontech/dms/internal/apiserver/service"
 	dmsConf "github.com/actiontech/dms/internal/dms/conf"
@@ -41,6 +43,7 @@ func init() {
 
 func run(logger utilLog.Logger, opts *conf.DMSOptions) error {
 	log_ := utilLog.NewHelper(logger, utilLog.WithMessageKey(Name))
+	locale.MustInit(log_)
 
 	gctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
