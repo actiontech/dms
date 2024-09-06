@@ -167,3 +167,19 @@ gen_swag:
 
 open_swag_server:
 	./internal/apiserver/cmd/swag/swagger_${ARCH}_amd64 serve --no-open -F=swagger --port 36666 ./api/swagger.yaml
+
+######################################## i18n ##########################################################
+GOBIN = ${shell pwd}/bin
+LOCALE_PATH   = ${shell pwd}/internal/pkg/locale
+
+install_i18n_tool:
+	GOBIN=$(GOBIN) go install -v github.com/nicksnyder/go-i18n/v2/goi18n@latest
+
+extract_i18n:
+	cd ${LOCALE_PATH} && $(GOBIN)/goi18n extract -sourceLanguage zh
+
+start_trans_i18n:
+	cd ${LOCALE_PATH} && touch translate.en.toml && $(GOBIN)/goi18n merge -sourceLanguage=zh active.*.toml
+
+end_trans_i18n:
+	cd ${LOCALE_PATH} && $(GOBIN)/goi18n merge active.en.toml translate.en.toml && rm -rf translate.en.toml
