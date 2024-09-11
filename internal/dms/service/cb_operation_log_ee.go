@@ -13,6 +13,8 @@ import (
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/internal/dms/pkg/constant"
+	"github.com/actiontech/dms/internal/dms/storage/model"
+	"github.com/actiontech/dms/internal/pkg/locale"
 )
 
 func (d *DMSService) listCBOperationLogs(ctx context.Context, req *dmsV1.ListCBOperationLogsReq, uid string) (reply *dmsV1.ListCBOperationLogsReply, err error) {
@@ -126,7 +128,7 @@ func (d *DMSService) listCBOperationLogs(ctx context.Context, req *dmsV1.ListCBO
 			OperationTime: log.GetOpTime(),
 			Operation: dmsV1.Operation{
 				OperationType:   dmsV1.CbOperationType(log.OpType),
-				OperationDetail: log.OpDetail,
+				OperationDetail: log.I18nOpDetail.GetStrInLang(locale.Bundle.GetLangTagFromCtx(ctx)),
 			},
 			SessionID:         log.GetSessionID(),
 			OperationIp:       log.OpHost,
@@ -145,7 +147,7 @@ func (d *DMSService) listCBOperationLogs(ctx context.Context, req *dmsV1.ListCBO
 			for _, auditResult := range log.AuditResults {
 				dmsLog.AuditResult = append(dmsLog.AuditResult, &dmsV1.AuditSQLResult{
 					Level:    auditResult.Level,
-					Message:  auditResult.Message,
+					Message:  auditResult.GetAuditMsgByLangTag(locale.Bundle.GetLangTagFromCtx(ctx)),
 					RuleName: auditResult.RuleName,
 				})
 			}
@@ -291,17 +293,17 @@ func (d *DMSService) exportCbOperationLogs(ctx context.Context, req *dmsV1.Expor
 
 	var cbOpList [][]string
 	cbOpList = append(cbOpList, []string{
-		"项目名",
-		"操作人",
-		"操作时间",
-		"数据源",
-		"操作详情",
-		"会话ID",
-		"操作IP",
-		"审核结果",
-		"执行结果",
-		"执行时间(毫秒)",
-		"结果集返回行数",
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.CbOpProjectName),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.CbOpOperator),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.CbOpOperationTime),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.CbOpDataSource),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.CbOpDetails),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.CbOpSessionID),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.CbOpOperationIP),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.CbOpAuditResult),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.CbOpExecutionResult),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.CbOpExecutionTimeMs),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.CbOpResultRowCount),
 	})
 
 	var auditFailedSqlCount, execSuccessCount int
@@ -311,10 +313,10 @@ func (d *DMSService) exportCbOperationLogs(ctx context.Context, req *dmsV1.Expor
 			log.GetUserName(),
 			log.GetOpTime().String(),
 			log.GetDbServiceName(),
-			log.OpDetail,
+			log.I18nOpDetail.GetStrInLang(locale.Bundle.GetLangTagFromCtx(ctx)),
 			log.GetSessionID(),
 			log.OpHost,
-			spliceAuditResults(log.AuditResults),
+			spliceAuditResults(ctx, log.AuditResults),
 			log.ExecResult,
 			strconv.FormatInt(log.ExecTotalSec, 10),
 			strconv.FormatInt(log.ResultSetRowCount, 10),
@@ -329,16 +331,16 @@ func (d *DMSService) exportCbOperationLogs(ctx context.Context, req *dmsV1.Expor
 	}
 
 	err = csvWriter.WriteAll([][]string{
-		{"执行总量:", strconv.FormatInt(total, 10)},
-		{"执行成功率:", fmt.Sprintf("%.2f%%",
+		{locale.Bundle.LocalizeMsgByCtx(ctx, locale.CbOpTotalExecutions), strconv.FormatInt(total, 10)},
+		{locale.Bundle.LocalizeMsgByCtx(ctx, locale.CbOpSuccessRate), fmt.Sprintf("%.2f%%",
 			func() float64 {
 				if execSuccessCount == 0 || total == 0 {
 					return 0
 				}
 				return float64(execSuccessCount) / float64(total) * 100
 			}())},
-		{"审核拦截的异常SQL:", strconv.FormatInt(int64(auditFailedSqlCount), 10)},
-		{"执行不成功的SQL:", strconv.FormatInt(total-int64(execSuccessCount), 10)},
+		{locale.Bundle.LocalizeMsgByCtx(ctx, locale.CbOpAuditBlockedSQL), strconv.FormatInt(int64(auditFailedSqlCount), 10)},
+		{locale.Bundle.LocalizeMsgByCtx(ctx, locale.CbOpUnsuccessfulExecutions), strconv.FormatInt(total-int64(execSuccessCount), 10)},
 	})
 	if err != nil {
 		return nil, err
@@ -357,10 +359,10 @@ func (d *DMSService) exportCbOperationLogs(ctx context.Context, req *dmsV1.Expor
 	return buff.Bytes(), nil
 }
 
-func spliceAuditResults(auditResults []*biz.AuditResult) string {
+func spliceAuditResults(ctx context.Context, auditResults model.AuditResults) string {
 	var results []string
 	for _, auditResult := range auditResults {
-		results = append(results, fmt.Sprintf("[%v]%v", auditResult.Level, auditResult.Message))
+		results = append(results, fmt.Sprintf("[%v]%v", auditResult.Level, auditResult.GetAuditMsgByLangTag(locale.Bundle.GetLangTagFromCtx(ctx))))
 	}
 	return strings.Join(results, "\n")
 }

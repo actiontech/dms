@@ -16,6 +16,7 @@ import (
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	export "github.com/actiontech/dms/internal/dataQuery/pkg/dataExport"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
+	"github.com/actiontech/dms/internal/dms/storage/model"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver"
 	v1Base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
@@ -630,17 +631,17 @@ type GetAuditTaskSQLsResV2 struct {
 }
 
 type AuditTaskSQLResV2 struct {
-	Number        uint           `json:"number"`
-	ExecSQL       string         `json:"exec_sql"`
-	SQLSourceFile string         `json:"sql_source_file"`
-	AuditResult   []*AuditResult `json:"audit_result"`
-	AuditLevel    string         `json:"audit_level"`
-	AuditStatus   string         `json:"audit_status"`
-	ExecResult    string         `json:"exec_result"`
-	ExecStatus    string         `json:"exec_status"`
-	RollbackSQL   string         `json:"rollback_sql,omitempty"`
-	Description   string         `json:"description"`
-	SQLType       string         `json:"sql_type"`
+	Number        uint               `json:"number"`
+	ExecSQL       string             `json:"exec_sql"`
+	SQLSourceFile string             `json:"sql_source_file"`
+	AuditResult   model.AuditResults `json:"audit_result"`
+	AuditLevel    string             `json:"audit_level"`
+	AuditStatus   string             `json:"audit_status"`
+	ExecResult    string             `json:"exec_result"`
+	ExecStatus    string             `json:"exec_status"`
+	RollbackSQL   string             `json:"rollback_sql,omitempty"`
+	Description   string             `json:"description"`
+	SQLType       string             `json:"sql_type"`
 }
 
 func (d *DataExportWorkflowUsecase) SQLEAuditSQL(ctx context.Context, projectName, taskId, dBServiceUid, dbName string, Sqls string) (*AuditTaskInfo, []*DataExportTaskRecord, error) {
