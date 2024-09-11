@@ -8,6 +8,7 @@ import (
 
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/internal/dms/storage/model"
+	"github.com/actiontech/dms/pkg/dms-common/i18nPkg"
 	"github.com/labstack/echo/v4/middleware"
 
 	pkgAes "github.com/actiontech/dms/pkg/dms-common/pkg/aes"
@@ -1031,15 +1032,7 @@ func convertBizDataExportTaskRecords(b *biz.DataExportTaskRecord) *model.DataExp
 		ExportSQLType:    b.ExportSQLType,
 		ExportResult:     b.ExportResult,
 		AuditLevel:       b.AuditLevel,
-	}
-	if len(b.AuditSQLResults) != 0 {
-		for _, v := range b.AuditSQLResults {
-			m.AuditResults = append(m.AuditResults, model.AuditResult{
-				Level:    v.Level,
-				Message:  v.Message,
-				RuleName: v.RuleName,
-			})
-		}
+		AuditResults:     b.AuditSQLResults,
 	}
 	return m
 }
@@ -1052,31 +1045,12 @@ func convertModelDataExportTaskRecords(m *model.DataExportTaskRecord) *biz.DataE
 		ExportSQLType:    m.ExportSQLType,
 		AuditLevel:       m.AuditLevel,
 		ExportResult:     m.ExportResult,
-	}
-	if len(m.AuditResults) != 0 {
-		for _, v := range m.AuditResults {
-			b.AuditSQLResults = append(b.AuditSQLResults, &biz.AuditResult{
-				Level:    v.Level,
-				Message:  v.Message,
-				RuleName: v.RuleName,
-			})
-		}
+		AuditSQLResults:  m.AuditResults,
 	}
 	return b
 }
 
 func convertBizCbOperationLog(src *biz.CbOperationLog) *model.CbOperationLog {
-	var AuditSQLResults model.AuditResults
-	if len(src.AuditResults) != 0 {
-		for _, v := range src.AuditResults {
-			AuditSQLResults = append(AuditSQLResults, model.AuditResult{
-				Level:    v.Level,
-				RuleName: v.RuleName,
-				Message:  v.Message,
-			})
-		}
-	}
-
 	return &model.CbOperationLog{
 		Model: model.Model{
 			UID: src.UID,
@@ -1086,10 +1060,10 @@ func convertBizCbOperationLog(src *biz.CbOperationLog) *model.CbOperationLog {
 		OpTime:            src.OpTime,
 		DBServiceUID:      src.DBServiceUID,
 		OpType:            string(src.OpType),
-		OpDetail:          src.OpDetail,
+		I18nOpDetail:      src.I18nOpDetail,
 		OpSessionID:       src.OpSessionID,
 		OpHost:            src.OpHost,
-		AuditResult:       AuditSQLResults,
+		AuditResult:       src.AuditResults,
 		IsAuditPassed:     src.IsAuditPass,
 		ExecResult:        src.ExecResult,
 		ExecTotalSec:      src.ExecTotalSec,
@@ -1098,17 +1072,6 @@ func convertBizCbOperationLog(src *biz.CbOperationLog) *model.CbOperationLog {
 }
 
 func convertModelCbOperationLog(model *model.CbOperationLog) (*biz.CbOperationLog, error) {
-	var AuditResults []*biz.AuditResult
-	if len(model.AuditResult) != 0 {
-		for _, v := range model.AuditResult {
-			AuditResults = append(AuditResults, &biz.AuditResult{
-				Level:    v.Level,
-				RuleName: v.RuleName,
-				Message:  v.Message,
-			})
-		}
-	}
-
 	user, err := convertModelUser(model.User)
 	if err != nil {
 		return nil, err
@@ -1124,6 +1087,11 @@ func convertModelCbOperationLog(model *model.CbOperationLog) (*biz.CbOperationLo
 		return nil, err
 	}
 
+	if len(model.I18nOpDetail) == 0 && model.OpDetail != "" {
+		// 兼容老数据
+		model.I18nOpDetail = i18nPkg.ConvertStr2I18nAsDefaultLang(model.OpDetail)
+	}
+
 	return &biz.CbOperationLog{
 		UID:               model.UID,
 		ProjectID:         model.ProjectID,
@@ -1131,10 +1099,10 @@ func convertModelCbOperationLog(model *model.CbOperationLog) (*biz.CbOperationLo
 		OpTime:            model.OpTime,
 		DBServiceUID:      model.DBServiceUID,
 		OpType:            biz.CbOperationLogType(model.OpType),
-		OpDetail:          model.OpDetail,
+		I18nOpDetail:      model.I18nOpDetail,
 		OpSessionID:       model.OpSessionID,
 		OpHost:            model.OpHost,
-		AuditResults:      AuditResults,
+		AuditResults:      model.AuditResult,
 		IsAuditPass:       model.IsAuditPassed,
 		ExecResult:        model.ExecResult,
 		ExecTotalSec:      model.ExecTotalSec,

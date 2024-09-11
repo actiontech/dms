@@ -25,8 +25,8 @@ func (d *DBServiceSyncTaskUsecase) ListDBServiceSyncTasks(ctx context.Context, c
 	return nil, errNotDBServiceSyncTask
 }
 
-func (d *DBServiceSyncTaskUsecase) ListDBServiceSyncTaskTips() ([]ListDBServiceSyncTaskTips, error) {
-	return nil,errNotDBServiceSyncTask
+func (d *DBServiceSyncTaskUsecase) ListDBServiceSyncTaskTips(ctx context.Context) ([]ListDBServiceSyncTaskTips, error) {
+	return nil, errNotDBServiceSyncTask
 }
 
 func (d *DBServiceSyncTaskUsecase) GetDBServiceSyncTask(ctx context.Context, syncTaskId, currentUserId string) (*DBServiceSyncTask, error) {

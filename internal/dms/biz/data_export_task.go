@@ -5,6 +5,7 @@ import (
 	"time"
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
+	"github.com/actiontech/dms/internal/dms/storage/model"
 )
 
 type DataExportTaskStatus string
@@ -52,13 +53,7 @@ type DataExportTaskRecord struct {
 	AuditLevel       string
 	ExportResult     string
 	ExportSQLType    string
-	AuditSQLResults  []*AuditResult
-}
-
-type AuditResult struct {
-	Level    string `json:"level" example:"warn"`
-	Message  string `json:"message" example:"避免使用不必要的内置函数md5()"`
-	RuleName string `json:"rule_name"`
+	AuditSQLResults  model.AuditResults
 }
 
 type ListDataExportTaskRecordOption struct {

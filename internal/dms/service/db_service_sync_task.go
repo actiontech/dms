@@ -95,7 +95,6 @@ func toApiDBServiceSyncTask(d *DMSService, syncTask *biz.DBServiceSyncTask) v1.D
 	}
 }
 
-
 func (d *DMSService) buildReplySqleConfig(params *biz.SQLEConfig) *dmsCommonV1.SQLEConfig {
 	if params == nil {
 		return nil
@@ -117,7 +116,7 @@ func (d *DMSService) buildReplySqleConfig(params *biz.SQLEConfig) *dmsCommonV1.S
 }
 
 func (d *DMSService) ListDBServiceSyncTaskTips(ctx context.Context) (*v1.ListDBServiceSyncTaskTipsReply, error) {
-	tips, err := d.DBServiceSyncTaskUsecase.ListDBServiceSyncTaskTips()
+	tips, err := d.DBServiceSyncTaskUsecase.ListDBServiceSyncTaskTips(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("list db_service_sync_task tips failed: %w", err)
 	}
