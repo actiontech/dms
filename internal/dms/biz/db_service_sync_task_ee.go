@@ -78,8 +78,8 @@ func (d *DBServiceSyncTaskUsecase) ListDBServiceSyncTasks(ctx context.Context, c
 	return syncTasks, nil
 }
 
-func (d *DBServiceSyncTaskUsecase) ListDBServiceSyncTaskTips() ([]ListDBServiceSyncTaskTips, error) {
-	return d.repo.ListDBServiceSyncTaskTips()
+func (d *DBServiceSyncTaskUsecase) ListDBServiceSyncTaskTips(ctx context.Context) ([]ListDBServiceSyncTaskTips, error) {
+	return d.repo.ListDBServiceSyncTaskTips(ctx)
 }
 
 func (d *DBServiceSyncTaskUsecase) GetDBServiceSyncTask(ctx context.Context, syncTaskId, currentUserId string) (*DBServiceSyncTask, error) {

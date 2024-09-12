@@ -14,10 +14,9 @@ import (
 	v1 "github.com/actiontech/dms/api/dms/service/v1"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
-	pkgRand "github.com/actiontech/dms/pkg/rand"
-	"github.com/gocarina/gocsv"
-
+	"github.com/actiontech/dms/internal/pkg/locale"
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+	pkgRand "github.com/actiontech/dms/pkg/rand"
 )
 
 func (d *ProjectUsecase) CreateProject(ctx context.Context, project *Project, createUserUID string) (err error) {
@@ -388,11 +387,11 @@ func (d *ProjectUsecase) ExportProjects(ctx context.Context, uid string, option 
 	csvWriter := csv.NewWriter(buff)
 
 	if err := csvWriter.Write([]string{
-		"项目名称",
-		"项目描述",
-		"项目状态",
-		"可用业务",
-		"创建时间",
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.ProjectName),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.ProjectDesc),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.ProjectStatus),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.ProjectBusiness),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.ProjectCreateTime),
 	}); err != nil {
 		return nil, fmt.Errorf("failed to write csv header: %v", err)
 	}
@@ -400,9 +399,9 @@ func (d *ProjectUsecase) ExportProjects(ctx context.Context, uid string, option 
 	for _, project := range projects {
 		var status string
 		if project.Status == ProjectStatusArchived {
-			status = "不可用"
+			status = locale.Bundle.LocalizeMsgByCtx(ctx, locale.ProjectNotAvailable)
 		} else {
-			status = "可用"
+			status = locale.Bundle.LocalizeMsgByCtx(ctx, locale.ProjectAvailable)
 		}
 
 		var business string
@@ -505,9 +504,7 @@ func (d *ProjectUsecase) UpdateProject(ctx context.Context, currentUserUid, proj
 	return nil
 }
 
-var importDBServicesTemplateData []byte
-
-func init() {
+func (d *ProjectUsecase) GetImportDBServicesTemplate(ctx context.Context, uid string) ([]byte, error) {
 	var importDBServicesTemplateRows = []*ImportDbServicesCsvRow{
 		{
 			DbName:           "mysql_1",
@@ -557,17 +554,49 @@ func init() {
 		},
 	}
 
-	data, err := gocsv.MarshalBytes(importDBServicesTemplateRows)
+	buff := new(bytes.Buffer)
+	buff.WriteString("\xEF\xBB\xBF") // 写入UTF-8 BOM
+	csvWriter := csv.NewWriter(buff)
+	err := csvWriter.Write([]string{
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceDbName),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceProjName),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceBusiness),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceDesc),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceDbType),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceHost),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServicePort),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceUser),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServicePassword),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceOracleService),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceDB2DbName),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceOpsTime),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceRuleTemplateName),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceAuditLevel),
+	})
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-
-	buf := &bytes.Buffer{}
-	buf.WriteString("\xEF\xBB\xBF") // 写入UTF-8 BOM
-	buf.Write(data)
-	importDBServicesTemplateData = buf.Bytes()
-}
-
-func (d *ProjectUsecase) GetImportDBServicesTemplate(ctx context.Context, uid string) ([]byte, error) {
-	return importDBServicesTemplateData, nil
+	for _, row := range importDBServicesTemplateRows {
+		err = csvWriter.Write([]string{
+			row.DbName,
+			row.ProjName,
+			row.Business,
+			row.Desc,
+			row.DbType,
+			row.Host,
+			row.Port,
+			row.User,
+			row.Password,
+			row.OracleService,
+			row.DB2DbName,
+			row.OpsTime,
+			row.RuleTemplateName,
+			row.AuditLevel,
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+	csvWriter.Flush()
+	return buff.Bytes(), nil
 }

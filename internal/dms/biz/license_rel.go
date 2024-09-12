@@ -12,6 +12,7 @@ import (
 
 	v1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/license"
+	"github.com/actiontech/dms/internal/pkg/locale"
 	"github.com/robfig/cron/v3"
 )
 
@@ -43,14 +44,14 @@ func (d *LicenseUsecase) GetLicense(ctx context.Context) (*v1.GetLicenseReply, e
 		return nil, err
 	}
 
-	items := generateLicenseItems(&l.Content.LicenseContent)
+	items := generateLicenseItems(ctx, &l.Content.LicenseContent)
 
 	items = append(items, v1.LicenseItem{
-		Description: "已运行时长(天)",
+		Description: locale.Bundle.LocalizeMsgByCtx(ctx, locale.LicenseDurationOfRunning),
 		Name:        "duration of running",
 		Limit:       strconv.Itoa(l.WorkDurationHour / 24),
 	}, v1.LicenseItem{
-		Description: "预计到期时间",
+		Description: locale.Bundle.LocalizeMsgByCtx(ctx, locale.LicenseEstimatedMaturity),
 		Name:        "estimated maturity",
 		// 这个时间要展示给人看, 展示成RFC3339不够友好, 也不需要展示精确的时间, 所以展示成自定义时间格式
 		Limit: time.Now().Add(time.Hour * time.Duration(l.Content.LicenseContent.Permission.WorkDurationDay*24-l.WorkDurationHour)).Format("2006-01-02"),
@@ -106,7 +107,7 @@ func (d *LicenseUsecase) GetLicenseUsage(ctx context.Context) (*v1.GetLicenseUsa
 			Data: &v1.LicenseUsage{
 				UsersUsage: v1.LicenseUsageItem{
 					ResourceType:     "user",
-					ResourceTypeDesc: "用户",
+					ResourceTypeDesc: locale.Bundle.LocalizeMsgByCtx(ctx, locale.LicenseResourceTypeUser),
 					Used:             2,
 					Limit:            2,
 					IsLimited:        true,
@@ -171,7 +172,7 @@ func (d *LicenseUsecase) GetLicenseUsage(ctx context.Context) (*v1.GetLicenseUsa
 		Data: &v1.LicenseUsage{
 			UsersUsage: v1.LicenseUsageItem{
 				ResourceType:     "user",
-				ResourceTypeDesc: "用户",
+				ResourceTypeDesc: locale.Bundle.LocalizeMsgByCtx(ctx, locale.LicenseResourceTypeUser),
 				Used:             uint(usersTotal),
 				Limit:            uint(permission.UserCount),
 				IsLimited:        true,
@@ -228,7 +229,7 @@ func (d *LicenseUsecase) CheckLicense(ctx context.Context, data string) (*v1.Che
 		return nil, err
 	}
 
-	items := generateLicenseItems(&l.LicenseContent)
+	items := generateLicenseItems(ctx, &l.LicenseContent)
 
 	return &v1.CheckLicenseReply{
 		Content: string(data),
@@ -237,26 +238,26 @@ func (d *LicenseUsecase) CheckLicense(ctx context.Context, data string) (*v1.Che
 
 }
 
-func generateLicenseItems(l *license.LicenseContent) []v1.LicenseItem {
+func generateLicenseItems(ctx context.Context, l *license.LicenseContent) []v1.LicenseItem {
 	items := []v1.LicenseItem{}
 
 	for n, i := range l.Permission.NumberOfInstanceOfEachType {
 		items = append(items, v1.LicenseItem{
-			Description: fmt.Sprintf("[%v]类型实例数", n),
+			Description: fmt.Sprintf(locale.Bundle.LocalizeMsgByCtx(ctx, locale.LicenseInstanceNumOfType), n),
 			Name:        n,
 			Limit:       strconv.Itoa(i.Count),
 		})
 	}
 
 	items = append(items, v1.LicenseItem{
-		Description: "用户数",
+		Description: locale.Bundle.LocalizeMsgByCtx(ctx, locale.LicenseUserNum),
 		Name:        "user",
 		Limit:       strconv.Itoa(l.Permission.UserCount),
 	})
 
 	if l.HardwareSign != "" {
 		items = append(items, v1.LicenseItem{
-			Description: "机器信息",
+			Description: locale.Bundle.LocalizeMsgByCtx(ctx, locale.LicenseMachineInfo),
 			Name:        "info",
 			Limit:       l.HardwareSign,
 		})
@@ -264,7 +265,7 @@ func generateLicenseItems(l *license.LicenseContent) []v1.LicenseItem {
 	if len(l.ClusterHardwareSigns) > 0 {
 		for _, s := range l.ClusterHardwareSigns {
 			items = append(items, v1.LicenseItem{
-				Description: fmt.Sprintf("节点[%s]机器信息", s.Id),
+				Description: fmt.Sprintf(locale.Bundle.LocalizeMsgByCtx(ctx, locale.LicenseMachineInfoOfNode), s.Id),
 				Name:        fmt.Sprintf("node_%s_info", s.Id),
 				Limit:       s.Sign,
 			})
@@ -272,11 +273,11 @@ func generateLicenseItems(l *license.LicenseContent) []v1.LicenseItem {
 	}
 	items = append(items, []v1.LicenseItem{
 		{
-			Description: "DMS版本",
+			Description: locale.Bundle.LocalizeMsgByCtx(ctx, locale.LicenseDmsVersion),
 			Name:        "version",
 			Limit:       l.Permission.Version,
 		}, {
-			Description: "授权运行时长(天)",
+			Description: locale.Bundle.LocalizeMsgByCtx(ctx, locale.LicenseAuthorizedDurationDay),
 			Name:        "work duration day",
 			Limit:       strconv.Itoa(l.Permission.WorkDurationDay),
 		},
@@ -302,14 +303,14 @@ func (d *LicenseUsecase) Check(ctx context.Context) (*v1.GetLicenseReply, error)
 		return nil, err
 	}
 
-	items := generateLicenseItems(&l.Content.LicenseContent)
+	items := generateLicenseItems(ctx, &l.Content.LicenseContent)
 
 	items = append(items, v1.LicenseItem{
-		Description: "已运行时长(天)",
+		Description: locale.Bundle.LocalizeMsgByCtx(ctx, locale.LicenseDurationOfRunning),
 		Name:        "duration of running",
 		Limit:       strconv.Itoa(l.WorkDurationHour / 24),
 	}, v1.LicenseItem{
-		Description: "预计到期时间",
+		Description: locale.Bundle.LocalizeMsgByCtx(ctx, locale.LicenseEstimatedMaturity),
 		Name:        "estimated maturity",
 		// 这个时间要展示给人看, 展示成RFC3339不够友好, 也不需要展示精确的时间, 所以展示成自定义时间格式
 		Limit: time.Now().Add(time.Hour * time.Duration(l.Content.LicenseContent.Permission.WorkDurationDay*24-l.WorkDurationHour)).Format("2006-01-02"),

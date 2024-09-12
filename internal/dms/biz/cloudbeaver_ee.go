@@ -11,6 +11,9 @@ import (
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
+	dbmodel "github.com/actiontech/dms/internal/dms/storage/model"
+	"github.com/actiontech/dms/internal/pkg/locale"
+	"github.com/actiontech/dms/pkg/dms-common/i18nPkg"
 
 	v1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/pkg/constant"
@@ -174,7 +177,7 @@ func (cu *CloudbeaverUsecase) SaveUiOp(c echo.Context, buf *bytes.Buffer, params
 		if err != nil {
 			return err
 		}
-		operationLog.ExecResult = fmt.Sprintf("执行失败: %s", string(marshal))
+		operationLog.ExecResult = fmt.Sprintf("%s: %s", CbExecOpFailure, string(marshal))
 	}
 
 	err = cu.cbOperationLogUsecase.SaveCbOperationLog(c.Request().Context(), &operationLog)
@@ -261,11 +264,11 @@ func newCbOperationLog(c echo.Context, uid string, dbService *DBService, params 
 		opSessionID := sessionID.(string)
 		cbOperationLog.OpSessionID = &opSessionID
 	}
-	var opDetailReq string
+	var opDetailReq i18nPkg.I18nStr
 	query, ok := params.Variables["query"]
 	if ok {
 		query := query.(string)
-		opDetailReq = query
+		opDetailReq = i18nPkg.ConvertStr2I18nAsDefaultLang(query)
 	}
 	cbOperationLog.OpHost = c.RealIP()
 
@@ -275,7 +278,7 @@ func newCbOperationLog(c echo.Context, uid string, dbService *DBService, params 
 		if err != nil {
 			return CbOperationLog{}, err
 		}
-		opDetailReq = fmt.Sprintf("在数据源:%s中删除了以下数据:%s", dbService.Name, string(marshal))
+		opDetailReq = locale.Bundle.LocalizeAllWithArgs(locale.CbOpDetailDelData, dbService.Name, string(marshal))
 	}
 	opDetail, ok = params.Variables["addedRows"]
 	if ok {
@@ -283,7 +286,7 @@ func newCbOperationLog(c echo.Context, uid string, dbService *DBService, params 
 		if err != nil {
 			return CbOperationLog{}, err
 		}
-		opDetailReq = fmt.Sprintf("在数据源:%s中添加了以下数据:%s", dbService.Name, string(marshal))
+		opDetailReq = locale.Bundle.LocalizeAllWithArgs(locale.CbOpDetailAddData, dbService.Name, string(marshal))
 	}
 	opDetail, ok = params.Variables["updatedRows"]
 	if ok {
@@ -291,21 +294,22 @@ func newCbOperationLog(c echo.Context, uid string, dbService *DBService, params 
 		if err != nil {
 			return CbOperationLog{}, err
 		}
-		opDetailReq = fmt.Sprintf("在数据源:%s中更新了以下数据:%s", dbService.Name, string(marshal))
+		opDetailReq = locale.Bundle.LocalizeAllWithArgs(locale.CbOpDetailUpdateData, dbService.Name, string(marshal))
 	}
-	cbOperationLog.OpDetail = opDetailReq
+	cbOperationLog.I18nOpDetail = opDetailReq
 
 	return cbOperationLog, nil
 }
 
-func convertToAuditResults(results []cloudbeaver.AuditSQLResV2) []*AuditResult {
-	var auditResults []*AuditResult
+func convertToAuditResults(results []cloudbeaver.AuditSQLResV2) dbmodel.AuditResults {
+	var auditResults dbmodel.AuditResults
 	for _, res := range results {
 		for _, result := range res.AuditResult {
-			auditResult := &AuditResult{
-				Level:    result.Level,
-				Message:  result.Message,
-				RuleName: result.RuleName,
+			auditResult := dbmodel.AuditResult{
+				Level:               result.Level,
+				Message:             result.Message,
+				RuleName:            result.RuleName,
+				I18nAuditResultInfo: result.I18nAuditResultInfo,
 			}
 
 			auditResults = append(auditResults, auditResult)
