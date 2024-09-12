@@ -5,11 +5,12 @@ import (
 	"fmt"
 
 	"github.com/actiontech/dms/internal/dms/biz"
-	"github.com/actiontech/dms/internal/dms/storage/model"
-	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
-	pkgParams "github.com/actiontech/dms/pkg/params"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
+	"github.com/actiontech/dms/internal/dms/storage/model"
+	"github.com/actiontech/dms/internal/pkg/locale"
+	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
+	pkgParams "github.com/actiontech/dms/pkg/params"
 	"gorm.io/gorm"
 )
 
@@ -56,7 +57,6 @@ func (d *DBServiceSyncTaskRepo) UpdateDBServiceSyncTask(ctx context.Context, syn
 	})
 }
 
-
 func (d *DBServiceSyncTaskRepo) ListDBServiceSyncTasks(ctx context.Context) ([]*biz.DBServiceSyncTask, error) {
 	var items []*model.DBServiceSyncTask
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
@@ -77,41 +77,37 @@ func (d *DBServiceSyncTaskRepo) ListDBServiceSyncTasks(ctx context.Context) ([]*
 	return ret, nil
 }
 
-
-func (d *DBServiceSyncTaskRepo) ListDBServiceSyncTaskTips() ([]biz.ListDBServiceSyncTaskTips, error) {
-	return DatabaseSourceServiceTips, nil
-}
-
-var DatabaseSourceServiceTips = []biz.ListDBServiceSyncTaskTips{
-	{
-		Type:    pkgConst.DBServiceSourceNameDMP,
-		Desc:    "Actiontech DMP",
-		DBTypes: []pkgConst.DBType{pkgConst.DBTypeMySQL},
-		Params:  pkgParams.Params{
-			{
-				Key:  "version",
-				Desc: "版本(支持DMP5.23.04.0及以上版本)",
-				Type: pkgParams.ParamTypeString,
+func (d *DBServiceSyncTaskRepo) ListDBServiceSyncTaskTips(ctx context.Context) ([]biz.ListDBServiceSyncTaskTips, error) {
+	return []biz.ListDBServiceSyncTaskTips{
+		{
+			Type:    pkgConst.DBServiceSourceNameDMP,
+			Desc:    "Actiontech DMP",
+			DBTypes: []pkgConst.DBType{pkgConst.DBTypeMySQL},
+			Params: pkgParams.Params{
+				{
+					Key:  "version",
+					Desc: locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceSyncVersion),
+					Type: pkgParams.ParamTypeString,
+				},
 			},
 		},
-	},
-	{
-		Type: pkgConst.DBServiceSourceNameExpandService,
-		Desc: "数据源同步扩展服务",
-		DBTypes: []pkgConst.DBType{
-			pkgConst.DBTypeMySQL,
-			pkgConst.DBTypePostgreSQL,
-			pkgConst.DBTypeTiDB,
-			pkgConst.DBTypeSQLServer,
-			pkgConst.DBTypeOracle,
-			pkgConst.DBTypeDB2,
-			pkgConst.DBTypeOceanBaseMySQL,
-			pkgConst.DBTypeTDSQLForInnoDB,
-			pkgConst.DBTypeGoldenDB,
+		{
+			Type: pkgConst.DBServiceSourceNameExpandService,
+			Desc: locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceSyncExpand),
+			DBTypes: []pkgConst.DBType{
+				pkgConst.DBTypeMySQL,
+				pkgConst.DBTypePostgreSQL,
+				pkgConst.DBTypeTiDB,
+				pkgConst.DBTypeSQLServer,
+				pkgConst.DBTypeOracle,
+				pkgConst.DBTypeDB2,
+				pkgConst.DBTypeOceanBaseMySQL,
+				pkgConst.DBTypeTDSQLForInnoDB,
+				pkgConst.DBTypeGoldenDB,
+			},
 		},
-	},
+	}, nil
 }
-
 
 func (d *DBServiceSyncTaskRepo) DeleteDBServiceSyncTask(ctx context.Context, dbServiceSyncTaskUid string) error {
 	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {

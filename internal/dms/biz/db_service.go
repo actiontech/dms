@@ -8,8 +8,10 @@ import (
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/apiserver/conf"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
+	"github.com/actiontech/dms/internal/pkg/locale"
 	v1Base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 	v1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+	"github.com/actiontech/dms/pkg/dms-common/i18nPkg"
 	_const "github.com/actiontech/dms/pkg/dms-common/pkg/const"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
@@ -266,7 +268,8 @@ func (d *DBServiceUsecase) AddInstanceAuditPlanForDBServiceFromSqle(ctx context.
 	}
 	sqleAddr := fmt.Sprintf("%s/v1/projects/%s/instance_audit_plans", target.URL.String(), project.Name)
 	header := map[string]string{
-		"Authorization": pkgHttp.DefaultDMSToken,
+		"Authorization":           pkgHttp.DefaultDMSToken,
+		i18nPkg.AcceptLanguageKey: locale.Bundle.GetLangTagFromCtx(ctx).String(),
 	}
 	reqBody := struct {
 		PageIndex uint32 `json:"page_index"`

@@ -15,7 +15,7 @@ type DBServiceSyncTaskRepo interface {
 	UpdateDBServiceSyncTask(ctx context.Context, syncTask *DBServiceSyncTask) error
 	GetDBServiceSyncTaskById(ctx context.Context, id string) (*DBServiceSyncTask, error)
 	ListDBServiceSyncTasks(ctx context.Context) ([]*DBServiceSyncTask, error)
-	ListDBServiceSyncTaskTips() ([]ListDBServiceSyncTaskTips, error)
+	ListDBServiceSyncTaskTips(ctx context.Context) ([]ListDBServiceSyncTaskTips, error)
 	DeleteDBServiceSyncTask(ctx context.Context, id string) error
 	UpdateDBServiceSyncTaskByFields(ctx context.Context, id string, fields map[string]interface{}) error
 }

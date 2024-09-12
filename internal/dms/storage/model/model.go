@@ -7,8 +7,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/actiontech/dms/pkg/dms-common/i18nPkg"
 	"github.com/actiontech/dms/pkg/params"
 	"github.com/actiontech/dms/pkg/periods"
+	"golang.org/x/text/language"
 
 	"gorm.io/gorm"
 )
@@ -463,9 +465,37 @@ type DataExportTaskRecord struct {
 }
 
 type AuditResult struct {
-	Level    string `json:"level"`
-	Message  string `json:"message"`
-	RuleName string `json:"rule_name"`
+	Level               string              `json:"level"`
+	Message             string              `json:"message"` // Deprecated: use I18nAuditResultInfo instead
+	RuleName            string              `json:"rule_name"`
+	I18nAuditResultInfo I18nAuditResultInfo `json:"i18n_audit_result_info"`
+}
+
+func (ar *AuditResult) GetAuditMsgByLangTag(lang language.Tag) string {
+	if len(ar.I18nAuditResultInfo) == 0 {
+		// 兼容老数据
+		return ar.Message
+	}
+	return ar.I18nAuditResultInfo.GetAuditResultInfoByLangTag(lang).Message
+}
+
+type AuditResultInfo struct {
+	Message string
+}
+
+type I18nAuditResultInfo map[language.Tag]AuditResultInfo
+
+func (i *I18nAuditResultInfo) GetAuditResultInfoByLangTag(lang language.Tag) *AuditResultInfo {
+	if i == nil {
+		return &AuditResultInfo{}
+	}
+
+	if info, ok := (*i)[lang]; ok {
+		return &info
+	}
+
+	info := (*i)[i18nPkg.DefaultLang]
+	return &info
 }
 
 type AuditResults []AuditResult
@@ -476,44 +506,52 @@ func (a AuditResults) Value() (driver.Value, error) {
 }
 
 func (a *AuditResults) Scan(input interface{}) error {
-	return json.Unmarshal(input.([]byte), a)
+	if input == nil {
+		return nil
+	}
+	if data, ok := input.([]byte); !ok {
+		return fmt.Errorf("AuditResults Scan input is not bytes")
+	} else {
+		return json.Unmarshal(data, a)
+	}
 }
 
 func (a *AuditResults) String() string {
 	msgs := make([]string, len(*a))
 	for i := range *a {
 		res := (*a)[i]
-		msg := fmt.Sprintf("[%s]%s", res.Level, res.Message)
+		msg := fmt.Sprintf("[%s]%s", res.Level, res.GetAuditMsgByLangTag(i18nPkg.DefaultLang)) // todo i18n other lang?
 		msgs[i] = msg
 	}
 	return strings.Join(msgs, "\n")
 }
 
-func (a *AuditResults) Append(level, ruleName, message string) {
+func (a *AuditResults) Append(nar *AuditResult) {
 	for i := range *a {
 		ar := (*a)[i]
-		if ar.Level == level && ar.RuleName == ruleName && ar.Message == message {
+		if ar.Level == nar.Level && ar.RuleName == nar.RuleName && ar.Message == nar.Message {
 			return
 		}
 	}
-	*a = append(*a, AuditResult{Level: level, RuleName: ruleName, Message: message})
+	*a = append(*a, AuditResult{Level: nar.Level, RuleName: nar.RuleName, Message: nar.Message, I18nAuditResultInfo: nar.I18nAuditResultInfo})
 }
 
 type CbOperationLog struct {
 	Model
-	OpPersonUID       string       `json:"op_person_uid" gorm:"size:32"`
-	OpTime            *time.Time   `json:"op_time"`
-	DBServiceUID      string       `json:"db_service_uid" gorm:"size:32"`
-	OpType            string       `json:"op_type" gorm:"size:255"`
-	OpDetail          string       `json:"op_detail" gorm:"type:longtext"`
-	OpSessionID       *string      `json:"op_session_id" gorm:"size:255"`
-	ProjectID         string       `json:"project_id" gorm:"size:32"`
-	OpHost            string       `json:"op_host" gorm:"size:255"`
-	AuditResult       AuditResults `json:"audit_result" gorm:"type:json"`
-	IsAuditPassed     *bool        `json:"is_audit_passed"`
-	ExecResult        string       `json:"exec_result" gorm:"type:text"`
-	ExecTotalSec      int64        `json:"exec_total_sec"`
-	ResultSetRowCount int64        `json:"result_set_row_count"`
+	OpPersonUID       string          `json:"op_person_uid" gorm:"size:32"`
+	OpTime            *time.Time      `json:"op_time"`
+	DBServiceUID      string          `json:"db_service_uid" gorm:"size:32"`
+	OpType            string          `json:"op_type" gorm:"size:255"`
+	OpDetail          string          `json:"op_detail" gorm:"type:longtext"` // Deprecated: use I18nOpDetail instead
+	I18nOpDetail      i18nPkg.I18nStr `json:"i18n_op_detail" gorm:"column:i18n_op_detail; type:json"`
+	OpSessionID       *string         `json:"op_session_id" gorm:"size:255"`
+	ProjectID         string          `json:"project_id" gorm:"size:32"`
+	OpHost            string          `json:"op_host" gorm:"size:255"`
+	AuditResult       AuditResults    `json:"audit_result" gorm:"type:json"`
+	IsAuditPassed     *bool           `json:"is_audit_passed"`
+	ExecResult        string          `json:"exec_result" gorm:"type:text"`
+	ExecTotalSec      int64           `json:"exec_total_sec"`
+	ResultSetRowCount int64           `json:"result_set_row_count"`
 
 	User      *User      `json:"user" gorm:"foreignKey:OpPersonUID"`
 	DbService *DBService `json:"db_service" gorm:"foreignKey:DBServiceUID"`
