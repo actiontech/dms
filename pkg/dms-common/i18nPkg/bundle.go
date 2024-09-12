@@ -104,22 +104,32 @@ func (b *Bundle) LocalizeAll(msg *i18n.Message) I18nStr {
 	return result
 }
 
+// LocalizeAllWithArgs if there is any i18n.Message or I18nStr in args, it will be Localized in the corresponding language too
 func (b *Bundle) LocalizeAllWithArgs(fmtMsg *i18n.Message, args ...any) I18nStr {
 	result := make(I18nStr, len(b.localizers))
-	for langTag, localizer := range b.localizers {
-		result[langTag] = fmt.Sprintf(b.localizeMsg(localizer, fmtMsg), args...)
-	}
-	return result
-}
-
-func (b *Bundle) LocalizeAllWithMsgArgs(fmtMsg *i18n.Message, msgArgs ...*i18n.Message) I18nStr {
-	result := make(I18nStr, len(b.localizers))
-	for langTag, localizer := range b.localizers {
-		strs := make([]any, len(msgArgs))
-		for k, m := range msgArgs {
-			strs[k] = b.localizeMsg(localizer, m)
+	msgs := map[int]*i18n.Message{}
+	i18nStrs := map[int]*I18nStr{}
+	for k, v := range args {
+		switch arg := v.(type) {
+		case i18n.Message:
+			msgs[k] = &arg
+		case *i18n.Message:
+			msgs[k] = arg
+		case I18nStr:
+			i18nStrs[k] = &arg
+		case *I18nStr:
+			i18nStrs[k] = arg
+		default:
 		}
-		result[langTag] = fmt.Sprintf(b.localizeMsg(localizer, fmtMsg), strs...)
+	}
+	for langTag, localizer := range b.localizers {
+		for k := range msgs {
+			args[k] = b.localizeMsg(localizer, msgs[k])
+		}
+		for k := range i18nStrs {
+			args[k] = i18nStrs[k].GetStrInLang(langTag)
+		}
+		result[langTag] = fmt.Sprintf(b.localizeMsg(localizer, fmtMsg), args...)
 	}
 	return result
 }
