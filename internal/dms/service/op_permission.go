@@ -27,6 +27,7 @@ var OpPermissionNameByUID = map[string]*i18n.Message{
 	pkgConst.UIDOfOpPermissionExportCreate:           locale.NameOpPermissionExportCreate,
 	pkgConst.UIDOfOpPermissionCreateOptimization:     locale.NameOpPermissionCreateOptimization,
 	pkgConst.UIDOfOpPermissionViewOthersOptimization: locale.NameOpPermissionViewOthersOptimization,
+	pkgConst.UIDOfOpPermissionCreatePipeline:         locale.NameOpPermissionCreatePipeline,
 }
 
 var OpPermissionDescByUID = map[string]*i18n.Message{
@@ -44,6 +45,7 @@ var OpPermissionDescByUID = map[string]*i18n.Message{
 	pkgConst.UIDOfOpPermissionExportCreate:           locale.DescOpPermissionExportCreate,
 	pkgConst.UIDOfOpPermissionCreateOptimization:     locale.DescOpPermissionCreateOptimization,
 	pkgConst.UIDOfOpPermissionViewOthersOptimization: locale.DescOpPermissionViewOthersOptimization,
+	pkgConst.UIDOfOpPermissionCreatePipeline:         locale.DescOpPermissionCreatePipeline,
 }
 
 func (d *DMSService) ListOpPermissions(ctx context.Context, req *dmsV1.ListOpPermissionReq) (reply *dmsV1.ListOpPermissionReply, err error) {
@@ -97,9 +99,9 @@ func (d *DMSService) ListOpPermissions(ctx context.Context, req *dmsV1.ListOpPer
 		ret[i] = &dmsV1.ListOpPermission{
 			OpPermission: dmsV1.UidWithName{
 				Uid:  o.GetUID(),
-				Name: locale.Bundle.ShouldLocalizeMsg(ctx, OpPermissionNameByUID[o.GetUID()]),
+				Name: locale.Bundle.LocalizeMsgByCtx(ctx, OpPermissionNameByUID[o.GetUID()]),
 			},
-			Description: locale.Bundle.ShouldLocalizeMsg(ctx, OpPermissionDescByUID[o.GetUID()]),
+			Description: locale.Bundle.LocalizeMsgByCtx(ctx, OpPermissionDescByUID[o.GetUID()]),
 			RangeType:   opRangeTyp,
 		}
 	}

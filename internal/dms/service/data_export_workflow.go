@@ -8,6 +8,7 @@ import (
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
+	"github.com/actiontech/dms/internal/pkg/locale"
 )
 
 func (d *DMSService) AddDataExportWorkflow(ctx context.Context, req *dmsV1.AddDataExportWorkflowReq, currentUserUid string) (reply *dmsV1.AddDataExportWorkflowReply, err error) {
@@ -265,7 +266,7 @@ func (d *DMSService) ListDataExportTaskSQLs(ctx context.Context, req *dmsV1.List
 			for _, result := range w.AuditSQLResults {
 				ret[i].AuditSQLResult = append(ret[i].AuditSQLResult, dmsV1.AuditSQLResult{
 					Level:    result.Level,
-					Message:  result.Message,
+					Message:  result.GetAuditMsgByLangTag(locale.Bundle.GetLangTagFromCtx(ctx)),
 					RuleName: result.RuleName,
 				})
 			}

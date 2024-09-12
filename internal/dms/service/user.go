@@ -208,11 +208,11 @@ func (d *DMSService) ListUsers(ctx context.Context, req *dmsCommonV1.ListUserReq
 		// 获取用户状态
 		switch u.Stat {
 		case biz.UserStatOK:
-			ret[i].Stat = dmsCommonV1.Stat(locale.Bundle.ShouldLocalizeMsg(ctx, locale.StatOK))
+			ret[i].Stat = dmsCommonV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatOK))
 		case biz.UserStatDisable:
-			ret[i].Stat = dmsCommonV1.Stat(locale.Bundle.ShouldLocalizeMsg(ctx, locale.StatDisable))
+			ret[i].Stat = dmsCommonV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatDisable))
 		default:
-			ret[i].Stat = dmsCommonV1.Stat(locale.Bundle.ShouldLocalizeMsg(ctx, locale.StatUnknown))
+			ret[i].Stat = dmsCommonV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatUnknown))
 		}
 
 		// 获取用户鉴权类型
@@ -244,7 +244,7 @@ func (d *DMSService) ListUsers(ctx context.Context, req *dmsCommonV1.ListUserReq
 		for _, op := range ops {
 			ret[i].OpPermissions = append(ret[i].OpPermissions, dmsCommonV1.UidWithName{
 				Uid:  op.GetUID(),
-				Name: locale.Bundle.ShouldLocalizeMsg(ctx, OpPermissionNameByUID[op.GetUID()]),
+				Name: locale.Bundle.LocalizeMsgByCtx(ctx, OpPermissionNameByUID[op.GetUID()]),
 			})
 		}
 
@@ -353,11 +353,11 @@ func (d *DMSService) ListUserGroups(ctx context.Context, req *dmsV1.ListUserGrou
 		// 获取用户组状态
 		switch g.Stat {
 		case biz.UserGroupStatOK:
-			ret[i].Stat = dmsV1.Stat(locale.Bundle.ShouldLocalizeMsg(ctx, locale.StatOK))
+			ret[i].Stat = dmsV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatOK))
 		case biz.UserGroupStatDisable:
-			ret[i].Stat = dmsV1.Stat(locale.Bundle.ShouldLocalizeMsg(ctx, locale.StatDisable))
+			ret[i].Stat = dmsV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatDisable))
 		default:
-			ret[i].Stat = dmsV1.Stat(locale.Bundle.ShouldLocalizeMsg(ctx, locale.StatUnknown))
+			ret[i].Stat = dmsV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatUnknown))
 		}
 
 		// 获取用户所属的用户组
@@ -455,11 +455,11 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 	// 获取用户状态
 	switch u.Stat {
 	case biz.UserStatOK:
-		dmsCommonUser.Stat = dmsCommonV1.Stat(locale.Bundle.ShouldLocalizeMsg(ctx, locale.StatOK))
+		dmsCommonUser.Stat = dmsCommonV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatOK))
 	case biz.UserStatDisable:
-		dmsCommonUser.Stat = dmsCommonV1.Stat(locale.Bundle.ShouldLocalizeMsg(ctx, locale.StatDisable))
+		dmsCommonUser.Stat = dmsCommonV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatDisable))
 	default:
-		dmsCommonUser.Stat = dmsCommonV1.Stat(locale.Bundle.ShouldLocalizeMsg(ctx, locale.StatUnknown))
+		dmsCommonUser.Stat = dmsCommonV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatUnknown))
 	}
 
 	// 获取用户鉴权类型
@@ -491,7 +491,7 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 	for _, op := range ops {
 		dmsCommonUser.OpPermissions = append(dmsCommonUser.OpPermissions, dmsCommonV1.UidWithName{
 			Uid:  op.GetUID(),
-			Name: locale.Bundle.ShouldLocalizeMsg(ctx, OpPermissionNameByUID[op.GetUID()]),
+			Name: locale.Bundle.LocalizeMsgByCtx(ctx, OpPermissionNameByUID[op.GetUID()]),
 		})
 	}
 	isAdmin, err := d.UserUsecase.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, u.GetUID())

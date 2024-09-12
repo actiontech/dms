@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	dbmodel "github.com/actiontech/dms/internal/dms/storage/model"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver/model"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver/resolver"
 	_const "github.com/actiontech/dms/pkg/dms-common/pkg/const"
@@ -123,17 +124,11 @@ type DirectAuditParams struct {
 	SQLEAddr string
 }
 
-type AuditResult struct {
-	Level    string `json:"level" example:"warn"`
-	Message  string `json:"message" example:"避免使用不必要的内置函数md5()"`
-	RuleName string `json:"rule_name"`
-}
-
 type AuditSQLResV2 struct {
-	Number      uint          `json:"number"`
-	ExecSQL     string        `json:"exec_sql"`
-	AuditResult []AuditResult `json:"audit_result"`
-	AuditLevel  string        `json:"audit_level"`
+	Number      uint                 `json:"number"`
+	ExecSQL     string               `json:"exec_sql"`
+	AuditResult dbmodel.AuditResults `json:"audit_result"`
+	AuditLevel  string               `json:"audit_level"`
 }
 
 type AuditResDataV2 struct {

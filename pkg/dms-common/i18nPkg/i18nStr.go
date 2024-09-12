@@ -9,6 +9,9 @@ import (
 )
 
 func ConvertStr2I18nAsDefaultLang(s string) I18nStr {
+	if s == "" {
+		return nil
+	}
 	return map[language.Tag]string{DefaultLang: s}
 }
 
@@ -82,5 +85,12 @@ func (s I18nStr) Value() (driver.Value, error) {
 
 // Scan impl sql.Scanner interface
 func (s *I18nStr) Scan(input interface{}) error {
-	return json.Unmarshal(input.([]byte), s)
+	if input == nil {
+		return nil
+	}
+	if data, ok := input.([]byte); !ok {
+		return fmt.Errorf("I18nStr Scan input is not bytes")
+	} else {
+		return json.Unmarshal(data, s)
+	}
 }

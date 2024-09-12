@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/actiontech/dms/internal/dms/pkg/constant"
+	"github.com/actiontech/dms/internal/dms/storage/model"
+	"github.com/actiontech/dms/pkg/dms-common/i18nPkg"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 )
 
@@ -14,6 +16,7 @@ const (
 	CbOperationLogTypeSql CbOperationLogType = "SQL"
 
 	CbExecOpSuccess = "Success"
+	CbExecOpFailure = "Failure"
 )
 
 // CbOperationLogRepo 定义操作日志的存储接口
@@ -33,11 +36,11 @@ type CbOperationLog struct {
 	OpTime            *time.Time
 	DBServiceUID      string
 	OpType            CbOperationLogType
-	OpDetail          string
+	I18nOpDetail      i18nPkg.I18nStr
 	OpSessionID       *string
 	OpHost            string
 	ProjectID         string
-	AuditResults      []*AuditResult
+	AuditResults      model.AuditResults
 	IsAuditPass       *bool
 	ExecResult        string
 	ExecTotalSec      int64
