@@ -20,6 +20,7 @@ import (
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver/model"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver/resolver"
+	"github.com/actiontech/dms/internal/pkg/locale"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	"github.com/actiontech/dms/pkg/dms-common/pkg/aes"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
@@ -329,7 +330,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 			}
 
 			if cloudbeaverHandle.UseLocalHandler {
-				ctx := graphql.StartOperationTrace(context.Background())
+				ctx := graphql.StartOperationTrace(c.Request().Context())
 
 				var dbService *DBService
 				if params.OperationName == "asyncSqlExecuteQuery" {
@@ -470,7 +471,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 								cu.log.Errorf("save cb operation log err: %v", err)
 							}
 
-							return nil, c.JSON(http.StatusOK, convertToResp(resp))
+							return nil, c.JSON(http.StatusOK, convertToResp(ctx, resp))
 						}
 
 						cloudbeaverResBuf := new(bytes.Buffer)
@@ -519,7 +520,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 								cu.log.Errorf("save cb operation log err: %v", err)
 							}
 
-							return nil, c.JSON(http.StatusOK, convertToResp(resp))
+							return nil, c.JSON(http.StatusOK, convertToResp(ctx, resp))
 						}
 
 						resWrite = &responseProcessWriter{tmp: &bytes.Buffer{}, ResponseWriter: c.Response().Writer}
@@ -587,11 +588,11 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 	}
 }
 
-func convertToResp(resp cloudbeaver.AuditResults) interface{} {
+func convertToResp(ctx context.Context, resp cloudbeaver.AuditResults) interface{} {
 	var messages []string
 	for _, sqlResult := range resp.Results {
 		for _, audit := range sqlResult.AuditResult {
-			messages = append(messages, audit.Message)
+			messages = append(messages, audit.GetAuditMsgByLangTag(locale.Bundle.GetLangTagFromCtx(ctx)))
 		}
 	}
 

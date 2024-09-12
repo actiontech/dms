@@ -20,19 +20,19 @@ func (d *LicenseUsecase) GetLicense(ctx context.Context) (*v1.GetLicenseReply, e
 	return &v1.GetLicenseReply{
 		License: []v1.LicenseItem{
 			{
-				Description: locale.Bundle.ShouldLocalizeMsg(ctx, locale.LicenseInstanceNum),
+				Description: locale.Bundle.LocalizeMsgByCtx(ctx, locale.LicenseInstanceNum),
 				Name:        "instance_num",
-				Limit:       locale.Bundle.ShouldLocalizeMsg(ctx, locale.LicenseUnlimited),
+				Limit:       locale.Bundle.LocalizeMsgByCtx(ctx, locale.LicenseUnlimited),
 			},
 			{
-				Description: locale.Bundle.ShouldLocalizeMsg(ctx, locale.LicenseUserNum),
+				Description: locale.Bundle.LocalizeMsgByCtx(ctx, locale.LicenseUserNum),
 				Name:        "user",
-				Limit:       locale.Bundle.ShouldLocalizeMsg(ctx, locale.LicenseUnlimited),
+				Limit:       locale.Bundle.LocalizeMsgByCtx(ctx, locale.LicenseUnlimited),
 			},
 			{
-				Description: locale.Bundle.ShouldLocalizeMsg(ctx, locale.LicenseAuthorizedDurationDay),
+				Description: locale.Bundle.LocalizeMsgByCtx(ctx, locale.LicenseAuthorizedDurationDay),
 				Name:        "work duration day",
-				Limit:       locale.Bundle.ShouldLocalizeMsg(ctx, locale.LicenseUnlimited),
+				Limit:       locale.Bundle.LocalizeMsgByCtx(ctx, locale.LicenseUnlimited),
 			},
 		},
 	}, nil
@@ -68,7 +68,7 @@ func (d *LicenseUsecase) GetLicenseUsage(ctx context.Context) (*v1.GetLicenseUsa
 		Data: &v1.LicenseUsage{
 			UsersUsage: v1.LicenseUsageItem{
 				ResourceType:     "user",
-				ResourceTypeDesc: locale.Bundle.ShouldLocalizeMsg(ctx, locale.LicenseResourceTypeUser),
+				ResourceTypeDesc: locale.Bundle.LocalizeMsgByCtx(ctx, locale.LicenseResourceTypeUser),
 				Used:             uint(usersTotal),
 				Limit:            0,
 				IsLimited:        false,

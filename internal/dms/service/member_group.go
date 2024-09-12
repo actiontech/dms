@@ -126,8 +126,8 @@ func (d *DMSService) buildRoleWithOpRanges(ctx context.Context, roleWithOpRanges
 		}
 		if role.UID == pkgConst.UIDOfRoleProjectAdmin || role.UID == pkgConst.UIDOfRoleSQLEAdmin || role.UID == pkgConst.UIDOfRoleProvisionAdmin {
 			// built in role, localize name and desc
-			role.Name = locale.Bundle.ShouldLocalizeMsg(ctx, RoleNameByUID[role.GetUID()])
-			role.Desc = locale.Bundle.ShouldLocalizeMsg(ctx, RoleDescByUID[role.GetUID()])
+			role.Name = locale.Bundle.LocalizeMsgByCtx(ctx, RoleNameByUID[role.GetUID()])
+			role.Desc = locale.Bundle.LocalizeMsgByCtx(ctx, RoleDescByUID[role.GetUID()])
 		}
 		ret = append(ret, dmsV1.ListMemberRoleWithOpRange{
 			RoleUID:     dmsV1.UidWithName{Uid: role.GetUID(), Name: role.Name},
