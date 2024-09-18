@@ -1,8 +1,10 @@
 package service
 
 import (
+	"encoding/hex"
 	"fmt"
 	"strings"
+	"unicode/utf8"
 
 	dmsMiddleware "github.com/actiontech/dms/internal/apiserver/middleware"
 	"github.com/actiontech/dms/internal/dms/biz"
@@ -223,24 +225,25 @@ func SwaggerMiddleWare(next echo.HandlerFunc) echo.HandlerFunc {
 func (s *APIServer) installMiddleware() error {
 	// Middleware
 
-	s.echo.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Skipper: func(echo.Context) bool {
-			return pkgLog.ParseLevel(s.opts.ServiceOpts.Log.Level) > pkgLog.LevelDebug
-		},
-		Format: `${time_custom} ECHO id:${id}, remote_ip:${remote_ip}, ` +
-			`host:${host}, method:${method}, uri:${uri}, user_agent:${user_agent}, ` +
-			`status:${status}, error:${error}, latency:${latency}, latency_human:${latency_human}` +
-			`, bytes_in:${bytes_in}, bytes_out:${bytes_out}` + "\n",
-		CustomTimeFormat: pkgLog.LogTimeLayout,
-	}))
-
 	s.echo.Use(middleware.BodyDumpWithConfig(middleware.BodyDumpConfig{
 		Skipper: func(c echo.Context) bool {
 			return !strings.HasPrefix(c.Request().RequestURI, dmsV1.GroupV1)
 		},
 		Handler: func(context echo.Context, req []byte, reply []byte) {
 			userUid, _ := jwt.GetUserUidStrFromContext(context)
-			commonLog.NewHelper(s.logger).Log(commonLog.LevelDebug, "middleware.uri", context.Request().RequestURI, "user_id", userUid, "req", string(req), "reply", string(reply))
+
+			// 尝试将请求和响应数据转为字符串，检查是否为有效的 UTF-8
+			reqStr := string(req)
+			if !utf8.Valid(req) {
+				reqStr = hex.EncodeToString(req) // 如果不是有效的字符串，使用十六进制编码
+			}
+			commonLog.NewHelper(s.logger).Log(
+				commonLog.LevelDebug,
+				"middleware.uri", context.Request().RequestURI,
+				"user_id", userUid,
+				"req", reqStr, // 输出处理后的请求数据
+				"reply", fmt.Sprintf("%x", reply), // 输出处理后的响应数据
+			)
 		},
 	}))
 
