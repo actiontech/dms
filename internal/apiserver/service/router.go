@@ -3,11 +3,9 @@ package service
 import (
 	"bytes"
 	"compress/gzip"
-	"encoding/hex"
 	"fmt"
 	"io"
 	"strings"
-	"unicode/utf8"
 
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
@@ -227,14 +225,7 @@ func decodeGzip(data []byte) string {
 	if err != nil {
 		return fmt.Sprintf("Read Gzip data error: %v", err)
 	}
-
-	// 尝试将解码的数据转为字符串
-	if utf8.Valid(decoded) {
-		return string(decoded)
-	}
-
-	// 如果不是有效的 UTF-8 字符串，则返回十六进制编码
-	return hex.EncodeToString(decoded)
+	return string(decoded)
 }
 
 func (s *APIServer) installMiddleware() error {
@@ -247,17 +238,14 @@ func (s *APIServer) installMiddleware() error {
 		Handler: func(context echo.Context, req []byte, reply []byte) {
 			userUid, _ := jwt.GetUserUidStrFromContext(context)
 
-			// 尝试将请求和响应数据转为字符串，检查是否为有效的 UTF-8
+			// 将请求转为字符串
 			reqStr := string(req)
-			if !utf8.Valid(req) {
-				reqStr = hex.EncodeToString(req) // 如果不是有效的字符串，使用十六进制编码
-			}
 			// 尝试解码 reply（gzip 格式）
-			replyStr := string(reply)
+			var replyStr string
 			if isGzip(reply) {
 				replyStr = decodeGzip(reply)
-			} else if !utf8.Valid(reply) {
-				replyStr = hex.EncodeToString(reply) // 如果 reply 不是有效的 UTF-8 字符串，使用十六进制编码
+			} else {
+				replyStr = string(reply)
 			}
 
 			commonLog.NewHelper(s.logger).Log(
