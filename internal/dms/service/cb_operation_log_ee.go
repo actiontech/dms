@@ -18,10 +18,6 @@ import (
 )
 
 func (d *DMSService) listCBOperationLogs(ctx context.Context, req *dmsV1.ListCBOperationLogsReq, uid string) (reply *dmsV1.ListCBOperationLogsReply, err error) {
-	d.log.Infof("ListCbOperationLogs.req=%v", req)
-	defer func() {
-		d.log.Infof("ListCbOperationLogs.req=%v;reply=%v;error=%v", req, reply, err)
-	}()
 
 	filterBy := make([]constant.FilterCondition, 0)
 	if req.FilterOperationPersonUID != "" {
