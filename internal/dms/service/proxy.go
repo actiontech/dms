@@ -10,9 +10,9 @@ import (
 )
 
 func (d *DMSService) RegisterDMSProxyTarget(ctx context.Context, currentUserUid string, req *dmsV1.RegisterDMSProxyTargetReq) (err error) {
-	d.log.Infof("RegisterDMSProxyTarget.req=%v", req)
+	d.log.Infof("RegisterDMSProxyTarget.req=%v", *req)
 	defer func() {
-		d.log.Infof("RegisterDMSProxyTarget.req=%v;error=%v", req, err)
+		d.log.Infof("RegisterDMSProxyTarget.req=%v;error=%v", *req, err)
 	}()
 	scenairo, err := convertProxyScenario(req.DMSProxyTarget.Scenario)
 	if err != nil {

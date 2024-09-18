@@ -334,11 +334,6 @@ func (d *DMSService) convertImportDBService2BizDBService(importDbs []dmsV1.Impor
 }
 
 func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDBServiceReq, currentUserUid string) (reply *dmsCommonV1.ListDBServiceReply, err error) {
-	d.log.Infof("ListDBServices.req=%v", req)
-	defer func() {
-		d.log.Infof("ListDBServices.req=%v;reply=%v;error=%v", req, reply, err)
-	}()
-
 	var orderBy biz.DBServiceField
 	switch req.OrderBy {
 	case dmsCommonV1.DBServiceOrderByName:

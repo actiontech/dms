@@ -1,7 +1,10 @@
 package service
 
 import (
+	"bytes"
+	"compress/gzip"
 	"fmt"
+	"io"
 	"strings"
 
 	dmsMiddleware "github.com/actiontech/dms/internal/apiserver/middleware"
@@ -220,19 +223,28 @@ func SwaggerMiddleWare(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
+// 检查 reply 是否是 Gzip 数据
+func isGzip(data []byte) bool {
+	return len(data) >= 2 && data[0] == 0x1f && data[1] == 0x8b
+}
+
+// 解码 Gzip 数据
+func decodeGzip(data []byte) string {
+	reader, err := gzip.NewReader(bytes.NewReader(data))
+	if err != nil {
+		return fmt.Sprintf("Gzip decode error: %v", err)
+	}
+	defer reader.Close()
+
+	decoded, err := io.ReadAll(reader)
+	if err != nil {
+		return fmt.Sprintf("Read Gzip data error: %v", err)
+	}
+	return string(decoded)
+}
+
 func (s *APIServer) installMiddleware() error {
 	// Middleware
-
-	s.echo.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Skipper: func(echo.Context) bool {
-			return pkgLog.ParseLevel(s.opts.ServiceOpts.Log.Level) > pkgLog.LevelDebug
-		},
-		Format: `${time_custom} ECHO id:${id}, remote_ip:${remote_ip}, ` +
-			`host:${host}, method:${method}, uri:${uri}, user_agent:${user_agent}, ` +
-			`status:${status}, error:${error}, latency:${latency}, latency_human:${latency_human}` +
-			`, bytes_in:${bytes_in}, bytes_out:${bytes_out}` + "\n",
-		CustomTimeFormat: pkgLog.LogTimeLayout,
-	}))
 
 	s.echo.Use(middleware.BodyDumpWithConfig(middleware.BodyDumpConfig{
 		Skipper: func(c echo.Context) bool {
@@ -240,7 +252,24 @@ func (s *APIServer) installMiddleware() error {
 		},
 		Handler: func(context echo.Context, req []byte, reply []byte) {
 			userUid, _ := jwt.GetUserUidStrFromContext(context)
-			commonLog.NewHelper(s.logger).Log(commonLog.LevelDebug, "middleware.uri", context.Request().RequestURI, "user_id", userUid, "req", string(req), "reply", string(reply))
+
+			// 将请求转为字符串
+			reqStr := string(req)
+			// 尝试解码 reply（gzip 格式）
+			var replyStr string
+			if isGzip(reply) {
+				replyStr = decodeGzip(reply)
+			} else {
+				replyStr = string(reply)
+			}
+
+			commonLog.NewHelper(s.logger).Log(
+				commonLog.LevelDebug,
+				"middleware.uri", context.Request().RequestURI,
+				"user_id", userUid,
+				"req", reqStr, // 输出处理后的请求数据
+				"reply", replyStr, // 输出处理后的响应数据
+			)
 		},
 	}))
 

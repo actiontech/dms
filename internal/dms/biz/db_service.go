@@ -226,19 +226,23 @@ type ListDBServicesOption struct {
 }
 
 func (d *DBServiceUsecase) ListDBService(ctx context.Context, option *ListDBServicesOption, projectUid, currentUserUid string) (dbServices []*DBService, total int64, err error) {
-	// 只允许系统用户查询所有数据源,同步数据到其他服务(provision)
-	// 检查项目是否归档/删除
-	if projectUid == "" && currentUserUid != pkgConst.UIDOfUserSys {
-		return nil, 0, fmt.Errorf("list db service error: project is empty")
-	}
+
 	services, total, err := d.repo.ListDBServices(ctx, option)
 	if err != nil {
 		return nil, 0, fmt.Errorf("list db services failed: %w", err)
 	}
-	err = d.AddInstanceAuditPlanForDBServiceFromSqle(ctx, projectUid, services)
-	if err != nil {
-		d.log.Warn("get instance audit Plan from sqle: %w", err)
+	// 只允许系统用户查询所有数据源,同步数据到其他服务(provision)
+	if projectUid == "" {
+		if currentUserUid != pkgConst.UIDOfUserSys {
+			return nil, 0, fmt.Errorf("list db service error: project is empty")
+		}
+	} else {
+		err = d.AddInstanceAuditPlanForDBServiceFromSqle(ctx, projectUid, services)
+		if err != nil {
+			d.log.Warn("get instance audit Plan from sqle: %w", err)
+		}
 	}
+
 	return services, total, nil
 }
 
