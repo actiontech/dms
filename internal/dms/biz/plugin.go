@@ -34,8 +34,8 @@ type Plugin struct {
 }
 
 func (p *Plugin) String() string {
-	return fmt.Sprintf("name=%v,addDBServicePreCheckUrl=%v,delDBServicePreCheckUrl=%v,delUserPreCheckUrl=%v,delUserGroupPreCheckUrl=%v,OperateDataHandleUrl=%v",
-		p.Name, p.AddDBServicePreCheckUrl, p.DelDBServicePreCheckUrl, p.DelUserPreCheckUrl, p.DelUserGroupPreCheckUrl, p.OperateDataResourceHandleUrl)
+	return fmt.Sprintf("name=%v,OperateDataHandleUrl=%v",
+		p.Name, p.OperateDataResourceHandleUrl)
 }
 
 func NewDMSPluginUsecase(logger utilLog.Logger, repo DMSPluginRepo) (*PluginUsecase, error) {

@@ -9,10 +9,6 @@ import (
 )
 
 func (d *DMSService) ListOpPermissions(ctx context.Context, req *dmsV1.ListOpPermissionReq) (reply *dmsV1.ListOpPermissionReply, err error) {
-	d.log.Infof("ListOpPermissions.req=%v", req)
-	defer func() {
-		d.log.Infof("ListOpPermissions.req=%v;reply=%v;error=%v", req, reply, err)
-	}()
 
 	var orderBy biz.OpPermissionField
 	switch req.OrderBy {
