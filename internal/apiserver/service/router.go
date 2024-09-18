@@ -1,8 +1,11 @@
 package service
 
 import (
+	"bytes"
+	"compress/gzip"
 	"encoding/hex"
 	"fmt"
+	"io"
 	"strings"
 	"unicode/utf8"
 
@@ -192,6 +195,48 @@ func (s *APIServer) initRouter() error {
 	return nil
 }
 
+func SwaggerMiddleWare(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// swagger 请求分为两种,一种是swagger html页面请求,一种是swagger json请求. eg:
+		// swagger/index.html 获取html
+		// swagger/dms/doc.yaml 获取json
+		hasPkPrefix := strings.HasPrefix(c.Request().RequestURI, "/swagger/index.html?urls.primaryName=")
+		if hasPkPrefix {
+			// 为了避免404
+			c.Request().RequestURI = "/swagger/index.html"
+		}
+
+		return next(c)
+	}
+}
+
+// 检查 reply 是否是 Gzip 数据
+func isGzip(data []byte) bool {
+	return len(data) >= 2 && data[0] == 0x1f && data[1] == 0x8b
+}
+
+// 解码 Gzip 数据
+func decodeGzip(data []byte) string {
+	reader, err := gzip.NewReader(bytes.NewReader(data))
+	if err != nil {
+		return fmt.Sprintf("Gzip decode error: %v", err)
+	}
+	defer reader.Close()
+
+	decoded, err := io.ReadAll(reader)
+	if err != nil {
+		return fmt.Sprintf("Read Gzip data error: %v", err)
+	}
+
+	// 尝试将解码的数据转为字符串
+	if utf8.Valid(decoded) {
+		return string(decoded)
+	}
+
+	// 如果不是有效的 UTF-8 字符串，则返回十六进制编码
+	return hex.EncodeToString(decoded)
+}
+
 func (s *APIServer) installMiddleware() error {
 	// Middleware
 
@@ -207,12 +252,20 @@ func (s *APIServer) installMiddleware() error {
 			if !utf8.Valid(req) {
 				reqStr = hex.EncodeToString(req) // 如果不是有效的字符串，使用十六进制编码
 			}
+			// 尝试解码 reply（gzip 格式）
+			replyStr := string(reply)
+			if isGzip(reply) {
+				replyStr = decodeGzip(reply)
+			} else if !utf8.Valid(reply) {
+				replyStr = hex.EncodeToString(reply) // 如果 reply 不是有效的 UTF-8 字符串，使用十六进制编码
+			}
+
 			commonLog.NewHelper(s.logger).Log(
 				commonLog.LevelDebug,
 				"middleware.uri", context.Request().RequestURI,
 				"user_id", userUid,
 				"req", reqStr, // 输出处理后的请求数据
-				"reply", fmt.Sprintf("%x", reply), // 输出处理后的响应数据
+				"reply", replyStr, // 输出处理后的响应数据
 			)
 		},
 	}))
