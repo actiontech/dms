@@ -8,7 +8,6 @@ import (
 
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/internal/dms/storage/model"
-	"github.com/actiontech/dms/pkg/dms-common/i18nPkg"
 	"github.com/labstack/echo/v4/middleware"
 
 	pkgAes "github.com/actiontech/dms/pkg/dms-common/pkg/aes"
@@ -1085,11 +1084,6 @@ func convertModelCbOperationLog(model *model.CbOperationLog) (*biz.CbOperationLo
 	project, err := convertModelProject(model.Project)
 	if err != nil {
 		return nil, err
-	}
-
-	if len(model.I18nOpDetail) == 0 && model.OpDetail != "" {
-		// 兼容老数据
-		model.I18nOpDetail = i18nPkg.ConvertStr2I18nAsDefaultLang(model.OpDetail)
 	}
 
 	return &biz.CbOperationLog{

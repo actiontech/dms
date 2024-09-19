@@ -466,16 +466,11 @@ type DataExportTaskRecord struct {
 
 type AuditResult struct {
 	Level               string              `json:"level"`
-	Message             string              `json:"message"` // Deprecated: use I18nAuditResultInfo instead
 	RuleName            string              `json:"rule_name"`
 	I18nAuditResultInfo I18nAuditResultInfo `json:"i18n_audit_result_info"`
 }
 
 func (ar *AuditResult) GetAuditMsgByLangTag(lang language.Tag) string {
-	if len(ar.I18nAuditResultInfo) == 0 {
-		// 兼容老数据
-		return ar.Message
-	}
 	return ar.I18nAuditResultInfo.GetAuditResultInfoByLangTag(lang).Message
 }
 
@@ -529,11 +524,11 @@ func (a *AuditResults) String() string {
 func (a *AuditResults) Append(nar *AuditResult) {
 	for i := range *a {
 		ar := (*a)[i]
-		if ar.Level == nar.Level && ar.RuleName == nar.RuleName && ar.Message == nar.Message {
+		if ar.Level == nar.Level && ar.RuleName == nar.RuleName && ar.GetAuditMsgByLangTag(i18nPkg.DefaultLang) == nar.GetAuditMsgByLangTag(i18nPkg.DefaultLang) {
 			return
 		}
 	}
-	*a = append(*a, AuditResult{Level: nar.Level, RuleName: nar.RuleName, Message: nar.Message, I18nAuditResultInfo: nar.I18nAuditResultInfo})
+	*a = append(*a, AuditResult{Level: nar.Level, RuleName: nar.RuleName, I18nAuditResultInfo: nar.I18nAuditResultInfo})
 }
 
 type CbOperationLog struct {
@@ -542,7 +537,6 @@ type CbOperationLog struct {
 	OpTime            *time.Time      `json:"op_time"`
 	DBServiceUID      string          `json:"db_service_uid" gorm:"size:32"`
 	OpType            string          `json:"op_type" gorm:"size:255"`
-	OpDetail          string          `json:"op_detail" gorm:"type:longtext"` // Deprecated: use I18nOpDetail instead
 	I18nOpDetail      i18nPkg.I18nStr `json:"i18n_op_detail" gorm:"column:i18n_op_detail; type:json"`
 	OpSessionID       *string         `json:"op_session_id" gorm:"size:255"`
 	ProjectID         string          `json:"project_id" gorm:"size:32"`
