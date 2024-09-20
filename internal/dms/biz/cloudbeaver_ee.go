@@ -307,7 +307,6 @@ func convertToAuditResults(results []cloudbeaver.AuditSQLResV2) dbmodel.AuditRes
 		for _, result := range res.AuditResult {
 			auditResult := dbmodel.AuditResult{
 				Level:               result.Level,
-				Message:             result.Message,
 				RuleName:            result.RuleName,
 				I18nAuditResultInfo: result.I18nAuditResultInfo,
 			}
