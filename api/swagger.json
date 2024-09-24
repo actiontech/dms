@@ -6523,6 +6523,11 @@
           "type": "boolean",
           "x-go-name": "IsAdmin"
         },
+        "language": {
+          "description": "user language",
+          "type": "string",
+          "x-go-name": "Language"
+        },
         "name": {
           "description": "user name",
           "type": "string",
@@ -6542,14 +6547,7 @@
           "x-go-name": "Phone"
         },
         "stat": {
-          "description": "user stat\n正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown",
-          "type": "string",
-          "enum": [
-            "正常",
-            "被禁用",
-            "未知"
-          ],
-          "x-go-enum-desc": "正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown",
+          "description": "user stat",
           "x-go-name": "Stat"
         },
         "third_party_user_info": {
@@ -8207,14 +8205,7 @@
           "x-go-name": "OpPermissions"
         },
         "stat": {
-          "description": "role stat\n正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown",
-          "type": "string",
-          "enum": [
-            "正常",
-            "被禁用",
-            "未知"
-          ],
-          "x-go-enum-desc": "正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown",
+          "description": "role stat",
           "x-go-name": "Stat"
         },
         "uid": {
@@ -8300,14 +8291,7 @@
           "x-go-name": "Phone"
         },
         "stat": {
-          "description": "user stat\n正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown",
-          "type": "string",
-          "enum": [
-            "正常",
-            "被禁用",
-            "未知"
-          ],
-          "x-go-enum-desc": "正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown",
+          "description": "user stat",
           "x-go-name": "Stat"
         },
         "third_party_user_info": {
@@ -8351,14 +8335,7 @@
           "x-go-name": "Name"
         },
         "stat": {
-          "description": "user group stat\n正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown",
-          "type": "string",
-          "enum": [
-            "正常",
-            "被禁用",
-            "未知"
-          ],
-          "x-go-enum-desc": "正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown",
+          "description": "user group stat",
           "x-go-name": "Stat"
         },
         "uid": {
@@ -8676,7 +8653,7 @@
       "type": "object",
       "properties": {
         "op_permission_type": {
-          "description": "op permission type\nunknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nproject_admin OpPermissionTypeProjectAdmin  项目管理；拥有该权限的用户可以管理项目下的所有资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单\ncreate_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优\nview_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优",
+          "description": "op permission type\nunknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nproject_admin OpPermissionTypeProjectAdmin  项目管理；拥有该权限的用户可以管理项目下的所有资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单\ncreate_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优\nview_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优\ncreate_pipeline OpPermissionTypeCreatePipeline  配置流水线",
           "type": "string",
           "enum": [
             "unknown",
@@ -8693,9 +8670,10 @@
             "create_export_task",
             "audit_export_workflow",
             "create_optimization",
-            "view_others_optimization"
+            "view_others_optimization",
+            "create_pipeline"
           ],
-          "x-go-enum-desc": "unknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nproject_admin OpPermissionTypeProjectAdmin  项目管理；拥有该权限的用户可以管理项目下的所有资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单\ncreate_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优\nview_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优",
+          "x-go-enum-desc": "unknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nproject_admin OpPermissionTypeProjectAdmin  项目管理；拥有该权限的用户可以管理项目下的所有资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单\ncreate_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优\nview_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优\ncreate_pipeline OpPermissionTypeCreatePipeline  配置流水线",
           "x-go-name": "OpPermissionType"
         },
         "range_type": {
@@ -9422,6 +9400,11 @@
           "type": "string",
           "x-go-name": "Email"
         },
+        "language": {
+          "description": "User language",
+          "type": "string",
+          "x-go-name": "Language"
+        },
         "old_password": {
           "description": "User old password",
           "type": "string",
@@ -9795,6 +9778,11 @@
           "description": "Whether the user is disabled or not",
           "type": "boolean",
           "x-go-name": "IsDisabled"
+        },
+        "language": {
+          "description": "User language",
+          "type": "string",
+          "x-go-name": "Language"
         },
         "op_permission_uids": {
           "description": "User operation permission uids",

@@ -1611,6 +1611,10 @@ definitions:
                 description: is admin
                 type: boolean
                 x-go-name: IsAdmin
+            language:
+                description: user language
+                type: string
+                x-go-name: Language
             name:
                 description: user name
                 type: string
@@ -1626,20 +1630,7 @@ definitions:
                 type: string
                 x-go-name: Phone
             stat:
-                description: |-
-                    user stat
-                    正常 StatOK
-                    被禁用 StatDisable
-                    未知 StatUnknown
-                enum:
-                    - 正常
-                    - 被禁用
-                    - 未知
-                type: string
-                x-go-enum-desc: |-
-                    正常 StatOK
-                    被禁用 StatDisable
-                    未知 StatUnknown
+                description: user stat
                 x-go-name: Stat
             third_party_user_info:
                 type: string
@@ -2917,20 +2908,7 @@ definitions:
                 type: array
                 x-go-name: OpPermissions
             stat:
-                description: |-
-                    role stat
-                    正常 StatOK
-                    被禁用 StatDisable
-                    未知 StatUnknown
-                enum:
-                    - 正常
-                    - 被禁用
-                    - 未知
-                type: string
-                x-go-enum-desc: |-
-                    正常 StatOK
-                    被禁用 StatDisable
-                    未知 StatUnknown
+                description: role stat
                 x-go-name: Stat
             uid:
                 description: role uid
@@ -3006,20 +2984,7 @@ definitions:
                 type: string
                 x-go-name: Phone
             stat:
-                description: |-
-                    user stat
-                    正常 StatOK
-                    被禁用 StatDisable
-                    未知 StatUnknown
-                enum:
-                    - 正常
-                    - 被禁用
-                    - 未知
-                type: string
-                x-go-enum-desc: |-
-                    正常 StatOK
-                    被禁用 StatDisable
-                    未知 StatUnknown
+                description: user stat
                 x-go-name: Stat
             third_party_user_info:
                 description: third party user info
@@ -3053,20 +3018,7 @@ definitions:
                 type: string
                 x-go-name: Name
             stat:
-                description: |-
-                    user group stat
-                    正常 StatOK
-                    被禁用 StatDisable
-                    未知 StatUnknown
-                enum:
-                    - 正常
-                    - 被禁用
-                    - 未知
-                type: string
-                x-go-enum-desc: |-
-                    正常 StatOK
-                    被禁用 StatDisable
-                    未知 StatUnknown
+                description: user group stat
                 x-go-name: Stat
             uid:
                 description: user group uid
@@ -3331,6 +3283,7 @@ definitions:
                     audit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单
                     create_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优
                     view_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优
+                    create_pipeline OpPermissionTypeCreatePipeline  配置流水线
                 enum:
                     - unknown
                     - create_project
@@ -3347,6 +3300,7 @@ definitions:
                     - audit_export_workflow
                     - create_optimization
                     - view_others_optimization
+                    - create_pipeline
                 type: string
                 x-go-enum-desc: |-
                     unknown OpPermissionTypeUnknown
@@ -3364,6 +3318,7 @@ definitions:
                     audit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单
                     create_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优
                     view_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优
+                    create_pipeline OpPermissionTypeCreatePipeline  配置流水线
                 x-go-name: OpPermissionType
             range_type:
                 description: |-
@@ -3912,6 +3867,10 @@ definitions:
                 description: User email
                 type: string
                 x-go-name: Email
+            language:
+                description: User language
+                type: string
+                x-go-name: Language
             old_password:
                 description: User old password
                 type: string
@@ -4187,6 +4146,10 @@ definitions:
                 description: Whether the user is disabled or not
                 type: boolean
                 x-go-name: IsDisabled
+            language:
+                description: User language
+                type: string
+                x-go-name: Language
             op_permission_uids:
                 description: User operation permission uids
                 items:

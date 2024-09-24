@@ -25,6 +25,8 @@ type GetUser struct {
 	Phone string `json:"phone"`
 	// user wxid
 	WxID string `json:"wxid"`
+	// user language
+	Language string `json:"language"`
 	// user stat
 	Stat Stat `json:"stat"`
 	// user authentication type
