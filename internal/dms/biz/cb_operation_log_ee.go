@@ -30,12 +30,12 @@ func (u *CbOperationLogUsecase) UpdateCbOperationLog(ctx context.Context, log *C
 }
 
 func (u *CbOperationLogUsecase) ListCbOperationLog(ctx context.Context, option *ListCbOperationLogOption, currentUid string, filterPersonID string, projectUid string) ([]*CbOperationLog, int64, error) {
-	// 只有管理员可以查看所有操作日志, 其他用户只能查看自己的操作日志
+	// 只有管理员和拥有全局管理/浏览权限的用户可以查看所有操作日志, 其他用户只能查看自己的操作日志
 	if currentUid != pkgConst.UIDOfUserSys {
-		if isAdmin, err := u.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUid, projectUid); err != nil {
+		if canViewProject, err := u.opPermissionVerifyUsecase.CanViewProject(ctx, currentUid, projectUid); err != nil {
 			return nil, 0, err
-		} else if isAdmin {
-			// do nothing,skip to next,because admin can view all operation logs
+		} else if canViewProject {
+			// do nothing,skip to next,because admin or global view user can view all operation logs
 		} else if currentUid != filterPersonID {
 			return nil, 0, nil
 		}
@@ -94,12 +94,12 @@ func (u *CbOperationLogUsecase) DoClean() {
 }
 
 func (u *CbOperationLogUsecase) CountOperationLogs(ctx context.Context, option *ListCbOperationLogOption, currentUid string, filterPersonID string, projectUid string) (int64, error) {
-	// 只有管理员可以查看所有操作日志, 其他用户只能查看自己的操作日志
+	// 只有管理员和拥有全局管理/浏览权限的用户可以查看所有操作日志, 其他用户只能查看自己的操作日志
 	if currentUid != pkgConst.UIDOfUserSys {
-		if isAdmin, err := u.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUid, projectUid); err != nil {
+		if canViewProject, err := u.opPermissionVerifyUsecase.CanViewProject(ctx, currentUid, projectUid); err != nil {
 			return 0, err
-		} else if isAdmin {
-			// do nothing,skip to next,because admin can view all operation logs
+		} else if canViewProject {
+			// do nothing,skip to next,because admin or global view user can view all operation logs
 		} else if currentUid != filterPersonID {
 			return 0, nil
 		}

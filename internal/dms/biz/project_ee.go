@@ -129,11 +129,11 @@ func (d *ProjectUsecase) DeleteProject(ctx context.Context, currentUserUid, proj
 			return fmt.Errorf("default project is not allow to delete")
 		}
 		// project admin can delete project
-		isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, projectUid)
+		canOpProject, err := d.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, projectUid)
 		if err != nil {
-			return fmt.Errorf("check user project admin error: %v", err)
+			return fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
 		}
-		if !isAdmin {
+		if !canOpProject {
 			return fmt.Errorf("user can't update project")
 		}
 
@@ -158,11 +158,11 @@ func (d *ProjectUsecase) DeleteProject(ctx context.Context, currentUserUid, proj
 
 func (d *ProjectUsecase) checkUserCanUpdateProject(ctx context.Context, currentUserUid, projectUid string) error {
 	// project admin can update project
-	isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, projectUid)
+	canOpProject, err := d.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, projectUid)
 	if err != nil {
-		return fmt.Errorf("check user project admin error: %v", err)
+		return fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
 	}
-	if !isAdmin {
+	if !canOpProject {
 		return fmt.Errorf("user can't update project")
 	}
 	return nil

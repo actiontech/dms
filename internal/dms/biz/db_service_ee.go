@@ -417,10 +417,10 @@ func (d *DBServiceUsecase) importDBServicesCheck(ctx context.Context, fileConten
 
 func (d *DBServiceUsecase) ImportDBServicesOfOneProjectCheck(ctx context.Context, userUid, projectUid, fileContent string) ([]*BizDBServiceArgs, []byte, error) {
 	// 权限校验
-	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, userUid, projectUid); err != nil {
-		return nil, nil, fmt.Errorf("check user is project admin failed: %v", err)
-	} else if !isAdmin {
-		return nil, nil, fmt.Errorf("user is not project admin")
+	if canOpProject, err := d.opPermissionVerifyUsecase.CanOpProject(ctx, userUid, projectUid); err != nil {
+		return nil, nil, fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
+	} else if !canOpProject {
+		return nil, nil, fmt.Errorf("user is not project admin or golobal op permission user")
 	}
 
 	proj, err := d.projectUsecase.GetProject(ctx, projectUid)
@@ -439,11 +439,11 @@ func (d *DBServiceUsecase) ImportDBServicesOfOneProjectCheck(ctx context.Context
 
 func (d *DBServiceUsecase) ImportDBServicesOfProjectsCheck(ctx context.Context, userUid, fileContent string) ([]*BizDBServiceArgs, []byte, error) {
 	// 权限校验
-	isAdmin, err := d.opPermissionVerifyUsecase.IsUserDMSAdmin(ctx, userUid)
+	hasGlobalOpPermission, err := d.opPermissionVerifyUsecase.CanOpGlobal(ctx, userUid)
 	if err != nil {
-		return nil, nil, fmt.Errorf("check user is dms admin failed: %v", err)
-	} else if !isAdmin {
-		return nil, nil, fmt.Errorf("user is not dms admin")
+		return nil, nil, fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
+	} else if !hasGlobalOpPermission {
+		return nil, nil, fmt.Errorf("user is not project admin or golobal op permission user")
 	}
 
 	projInfos := make(map[string]*projInfo)
@@ -480,10 +480,10 @@ func (d *DBServiceUsecase) importDBServices(ctx context.Context, dbs []*DBServic
 
 func (d *DBServiceUsecase) ImportDBServicesOfOneProject(ctx context.Context, dbs []*DBService, uid, projectUid string) error {
 	// 权限校验
-	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, uid, projectUid); err != nil {
-		return fmt.Errorf("check user is project admin failed: %v", err)
-	} else if !isAdmin {
-		return fmt.Errorf("user is not project admin")
+	if canOpProject, err := d.opPermissionVerifyUsecase.CanOpProject(ctx, uid, projectUid); err != nil {
+		return fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
+	} else if !canOpProject {
+		return fmt.Errorf("user is not project admin or golobal op permission user")
 	}
 
 	return d.importDBServices(ctx, dbs)
@@ -491,10 +491,10 @@ func (d *DBServiceUsecase) ImportDBServicesOfOneProject(ctx context.Context, dbs
 
 func (d *DBServiceUsecase) ImportDBServicesOfProjects(ctx context.Context, dbs []*DBService, uid string) error {
 	// 权限校验
-	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserDMSAdmin(ctx, uid); err != nil {
-		return fmt.Errorf("check user is dms admin failed: %v", err)
-	} else if !isAdmin {
-		return fmt.Errorf("user is not dms admin")
+	if canGlobalOp, err := d.opPermissionVerifyUsecase.CanOpGlobal(ctx, uid); err != nil {
+		return fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
+	} else if !canGlobalOp {
+		return fmt.Errorf("user is not project admin or golobal op permission user")
 	}
 
 	return d.importDBServices(ctx, dbs)
@@ -550,11 +550,30 @@ type GlobalDBService struct {
 }
 
 func (d *DBServiceUsecase) ListGlobalDBServices(ctx context.Context, option *ListDBServicesOption, currentUserUid string) (globalDBServices []*GlobalDBService, total int64, err error) {
-	projectWithOpPermissions, err := d.opPermissionVerifyUsecase.GetUserProjectOpPermission(ctx, currentUserUid)
+	canViewGlobal, err := d.opPermissionVerifyUsecase.CanViewGlobal(ctx, currentUserUid)
 	if err != nil {
-		return nil, 0, fmt.Errorf("failed to get user project with op permission")
+		return nil, 0, fmt.Errorf("failed to check user can view global")
 	}
-	userBindProjects := d.opPermissionVerifyUsecase.GetUserManagerProject(ctx, projectWithOpPermissions)
+
+	var userBindProjects []dmsCommonV1.UserBindProject
+	if !canViewGlobal {
+		projectWithOpPermissions, err := d.opPermissionVerifyUsecase.GetUserProjectOpPermission(ctx, currentUserUid)
+		if err != nil {
+			return nil, 0, fmt.Errorf("failed to get user project with op permission")
+		}
+		userBindProjects = d.opPermissionVerifyUsecase.GetUserManagerProject(ctx, projectWithOpPermissions)
+	} else {
+		projects, _, err := d.projectUsecase.ListProject(ctx, &ListProjectsOption{
+			PageNumber:   1,
+			LimitPerPage: 999,
+		}, currentUserUid)
+		if err != nil {
+			return nil, 0, err
+		}
+		for _, project := range projects {
+			userBindProjects = append(userBindProjects, dmsCommonV1.UserBindProject{ProjectID: project.UID, ProjectName: project.Name, IsManager: true})
+		}
+	}
 
 	projectID2Name := make(map[string]string)
 	var managedProjectIDs []string

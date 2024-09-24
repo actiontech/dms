@@ -781,7 +781,7 @@ func (d *DataExportWorkflowUsecase) RejectDataExportWorkflow(ctx context.Context
 }
 
 func (d *DataExportWorkflowUsecase) CancelDataExportWorkflow(ctx context.Context, userId string, req *dmsV1.CancelDataExportWorkflowReq) error {
-	isAdmin, err := d.opPermissionVerifyUsecase.IsUserDMSAdmin(ctx, userId)
+	hasGlobalOpPermission, err := d.opPermissionVerifyUsecase.CanOpGlobal(ctx, userId)
 	if err != nil {
 		return err
 	}
@@ -798,7 +798,7 @@ func (d *DataExportWorkflowUsecase) CancelDataExportWorkflow(ctx context.Context
 			return fmt.Errorf("workflow %s status %s cannot be performed", workflow.Name, workflow.WorkflowRecord.Status)
 		}
 
-		if !isAdmin && workflow.CreateUserUID != userId {
+		if !hasGlobalOpPermission && workflow.CreateUserUID != userId {
 			return fmt.Errorf("current user not executable cancel workflow")
 		}
 
