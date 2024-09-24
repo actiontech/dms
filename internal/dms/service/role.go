@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/actiontech/dms/internal/pkg/locale"
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
@@ -121,11 +122,11 @@ func (d *DMSService) ListRoles(ctx context.Context, req *dmsV1.ListRoleReq) (rep
 		// 获取角色状态
 		switch r.Stat {
 		case biz.RoleStatOK:
-			ret[i].Stat = dmsV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatOK))
+			ret[i].Stat = dmsCommonV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatOK))
 		case biz.RoleStatDisable:
-			ret[i].Stat = dmsV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatDisable))
+			ret[i].Stat = dmsCommonV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatDisable))
 		default:
-			ret[i].Stat = dmsV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatUnknown))
+			ret[i].Stat = dmsCommonV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatUnknown))
 		}
 
 		// 获取角色的操作权限
