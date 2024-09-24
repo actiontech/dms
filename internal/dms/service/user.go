@@ -480,10 +480,16 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 	if err != nil {
 		return nil, fmt.Errorf("failed to check user is dms admin")
 	}
+
+	canViewGlobal, err := d.UserUsecase.OpPermissionVerifyUsecase.CanViewGlobal(ctx, u.GetUID())
+	if err != nil {
+		return nil, fmt.Errorf("failed to check user can view global")
+	}
+
 	dmsCommonUser.IsAdmin = isAdmin
 	// 获取管理项目
 	userBindProjects := make([]dmsCommonV1.UserBindProject, 0)
-	if !isAdmin {
+	if !isAdmin && !canViewGlobal {
 		projectWithOpPermissions, err := d.OpPermissionVerifyUsecase.GetUserProjectOpPermission(ctx, u.GetUID())
 		if err != nil {
 			return nil, fmt.Errorf("failed to get user project with op permission")
