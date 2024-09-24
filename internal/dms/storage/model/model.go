@@ -110,6 +110,7 @@ type User struct {
 	Email                  string         `json:"email" gorm:"size:255;column:email"`
 	Phone                  string         `json:"phone" gorm:"size:255;column:phone"`
 	WeChatID               string         `json:"wechat_id" gorm:"size:255;column:wechat_id"`
+	Language               string         `json:"language" gorm:"size:255;column:language"`
 	Password               string         `json:"password" gorm:"size:255;column:password"`
 	UserAuthenticationType string         `json:"user_authentication_type" gorm:"size:255;not null;column:user_authentication_type"`
 	Stat                   uint           `json:"stat" gorm:"not null"`
