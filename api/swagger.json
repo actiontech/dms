@@ -6547,7 +6547,17 @@
           "x-go-name": "Phone"
         },
         "stat": {
-          "description": "user stat",
+          "description": "user stat\n正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown\nNormal StatOKEn\nDisabled StatDisableEn\nUnknown StatUnknownEn",
+          "type": "string",
+          "enum": [
+            "正常",
+            "被禁用",
+            "未知",
+            "Normal",
+            "Disabled",
+            "Unknown"
+          ],
+          "x-go-enum-desc": "正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown\nNormal StatOKEn\nDisabled StatDisableEn\nUnknown StatUnknownEn",
           "x-go-name": "Stat"
         },
         "third_party_user_info": {
@@ -8205,7 +8215,17 @@
           "x-go-name": "OpPermissions"
         },
         "stat": {
-          "description": "role stat",
+          "description": "role stat\n正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown\nNormal StatOKEn\nDisabled StatDisableEn\nUnknown StatUnknownEn",
+          "type": "string",
+          "enum": [
+            "正常",
+            "被禁用",
+            "未知",
+            "Normal",
+            "Disabled",
+            "Unknown"
+          ],
+          "x-go-enum-desc": "正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown\nNormal StatOKEn\nDisabled StatDisableEn\nUnknown StatUnknownEn",
           "x-go-name": "Stat"
         },
         "uid": {
@@ -8291,7 +8311,17 @@
           "x-go-name": "Phone"
         },
         "stat": {
-          "description": "user stat",
+          "description": "user stat\n正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown\nNormal StatOKEn\nDisabled StatDisableEn\nUnknown StatUnknownEn",
+          "type": "string",
+          "enum": [
+            "正常",
+            "被禁用",
+            "未知",
+            "Normal",
+            "Disabled",
+            "Unknown"
+          ],
+          "x-go-enum-desc": "正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown\nNormal StatOKEn\nDisabled StatDisableEn\nUnknown StatUnknownEn",
           "x-go-name": "Stat"
         },
         "third_party_user_info": {
@@ -8335,7 +8365,17 @@
           "x-go-name": "Name"
         },
         "stat": {
-          "description": "user group stat",
+          "description": "user group stat\n正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown\nNormal StatOKEn\nDisabled StatDisableEn\nUnknown StatUnknownEn",
+          "type": "string",
+          "enum": [
+            "正常",
+            "被禁用",
+            "未知",
+            "Normal",
+            "Disabled",
+            "Unknown"
+          ],
+          "x-go-enum-desc": "正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown\nNormal StatOKEn\nDisabled StatDisableEn\nUnknown StatUnknownEn",
           "x-go-name": "Stat"
         },
         "uid": {
@@ -9369,7 +9409,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",

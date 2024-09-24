@@ -1630,7 +1630,29 @@ definitions:
                 type: string
                 x-go-name: Phone
             stat:
-                description: user stat
+                description: |-
+                    user stat
+                    正常 StatOK
+                    被禁用 StatDisable
+                    未知 StatUnknown
+                    Normal StatOKEn
+                    Disabled StatDisableEn
+                    Unknown StatUnknownEn
+                enum:
+                    - 正常
+                    - 被禁用
+                    - 未知
+                    - Normal
+                    - Disabled
+                    - Unknown
+                type: string
+                x-go-enum-desc: |-
+                    正常 StatOK
+                    被禁用 StatDisable
+                    未知 StatUnknown
+                    Normal StatOKEn
+                    Disabled StatDisableEn
+                    Unknown StatUnknownEn
                 x-go-name: Stat
             third_party_user_info:
                 type: string
@@ -2908,7 +2930,29 @@ definitions:
                 type: array
                 x-go-name: OpPermissions
             stat:
-                description: role stat
+                description: |-
+                    role stat
+                    正常 StatOK
+                    被禁用 StatDisable
+                    未知 StatUnknown
+                    Normal StatOKEn
+                    Disabled StatDisableEn
+                    Unknown StatUnknownEn
+                enum:
+                    - 正常
+                    - 被禁用
+                    - 未知
+                    - Normal
+                    - Disabled
+                    - Unknown
+                type: string
+                x-go-enum-desc: |-
+                    正常 StatOK
+                    被禁用 StatDisable
+                    未知 StatUnknown
+                    Normal StatOKEn
+                    Disabled StatDisableEn
+                    Unknown StatUnknownEn
                 x-go-name: Stat
             uid:
                 description: role uid
@@ -2984,7 +3028,29 @@ definitions:
                 type: string
                 x-go-name: Phone
             stat:
-                description: user stat
+                description: |-
+                    user stat
+                    正常 StatOK
+                    被禁用 StatDisable
+                    未知 StatUnknown
+                    Normal StatOKEn
+                    Disabled StatDisableEn
+                    Unknown StatUnknownEn
+                enum:
+                    - 正常
+                    - 被禁用
+                    - 未知
+                    - Normal
+                    - Disabled
+                    - Unknown
+                type: string
+                x-go-enum-desc: |-
+                    正常 StatOK
+                    被禁用 StatDisable
+                    未知 StatUnknown
+                    Normal StatOKEn
+                    Disabled StatDisableEn
+                    Unknown StatUnknownEn
                 x-go-name: Stat
             third_party_user_info:
                 description: third party user info
@@ -3018,7 +3084,29 @@ definitions:
                 type: string
                 x-go-name: Name
             stat:
-                description: user group stat
+                description: |-
+                    user group stat
+                    正常 StatOK
+                    被禁用 StatDisable
+                    未知 StatUnknown
+                    Normal StatOKEn
+                    Disabled StatDisableEn
+                    Unknown StatUnknownEn
+                enum:
+                    - 正常
+                    - 被禁用
+                    - 未知
+                    - Normal
+                    - Disabled
+                    - Unknown
+                type: string
+                x-go-enum-desc: |-
+                    正常 StatOK
+                    被禁用 StatDisable
+                    未知 StatUnknown
+                    Normal StatOKEn
+                    Disabled StatDisableEn
+                    Unknown StatUnknownEn
                 x-go-name: Stat
             uid:
                 description: user group uid
@@ -3845,7 +3933,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:

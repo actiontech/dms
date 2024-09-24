@@ -341,11 +341,11 @@ func (d *DMSService) ListUserGroups(ctx context.Context, req *dmsV1.ListUserGrou
 		// 获取用户组状态
 		switch g.Stat {
 		case biz.UserGroupStatOK:
-			ret[i].Stat = dmsV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatOK))
+			ret[i].Stat = dmsCommonV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatOK))
 		case biz.UserGroupStatDisable:
-			ret[i].Stat = dmsV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatDisable))
+			ret[i].Stat = dmsCommonV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatDisable))
 		default:
-			ret[i].Stat = dmsV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatUnknown))
+			ret[i].Stat = dmsCommonV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatUnknown))
 		}
 
 		// 获取用户所属的用户组
