@@ -560,6 +560,10 @@ func convertBizOpPermission(opPermissionUid string) (apiOpPermissionTyp dmsCommo
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeProjectAdmin
 	case pkgConst.UIDOfOpPermissionCreateProject:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeCreateProject
+	case pkgConst.UIDOfOpPermissionGlobalView:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeGlobalView
+	case pkgConst.UIDOfOpPermissionGlobalManagement:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeGlobalManagement
 	case pkgConst.UIDOfOpPermissionExecuteWorkflow:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeExecuteWorkflow
 	case pkgConst.UIDOfOpPermissionViewOthersWorkflow:
