@@ -810,12 +810,12 @@ func (cu *CloudbeaverUsecase) connectManagement(ctx context.Context, cloudbeaver
 		return cu.clearConnection(ctx)
 	}
 
-	isAdmin, err := cu.opPermissionVerifyUsecase.IsUserDMSAdmin(ctx, dmsUser.UID)
+	hasGlobalOpPermission, err := cu.opPermissionVerifyUsecase.CanOpGlobal(ctx, dmsUser.UID)
 	if err != nil {
 		return err
 	}
 
-	if !isAdmin {
+	if !hasGlobalOpPermission {
 		activeDBServices, err = cu.ResetDbServiceByAuth(ctx, activeDBServices, dmsUser.UID)
 		if err != nil {
 			return err
