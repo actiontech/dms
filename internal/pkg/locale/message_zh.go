@@ -26,9 +26,13 @@ var (
 	NameOpPermissionExportApprovalReject   = &i18n.Message{ID: "NameOpPermissionExportApprovalReject", Other: "审批/驳回数据导出工单"}
 	NameOpPermissionExportCreate           = &i18n.Message{ID: "NameOpPermissionExportCreate", Other: "创建数据导出任务"}
 	NameOpPermissionCreateOptimization     = &i18n.Message{ID: "NameOpPermissionCreateOptimization", Other: "创建智能调优"}
+	NameOpPermissionGlobalManagement       = &i18n.Message{ID: "NameOpPermissionGlobalManagement", Other: "全局管理"}
+	NameOpPermissionGlobalView             = &i18n.Message{ID: "NameOpPermissionGlobalView", Other: "全局浏览"}
 	NameOpPermissionViewOthersOptimization = &i18n.Message{ID: "NameOpPermissionViewOthersOptimization", Other: "查看他人创建的智能调优"}
 	NameOpPermissionCreatePipeline         = &i18n.Message{ID: "NameOpPermissionCreatePipeline", Other: "配置流水线"}
 
+	DescOpPermissionGlobalManagement       = &i18n.Message{ID: "DescOpPermissionGlobalManagement", Other: "拥有该权限的用户可以管理平台的所有资源"}
+	DescOpPermissionGlobalView             = &i18n.Message{ID: "DescOpPermissionGlobalView", Other: "拥有该权限的用户可以查看全局信息"}
 	DescOpPermissionCreateProject          = &i18n.Message{ID: "DescOpPermissionCreateProject", Other: "创建项目；创建项目的用户自动拥有该项目管理权限"}
 	DescOpPermissionProjectAdmin           = &i18n.Message{ID: "DescOpPermissionProjectAdmin", Other: "项目管理；拥有该权限的用户可以管理项目下的所有资源"}
 	DescOpPermissionCreateWorkflow         = &i18n.Message{ID: "DescOpPermissionCreateWorkflow", Other: "创建/编辑工单；拥有该权限的用户可以创建/编辑工单"}
