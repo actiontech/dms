@@ -431,10 +431,26 @@ type CreateUserArgs struct {
 func (d *UserUsecase) CreateUser(ctx context.Context, currentUserUid string, args *CreateUserArgs) (uid string, err error) {
 	// check
 	{
-		if isAdmin, err := d.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, currentUserUid); err != nil {
-			return "", fmt.Errorf("check user is admin failed: %v", err)
-		} else if !isAdmin {
-			return "", fmt.Errorf("user is not admin")
+		isUserDMSAdmin, err := d.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, currentUserUid)
+		if err != nil {
+			return "", err
+		}
+
+		var hasGlobalViewOrManagementPermission bool
+		for _, permissionUID := range args.OpPermissionUIDs {
+			if permissionUID == pkgConst.UIDOfOpPermissionGlobalView || permissionUID == pkgConst.UIDOfOpPermissionGlobalManagement {
+				hasGlobalViewOrManagementPermission = true
+			}
+		}
+
+		if !isUserDMSAdmin && hasGlobalViewOrManagementPermission {
+			return "", fmt.Errorf("only admin can create user with global view or management permission")
+		}
+
+		if canGlobalOp, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid); err != nil {
+			return "", fmt.Errorf("check user is admin or global management permission : %v", err)
+		} else if !canGlobalOp {
+			return "", fmt.Errorf("user is not admin or global management permission")
 		}
 
 		user, err := d.repo.GetUserByName(ctx, args.Name)
@@ -557,10 +573,32 @@ func (d *UserUsecase) DelUser(ctx context.Context, currentUserUid, UserUid strin
 		if UserUid == pkgConst.UIDOfUserAdmin || UserUid == pkgConst.UIDOfUserSys {
 			return fmt.Errorf("can not delete user admin or sys")
 		}
-		if isAdmin, err := d.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, currentUserUid); err != nil {
-			return fmt.Errorf("check user is admin failed: %v", err)
-		} else if !isAdmin {
-			return fmt.Errorf("user is not admin")
+
+		isUserDMSAdmin, err := d.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, currentUserUid)
+		if err != nil {
+			return err
+		}
+
+		permissionList, err := d.OpPermissionVerifyUsecase.GetUserOpPermission(ctx, UserUid)
+		if err != nil {
+			return err
+		}
+
+		var hasGlobalViewOrManagementPermission bool
+		for _, permission := range permissionList {
+			if permission.OpPermissionUID == pkgConst.UIDOfOpPermissionGlobalView || permission.OpPermissionUID == pkgConst.UIDOfOpPermissionGlobalManagement {
+				hasGlobalViewOrManagementPermission = true
+			}
+		}
+
+		if hasGlobalViewOrManagementPermission && !isUserDMSAdmin {
+			return fmt.Errorf("only admin can delete user with global view or management permission")
+		}
+
+		if canGlobalOp, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid); err != nil {
+			return fmt.Errorf("check user is admin or global management permission : %v", err)
+		} else if !canGlobalOp {
+			return fmt.Errorf("user is not admin or global management permission")
 		}
 	}
 
@@ -620,6 +658,20 @@ func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid, updateUser
 	password, email, phone, wxId *string, userGroupUids []string, opPermissionUids []string) error {
 	// checks
 	{
+		isAdmin, err := d.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, currentUserUid)
+		if err != nil {
+			return err
+		}
+
+		updateUserIsAdmin, err := d.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, updateUserUid)
+		if err != nil {
+			return err
+		}
+
+		if !isAdmin && updateUserIsAdmin {
+			return fmt.Errorf("only admin can update admin user")
+		}
+
 		if isDisabled {
 			if currentUserUid == updateUserUid {
 				return fmt.Errorf("can not disable current user")
@@ -632,10 +684,20 @@ func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid, updateUser
 			}
 		}
 
-		if isAdmin, err := d.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, currentUserUid); err != nil {
-			return fmt.Errorf("check user is admin failed: %v", err)
-		} else if !isAdmin {
-			return fmt.Errorf("user is not admin")
+		hasGlobalManagementOrViewPermission, err := d.OpPermissionVerifyUsecase.HasGlobalManagementOrViewPermission(ctx, updateUserUid)
+		if err != nil {
+			return err
+		}
+
+		// 只有管理员才能更新拥有全局管理权限的用户,拥有全局管理权限的用户相互之间不能更新
+		if hasGlobalManagementOrViewPermission && !isAdmin {
+			return fmt.Errorf("only admin can manage user with global manage or view permission")
+		}
+
+		if canGlobalOp, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid); err != nil {
+			return fmt.Errorf("check user is admin or global management permission : %v", err)
+		} else if !canGlobalOp {
+			return fmt.Errorf("user is not admin or global management permission")
 		}
 	}
 
