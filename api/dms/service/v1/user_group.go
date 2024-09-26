@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
 
 // A user group
@@ -95,7 +96,7 @@ type ListUserGroup struct {
 	// user group description
 	Desc string `json:"desc"`
 	// user group stat
-	Stat Stat `json:"stat"`
+	Stat dmsCommonV1.Stat `json:"stat"`
 	// users
 	Users []UidWithName `json:"users"`
 }
@@ -121,9 +122,9 @@ type UpdateUserGroup struct {
 
 // swagger:model
 type UpdateUserGroupReq struct {
-    // swagger:ignore
-	UserGroupUid string `param:"user_group_uid" json:"user_group_uid" validate:"required"`
-	UserGroup *UpdateUserGroup `json:"user_group" validate:"required"`
+	// swagger:ignore
+	UserGroupUid string           `param:"user_group_uid" json:"user_group_uid" validate:"required"`
+	UserGroup    *UpdateUserGroup `json:"user_group" validate:"required"`
 }
 
 func (u *UpdateUserGroupReq) String() string {
