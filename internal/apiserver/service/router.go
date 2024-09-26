@@ -12,12 +12,12 @@ import (
 	"github.com/actiontech/dms/internal/pkg/locale"
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
+	"github.com/actiontech/dms/pkg/dms-common/i18nPkg"
 	commonLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	pkgLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
+	"github.com/go-kratos/kratos/v2/log"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
-
-	"github.com/go-kratos/kratos/v2/log"
 	"github.com/labstack/echo/v4/middleware"
 )
 
@@ -327,7 +327,10 @@ func (s *APIServer) installMiddleware() error {
 		Rewrite:  s.DMSController.DMS.DmsProxyUsecase.GetEchoProxyRewrite(),
 	}))
 
-	s.echo.Use(locale.Bundle.EchoMiddlewareByAcceptLanguage())
+	s.echo.Use(locale.Bundle.EchoMiddlewareByCustomFunc(
+		s.DMSController.DMS.UserUsecase.GetUserLanguageByEchoCtx,
+		i18nPkg.GetLangByAcceptLanguage,
+	))
 
 	return nil
 }

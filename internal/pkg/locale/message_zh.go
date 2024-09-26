@@ -1,14 +1,15 @@
 package locale
 
 import (
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 // Stat
 var (
-	StatOK      = &i18n.Message{ID: "StatOK", Other: "正常"}
-	StatDisable = &i18n.Message{ID: "StatDisable", Other: "被禁用"}
-	StatUnknown = &i18n.Message{ID: "StatUnknown", Other: "未知"}
+	StatOK      = &i18n.Message{ID: "StatOK", Other: string(dmsCommonV1.StatOK)}
+	StatDisable = &i18n.Message{ID: "StatDisable", Other: string(dmsCommonV1.StatDisable)}
+	StatUnknown = &i18n.Message{ID: "StatUnknown", Other: string(dmsCommonV1.StatUnknown)}
 )
 
 // OpPermission

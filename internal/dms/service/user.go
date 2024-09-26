@@ -106,7 +106,7 @@ func (d *DMSService) UpdateUser(ctx context.Context, req *dmsV1.UpdateUserReq, c
 	}
 
 	if err = d.UserUsecase.UpdateUser(ctx, currentUserUid, req.UserUid, *req.User.IsDisabled,
-		req.User.Password, req.User.Email, req.User.Phone, req.User.WxID, *req.User.UserGroupUids, *req.User.OpPermissionUids); nil != err {
+		req.User.Password, req.User.Email, req.User.Phone, req.User.WxID, req.User.Language, *req.User.UserGroupUids, *req.User.OpPermissionUids); nil != err {
 		return fmt.Errorf("update user failed: %v", err)
 	}
 
@@ -114,7 +114,7 @@ func (d *DMSService) UpdateUser(ctx context.Context, req *dmsV1.UpdateUserReq, c
 }
 
 func (d *DMSService) UpdateCurrentUser(ctx context.Context, req *dmsV1.UpdateCurrentUserReq, currentUserUid string) (err error) {
-	if err = d.UserUsecase.UpdateCurrentUser(ctx, currentUserUid, req.User.OldPassword, req.User.Password, req.User.Email, req.User.Phone, req.User.WxID); nil != err {
+	if err = d.UserUsecase.UpdateCurrentUser(ctx, currentUserUid, req.User.OldPassword, req.User.Password, req.User.Email, req.User.Phone, req.User.WxID, req.User.Language); nil != err {
 		return fmt.Errorf("update user failed: %v", err)
 	}
 
@@ -341,11 +341,11 @@ func (d *DMSService) ListUserGroups(ctx context.Context, req *dmsV1.ListUserGrou
 		// 获取用户组状态
 		switch g.Stat {
 		case biz.UserGroupStatOK:
-			ret[i].Stat = dmsV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatOK))
+			ret[i].Stat = dmsCommonV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatOK))
 		case biz.UserGroupStatDisable:
-			ret[i].Stat = dmsV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatDisable))
+			ret[i].Stat = dmsCommonV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatDisable))
 		default:
-			ret[i].Stat = dmsV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatUnknown))
+			ret[i].Stat = dmsCommonV1.Stat(locale.Bundle.LocalizeMsgByCtx(ctx, locale.StatUnknown))
 		}
 
 		// 获取用户所属的用户组
@@ -431,6 +431,7 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 		Email:              u.Email,
 		Phone:              u.Phone,
 		WxID:               u.WxID,
+		Language:           u.Language,
 		ThirdPartyUserInfo: u.ThirdPartyUserInfo,
 	}
 

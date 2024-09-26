@@ -10,8 +10,11 @@ import (
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
+	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
+	"github.com/actiontech/dms/pkg/dms-common/i18nPkg"
 	_const "github.com/actiontech/dms/pkg/dms-common/pkg/const"
 	pkgRand "github.com/actiontech/dms/pkg/rand"
+	"github.com/labstack/echo/v4"
 
 	"github.com/actiontech/dms/pkg/dms-common/pkg/aes"
 
@@ -76,6 +79,7 @@ type User struct {
 	Email                  string
 	Phone                  string
 	WxID                   string
+	Language               string
 	Desc                   string
 	UserAuthenticationType UserAuthenticationType
 	Stat                   UserStat
@@ -617,7 +621,7 @@ func (d *UserUsecase) GetUser(ctx context.Context, userUid string) (*User, error
 }
 
 func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid, updateUserUid string, isDisabled bool,
-	password, email, phone, wxId *string, userGroupUids []string, opPermissionUids []string) error {
+	password, email, phone, wxId, language *string, userGroupUids []string, opPermissionUids []string) error {
 	// checks
 	{
 		if isDisabled {
@@ -662,6 +666,9 @@ func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid, updateUser
 	if wxId != nil {
 		user.WxID = *wxId
 	}
+	if language != nil {
+		user.Language = *language
+	}
 
 	if user.Stat == UserStatOK && user.Password == "" {
 		return fmt.Errorf("password is needed when user is enabled")
@@ -692,7 +699,7 @@ func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid, updateUser
 	return nil
 }
 
-func (d *UserUsecase) UpdateCurrentUser(ctx context.Context, currentUserUid string, oldPassword, password, email, phone, wxId *string) error {
+func (d *UserUsecase) UpdateCurrentUser(ctx context.Context, currentUserUid string, oldPassword, password, email, phone, wxId, language *string) error {
 	user, err := d.GetUser(ctx, currentUserUid)
 	if err != nil {
 		return fmt.Errorf("get user failed: %v", err)
@@ -717,6 +724,9 @@ func (d *UserUsecase) UpdateCurrentUser(ctx context.Context, currentUserUid stri
 	}
 	if wxId != nil {
 		user.WxID = *wxId
+	}
+	if language != nil {
+		user.Language = *language
 	}
 
 	if err := d.repo.UpdateUser(ctx, user); nil != err {
@@ -801,4 +811,20 @@ func (d *UserUsecase) GetAccessTokenByUser(ctx context.Context, UserUid string) 
 		return nil, err
 	}
 	return accessTokenInfo, nil
+}
+
+func (d *UserUsecase) GetUserLanguageByEchoCtx(c echo.Context) string {
+	uid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return ""
+	}
+	if uid == pkgConst.UIDOfUserSys {
+		// 系统用户直接通过请求头AcceptLanguage确定语言
+		return i18nPkg.GetLangByAcceptLanguage(c)
+	}
+	user, err := d.GetUser(c.Request().Context(), uid)
+	if err != nil {
+		return ""
+	}
+	return user.Language
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
 
 // A role
@@ -93,7 +94,7 @@ type ListRole struct {
 	// role name
 	Name string `json:"name"`
 	// role stat
-	Stat Stat `json:"stat"`
+	Stat dmsCommonV1.Stat `json:"stat"`
 	// role desc
 	Desc string `json:"desc"`
 	// op permissions
@@ -122,8 +123,8 @@ type UpdateRole struct {
 // swagger:model
 type UpdateRoleReq struct {
 	// swagger:ignore
-	RoleUid string `param:"role_uid" json:"role_uid" validate:"required"`
-	Role *UpdateRole `json:"role" validate:"required"`
+	RoleUid string      `param:"role_uid" json:"role_uid" validate:"required"`
+	Role    *UpdateRole `json:"role" validate:"required"`
 }
 
 func (u *UpdateRoleReq) String() string {

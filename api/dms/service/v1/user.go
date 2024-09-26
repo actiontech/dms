@@ -83,6 +83,8 @@ type UpdateUser struct {
 	Phone *string `json:"phone"`
 	// User wxid
 	WxID *string `json:"wxid"`
+	// User language
+	Language *string `json:"language"`
 	// User group uids
 	UserGroupUids *[]string `json:"user_group_uids"`
 	// User operation permission uids
@@ -91,9 +93,9 @@ type UpdateUser struct {
 
 // swagger:model
 type UpdateUserReq struct {
-    // swagger:ignore
-	UserUid string `param:"user_uid" json:"user_uid" validate:"required"`
-	User *UpdateUser `json:"user" validate:"required"`
+	// swagger:ignore
+	UserUid string      `param:"user_uid" json:"user_uid" validate:"required"`
+	User    *UpdateUser `json:"user" validate:"required"`
 }
 
 func (u *UpdateUserReq) String() string {
@@ -132,6 +134,8 @@ type UpdateCurrentUser struct {
 	Phone *string `json:"phone"`
 	// User wxid
 	WxID *string `json:"wxid"`
+	// User language
+	Language *string `json:"language"`
 }
 
 type VerifyUserLoginReq struct {
