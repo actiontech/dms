@@ -376,10 +376,19 @@ func (d *DMSService) GetUserOpPermission(ctx context.Context, req *dmsCommonV1.G
 		return nil, fmt.Errorf("check user admin error: %v", err)
 	}
 
-	permissions, err := d.OpPermissionVerifyUsecase.GetUserOpPermissionInProject(ctx, req.UserUid, projectUid)
+	var permissions []biz.OpPermissionWithOpRange
+
+	globalPermissions, err := d.OpPermissionVerifyUsecase.GetUserGlobalOpPermission(ctx, req.UserUid)
+	if err != nil {
+		return nil, fmt.Errorf("get user global op permission error: %v", err)
+	}
+	permissions = append(permissions, globalPermissions...)
+
+	projectPermissions, err := d.OpPermissionVerifyUsecase.GetUserOpPermissionInProject(ctx, req.UserUid, projectUid)
 	if err != nil {
 		return nil, fmt.Errorf("get user op permission error: %v", err)
 	}
+	permissions = append(permissions, projectPermissions...)
 
 	var replyOpPermission = make([]dmsCommonV1.OpPermissionItem, 0, len(permissions))
 	for _, p := range permissions {
@@ -481,16 +490,13 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 	if err != nil {
 		return nil, fmt.Errorf("failed to check user is dms admin")
 	}
-	dmsCommonUser.IsAdmin = isAdmin
-	// 获取管理项目
-	userBindProjects := make([]dmsCommonV1.UserBindProject, 0)
-	if !isAdmin {
-		projectWithOpPermissions, err := d.OpPermissionVerifyUsecase.GetUserProjectOpPermission(ctx, u.GetUID())
-		if err != nil {
-			return nil, fmt.Errorf("failed to get user project with op permission")
-		}
-		userBindProjects = d.OpPermissionVerifyUsecase.GetUserManagerProject(ctx, projectWithOpPermissions)
-	} else {
+
+	canViewGlobal, err := d.UserUsecase.OpPermissionVerifyUsecase.CanViewGlobal(ctx, u.GetUID())
+	if err != nil {
+		return nil, fmt.Errorf("failed to check user can view global")
+	}
+
+	getGlobalProjectList := func() ([]*biz.Project, error) {
 		projects, _, err := d.ProjectUsecase.ListProject(ctx, &biz.ListProjectsOption{
 			PageNumber:   1,
 			LimitPerPage: 999,
@@ -498,10 +504,57 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 		if err != nil {
 			return nil, err
 		}
+		return projects, nil
+	}
+
+	getUserBindProjectList := func() ([]dmsCommonV1.UserBindProject, error) {
+		projectWithOpPermissions, err := d.OpPermissionVerifyUsecase.GetUserProjectOpPermission(ctx, u.GetUID())
+		if err != nil {
+			return nil, fmt.Errorf("failed to get user project with op permission")
+		}
+		return d.OpPermissionVerifyUsecase.GetUserManagerProject(ctx, projectWithOpPermissions), nil
+	}
+
+	dmsCommonUser.IsAdmin = isAdmin
+	// 获取管理项目
+	userBindProjects := make([]dmsCommonV1.UserBindProject, 0)
+	if isAdmin {
+		projects, err := getGlobalProjectList()
+		if err != nil {
+			return nil, err
+		}
+
 		for _, project := range projects {
 			userBindProjects = append(userBindProjects, dmsCommonV1.UserBindProject{ProjectID: project.UID, ProjectName: project.Name, IsManager: true})
 		}
+	} else if canViewGlobal {
+		projects, err := getGlobalProjectList()
+		if err != nil {
+			return nil, err
+		}
+
+		bindProjects, err := getUserBindProjectList()
+		if err != nil {
+			return nil, fmt.Errorf("failed to get user project with op permission")
+		}
+
+		for _, project := range projects {
+			var isManager bool
+			for _, bindProject := range bindProjects {
+				if bindProject.IsManager && project.UID == bindProject.ProjectID {
+					isManager = true
+				}
+			}
+
+			userBindProjects = append(userBindProjects, dmsCommonV1.UserBindProject{ProjectID: project.UID, ProjectName: project.Name, IsManager: isManager})
+		}
+	} else {
+		userBindProjects, err = getUserBindProjectList()
+		if err != nil {
+			return nil, fmt.Errorf("failed to get user project with op permission")
+		}
 	}
+
 	dmsCommonUser.UserBindProjects = userBindProjects
 
 	// 获取用户access token
@@ -561,6 +614,10 @@ func convertBizOpPermission(opPermissionUid string) (apiOpPermissionTyp dmsCommo
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeProjectAdmin
 	case pkgConst.UIDOfOpPermissionCreateProject:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeCreateProject
+	case pkgConst.UIDOfOpPermissionGlobalView:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeGlobalView
+	case pkgConst.UIDOfOpPermissionGlobalManagement:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeGlobalManagement
 	case pkgConst.UIDOfOpPermissionExecuteWorkflow:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeExecuteWorkflow
 	case pkgConst.UIDOfOpPermissionViewOthersWorkflow:
