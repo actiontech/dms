@@ -495,16 +495,7 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 		return nil, fmt.Errorf("failed to check user can view global")
 	}
 
-	dmsCommonUser.IsAdmin = isAdmin
-	// 获取管理项目
-	userBindProjects := make([]dmsCommonV1.UserBindProject, 0)
-	if !isAdmin && !canViewGlobal {
-		projectWithOpPermissions, err := d.OpPermissionVerifyUsecase.GetUserProjectOpPermission(ctx, u.GetUID())
-		if err != nil {
-			return nil, fmt.Errorf("failed to get user project with op permission")
-		}
-		userBindProjects = d.OpPermissionVerifyUsecase.GetUserManagerProject(ctx, projectWithOpPermissions)
-	} else {
+	getGlobalProjectList := func() ([]*biz.Project, error) {
 		projects, _, err := d.ProjectUsecase.ListProject(ctx, &biz.ListProjectsOption{
 			PageNumber:   1,
 			LimitPerPage: 999,
@@ -512,10 +503,57 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 		if err != nil {
 			return nil, err
 		}
+		return projects, nil
+	}
+
+	getUserBindProjectList := func() ([]dmsCommonV1.UserBindProject, error) {
+		projectWithOpPermissions, err := d.OpPermissionVerifyUsecase.GetUserProjectOpPermission(ctx, u.GetUID())
+		if err != nil {
+			return nil, fmt.Errorf("failed to get user project with op permission")
+		}
+		return d.OpPermissionVerifyUsecase.GetUserManagerProject(ctx, projectWithOpPermissions), nil
+	}
+
+	dmsCommonUser.IsAdmin = isAdmin
+	// 获取管理项目
+	userBindProjects := make([]dmsCommonV1.UserBindProject, 0)
+	if isAdmin {
+		projects, err := getGlobalProjectList()
+		if err != nil {
+			return nil, err
+		}
+
 		for _, project := range projects {
 			userBindProjects = append(userBindProjects, dmsCommonV1.UserBindProject{ProjectID: project.UID, ProjectName: project.Name, IsManager: true})
 		}
+	} else if canViewGlobal {
+		projects, err := getGlobalProjectList()
+		if err != nil {
+			return nil, err
+		}
+
+		bindProjects, err := getUserBindProjectList()
+		if err != nil {
+			return nil, fmt.Errorf("failed to get user project with op permission")
+		}
+
+		for _, project := range projects {
+			var isManager bool
+			for _, bindProject := range bindProjects {
+				if bindProject.IsManager && project.UID == bindProject.ProjectID {
+					isManager = true
+				}
+			}
+
+			userBindProjects = append(userBindProjects, dmsCommonV1.UserBindProject{ProjectID: project.UID, ProjectName: project.Name, IsManager: isManager})
+		}
+	} else {
+		userBindProjects, err = getUserBindProjectList()
+		if err != nil {
+			return nil, fmt.Errorf("failed to get user project with op permission")
+		}
 	}
+
 	dmsCommonUser.UserBindProjects = userBindProjects
 
 	// 获取用户access token
