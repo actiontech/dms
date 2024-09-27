@@ -190,10 +190,10 @@ func (d *DBServiceUsecase) CreateDBService(ctx context.Context, args *BizDBServi
 		return "", fmt.Errorf("create db service error: %v", err)
 	}
 	// 检查当前用户有项目管理员权限
-	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, args.ProjectUID); err != nil {
-		return "", fmt.Errorf("check user is project admin failed: %v", err)
-	} else if !isAdmin {
-		return "", fmt.Errorf("user is not project admin")
+	if canOpProject, err := d.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, args.ProjectUID); err != nil {
+		return "", fmt.Errorf("check user is admin or global management permission : %v", err)
+	} else if !canOpProject {
+		return "", fmt.Errorf("user is not admin or global management permission")
 	}
 
 	ds, err := newDBService(args)
@@ -327,9 +327,9 @@ func (d *DBServiceUsecase) ListDBServiceTips(ctx context.Context, req *dmsV1.Lis
 		return dbServices, nil
 	}
 
-	isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, userId, req.ProjectUid)
+	isAdmin, err := d.opPermissionVerifyUsecase.CanViewProject(ctx, userId, req.ProjectUid)
 	if err != nil {
-		return nil, fmt.Errorf("check user admin error: %v", err)
+		return nil, fmt.Errorf("check user is project admin or golobal view permission failed: %v", err)
 	}
 
 	if isAdmin {
@@ -412,10 +412,10 @@ func (d *DBServiceUsecase) DelDBService(ctx context.Context, dbServiceUid, curre
 		return fmt.Errorf("delete db service error: %v", err)
 	}
 	// 检查当前用户有项目管理员权限
-	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, ds.ProjectUID); err != nil {
-		return fmt.Errorf("check user is project admin failed: %v", err)
-	} else if !isAdmin {
-		return fmt.Errorf("user is not project admin")
+	if canOpProject, err := d.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, ds.ProjectUID); err != nil {
+		return fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
+	} else if !canOpProject {
+		return fmt.Errorf("user is not project admin or golobal op permission user")
 	}
 
 	err = d.pluginUsecase.OperateDataResourceHandle(ctx, ds.UID, dmsCommonV1.DataResourceTypeDBService, dmsCommonV1.OperationTypeDelete, dmsCommonV1.OperationTimingTypeBefore)
@@ -453,10 +453,10 @@ func (d *DBServiceUsecase) UpdateDBService(ctx context.Context, dbServiceUid str
 		return fmt.Errorf("update db service error: %v", err)
 	}
 	// 检查当前用户有项目管理员权限
-	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, ds.ProjectUID); err != nil {
-		return fmt.Errorf("check user is project admin failed: %v", err)
-	} else if !isAdmin {
-		return fmt.Errorf("user is not project admin")
+	if canOpProject, err := d.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, ds.ProjectUID); err != nil {
+		return fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
+	} else if !canOpProject {
+		return fmt.Errorf("user is not project admin or golobal op permission user")
 	}
 
 	// check

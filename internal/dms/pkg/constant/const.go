@@ -23,6 +23,11 @@ const (
 	UIDOfOpPermissionCreateOptimization     = "700013"
 	UIDOfOpPermissionViewOthersOptimization = "700014"
 	UIDOfOpPermissionCreatePipeline         = "700015"
+	// UIDOfOpPermissionGlobalView 可以查看全局资源,但是不能修改资源
+	UIDOfOpPermissionGlobalView = "700016"
+	// UIDOfOpPermissionGlobalManagement 可以操作和查看全局资源,但是权限级别低于admin,admin可以修改全局资源权限,全局资源权限不能修改admin
+	// 拥有全局资源权限用户不能同级权限用户
+	UIDOfOpPermissionGlobalManagement = "700017"
 
 	UIDOfDMSConfig = "700100"
 
@@ -83,6 +88,10 @@ func ConvertPermissionTypeToId(opPermissionType dmsCommonV1.OpPermissionType) (p
 		permissionId = UIDOfOpPermissionProjectAdmin
 	case dmsCommonV1.OpPermissionTypeCreateProject:
 		permissionId = UIDOfOpPermissionCreateProject
+	case dmsCommonV1.OpPermissionTypeGlobalManagement:
+		permissionId = UIDOfOpPermissionGlobalManagement
+	case dmsCommonV1.OpPermissionTypeGlobalView:
+		permissionId = UIDOfOpPermissionGlobalView
 	case dmsCommonV1.OpPermissionTypeExecuteWorkflow:
 		permissionId = UIDOfOpPermissionExecuteWorkflow
 	case dmsCommonV1.OpPermissionTypeViewOthersWorkflow:

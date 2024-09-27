@@ -127,9 +127,14 @@ type ListProjectsOption struct {
 }
 
 func (d *ProjectUsecase) ListProject(ctx context.Context, option *ListProjectsOption, currentUserUid string) (projects []*Project, total int64, err error) {
+	canViewGlobal, err := d.opPermissionVerifyUsecase.CanViewGlobal(ctx, currentUserUid)
+	if err != nil {
+		return nil, 0, err
+	}
+
 	// filter visible namespce space in advance
 	// user can only view his belonging project,sys user can view all project
-	if currentUserUid != pkgConst.UIDOfUserSys {
+	if currentUserUid != pkgConst.UIDOfUserSys && !canViewGlobal {
 		projects, err := d.opPermissionVerifyUsecase.GetUserProject(ctx, currentUserUid)
 		if err != nil {
 			return nil, 0, err
@@ -197,10 +202,10 @@ func (d *ProjectUsecase) UpdateDBServiceBusiness(ctx context.Context, currentUse
 	}
 
 	// 检查当前用户有项目管理员权限
-	if isAdmin, err := d.opPermissionVerifyUsecase.IsUserProjectAdmin(ctx, currentUserUid, projectUid); err != nil {
-		return fmt.Errorf("check user is project admin failed: %v", err)
-	} else if !isAdmin {
-		return fmt.Errorf("user is not project admin")
+	if canOpProject, err := d.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, projectUid); err != nil {
+		return fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
+	} else if !canOpProject {
+		return fmt.Errorf("user is not project admin or golobal op permission user")
 	}
 
 	err := d.repo.UpdateDBServiceBusiness(ctx, projectUid, originBusiness, descBusiness)
