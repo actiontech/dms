@@ -31,14 +31,14 @@ func (uc *DBServiceSyncTaskUsecase) AddDBServiceSyncTask(ctx context.Context, sy
 	return uid, nil
 }
 
-// 权限验证：检查当前用户是否是管理员
+// 权限验证：检查当前用户是否是管理员或者具有全局操作权限
 func (uc *DBServiceSyncTaskUsecase) checkPermission(ctx context.Context, currentUserId string) error {
-	isAdmin, err := uc.opPermissionVerifyUsecase.IsUserDMSAdmin(ctx, currentUserId)
+	hasGlobalOpPermission, err := uc.opPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserId)
 	if err != nil {
-		return fmt.Errorf("check current user is admin failed: %v", err)
+		return fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
 	}
-	if !isAdmin {
-		return fmt.Errorf("only admin can create database sync task, current user is %v", currentUserId)
+	if !hasGlobalOpPermission {
+		return fmt.Errorf("user is not project admin or golobal op permission user")
 	}
 	return nil
 }
