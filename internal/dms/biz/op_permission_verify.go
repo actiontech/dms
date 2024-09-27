@@ -61,10 +61,122 @@ func (o *OpPermissionVerifyUsecase) IsUserDMSAdmin(ctx context.Context, userUid 
 	}
 }
 
+func (o *OpPermissionVerifyUsecase) HasGlobalManagementOrViewPermission(ctx context.Context, userUid string) (bool, error) {
+	ops, err := o.GetUserOpPermission(ctx, userUid)
+	if err != nil {
+		return false, err
+	}
+
+	for _, op := range ops {
+		if op.OpPermissionUID == pkgConst.UIDOfOpPermissionGlobalManagement || op.OpPermissionUID == pkgConst.UIDOfOpPermissionGlobalView {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+func (o *OpPermissionVerifyUsecase) CanOpGlobal(ctx context.Context, userUid string) (bool, error) {
+	isUserDMSAdmin, err := o.IsUserDMSAdmin(ctx, userUid)
+	if err != nil {
+		return false, err
+	}
+	if isUserDMSAdmin {
+		return true, nil
+	}
+
+	ops, err := o.repo.GetUserGlobalOpPermission(ctx, userUid)
+	if err != nil {
+		return false, err
+	}
+
+	for _, op := range ops {
+		if op.UID == pkgConst.UIDOfOpPermissionGlobalManagement {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+func (o *OpPermissionVerifyUsecase) CanOpProject(ctx context.Context, userUid, projectUid string) (bool, error) {
+	canGlobalOp, err := o.CanOpGlobal(ctx, userUid)
+	if err != nil {
+		return false, err
+	}
+	if canGlobalOp {
+		return true, nil
+	}
+
+	has, err := o.repo.IsUserHasOpPermissionInProject(ctx, userUid, projectUid, pkgConst.UIDOfOpPermissionProjectAdmin)
+	if err != nil {
+		return false, fmt.Errorf("failed to check user is project admin: %v", err)
+	}
+
+	return has, nil
+}
+
+func (o *OpPermissionVerifyUsecase) CanViewProject(ctx context.Context, userUid, projectUid string) (bool, error) {
+	canViewGlobal, err := o.CanViewGlobal(ctx, userUid)
+	if err != nil {
+		return false, err
+	}
+	if canViewGlobal {
+		return true, nil
+	}
+
+	has, err := o.repo.IsUserHasOpPermissionInProject(ctx, userUid, projectUid, pkgConst.UIDOfOpPermissionProjectAdmin)
+	if err != nil {
+		return false, fmt.Errorf("failed to check user is project admin: %v", err)
+	}
+
+	return has, nil
+}
+
+func (o *OpPermissionVerifyUsecase) CanViewGlobal(ctx context.Context, userUid string) (bool, error) {
+	isUserDMSAdmin, err := o.IsUserDMSAdmin(ctx, userUid)
+	if err != nil {
+		return false, err
+	}
+	if isUserDMSAdmin {
+		return true, nil
+	}
+
+	ops, err := o.repo.GetUserGlobalOpPermission(ctx, userUid)
+	if err != nil {
+		return false, err
+	}
+
+	for _, op := range ops {
+		if op.UID == pkgConst.UIDOfOpPermissionGlobalManagement || op.UID == pkgConst.UIDOfOpPermissionGlobalView {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
 type OpPermissionWithOpRange struct {
 	OpPermissionUID string      // 操作权限
 	OpRangeType     OpRangeType // OpRangeType描述操作权限的权限范围类型，目前只支持数据源
 	RangeUIDs       []string    // Range描述操作权限的权限范围，如涉及哪些数据源
+}
+
+func (o *OpPermissionVerifyUsecase) GetUserGlobalOpPermission(ctx context.Context, userUid string) ([]OpPermissionWithOpRange, error) {
+	opPermissionWithOpRanges, err := o.repo.GetUserGlobalOpPermission(ctx, userUid)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user global op permission : %v", err)
+	}
+
+	var opPermissionWithOpRangesResult []OpPermissionWithOpRange
+	for _, permission := range opPermissionWithOpRanges {
+		opPermissionWithOpRangesResult = append(opPermissionWithOpRangesResult, OpPermissionWithOpRange{
+			OpPermissionUID: permission.UID,
+			OpRangeType:     permission.RangeType,
+		})
+	}
+
+	return opPermissionWithOpRangesResult, nil
 }
 
 func (o *OpPermissionVerifyUsecase) GetUserOpPermissionInProject(ctx context.Context, userUid, projectUid string) ([]OpPermissionWithOpRange, error) {
@@ -134,11 +246,11 @@ func (o *OpPermissionVerifyUsecase) GetUserManagerProject(ctx context.Context, p
 
 func (o *OpPermissionVerifyUsecase) CanCreateProject(ctx context.Context, userUid string) (bool, error) {
 	// user admin has all op permission
-	isUserDMSAdmin, err := o.IsUserDMSAdmin(ctx, userUid)
+	hasGlobalOpPermission, err := o.CanOpGlobal(ctx, userUid)
 	if err != nil {
 		return false, err
 	}
-	if isUserDMSAdmin {
+	if hasGlobalOpPermission {
 		return true, nil
 	}
 

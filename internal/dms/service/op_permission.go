@@ -27,6 +27,8 @@ var OpPermissionNameByUID = map[string]*i18n.Message{
 	pkgConst.UIDOfOpPermissionExportCreate:           locale.NameOpPermissionExportCreate,
 	pkgConst.UIDOfOpPermissionCreateOptimization:     locale.NameOpPermissionCreateOptimization,
 	pkgConst.UIDOfOpPermissionViewOthersOptimization: locale.NameOpPermissionViewOthersOptimization,
+	pkgConst.UIDOfOpPermissionGlobalManagement:       locale.NameOpPermissionGlobalManagement,
+	pkgConst.UIDOfOpPermissionGlobalView:             locale.NameOpPermissionGlobalView,
 	pkgConst.UIDOfOpPermissionCreatePipeline:         locale.NameOpPermissionCreatePipeline,
 }
 
@@ -45,6 +47,8 @@ var OpPermissionDescByUID = map[string]*i18n.Message{
 	pkgConst.UIDOfOpPermissionExportCreate:           locale.DescOpPermissionExportCreate,
 	pkgConst.UIDOfOpPermissionCreateOptimization:     locale.DescOpPermissionCreateOptimization,
 	pkgConst.UIDOfOpPermissionViewOthersOptimization: locale.DescOpPermissionViewOthersOptimization,
+	pkgConst.UIDOfOpPermissionGlobalManagement:       locale.DescOpPermissionGlobalManagement,
+	pkgConst.UIDOfOpPermissionGlobalView:             locale.DescOpPermissionGlobalView,
 	pkgConst.UIDOfOpPermissionCreatePipeline:         locale.DescOpPermissionCreatePipeline,
 }
 

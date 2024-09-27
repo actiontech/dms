@@ -52,6 +52,18 @@ func ParseOpRangeType(t string) (OpRangeType, error) {
 func initOpPermission() []*OpPermission {
 	return []*OpPermission{
 		{
+			UID:       pkgConst.UIDOfOpPermissionGlobalView,
+			Name:      "全局浏览",
+			RangeType: OpRangeTypeGlobal,
+			Desc:      "拥有该权限的用户可以查看全局信息",
+		},
+		{
+			UID:       pkgConst.UIDOfOpPermissionGlobalManagement,
+			Name:      "全局管理",
+			RangeType: OpRangeTypeGlobal,
+			Desc:      "拥有该权限的用户可以管理平台的所有资源",
+		},
+		{
 			UID:       pkgConst.UIDOfOpPermissionCreateProject,
 			Name:      "创建项目", // todo i18n 返回时会根据uid国际化，name、desc已弃用；数据库name字段是唯一键，故暂时保留
 			RangeType: OpRangeTypeGlobal,
