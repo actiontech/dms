@@ -162,6 +162,23 @@ type OpPermissionWithOpRange struct {
 	RangeUIDs       []string    // Range描述操作权限的权限范围，如涉及哪些数据源
 }
 
+func (o *OpPermissionVerifyUsecase) GetUserGlobalOpPermission(ctx context.Context, userUid string) ([]OpPermissionWithOpRange, error) {
+	opPermissionWithOpRanges, err := o.repo.GetUserGlobalOpPermission(ctx, userUid)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user global op permission : %v", err)
+	}
+
+	var opPermissionWithOpRangesResult []OpPermissionWithOpRange
+	for _, permission := range opPermissionWithOpRanges {
+		opPermissionWithOpRangesResult = append(opPermissionWithOpRangesResult, OpPermissionWithOpRange{
+			OpPermissionUID: permission.UID,
+			OpRangeType:     permission.RangeType,
+		})
+	}
+
+	return opPermissionWithOpRangesResult, nil
+}
+
 func (o *OpPermissionVerifyUsecase) GetUserOpPermissionInProject(ctx context.Context, userUid, projectUid string) ([]OpPermissionWithOpRange, error) {
 
 	opPermissionWithOpRanges, err := o.repo.GetUserOpPermissionInProject(ctx, userUid, projectUid)
