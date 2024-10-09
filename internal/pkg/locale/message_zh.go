@@ -21,8 +21,8 @@ var (
 	NameOpPermissionAuthDBServiceData      = &i18n.Message{ID: "NameOpPermissionAuthDBServiceData", Other: "授权数据源数据权限"}
 	NameOpPermissionExecuteWorkflow        = &i18n.Message{ID: "NameOpPermissionExecuteWorkflow", Other: "上线工单"}
 	NameOpPermissionViewOthersWorkflow     = &i18n.Message{ID: "NameOpPermissionViewOthersWorkflow", Other: "查看他人创建的工单"}
-	NameOpPermissionViewOthersAuditPlan    = &i18n.Message{ID: "NameOpPermissionViewOthersAuditPlan", Other: "创建/编辑扫描任务"}
-	NameOpPermissionSaveAuditPlan          = &i18n.Message{ID: "NameOpPermissionSaveAuditPlan", Other: "查看他人创建的扫描任务"}
+	NameOpPermissionViewOthersAuditPlan    = &i18n.Message{ID: "NameOpPermissionViewOthersAuditPlan", Other: "查看他人创建的扫描任务"}
+	NameOpPermissionSaveAuditPlan          = &i18n.Message{ID: "NameOpPermissionSaveAuditPlan", Other: "创建/编辑扫描任务"}
 	NameOpPermissionSQLQuery               = &i18n.Message{ID: "NameOpPermissionSQLQuery", Other: "SQL查询"}
 	NameOpPermissionExportApprovalReject   = &i18n.Message{ID: "NameOpPermissionExportApprovalReject", Other: "审批/驳回数据导出工单"}
 	NameOpPermissionExportCreate           = &i18n.Message{ID: "NameOpPermissionExportCreate", Other: "创建数据导出任务"}
@@ -41,8 +41,8 @@ var (
 	DescOpPermissionAuthDBServiceData      = &i18n.Message{ID: "DescOpPermissionAuthDBServiceData", Other: "授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限"}
 	DescOpPermissionExecuteWorkflow        = &i18n.Message{ID: "DescOpPermissionExecuteWorkflow", Other: "上线工单；拥有该权限的用户可以上线工单"}
 	DescOpPermissionViewOthersWorkflow     = &i18n.Message{ID: "DescOpPermissionViewOthersWorkflow", Other: "查看他人创建的工单；拥有该权限的用户可以查看他人创建的工单"}
-	DescOpPermissionViewOthersAuditPlan    = &i18n.Message{ID: "DescOpPermissionViewOthersAuditPlan", Other: "创建/编辑扫描任务；拥有该权限的用户可以创建/编辑扫描任务"}
-	DescOpPermissionSaveAuditPlan          = &i18n.Message{ID: "DescOpPermissionSaveAuditPlan", Other: "查看他人创建的扫描任务；拥有该权限的用户可以查看他人创建的扫描任务"}
+	DescOpPermissionViewOthersAuditPlan    = &i18n.Message{ID: "DescOpPermissionViewOthersAuditPlan", Other: "查看他人创建的扫描任务；拥有该权限的用户可以查看他人创建的扫描任务"}
+	DescOpPermissionSaveAuditPlan          = &i18n.Message{ID: "DescOpPermissionSaveAuditPlan", Other: "创建/编辑扫描任务；拥有该权限的用户可以创建/编辑扫描任务"}
 	DescOpPermissionSQLQuery               = &i18n.Message{ID: "DescOpPermissionSQLQuery", Other: "SQL查询；拥有该权限的用户可以执行SQL查询"}
 	DescOpPermissionExportApprovalReject   = &i18n.Message{ID: "DescOpPermissionExportApprovalReject", Other: "审批/驳回数据导出工单；拥有该权限的用户可以执行审批导出数据工单或者驳回导出数据工单"}
 	DescOpPermissionExportCreate           = &i18n.Message{ID: "DescOpPermissionExportCreate", Other: "创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单"}
