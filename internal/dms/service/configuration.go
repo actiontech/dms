@@ -7,6 +7,8 @@ import (
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
+	"github.com/actiontech/dms/internal/pkg/locale"
+	"golang.org/x/text/language"
 
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
@@ -444,10 +446,19 @@ func (d *DMSService) NotifyMessage(ctx context.Context, req *dmsCommonV1.Notific
 		PageNumber:   1,
 		LimitPerPage: uint32(len(req.Notification.UserUids)),
 	})
+
+	lang2Users := make(map[language.Tag][]*biz.User, len(locale.Bundle.LanguageTags()))
+	for _, user := range users {
+		langTag := locale.Bundle.MatchLangTag(user.Language)
+		lang2Users[langTag] = append(lang2Users[langTag], user)
+	}
+
 	for _, n := range biz.Notifiers {
-		err = n.Notify(ctx, req.Notification.NotificationSubject, req.Notification.NotificationBody, users)
-		if err != nil {
-			return err
+		for langTag, u := range lang2Users {
+			err = n.Notify(ctx, req.Notification.NotificationSubject.GetStrInLang(langTag), req.Notification.NotificationBody.GetStrInLang(langTag), u)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
