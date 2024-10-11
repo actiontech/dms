@@ -5,6 +5,17 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
+// 在该文件中添加 i18n.Message 后还需生成对应语言文件（active.*.toml），脚本写在Makefile中了，使用步骤如下：
+// 1. 安装需要的工具，已安装则跳过：
+//		make install_i18n_tool
+// 2. 将新增的i18n.Message提取到语言文件(active.*.toml)中：
+//		make extract_i18n
+// 3. 生成待翻译的临时文件(translate.en.toml)：
+//		make start_trans_i18n
+// 4. 人工介入将 translate.en.toml 文件中的文本翻译替换
+// 5. 根据翻译好的文本更新英文文件(active.en.toml):
+//		make end_trans_i18n
+
 // Stat
 var (
 	StatOK      = &i18n.Message{ID: "StatOK", Other: string(dmsCommonV1.StatOK)}
@@ -32,8 +43,8 @@ var (
 	NameOpPermissionViewOthersOptimization = &i18n.Message{ID: "NameOpPermissionViewOthersOptimization", Other: "查看他人创建的智能调优"}
 	NameOpPermissionCreatePipeline         = &i18n.Message{ID: "NameOpPermissionCreatePipeline", Other: "配置流水线"}
 
-	DescOpPermissionGlobalManagement       = &i18n.Message{ID: "DescOpPermissionGlobalManagement", Other: "拥有该权限的用户可以管理平台的所有资源"}
-	DescOpPermissionGlobalView             = &i18n.Message{ID: "DescOpPermissionGlobalView", Other: "拥有该权限的用户可以查看全局信息"}
+	DescOpPermissionGlobalManagement       = &i18n.Message{ID: "DescOpPermissionGlobalManagement", Other: "全局管理；拥有该权限的用户可以管理平台的所有资源"}
+	DescOpPermissionGlobalView             = &i18n.Message{ID: "DescOpPermissionGlobalView", Other: "全局浏览；拥有该权限的用户可以查看全局信息"}
 	DescOpPermissionCreateProject          = &i18n.Message{ID: "DescOpPermissionCreateProject", Other: "创建项目；创建项目的用户自动拥有该项目管理权限"}
 	DescOpPermissionProjectAdmin           = &i18n.Message{ID: "DescOpPermissionProjectAdmin", Other: "项目管理；拥有该权限的用户可以管理项目下的所有资源"}
 	DescOpPermissionCreateWorkflow         = &i18n.Message{ID: "DescOpPermissionCreateWorkflow", Other: "创建/编辑工单；拥有该权限的用户可以创建/编辑工单"}
