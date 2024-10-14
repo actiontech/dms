@@ -50,7 +50,7 @@ type ListProject struct {
 	// create time
 	CreateTime strfmt.DateTime `json:"create_time"`
 	// project priority
-	ProjectPriority string `json:"project_priority"`
+	ProjectPriority string `json:"project_priority" enums:"high,medium,low"`
 }
 
 type Business struct {
