@@ -8162,8 +8162,14 @@
           "x-go-name": "Name"
         },
         "project_priority": {
-          "description": "project priority",
+          "description": "project priority\nhigh ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow",
           "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "x-go-enum-desc": "high ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow",
           "x-go-name": "ProjectPriority"
         },
         "uid": {
@@ -8944,8 +8950,14 @@
           "x-go-name": "Name"
         },
         "project_priority": {
-          "description": "project priority",
+          "description": "project priority\nhigh ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow",
           "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "x-go-enum-desc": "high ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow",
           "x-go-name": "ProjectPriority"
         }
       },
@@ -9740,8 +9752,14 @@
           "x-go-name": "IsFixedBusiness"
         },
         "project_priority": {
-          "description": "project priority",
+          "description": "project priority\nhigh ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow",
           "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "x-go-enum-desc": "high ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow",
           "x-go-name": "ProjectPriority"
         }
       },
