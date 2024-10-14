@@ -8161,6 +8161,11 @@
           "type": "string",
           "x-go-name": "Name"
         },
+        "project_priority": {
+          "description": "project priority",
+          "type": "string",
+          "x-go-name": "ProjectPriority"
+        },
         "uid": {
           "description": "Project uid",
           "type": "string",
@@ -8937,6 +8942,11 @@
           "description": "project name",
           "type": "string",
           "x-go-name": "Name"
+        },
+        "project_priority": {
+          "description": "project priority",
+          "type": "string",
+          "x-go-name": "ProjectPriority"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -9728,6 +9738,11 @@
           "description": "is fixed business",
           "type": "boolean",
           "x-go-name": "IsFixedBusiness"
+        },
+        "project_priority": {
+          "description": "project priority",
+          "type": "string",
+          "x-go-name": "ProjectPriority"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
