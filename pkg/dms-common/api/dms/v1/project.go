@@ -49,6 +49,8 @@ type ListProject struct {
 	CreateUser UidWithName `json:"create_user"`
 	// create time
 	CreateTime strfmt.DateTime `json:"create_time"`
+	// project priority
+	ProjectPriority string `json:"project_priority"`
 }
 
 type Business struct {
