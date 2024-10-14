@@ -18,6 +18,8 @@ type Project struct {
 	IsFixedBusiness bool `json:"is_fixed_business"`
 	// project business
 	Business []string `json:"business"`
+	// project priority
+	ProjectPriority string `json:"project_priority"  enums:"high,medium,low"`
 }
 
 // swagger:model
@@ -72,6 +74,8 @@ type UpdateProject struct {
 	IsFixedBusiness *bool `json:"is_fixed_business"`
 	// Project business
 	Business []BusinessForUpdate `json:"business"`
+	// project priority
+	ProjectPriority *string `json:"project_priority"  enums:"high,medium,low"`
 }
 
 type BusinessForUpdate struct {
