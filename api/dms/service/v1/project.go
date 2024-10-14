@@ -19,7 +19,7 @@ type Project struct {
 	// project business
 	Business []string `json:"business"`
 	// project priority
-	ProjectPriority string `json:"project_priority"  enums:"high,medium,low"`
+	ProjectPriority dmsCommonV1.ProjectPriority `json:"project_priority"  enums:"high,medium,low"`
 }
 
 // swagger:model
@@ -75,7 +75,7 @@ type UpdateProject struct {
 	// Project business
 	Business []BusinessForUpdate `json:"business"`
 	// project priority
-	ProjectPriority *string `json:"project_priority"  enums:"high,medium,low"`
+	ProjectPriority *dmsCommonV1.ProjectPriority `json:"project_priority"  enums:"high,medium,low"`
 }
 
 type BusinessForUpdate struct {
