@@ -8,9 +8,9 @@ import (
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
-	pkgRand "github.com/actiontech/dms/pkg/rand"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
+	pkgRand "github.com/actiontech/dms/pkg/rand"
 )
 
 type ProjectStatus string
@@ -85,6 +85,7 @@ func initProjects() []*Project {
 			Desc:          "default project",
 			Status:        ProjectStatusActive,
 			CreateUserUID: pkgConst.UIDOfUserAdmin,
+			Priority:      dmsCommonV1.ProjectPriorityMedium,
 		},
 	}
 }
