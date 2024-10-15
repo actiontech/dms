@@ -157,7 +157,7 @@ func (d *DMSService) UpdateProjectDesc(ctx context.Context, currentUserUid strin
 }
 
 func (d *DMSService) UpdateProject(ctx context.Context, currentUserUid string, req *dmsV1.UpdateProjectReq) (err error) {
-	err = d.ProjectUsecase.UpdateProject(ctx, currentUserUid, req.ProjectUid, req.Project.Desc, req.Project.IsFixedBusiness, req.Project.Business)
+	err = d.ProjectUsecase.UpdateProject(ctx, currentUserUid, req.ProjectUid, req.Project.Desc, req.Project.ProjectPriority, req.Project.IsFixedBusiness, req.Project.Business)
 	if err != nil {
 		return fmt.Errorf("update project failed: %w", err)
 	}
