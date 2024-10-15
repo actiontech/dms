@@ -9,7 +9,7 @@ import (
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	pkgRand "github.com/actiontech/dms/pkg/rand"
-
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 )
 
@@ -27,6 +27,7 @@ type Project struct {
 	UID             string
 	Name            string
 	Desc            string
+	Priority        dmsCommonV1.ProjectPriority
 	IsFixedBusiness bool
 	Business        []Business
 	CreateUserUID   string
@@ -45,7 +46,7 @@ type PreviewProject struct {
 	Business []string
 }
 
-func NewProject(createUserUID, name, desc string, isFixedBusiness bool, business []string) (*Project, error) {
+func NewProject(createUserUID, name, desc string, priority dmsCommonV1.ProjectPriority, isFixedBusiness bool, business []string) (*Project, error) {
 	uid, err := pkgRand.GenStrUid()
 	if err != nil {
 		return nil, err
@@ -72,6 +73,7 @@ func NewProject(createUserUID, name, desc string, isFixedBusiness bool, business
 		Status:          ProjectStatusActive,
 		IsFixedBusiness: isFixedBusiness,
 		CreateUserUID:   createUserUID,
+		Priority:        priority,
 	}, nil
 }
 
