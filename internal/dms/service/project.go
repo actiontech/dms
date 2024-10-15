@@ -120,7 +120,7 @@ func (d *DMSService) AddProject(ctx context.Context, currentUserUid string, req 
 		}
 	}
 
-	project, err := biz.NewProject(currentUserUid, req.Project.Name, req.Project.Desc, req.Project.IsFixedBusiness, req.Project.Business)
+	project, err := biz.NewProject(currentUserUid, req.Project.Name, req.Project.Desc, req.Project.ProjectPriority, req.Project.IsFixedBusiness, req.Project.Business)
 	if err != nil {
 		return nil, err
 	}

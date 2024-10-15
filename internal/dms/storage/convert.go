@@ -10,8 +10,8 @@ import (
 	"github.com/actiontech/dms/internal/dms/storage/model"
 	"github.com/labstack/echo/v4/middleware"
 
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	pkgAes "github.com/actiontech/dms/pkg/dms-common/pkg/aes"
-
 	"github.com/labstack/echo/v4"
 )
 
@@ -456,6 +456,19 @@ func convertModelRangeUIDs(uids string) []string {
 	return strings.Split(uids, ",")
 }
 
+func toModelPriority(priority dmsCommonV1.ProjectPriority) uint8 {
+	switch priority {
+	case dmsCommonV1.ProjectPriorityHigh:
+		return 30
+	case dmsCommonV1.ProjectPriorityMedium:
+		return 20
+	case dmsCommonV1.ProjectPriorityLow:
+		return 10
+	default:
+		return 20 // 默认优先级为中
+	}
+}
+
 func convertBizProject(m *biz.Project) (*model.Project, error) {
 	busList := make([]model.Business, 0)
 	for _, business := range m.Business {
@@ -475,6 +488,7 @@ func convertBizProject(m *biz.Project) (*model.Project, error) {
 		Status:          string(m.Status),
 		IsFixedBusiness: m.IsFixedBusiness,
 		CreateUserUID:   m.CreateUserUID,
+		Priority:        toModelPriority(m.Priority),
 	}, nil
 }
 
