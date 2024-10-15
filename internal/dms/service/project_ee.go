@@ -29,7 +29,8 @@ func (d *DMSService) importProjects(ctx context.Context, uid string, req *dmsV1.
 func convertImportReqToBiz(req *dmsV1.ImportProjectsReq, uid string) ([]*biz.Project, error) {
 	projects := make([]*biz.Project, 0, len(req.Projects))
 	for _, p := range req.Projects {
-		project, err := biz.NewProject(uid, p.Name, p.Desc, true, p.Business)
+		// TODO 批量创建项目目前不支持配置项目优先级，先按照中优先级配置
+		project, err := biz.NewProject(uid, p.Name, p.Desc, dmsCommonV1.ProjectPriorityMedium, true, p.Business)
 		if err != nil {
 			return nil, fmt.Errorf("create project failed: %w", err)
 		}
