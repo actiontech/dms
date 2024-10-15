@@ -31,6 +31,15 @@ const (
 	ProjectOrderByName ProjectOrderByField = "name"
 )
 
+// swagger:enum ProjectPriority
+type ProjectPriority string
+
+const (
+	ProjectPriorityHigh ProjectPriority = "high"
+	ProjectPriorityMedium ProjectPriority = "medium"
+	ProjectPriorityLow ProjectPriority = "low"
+)
+
 // A dms Project
 type ListProject struct {
 	// Project uid
@@ -50,7 +59,7 @@ type ListProject struct {
 	// create time
 	CreateTime strfmt.DateTime `json:"create_time"`
 	// project priority
-	ProjectPriority string `json:"project_priority" enums:"high,medium,low"`
+	ProjectPriority ProjectPriority `json:"project_priority" enums:"high,medium,low"`
 }
 
 type Business struct {
