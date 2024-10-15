@@ -209,6 +209,7 @@ type Project struct {
 	IsFixedBusiness bool   `json:"is_fixed_business" gorm:"not null"`
 	CreateUserUID   string `json:"create_user_uid" gorm:"size:32;column:create_user_uid"`
 	Status          string `gorm:"size:64;default:'active'"`
+	Priority        uint8  `json:"priority" gorm:"type:tinyint unsigned;not null;default:20;comment:'优先级：10=低, 20=中, 30=高'"`
 }
 
 const (
