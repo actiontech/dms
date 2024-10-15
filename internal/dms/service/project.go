@@ -59,6 +59,7 @@ func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV1.ListProj
 			Desc:            n.Desc,
 			IsFixedBusiness: n.IsFixedBusiness,
 			CreateTime:      strfmt.DateTime(n.CreateTime),
+			ProjectPriority: n.Priority,
 		}
 		user, err := d.UserUsecase.GetUser(ctx, n.CreateUserUID)
 		if err != nil {

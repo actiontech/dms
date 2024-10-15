@@ -511,6 +511,7 @@ func convertModelProject(m *model.Project) (*biz.Project, error) {
 		Status:          convertModelProjectStatus(m.Status),
 		CreateUserUID:   m.CreateUserUID,
 		CreateTime:      m.CreatedAt,
+		Priority:        toBizPriority(m.Priority),
 	}, nil
 }
 
@@ -522,6 +523,19 @@ func convertModelProjectStatus(status string) biz.ProjectStatus {
 		return biz.ProjectStatusArchived
 	default:
 		return biz.ProjectStatusUnknown
+	}
+}
+
+func toBizPriority(priority uint8) dmsCommonV1.ProjectPriority {
+	switch priority {
+	case 10:
+		return dmsCommonV1.ProjectPriorityLow
+	case 20:
+		return dmsCommonV1.ProjectPriorityMedium
+	case 30:
+		return dmsCommonV1.ProjectPriorityHigh
+	default:
+		return dmsCommonV1.ProjectPriorityUnknown
 	}
 }
 
