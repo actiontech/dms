@@ -15,6 +15,7 @@ import (
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	"github.com/actiontech/dms/internal/pkg/locale"
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	pkgRand "github.com/actiontech/dms/pkg/rand"
 )
@@ -429,7 +430,7 @@ func (d *ProjectUsecase) ExportProjects(ctx context.Context, uid string, option 
 	return buff.Bytes(), nil
 }
 
-func (d *ProjectUsecase) UpdateProject(ctx context.Context, currentUserUid, projectUid string, desc *string, isFixBusiness *bool, business []v1.BusinessForUpdate) (err error) {
+func (d *ProjectUsecase) UpdateProject(ctx context.Context, currentUserUid, projectUid string, desc *string, priority *dmsCommonV1.ProjectPriority, isFixBusiness *bool, business []v1.BusinessForUpdate) (err error) {
 	if err := d.checkUserCanUpdateProject(ctx, currentUserUid, projectUid); err != nil {
 		return fmt.Errorf("user can't update project: %v", err)
 	}
@@ -445,6 +446,10 @@ func (d *ProjectUsecase) UpdateProject(ctx context.Context, currentUserUid, proj
 
 	if isFixBusiness != nil {
 		project.IsFixedBusiness = *isFixBusiness
+	}
+
+	if priority != nil{
+		project.Priority = *priority
 	}
 
 	tx := d.tx.BeginTX(ctx)
