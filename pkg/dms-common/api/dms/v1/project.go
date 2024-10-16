@@ -25,6 +25,9 @@ type ListProjectReq struct {
 	// filter project by project id list, using in condition
 	// in:query
 	FilterByProjectUids []string `query:"filter_by_project_uids" json:"filter_by_project_uids"`
+	// filter project by project priority
+	// in:query
+	FilterByProjectPriority ProjectPriority `query:"filter_by_project_priority" json:"filter_by_project_priority"`
 }
 
 // swagger:enum ProjectOrderByField
