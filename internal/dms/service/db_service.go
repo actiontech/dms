@@ -406,7 +406,13 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 			Value:    req.ProjectUid,
 		})
 	}
-
+	if len(req.FilterByDBServiceIds) > 0 {
+		filterBy = append(filterBy, pkgConst.FilterCondition{
+			Field:    string(biz.DBServiceFieldUID),
+			Operator: pkgConst.FilterOperatorIn,
+			Value:    req.FilterByDBServiceIds,
+		})
+	}
 	if req.FuzzyKeyword != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:         string(biz.DBServiceFieldPort),
