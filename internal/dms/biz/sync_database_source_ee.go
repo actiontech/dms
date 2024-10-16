@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgError "github.com/actiontech/dms/internal/dms/pkg/errors"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
@@ -274,8 +274,8 @@ func getOrCreateProject(ctx context.Context, projectName, projectDesc string, sy
 	if !errors.Is(err, pkgError.ErrStorageNoData) {
 		return nil, err
 	}
-
-	project, err = NewProject(pkgConst.UIDOfUserAdmin, projectName, projectDesc, false, nil)
+	// TODO 批量创建项目目前不支持配置项目优先级，先按照中配置
+	project, err = NewProject(pkgConst.UIDOfUserAdmin, projectName, projectDesc, dmsCommonV1.ProjectPriorityMedium, false, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -308,7 +308,7 @@ func (s expandService) syncDBServices(ctx context.Context, syncDBServices []*Syn
 		db := currentDBService
 		currentDBServiceMap[currentDBService.Name] = db
 	}
-	
+
 	for _, dbService := range syncDBServices {
 		dbServiceParams := convertDbServiceToDbParams(dbService, project)
 		if db, exist := currentDBServiceMap[dbServiceParams.Name]; exist {
