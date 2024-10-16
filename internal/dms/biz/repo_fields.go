@@ -284,6 +284,7 @@ const (
 	ProjectFieldDesc          ProjectField = "desc"
 	ProjectFieldCreateUserUID ProjectField = "create_user_uid"
 	ProjectFieldStatus        ProjectField = "status"
+	ProjectFieldPriority      ProjectField = "priority"
 )
 
 const (
