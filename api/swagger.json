@@ -1407,6 +1407,16 @@
             "description": "filter the Project UID",
             "name": "filter_by_uid",
             "in": "query"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "x-go-name": "FilterByProjectUids",
+            "description": "filter project by project id list, using in condition",
+            "name": "filter_by_project_uids",
+            "in": "query"
           }
         ],
         "responses": {
@@ -2687,6 +2697,16 @@
             "name": "project_uid",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "x-go-name": "FilterByDBServiceIds",
+            "description": "filter db services by db service id list using in condition",
+            "name": "filter_by_db_service_ids",
+            "in": "query"
           },
           {
             "type": "string",
@@ -8162,14 +8182,15 @@
           "x-go-name": "Name"
         },
         "project_priority": {
-          "description": "project priority\nhigh ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow",
+          "description": "project priority\nhigh ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
           "type": "string",
           "enum": [
             "high",
             "medium",
-            "low"
+            "low",
+            "unknown"
           ],
-          "x-go-enum-desc": "high ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow",
+          "x-go-enum-desc": "high ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
           "x-go-name": "ProjectPriority"
         },
         "uid": {
@@ -8950,14 +8971,15 @@
           "x-go-name": "Name"
         },
         "project_priority": {
-          "description": "project priority\nhigh ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow",
+          "description": "project priority\nhigh ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
           "type": "string",
           "enum": [
             "high",
             "medium",
-            "low"
+            "low",
+            "unknown"
           ],
-          "x-go-enum-desc": "high ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow",
+          "x-go-enum-desc": "high ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
           "x-go-name": "ProjectPriority"
         }
       },
@@ -9752,14 +9774,15 @@
           "x-go-name": "IsFixedBusiness"
         },
         "project_priority": {
-          "description": "project priority\nhigh ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow",
+          "description": "project priority\nhigh ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
           "type": "string",
           "enum": [
             "high",
             "medium",
-            "low"
+            "low",
+            "unknown"
           ],
-          "x-go-enum-desc": "high ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow",
+          "x-go-enum-desc": "high ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
           "x-go-name": "ProjectPriority"
         }
       },
