@@ -59,6 +59,7 @@ func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV1.ListProj
 			Desc:            n.Desc,
 			IsFixedBusiness: n.IsFixedBusiness,
 			CreateTime:      strfmt.DateTime(n.CreateTime),
+			ProjectPriority: n.Priority,
 		}
 		user, err := d.UserUsecase.GetUser(ctx, n.CreateUserUID)
 		if err != nil {
@@ -120,7 +121,7 @@ func (d *DMSService) AddProject(ctx context.Context, currentUserUid string, req 
 		}
 	}
 
-	project, err := biz.NewProject(currentUserUid, req.Project.Name, req.Project.Desc, req.Project.IsFixedBusiness, req.Project.Business)
+	project, err := biz.NewProject(currentUserUid, req.Project.Name, req.Project.Desc, req.Project.ProjectPriority, req.Project.IsFixedBusiness, req.Project.Business)
 	if err != nil {
 		return nil, err
 	}
@@ -156,7 +157,7 @@ func (d *DMSService) UpdateProjectDesc(ctx context.Context, currentUserUid strin
 }
 
 func (d *DMSService) UpdateProject(ctx context.Context, currentUserUid string, req *dmsV1.UpdateProjectReq) (err error) {
-	err = d.ProjectUsecase.UpdateProject(ctx, currentUserUid, req.ProjectUid, req.Project.Desc, req.Project.IsFixedBusiness, req.Project.Business)
+	err = d.ProjectUsecase.UpdateProject(ctx, currentUserUid, req.ProjectUid, req.Project.Desc, req.Project.ProjectPriority, req.Project.IsFixedBusiness, req.Project.Business)
 	if err != nil {
 		return fmt.Errorf("update project failed: %w", err)
 	}
