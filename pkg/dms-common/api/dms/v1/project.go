@@ -64,9 +64,6 @@ type ListProject struct {
 	CreateTime strfmt.DateTime `json:"create_time"`
 	// project priority
 	ProjectPriority ProjectPriority `json:"project_priority" enums:"high,medium,low"`
-	// project id
-	// in:query
-	FilterByProjectUids []string `query:"filter_by_project_uids" json:"filter_by_project_uids"`
 }
 
 type Business struct {
