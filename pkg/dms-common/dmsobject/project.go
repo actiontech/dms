@@ -31,6 +31,9 @@ func ListProjects(ctx context.Context, dmsAddr string, req dmsV1.ListProjectReq)
 	if req.FilterByUID != "" {
 		query.Set("filter_by_uid", req.FilterByUID)
 	}
+	if req.FilterByProjectPriority != "" {
+		query.Set("filter_by_project_priority", string(req.FilterByProjectPriority))
+	}
 	for _, projectUid := range req.FilterByProjectUids {
 		query.Add("filter_by_project_uids", projectUid)
 	}
