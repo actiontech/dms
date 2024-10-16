@@ -2894,15 +2894,18 @@ definitions:
                     high ProjectPriorityHigh
                     medium ProjectPriorityMedium
                     low ProjectPriorityLow
+                    unknown ProjectPriorityUnknown
                 enum:
                     - high
                     - medium
                     - low
+                    - unknown
                 type: string
                 x-go-enum-desc: |-
                     high ProjectPriorityHigh
                     medium ProjectPriorityMedium
                     low ProjectPriorityLow
+                    unknown ProjectPriorityUnknown
                 x-go-name: ProjectPriority
             uid:
                 description: Project uid
@@ -3610,15 +3613,18 @@ definitions:
                     high ProjectPriorityHigh
                     medium ProjectPriorityMedium
                     low ProjectPriorityLow
+                    unknown ProjectPriorityUnknown
                 enum:
                     - high
                     - medium
                     - low
+                    - unknown
                 type: string
                 x-go-enum-desc: |-
                     high ProjectPriorityHigh
                     medium ProjectPriorityMedium
                     low ProjectPriorityLow
+                    unknown ProjectPriorityUnknown
                 x-go-name: ProjectPriority
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
@@ -4211,15 +4217,18 @@ definitions:
                     high ProjectPriorityHigh
                     medium ProjectPriorityMedium
                     low ProjectPriorityLow
+                    unknown ProjectPriorityUnknown
                 enum:
                     - high
                     - medium
                     - low
+                    - unknown
                 type: string
                 x-go-enum-desc: |-
                     high ProjectPriorityHigh
                     medium ProjectPriorityMedium
                     low ProjectPriorityLow
+                    unknown ProjectPriorityUnknown
                 x-go-name: ProjectPriority
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
@@ -5556,6 +5565,13 @@ paths:
                   name: filter_by_uid
                   type: string
                   x-go-name: FilterByUID
+                - description: filter project by project id list, using in condition
+                  in: query
+                  items:
+                    type: string
+                  name: filter_by_project_uids
+                  type: array
+                  x-go-name: FilterByProjectUids
             responses:
                 "200":
                     description: ListProjectReply
@@ -6247,6 +6263,13 @@ paths:
                   required: true
                   type: string
                   x-go-name: ProjectUid
+                - description: filter db services by db service id list using in condition
+                  in: query
+                  items:
+                    type: string
+                  name: filter_by_db_service_ids
+                  type: array
+                  x-go-name: FilterByDBServiceIds
                 - description: the db service fuzzy keyword,include host/port
                   in: query
                   name: fuzzy_keyword
