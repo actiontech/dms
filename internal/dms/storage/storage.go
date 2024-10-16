@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
@@ -82,10 +83,16 @@ func gormWhere(db *gorm.DB, condition pkgConst.FilterCondition) *gorm.DB {
 }
 
 func gormWhereCondition(condition pkgConst.FilterCondition) (string, interface{}) {
-	if condition.Operator == pkgConst.FilterOperatorIsNull {
+	switch condition.Operator {
+	case pkgConst.FilterOperatorIsNull:
 		return fmt.Sprintf("%s IS NULL", condition.Field), nil
-	} else if condition.Operator == pkgConst.FilterOperatorContains || condition.Operator == pkgConst.FilterOperatorNotContains {
+	case pkgConst.FilterOperatorContains, pkgConst.FilterOperatorNotContains:
 		condition.Value = fmt.Sprintf("%%%s%%", condition.Value)
+	case pkgConst.FilterOperatorIn:
+		values, ok := condition.Value.([]string)
+		if ok {
+			return fmt.Sprintf("%s %s (%s)", condition.Field, condition.Operator, strings.Join(values, ",")), nil
+		}
 	}
 	return fmt.Sprintf("%s %s ?", condition.Field, condition.Operator), condition.Value
 }
