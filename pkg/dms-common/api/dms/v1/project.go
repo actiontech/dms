@@ -22,6 +22,9 @@ type ListProjectReq struct {
 	FilterByName string `query:"filter_by_name" json:"filter_by_name"`
 	// filter the Project UID
 	FilterByUID string `query:"filter_by_uid" json:"filter_by_uid"`
+	// filter project by project id list, using in condition
+	// in:query
+	FilterByProjectUids []string `query:"filter_by_project_uids" json:"filter_by_project_uids"`
 }
 
 // swagger:enum ProjectOrderByField
@@ -61,6 +64,9 @@ type ListProject struct {
 	CreateTime strfmt.DateTime `json:"create_time"`
 	// project priority
 	ProjectPriority ProjectPriority `json:"project_priority" enums:"high,medium,low"`
+	// project id
+	// in:query
+	FilterByProjectUids []string `query:"filter_by_project_uids" json:"filter_by_project_uids"`
 }
 
 type Business struct {
