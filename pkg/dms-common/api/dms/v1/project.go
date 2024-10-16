@@ -35,9 +35,10 @@ const (
 type ProjectPriority string
 
 const (
-	ProjectPriorityHigh ProjectPriority = "high"
-	ProjectPriorityMedium ProjectPriority = "medium"
-	ProjectPriorityLow ProjectPriority = "low"
+	ProjectPriorityHigh    ProjectPriority = "high"
+	ProjectPriorityMedium  ProjectPriority = "medium"
+	ProjectPriorityLow     ProjectPriority = "low"
+	ProjectPriorityUnknown ProjectPriority = "unknown" // 当数据库中数据存在问题时，返回该状态
 )
 
 // A dms Project

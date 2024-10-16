@@ -5,7 +5,7 @@ package biz
 import (
 	"context"
 	"errors"
-
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	v1 "github.com/actiontech/dms/api/dms/service/v1"
 )
 
@@ -53,7 +53,7 @@ func (d *ProjectUsecase) PreviewImportProjects(ctx context.Context, uid, file st
 	return nil, errNotSupportProject
 }
 
-func (d *ProjectUsecase) UpdateProject(ctx context.Context, currentUserUid, projectUid string, desc *string, isFixBusiness *bool, business []v1.BusinessForUpdate) (err error) {
+func (d *ProjectUsecase) UpdateProject(ctx context.Context, currentUserUid, projectUid string, desc *string, priority *dmsCommonV1.ProjectPriority, isFixBusiness *bool, business []v1.BusinessForUpdate) (err error) {
 	return errNotSupportProject
 }
 
