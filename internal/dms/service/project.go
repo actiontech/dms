@@ -41,10 +41,10 @@ func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV1.ListProj
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.ProjectFieldPriority),
 			Operator: pkgConst.FilterOperatorEqual,
-			Value:    req.FilterByProjectPriority,
+			Value:    dmsCommonV1.ToPriorityNum(req.FilterByProjectPriority),
 		})
 	}
-	
+
 	if len(req.FilterByProjectUids) > 0 {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.ProjectFieldUID),
