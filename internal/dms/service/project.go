@@ -37,7 +37,21 @@ func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV1.ListProj
 			Value:    req.FilterByUID,
 		})
 	}
-
+	if req.FilterByProjectPriority != "" {
+		filterBy = append(filterBy, pkgConst.FilterCondition{
+			Field:    string(biz.ProjectFieldPriority),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    req.FilterByProjectPriority,
+		})
+	}
+	
+	if len(req.FilterByProjectUids) > 0 {
+		filterBy = append(filterBy, pkgConst.FilterCondition{
+			Field:    string(biz.ProjectFieldUID),
+			Operator: pkgConst.FilterOperatorIn,
+			Value:    req.FilterByProjectUids,
+		})
+	}
 	listOption := &biz.ListProjectsOption{
 		PageNumber:   req.PageIndex,
 		LimitPerPage: req.PageSize,
