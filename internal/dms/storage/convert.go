@@ -456,19 +456,6 @@ func convertModelRangeUIDs(uids string) []string {
 	return strings.Split(uids, ",")
 }
 
-func toModelPriority(priority dmsCommonV1.ProjectPriority) uint8 {
-	switch priority {
-	case dmsCommonV1.ProjectPriorityHigh:
-		return 30
-	case dmsCommonV1.ProjectPriorityMedium:
-		return 20
-	case dmsCommonV1.ProjectPriorityLow:
-		return 10
-	default:
-		return 20 // 默认优先级为中
-	}
-}
-
 func convertBizProject(m *biz.Project) (*model.Project, error) {
 	busList := make([]model.Business, 0)
 	for _, business := range m.Business {
@@ -488,7 +475,7 @@ func convertBizProject(m *biz.Project) (*model.Project, error) {
 		Status:          string(m.Status),
 		IsFixedBusiness: m.IsFixedBusiness,
 		CreateUserUID:   m.CreateUserUID,
-		Priority:        toModelPriority(m.Priority),
+		Priority:        dmsCommonV1.ToPriorityNum(m.Priority),
 	}, nil
 }
 
@@ -511,7 +498,7 @@ func convertModelProject(m *model.Project) (*biz.Project, error) {
 		Status:          convertModelProjectStatus(m.Status),
 		CreateUserUID:   m.CreateUserUID,
 		CreateTime:      m.CreatedAt,
-		Priority:        toBizPriority(m.Priority),
+		Priority:        dmsCommonV1.ToPriority(m.Priority),
 	}, nil
 }
 
@@ -523,19 +510,6 @@ func convertModelProjectStatus(status string) biz.ProjectStatus {
 		return biz.ProjectStatusArchived
 	default:
 		return biz.ProjectStatusUnknown
-	}
-}
-
-func toBizPriority(priority uint8) dmsCommonV1.ProjectPriority {
-	switch priority {
-	case 10:
-		return dmsCommonV1.ProjectPriorityLow
-	case 20:
-		return dmsCommonV1.ProjectPriorityMedium
-	case 30:
-		return dmsCommonV1.ProjectPriorityHigh
-	default:
-		return dmsCommonV1.ProjectPriorityUnknown
 	}
 }
 
