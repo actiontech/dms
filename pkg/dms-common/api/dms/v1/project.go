@@ -47,6 +47,32 @@ const (
 	ProjectPriorityUnknown ProjectPriority = "unknown" // 当数据库中数据存在问题时，返回该状态
 )
 
+func ToPriorityNum(priority ProjectPriority) uint8 {
+	switch priority {
+	case ProjectPriorityHigh:
+		return 30
+	case ProjectPriorityMedium:
+		return 20
+	case ProjectPriorityLow:
+		return 10
+	default:
+		return 20 // 默认优先级为中
+	}
+}
+
+func ToPriority(priority uint8) ProjectPriority {
+	switch priority {
+	case 10:
+		return ProjectPriorityLow
+	case 20:
+		return ProjectPriorityMedium
+	case 30:
+		return ProjectPriorityHigh
+	default:
+		return ProjectPriorityUnknown
+	}
+}
+
 // A dms Project
 type ListProject struct {
 	// Project uid
