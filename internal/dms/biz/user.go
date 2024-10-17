@@ -693,8 +693,16 @@ func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid, updateUser
 			return err
 		}
 
-		// 只有管理员才能更新拥有全局管理权限的用户,拥有全局管理权限的用户相互之间不能更新
-		if hasGlobalManagementOrViewPermission && !isAdmin {
+		var updateGlobalViewOrManagementPermission bool
+		for _, permission := range opPermissionUids {
+			if permission == pkgConst.UIDOfOpPermissionGlobalView || permission == pkgConst.UIDOfOpPermissionGlobalManagement {
+				updateGlobalViewOrManagementPermission = true
+			}
+		}
+
+		// 1. 只有管理员才能更新拥有全局管理权限的用户,拥有全局管理权限的用户相互之间不能更新
+		// 2. 拥有全局管理权限的用户不能更新普通用户为全局管理,全局统计权限
+		if (hasGlobalManagementOrViewPermission || updateGlobalViewOrManagementPermission) && !isAdmin {
 			return fmt.Errorf("only admin can manage user with global manage or view permission")
 		}
 
