@@ -384,11 +384,20 @@ func (d *DMSService) GetUserOpPermission(ctx context.Context, req *dmsCommonV1.G
 	}
 	permissions = append(permissions, globalPermissions...)
 
-	projectPermissions, err := d.OpPermissionVerifyUsecase.GetUserOpPermissionInProject(ctx, req.UserUid, projectUid)
-	if err != nil {
-		return nil, fmt.Errorf("get user op permission error: %v", err)
+	if projectUid != "" {
+		projectPermissions, err := d.OpPermissionVerifyUsecase.GetUserOpPermissionInProject(ctx, req.UserUid, projectUid)
+		if err != nil {
+			return nil, fmt.Errorf("get user op permission error: %v", err)
+		}
+		permissions = append(permissions, projectPermissions...)
+
+	} else {
+		projectPermissions, err := d.OpPermissionVerifyUsecase.GetUserOpPermission(ctx, req.UserUid)
+		if err != nil {
+			return nil, fmt.Errorf("get user op permission error: %v", err)
+		}
+		permissions = append(permissions, projectPermissions...)
 	}
-	permissions = append(permissions, projectPermissions...)
 
 	var replyOpPermission = make([]dmsCommonV1.OpPermissionItem, 0, len(permissions))
 	for _, p := range permissions {

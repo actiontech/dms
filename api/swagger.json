@@ -1417,6 +1417,20 @@
             "description": "filter project by project id list, using in condition",
             "name": "filter_by_project_uids",
             "in": "query"
+          },
+          {
+            "enum": [
+              "high",
+              "medium",
+              "low",
+              "unknown"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "high ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
+            "x-go-name": "FilterByProjectPriority",
+            "description": "filter project by project priority\nhigh ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
+            "name": "filter_by_project_priority",
+            "in": "query"
           }
         ],
         "responses": {

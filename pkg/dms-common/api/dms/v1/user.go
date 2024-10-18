@@ -108,7 +108,7 @@ type GetUserOpPermissionReq struct {
 
 type UserOpPermission struct {
 	// uesr project uid
-	ProjectUid string `json:"project_uid" validate:"required"`
+	ProjectUid string `json:"project_uid"`
 }
 
 // swagger:model GetUserOpPermissionReply
