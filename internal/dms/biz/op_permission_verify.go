@@ -62,7 +62,7 @@ func (o *OpPermissionVerifyUsecase) IsUserDMSAdmin(ctx context.Context, userUid 
 }
 
 func (o *OpPermissionVerifyUsecase) HasGlobalManagementOrViewPermission(ctx context.Context, userUid string) (bool, error) {
-	ops, err := o.GetUserOpPermission(ctx, userUid)
+	ops, err := o.GetUserGlobalOpPermission(ctx, userUid)
 	if err != nil {
 		return false, err
 	}
