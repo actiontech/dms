@@ -5572,6 +5572,26 @@ paths:
                   name: filter_by_project_uids
                   type: array
                   x-go-name: FilterByProjectUids
+                - description: |-
+                    filter project by project priority
+                    high ProjectPriorityHigh
+                    medium ProjectPriorityMedium
+                    low ProjectPriorityLow
+                    unknown ProjectPriorityUnknown
+                  enum:
+                    - high
+                    - medium
+                    - low
+                    - unknown
+                  in: query
+                  name: filter_by_project_priority
+                  type: string
+                  x-go-enum-desc: |-
+                    high ProjectPriorityHigh
+                    medium ProjectPriorityMedium
+                    low ProjectPriorityLow
+                    unknown ProjectPriorityUnknown
+                  x-go-name: FilterByProjectPriority
             responses:
                 "200":
                     description: ListProjectReply
