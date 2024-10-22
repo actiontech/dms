@@ -69,16 +69,6 @@ func initRole() []*Role {
 			Desc: "project admin",
 		},
 		{
-			UID:  pkgConst.UIDOfRoleSQLEAdmin,
-			Name: "SQLE管理员",
-			Desc: "拥有该权限的用户可以创建/编辑工单，审核/驳回工单，上线工单,创建/编辑扫描任务",
-		},
-		{
-			UID:  pkgConst.UIDOfRoleProvisionAdmin,
-			Name: "provision管理员",
-			Desc: "拥有该权限的用户可以授权数据源数据权限",
-		},
-		{
 			UID:  pkgConst.UIDOfRoleDevEngine,
 			Name: "开发工程师",
 		},
@@ -159,20 +149,6 @@ func (d *RoleUsecase) InitRoles(ctx context.Context) (err error) {
 		switch roleId {
 		case pkgConst.UIDOfRoleProjectAdmin:
 			if err = d.InsureOpPermissionsToRole(ctx, []string{pkgConst.UIDOfOpPermissionProjectAdmin}, roleId); err != nil {
-				return fmt.Errorf("insure op permissions in role failed: %v", err)
-			}
-		case pkgConst.UIDOfRoleSQLEAdmin:
-			if err = d.InsureOpPermissionsToRole(ctx, []string{pkgConst.UIDOfOpPermissionCreateWorkflow,
-				pkgConst.UIDOfOpPermissionAuditWorkflow, pkgConst.UIDOfOpPermissionExecuteWorkflow,
-				pkgConst.UIDOfOpPermissionViewOthersWorkflow, pkgConst.UIDOfOpPermissionSaveAuditPlan,
-				pkgConst.UIDOfOpPermissionViewOthersAuditPlan, pkgConst.UIDOfOpPermissionSQLQuery,
-				pkgConst.UIDOfOpPermissionExportApprovalReject, pkgConst.UIDOfOpPermissionExportCreate,
-				pkgConst.UIDOfOpPermissionCreateOptimization, pkgConst.UIDOfOpPermissionViewOthersOptimization,
-				pkgConst.UIDOfOpPermissionCreatePipeline}, roleId); err != nil {
-				return fmt.Errorf("insure op permissions in role failed: %v", err)
-			}
-		case pkgConst.UIDOfRoleProvisionAdmin:
-			if err = d.InsureOpPermissionsToRole(ctx, []string{pkgConst.UIDOfOpPermissionAuthDBServiceData}, roleId); err != nil {
 				return fmt.Errorf("insure op permissions in role failed: %v", err)
 			}
 		case pkgConst.UIDOfRoleDevEngine:

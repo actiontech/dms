@@ -63,19 +63,15 @@ var (
 
 // role
 var (
-	NameRoleProjectAdmin   = &i18n.Message{ID: "NameRoleProjectAdmin", Other: "项目管理员"}
-	NameRoleSQLEAdmin      = &i18n.Message{ID: "NameRoleSQLEAdmin", Other: "SQLE管理员"}
-	NameRoleProvisionAdmin = &i18n.Message{ID: "NameRoleProvisionAdmin", Other: "provision管理员"}
-	NameRoleDevEngine      = &i18n.Message{ID: "NameRoleDevEngine", Other: "开发工程师"}
-	NameRoleDevManage      = &i18n.Message{ID: "NameRoleDevManage", Other: "开发主管"}
-	NameRoleOpsEngine      = &i18n.Message{ID: "NameRoleOpsEngine", Other: "运维工程师"}
+	NameRoleProjectAdmin = &i18n.Message{ID: "NameRoleProjectAdmin", Other: "项目管理员"}
+	NameRoleDevEngine    = &i18n.Message{ID: "NameRoleDevEngine", Other: "开发工程师"}
+	NameRoleDevManage    = &i18n.Message{ID: "NameRoleDevManage", Other: "开发主管"}
+	NameRoleOpsEngine    = &i18n.Message{ID: "NameRoleOpsEngine", Other: "运维工程师"}
 
-	DescRoleProjectAdmin   = &i18n.Message{ID: "DescRoleProjectAdmin", Other: "project admin"}
-	DescRoleSQLEAdmin      = &i18n.Message{ID: "DescRoleSQLEAdmin", Other: "拥有该权限的用户可以创建/编辑工单，审核/驳回工单，上线工单,创建/编辑扫描任务"}
-	DescRoleProvisionAdmin = &i18n.Message{ID: "DescRoleProvisionAdmin", Other: "拥有该权限的用户可以授权数据源数据权限"}
-	DescRoleDevEngine      = &i18n.Message{ID: "DescRoleDevEngine", Other: "拥有该权限的用户可以创建/编辑工单,执行SQL查询,配置流水线,创建智能调优"}
-	DescRoleDevManage      = &i18n.Message{ID: "DescRoleDevManage", Other: "拥有该权限的用户可以创建/编辑工单,审核/驳回工单,配置流水线,查看他人创建的智能调优"}
-	DescRoleOpsEngine      = &i18n.Message{ID: "DescRoleOpsEngine", Other: "拥有该权限的用户可以上线工单,查看他人创建的工单,创建智能扫描,查看他人的扫描任务,数据导出,授权数据源数据"}
+	DescRoleProjectAdmin = &i18n.Message{ID: "DescRoleProjectAdmin", Other: "project admin"}
+	DescRoleDevEngine    = &i18n.Message{ID: "DescRoleDevEngine", Other: "拥有该权限的用户可以创建/编辑工单,SQL工作台查询,配置流水线,创建智能调优"}
+	DescRoleDevManage    = &i18n.Message{ID: "DescRoleDevManage", Other: "拥有该权限的用户可以创建/编辑工单,审核/驳回工单,配置流水线,查看他人创建的智能调优"}
+	DescRoleOpsEngine    = &i18n.Message{ID: "DescRoleOpsEngine", Other: "拥有该权限的用户可以上线工单,查看他人创建的工单,创建智能扫描,查看他人的扫描任务,数据导出,授权数据源数据"}
 )
 
 // license

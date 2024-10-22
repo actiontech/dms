@@ -14,21 +14,17 @@ import (
 )
 
 var RoleNameByUID = map[string]*i18n.Message{
-	pkgConst.UIDOfRoleProjectAdmin:   locale.NameRoleProjectAdmin,
-	pkgConst.UIDOfRoleSQLEAdmin:      locale.NameRoleSQLEAdmin,
-	pkgConst.UIDOfRoleProvisionAdmin: locale.NameRoleProvisionAdmin,
-	pkgConst.UIDOfRoleDevEngine:      locale.NameRoleDevEngine,
-	pkgConst.UIDOfRoleDevManage:      locale.NameRoleDevManage,
-	pkgConst.UIDOfRoleOpsEngine:      locale.NameRoleOpsEngine,
+	pkgConst.UIDOfRoleProjectAdmin: locale.NameRoleProjectAdmin,
+	pkgConst.UIDOfRoleDevEngine:    locale.NameRoleDevEngine,
+	pkgConst.UIDOfRoleDevManage:    locale.NameRoleDevManage,
+	pkgConst.UIDOfRoleOpsEngine:    locale.NameRoleOpsEngine,
 }
 
 var RoleDescByUID = map[string]*i18n.Message{
-	pkgConst.UIDOfRoleProjectAdmin:   locale.DescRoleProjectAdmin,
-	pkgConst.UIDOfRoleSQLEAdmin:      locale.DescRoleSQLEAdmin,
-	pkgConst.UIDOfRoleProvisionAdmin: locale.DescRoleProvisionAdmin,
-	pkgConst.UIDOfRoleDevEngine:      locale.DescRoleDevEngine,
-	pkgConst.UIDOfRoleDevManage:      locale.DescRoleDevManage,
-	pkgConst.UIDOfRoleOpsEngine:      locale.DescRoleOpsEngine,
+	pkgConst.UIDOfRoleProjectAdmin: locale.DescRoleProjectAdmin,
+	pkgConst.UIDOfRoleDevEngine:    locale.DescRoleDevEngine,
+	pkgConst.UIDOfRoleDevManage:    locale.DescRoleDevManage,
+	pkgConst.UIDOfRoleOpsEngine:    locale.DescRoleOpsEngine,
 }
 
 func (d *DMSService) AddRole(ctx context.Context, currentUserUid string, req *dmsV1.AddRoleReq) (reply *dmsV1.AddRoleReply, err error) {
@@ -114,8 +110,7 @@ func (d *DMSService) ListRoles(ctx context.Context, req *dmsV1.ListRoleReq) (rep
 
 	ret := make([]*dmsV1.ListRole, len(roles))
 	for i, r := range roles {
-		if r.UID == pkgConst.UIDOfRoleProjectAdmin || r.UID == pkgConst.UIDOfRoleSQLEAdmin || r.UID == pkgConst.UIDOfRoleProvisionAdmin ||
-			r.UID == pkgConst.UIDOfRoleDevEngine || r.UID == pkgConst.UIDOfRoleDevManage || r.UID == pkgConst.UIDOfRoleOpsEngine {
+		if r.UID == pkgConst.UIDOfRoleProjectAdmin || r.UID == pkgConst.UIDOfRoleDevEngine || r.UID == pkgConst.UIDOfRoleDevManage || r.UID == pkgConst.UIDOfRoleOpsEngine {
 			// built in role, localize name and desc
 			r.Name = locale.Bundle.LocalizeMsgByCtx(ctx, RoleNameByUID[r.GetUID()])
 			r.Desc = locale.Bundle.LocalizeMsgByCtx(ctx, RoleDescByUID[r.GetUID()])
