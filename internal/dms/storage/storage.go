@@ -90,7 +90,7 @@ func gormWhereCondition(condition pkgConst.FilterCondition) (string, interface{}
 		condition.Value = fmt.Sprintf("%%%s%%", condition.Value)
 	case pkgConst.FilterOperatorIn:
 		values, ok := condition.Value.([]string)
-		if ok {
+		if ok && len(values) > 0 {
 			return fmt.Sprintf("%s %s (%s)", condition.Field, condition.Operator, strings.Join(values, ",")), nil
 		}
 	}
