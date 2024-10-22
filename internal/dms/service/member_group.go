@@ -124,7 +124,7 @@ func (d *DMSService) buildRoleWithOpRanges(ctx context.Context, roleWithOpRanges
 				return nil, fmt.Errorf("unsupported op range type: %v", r.OpRangeType)
 			}
 		}
-		if role.UID == pkgConst.UIDOfRoleProjectAdmin || role.UID == pkgConst.UIDOfRoleDevEngine || role.UID == pkgConst.UIDOfRoleDevManage || role.UID == pkgConst.UIDOfRoleOpsEngine {
+		if role.UID == pkgConst.UIDOfRoleProjectAdmin || role.UID == pkgConst.UIDOfRoleDevEngineer || role.UID == pkgConst.UIDOfRoleDevManager || role.UID == pkgConst.UIDOfRoleOpsEngineer {
 			// built in role, localize name and desc
 			role.Name = locale.Bundle.LocalizeMsgByCtx(ctx, RoleNameByUID[role.GetUID()])
 			role.Desc = locale.Bundle.LocalizeMsgByCtx(ctx, RoleDescByUID[role.GetUID()])

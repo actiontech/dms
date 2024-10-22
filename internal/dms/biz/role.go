@@ -69,15 +69,15 @@ func initRole() []*Role {
 			Desc: "project admin",
 		},
 		{
-			UID:  pkgConst.UIDOfRoleDevEngine,
+			UID:  pkgConst.UIDOfRoleDevEngineer,
 			Name: "开发工程师",
 		},
 		{
-			UID:  pkgConst.UIDOfRoleDevManage,
+			UID:  pkgConst.UIDOfRoleDevManager,
 			Name: "开发主管",
 		},
 		{
-			UID:  pkgConst.UIDOfRoleOpsEngine,
+			UID:  pkgConst.UIDOfRoleOpsEngineer,
 			Name: "运维工程师",
 		},
 	}
@@ -151,7 +151,7 @@ func (d *RoleUsecase) InitRoles(ctx context.Context) (err error) {
 			if err = d.InsureOpPermissionsToRole(ctx, []string{pkgConst.UIDOfOpPermissionProjectAdmin}, roleId); err != nil {
 				return fmt.Errorf("insure op permissions in role failed: %v", err)
 			}
-		case pkgConst.UIDOfRoleDevEngine:
+		case pkgConst.UIDOfRoleDevEngineer:
 			if err := d.InsureOpPermissionsToRole(ctx, []string{
 				pkgConst.UIDOfOpPermissionCreateWorkflow,
 				pkgConst.UIDOfOpPermissionSQLQuery,
@@ -160,7 +160,7 @@ func (d *RoleUsecase) InitRoles(ctx context.Context) (err error) {
 			}, roleId); err != nil {
 				return fmt.Errorf("insure op permissions in role failed: %v", err)
 			}
-		case pkgConst.UIDOfRoleDevManage:
+		case pkgConst.UIDOfRoleDevManager:
 			if err := d.InsureOpPermissionsToRole(ctx, []string{
 				pkgConst.UIDOfOpPermissionViewOthersWorkflow,
 				pkgConst.UIDOfOpPermissionAuditWorkflow,
@@ -169,7 +169,7 @@ func (d *RoleUsecase) InitRoles(ctx context.Context) (err error) {
 			}, roleId); err != nil {
 				return fmt.Errorf("insure op permissions in role failed: %v", err)
 			}
-		case pkgConst.UIDOfRoleOpsEngine:
+		case pkgConst.UIDOfRoleOpsEngineer:
 			if err := d.InsureOpPermissionsToRole(ctx, []string{
 				pkgConst.UIDOfOpPermissionViewOthersWorkflow,
 				pkgConst.UIDOfOpPermissionExecuteWorkflow,
