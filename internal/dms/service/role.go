@@ -14,15 +14,17 @@ import (
 )
 
 var RoleNameByUID = map[string]*i18n.Message{
-	pkgConst.UIDOfRoleProjectAdmin:   locale.NameRoleProjectAdmin,
-	pkgConst.UIDOfRoleSQLEAdmin:      locale.NameRoleSQLEAdmin,
-	pkgConst.UIDOfRoleProvisionAdmin: locale.NameRoleProvisionAdmin,
+	pkgConst.UIDOfRoleProjectAdmin: locale.NameRoleProjectAdmin,
+	pkgConst.UIDOfRoleDevEngineer:  locale.NameRoleDevEngineer,
+	pkgConst.UIDOfRoleDevManager:   locale.NameRoleDevManager,
+	pkgConst.UIDOfRoleOpsEngineer:  locale.NameRoleOpsEngineer,
 }
 
 var RoleDescByUID = map[string]*i18n.Message{
-	pkgConst.UIDOfRoleProjectAdmin:   locale.DescRoleProjectAdmin,
-	pkgConst.UIDOfRoleSQLEAdmin:      locale.DescRoleSQLEAdmin,
-	pkgConst.UIDOfRoleProvisionAdmin: locale.DescRoleProvisionAdmin,
+	pkgConst.UIDOfRoleProjectAdmin: locale.DescRoleProjectAdmin,
+	pkgConst.UIDOfRoleDevEngineer:  locale.DescRoleDevEngineer,
+	pkgConst.UIDOfRoleDevManager:   locale.DescRoleDevManager,
+	pkgConst.UIDOfRoleOpsEngineer:  locale.DescRoleOpsEngineer,
 }
 
 func (d *DMSService) AddRole(ctx context.Context, currentUserUid string, req *dmsV1.AddRoleReq) (reply *dmsV1.AddRoleReply, err error) {
@@ -108,7 +110,7 @@ func (d *DMSService) ListRoles(ctx context.Context, req *dmsV1.ListRoleReq) (rep
 
 	ret := make([]*dmsV1.ListRole, len(roles))
 	for i, r := range roles {
-		if r.UID == pkgConst.UIDOfRoleProjectAdmin || r.UID == pkgConst.UIDOfRoleSQLEAdmin || r.UID == pkgConst.UIDOfRoleProvisionAdmin {
+		if r.UID == pkgConst.UIDOfRoleProjectAdmin || r.UID == pkgConst.UIDOfRoleDevEngineer || r.UID == pkgConst.UIDOfRoleDevManager || r.UID == pkgConst.UIDOfRoleOpsEngineer {
 			// built in role, localize name and desc
 			r.Name = locale.Bundle.LocalizeMsgByCtx(ctx, RoleNameByUID[r.GetUID()])
 			r.Desc = locale.Bundle.LocalizeMsgByCtx(ctx, RoleDescByUID[r.GetUID()])
