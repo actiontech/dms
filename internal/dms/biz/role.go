@@ -78,6 +78,18 @@ func initRole() []*Role {
 			Name: "provision管理员",
 			Desc: "拥有该权限的用户可以授权数据源数据权限",
 		},
+		{
+			UID:  pkgConst.UIDOfRoleDevEngine,
+			Name: "开发工程师",
+		},
+		{
+			UID:  pkgConst.UIDOfRoleDevManage,
+			Name: "开发主管",
+		},
+		{
+			UID:  pkgConst.UIDOfRoleOpsEngine,
+			Name: "运维工程师",
+		},
 	}
 }
 
@@ -161,6 +173,35 @@ func (d *RoleUsecase) InitRoles(ctx context.Context) (err error) {
 			}
 		case pkgConst.UIDOfRoleProvisionAdmin:
 			if err = d.InsureOpPermissionsToRole(ctx, []string{pkgConst.UIDOfOpPermissionAuthDBServiceData}, roleId); err != nil {
+				return fmt.Errorf("insure op permissions in role failed: %v", err)
+			}
+		case pkgConst.UIDOfRoleDevEngine:
+			if err := d.InsureOpPermissionsToRole(ctx, []string{
+				pkgConst.UIDOfOpPermissionCreateWorkflow,
+				pkgConst.UIDOfOpPermissionSQLQuery,
+				pkgConst.UIDOfOpPermissionCreatePipeline,
+				pkgConst.UIDOfOpPermissionCreateOptimization,
+			}, roleId); err != nil {
+				return fmt.Errorf("insure op permissions in role failed: %v", err)
+			}
+		case pkgConst.UIDOfRoleDevManage:
+			if err := d.InsureOpPermissionsToRole(ctx, []string{
+				pkgConst.UIDOfOpPermissionViewOthersWorkflow,
+				pkgConst.UIDOfOpPermissionAuditWorkflow,
+				pkgConst.UIDOfOpPermissionCreatePipeline,
+				pkgConst.UIDOfOpPermissionViewOthersOptimization,
+			}, roleId); err != nil {
+				return fmt.Errorf("insure op permissions in role failed: %v", err)
+			}
+		case pkgConst.UIDOfRoleOpsEngine:
+			if err := d.InsureOpPermissionsToRole(ctx, []string{
+				pkgConst.UIDOfOpPermissionViewOthersWorkflow,
+				pkgConst.UIDOfOpPermissionExecuteWorkflow,
+				pkgConst.UIDOfOpPermissionSaveAuditPlan,
+				pkgConst.UIDOfOpPermissionViewOthersAuditPlan,
+				pkgConst.UIDOfOpPermissionExportCreate,
+				pkgConst.UIDOfOpPermissionAuthDBServiceData,
+			}, roleId); err != nil {
 				return fmt.Errorf("insure op permissions in role failed: %v", err)
 			}
 		default:
