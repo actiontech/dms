@@ -69,14 +69,16 @@ func initRole() []*Role {
 			Desc: "project admin",
 		},
 		{
-			UID:  pkgConst.UIDOfRoleSQLEAdmin,
-			Name: "SQLE管理员",
-			Desc: "拥有该权限的用户可以创建/编辑工单，审核/驳回工单，上线工单,创建/编辑扫描任务",
+			UID:  pkgConst.UIDOfRoleDevEngineer,
+			Name: "开发工程师",
 		},
 		{
-			UID:  pkgConst.UIDOfRoleProvisionAdmin,
-			Name: "provision管理员",
-			Desc: "拥有该权限的用户可以授权数据源数据权限",
+			UID:  pkgConst.UIDOfRoleDevManager,
+			Name: "开发主管",
+		},
+		{
+			UID:  pkgConst.UIDOfRoleOpsEngineer,
+			Name: "运维工程师",
 		},
 	}
 }
@@ -149,18 +151,33 @@ func (d *RoleUsecase) InitRoles(ctx context.Context) (err error) {
 			if err = d.InsureOpPermissionsToRole(ctx, []string{pkgConst.UIDOfOpPermissionProjectAdmin}, roleId); err != nil {
 				return fmt.Errorf("insure op permissions in role failed: %v", err)
 			}
-		case pkgConst.UIDOfRoleSQLEAdmin:
-			if err = d.InsureOpPermissionsToRole(ctx, []string{pkgConst.UIDOfOpPermissionCreateWorkflow,
-				pkgConst.UIDOfOpPermissionAuditWorkflow, pkgConst.UIDOfOpPermissionExecuteWorkflow,
-				pkgConst.UIDOfOpPermissionViewOthersWorkflow, pkgConst.UIDOfOpPermissionSaveAuditPlan,
-				pkgConst.UIDOfOpPermissionViewOthersAuditPlan, pkgConst.UIDOfOpPermissionSQLQuery,
-				pkgConst.UIDOfOpPermissionExportApprovalReject, pkgConst.UIDOfOpPermissionExportCreate,
-				pkgConst.UIDOfOpPermissionCreateOptimization, pkgConst.UIDOfOpPermissionViewOthersOptimization,
-				pkgConst.UIDOfOpPermissionCreatePipeline}, roleId); err != nil {
+		case pkgConst.UIDOfRoleDevEngineer:
+			if err := d.InsureOpPermissionsToRole(ctx, []string{
+				pkgConst.UIDOfOpPermissionCreateWorkflow,
+				pkgConst.UIDOfOpPermissionSQLQuery,
+				pkgConst.UIDOfOpPermissionCreatePipeline,
+				pkgConst.UIDOfOpPermissionCreateOptimization,
+			}, roleId); err != nil {
 				return fmt.Errorf("insure op permissions in role failed: %v", err)
 			}
-		case pkgConst.UIDOfRoleProvisionAdmin:
-			if err = d.InsureOpPermissionsToRole(ctx, []string{pkgConst.UIDOfOpPermissionAuthDBServiceData}, roleId); err != nil {
+		case pkgConst.UIDOfRoleDevManager:
+			if err := d.InsureOpPermissionsToRole(ctx, []string{
+				pkgConst.UIDOfOpPermissionViewOthersWorkflow,
+				pkgConst.UIDOfOpPermissionAuditWorkflow,
+				pkgConst.UIDOfOpPermissionCreatePipeline,
+				pkgConst.UIDOfOpPermissionViewOthersOptimization,
+			}, roleId); err != nil {
+				return fmt.Errorf("insure op permissions in role failed: %v", err)
+			}
+		case pkgConst.UIDOfRoleOpsEngineer:
+			if err := d.InsureOpPermissionsToRole(ctx, []string{
+				pkgConst.UIDOfOpPermissionViewOthersWorkflow,
+				pkgConst.UIDOfOpPermissionExecuteWorkflow,
+				pkgConst.UIDOfOpPermissionSaveAuditPlan,
+				pkgConst.UIDOfOpPermissionViewOthersAuditPlan,
+				pkgConst.UIDOfOpPermissionExportCreate,
+				pkgConst.UIDOfOpPermissionAuthDBServiceData,
+			}, roleId); err != nil {
 				return fmt.Errorf("insure op permissions in role failed: %v", err)
 			}
 		default:

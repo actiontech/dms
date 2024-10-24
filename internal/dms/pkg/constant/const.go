@@ -36,9 +36,10 @@ const (
 
 	UIDOfProjectDefault = "700300"
 
-	UIDOfRoleProjectAdmin   = "700400"
-	UIDOfRoleSQLEAdmin      = "700401"
-	UIDOfRoleProvisionAdmin = "700402"
+	UIDOfRoleProjectAdmin = "700400"
+	UIDOfRoleDevEngineer  = "700403"
+	UIDOfRoleDevManager   = "700404"
+	UIDOfRoleOpsEngineer  = "700405"
 )
 
 func ConvertPermissionIdToType(opPermissionUid string) (apiOpPermissionTyp dmsCommonV1.OpPermissionType, err error) {

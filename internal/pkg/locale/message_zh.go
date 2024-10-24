@@ -33,7 +33,7 @@ var (
 	NameOpPermissionViewOthersWorkflow     = &i18n.Message{ID: "NameOpPermissionViewOthersWorkflow", Other: "查看他人创建的工单"}
 	NameOpPermissionViewOthersAuditPlan    = &i18n.Message{ID: "NameOpPermissionViewOthersAuditPlan", Other: "查看他人创建的扫描任务"}
 	NameOpPermissionSaveAuditPlan          = &i18n.Message{ID: "NameOpPermissionSaveAuditPlan", Other: "创建/编辑扫描任务"}
-	NameOpPermissionSQLQuery               = &i18n.Message{ID: "NameOpPermissionSQLQuery", Other: "SQL查询"}
+	NameOpPermissionSQLQuery               = &i18n.Message{ID: "NameOpPermissionSQLQuery", Other: "SQL工作台查询"}
 	NameOpPermissionExportApprovalReject   = &i18n.Message{ID: "NameOpPermissionExportApprovalReject", Other: "审批/驳回数据导出工单"}
 	NameOpPermissionExportCreate           = &i18n.Message{ID: "NameOpPermissionExportCreate", Other: "创建数据导出任务"}
 	NameOpPermissionCreateOptimization     = &i18n.Message{ID: "NameOpPermissionCreateOptimization", Other: "创建智能调优"}
@@ -53,7 +53,7 @@ var (
 	DescOpPermissionViewOthersWorkflow     = &i18n.Message{ID: "DescOpPermissionViewOthersWorkflow", Other: "查看他人创建的工单；拥有该权限的用户可以查看他人创建的工单"}
 	DescOpPermissionViewOthersAuditPlan    = &i18n.Message{ID: "DescOpPermissionViewOthersAuditPlan", Other: "查看他人创建的扫描任务；拥有该权限的用户可以查看他人创建的扫描任务"}
 	DescOpPermissionSaveAuditPlan          = &i18n.Message{ID: "DescOpPermissionSaveAuditPlan", Other: "创建/编辑扫描任务；拥有该权限的用户可以创建/编辑扫描任务"}
-	DescOpPermissionSQLQuery               = &i18n.Message{ID: "DescOpPermissionSQLQuery", Other: "SQL查询；拥有该权限的用户可以执行SQL查询"}
+	DescOpPermissionSQLQuery               = &i18n.Message{ID: "DescOpPermissionSQLQuery", Other: "SQL工作台查询；拥有该权限的用户可以执行SQL工作台查询"}
 	DescOpPermissionExportApprovalReject   = &i18n.Message{ID: "DescOpPermissionExportApprovalReject", Other: "审批/驳回数据导出工单；拥有该权限的用户可以执行审批导出数据工单或者驳回导出数据工单"}
 	DescOpPermissionExportCreate           = &i18n.Message{ID: "DescOpPermissionExportCreate", Other: "创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单"}
 	DescOpPermissionCreateOptimization     = &i18n.Message{ID: "DescOpPermissionCreateOptimization", Other: "创建智能调优；拥有该权限的用户可以创建智能调优"}
@@ -63,13 +63,15 @@ var (
 
 // role
 var (
-	NameRoleProjectAdmin   = &i18n.Message{ID: "NameRoleProjectAdmin", Other: "项目管理员"}
-	NameRoleSQLEAdmin      = &i18n.Message{ID: "NameRoleSQLEAdmin", Other: "SQLE管理员"}
-	NameRoleProvisionAdmin = &i18n.Message{ID: "NameRoleProvisionAdmin", Other: "provision管理员"}
+	NameRoleProjectAdmin = &i18n.Message{ID: "NameRoleProjectAdmin", Other: "项目管理员"}
+	NameRoleDevEngineer  = &i18n.Message{ID: "NameRoleDevEngineer", Other: "开发工程师"}
+	NameRoleDevManager   = &i18n.Message{ID: "NameRoleDevManager", Other: "开发主管"}
+	NameRoleOpsEngineer  = &i18n.Message{ID: "NameRoleOpsEngineer", Other: "运维工程师"}
 
-	DescRoleProjectAdmin   = &i18n.Message{ID: "DescRoleProjectAdmin", Other: "project admin"}
-	DescRoleSQLEAdmin      = &i18n.Message{ID: "DescRoleSQLEAdmin", Other: "拥有该权限的用户可以创建/编辑工单，审核/驳回工单，上线工单,创建/编辑扫描任务"}
-	DescRoleProvisionAdmin = &i18n.Message{ID: "DescRoleProvisionAdmin", Other: "拥有该权限的用户可以授权数据源数据权限"}
+	DescRoleProjectAdmin = &i18n.Message{ID: "DescRoleProjectAdmin", Other: "project admin"}
+	DescRoleDevEngineer  = &i18n.Message{ID: "DescRoleDevEngineer", Other: "拥有该权限的用户可以创建/编辑工单,SQL工作台查询,配置流水线,创建智能调优"}
+	DescRoleDevManager   = &i18n.Message{ID: "DescRoleDevManager", Other: "拥有该权限的用户可以创建/编辑工单,审核/驳回工单,配置流水线,查看他人创建的智能调优"}
+	DescRoleOpsEngineer  = &i18n.Message{ID: "DescRoleOpsEngineer", Other: "拥有该权限的用户可以上线工单,查看他人创建的工单,创建智能扫描,查看他人的扫描任务,数据导出,授权数据源数据"}
 )
 
 // license
