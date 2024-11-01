@@ -7,8 +7,18 @@ import (
 	pkgParams "github.com/actiontech/dms/pkg/params"
 )
 
+var IsOptimizationEnabled bool
+
 type Options struct {
-	DMS DMSOptions `yaml:"dms" validate:"required"`
+	DMS  DMSOptions  `yaml:"dms" validate:"required"`
+	SQLE SQLEOptions `yaml:"sqle"`
+}
+
+type SQLEOptions struct {
+	OptimizationConfig struct {
+		OptimizationKey string `yaml:"optimization_key"`
+		OptimizationUrl string `yaml:"optimization_url"`
+	} `yaml:"optimization_config"`
 }
 
 type DMSOptions struct {
@@ -55,6 +65,6 @@ func ReadOptions(log utilLog.Logger, path string) (*DMSOptions, error) {
 	if err := utilConf.ParseYamlFile(log, path, &opts); err != nil {
 		return nil, err
 	}
-
+	IsOptimizationEnabled = getOptimizationEnabled(&opts)
 	return &opts.DMS, nil
 }
