@@ -397,6 +397,8 @@ type ListGlobalDBService struct {
 	IsEnableMasking bool `json:"is_enable_masking"`
 	// db service unfinished workflow num
 	UnfinishedWorkflowNum int64 `json:"unfinished_workflow_num"`
+	// backup switch
+	EnableBackup bool `json:"enable_backup"`
 }
 
 // swagger:model ListGlobalDBServicesTipsReply
