@@ -6,18 +6,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-
-	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
-	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
-
 	"io"
-	"net/http"
 	"net/url"
 	"strconv"
 
-	"golang.org/x/oauth2"
-
+	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
+	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
+	"golang.org/x/oauth2"
 )
 
 func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Context, enableOauth2, skipCheckState, autoCreateUser *bool, clientID, clientKey, clientHost, serverAuthUrl, serverTokenUrl, serverUserIdUrl,
@@ -242,8 +238,12 @@ func (c callbackRedirectData) generateQuery(uri string) string {
 }
 
 func (d *Oauth2ConfigurationUsecase) getOauth2User(conf *Oauth2Configuration, token string) (user *User, err error) {
+	oauth2Config := d.generateOauth2Config(conf)
+	client := oauth2Config.Client(context.Background(), &oauth2.Token{AccessToken: token})
+
+	// 兼容原有将token放到uri的情况
 	uri := fmt.Sprintf("%v?%v=%v", conf.ServerUserIdUrl, conf.AccessTokenTag, token)
-	resp, err := (&http.Client{}).Get(uri)
+	resp, err := client.Get(uri)
 	if err != nil {
 		return nil, err
 	}
