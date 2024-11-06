@@ -7684,6 +7684,11 @@
           "type": "string",
           "x-go-name": "Desc"
         },
+        "enable_backup": {
+          "description": "backup switch",
+          "type": "boolean",
+          "x-go-name": "EnableBackup"
+        },
         "host": {
           "description": "db service host",
           "type": "string",
@@ -9484,7 +9489,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
