@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/actiontech/dms/internal/apiserver/conf"
 	"github.com/actiontech/dms/internal/pkg/locale"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -137,6 +138,11 @@ func (d *DMSService) ListRoles(ctx context.Context, req *dmsV1.ListRoleReq) (rep
 			return nil, err
 		}
 		for _, op := range ops {
+			// 不支持智能调优时，隐藏相关权限
+			if !conf.IsOptimizationEnabled() &&
+				(op.UID == pkgConst.UIDOfOpPermissionCreateOptimization || op.UID == pkgConst.UIDOfOpPermissionViewOthersOptimization) {
+				continue
+			}
 			ret[i].OpPermissions = append(ret[i].OpPermissions, dmsV1.UidWithName{
 				Uid:  op.GetUID(),
 				Name: locale.Bundle.LocalizeMsgByCtx(ctx, OpPermissionNameByUID[op.GetUID()]),
