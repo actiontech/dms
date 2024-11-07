@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/actiontech/dms/internal/apiserver/conf"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/pkg/locale"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -66,6 +67,21 @@ func (d *DMSService) ListOpPermissions(ctx context.Context, req *dmsV1.ListOpPer
 		PageNumber:   req.PageIndex,
 		LimitPerPage: req.PageSize,
 		OrderBy:      orderBy,
+	}
+
+	// 不支持智能调优时，隐藏相关权限
+	if !conf.IsOptimizationEnabled() {
+		listOption.FilterBy = append(listOption.FilterBy,
+			pkgConst.FilterCondition{
+				Field:    string(biz.OpPermissionFieldUID),
+				Operator: pkgConst.FilterOperatorNotEqual,
+				Value:    pkgConst.UIDOfOpPermissionCreateOptimization,
+			},
+			pkgConst.FilterCondition{
+				Field:    string(biz.OpPermissionFieldUID),
+				Operator: pkgConst.FilterOperatorNotEqual,
+				Value:    pkgConst.UIDOfOpPermissionViewOthersOptimization,
+			})
 	}
 
 	var ops []*biz.OpPermission
