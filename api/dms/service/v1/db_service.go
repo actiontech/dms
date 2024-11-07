@@ -46,6 +46,9 @@ type DBService struct {
 	// data masking switch
 	// Required: false
 	IsEnableMasking bool `json:"is_enable_masking"`
+	// backup switch
+	// Required: false
+	EnableBackup bool `json:"enable_backup"`
 }
 
 // swagger:model AddDBServiceReq
@@ -176,6 +179,9 @@ type UpdateDBService struct {
 	// data masking switch
 	// Required: false
 	IsEnableMasking bool `json:"is_enable_masking"`
+	// backup switch
+	// Required: false
+	EnableBackup bool `json:"enable_backup"`
 }
 
 // swagger:model UpdateDBServiceReply
@@ -391,6 +397,8 @@ type ListGlobalDBService struct {
 	IsEnableMasking bool `json:"is_enable_masking"`
 	// db service unfinished workflow num
 	UnfinishedWorkflowNum int64 `json:"unfinished_workflow_num"`
+	// backup switch
+	EnableBackup bool `json:"enable_backup"`
 }
 
 // swagger:model ListGlobalDBServicesTipsReply
