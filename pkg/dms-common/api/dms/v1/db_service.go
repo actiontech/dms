@@ -136,6 +136,8 @@ type ListDBService struct {
 	AdditionalParams []*AdditionalParam `json:"additional_params"`
 	// is enable masking
 	IsEnableMasking bool `json:"is_enable_masking"`
+	// backup switch
+	EnableBackup bool `json:"enable_backup"`
 	// audit plan types
 	AuditPlanTypes []*AuditPlanTypes `json:"audit_plan_types"`
 	// instance audit plan id

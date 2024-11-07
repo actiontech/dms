@@ -775,6 +775,10 @@ definitions:
                 description: Service description
                 type: string
                 x-go-name: Desc
+            enable_backup:
+                description: backup switch
+                type: boolean
+                x-go-name: EnableBackup
             host:
                 description: DB Service Host
                 type: string
@@ -2126,6 +2130,10 @@ definitions:
                 description: DB desc
                 type: string
                 x-go-name: Desc
+            enable_backup:
+                description: backup switch
+                type: boolean
+                x-go-name: EnableBackup
             host:
                 description: db service host
                 type: string
@@ -2479,6 +2487,10 @@ definitions:
                 description: DB desc
                 type: string
                 x-go-name: Desc
+            enable_backup:
+                description: backup switch
+                type: boolean
+                x-go-name: EnableBackup
             host:
                 description: db service host
                 type: string
@@ -4051,6 +4063,10 @@ definitions:
                 description: Service description
                 type: string
                 x-go-name: Desc
+            enable_backup:
+                description: backup switch
+                type: boolean
+                x-go-name: EnableBackup
             host:
                 description: DB Service Host
                 type: string
