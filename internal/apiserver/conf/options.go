@@ -7,8 +7,6 @@ import (
 	pkgParams "github.com/actiontech/dms/pkg/params"
 )
 
-var IsOptimizationEnabled bool
-
 type Options struct {
 	DMS  DMSOptions  `yaml:"dms" validate:"required"`
 	SQLE SQLEOptions `yaml:"sqle"`
@@ -60,11 +58,17 @@ type DatabaseDriverOption struct {
 	Params   pkgParams.Params `yaml:"params"`
 }
 
+var optimizationEnabled bool
+
+func IsOptimizationEnabled() bool {
+	return optimizationEnabled
+}
+
 func ReadOptions(log utilLog.Logger, path string) (*DMSOptions, error) {
 	var opts Options
 	if err := utilConf.ParseYamlFile(log, path, &opts); err != nil {
 		return nil, err
 	}
-	IsOptimizationEnabled = getOptimizationEnabled(&opts)
+	optimizationEnabled = getOptimizationEnabled(&opts)
 	return &opts.DMS, nil
 }
