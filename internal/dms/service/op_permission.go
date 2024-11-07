@@ -70,7 +70,7 @@ func (d *DMSService) ListOpPermissions(ctx context.Context, req *dmsV1.ListOpPer
 	}
 
 	// 不支持智能调优时，隐藏相关权限
-	if !conf.IsOptimizationEnabled {
+	if !conf.IsOptimizationEnabled() {
 		listOption.FilterBy = append(listOption.FilterBy,
 			pkgConst.FilterCondition{
 				Field:    string(biz.OpPermissionFieldUID),

@@ -139,7 +139,7 @@ func (d *DMSService) ListRoles(ctx context.Context, req *dmsV1.ListRoleReq) (rep
 		}
 		for _, op := range ops {
 			// 不支持智能调优时，隐藏相关权限
-			if !conf.IsOptimizationEnabled &&
+			if !conf.IsOptimizationEnabled() &&
 				(op.UID == pkgConst.UIDOfOpPermissionCreateOptimization || op.UID == pkgConst.UIDOfOpPermissionViewOthersOptimization) {
 				continue
 			}
