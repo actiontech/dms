@@ -2,6 +2,7 @@ package v1
 
 import (
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
+	"github.com/go-openapi/strfmt"
 )
 
 type CheckDbConnectable struct {
@@ -52,6 +53,10 @@ type ListDBServiceReq struct {
 	// the db service business name
 	// in:query
 	FilterByBusiness string `query:"filter_by_business" json:"filter_by_business"`
+	// the db service connection
+	// enum: connect_success,connect_failed
+	// in:query
+	FilterConnectionStatus *string `query:"filter_connection_status" json:"filter_connection_status" validate:"omitempty,oneof=connect_success connect_failed"`
 	// the db service host
 	// in:query
 	FilterByHost string `query:"filter_by_host" json:"filter_by_host"`
@@ -142,6 +147,12 @@ type ListDBService struct {
 	AuditPlanTypes []*AuditPlanTypes `json:"audit_plan_types"`
 	// instance audit plan id
 	InstanceAuditPlanID uint `json:"instance_audit_plan_id,omitempty"`
+	// DB connection test time
+	LastConnectionTestTime strfmt.DateTime `json:"last_connection_test_time"`
+	// DB connect test status
+	LastConnectionTestStatus string `json:"last_connection_test_status"`
+	// DB connect test error message
+	LastConnectionTestErrorMessage string `json:"last_connection_test_error_message,omitempty"`
 }
 
 type SQLEConfig struct {

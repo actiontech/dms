@@ -951,6 +951,17 @@
             "in": "query"
           },
           {
+            "enum": [
+              "connect_success",
+              "connect_failed"
+            ],
+            "type": "string",
+            "x-go-name": "FilterConnectionStatus",
+            "description": "the db service connection",
+            "name": "filter_connection_status",
+            "in": "query"
+          },
+          {
             "type": "string",
             "x-go-name": "FilterByBusiness",
             "description": "the db service business name",
@@ -2667,6 +2678,17 @@
             "x-go-name": "FilterByBusiness",
             "description": "the db service business name",
             "name": "filter_by_business",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "connect_success",
+              "connect_failed"
+            ],
+            "type": "string",
+            "x-go-name": "FilterConnectionStatus",
+            "description": "the db service connection",
+            "name": "filter_connection_status",
             "in": "query"
           },
           {
@@ -7248,6 +7270,22 @@
           "type": "boolean",
           "x-go-name": "IsEnableMasking"
         },
+        "last_connection_test_error_message": {
+          "description": "DB connect test error message",
+          "type": "string",
+          "x-go-name": "LastConnectionTestErrorMessage"
+        },
+        "last_connection_test_status": {
+          "description": "DB connect test status",
+          "type": "string",
+          "x-go-name": "LastConnectionTestStatus"
+        },
+        "last_connection_test_time": {
+          "description": "DB connection test time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "LastConnectionTestTime"
+        },
         "maintenance_times": {
           "description": "DB Service maintenance time",
           "type": "array",
@@ -7703,6 +7741,22 @@
           "description": "is enable masking",
           "type": "boolean",
           "x-go-name": "IsEnableMasking"
+        },
+        "last_connection_test_error_message": {
+          "description": "DB connect test error message",
+          "type": "string",
+          "x-go-name": "LastConnectionTestErrorMessage"
+        },
+        "last_connection_test_status": {
+          "description": "DB connect test status",
+          "type": "string",
+          "x-go-name": "LastConnectionTestStatus"
+        },
+        "last_connection_test_time": {
+          "description": "DB connection test time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "LastConnectionTestTime"
         },
         "maintenance_times": {
           "description": "DB Service maintenance time",
