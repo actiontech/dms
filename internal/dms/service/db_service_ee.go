@@ -162,6 +162,7 @@ func (d *DMSService) listGlobalDBServices(ctx context.Context, req *dmsV1.ListGl
 			IsEnableAudit:         false,
 			IsEnableMasking:       u.IsMaskingSwitch,
 			UnfinishedWorkflowNum: u.UnfinishedWorkflowNum,
+			EnableBackup:          u.EnableBackup,
 		}
 
 		if u.LastConnectionTime != nil {
