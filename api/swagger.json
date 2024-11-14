@@ -951,6 +951,17 @@
             "in": "query"
           },
           {
+            "enum": [
+              "connect_success",
+              "connect_failed"
+            ],
+            "type": "string",
+            "x-go-name": "FilterLastConnectionTestStatus",
+            "description": "the db service connection",
+            "name": "filter_last_connection_test_status",
+            "in": "query"
+          },
+          {
             "type": "string",
             "x-go-name": "FilterByBusiness",
             "description": "the db service business name",
@@ -1503,6 +1514,39 @@
             "description": "DBServicesConnectionReply",
             "schema": {
               "$ref": "#/definitions/DBServicesConnectionReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/db_services_connections": {
+      "post": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "check if the project db_services is connectable.",
+        "operationId": "DBServicesConnections",
+        "parameters": [
+          {
+            "description": "check db_services is connectable",
+            "name": "db_services",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/DBServicesConnectionReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "DBServicesConnectionReqReply",
+            "schema": {
+              "$ref": "#/definitions/DBServicesConnectionReqReply"
             }
           },
           "default": {
@@ -2670,6 +2714,17 @@
             "in": "query"
           },
           {
+            "enum": [
+              "connect_success",
+              "connect_failed"
+            ],
+            "type": "string",
+            "x-go-name": "FilterLastConnectionTestStatus",
+            "description": "the db service connection",
+            "name": "filter_last_connection_test_status",
+            "in": "query"
+          },
+          {
             "type": "string",
             "x-go-name": "FilterByHost",
             "description": "the db service host",
@@ -2821,6 +2876,46 @@
             "description": "CheckDBServiceIsConnectableReply",
             "schema": {
               "$ref": "#/definitions/CheckDBServiceIsConnectableReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/db_services/connections": {
+      "post": {
+        "tags": [
+          "DBService"
+        ],
+        "summary": "check if the db_services is connectable.",
+        "operationId": "CheckDBServiceIsConnectableByIds",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "check db_services is connectable",
+            "name": "db_services",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CheckDBServicesIsConnectableReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CheckDBServicesIsConnectableReply",
+            "schema": {
+              "$ref": "#/definitions/CheckDBServicesIsConnectableReply"
             }
           },
           "default": {
@@ -5286,6 +5381,43 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "CheckDBServicesIsConnectableReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DBServiceIsConnectableReply"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "CheckDBServicesIsConnectableReq": {
+      "type": "object",
+      "properties": {
+        "db_services": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DbServiceConnections"
+          },
+          "x-go-name": "DBServices"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "CheckDbConnectable": {
       "type": "object",
       "required": [
@@ -5553,6 +5685,29 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "DBServiceIsConnectableReply": {
+      "type": "object",
+      "properties": {
+        "connect_error_message": {
+          "type": "string",
+          "x-go-name": "ConnectErrorMessage"
+        },
+        "connection_status": {
+          "type": "string",
+          "x-go-name": "ConnectionStatus"
+        },
+        "db_service_uid": {
+          "type": "string",
+          "x-go-name": "DBServiceUid"
+        },
+        "test_connection_time": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "TestConnectionTime"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "DBServiceSourceName": {
       "type": "string",
       "x-go-package": "github.com/actiontech/dms/internal/dms/pkg/constant"
@@ -5666,6 +5821,43 @@
         },
         "data": {
           "$ref": "#/definitions/DBServicesConnectionItem"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DBServicesConnectionReq": {
+      "type": "object",
+      "properties": {
+        "db_services": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DbServiceConnections"
+          },
+          "x-go-name": "DBServices"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DBServicesConnectionReqReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DBServiceIsConnectableReply"
+          },
+          "x-go-name": "Data"
         },
         "message": {
           "description": "message",
@@ -5819,6 +6011,16 @@
             "$ref": "#/definitions/DatabaseDriverAdditionalParam"
           },
           "x-go-name": "Params"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DbServiceConnections": {
+      "type": "object",
+      "properties": {
+        "db_service_uid": {
+          "type": "string",
+          "x-go-name": "DBServiceUid"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -7248,6 +7450,22 @@
           "type": "boolean",
           "x-go-name": "IsEnableMasking"
         },
+        "last_connection_test_error_message": {
+          "description": "DB connect test error message",
+          "type": "string",
+          "x-go-name": "LastConnectionTestErrorMessage"
+        },
+        "last_connection_test_status": {
+          "description": "DB connect test status",
+          "type": "string",
+          "x-go-name": "LastConnectionTestStatus"
+        },
+        "last_connection_test_time": {
+          "description": "DB connection test time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "LastConnectionTestTime"
+        },
         "maintenance_times": {
           "description": "DB Service maintenance time",
           "type": "array",
@@ -7703,6 +7921,22 @@
           "description": "is enable masking",
           "type": "boolean",
           "x-go-name": "IsEnableMasking"
+        },
+        "last_connection_test_error_message": {
+          "description": "DB connect test error message",
+          "type": "string",
+          "x-go-name": "LastConnectionTestErrorMessage"
+        },
+        "last_connection_test_status": {
+          "description": "DB connect test status",
+          "type": "string",
+          "x-go-name": "LastConnectionTestStatus"
+        },
+        "last_connection_test_time": {
+          "description": "DB connection test time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "LastConnectionTestTime"
         },
         "maintenance_times": {
           "description": "DB Service maintenance time",
@@ -9489,7 +9723,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
