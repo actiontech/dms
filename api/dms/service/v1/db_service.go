@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
+	"github.com/go-openapi/strfmt"
 
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
@@ -53,9 +54,9 @@ type DBService struct {
 
 // swagger:model AddDBServiceReq
 type AddDBServiceReq struct {
-    // swagger:ignore
-	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-	DBService *DBService `json:"db_service" validate:"required"`
+	// swagger:ignore
+	ProjectUid string     `param:"project_uid" json:"project_uid" validate:"required"`
+	DBService  *DBService `json:"db_service" validate:"required"`
 }
 
 func (u *AddDBServiceReq) String() string {
@@ -87,8 +88,8 @@ func (u *AddDBServiceReply) String() string {
 // swagger:model
 type CheckDBServiceIsConnectableReq struct {
 	// swagger:ignore
-	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-	DBService dmsCommonV1.CheckDbConnectable `json:"db_service"`
+	ProjectUid string                         `param:"project_uid" json:"project_uid" validate:"required"`
+	DBService  dmsCommonV1.CheckDbConnectable `json:"db_service"`
 }
 
 type CheckDBServiceIsConnectableReplyItem struct {
@@ -105,8 +106,28 @@ type CheckDBServiceIsConnectableReply struct {
 }
 
 // swagger:model
+type CheckDBServicesIsConnectableReq struct {
+	// swagger:ignore
+	ProjectUid string                 `param:"project_uid" json:"project_uid" validate:"required"`
+	DBServices []DbServiceConnections `json:"db_services"`
+}
+
+// swagger:model CheckDBServicesIsConnectableReply
+type CheckDBServicesIsConnectableReply struct {
+	Data []DBServiceIsConnectableReply `json:"data"`
+	base.GenericResp
+}
+
+type DBServiceIsConnectableReply struct {
+	DBServiceUid        string          `param:"db_service_uid" json:"db_service_uid"`
+	ConnectionStatus    string          `json:"connection_status"`
+	TestConnectionTime  strfmt.DateTime `json:"test_connection_time"`
+	ConnectErrorMessage string          `json:"connect_error_message"`
+}
+
+// swagger:model
 type CheckDBServiceIsConnectableByIdReq struct {
-	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	ProjectUid   string `param:"project_uid" json:"project_uid" validate:"required"`
 	DBServiceUid string `param:"db_service_uid" json:"db_service_uid" validate:"required"`
 }
 
@@ -133,8 +154,8 @@ type UpdateDBServiceReq struct {
 	// swagger:ignore
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// swagger:ignore
-	DBServiceUid string `param:"db_service_uid" json:"db_service_uid" validate:"required"`
-	DBService *UpdateDBService `json:"db_service" validate:"required"`
+	DBServiceUid string           `param:"db_service_uid" json:"db_service_uid" validate:"required"`
+	DBService    *UpdateDBService `json:"db_service" validate:"required"`
 }
 
 func (u *UpdateDBServiceReq) String() string {
@@ -304,8 +325,8 @@ type ImportDBService struct {
 
 // swagger:model
 type ImportDBServicesOfOneProjectReq struct {
-    // swagger:ignore
-	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	// swagger:ignore
+	ProjectUid string            `param:"project_uid" json:"project_uid" validate:"required"`
 	DBServices []ImportDBService `json:"db_services" validate:"required"`
 }
 
@@ -329,6 +350,10 @@ type ListGlobalDBServicesReq struct {
 	// Multiple of ["name"], default is ["name"]
 	// in:query
 	OrderBy dmsCommonV1.DBServiceOrderByField `query:"order_by" json:"order_by"`
+	// the db service connection
+	// enum: connect_success,connect_failed
+	// in:query
+	FilterLastConnectionTestStatus *string `query:"filter_last_connection_test_status" json:"filter_last_connection_test_status" validate:"omitempty,oneof=connect_success connect_failed"`
 	// the db service business name
 	// in:query
 	FilterByBusiness string `query:"filter_by_business" json:"filter_by_business"`
@@ -399,6 +424,12 @@ type ListGlobalDBService struct {
 	UnfinishedWorkflowNum int64 `json:"unfinished_workflow_num"`
 	// backup switch
 	EnableBackup bool `json:"enable_backup"`
+	// DB connection test time
+	LastConnectionTestTime strfmt.DateTime `json:"last_connection_test_time"`
+	// DB connect test status
+	LastConnectionTestStatus string `json:"last_connection_test_status"`
+	// DB connect test error message
+	LastConnectionTestErrorMessage string `json:"last_connection_test_error_message,omitempty"`
 }
 
 // swagger:model ListGlobalDBServicesTipsReply
