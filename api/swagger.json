@@ -956,9 +956,9 @@
               "connect_failed"
             ],
             "type": "string",
-            "x-go-name": "FilterConnectionStatus",
+            "x-go-name": "FilterLastConnectionTestStatus",
             "description": "the db service connection",
-            "name": "filter_connection_status",
+            "name": "filter_last_connection_test_status",
             "in": "query"
           },
           {
@@ -2719,9 +2719,9 @@
               "connect_failed"
             ],
             "type": "string",
-            "x-go-name": "FilterConnectionStatus",
+            "x-go-name": "FilterLastConnectionTestStatus",
             "description": "the db service connection",
-            "name": "filter_connection_status",
+            "name": "filter_last_connection_test_status",
             "in": "query"
           },
           {
@@ -9723,7 +9723,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",

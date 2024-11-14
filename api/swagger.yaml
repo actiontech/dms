@@ -4096,7 +4096,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -5371,9 +5371,9 @@ paths:
                     - connect_success
                     - connect_failed
                   in: query
-                  name: filter_connection_status
+                  name: filter_last_connection_test_status
                   type: string
-                  x-go-name: FilterConnectionStatus
+                  x-go-name: FilterLastConnectionTestStatus
                 - description: the db service business name
                   in: query
                   name: filter_by_business
@@ -6385,9 +6385,9 @@ paths:
                     - connect_success
                     - connect_failed
                   in: query
-                  name: filter_connection_status
+                  name: filter_last_connection_test_status
                   type: string
-                  x-go-name: FilterConnectionStatus
+                  x-go-name: FilterLastConnectionTestStatus
                 - description: the db service host
                   in: query
                   name: filter_by_host
