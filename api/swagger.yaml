@@ -622,6 +622,33 @@ definitions:
                 $ref: '#/definitions/CheckDbConnectable'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CheckDBServicesIsConnectableReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/DBServiceIsConnectableReply'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CheckDBServicesIsConnectableReq:
+        properties:
+            db_services:
+                items:
+                    $ref: '#/definitions/DbServiceConnections'
+                type: array
+                x-go-name: DBServices
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CheckDbConnectable:
         properties:
             additional_params:
@@ -833,6 +860,23 @@ definitions:
                 x-go-name: DBServices
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DBServiceIsConnectableReply:
+        properties:
+            connect_error_message:
+                type: string
+                x-go-name: ConnectErrorMessage
+            connection_status:
+                type: string
+                x-go-name: ConnectionStatus
+            db_service_uid:
+                type: string
+                x-go-name: DBServiceUid
+            test_connection_time:
+                format: date-time
+                type: string
+                x-go-name: TestConnectionTime
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DBServiceSourceName:
         type: string
         x-go-package: github.com/actiontech/dms/internal/dms/pkg/constant
@@ -920,6 +964,33 @@ definitions:
                 x-go-name: Code
             data:
                 $ref: '#/definitions/DBServicesConnectionItem'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DBServicesConnectionReq:
+        properties:
+            db_services:
+                items:
+                    $ref: '#/definitions/DbServiceConnections'
+                type: array
+                x-go-name: DBServices
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DBServicesConnectionReqReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/DBServiceIsConnectableReply'
+                type: array
+                x-go-name: Data
             message:
                 description: message
                 type: string
@@ -1043,6 +1114,13 @@ definitions:
                     $ref: '#/definitions/DatabaseDriverAdditionalParam'
                 type: array
                 x-go-name: Params
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DbServiceConnections:
+        properties:
+            db_service_uid:
+                type: string
+                x-go-name: DBServiceUid
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DelDBServicePreCheckReply:
@@ -6506,6 +6584,32 @@ paths:
             summary: check if the db_service is connectable.
             tags:
                 - DBService
+    /v1/dms/projects/{project_uid}/db_services/connections:
+        post:
+            operationId: CheckDBServiceIsConnectableByIds
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                - description: check db_services is connectable
+                  in: body
+                  name: db_services
+                  schema:
+                    $ref: '#/definitions/CheckDBServicesIsConnectableReq'
+            responses:
+                "200":
+                    description: CheckDBServicesIsConnectableReply
+                    schema:
+                        $ref: '#/definitions/CheckDBServicesIsConnectableReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: check if the db_services is connectable.
+            tags:
+                - DBService
     /v1/dms/projects/{project_uid}/db_services/import:
         post:
             operationId: ImportDBServicesOfOneProject
@@ -6992,6 +7096,27 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: DBServices Connection.
+            tags:
+                - Project
+    /v1/dms/projects/db_services_connections:
+        post:
+            operationId: DBServicesConnections
+            parameters:
+                - description: check db_services is connectable
+                  in: body
+                  name: db_services
+                  schema:
+                    $ref: '#/definitions/DBServicesConnectionReq'
+            responses:
+                "200":
+                    description: DBServicesConnectionReqReply
+                    schema:
+                        $ref: '#/definitions/DBServicesConnectionReqReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: check if the project db_services is connectable.
             tags:
                 - Project
     /v1/dms/projects/export:

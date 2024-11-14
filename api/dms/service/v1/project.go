@@ -266,6 +266,21 @@ type DBServiceConnectionReq struct {
 	DBServices []CheckDbsConnectable `json:"db_services"`
 }
 
+// swagger:model
+type DBServicesConnectionReq struct {
+	DBServices []DbServiceConnections `json:"db_services"`
+}
+
+type DbServiceConnections struct {
+	DBServiceUid string `param:"db_service_uid" json:"db_service_uid"`
+}
+
+// swagger:model DBServicesConnectionReqReply
+type DBServicesConnectionReqReply struct {
+	Data []DBServiceIsConnectableReply `json:"data"`
+	base.GenericResp
+}
+
 type DBServicesConnectionItem struct {
 	// Successful connection num
 	SuccessfulNum int `json:"successful_num"`
