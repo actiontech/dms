@@ -76,6 +76,7 @@ type DBService struct {
 	LastConnectionStatus   *string         `json:"last_connection_status"`
 	LastConnectionTime     *time.Time      `json:"last_connection_time"`
 	LastConnectionErrorMsg *string         `json:"last_connection_error_msg"`
+	EnableBackup           bool            `json:"enable_backup" gorm:"column:enable_backup;type:bool"`
 }
 
 type ExtraParameters struct {
