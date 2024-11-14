@@ -106,6 +106,26 @@ type CheckDBServiceIsConnectableReply struct {
 }
 
 // swagger:model
+type CheckDBServicesIsConnectableReq struct {
+	// swagger:ignore
+	ProjectUid string                 `param:"project_uid" json:"project_uid" validate:"required"`
+	DBServices []DbServiceConnections `json:"db_services"`
+}
+
+// swagger:model CheckDBServicesIsConnectableReply
+type CheckDBServicesIsConnectableReply struct {
+	Data []DBServiceIsConnectableReply `json:"data"`
+	base.GenericResp
+}
+
+type DBServiceIsConnectableReply struct {
+	DBServiceUid        string          `param:"db_service_uid" json:"db_service_uid"`
+	ConnectionStatus    string          `json:"connection_status"`
+	TestConnectionTime  strfmt.DateTime `json:"test_connection_time"`
+	ConnectErrorMessage string          `json:"connect_error_message"`
+}
+
+// swagger:model
 type CheckDBServiceIsConnectableByIdReq struct {
 	ProjectUid   string `param:"project_uid" json:"project_uid" validate:"required"`
 	DBServiceUid string `param:"db_service_uid" json:"db_service_uid" validate:"required"`

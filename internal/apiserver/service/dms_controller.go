@@ -366,6 +366,35 @@ func (d *DMSController) CheckDBServiceIsConnectableById(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
+// swagger:operation POST /v1/dms/projects/{project_uid}/db_services/connections DBService CheckDBServiceIsConnectableByIds
+//
+// check if the db_services is connectable.
+//
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: db_services
+//     description: check db_services is connectable
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/CheckDBServicesIsConnectableReq"
+// responses:
+//   '200':
+//     description: CheckDBServicesIsConnectableReply
+//     schema:
+//       "$ref": "#/definitions/CheckDBServicesIsConnectableReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (d *DMSController) CheckDBServiceIsConnectableByIds(c echo.Context) error {
+	return nil
+}
+
 
 // swagger:route GET /v1/dms/basic_info BasicInfo GetBasicInfo
 //
@@ -1996,6 +2025,7 @@ func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
 	return NewOkResp(c)
 }
 
+// todo 该接口已废弃
 // swagger:operation POST /v1/dms/projects/db_services_connection Project DBServicesConnection
 //
 // DBServices Connection.
@@ -2035,6 +2065,31 @@ func (a *DMSController) DBServicesConnection(c echo.Context) error {
 	}
 	return NewOkRespWithReply(c, reply)
 }
+
+// swagger:operation POST /v1/dms/projects/db_services_connections Project DBServicesConnections
+//
+// check if the project db_services is connectable.
+//
+// ---
+// parameters:
+//   - name: db_services
+//     description: check db_services is connectable
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/DBServicesConnectionReq"
+// responses:
+//   '200':
+//     description: DBServicesConnectionReqReply
+//     schema:
+//       "$ref": "#/definitions/DBServicesConnectionReqReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (a *DMSController) DBServicesConnections(c echo.Context) error {
+	return nil
+}
+
 
 // swagger:operation POST /v1/dms/proxys DMSProxy RegisterDMSProxyTarget
 //
