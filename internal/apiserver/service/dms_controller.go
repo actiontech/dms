@@ -366,9 +366,9 @@ func (d *DMSController) CheckDBServiceIsConnectableById(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:operation POST /v1/dms/projects/{project_uid}/db_services/connections DBService CheckDBServiceIsConnectableByIds
+// swagger:operation POST /v1/dms/projects/{project_uid}/db_services/connections DBService CheckProjectDBServicesConnections
 //
-// check if the db_services is connectable.
+// check if the project db_services is connectable.
 //
 // ---
 // parameters:
@@ -391,7 +391,7 @@ func (d *DMSController) CheckDBServiceIsConnectableById(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) CheckDBServiceIsConnectableByIds(c echo.Context) error {
+func (d *DMSController) CheckProjectDBServicesConnections(c echo.Context) error {
 	return nil
 }
 
@@ -2066,9 +2066,9 @@ func (a *DMSController) DBServicesConnection(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:operation POST /v1/dms/projects/db_services_connections Project DBServicesConnections
+// swagger:operation POST /v1/dms/projects/db_services_connections Project CheckGlobalDBServicesConnections
 //
-// check if the project db_services is connectable.
+// check if the global db_services is connectable.
 //
 // ---
 // parameters:
@@ -2086,7 +2086,7 @@ func (a *DMSController) DBServicesConnection(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (a *DMSController) DBServicesConnections(c echo.Context) error {
+func (a *DMSController) CheckGlobalDBServicesConnections(c echo.Context) error {
 	return nil
 }
 
