@@ -119,10 +119,10 @@ type CheckDBServicesIsConnectableReply struct {
 }
 
 type DBServiceIsConnectableReply struct {
-	DBServiceUid        string          `param:"db_service_uid" json:"db_service_uid"`
-	ConnectionStatus    string          `json:"connection_status"`
-	TestConnectionTime  strfmt.DateTime `json:"test_connection_time"`
-	ConnectErrorMessage string          `json:"connect_error_message"`
+	DBServiceUid        string                               `param:"db_service_uid" json:"db_service_uid"`
+	ConnectionStatus    dmsCommonV1.LastConnectionTestStatus `json:"connection_status"`
+	TestConnectionTime  strfmt.DateTime                      `json:"test_connection_time"`
+	ConnectErrorMessage string                               `json:"connect_error_message"`
 }
 
 // swagger:model
@@ -427,7 +427,7 @@ type ListGlobalDBService struct {
 	// DB connection test time
 	LastConnectionTestTime strfmt.DateTime `json:"last_connection_test_time"`
 	// DB connect test status
-	LastConnectionTestStatus string `json:"last_connection_test_status"`
+	LastConnectionTestStatus dmsCommonV1.LastConnectionTestStatus `json:"last_connection_test_status"`
 	// DB connect test error message
 	LastConnectionTestErrorMessage string `json:"last_connection_test_error_message,omitempty"`
 }

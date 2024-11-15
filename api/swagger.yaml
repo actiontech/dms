@@ -866,7 +866,6 @@ definitions:
                 type: string
                 x-go-name: ConnectErrorMessage
             connection_status:
-                type: string
                 x-go-name: ConnectionStatus
             db_service_uid:
                 type: string
@@ -2231,7 +2230,6 @@ definitions:
                 x-go-name: LastConnectionTestErrorMessage
             last_connection_test_status:
                 description: DB connect test status
-                type: string
                 x-go-name: LastConnectionTestStatus
             last_connection_test_time:
                 description: DB connection test time
@@ -2600,7 +2598,6 @@ definitions:
                 x-go-name: LastConnectionTestErrorMessage
             last_connection_test_status:
                 description: DB connect test status
-                type: string
                 x-go-name: LastConnectionTestStatus
             last_connection_test_time:
                 description: DB connection test time
@@ -4096,7 +4093,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:

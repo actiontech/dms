@@ -5693,7 +5693,6 @@
           "x-go-name": "ConnectErrorMessage"
         },
         "connection_status": {
-          "type": "string",
           "x-go-name": "ConnectionStatus"
         },
         "db_service_uid": {
@@ -7457,7 +7456,6 @@
         },
         "last_connection_test_status": {
           "description": "DB connect test status",
-          "type": "string",
           "x-go-name": "LastConnectionTestStatus"
         },
         "last_connection_test_time": {
@@ -7929,7 +7927,6 @@
         },
         "last_connection_test_status": {
           "description": "DB connect test status",
-          "type": "string",
           "x-go-name": "LastConnectionTestStatus"
         },
         "last_connection_test_time": {
@@ -9723,7 +9720,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
