@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"fmt"
+	"sync"
+	"time"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
@@ -11,6 +13,7 @@ import (
 	pkgAes "github.com/actiontech/dms/pkg/dms-common/pkg/aes"
 	"github.com/actiontech/dms/pkg/params"
 	"github.com/actiontech/dms/pkg/periods"
+	"github.com/go-openapi/strfmt"
 )
 
 func (d *DMSService) DelDBService(ctx context.Context, req *dmsV1.DelDBServiceReq, currentUserUid string) (err error) {
@@ -194,7 +197,7 @@ func (d *DMSService) CheckDBServiceIsConnectableByIds(ctx context.Context, proje
 			mu.Lock()
 			resp[index] = dmsV1.DBServiceIsConnectableReply{
 				DBServiceUid:        service.DBServiceUid,
-				ConnectionStatus:    string(service.ConnectionStatus),
+				ConnectionStatus:    dmsCommonV1.LastConnectionTestStatus(service.ConnectionStatus),
 				TestConnectionTime:  strfmt.DateTime(service.TestConnectionTime),
 				ConnectErrorMessage: service.ConnectErrorMessage,
 			}
@@ -564,6 +567,13 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 			Value:    req.ProjectUid,
 		})
 	}
+	if req.FilterLastConnectionTestStatus != nil {
+		filterBy = append(filterBy, pkgConst.FilterCondition{
+			Field:    string(biz.DBServiceFieldLastConnectionStatus),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    *req.FilterLastConnectionTestStatus,
+		})
+	}
 	if len(req.FilterByDBServiceIds) > 0 {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldUID),
@@ -620,6 +630,16 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 			IsEnableMasking:     u.IsMaskingSwitch,
 			InstanceAuditPlanID: u.InstanceAuditPlanID,
 			AuditPlanTypes:      u.AuditPlanTypes,
+		}
+
+		if u.LastConnectionTime != nil {
+			ret[i].LastConnectionTestTime = strfmt.DateTime(*u.LastConnectionTime)
+		}
+		if u.LastConnectionStatus != nil {
+			ret[i].LastConnectionTestStatus = dmsCommonV1.LastConnectionTestStatus(*u.LastConnectionStatus)
+		}
+		if u.LastConnectionErrorMsg != nil {
+			ret[i].LastConnectionTestErrorMessage = *u.LastConnectionErrorMsg
 		}
 
 		if u.AdditionalParams != nil {
