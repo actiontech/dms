@@ -122,21 +122,22 @@ const (
 )
 
 const (
-	DBServiceFieldUID               DBServiceField = "uid"
-	DBServiceFieldName              DBServiceField = "name"
-	DBServiceFieldDBType            DBServiceField = "db_type"
-	DBServiceFieldHost              DBServiceField = "db_host"
-	DBServiceFieldPort              DBServiceField = "db_port"
-	DBServiceFieldUser              DBServiceField = "db_user"
-	DBServiceFieldPassword          DBServiceField = "db_password"
-	DBServiceFieldDesc              DBServiceField = "desc"
-	DBServiceFieldBusiness          DBServiceField = "business"
-	DBServiceFieldAdditionalParams  DBServiceField = "additionalparams"
-	DBServiceFieldSource            DBServiceField = "source"
-	DBServiceFieldProjectUID        DBServiceField = "project_uid"
-	DBServiceFieldMaintenancePeriod DBServiceField = "maintenanceperiod"
-	DBServiceFieldExtraParameters   DBServiceField = "extraparameters"
-	DBServiceFieldIsEnableMasking   DBServiceField = "is_enable_masking"
+	DBServiceFieldUID                  DBServiceField = "uid"
+	DBServiceFieldName                 DBServiceField = "name"
+	DBServiceFieldDBType               DBServiceField = "db_type"
+	DBServiceFieldHost                 DBServiceField = "db_host"
+	DBServiceFieldPort                 DBServiceField = "db_port"
+	DBServiceFieldUser                 DBServiceField = "db_user"
+	DBServiceFieldPassword             DBServiceField = "db_password"
+	DBServiceFieldDesc                 DBServiceField = "desc"
+	DBServiceFieldBusiness             DBServiceField = "business"
+	DBServiceFieldAdditionalParams     DBServiceField = "additionalparams"
+	DBServiceFieldSource               DBServiceField = "source"
+	DBServiceFieldProjectUID           DBServiceField = "project_uid"
+	DBServiceFieldMaintenancePeriod    DBServiceField = "maintenanceperiod"
+	DBServiceFieldExtraParameters      DBServiceField = "extraparameters"
+	DBServiceFieldIsEnableMasking      DBServiceField = "is_enable_masking"
+	DBServiceFieldLastConnectionStatus DBServiceField = "last_connection_status"
 )
 
 const (
