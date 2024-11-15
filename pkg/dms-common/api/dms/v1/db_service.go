@@ -109,6 +109,14 @@ type AuditPlanTypes struct {
 	AuditPlanTypeDesc string `json:"desc"`
 }
 
+// swagger:enum LastConnectionTestStatus
+type LastConnectionTestStatus string
+
+const (
+	LastConnectionTestStatusSuccess = "connect_success"
+	LastConnectionTestStatusFailed  = "connect_failed"
+)
+
 // A dms db Service
 type ListDBService struct {
 	// db service uid
@@ -150,7 +158,7 @@ type ListDBService struct {
 	// DB connection test time
 	LastConnectionTestTime strfmt.DateTime `json:"last_connection_test_time"`
 	// DB connect test status
-	LastConnectionTestStatus string `json:"last_connection_test_status"`
+	LastConnectionTestStatus LastConnectionTestStatus `json:"last_connection_test_status"`
 	// DB connect test error message
 	LastConnectionTestErrorMessage string `json:"last_connection_test_error_message,omitempty"`
 }
