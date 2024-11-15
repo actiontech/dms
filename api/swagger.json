@@ -1530,8 +1530,8 @@
         "tags": [
           "Project"
         ],
-        "summary": "check if the project db_services is connectable.",
-        "operationId": "DBServicesConnections",
+        "summary": "check if the global db_services is connectable.",
+        "operationId": "CheckGlobalDBServicesConnections",
         "parameters": [
           {
             "description": "check db_services is connectable",
@@ -2892,8 +2892,8 @@
         "tags": [
           "DBService"
         ],
-        "summary": "check if the db_services is connectable.",
-        "operationId": "CheckDBServiceIsConnectableByIds",
+        "summary": "check if the project db_services is connectable.",
+        "operationId": "CheckProjectDBServicesConnections",
         "parameters": [
           {
             "type": "string",
@@ -9720,7 +9720,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
