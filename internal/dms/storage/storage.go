@@ -91,7 +91,13 @@ func gormWhereCondition(condition pkgConst.FilterCondition) (string, interface{}
 	case pkgConst.FilterOperatorIn:
 		values, ok := condition.Value.([]string)
 		if ok && len(values) > 0 {
-			return fmt.Sprintf("%s %s (%s)", condition.Field, condition.Operator, strings.Join(values, ",")), nil
+			var itemList []string
+			for _, value := range values {
+				item := fmt.Sprintf(`'%v'`, value)
+				itemList = append(itemList, item)
+			}
+
+			return fmt.Sprintf("%s %s (%s)", condition.Field, condition.Operator, strings.Join(itemList, ",")), nil
 		}
 	}
 	return fmt.Sprintf("%s %s ?", condition.Field, condition.Operator), condition.Value
