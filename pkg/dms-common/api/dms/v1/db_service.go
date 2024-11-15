@@ -113,8 +113,8 @@ type AuditPlanTypes struct {
 type LastConnectionTestStatus string
 
 const (
-	LastConnectionTestStatusSuccess = "connect_success"
-	LastConnectionTestStatusFailed  = "connect_failed"
+	LastConnectionTestStatusSuccess LastConnectionTestStatus = "connect_success"
+	LastConnectionTestStatusFailed  LastConnectionTestStatus = "connect_failed"
 )
 
 // A dms db Service
