@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"time"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/apiserver/conf"
@@ -32,6 +33,13 @@ type SQLEConfig struct {
 	SQLQueryConfig *SQLQueryConfig `json:"sql_query_config"`
 }
 
+type LastConnectionStatus string
+
+const (
+	LastConnectionStatusSuccess LastConnectionStatus = "connect_success"
+	LastConnectionStatusFailed  LastConnectionStatus = "connect_failed"
+)
+
 // 数据源
 type DBService struct {
 	Base
@@ -49,6 +57,11 @@ type DBService struct {
 	ProjectUID        string             `json:"project_uid"`
 	MaintenancePeriod pkgPeriods.Periods `json:"maintenance_period"`
 	Source            string             `json:"source"`
+
+	// db service connection
+	LastConnectionStatus   *LastConnectionStatus `json:"last_connection_status"`
+	LastConnectionTime     *time.Time            `json:"last_connection_time"`
+	LastConnectionErrorMsg *string               `json:"last_connection_error_msg"`
 
 	// sqle config
 	SQLEConfig      *SQLEConfig `json:"sqle_config"`
@@ -231,10 +244,15 @@ func (d *DBServiceUsecase) ListDBService(ctx context.Context, option *ListDBServ
 	if err != nil {
 		return nil, 0, fmt.Errorf("list db services failed: %w", err)
 	}
-	// 只允许系统用户查询所有数据源,同步数据到其他服务(provision)
+	// 只允许系统用户和平台管理/查看权限用户查询所有数据源,同步数据到其他服务(provision)
 	if projectUid == "" {
-		if currentUserUid != pkgConst.UIDOfUserSys {
-			return nil, 0, fmt.Errorf("list db service error: project is empty")
+		canViewProject, err := d.opPermissionVerifyUsecase.CanViewProject(ctx, currentUserUid, projectUid)
+		if err != nil {
+			return nil, 0, err
+		}
+
+		if currentUserUid != pkgConst.UIDOfUserSys || !canViewProject {
+			return nil, 0, fmt.Errorf("user is not sys user or global management or view permission user")
 		}
 	} else {
 		err = d.AddInstanceAuditPlanForDBServiceFromSqle(ctx, projectUid, services)
@@ -441,6 +459,91 @@ func (d *DBServiceUsecase) CheckDBServiceExist(ctx context.Context, dbServiceUid
 
 func (d *DBServiceUsecase) GetDBService(ctx context.Context, dbServiceUid string) (*DBService, error) {
 	return d.repo.GetDBService(ctx, dbServiceUid)
+}
+
+type TestDbServiceConnectionResult struct {
+	DBServiceUid        string
+	ConnectionStatus    LastConnectionStatus
+	TestConnectionTime  time.Time
+	ConnectErrorMessage string
+}
+
+func (d *DBServiceUsecase) TestDbServiceConnection(ctx context.Context, dbService *DBService) (TestDbServiceConnectionResult, error) {
+	var additionParams []*dmsCommonV1.AdditionalParam
+	for _, item := range dbService.AdditionalParams {
+		additionParams = append(additionParams, &dmsCommonV1.AdditionalParam{
+			Name:  item.Key,
+			Value: item.Value,
+		})
+	}
+
+	checkDbConnectableParams := dmsCommonV1.CheckDbConnectable{
+		DBType:           dbService.DBType,
+		User:             dbService.User,
+		Host:             dbService.Host,
+		Port:             dbService.Port,
+		Password:         dbService.Password,
+		AdditionalParams: additionParams,
+	}
+
+	testConnectTime := time.Now()
+
+	connectable, err := d.IsConnectable(ctx, checkDbConnectableParams)
+	if err != nil {
+		return TestDbServiceConnectionResult{
+			DBServiceUid:        dbService.UID,
+			ConnectionStatus:    LastConnectionStatusFailed,
+			TestConnectionTime:  testConnectTime,
+			ConnectErrorMessage: err.Error(),
+		}, err
+	}
+
+	var connectErrorMsg string
+	var connectionStatus = LastConnectionStatusSuccess
+	if len(connectable) == 0 {
+		connectionStatus = LastConnectionStatusFailed
+		connectErrorMsg = "check db connectable failed"
+	} else {
+		for _, c := range connectable {
+			if !c.IsConnectable {
+				connectionStatus = LastConnectionStatusFailed
+				connectErrorMsg = c.ConnectErrorMessage
+				break
+			}
+		}
+	}
+
+	return TestDbServiceConnectionResult{
+		DBServiceUid:        dbService.UID,
+		ConnectionStatus:    connectionStatus,
+		TestConnectionTime:  testConnectTime,
+		ConnectErrorMessage: connectErrorMsg,
+	}, nil
+}
+
+func (d *DBServiceUsecase) UpdateDBServiceByBiz(ctx context.Context, ds *DBService, currentUserUid string) (err error) {
+	// 检查项目是否归档/删除
+	if err := d.projectUsecase.isProjectActive(ctx, ds.ProjectUID); err != nil {
+		return fmt.Errorf("update db service error: %v", err)
+	}
+
+	// 检查当前用户有项目管理员权限
+	if canOpProject, err := d.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, ds.ProjectUID); err != nil {
+		return fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
+	} else if !canOpProject {
+		return fmt.Errorf("user is not project admin or golobal op permission user")
+	}
+
+	if err := d.repo.UpdateDBService(ctx, ds); nil != err {
+		return fmt.Errorf("update db service error: %v", err)
+	}
+
+	err = d.pluginUsecase.OperateDataResourceHandle(ctx, ds.UID, dmsCommonV1.DataResourceTypeDBService, dmsCommonV1.OperationTypeUpdate, dmsCommonV1.OperationTimingAfter)
+	if err != nil {
+		return fmt.Errorf("plugin handle after update db_service err: %v", err)
+	}
+
+	return nil
 }
 
 func (d *DBServiceUsecase) UpdateDBService(ctx context.Context, dbServiceUid string, updateDBService *BizDBServiceArgs, currentUserUid string) (err error) {

@@ -45,6 +45,15 @@ func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
 		ProjectUID:        ds.ProjectUID,
 		IsEnableMasking:   ds.IsMaskingSwitch,
 	}
+	if ds.LastConnectionStatus != nil {
+		dbService.LastConnectionStatus = (*string)(ds.LastConnectionStatus)
+	}
+	if ds.LastConnectionTime != nil {
+		dbService.LastConnectionTime = ds.LastConnectionTime
+	}
+	if ds.LastConnectionErrorMsg != nil {
+		dbService.LastConnectionErrorMsg = ds.LastConnectionErrorMsg
+	}
 	{
 		// add sqle config
 		if ds.SQLEConfig != nil {
@@ -94,6 +103,17 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 		ProjectUID:        ds.ProjectUID,
 		IsMaskingSwitch:   ds.IsEnableMasking,
 	}
+
+	if ds.LastConnectionStatus != nil {
+		dbService.LastConnectionStatus = (*biz.LastConnectionStatus)(ds.LastConnectionStatus)
+	}
+	if ds.LastConnectionTime != nil {
+		dbService.LastConnectionTime = ds.LastConnectionTime
+	}
+	if ds.LastConnectionErrorMsg != nil {
+		dbService.LastConnectionErrorMsg = ds.LastConnectionErrorMsg
+	}
+
 	{
 		modelSqleConfig := ds.ExtraParameters.SqleConfig
 		if modelSqleConfig != nil {
