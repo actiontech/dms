@@ -19,6 +19,7 @@ import (
 	pkgParams "github.com/actiontech/dms/pkg/params"
 	pkgPeriods "github.com/actiontech/dms/pkg/periods"
 	pkgRand "github.com/actiontech/dms/pkg/rand"
+	"github.com/go-openapi/strfmt"
 
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	"github.com/actiontech/dms/pkg/dms-common/pkg/aes"
@@ -251,7 +252,7 @@ func (d *DBServiceUsecase) ListDBService(ctx context.Context, option *ListDBServ
 			return nil, 0, err
 		}
 
-		if currentUserUid != pkgConst.UIDOfUserSys || !canViewProject {
+		if !(currentUserUid == pkgConst.UIDOfUserSys || canViewProject) {
 			return nil, 0, fmt.Errorf("user is not sys user or global management or view permission user")
 		}
 	} else {
@@ -262,6 +263,61 @@ func (d *DBServiceUsecase) ListDBService(ctx context.Context, option *ListDBServ
 	}
 
 	return services, total, nil
+}
+
+func (d *DBServiceUsecase) TestDbServiceConnections(ctx context.Context, DBServiceList []*DBService, currentUserUid string) []dmsV1.DBServiceIsConnectableReply {
+	connectionResp := make([]dmsV1.DBServiceIsConnectableReply, len(DBServiceList))
+	concurrencyLimit := make(chan int, 3)
+	var wg sync.WaitGroup
+	var respMu sync.Mutex
+
+	for i, dbService := range DBServiceList {
+		wg.Add(1)
+
+		go func(dbService *DBService, index int) {
+			defer func() {
+				if r := recover(); r != nil {
+					d.log.Errorf("CheckDBServiceIsConnectableByIds panic: %v", r)
+				}
+			}()
+			defer wg.Done()
+
+			if dbService == nil {
+				return
+			}
+
+			concurrencyLimit <- 1
+
+			connectionResult, err := d.TestDbServiceConnection(ctx, dbService)
+			if err != nil {
+				d.log.Errorf("db connectionResult uid: %v,TestDBServiceConnection err: %v", connectionResult.DBServiceUid, err)
+			}
+
+			dbService.LastConnectionStatus = &connectionResult.ConnectionStatus
+			dbService.LastConnectionTime = &connectionResult.TestConnectionTime
+			dbService.LastConnectionErrorMsg = &connectionResult.ConnectErrorMessage
+
+			err = d.UpdateDBServiceByBiz(ctx, dbService, currentUserUid)
+			if err != nil {
+				d.log.Errorf("dbService name: %v,UpdateDBServiceByBiz err: %v", dbService.Name, err)
+			}
+
+			respMu.Lock()
+			connectionResp[index] = dmsV1.DBServiceIsConnectableReply{
+				DBServiceUid:        connectionResult.DBServiceUid,
+				ConnectionStatus:    dmsCommonV1.LastConnectionTestStatus(connectionResult.ConnectionStatus),
+				TestConnectionTime:  strfmt.DateTime(connectionResult.TestConnectionTime),
+				ConnectErrorMessage: connectionResult.ConnectErrorMessage,
+			}
+			respMu.Unlock()
+
+			<-concurrencyLimit
+		}(dbService, i)
+	}
+
+	wg.Wait()
+
+	return connectionResp
 }
 
 type instanceAuditPlanReply struct {
@@ -469,6 +525,12 @@ type TestDbServiceConnectionResult struct {
 }
 
 func (d *DBServiceUsecase) TestDbServiceConnection(ctx context.Context, dbService *DBService) (TestDbServiceConnectionResult, error) {
+	connectionResult := TestDbServiceConnectionResult{
+		DBServiceUid:       dbService.UID,
+		TestConnectionTime: time.Now(),
+		ConnectionStatus:   LastConnectionStatusSuccess,
+	}
+
 	var additionParams []*dmsCommonV1.AdditionalParam
 	for _, item := range dbService.AdditionalParams {
 		additionParams = append(additionParams, &dmsCommonV1.AdditionalParam{
@@ -486,39 +548,27 @@ func (d *DBServiceUsecase) TestDbServiceConnection(ctx context.Context, dbServic
 		AdditionalParams: additionParams,
 	}
 
-	testConnectTime := time.Now()
-
 	connectable, err := d.IsConnectable(ctx, checkDbConnectableParams)
 	if err != nil {
-		return TestDbServiceConnectionResult{
-			DBServiceUid:        dbService.UID,
-			ConnectionStatus:    LastConnectionStatusFailed,
-			TestConnectionTime:  testConnectTime,
-			ConnectErrorMessage: err.Error(),
-		}, err
+		connectionResult.ConnectionStatus = LastConnectionStatusFailed
+		connectionResult.ConnectErrorMessage = err.Error()
+		return connectionResult, err
 	}
 
-	var connectErrorMsg string
-	var connectionStatus = LastConnectionStatusSuccess
 	if len(connectable) == 0 {
-		connectionStatus = LastConnectionStatusFailed
-		connectErrorMsg = "check db connectable failed"
+		connectionResult.ConnectionStatus = LastConnectionStatusFailed
+		connectionResult.ConnectErrorMessage = "check db connectable failed"
 	} else {
 		for _, c := range connectable {
 			if !c.IsConnectable {
-				connectionStatus = LastConnectionStatusFailed
-				connectErrorMsg = c.ConnectErrorMessage
+				connectionResult.ConnectionStatus = LastConnectionStatusFailed
+				connectionResult.ConnectErrorMessage = c.ConnectErrorMessage
 				break
 			}
 		}
 	}
 
-	return TestDbServiceConnectionResult{
-		DBServiceUid:        dbService.UID,
-		ConnectionStatus:    connectionStatus,
-		TestConnectionTime:  testConnectTime,
-		ConnectErrorMessage: connectErrorMsg,
-	}, nil
+	return connectionResult, nil
 }
 
 func (d *DBServiceUsecase) UpdateDBServiceByBiz(ctx context.Context, ds *DBService, currentUserUid string) (err error) {
