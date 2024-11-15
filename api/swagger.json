@@ -5693,6 +5693,12 @@
           "x-go-name": "ConnectErrorMessage"
         },
         "connection_status": {
+          "type": "string",
+          "enum": [
+            "connect_success",
+            "connect_failed"
+          ],
+          "x-go-enum-desc": "connect_success LastConnectionTestStatusSuccess\nconnect_failed LastConnectionTestStatusFailed",
           "x-go-name": "ConnectionStatus"
         },
         "db_service_uid": {
@@ -7455,7 +7461,13 @@
           "x-go-name": "LastConnectionTestErrorMessage"
         },
         "last_connection_test_status": {
-          "description": "DB connect test status",
+          "description": "DB connect test status\nconnect_success LastConnectionTestStatusSuccess\nconnect_failed LastConnectionTestStatusFailed",
+          "type": "string",
+          "enum": [
+            "connect_success",
+            "connect_failed"
+          ],
+          "x-go-enum-desc": "connect_success LastConnectionTestStatusSuccess\nconnect_failed LastConnectionTestStatusFailed",
           "x-go-name": "LastConnectionTestStatus"
         },
         "last_connection_test_time": {
@@ -7926,7 +7938,13 @@
           "x-go-name": "LastConnectionTestErrorMessage"
         },
         "last_connection_test_status": {
-          "description": "DB connect test status",
+          "description": "DB connect test status\nconnect_success LastConnectionTestStatusSuccess\nconnect_failed LastConnectionTestStatusFailed",
+          "type": "string",
+          "enum": [
+            "connect_success",
+            "connect_failed"
+          ],
+          "x-go-enum-desc": "connect_success LastConnectionTestStatusSuccess\nconnect_failed LastConnectionTestStatusFailed",
           "x-go-name": "LastConnectionTestStatus"
         },
         "last_connection_test_time": {

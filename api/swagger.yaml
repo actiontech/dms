@@ -866,6 +866,13 @@ definitions:
                 type: string
                 x-go-name: ConnectErrorMessage
             connection_status:
+                enum:
+                    - connect_success
+                    - connect_failed
+                type: string
+                x-go-enum-desc: |-
+                    connect_success LastConnectionTestStatusSuccess
+                    connect_failed LastConnectionTestStatusFailed
                 x-go-name: ConnectionStatus
             db_service_uid:
                 type: string
@@ -2229,7 +2236,17 @@ definitions:
                 type: string
                 x-go-name: LastConnectionTestErrorMessage
             last_connection_test_status:
-                description: DB connect test status
+                description: |-
+                    DB connect test status
+                    connect_success LastConnectionTestStatusSuccess
+                    connect_failed LastConnectionTestStatusFailed
+                enum:
+                    - connect_success
+                    - connect_failed
+                type: string
+                x-go-enum-desc: |-
+                    connect_success LastConnectionTestStatusSuccess
+                    connect_failed LastConnectionTestStatusFailed
                 x-go-name: LastConnectionTestStatus
             last_connection_test_time:
                 description: DB connection test time
@@ -2597,7 +2614,17 @@ definitions:
                 type: string
                 x-go-name: LastConnectionTestErrorMessage
             last_connection_test_status:
-                description: DB connect test status
+                description: |-
+                    DB connect test status
+                    connect_success LastConnectionTestStatusSuccess
+                    connect_failed LastConnectionTestStatusFailed
+                enum:
+                    - connect_success
+                    - connect_failed
+                type: string
+                x-go-enum-desc: |-
+                    connect_success LastConnectionTestStatusSuccess
+                    connect_failed LastConnectionTestStatusFailed
                 x-go-name: LastConnectionTestStatus
             last_connection_test_time:
                 description: DB connection test time
