@@ -9,6 +9,7 @@ import (
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+	"github.com/go-openapi/strfmt"
 )
 
 func (d *DMSService) importDBServicesOfOneProjectCheck(ctx context.Context, userUid, projectUid, fileContent string) (*dmsV1.ImportDBServicesCheckReply, []byte, error) {
@@ -88,6 +89,14 @@ func (d *DMSService) listGlobalDBServices(ctx context.Context, req *dmsV1.ListGl
 		})
 	}
 
+	if req.FilterLastConnectionTestStatus != nil {
+		filterBy = append(filterBy, pkgConst.FilterCondition{
+			Field:    string(biz.DBServiceFieldLastConnectionStatus),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    *req.FilterLastConnectionTestStatus,
+		})
+	}
+
 	if req.FilterByDBType != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldDBType),
@@ -153,6 +162,16 @@ func (d *DMSService) listGlobalDBServices(ctx context.Context, req *dmsV1.ListGl
 			IsEnableAudit:         false,
 			IsEnableMasking:       u.IsMaskingSwitch,
 			UnfinishedWorkflowNum: u.UnfinishedWorkflowNum,
+		}
+
+		if u.LastConnectionTime != nil {
+			ret[i].LastConnectionTestTime = strfmt.DateTime(*u.LastConnectionTime)
+		}
+		if u.LastConnectionStatus != nil {
+			ret[i].LastConnectionTestStatus = dmsCommonV1.LastConnectionTestStatus(*u.LastConnectionStatus)
+		}
+		if u.LastConnectionErrorMsg != nil {
+			ret[i].LastConnectionTestErrorMessage = *u.LastConnectionErrorMsg
 		}
 
 		if u.SQLEConfig != nil && u.SQLEConfig.SQLQueryConfig != nil {
