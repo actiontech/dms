@@ -392,7 +392,23 @@ func (d *DMSController) CheckDBServiceIsConnectableById(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) CheckProjectDBServicesConnections(c echo.Context) error {
-	return nil
+	var req aV1.CheckDBServicesIsConnectableReq
+	err := bindAndValidateReq(c, &req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, err := d.DMS.CheckDBServiceIsConnectableByIds(c.Request().Context(), req.ProjectUid,currentUserUid,req.DBServices)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkRespWithReply(c, reply)
 }
 
 
@@ -2087,7 +2103,23 @@ func (a *DMSController) DBServicesConnection(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (a *DMSController) CheckGlobalDBServicesConnections(c echo.Context) error {
-	return nil
+	var req aV1.DBServicesConnectionReq
+	err := bindAndValidateReq(c, &req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, err := a.DMS.CheckDBServiceIsConnectableByIds(c.Request().Context(),"", currentUserUid,req.DBServices)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkRespWithReply(c, reply)
 }
 
 

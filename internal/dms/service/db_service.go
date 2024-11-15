@@ -11,6 +11,7 @@ import (
 	pkgAes "github.com/actiontech/dms/pkg/dms-common/pkg/aes"
 	"github.com/actiontech/dms/pkg/params"
 	"github.com/actiontech/dms/pkg/periods"
+	"github.com/go-openapi/strfmt"
 )
 
 func (d *DMSService) DelDBService(ctx context.Context, req *dmsV1.DelDBServiceReq, currentUserUid string) (err error) {
@@ -139,6 +140,44 @@ func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *d
 	}
 
 	return ret, nil
+}
+
+func (d *DMSService) CheckDBServiceIsConnectableByIds(ctx context.Context, projectUID, currentUserUid string, dbServiceList []dmsV1.DbServiceConnections) (*dmsV1.DBServicesConnectionReqReply, error) {
+	if len(dbServiceList) == 0 {
+		return &dmsV1.DBServicesConnectionReqReply{
+			Data: []dmsV1.DBServiceIsConnectableReply{},
+		}, nil
+	}
+
+	filterBy := make([]pkgConst.FilterCondition, 0)
+	var dbServiceUidList []string
+	for _, dbService := range dbServiceList {
+		dbServiceUidList = append(dbServiceUidList, dbService.DBServiceUid)
+	}
+
+	filterBy = append(filterBy, pkgConst.FilterCondition{
+		Field:    string(biz.DBServiceFieldUID),
+		Operator: pkgConst.FilterOperatorIn,
+		Value:    dbServiceUidList,
+	})
+
+	listOption := &biz.ListDBServicesOption{
+		PageNumber:   1,
+		LimitPerPage: uint32(len(dbServiceList)),
+		OrderBy:      biz.DBServiceFieldName,
+		FilterBy:     filterBy,
+	}
+
+	DBServiceList, _, err := d.DBServiceUsecase.ListDBService(ctx, listOption, projectUID, currentUserUid)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := d.DBServiceUsecase.TestDbServiceConnections(ctx, DBServiceList, currentUserUid)
+
+	return &dmsV1.DBServicesConnectionReqReply{
+		Data: resp,
+	}, nil
 }
 
 func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceReq, currentUserUid string) (reply *dmsV1.AddDBServiceReply, err error) {
@@ -406,6 +445,13 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 			Value:    req.ProjectUid,
 		})
 	}
+	if req.FilterLastConnectionTestStatus != nil {
+		filterBy = append(filterBy, pkgConst.FilterCondition{
+			Field:    string(biz.DBServiceFieldLastConnectionStatus),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    *req.FilterLastConnectionTestStatus,
+		})
+	}
 	if len(req.FilterByDBServiceIds) > 0 {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldUID),
@@ -462,6 +508,16 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 			IsEnableMasking:     u.IsMaskingSwitch,
 			InstanceAuditPlanID: u.InstanceAuditPlanID,
 			AuditPlanTypes:      u.AuditPlanTypes,
+		}
+
+		if u.LastConnectionTime != nil {
+			ret[i].LastConnectionTestTime = strfmt.DateTime(*u.LastConnectionTime)
+		}
+		if u.LastConnectionStatus != nil {
+			ret[i].LastConnectionTestStatus = dmsCommonV1.LastConnectionTestStatus(*u.LastConnectionStatus)
+		}
+		if u.LastConnectionErrorMsg != nil {
+			ret[i].LastConnectionTestErrorMessage = *u.LastConnectionErrorMsg
 		}
 
 		if u.AdditionalParams != nil {
