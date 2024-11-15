@@ -141,6 +141,164 @@ func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *d
 	return ret, nil
 }
 
+func (d *DMSService) CheckDBServiceIsConnectableByIds(ctx context.Context, projectUID, currentUserUid string, dbServiceList []dmsV1.DbServiceConnections) (*dmsV1.DBServicesConnectionReqReply, error) {
+	if len(dbServiceList) == 0 {
+		return &dmsV1.DBServicesConnectionReqReply{
+			Data: []dmsV1.DBServiceIsConnectableReply{},
+		}, nil
+	}
+
+	filterBy := make([]pkgConst.FilterCondition, 0)
+	if len(dbServiceList) > 0 {
+		var dbServiceUidList []string
+		for _, dbService := range dbServiceList {
+			dbServiceUidList = append(dbServiceUidList, dbService.DBServiceUid)
+		}
+
+		filterBy = append(filterBy, pkgConst.FilterCondition{
+			Field:    string(biz.DBServiceFieldUID),
+			Operator: pkgConst.FilterOperatorIn,
+			Value:    dbServiceUidList,
+		})
+	}
+
+	listOption := &biz.ListDBServicesOption{
+		PageNumber:   1,
+		LimitPerPage: 99999999,
+		OrderBy:      biz.DBServiceFieldName,
+		FilterBy:     filterBy,
+	}
+
+	DBServiceList, _, err := d.DBServiceUsecase.ListDBService(ctx, listOption, projectUID, currentUserUid)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := make([]dmsV1.DBServiceIsConnectableReply, len(dbServiceList))
+	limit := make(chan int, 3)
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+
+	for i, dbService := range DBServiceList {
+		wg.Add(1)
+
+		go func(dbService *biz.DBService, index int) {
+			defer wg.Done()
+			limit <- 1
+
+			service, err := d.testAndUpdateDBService(ctx, dbService, currentUserUid)
+			if err != nil {
+				d.log.Errorf("db service uid: %v,testAndUpdateDBService err: %v", service.DBServiceUid, err)
+			}
+
+			mu.Lock()
+			resp[index] = dmsV1.DBServiceIsConnectableReply{
+				DBServiceUid:        service.DBServiceUid,
+				ConnectionStatus:    string(service.ConnectionStatus),
+				TestConnectionTime:  strfmt.DateTime(service.TestConnectionTime),
+				ConnectErrorMessage: service.ConnectErrorMessage,
+			}
+			mu.Unlock()
+
+			<-limit
+		}(dbService, i)
+	}
+
+	wg.Wait()
+
+	return &dmsV1.DBServicesConnectionReqReply{
+		Data: resp,
+	}, nil
+}
+
+func (d *DMSService) testAndUpdateDBService(ctx context.Context, dbService *biz.DBService, currentUserUid string) (biz.TestDbServiceConnectionResult, error) {
+	defer func() {
+		if r := recover(); r != nil {
+			d.log.Errorf("testAndUpdateDBService panic: %v", r)
+		}
+	}()
+
+	if dbService == nil {
+		return biz.TestDbServiceConnectionResult{}, nil
+	}
+
+	connectableReply, err := d.DBServiceUsecase.TestDbServiceConnection(ctx, dbService)
+	if err != nil {
+		d.log.Errorf("dbService name: %v,testDbServiceConnection err: %v", dbService.Name, err)
+	}
+
+	dbService.LastConnectionStatus = &connectableReply.ConnectionStatus
+	dbService.LastConnectionTime = &connectableReply.TestConnectionTime
+	dbService.LastConnectionErrorMsg = &connectableReply.ConnectErrorMessage
+
+	err = d.DBServiceUsecase.UpdateDBServiceByBiz(ctx, dbService, currentUserUid)
+	if err != nil {
+		d.log.Errorf("dbService name: %v,UpdateDBServiceByBiz err: %v", dbService.Name, err)
+	}
+
+	return biz.TestDbServiceConnectionResult{
+		DBServiceUid:        dbService.UID,
+		ConnectionStatus:    connectableReply.ConnectionStatus,
+		TestConnectionTime:  connectableReply.TestConnectionTime,
+		ConnectErrorMessage: connectableReply.ConnectErrorMessage,
+	}, nil
+}
+
+type TestDbServiceConnectionResult struct {
+	DBServiceUid        string
+	ConnectionStatus    biz.LastConnectionStatus
+	TestConnectionTime  time.Time
+	ConnectErrorMessage string
+}
+
+func (d *DMSService) testDbServiceConnection(ctx context.Context, dbService *biz.DBService) (TestDbServiceConnectionResult, error) {
+	var additionParams []*dmsCommonV1.AdditionalParam
+	for _, item := range dbService.AdditionalParams {
+		additionParams = append(additionParams, &dmsCommonV1.AdditionalParam{
+			Name:  item.Key,
+			Value: item.Value,
+		})
+	}
+
+	checkDbConnectableParams := dmsCommonV1.CheckDbConnectable{
+		DBType:           dbService.DBType,
+		User:             dbService.User,
+		Host:             dbService.Host,
+		Port:             dbService.Port,
+		Password:         dbService.Password,
+		AdditionalParams: additionParams,
+	}
+
+	testConnectTime := time.Now()
+
+	connectable, err := d.DBServiceUsecase.IsConnectable(ctx, checkDbConnectableParams)
+	if err != nil {
+		return TestDbServiceConnectionResult{
+			DBServiceUid:        dbService.UID,
+			ConnectionStatus:    biz.LastConnectionStatusFailed,
+			TestConnectionTime:  testConnectTime,
+			ConnectErrorMessage: err.Error(),
+		}, err
+	}
+
+	var connectErrorMsg string
+	var connectionStatus biz.LastConnectionStatus
+	for _, c := range connectable {
+		if !c.IsConnectable {
+			connectionStatus = biz.LastConnectionStatusFailed
+			connectErrorMsg = c.ConnectErrorMessage
+			break
+		}
+	}
+
+	return TestDbServiceConnectionResult{
+		DBServiceUid:        dbService.UID,
+		ConnectionStatus:    connectionStatus,
+		TestConnectionTime:  testConnectTime,
+		ConnectErrorMessage: connectErrorMsg,
+	}, nil
+}
+
 func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceReq, currentUserUid string) (reply *dmsV1.AddDBServiceReply, err error) {
 	d.log.Infof("AddDBServices.req=%v", req)
 	defer func() {
