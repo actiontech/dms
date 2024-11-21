@@ -6,6 +6,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/pkg/cloudbeaver"
 	v1Base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
@@ -36,8 +37,16 @@ func (u *CbOperationLogUsecase) ListCbOperationLog(ctx context.Context, option *
 			return nil, 0, err
 		} else if canViewProject {
 			// do nothing,skip to next,because admin or global view user can view all operation logs
-		} else if currentUid != filterPersonID {
+		} else if filterPersonID != "" && currentUid != filterPersonID {
+			// 查询操作用户参数不是当前用户，无权看其他用户的操作记录
 			return nil, 0, nil
+		} else if filterPersonID == "" {
+			// 查询操作用户参数为空时只能看自己的
+			option.FilterBy = append(option.FilterBy, constant.FilterCondition{
+				Field:    string(CbOperationLogFieldOpPersonUID),
+				Operator: constant.FilterOperatorEqual,
+				Value:    currentUid,
+			})
 		}
 	}
 
