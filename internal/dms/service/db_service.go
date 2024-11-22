@@ -52,6 +52,7 @@ func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV1.UpdateDBSer
 		User:              req.DBService.User,
 		Password:          req.DBService.Password,
 		Business:          req.DBService.Business,
+		EnableBackup:      req.DBService.EnableBackup,
 		MaintenancePeriod: d.convertMaintenanceTimeToPeriod(req.DBService.MaintenanceTimes),
 		AdditionalParams:  additionalParams,
 	}
@@ -207,6 +208,7 @@ func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceRe
 		ProjectUID:        req.ProjectUid,
 		Source:            string(pkgConst.DBServiceSourceNameSQLE),
 		AdditionalParams:  additionalParams,
+		EnableBackup:      req.DBService.EnableBackup,
 	}
 
 	if biz.IsDMS() {
@@ -508,6 +510,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 			IsEnableMasking:     u.IsMaskingSwitch,
 			InstanceAuditPlanID: u.InstanceAuditPlanID,
 			AuditPlanTypes:      u.AuditPlanTypes,
+			EnableBackup:        u.EnableBackup,
 		}
 
 		if u.LastConnectionTime != nil {
