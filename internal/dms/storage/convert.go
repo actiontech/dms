@@ -44,6 +44,7 @@ func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
 		MaintenancePeriod: ds.MaintenancePeriod,
 		ProjectUID:        ds.ProjectUID,
 		IsEnableMasking:   ds.IsMaskingSwitch,
+		EnableBackup:      ds.EnableBackup,
 	}
 	if ds.LastConnectionStatus != nil {
 		dbService.LastConnectionStatus = (*string)(ds.LastConnectionStatus)
@@ -102,6 +103,7 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 		Source:            ds.Source,
 		ProjectUID:        ds.ProjectUID,
 		IsMaskingSwitch:   ds.IsEnableMasking,
+		EnableBackup:      ds.EnableBackup,
 	}
 
 	if ds.LastConnectionStatus != nil {

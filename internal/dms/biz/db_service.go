@@ -73,6 +73,7 @@ type DBService struct {
 	AuditPlanTypes []*dmsCommonV1.AuditPlanTypes `json:"audit_plan_types"`
 	// instance audit plan id
 	InstanceAuditPlanID uint `json:"instance_audit_plan_id"`
+	EnableBackup        bool `json:"enable_backup"`
 }
 
 type DBTypeCount struct {
@@ -119,6 +120,7 @@ func newDBService(args *BizDBServiceArgs) (*DBService, error) {
 		MaintenancePeriod: args.MaintenancePeriod,
 		SQLEConfig:        &SQLEConfig{},
 		IsMaskingSwitch:   args.IsMaskingSwitch,
+		EnableBackup:      args.EnableBackup,
 	}
 
 	if args.RuleTemplateName != "" {
@@ -189,6 +191,7 @@ type BizDBServiceArgs struct {
 	RuleTemplateID   string
 	SQLQueryConfig   *SQLQueryConfig
 	IsMaskingSwitch  bool
+	EnableBackup     bool
 }
 
 type SQLQueryConfig struct {
@@ -642,6 +645,7 @@ func (d *DBServiceUsecase) UpdateDBService(ctx context.Context, dbServiceUid str
 		ds.AdditionalParams = updateDBService.AdditionalParams
 		ds.MaintenancePeriod = updateDBService.MaintenancePeriod
 		ds.IsMaskingSwitch = updateDBService.IsMaskingSwitch
+		ds.EnableBackup = updateDBService.EnableBackup
 		ds.SQLEConfig = &SQLEConfig{}
 		// 支持新增和更新sqleConfig，不允许删除sqle配置
 		if updateDBService.RuleTemplateName != "" {
