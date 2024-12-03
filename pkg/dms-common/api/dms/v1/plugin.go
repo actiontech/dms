@@ -174,7 +174,7 @@ type OperationTimingType string
 
 const (
 	OperationTimingTypeBefore OperationTimingType = "before"
-	OperationTimingAfter      OperationTimingType = "after"
+	OperationTimingTypeAfter  OperationTimingType = "after"
 )
 
 // swagger:parameters OperateDataResourceHandle
@@ -183,7 +183,7 @@ type OperateDataResourceHandleReq struct {
 	DataResourceType DataResourceType    `json:"data_resource_type"`
 	OperationType    OperationType       `json:"operation_type"`
 	OperationTiming  OperationTimingType `json:"operation_timing"`
-	// TODO ExtraParams  need extra params for pre check？
+	ExtraParams      string              `json:"extra_params"`
 }
 
 // swagger:model OperateDataResourceHandleReply
