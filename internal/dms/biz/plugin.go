@@ -88,7 +88,15 @@ func (p *PluginUsecase) AddProjectAfterHandle(ctx context.Context, ProjectUid st
 	return nil
 }
 
-func (p *PluginUsecase) UpdateProjectPreCheck(ctx context.Context, ds *Project) error {
+func (p *PluginUsecase) UpdateProjectPreCheck(ctx context.Context, project *Project) error {
+	// 项目归档
+	if err := p.OperateDataResourceHandle(ctx, project.UID, dmsV1.IPluginProject{
+		Name:     project.Name,
+		Archived: project.Status == ProjectStatusArchived,
+		Desc:     project.Desc,
+	}, dmsV1.DataResourceTypeProject, dmsV1.OperationTypeCreate, dmsV1.OperationTimingTypeBefore); err != nil {
+		return fmt.Errorf("update project handle failed: %v", err)
+	}
 	return nil
 }
 
@@ -112,12 +120,13 @@ func (p *PluginUsecase) DelProjectAfterHandle(ctx context.Context, projectUid st
 
 func (p *PluginUsecase) AddDBServicePreCheck(ctx context.Context, ds *DBService) error {
 	dbService := &dmsV1.IPluginDBService{
-		Name:     ds.Name,
-		DBType:   ds.DBType,
-		Host:     ds.Host,
-		Port:     ds.Port,
-		User:     ds.User,
-		Business: ds.Business,
+		Name:             ds.Name,
+		DBType:           ds.DBType,
+		Host:             ds.Host,
+		Port:             ds.Port,
+		User:             ds.User,
+		Business:         ds.Business,
+		AdditionalParams: ds.AdditionalParams,
 	}
 	if ds.SQLEConfig != nil {
 		dbService.SQLERuleTemplateName = ds.SQLEConfig.RuleTemplateName
