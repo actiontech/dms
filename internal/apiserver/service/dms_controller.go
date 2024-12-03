@@ -1,7 +1,9 @@
 package service
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -569,6 +571,15 @@ func (a *DMSController) AddSession(c echo.Context) error {
 //	  200: body:DelSessionReply
 //	  default: body:GenericResp
 func (a *DMSController) DelSession(c echo.Context) error {
+	uid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	redirectUri, err := a.DMS.Oauth2ConfigurationUsecase.Logout(c.Request().Context(), uid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
 	cookie, err := c.Cookie(constant.DMSToken)
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
@@ -577,7 +588,18 @@ func (a *DMSController) DelSession(c echo.Context) error {
 	cookie.Path = "/"
 	c.SetCookie(cookie)
 	a.CloudbeaverService.Logout(cookie.Value)
-	return NewOkResp(c)
+
+	reply := &aV1.DelSessionReply{Data: struct {
+		Location string `json:"location"`
+	}{Location: redirectUri}}
+	buf := &bytes.Buffer{}
+	enc := json.NewEncoder(buf)
+	enc.SetEscapeHTML(false) // 避免将location中的 & 编码为 \u0026
+	if err = enc.Encode(reply); err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+
+	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
 // swagger:route GET /v1/dms/sessions/user Session GetUserBySession
