@@ -74,7 +74,7 @@ func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV1.UpdateDBSer
 			}
 		}
 	}
-	if err := d.DBServiceUsecase.UpdateDBService(ctx, req.DBServiceUid, args, currentUserUid); err != nil {
+	if err := d.DBServiceUsecase.UpdateDBServiceByArgs(ctx, req.DBServiceUid, args, currentUserUid); err != nil {
 		return fmt.Errorf("update db service failed: %v", err)
 	}
 
@@ -384,6 +384,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 	}
 
 	filterBy := make([]pkgConst.FilterCondition, 0)
+
 	if req.FilterByBusiness != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldBusiness),
