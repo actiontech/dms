@@ -16,7 +16,6 @@ import (
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	"github.com/actiontech/dms/internal/pkg/locale"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
-	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	pkgRand "github.com/actiontech/dms/pkg/rand"
 )
 
@@ -50,7 +49,7 @@ func (d *ProjectUsecase) CreateProject(ctx context.Context, project *Project, cr
 		return fmt.Errorf("commit tx failed: %v", err)
 	}
 	// plugin handle after create project
-	err = d.pluginUsecase.OperateDataResourceHandle(ctx, project.UID, dmsV1.DataResourceTypeProject, dmsV1.OperationTypeCreate, dmsV1.OperationTimingAfter)
+	err = d.pluginUsecase.AddProjectAfterHandle(ctx, project.UID)
 	if err != nil {
 		return fmt.Errorf("plugin handle after create project failed: %v", err)
 	}
@@ -110,7 +109,7 @@ func (d *ProjectUsecase) ArchivedProject(ctx context.Context, currentUserUid, pr
 	project.Status = status
 
 	// plugin check before delete project
-	err = d.pluginUsecase.OperateDataResourceHandle(ctx, projectUid, dmsV1.DataResourceTypeProject, dmsV1.OperationTypeDelete, dmsV1.OperationTimingTypeBefore)
+	err = d.pluginUsecase.UpdateProjectPreCheck(ctx, project)
 	if err != nil {
 		return fmt.Errorf("check before delete project failed: %v", err)
 	}
@@ -139,7 +138,7 @@ func (d *ProjectUsecase) DeleteProject(ctx context.Context, currentUserUid, proj
 		}
 
 		// plugin check before delete project
-		err = d.pluginUsecase.OperateDataResourceHandle(ctx, projectUid, dmsV1.DataResourceTypeProject, dmsV1.OperationTypeDelete, dmsV1.OperationTimingTypeBefore)
+		err = d.pluginUsecase.DelProjectPreCheck(ctx, projectUid)
 		if err != nil {
 			return fmt.Errorf("check before delete project failed: %v", err)
 		}
@@ -150,7 +149,7 @@ func (d *ProjectUsecase) DeleteProject(ctx context.Context, currentUserUid, proj
 		return err
 	}
 	// plugin clean unused data after delete project
-	err = d.pluginUsecase.OperateDataResourceHandle(ctx, projectUid, dmsV1.DataResourceTypeProject, dmsV1.OperationTypeDelete, dmsV1.OperationTimingAfter)
+	err = d.pluginUsecase.DelProjectAfterHandle(ctx, projectUid)
 	if err != nil {
 		return err
 	}
@@ -229,7 +228,7 @@ func (d *ProjectUsecase) batchSaveProjects(ctx context.Context, uid string, proj
 			}
 		}
 
-		err = d.pluginUsecase.OperateDataResourceHandle(ctx, project.UID, dmsV1.DataResourceTypeProject, dmsV1.OperationTypeCreate, dmsV1.OperationTimingAfter)
+		err = d.pluginUsecase.AddProjectAfterHandle(ctx, project.UID)
 		if err != nil {
 			return fmt.Errorf("plugin handle after create project failed: %v", err)
 		}
@@ -448,7 +447,7 @@ func (d *ProjectUsecase) UpdateProject(ctx context.Context, currentUserUid, proj
 		project.IsFixedBusiness = *isFixBusiness
 	}
 
-	if priority != nil{
+	if priority != nil {
 		project.Priority = *priority
 	}
 
