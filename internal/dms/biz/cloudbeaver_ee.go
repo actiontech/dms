@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/url"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -116,26 +117,67 @@ func (cu *CloudbeaverUsecase) ResetDbServiceByAuth(ctx context.Context, activeDB
 	return ret, nil
 }
 
-func (cu *CloudbeaverUsecase) ListAuthDbAccount(ctx context.Context, url, projectUid, userId string) ([]*TempDBAccount, error) {
-	// gen token with claims
-	token, err := jwt.GenJwtToken(jwt.WithUserId(userId))
-	if nil != err {
-		return nil, err
+func (cu *CloudbeaverUsecase) ListAuthDbAccount(ctx context.Context, baseURL, projectUid, userId string) ([]*TempDBAccount, error) {
+	// Generate token
+	token, err := generateAuthToken(userId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate auth token for user %s: %w", userId, err)
 	}
+
+	// Prepare request headers
 	header := map[string]string{
 		"Authorization": fmt.Sprintf("Bearer %s", token),
 	}
 
-	reply := &ListDBAccountReply{}
-
-	if err := pkgHttp.Get(ctx, fmt.Sprintf("%v/provision/v1/auth/projects/%s/db_accounts?page_size=999&page_index=1&filter_by_password_managed=true&filter_by_status=unlock", url, projectUid), header, nil, reply); err != nil {
-		return nil, fmt.Errorf("failed to get db account from %v: %v", url, err)
+	// Build request URL
+	u, err := url.Parse(baseURL)
+	if err != nil {
+		return nil, fmt.Errorf("invalid base URL: %w", err)
 	}
+
+	// Set the path for the endpoint
+	u.Path = fmt.Sprintf("/provision/v1/auth/projects/%s/db_accounts", projectUid)
+
+	// Add query parameters
+	query := u.Query()
+	query.Set("page_size", "999")
+	query.Set("page_index", "1")
+	query.Set("filter_by_password_managed", "true")
+	query.Set("filter_by_status", "unlock")
+	query.Set("filter_by_user", userId)
+	u.RawQuery = query.Encode()
+	requestURL := u.String()
+
+	// Execute request
+	reply := &ListDBAccountReply{}
+	if err := makeHttpRequest(ctx, requestURL, header, reply); err != nil {
+		return nil, err
+	}
+
+	// Validate response
 	if reply.Code != 0 {
-		return nil, fmt.Errorf("http reply code(%v) error: %v", reply.Code, reply.Message)
+		return nil, fmt.Errorf("unexpected HTTP reply code (%v): %v", reply.Code, reply.Message)
 	}
 
 	return reply.Data, nil
+}
+
+// Helper function: Generate JWT token
+func generateAuthToken(userId string) (string, error) {
+	token, err := jwt.GenJwtToken(jwt.WithUserId(userId))
+	if err != nil {
+		return "", fmt.Errorf("failed to generate JWT token: %w", err)
+	}
+	return token, nil
+}
+
+// Helper function: Make HTTP GET request
+func makeHttpRequest(ctx context.Context, url string, headers map[string]string, reply interface{}) error {
+	err := pkgHttp.Get(ctx, url, headers, nil, reply)
+	if err != nil {
+		return fmt.Errorf("HTTP request to %s failed: %w", url, err)
+	}
+	return nil
 }
 
 func (cu *CloudbeaverUsecase) SaveUiOp(c echo.Context, buf *bytes.Buffer, params *graphql.RawParams) error {
