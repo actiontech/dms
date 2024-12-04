@@ -7425,6 +7425,12 @@
           },
           "x-go-name": "AuditPlanTypes"
         },
+        "backup_max_rows": {
+          "description": "backup max rows",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "BackupMaxRows"
+        },
         "business": {
           "description": "the db service business name",
           "type": "string",
@@ -9750,7 +9756,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",

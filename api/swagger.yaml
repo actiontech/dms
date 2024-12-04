@@ -2207,6 +2207,11 @@ definitions:
                     $ref: '#/definitions/AuditPlanTypes'
                 type: array
                 x-go-name: AuditPlanTypes
+            backup_max_rows:
+                description: backup max rows
+                format: uint64
+                type: integer
+                x-go-name: BackupMaxRows
             business:
                 description: the db service business name
                 type: string
@@ -4130,7 +4135,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
