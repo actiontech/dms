@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sync"
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 
@@ -186,13 +187,32 @@ func (p *PluginUsecase) DelUserGroupPreCheck(ctx context.Context, groupUid strin
 
 func (p *PluginUsecase) OperateDataResourceHandle(ctx context.Context, uid string, resource interface{}, dateResourceType dmsV1.DataResourceType,
 	operationType dmsV1.OperationType, operationTiming dmsV1.OperationTimingType) error {
+	var (
+		mu   sync.Mutex
+		errs []error
+		wg   sync.WaitGroup
+	)
+
 	for _, plugin := range p.registeredPlugins {
 		if plugin.OperateDataResourceHandleUrl != "" {
-			if err := p.CallOperateDataResourceHandle(ctx, plugin.OperateDataResourceHandleUrl, uid, resource, dateResourceType, operationType, operationTiming); err != nil {
-				return fmt.Errorf("call plugin %s operate data resource handle failed: %v", plugin.Name, err)
-			}
+			wg.Add(1)
+			go func(plugin *Plugin) {
+				defer wg.Done()
+				if err := p.CallOperateDataResourceHandle(ctx, plugin.OperateDataResourceHandleUrl, uid, resource, dateResourceType, operationType, operationTiming); err != nil {
+					mu.Lock()
+					errs = append(errs, fmt.Errorf("call plugin %s operate data resource handle failed: %v", plugin.Name, err))
+					mu.Unlock()
+				}
+			}(plugin)
 		}
 	}
+
+	wg.Wait()
+
+	if len(errs) > 0 {
+		return fmt.Errorf("encountered errors: %v", errs)
+	}
+
 	return nil
 }
 
