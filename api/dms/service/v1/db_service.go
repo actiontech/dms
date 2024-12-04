@@ -50,6 +50,9 @@ type DBService struct {
 	// backup switch
 	// Required: false
 	EnableBackup bool `json:"enable_backup"`
+	// backup switch
+	// Required: false
+	BackupMaxRows *uint64 `json:"backup_max_rows,omitempty"`
 }
 
 // swagger:model AddDBServiceReq
@@ -203,6 +206,9 @@ type UpdateDBService struct {
 	// backup switch
 	// Required: false
 	EnableBackup bool `json:"enable_backup"`
+	// backup switch
+	// Required: false
+	BackupMaxRows *uint64 `json:"backup_max_rows,omitempty"`
 }
 
 // swagger:model UpdateDBServiceReply
@@ -424,6 +430,9 @@ type ListGlobalDBService struct {
 	UnfinishedWorkflowNum int64 `json:"unfinished_workflow_num"`
 	// backup switch
 	EnableBackup bool `json:"enable_backup"`
+	// backup switch
+	// Required: false
+	BackupMaxRows uint64 `json:"backup_max_rows"`
 	// DB connection test time
 	LastConnectionTestTime strfmt.DateTime `json:"last_connection_test_time"`
 	// DB connect test status
