@@ -136,3 +136,13 @@ func (r *Params) Copy() Params {
 	}
 	return ps
 }
+
+type Enum struct {
+	Value string `json:"value"`
+	Desc  string `json:"desc"`
+}
+
+type ParamsWithEnums struct {
+	Param
+	Enums []Enum
+}
