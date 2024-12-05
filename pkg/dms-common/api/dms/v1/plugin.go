@@ -32,6 +32,9 @@ type Plugin struct {
 	// 插件名称
 	Name string `json:"name" validate:"required"`
 	// 操作资源处理接口地址,如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/data_resource_operate/handle
+	// 该地址目的是统一调用其他服务 数据资源变更前后校验/更新数据的 接口
+	// eg: 删除数据源前：
+	// 需要sqle服务中实现接口逻辑，判断该数据源上已经没有进行中的工单
 	OperateDataResourceHandleUrl string `json:"operate_data_resource_handle_url"`
 }
 
