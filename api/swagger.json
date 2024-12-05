@@ -4553,23 +4553,6 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
-    "AddDBServicePreCheckReply": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "code",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Code"
-        },
-        "message": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Message"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
-    },
     "AddDBServiceReply": {
       "type": "object",
       "properties": {
@@ -6036,57 +6019,6 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
-    "DelDBServicePreCheckReply": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "code",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Code"
-        },
-        "message": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Message"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
-    },
-    "DelUserGroupPreCheckReply": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "code",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Code"
-        },
-        "message": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Message"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
-    },
-    "DelUserPreCheckReply": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "code",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Code"
-        },
-        "message": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Message"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
-    },
     "FeishuConfigurationResData": {
       "type": "object",
       "properties": {
@@ -7010,36 +6942,6 @@
         "type": "string"
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/i18nPkg"
-    },
-    "IPluginDBService": {
-      "type": "object",
-      "properties": {
-        "Business": {
-          "type": "string"
-        },
-        "DBType": {
-          "type": "string"
-        },
-        "Host": {
-          "type": "string"
-        },
-        "Name": {
-          "type": "string"
-        },
-        "Port": {
-          "type": "string"
-        },
-        "SQLERuleTemplateId": {
-          "type": "string"
-        },
-        "SQLERuleTemplateName": {
-          "type": "string"
-        },
-        "User": {
-          "type": "string"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "ImportDBService": {
       "type": "object",
@@ -9157,33 +9059,13 @@
     "Plugin": {
       "type": "object",
       "properties": {
-        "add_db_service_pre_check_url": {
-          "description": "添加数据源预检查接口地址, 如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/services/precheck/add",
-          "type": "string",
-          "x-go-name": "AddDBServicePreCheckUrl"
-        },
-        "del_db_service_pre_check_url": {
-          "description": "删除数据源预检查接口地址, 如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/services/precheck/del",
-          "type": "string",
-          "x-go-name": "DelDBServicePreCheckUrl"
-        },
-        "del_user_group_pre_check_url": {
-          "description": "删除用户组预检查接口地址,如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/usergroups/precheck/del",
-          "type": "string",
-          "x-go-name": "DelUserGroupPreCheckUrl"
-        },
-        "del_user_pre_check_url": {
-          "description": "删除用户预检查接口地址,如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/users/precheck/del",
-          "type": "string",
-          "x-go-name": "DelUserPreCheckUrl"
-        },
         "name": {
           "description": "插件名称",
           "type": "string",
           "x-go-name": "Name"
         },
         "operate_data_resource_handle_url": {
-          "description": "操作资源处理接口地址,如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/data_resource_operate/handle",
+          "description": "操作资源处理接口地址,如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/data_resource_operate/handle\n该地址目的是统一调用其他服务 数据资源变更前后校验/更新数据的 接口\neg: 删除数据源前：\n需要sqle服务中实现接口逻辑，判断该数据源上已经没有进行中的工单",
           "type": "string",
           "x-go-name": "OperateDataResourceHandleUrl"
         }

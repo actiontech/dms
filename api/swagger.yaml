@@ -15,19 +15,6 @@ definitions:
                 x-go-name: ExpiredTime
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    AddDBServicePreCheckReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     AddDBServiceReply:
         properties:
             code:
@@ -1134,45 +1121,6 @@ definitions:
                 x-go-name: DBServiceUid
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    DelDBServicePreCheckReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    DelUserGroupPreCheckReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    DelUserPreCheckReply:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            message:
-                description: message
-                type: string
-                x-go-name: Message
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     FeishuConfigurationResData:
         properties:
             app_id:
@@ -1899,26 +1847,6 @@ definitions:
             type: string
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/i18nPkg
-    IPluginDBService:
-        properties:
-            Business:
-                type: string
-            DBType:
-                type: string
-            Host:
-                type: string
-            Name:
-                type: string
-            Port:
-                type: string
-            SQLERuleTemplateId:
-                type: string
-            SQLERuleTemplateName:
-                type: string
-            User:
-                type: string
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ImportDBService:
         properties:
             additional_params:
@@ -3678,28 +3606,16 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     Plugin:
         properties:
-            add_db_service_pre_check_url:
-                description: '添加数据源预检查接口地址, 如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/services/precheck/add'
-                type: string
-                x-go-name: AddDBServicePreCheckUrl
-            del_db_service_pre_check_url:
-                description: '删除数据源预检查接口地址, 如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/services/precheck/del'
-                type: string
-                x-go-name: DelDBServicePreCheckUrl
-            del_user_group_pre_check_url:
-                description: '删除用户组预检查接口地址,如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/usergroups/precheck/del'
-                type: string
-                x-go-name: DelUserGroupPreCheckUrl
-            del_user_pre_check_url:
-                description: '删除用户预检查接口地址,如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/users/precheck/del'
-                type: string
-                x-go-name: DelUserPreCheckUrl
             name:
                 description: 插件名称
                 type: string
                 x-go-name: Name
             operate_data_resource_handle_url:
-                description: '操作资源处理接口地址,如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/data_resource_operate/handle'
+                description: |-
+                    操作资源处理接口地址,如果为空表示没有检查, eg: http://127.0.0.1:7602/v1/auth/data_resource_operate/handle
+                    该地址目的是统一调用其他服务 数据资源变更前后校验/更新数据的 接口
+                    eg: 删除数据源前：
+                    需要sqle服务中实现接口逻辑，判断该数据源上已经没有进行中的工单
                 type: string
                 x-go-name: OperateDataResourceHandleUrl
         type: object
