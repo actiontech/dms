@@ -27,7 +27,10 @@ type PluginUsecase struct {
 }
 
 type Plugin struct {
-	Name                         string
+	Name string
+	// 该地址目的是统一调用其他服务 数据资源变更前后校验/更新数据的 接口
+	// eg: 删除数据源前：
+	// 需要sqle服务中实现接口逻辑，判断该数据源上已经没有进行中的工单
 	OperateDataResourceHandleUrl string
 }
 
