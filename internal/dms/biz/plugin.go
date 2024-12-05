@@ -2,7 +2,9 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"sync"
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 
@@ -25,11 +27,10 @@ type PluginUsecase struct {
 }
 
 type Plugin struct {
-	Name                         string
-	AddDBServicePreCheckUrl      string
-	DelDBServicePreCheckUrl      string
-	DelUserPreCheckUrl           string
-	DelUserGroupPreCheckUrl      string
+	Name string
+	// 该地址目的是统一调用其他服务 数据资源变更前后校验/更新数据的 接口
+	// eg: 删除数据源前：
+	// 需要sqle服务中实现接口逻辑，判断该数据源上已经没有进行中的工单
 	OperateDataResourceHandleUrl string
 }
 
@@ -80,174 +81,154 @@ func (p *PluginUsecase) RegisterPlugin(ctx context.Context, plugin *Plugin, curr
 	return nil
 }
 
+func (p *PluginUsecase) AddProjectAfterHandle(ctx context.Context, ProjectUid string) error {
+	if err := p.OperateDataResourceHandle(ctx, ProjectUid, nil, dmsV1.DataResourceTypeProject, dmsV1.OperationTypeCreate, dmsV1.OperationTimingTypeAfter); err != nil {
+		return fmt.Errorf("add project handle failed: %v", err)
+	}
+	return nil
+}
+
+func (p *PluginUsecase) UpdateProjectPreCheck(ctx context.Context, project *Project) error {
+	// 项目归档
+	if err := p.OperateDataResourceHandle(ctx, project.UID, dmsV1.IPluginProject{
+		Name:     project.Name,
+		Archived: project.Status == ProjectStatusArchived,
+		Desc:     project.Desc,
+	}, dmsV1.DataResourceTypeProject, dmsV1.OperationTypeUpdate, dmsV1.OperationTimingTypeBefore); err != nil {
+		return fmt.Errorf("update project handle failed: %v", err)
+	}
+	return nil
+}
+
+func (p *PluginUsecase) UpdateProjectAfterHandle(ctx context.Context, projectUid string) error {
+	return nil
+}
+
+func (p *PluginUsecase) DelProjectPreCheck(ctx context.Context, projectUid string) error {
+	if err := p.OperateDataResourceHandle(ctx, projectUid, nil, dmsV1.DataResourceTypeProject, dmsV1.OperationTypeDelete, dmsV1.OperationTimingTypeBefore); err != nil {
+		return fmt.Errorf("del project pre check failed: %v", err)
+	}
+	return nil
+}
+
+func (p *PluginUsecase) DelProjectAfterHandle(ctx context.Context, projectUid string) error {
+	if err := p.OperateDataResourceHandle(ctx, projectUid, nil, dmsV1.DataResourceTypeProject, dmsV1.OperationTypeDelete, dmsV1.OperationTimingTypeAfter); err != nil {
+		return fmt.Errorf("del project handle failed: %v", err)
+	}
+	return nil
+}
+
 func (p *PluginUsecase) AddDBServicePreCheck(ctx context.Context, ds *DBService) error {
 	dbService := &dmsV1.IPluginDBService{
-		Name:     ds.Name,
-		DBType:   ds.DBType,
-		Host:     ds.Host,
-		Port:     ds.Port,
-		User:     ds.User,
-		Business: ds.Business,
+		Name:             ds.Name,
+		DBType:           ds.DBType,
+		Host:             ds.Host,
+		Port:             ds.Port,
+		User:             ds.User,
+		Business:         ds.Business,
+		AdditionalParams: ds.AdditionalParams,
 	}
 	if ds.SQLEConfig != nil {
 		dbService.SQLERuleTemplateName = ds.SQLEConfig.RuleTemplateName
 		dbService.SQLERuleTemplateId = ds.SQLEConfig.RuleTemplateID
 	}
-	for _, plugin := range p.registeredPlugins {
-		if plugin.AddDBServicePreCheckUrl != "" {
-			if err := p.CallAddDBServicePreCheck(ctx, plugin.AddDBServicePreCheckUrl, dbService); err != nil {
-				return fmt.Errorf("plugin %s add db service pre check failed: %v", plugin.Name, err)
-			}
-		}
+
+	if err := p.OperateDataResourceHandle(ctx, "", dbService, dmsV1.DataResourceTypeDBService, dmsV1.OperationTypeCreate, dmsV1.OperationTimingTypeBefore); err != nil {
+		return fmt.Errorf("add db service pre check failed: %v", err)
+	}
+
+	return nil
+}
+
+func (p *PluginUsecase) AddDBServiceAfterHandle(ctx context.Context, dbServiceUid string) error {
+	if err := p.OperateDataResourceHandle(ctx, dbServiceUid, nil, dmsV1.DataResourceTypeDBService, dmsV1.OperationTypeCreate, dmsV1.OperationTimingTypeAfter); err != nil {
+		return fmt.Errorf("add db service handle failed: %v", err)
+	}
+
+	return nil
+}
+
+func (p *PluginUsecase) UpdateDBServicePreCheck(ctx context.Context, ds *DBService) error {
+	return nil
+}
+
+func (p *PluginUsecase) UpdateDBServiceAfterHandle(ctx context.Context, dbServiceUid string) error {
+	if err := p.OperateDataResourceHandle(ctx, dbServiceUid, nil, dmsV1.DataResourceTypeDBService, dmsV1.OperationTypeUpdate, dmsV1.OperationTimingTypeAfter); err != nil {
+		return fmt.Errorf("update db service handle failed: %v", err)
 	}
 	return nil
 }
 
 func (p *PluginUsecase) DelDBServicePreCheck(ctx context.Context, dbServiceUid string) error {
-	for _, plugin := range p.registeredPlugins {
-		if plugin.DelDBServicePreCheckUrl != "" {
-			if err := p.CallDelDBServicePreCheck(ctx, plugin.DelDBServicePreCheckUrl, dbServiceUid); err != nil {
-				return fmt.Errorf("plugin %s del db service pre check failed: %v", plugin.Name, err)
-			}
-		}
+	if err := p.OperateDataResourceHandle(ctx, dbServiceUid, nil, dmsV1.DataResourceTypeDBService, dmsV1.OperationTypeDelete, dmsV1.OperationTimingTypeBefore); err != nil {
+		return fmt.Errorf("del db service pre check failed: %v", err)
+	}
+	return nil
+}
+
+func (p *PluginUsecase) DelDBServiceAfterHandle(ctx context.Context, dbServiceUid string) error {
+	if err := p.OperateDataResourceHandle(ctx, dbServiceUid, nil, dmsV1.DataResourceTypeDBService, dmsV1.OperationTypeDelete, dmsV1.OperationTimingTypeAfter); err != nil {
+		return fmt.Errorf("del db service handle failed: %v", err)
 	}
 	return nil
 }
 
 func (p *PluginUsecase) DelUserPreCheck(ctx context.Context, userUid string) error {
-	for _, plugin := range p.registeredPlugins {
-		if plugin.DelUserPreCheckUrl != "" {
-			if err := p.CallDelUserPreCheck(ctx, plugin.DelUserPreCheckUrl, userUid); err != nil {
-				return fmt.Errorf("plugin %s del user pre check failed: %v", plugin.Name, err)
-			}
-		}
+	if err := p.OperateDataResourceHandle(ctx, userUid, nil, dmsV1.DataResourceTypeUser, dmsV1.OperationTypeDelete, dmsV1.OperationTimingTypeBefore); err != nil {
+		return fmt.Errorf("del user pre check failed: %v", err)
 	}
 	return nil
 }
 
 func (p *PluginUsecase) DelUserGroupPreCheck(ctx context.Context, groupUid string) error {
-	for _, plugin := range p.registeredPlugins {
-		if plugin.DelUserGroupPreCheckUrl != "" {
-			if err := p.CallDelUserGroupPreCheck(ctx, plugin.DelUserGroupPreCheckUrl, groupUid); err != nil {
-				return fmt.Errorf("plugin %s del user group pre check failed: %v", plugin.Name, err)
-			}
-		}
-	}
 	return nil
 }
 
-func (p *PluginUsecase) OperateDataResourceHandle(ctx context.Context, uid string, dateResourceType dmsV1.DataResourceType,
+func (p *PluginUsecase) OperateDataResourceHandle(ctx context.Context, uid string, resource interface{}, dateResourceType dmsV1.DataResourceType,
 	operationType dmsV1.OperationType, operationTiming dmsV1.OperationTimingType) error {
+	var (
+		mu   sync.Mutex
+		errs []error
+		wg   sync.WaitGroup
+	)
+
 	for _, plugin := range p.registeredPlugins {
 		if plugin.OperateDataResourceHandleUrl != "" {
-			if err := p.CallOperateDataResourceHandle(ctx, plugin.OperateDataResourceHandleUrl, uid, dateResourceType, operationType, operationTiming); err != nil {
-				return fmt.Errorf("call plugin %s operate data resource handle failed: %v", plugin.Name, err)
-			}
+			wg.Add(1)
+			go func(plugin *Plugin) {
+				defer wg.Done()
+				if err := p.CallOperateDataResourceHandle(ctx, plugin.OperateDataResourceHandleUrl, uid, resource, dateResourceType, operationType, operationTiming); err != nil {
+					mu.Lock()
+					errs = append(errs, fmt.Errorf("call plugin %s operate data resource handle failed: %v", plugin.Name, err))
+					mu.Unlock()
+				}
+			}(plugin)
 		}
 	}
-	return nil
-}
 
-func (p *PluginUsecase) CallAddDBServicePreCheck(ctx context.Context, url string, ds *dmsV1.IPluginDBService) error {
-	header := map[string]string{
-		"Authorization": pkgHttp.DefaultDMSToken,
-	}
+	wg.Wait()
 
-	reqBody := struct {
-		DBService *dmsV1.IPluginDBService `json:"db_service"`
-	}{
-		DBService: ds,
-	}
-
-	reply := &dmsV1.AddDBServicePreCheckReply{}
-
-	if err := pkgHttp.Get(ctx, url, header, reqBody, reply); err != nil {
-		return err
-	}
-	if reply.Code != 0 {
-		return fmt.Errorf("reply code(%v) error: %v", reply.Code, reply.Message)
+	if len(errs) > 0 {
+		return fmt.Errorf("encountered errors: %v", errs)
 	}
 
 	return nil
 }
 
-func (p *PluginUsecase) CallDelDBServicePreCheck(ctx context.Context, url string, dbServiceUid string) error {
+func (p *PluginUsecase) CallOperateDataResourceHandle(ctx context.Context, url string, dataResourceUid string, resource interface{}, dataResourceType dmsV1.DataResourceType, operationType dmsV1.OperationType, operationTiming dmsV1.OperationTimingType) error {
 	header := map[string]string{
 		"Authorization": pkgHttp.DefaultDMSToken,
 	}
-
-	reqBody := struct {
-		DBServiceUid string `json:"db_service_uid"`
-	}{
-		DBServiceUid: dbServiceUid,
-	}
-
-	reply := &dmsV1.DelDBServicePreCheckReply{}
-
-	if err := pkgHttp.Get(ctx, url, header, reqBody, reply); err != nil {
-		return err
-	}
-	if reply.Code != 0 {
-		return fmt.Errorf("reply code(%v) error: %v", reply.Code, reply.Message)
-	}
-
-	return nil
-}
-
-func (p *PluginUsecase) CallDelUserPreCheck(ctx context.Context, url string, userUid string) error {
-	header := map[string]string{
-		"Authorization": pkgHttp.DefaultDMSToken,
-	}
-
-	reqBody := struct {
-		UserUid string `json:"user_uid"`
-	}{
-		UserUid: userUid,
-	}
-
-	reply := &dmsV1.DelUserPreCheckReply{}
-
-	if err := pkgHttp.Get(ctx, url, header, reqBody, reply); err != nil {
-		return err
-	}
-	if reply.Code != 0 {
-		return fmt.Errorf("reply code(%v) error: %v", reply.Code, reply.Message)
-	}
-
-	return nil
-}
-
-func (p *PluginUsecase) CallDelUserGroupPreCheck(ctx context.Context, url string, userGroupUid string) error {
-	header := map[string]string{
-		"Authorization": pkgHttp.DefaultDMSToken,
-	}
-
-	reqBody := struct {
-		UserGroupUid string `json:"user_group_uid"`
-	}{
-		UserGroupUid: userGroupUid,
-	}
-	reply := &dmsV1.DelUserGroupPreCheckReply{}
-
-	if err := pkgHttp.Get(ctx, url, header, reqBody, reply); err != nil {
-		return err
-	}
-	if reply.Code != 0 {
-		return fmt.Errorf("reply code(%v) error: %v", reply.Code, reply.Message)
-	}
-
-	return nil
-}
-
-func (p *PluginUsecase) CallOperateDataResourceHandle(ctx context.Context, url string, dataResourceUid string, dataResourceType dmsV1.DataResourceType, operationType dmsV1.OperationType, operationTiming dmsV1.OperationTimingType) error {
-	header := map[string]string{
-		"Authorization": pkgHttp.DefaultDMSToken,
+	extraParams, err := json.Marshal(resource)
+	if err != nil {
+		return fmt.Errorf("marshal resource failed: %v", err)
 	}
 	operateDataResourceHandleReq := dmsV1.OperateDataResourceHandleReq{
 		DataResourceUid:  dataResourceUid,
 		DataResourceType: dataResourceType,
 		OperationType:    operationType,
 		OperationTiming:  operationTiming,
+		ExtraParams:      string(extraParams),
 	}
 	reply := &dmsV1.OperateDataResourceHandleReply{}
 

@@ -45,6 +45,7 @@ func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
 		ProjectUID:        ds.ProjectUID,
 		IsEnableMasking:   ds.IsMaskingSwitch,
 		EnableBackup:      ds.EnableBackup,
+		BackupMaxRows:     ds.BackupMaxRows,
 	}
 	if ds.LastConnectionStatus != nil {
 		dbService.LastConnectionStatus = (*string)(ds.LastConnectionStatus)
@@ -104,6 +105,7 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 		ProjectUID:        ds.ProjectUID,
 		IsMaskingSwitch:   ds.IsEnableMasking,
 		EnableBackup:      ds.EnableBackup,
+		BackupMaxRows:     ds.BackupMaxRows,
 	}
 
 	if ds.LastConnectionStatus != nil {
@@ -577,10 +579,6 @@ func convertModelProxyTarget(t *model.ProxyTarget) (*biz.ProxyTarget, error) {
 func convertBizPlugin(t *biz.Plugin) (*model.Plugin, error) {
 	return &model.Plugin{
 		Name:                         t.Name,
-		AddDBServicePreCheckUrl:      t.AddDBServicePreCheckUrl,
-		DelDBServicePreCheckUrl:      t.DelDBServicePreCheckUrl,
-		DelUserPreCheckUrl:           t.DelUserPreCheckUrl,
-		DelUserGroupPreCheckUrl:      t.DelUserGroupPreCheckUrl,
 		OperateDataResourceHandleUrl: t.OperateDataResourceHandleUrl,
 	}, nil
 }
@@ -588,10 +586,6 @@ func convertBizPlugin(t *biz.Plugin) (*model.Plugin, error) {
 func convertModelPlugin(t *model.Plugin) (*biz.Plugin, error) {
 	p := &biz.Plugin{
 		Name:                         t.Name,
-		AddDBServicePreCheckUrl:      t.AddDBServicePreCheckUrl,
-		DelDBServicePreCheckUrl:      t.DelDBServicePreCheckUrl,
-		DelUserPreCheckUrl:           t.DelUserPreCheckUrl,
-		DelUserGroupPreCheckUrl:      t.DelUserGroupPreCheckUrl,
 		OperateDataResourceHandleUrl: t.OperateDataResourceHandleUrl,
 	}
 	return p, nil

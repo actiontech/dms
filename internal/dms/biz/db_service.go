@@ -72,8 +72,9 @@ type DBService struct {
 	// audit plan types
 	AuditPlanTypes []*dmsCommonV1.AuditPlanTypes `json:"audit_plan_types"`
 	// instance audit plan id
-	InstanceAuditPlanID uint `json:"instance_audit_plan_id"`
-	EnableBackup        bool `json:"enable_backup"`
+	InstanceAuditPlanID uint   `json:"instance_audit_plan_id"`
+	EnableBackup        bool   `json:"enable_backup"`
+	BackupMaxRows       uint64 `json:"backup_max_rows"`
 }
 
 type DBTypeCount struct {
@@ -121,6 +122,7 @@ func newDBService(args *BizDBServiceArgs) (*DBService, error) {
 		SQLEConfig:        &SQLEConfig{},
 		IsMaskingSwitch:   args.IsMaskingSwitch,
 		EnableBackup:      args.EnableBackup,
+		BackupMaxRows:     args.BackupMaxRows,
 	}
 
 	if args.RuleTemplateName != "" {
@@ -192,6 +194,7 @@ type BizDBServiceArgs struct {
 	SQLQueryConfig   *SQLQueryConfig
 	IsMaskingSwitch  bool
 	EnableBackup     bool
+	BackupMaxRows    uint64
 }
 
 type SQLQueryConfig struct {
@@ -218,21 +221,28 @@ func (d *DBServiceUsecase) CreateDBService(ctx context.Context, args *BizDBServi
 		return "", fmt.Errorf("new db service failed: %w", err)
 	}
 
-	// 调用其他服务对数据源进行预检查
-	if err = d.pluginUsecase.AddDBServicePreCheck(ctx, ds); err != nil {
-		return "", fmt.Errorf("precheck db service failed: %w", err)
-	}
-
-	if err = d.repo.SaveDBServices(ctx, []*DBService{ds}); err != nil {
+	err = d.createDBService(ctx, ds)
+	if err != nil {
 		return "", err
 	}
+	return ds.UID, nil
+}
 
-	err = d.pluginUsecase.OperateDataResourceHandle(ctx, ds.UID, dmsCommonV1.DataResourceTypeDBService, dmsCommonV1.OperationTypeCreate, dmsCommonV1.OperationTimingAfter)
-	if err != nil {
-		return "", fmt.Errorf("plugin handle after craete db_service err: %v", err)
+func (d *DBServiceUsecase) createDBService(ctx context.Context, dbService *DBService) error {
+	// 调用其他服务对数据源进行预检查
+	if err := d.pluginUsecase.AddDBServicePreCheck(ctx, dbService); err != nil {
+		return fmt.Errorf("precheck db service failed: %w", err)
 	}
 
-	return ds.UID, nil
+	if err := d.repo.SaveDBServices(ctx, []*DBService{dbService}); err != nil {
+		return err
+	}
+
+	err := d.pluginUsecase.AddDBServiceAfterHandle(ctx, dbService.UID)
+	if err != nil {
+		return fmt.Errorf("plugin handle after craete db_service err: %v", err)
+	}
+	return nil
 }
 
 type ListDBServicesOption struct {
@@ -300,7 +310,7 @@ func (d *DBServiceUsecase) TestDbServiceConnections(ctx context.Context, DBServi
 			dbService.LastConnectionTime = &connectionResult.TestConnectionTime
 			dbService.LastConnectionErrorMsg = &connectionResult.ConnectErrorMessage
 
-			err = d.UpdateDBServiceByBiz(ctx, dbService, currentUserUid)
+			err = d.UpdateDBService(ctx, dbService, currentUserUid)
 			if err != nil {
 				d.log.Errorf("dbService name: %v,UpdateDBServiceByBiz err: %v", dbService.Name, err)
 			}
@@ -495,7 +505,7 @@ func (d *DBServiceUsecase) DelDBService(ctx context.Context, dbServiceUid, curre
 		return fmt.Errorf("user is not project admin or golobal op permission user")
 	}
 
-	err = d.pluginUsecase.OperateDataResourceHandle(ctx, ds.UID, dmsCommonV1.DataResourceTypeDBService, dmsCommonV1.OperationTypeDelete, dmsCommonV1.OperationTimingTypeBefore)
+	err = d.pluginUsecase.DelDBServicePreCheck(ctx, ds.UID)
 	if err != nil {
 		return fmt.Errorf("plugin handle before delete db_service err: %v", err)
 	}
@@ -504,7 +514,7 @@ func (d *DBServiceUsecase) DelDBService(ctx context.Context, dbServiceUid, curre
 		return fmt.Errorf("delete data service error: %v", err)
 	}
 
-	err = d.pluginUsecase.OperateDataResourceHandle(ctx, ds.UID, dmsCommonV1.DataResourceTypeDBService, dmsCommonV1.OperationTypeDelete, dmsCommonV1.OperationTimingAfter)
+	err = d.pluginUsecase.DelDBServiceAfterHandle(ctx, ds.UID)
 	if err != nil {
 		return fmt.Errorf("plugin handle after delete db_service err: %v", err)
 	}
@@ -574,7 +584,7 @@ func (d *DBServiceUsecase) TestDbServiceConnection(ctx context.Context, dbServic
 	return connectionResult, nil
 }
 
-func (d *DBServiceUsecase) UpdateDBServiceByBiz(ctx context.Context, ds *DBService, currentUserUid string) (err error) {
+func (d *DBServiceUsecase) UpdateDBService(ctx context.Context, ds *DBService, currentUserUid string) (err error) {
 	// 检查项目是否归档/删除
 	if err := d.projectUsecase.isProjectActive(ctx, ds.ProjectUID); err != nil {
 		return fmt.Errorf("update db service error: %v", err)
@@ -591,7 +601,7 @@ func (d *DBServiceUsecase) UpdateDBServiceByBiz(ctx context.Context, ds *DBServi
 		return fmt.Errorf("update db service error: %v", err)
 	}
 
-	err = d.pluginUsecase.OperateDataResourceHandle(ctx, ds.UID, dmsCommonV1.DataResourceTypeDBService, dmsCommonV1.OperationTypeUpdate, dmsCommonV1.OperationTimingAfter)
+	err = d.pluginUsecase.UpdateDBServiceAfterHandle(ctx, ds.UID)
 	if err != nil {
 		return fmt.Errorf("plugin handle after update db_service err: %v", err)
 	}
@@ -599,7 +609,7 @@ func (d *DBServiceUsecase) UpdateDBServiceByBiz(ctx context.Context, ds *DBServi
 	return nil
 }
 
-func (d *DBServiceUsecase) UpdateDBService(ctx context.Context, dbServiceUid string, updateDBService *BizDBServiceArgs, currentUserUid string) (err error) {
+func (d *DBServiceUsecase) UpdateDBServiceByArgs(ctx context.Context, dbServiceUid string, updateDBService *BizDBServiceArgs, currentUserUid string) (err error) {
 	ds, err := d.repo.GetDBService(ctx, dbServiceUid)
 	if err != nil {
 		return fmt.Errorf("get db service failed: %v", err)
@@ -646,6 +656,7 @@ func (d *DBServiceUsecase) UpdateDBService(ctx context.Context, dbServiceUid str
 		ds.MaintenancePeriod = updateDBService.MaintenancePeriod
 		ds.IsMaskingSwitch = updateDBService.IsMaskingSwitch
 		ds.EnableBackup = updateDBService.EnableBackup
+		ds.BackupMaxRows = updateDBService.BackupMaxRows
 		ds.SQLEConfig = &SQLEConfig{}
 		// 支持新增和更新sqleConfig，不允许删除sqle配置
 		if updateDBService.RuleTemplateName != "" {
@@ -662,7 +673,7 @@ func (d *DBServiceUsecase) UpdateDBService(ctx context.Context, dbServiceUid str
 		return fmt.Errorf("update db service error: %v", err)
 	}
 
-	err = d.pluginUsecase.OperateDataResourceHandle(ctx, ds.UID, dmsCommonV1.DataResourceTypeDBService, dmsCommonV1.OperationTypeUpdate, dmsCommonV1.OperationTimingAfter)
+	err = d.pluginUsecase.UpdateDBServiceAfterHandle(ctx, ds.UID)
 	if err != nil {
 		return fmt.Errorf("plugin handle after update db_service err: %v", err)
 	}

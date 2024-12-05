@@ -53,6 +53,7 @@ func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV1.UpdateDBSer
 		Password:          req.DBService.Password,
 		Business:          req.DBService.Business,
 		EnableBackup:      req.DBService.EnableBackup,
+		BackupMaxRows:     autoChooseBackupMaxRows(req.DBService.EnableBackup, req.DBService.BackupMaxRows),
 		MaintenancePeriod: d.convertMaintenanceTimeToPeriod(req.DBService.MaintenanceTimes),
 		AdditionalParams:  additionalParams,
 	}
@@ -74,7 +75,7 @@ func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV1.UpdateDBSer
 			}
 		}
 	}
-	if err := d.DBServiceUsecase.UpdateDBService(ctx, req.DBServiceUid, args, currentUserUid); err != nil {
+	if err := d.DBServiceUsecase.UpdateDBServiceByArgs(ctx, req.DBServiceUid, args, currentUserUid); err != nil {
 		return fmt.Errorf("update db service failed: %v", err)
 	}
 
@@ -181,6 +182,24 @@ func (d *DMSService) CheckDBServiceIsConnectableByIds(ctx context.Context, proje
 	}, nil
 }
 
+const DefaultBackupMaxRows uint64 = 1000
+
+// autoChooseBackupMaxRows 函数根据是否启用备份以及备份最大行数的设置来确定最终的备份最大行数。
+// 参数:
+//   - enableBackup: 是否启用备份。
+//   - backupMaxRows: 备份最大行数的设置，如果未设置，则为 nil。
+//
+// 返回值:
+//   - int64: 最终确定的备份最大行数。
+func autoChooseBackupMaxRows(enableBackup bool, backupMaxRows *uint64) uint64 {
+	// 如果启用了备份并且备份最大行数的设置不为 nil，则返回设置的备份最大行数。
+	if enableBackup && backupMaxRows != nil {
+		return *backupMaxRows
+	}
+	// 如果未启用备份或者备份最大行数的设置为 nil，则返回默认的备份最大行数 DefaultBackupMaxRows。
+	return DefaultBackupMaxRows
+}
+
 func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceReq, currentUserUid string) (reply *dmsV1.AddDBServiceReply, err error) {
 	d.log.Infof("AddDBServices.req=%v", req)
 	defer func() {
@@ -209,6 +228,7 @@ func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceRe
 		Source:            string(pkgConst.DBServiceSourceNameSQLE),
 		AdditionalParams:  additionalParams,
 		EnableBackup:      req.DBService.EnableBackup,
+		BackupMaxRows:     autoChooseBackupMaxRows(req.DBService.EnableBackup, req.DBService.BackupMaxRows),
 	}
 
 	if biz.IsDMS() {
@@ -384,6 +404,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 	}
 
 	filterBy := make([]pkgConst.FilterCondition, 0)
+
 	if req.FilterByBusiness != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldBusiness),
@@ -511,6 +532,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 			InstanceAuditPlanID: u.InstanceAuditPlanID,
 			AuditPlanTypes:      u.AuditPlanTypes,
 			EnableBackup:        u.EnableBackup,
+			BackupMaxRows:       u.BackupMaxRows,
 		}
 
 		if u.LastConnectionTime != nil {

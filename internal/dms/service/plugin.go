@@ -17,10 +17,6 @@ func (d *DMSService) RegisterDMSPlugin(ctx context.Context, currentUserUid strin
 
 	if err := d.PluginUsecase.RegisterPlugin(ctx, &biz.Plugin{
 		Name:                         req.Plugin.Name,
-		AddDBServicePreCheckUrl:      req.Plugin.AddDBServicePreCheckUrl,
-		DelDBServicePreCheckUrl:      req.Plugin.DelDBServicePreCheckUrl,
-		DelUserPreCheckUrl:           req.Plugin.DelUserPreCheckUrl,
-		DelUserGroupPreCheckUrl:      req.Plugin.DelUserGroupPreCheckUrl,
 		OperateDataResourceHandleUrl: req.Plugin.OperateDataResourceHandleUrl,
 	}, currentUserUid); err != nil {
 		return fmt.Errorf("register dms plugin failed: %v", err)
