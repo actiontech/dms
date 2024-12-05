@@ -95,7 +95,7 @@ func (p *PluginUsecase) UpdateProjectPreCheck(ctx context.Context, project *Proj
 		Name:     project.Name,
 		Archived: project.Status == ProjectStatusArchived,
 		Desc:     project.Desc,
-	}, dmsV1.DataResourceTypeProject, dmsV1.OperationTypeCreate, dmsV1.OperationTimingTypeBefore); err != nil {
+	}, dmsV1.DataResourceTypeProject, dmsV1.OperationTypeUpdate, dmsV1.OperationTimingTypeBefore); err != nil {
 		return fmt.Errorf("update project handle failed: %v", err)
 	}
 	return nil
