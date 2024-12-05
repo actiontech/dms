@@ -81,10 +81,6 @@ func (p *PluginUsecase) RegisterPlugin(ctx context.Context, plugin *Plugin, curr
 	return nil
 }
 
-func (p *PluginUsecase) AddProjectPreCheck(ctx context.Context, ds *Project) error {
-	return nil
-}
-
 func (p *PluginUsecase) AddProjectAfterHandle(ctx context.Context, ProjectUid string) error {
 	if err := p.OperateDataResourceHandle(ctx, ProjectUid, nil, dmsV1.DataResourceTypeProject, dmsV1.OperationTypeCreate, dmsV1.OperationTimingTypeAfter); err != nil {
 		return fmt.Errorf("add project handle failed: %v", err)
