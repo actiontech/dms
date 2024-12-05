@@ -7,9 +7,10 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgError "github.com/actiontech/dms/internal/dms/pkg/errors"
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 )
 
@@ -188,7 +189,7 @@ func (d dmpManager) SyncDatabaseSource(ctx context.Context, params *DBServiceSyn
 			remainDBServiceSourceMap[sourceId] = dbService.UID
 			// update
 			if dbService.Host != item.DataSrcSip || dbService.Port != item.DataSrcPort || dbService.User != item.DataSrcUser || dbService.Password != password {
-				err = d.syncTaskUsecase.dbServiceUsecase.UpdateDBService(ctx, dbService.UID, dbServiceParams, currentUserId)
+				err = d.syncTaskUsecase.dbServiceUsecase.UpdateDBServiceByArgs(ctx, dbService.UID, dbServiceParams, currentUserId)
 			}
 		}
 
@@ -313,7 +314,7 @@ func (s expandService) syncDBServices(ctx context.Context, syncDBServices []*Syn
 		dbServiceParams := convertDbServiceToDbParams(dbService, project)
 		if db, exist := currentDBServiceMap[dbServiceParams.Name]; exist {
 			// if exist update db service
-			err = s.syncTaskUsecase.dbServiceUsecase.UpdateDBService(ctx, db.UID, &dbServiceParams, currentUserId)
+			err = s.syncTaskUsecase.dbServiceUsecase.UpdateDBServiceByArgs(ctx, db.UID, &dbServiceParams, currentUserId)
 			if err != nil {
 				return err
 			}

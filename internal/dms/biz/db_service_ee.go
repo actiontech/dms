@@ -459,22 +459,12 @@ func (d *DBServiceUsecase) importDBServices(ctx context.Context, dbs []*DBServic
 		}
 		v.UID = dbUid
 
-		// 调用其他服务对数据源进行预检查
-		if err = d.pluginUsecase.AddDBServicePreCheck(ctx, v); err != nil {
-			return fmt.Errorf("precheck db service failed: %w", err)
-		}
-	}
-
-	if err := d.repo.SaveDBServices(ctx, dbs); err != nil {
-		return err
-	}
-
-	for _, ds := range dbs {
-		err := d.pluginUsecase.OperateDataResourceHandle(ctx, ds.UID, dmsCommonV1.DataResourceTypeDBService, dmsCommonV1.OperationTypeCreate, dmsCommonV1.OperationTimingAfter)
+		err = d.createDBService(ctx, v)
 		if err != nil {
-			return fmt.Errorf("plugin handle after craete db_service err: %v", err)
+			return err
 		}
 	}
+
 	return nil
 }
 
