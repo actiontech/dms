@@ -30,6 +30,6 @@ func WrapStorageErr(log *utilLog.Helper, originalErr error) error {
 
 func WrapErrStorageNoData(log *utilLog.Helper, originalErr error) error {
 	err := fmt.Errorf("%w:%v", ErrStorageNoData, originalErr)
-	log.Errorf(err.Error())
+	// log.Errorf(err.Error())
 	return err
 }

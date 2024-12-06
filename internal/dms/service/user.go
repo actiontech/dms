@@ -52,10 +52,6 @@ func (d *DMSService) AfterUserLogin(ctx context.Context, req *dmsV1.AfterUserLog
 }
 
 func (d *DMSService) GetCurrentUser(ctx context.Context, req *dmsV1.GetUserBySessionReq) (reply *dmsV1.GetUserBySessionReply, err error) {
-	d.log.Infof("GetCurrentUser,req=%v", req)
-	defer func() {
-		d.log.Infof("GetCurrentUser.req=%v,reply=%v;error=%v", req, reply, err)
-	}()
 
 	user, err := d.UserUsecase.GetUser(ctx, req.UserUid)
 	if nil != err {
@@ -139,10 +135,6 @@ func (d *DMSService) DelUser(ctx context.Context, currentUserUid string, req *dm
 }
 
 func (d *DMSService) ListUsers(ctx context.Context, req *dmsCommonV1.ListUserReq) (reply *dmsCommonV1.ListUserReply, err error) {
-	d.log.Infof("ListUsers.req=%v", req)
-	defer func() {
-		d.log.Infof("ListUsers.req=%v;reply=%v;error=%v", req, reply, err)
-	}()
 
 	var orderBy biz.UserField
 	switch req.OrderBy {
@@ -305,10 +297,6 @@ func (d *DMSService) DelUserGroup(ctx context.Context, currentUserUid string, re
 }
 
 func (d *DMSService) ListUserGroups(ctx context.Context, req *dmsV1.ListUserGroupReq) (reply *dmsV1.ListUserGroupReply, err error) {
-	d.log.Infof("ListUserGroups.req=%v", req)
-	defer func() {
-		d.log.Infof("ListUserGroups.req=%v;reply=%v;error=%v", req, reply, err)
-	}()
 
 	var orderBy biz.UserGroupField
 	switch req.OrderBy {
@@ -419,16 +407,10 @@ func (d *DMSService) GetUserOpPermission(ctx context.Context, req *dmsCommonV1.G
 		}{IsAdmin: isAdmin, OpPermissionList: replyOpPermission},
 	}
 
-	d.log.Infof("GetUserOpPermission.resp=%v", reply)
 	return reply, nil
 }
 
 func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (reply *dmsCommonV1.GetUserReply, err error) {
-	d.log.Infof("GetUser.req=%v", req)
-	defer func() {
-		d.log.Infof("GetUser.req=%v;error=%v", req, err)
-	}()
-
 	u, err := d.UserUsecase.GetUser(ctx, req.UserUid)
 	if err != nil {
 		return nil, fmt.Errorf("get user error: %v", err)
@@ -526,7 +508,6 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 		Data: dmsCommonUser,
 	}
 
-	d.log.Infof("GetUser.resp=%v", reply)
 	return reply, nil
 }
 
