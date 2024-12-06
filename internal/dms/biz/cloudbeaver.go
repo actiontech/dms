@@ -365,6 +365,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 
 					directAuditReq := cloudbeaver.DirectAuditParams{
 						AuditSQLReq: cloudbeaver.AuditSQLReq{
+							DbServiceName:    dbService.Name,
 							InstanceType:     dbService.DBType,
 							ProjectId:        dbService.ProjectUID,
 							RuleTemplateName: dbService.SQLEConfig.RuleTemplateName,
