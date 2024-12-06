@@ -111,7 +111,8 @@ func RemoveCloudbeaverUserIdPrefix(name string) string {
 }
 
 type AuditSQLReq struct {
-	InstanceType string `json:"instance_type" form:"instance_type" example:"MySQL" valid:"required"`
+	InstanceType  string `json:"instance_type" form:"instance_type" example:"MySQL" valid:"required"`
+	DbServiceName string `json:"db_service_name" form:"db_service_name" example:"test-mysql"`
 	// 调用方不应该关心SQL是否被完美的拆分成独立的条目, 拆分SQL由SQLE实现
 	SQLContent       string `json:"sql_content" form:"sql_content" example:"select * from t1; select * from t2;" valid:"required"`
 	SQLType          string `json:"sql_type" form:"sql_type" example:"sql" enums:"sql,mybatis," valid:"omitempty,oneof=sql mybatis"`
@@ -162,6 +163,7 @@ func (r *MutationResolverImpl) AuditSQL(ctx context.Context, sql string, connect
 
 	req := AuditSQLReq{
 		InstanceType:     directAuditParams.InstanceType,
+		DbServiceName:    directAuditParams.DbServiceName,
 		SQLContent:       sql,
 		SQLType:          "sql",
 		ProjectId:        directAuditParams.ProjectId,
