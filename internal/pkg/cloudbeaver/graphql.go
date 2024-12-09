@@ -178,7 +178,7 @@ func (r *MutationResolverImpl) AuditSQL(ctx context.Context, sql string, connect
 	}
 	if reply.Data.PassRate == 0 {
 		if IsAuditPassed(directAuditParams.AllowQueryWhenLessThanAuditLevel, reply.Data.SQLResults) {
-			return true, nil, nil
+			return true, reply.Data.SQLResults, nil
 		}
 		return false, reply.Data.SQLResults, nil
 	}
