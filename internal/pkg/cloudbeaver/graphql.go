@@ -187,14 +187,13 @@ func (r *MutationResolverImpl) AuditSQL(ctx context.Context, sql string, connect
 
 // AllowQuery 根据AllowQueryWhenLessThanAuditLevel字段判断能否执行SQL
 func AllowQuery(allowQueryWhenLessThanAuditLevel string, sqlResults []AuditSQLResV2) bool {
-	pass := true
 	for _, sqlResult := range sqlResults {
 		if dbmodel.RuleLevel(sqlResult.AuditLevel).LessOrEqual(dbmodel.RuleLevel(allowQueryWhenLessThanAuditLevel)) {
 			continue
 		}
-		pass = false
+		return false
 	}
-	return pass
+	return true
 }
 
 type AuditResults struct {
