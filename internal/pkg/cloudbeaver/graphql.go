@@ -185,7 +185,7 @@ func (r *MutationResolverImpl) AuditSQL(ctx context.Context, sql string, connect
 	return true, nil, nil
 }
 
-// IsAuditPassed 根据AllowQueryWhenLessThanAuditLevel字段对于审核结果进行过滤
+// IsAuditPassed 根据AllowQueryWhenLessThanAuditLevel字段判断能否执行SQL
 func IsAuditPassed(allowQueryWhenLessThanAuditLevel string, sqlResults []AuditSQLResV2) bool {
 	pass := true
 	for _, sqlResult := range sqlResults {
