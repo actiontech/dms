@@ -477,6 +477,28 @@ type AuditResult struct {
 	I18nAuditResultInfo I18nAuditResultInfo `json:"i18n_audit_result_info"`
 }
 
+type RuleLevel string
+
+const (
+	RuleLevelNull   RuleLevel = "" // used to indicate no rank
+	RuleLevelNormal RuleLevel = "normal"
+	RuleLevelNotice RuleLevel = "notice"
+	RuleLevelWarn   RuleLevel = "warn"
+	RuleLevelError  RuleLevel = "error"
+)
+
+var ruleLevelMap = map[RuleLevel]int{
+	RuleLevelNull:   -1,
+	RuleLevelNormal: 0,
+	RuleLevelNotice: 1,
+	RuleLevelWarn:   2,
+	RuleLevelError:  3,
+}
+
+func (r RuleLevel) LessOrEqual(l RuleLevel) bool {
+	return ruleLevelMap[r] <= ruleLevelMap[l]
+}
+
 func (ar *AuditResult) GetAuditMsgByLangTag(lang language.Tag) string {
 	return ar.I18nAuditResultInfo.GetAuditResultInfoByLangTag(lang).Message
 }

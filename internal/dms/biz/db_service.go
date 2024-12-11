@@ -95,6 +95,13 @@ func (d *DBService) GetRuleTemplateName() string {
 	return ""
 }
 
+func (d *DBService) GetAllowQueryWhenLessThanAuditLevel() string {
+	if d.SQLEConfig == nil || d.SQLEConfig.SQLQueryConfig == nil {
+		return ""
+	}
+	return d.SQLEConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel
+}
+
 const (
 	DBServiceAdditionalParam_RuleTemplateName = "rule_template_name"
 )
