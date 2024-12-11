@@ -9,7 +9,7 @@ import (
 
 var errNotSupportOauth2 = errors.New("oauth2 related functions are enterprise version functions")
 
-func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Context, enableOauth2, skipCheckState, autoCreateUser *bool, clientID, clientKey, clientHost, serverAuthUrl, serverTokenUrl, serverUserIdUrl,
+func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Context, enableOauth2, skipCheckState, autoCreateUser *bool, autoCreateUserPWD, clientID, clientKey, clientHost, serverAuthUrl, serverTokenUrl, serverUserIdUrl, serverLogoutUrl,
 	accessTokenTag, userIdTag, userWechatTag, userEmailTag, loginTip *string, scopes *[]string) error {
 
 	return errNotSupportOauth2
@@ -27,6 +27,10 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 	return "", "", errNotSupportOauth2
 }
 
-func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2Token, userName, password string) (token string, err error) {
+func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2Token, idToken, userName, password string) (token string, err error) {
 	return "", errNotSupportOauth2
+}
+
+func (d *Oauth2ConfigurationUsecase) Logout(ctx context.Context, uid string) (string, error) {
+	return "", nil
 }

@@ -71,6 +71,7 @@ type BindOauth2UserReq struct {
 	UserName    string `json:"user_name" form:"user_name" validate:"required"`
 	Pwd         string `json:"pwd" form:"pwd" validate:"required"`
 	Oauth2Token string `json:"oauth2_token" form:"oauth2_token" validate:"required"`
+	IdToken     string `json:"id_token" form:"id_token"`
 }
 
 // swagger:model BindOauth2UserReply
