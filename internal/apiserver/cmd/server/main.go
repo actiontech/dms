@@ -76,6 +76,7 @@ func run(logger utilLog.Logger, opts *conf.DMSOptions) error {
 		}
 		return nil
 	})
+	log_.Infof("dms server started, version : %s ", Version)
 
 	g.Go(func() error {
 		service.StartAllCronJob(server, errCtx)
