@@ -1121,6 +1121,28 @@ definitions:
                 x-go-name: DBServiceUid
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DelSessionReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: Del session reply
+                properties:
+                    location:
+                        description: Session token
+                        type: string
+                        x-go-name: Location
+                type: object
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     FeishuConfigurationResData:
         properties:
             app_id:
@@ -1502,6 +1524,9 @@ definitions:
             server_auth_url:
                 type: string
                 x-go-name: ServerAuthUrl
+            server_logout_url:
+                type: string
+                x-go-name: ServerLogoutUrl
             server_token_url:
                 type: string
                 x-go-name: ServerTokenUrl
@@ -3406,6 +3431,9 @@ definitions:
             auto_create_user:
                 type: boolean
                 x-go-name: AutoCreateUser
+            auto_create_user_pwd:
+                type: string
+                x-go-name: AutoCreateUserPWD
             client_host:
                 type: string
                 x-go-name: ClientHost
@@ -3430,6 +3458,9 @@ definitions:
             server_auth_url:
                 type: string
                 x-go-name: ServerAuthUrl
+            server_logout_url:
+                type: string
+                x-go-name: ServerLogoutUrl
             server_token_url:
                 type: string
                 x-go-name: ServerTokenUrl
@@ -7391,9 +7422,9 @@ paths:
             operationId: DelSession
             responses:
                 "200":
-                    description: GenericResp
+                    description: DelSessionReply
                     schema:
-                        $ref: '#/definitions/GenericResp'
+                        $ref: '#/definitions/DelSessionReply'
                 default:
                     description: GenericResp
                     schema:

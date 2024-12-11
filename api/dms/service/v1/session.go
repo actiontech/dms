@@ -29,6 +29,18 @@ type AddSessionReply struct {
 	base.GenericResp
 }
 
+// swagger:model DelSessionReply
+type DelSessionReply struct {
+	// Del session reply
+	Data struct {
+		// Session token
+		Location string `json:"location"`
+	} `json:"data"`
+
+	// Generic reply
+	base.GenericResp
+}
+
 // swagger:parameters GetUserBySession
 type GetUserBySessionReq struct {
 	UserUid string `json:"user_uid" validate:"required"`
