@@ -566,7 +566,7 @@ func (a *DMSController) AddSession(c echo.Context) error {
 // del a session.
 //
 //	responses:
-//	  200: body:GenericResp
+//	  200: body:DelSessionReply
 //	  default: body:GenericResp
 func (a *DMSController) DelSession(c echo.Context) error {
 	cookie, err := c.Cookie(constant.DMSToken)
