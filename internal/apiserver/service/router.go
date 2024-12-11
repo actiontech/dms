@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
+	"net/http"
 	"strings"
 
 	dmsMiddleware "github.com/actiontech/dms/internal/apiserver/middleware"
@@ -305,7 +306,7 @@ func (s *APIServer) installMiddleware() error {
 	s.echo.Use(echojwt.WithConfig(echojwt.Config{
 		Skipper: middleware.Skipper(func(c echo.Context) bool {
 			logger := log.NewHelper(log.With(pkgLog.NewKLogWrapper(s.logger), "middleware", "jwt"))
-			if strings.HasSuffix(c.Request().RequestURI, dmsV1.SessionRouterGroup) ||
+			if strings.HasSuffix(c.Request().RequestURI, dmsV1.SessionRouterGroup) && c.Request().Method != http.MethodDelete ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/oauth2" /* TODO 使用统一方法skip */) ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/personalization/logo") ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/license" /* TODO 使用统一方法skip */) ||
