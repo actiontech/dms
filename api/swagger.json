@@ -3969,9 +3969,9 @@
         "operationId": "DelSession",
         "responses": {
           "200": {
-            "description": "GenericResp",
+            "description": "DelSessionReply",
             "schema": {
-              "$ref": "#/definitions/GenericResp"
+              "$ref": "#/definitions/DelSessionReply"
             }
           },
           "default": {
@@ -6019,6 +6019,35 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "DelSessionReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "Del session reply",
+          "type": "object",
+          "properties": {
+            "location": {
+              "description": "Session token",
+              "type": "string",
+              "x-go-name": "Location"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "FeishuConfigurationResData": {
       "type": "object",
       "properties": {
@@ -6519,6 +6548,10 @@
         "server_auth_url": {
           "type": "string",
           "x-go-name": "ServerAuthUrl"
+        },
+        "server_logout_url": {
+          "type": "string",
+          "x-go-name": "ServerLogoutUrl"
         },
         "server_token_url": {
           "type": "string",
@@ -8856,6 +8889,10 @@
           "type": "boolean",
           "x-go-name": "AutoCreateUser"
         },
+        "auto_create_user_pwd": {
+          "type": "string",
+          "x-go-name": "AutoCreateUserPWD"
+        },
         "client_host": {
           "type": "string",
           "x-go-name": "ClientHost"
@@ -8887,6 +8924,10 @@
         "server_auth_url": {
           "type": "string",
           "x-go-name": "ServerAuthUrl"
+        },
+        "server_logout_url": {
+          "type": "string",
+          "x-go-name": "ServerLogoutUrl"
         },
         "server_token_url": {
           "type": "string",

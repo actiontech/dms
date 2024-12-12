@@ -48,10 +48,13 @@ type APIServer struct {
 }
 
 func NewAPIServer(logger utilLog.Logger, opts *conf.DMSOptions) (*APIServer, error) {
+	e := echo.New()
+	e.HideBanner = true
+	e.HidePort = true
 	return &APIServer{
 		logger: logger,
 		opts:   opts,
-		echo:   echo.New(),
+		echo:   e,
 	}, nil
 }
 

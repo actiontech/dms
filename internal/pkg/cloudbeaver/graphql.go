@@ -121,7 +121,8 @@ type AuditSQLReq struct {
 
 type DirectAuditParams struct {
 	AuditSQLReq
-	SQLEAddr string
+	SQLEAddr                         string
+	AllowQueryWhenLessThanAuditLevel string
 }
 
 type AuditSQLResV2 struct {
@@ -175,12 +176,24 @@ func (r *MutationResolverImpl) AuditSQL(ctx context.Context, sql string, connect
 	if reply.Code != 0 {
 		return false, nil, fmt.Errorf("reply code(%v) error: %v", reply.Code, reply.Message)
 	}
-
 	if reply.Data.PassRate == 0 {
+		if AllowQuery(directAuditParams.AllowQueryWhenLessThanAuditLevel, reply.Data.SQLResults) {
+			return true, reply.Data.SQLResults, nil
+		}
 		return false, reply.Data.SQLResults, nil
 	}
-
 	return true, nil, nil
+}
+
+// AllowQuery 根据AllowQueryWhenLessThanAuditLevel字段判断能否执行SQL
+func AllowQuery(allowQueryWhenLessThanAuditLevel string, sqlResults []AuditSQLResV2) bool {
+	for _, sqlResult := range sqlResults {
+		if dbmodel.RuleLevel(sqlResult.AuditLevel).LessOrEqual(dbmodel.RuleLevel(allowQueryWhenLessThanAuditLevel)) {
+			continue
+		}
+		return false
+	}
+	return true
 }
 
 type AuditResults struct {

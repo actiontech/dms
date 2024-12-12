@@ -369,7 +369,8 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 							ProjectId:        dbService.ProjectUID,
 							RuleTemplateName: dbService.SQLEConfig.RuleTemplateName,
 						},
-						SQLEAddr: fmt.Sprintf("%s/v2/sql_audit", sqleUrl),
+						SQLEAddr:                         fmt.Sprintf("%s/v2/sql_audit", sqleUrl),
+						AllowQueryWhenLessThanAuditLevel: dbService.GetAllowQueryWhenLessThanAuditLevel(),
 					}
 
 					// pass sqle direct audit params

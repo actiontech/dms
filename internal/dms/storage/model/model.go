@@ -112,6 +112,7 @@ type User struct {
 	Name                   string         `json:"name" gorm:"size:200;column:name"`
 	ThirdPartyUserID       string         `json:"third_party_user_id" gorm:"size:255;column:third_party_user_id"`      // used to retrieve sqle user based on third-party user ID
 	ThirdPartyUserInfo     string         `json:"third_party_user_info" gorm:"type:text;column:third_party_user_info"` // used to save original third-party user information
+	ThirdPartyIdToken      string         `json:"third_party_id_token" gorm:"type:text;column:third_party_id_token"`   // used to call OIDC Logout
 	Email                  string         `json:"email" gorm:"size:255;column:email"`
 	Phone                  string         `json:"phone" gorm:"size:255;column:phone"`
 	WeChatID               string         `json:"wechat_id" gorm:"size:255;column:wechat_id"`
@@ -242,22 +243,25 @@ type Plugin struct {
 // Oauth2Configuration store oauth2 server configuration.
 type Oauth2Configuration struct {
 	Model
-	EnableOauth2    bool   `json:"enable_oauth2" gorm:"column:enable_oauth2"`
-	SkipCheckState  bool   `json:"skip_check_state" gorm:"column:skip_check_state"`
-	AutoCreateUser  bool   `json:"auto_create_user" gorm:"auto_create_user"`
-	ClientID        string `json:"client_id" gorm:"size:255;column:client_id"`
-	ClientKey       string `json:"-" gorm:"-"`
-	ClientSecret    string `json:"client_secret" gorm:"size:255;client_secret"`
-	ClientHost      string `json:"client_host" gorm:"size:255;column:client_host"`
-	ServerAuthUrl   string `json:"server_auth_url" gorm:"size:255;column:server_auth_url"`
-	ServerTokenUrl  string `json:"server_token_url" gorm:"size:255;column:server_token_url"`
-	ServerUserIdUrl string `json:"server_user_id_url" gorm:"size:255;column:server_user_id_url"`
-	Scopes          string `json:"scopes" gorm:"size:255;column:scopes"`
-	AccessTokenTag  string `json:"access_token_tag" gorm:"size:255;column:access_token_tag"`
-	UserIdTag       string `json:"user_id_tag" gorm:"size:255;column:user_id_tag"`
-	UserWeChatTag   string `json:"user_wechat_tag" gorm:"size:255;column:user_wechat_tag"`
-	UserEmailTag    string `json:"user_email_tag" gorm:"size:255;column:user_email_tag"`
-	LoginTip        string `json:"login_tip" gorm:"size:255;column:login_tip; default:'使用第三方账户登录'"`
+	EnableOauth2         bool   `json:"enable_oauth2" gorm:"column:enable_oauth2"`
+	SkipCheckState       bool   `json:"skip_check_state" gorm:"column:skip_check_state"`
+	AutoCreateUser       bool   `json:"auto_create_user" gorm:"auto_create_user"`
+	AutoCreateUserPWD    string `json:"-" gorm:"-"`
+	AutoCreateUserSecret string `json:"auto_create_user_pwd" gorm:"size:255;column:auto_create_user_pwd"`
+	ClientID             string `json:"client_id" gorm:"size:255;column:client_id"`
+	ClientKey            string `json:"-" gorm:"-"`
+	ClientSecret         string `json:"client_secret" gorm:"size:255;client_secret"`
+	ClientHost           string `json:"client_host" gorm:"size:255;column:client_host"`
+	ServerAuthUrl        string `json:"server_auth_url" gorm:"size:255;column:server_auth_url"`
+	ServerTokenUrl       string `json:"server_token_url" gorm:"size:255;column:server_token_url"`
+	ServerUserIdUrl      string `json:"server_user_id_url" gorm:"size:255;column:server_user_id_url"`
+	ServerLogoutUrl      string `json:"server_logout_url" gorm:"size:255;column:server_logout_url"`
+	Scopes               string `json:"scopes" gorm:"size:255;column:scopes"`
+	AccessTokenTag       string `json:"access_token_tag" gorm:"size:255;column:access_token_tag"`
+	UserIdTag            string `json:"user_id_tag" gorm:"size:255;column:user_id_tag"`
+	UserWeChatTag        string `json:"user_wechat_tag" gorm:"size:255;column:user_wechat_tag"`
+	UserEmailTag         string `json:"user_email_tag" gorm:"size:255;column:user_email_tag"`
+	LoginTip             string `json:"login_tip" gorm:"size:255;column:login_tip; default:'使用第三方账户登录'"`
 }
 
 // LDAPConfiguration store ldap server configuration.
@@ -475,6 +479,28 @@ type AuditResult struct {
 	Level               string              `json:"level"`
 	RuleName            string              `json:"rule_name"`
 	I18nAuditResultInfo I18nAuditResultInfo `json:"i18n_audit_result_info"`
+}
+
+type RuleLevel string
+
+const (
+	RuleLevelNull   RuleLevel = "" // used to indicate no rank
+	RuleLevelNormal RuleLevel = "normal"
+	RuleLevelNotice RuleLevel = "notice"
+	RuleLevelWarn   RuleLevel = "warn"
+	RuleLevelError  RuleLevel = "error"
+)
+
+var ruleLevelMap = map[RuleLevel]int{
+	RuleLevelNull:   -1,
+	RuleLevelNormal: 0,
+	RuleLevelNotice: 1,
+	RuleLevelWarn:   2,
+	RuleLevelError:  3,
+}
+
+func (r RuleLevel) LessOrEqual(l RuleLevel) bool {
+	return ruleLevelMap[r] <= ruleLevelMap[l]
 }
 
 func (ar *AuditResult) GetAuditMsgByLangTag(lang language.Tag) string {
