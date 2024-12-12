@@ -157,6 +157,7 @@ func convertBizUser(u *biz.User) (*model.User, error) {
 		Name:                   u.Name,
 		ThirdPartyUserID:       u.ThirdPartyUserID,
 		ThirdPartyUserInfo:     u.ThirdPartyUserInfo,
+		ThirdPartyIdToken:      u.ThirdPartyIdToken,
 		Password:               encrypted,
 		Email:                  u.Email,
 		Phone:                  u.Phone,
@@ -232,6 +233,7 @@ func convertModelUser(u *model.User) (*biz.User, error) {
 		UID:                    u.UID,
 		ThirdPartyUserID:       u.ThirdPartyUserID,
 		ThirdPartyUserInfo:     u.ThirdPartyUserInfo,
+		ThirdPartyIdToken:      u.ThirdPartyIdToken,
 		Name:                   u.Name,
 		Email:                  u.Email,
 		Phone:                  u.Phone,
@@ -596,27 +598,35 @@ func convertBizOauth2Configuration(b *biz.Oauth2Configuration) (*model.Oauth2Con
 	if err != nil {
 		return nil, err
 	}
+	pwd, err := pkgAes.AesEncrypt(b.AutoCreateUserPWD)
+	if err != nil {
+		return nil, err
+	}
 	b.ClientSecret = data
+	b.AutoCreateUserSecret = pwd
 	return &model.Oauth2Configuration{
 		Model: model.Model{
 			UID: b.UID,
 		},
-		EnableOauth2:    b.EnableOauth2,
-		SkipCheckState:  b.SkipCheckState,
-		AutoCreateUser:  b.AutoCreateUser,
-		ClientID:        b.ClientID,
-		ClientKey:       b.ClientKey,
-		ClientSecret:    b.ClientSecret,
-		ClientHost:      b.ClientHost,
-		ServerAuthUrl:   b.ServerAuthUrl,
-		ServerTokenUrl:  b.ServerTokenUrl,
-		ServerUserIdUrl: b.ServerUserIdUrl,
-		Scopes:          strings.Join(b.Scopes, ","),
-		AccessTokenTag:  b.AccessTokenTag,
-		UserIdTag:       b.UserIdTag,
-		LoginTip:        b.LoginTip,
-		UserWeChatTag:   b.UserWeChatTag,
-		UserEmailTag:    b.UserEmailTag,
+		EnableOauth2:         b.EnableOauth2,
+		SkipCheckState:       b.SkipCheckState,
+		AutoCreateUser:       b.AutoCreateUser,
+		AutoCreateUserPWD:    b.AutoCreateUserPWD,
+		AutoCreateUserSecret: b.AutoCreateUserSecret,
+		ClientID:             b.ClientID,
+		ClientKey:            b.ClientKey,
+		ClientSecret:         b.ClientSecret,
+		ClientHost:           b.ClientHost,
+		ServerAuthUrl:        b.ServerAuthUrl,
+		ServerTokenUrl:       b.ServerTokenUrl,
+		ServerUserIdUrl:      b.ServerUserIdUrl,
+		ServerLogoutUrl:      b.ServerLogoutUrl,
+		Scopes:               strings.Join(b.Scopes, ","),
+		AccessTokenTag:       b.AccessTokenTag,
+		UserIdTag:            b.UserIdTag,
+		LoginTip:             b.LoginTip,
+		UserWeChatTag:        b.UserWeChatTag,
+		UserEmailTag:         b.UserEmailTag,
 	}, nil
 }
 
@@ -629,25 +639,36 @@ func convertModelOauth2Configuration(m *model.Oauth2Configuration) (*biz.Oauth2C
 			m.ClientKey = data
 		}
 	}
+	if m.AutoCreateUserPWD == "" {
+		data, err := pkgAes.AesDecrypt(m.AutoCreateUserSecret)
+		if err != nil {
+			return nil, err
+		} else {
+			m.AutoCreateUserPWD = data
+		}
+	}
 	p := &biz.Oauth2Configuration{
-		Base:            convertBase(m.Model),
-		UID:             m.UID,
-		EnableOauth2:    m.EnableOauth2,
-		SkipCheckState:  m.SkipCheckState,
-		AutoCreateUser:  m.AutoCreateUser,
-		ClientID:        m.ClientID,
-		ClientKey:       m.ClientKey,
-		ClientSecret:    m.ClientSecret,
-		ClientHost:      m.ClientHost,
-		ServerAuthUrl:   m.ServerAuthUrl,
-		ServerTokenUrl:  m.ServerTokenUrl,
-		ServerUserIdUrl: m.ServerUserIdUrl,
-		Scopes:          strings.Split(m.Scopes, ","),
-		AccessTokenTag:  m.AccessTokenTag,
-		UserIdTag:       m.UserIdTag,
-		LoginTip:        m.LoginTip,
-		UserWeChatTag:   m.UserWeChatTag,
-		UserEmailTag:    m.UserEmailTag,
+		Base:                 convertBase(m.Model),
+		UID:                  m.UID,
+		EnableOauth2:         m.EnableOauth2,
+		SkipCheckState:       m.SkipCheckState,
+		AutoCreateUser:       m.AutoCreateUser,
+		AutoCreateUserPWD:    m.AutoCreateUserPWD,
+		AutoCreateUserSecret: m.AutoCreateUserSecret,
+		ClientID:             m.ClientID,
+		ClientKey:            m.ClientKey,
+		ClientSecret:         m.ClientSecret,
+		ClientHost:           m.ClientHost,
+		ServerAuthUrl:        m.ServerAuthUrl,
+		ServerTokenUrl:       m.ServerTokenUrl,
+		ServerUserIdUrl:      m.ServerUserIdUrl,
+		ServerLogoutUrl:      m.ServerLogoutUrl,
+		Scopes:               strings.Split(m.Scopes, ","),
+		AccessTokenTag:       m.AccessTokenTag,
+		UserIdTag:            m.UserIdTag,
+		LoginTip:             m.LoginTip,
+		UserWeChatTag:        m.UserWeChatTag,
+		UserEmailTag:         m.UserEmailTag,
 	}
 	return p, nil
 }

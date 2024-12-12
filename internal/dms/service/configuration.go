@@ -39,6 +39,7 @@ func (d *DMSService) GetOauth2Configuration(ctx context.Context) (reply *dmsV1.G
 			ServerAuthUrl:   oauth2C.ServerAuthUrl,
 			ServerTokenUrl:  oauth2C.ServerTokenUrl,
 			ServerUserIdUrl: oauth2C.ServerUserIdUrl,
+			ServerLogoutUrl: oauth2C.ServerLogoutUrl,
 			Scopes:          oauth2C.Scopes,
 			AccessTokenTag:  oauth2C.AccessTokenTag,
 			UserIdTag:       oauth2C.UserIdTag,
@@ -84,12 +85,14 @@ func (d *DMSService) UpdateOauth2Configuration(ctx context.Context, req *dmsV1.O
 		oauth2Configuration.EnableOauth2,
 		oauth2Configuration.SkipCheckState,
 		oauth2Configuration.AutoCreateUser,
+		oauth2Configuration.AutoCreateUserPWD,
 		oauth2Configuration.ClientID,
 		oauth2Configuration.ClientKey,
 		oauth2Configuration.ClientHost,
 		oauth2Configuration.ServerAuthUrl,
 		oauth2Configuration.ServerTokenUrl,
 		oauth2Configuration.ServerUserIdUrl,
+		oauth2Configuration.ServerLogoutUrl,
 		oauth2Configuration.AccessTokenTag,
 		oauth2Configuration.UserIdTag,
 		oauth2Configuration.UserWeChatTag,
@@ -132,7 +135,7 @@ func (d *DMSService) BindOauth2User(ctx context.Context, bindOauth2User *dmsV1.B
 		d.log.Infof("BindOauth2User;error=%v", err)
 	}()
 
-	token, err := d.Oauth2ConfigurationUsecase.BindOauth2User(ctx, bindOauth2User.Oauth2Token, bindOauth2User.UserName, bindOauth2User.Pwd)
+	token, err := d.Oauth2ConfigurationUsecase.BindOauth2User(ctx, bindOauth2User.Oauth2Token, bindOauth2User.IdToken, bindOauth2User.UserName, bindOauth2User.Pwd)
 	if err != nil {
 		return nil, err
 	}

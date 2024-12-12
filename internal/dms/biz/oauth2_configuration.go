@@ -15,23 +15,26 @@ import (
 type Oauth2Configuration struct {
 	Base
 
-	UID             string
-	EnableOauth2    bool
-	SkipCheckState  bool
-	AutoCreateUser  bool
-	ClientID        string
-	ClientKey       string
-	ClientSecret    string
-	ClientHost      string
-	ServerAuthUrl   string
-	ServerTokenUrl  string
-	ServerUserIdUrl string
-	Scopes          []string
-	AccessTokenTag  string
-	UserIdTag       string
-	UserEmailTag    string
-	UserWeChatTag   string
-	LoginTip        string
+	UID                  string
+	EnableOauth2         bool
+	SkipCheckState       bool
+	AutoCreateUser       bool
+	AutoCreateUserPWD    string
+	AutoCreateUserSecret string
+	ClientID             string
+	ClientKey            string
+	ClientSecret         string
+	ClientHost           string
+	ServerAuthUrl        string
+	ServerTokenUrl       string
+	ServerUserIdUrl      string
+	ServerLogoutUrl      string
+	Scopes               []string
+	AccessTokenTag       string
+	UserIdTag            string
+	UserEmailTag         string
+	UserWeChatTag        string
+	LoginTip             string
 }
 
 func initOauth2Configuration() (*Oauth2Configuration, error) { //nolint
