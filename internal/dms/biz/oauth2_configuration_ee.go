@@ -9,14 +9,16 @@ import (
 	"io"
 	"net/url"
 	"strconv"
+	"strings"
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
+	jwtpkg "github.com/golang-jwt/jwt/v4"
 	"golang.org/x/oauth2"
 )
 
-func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Context, enableOauth2, skipCheckState, autoCreateUser *bool, clientID, clientKey, clientHost, serverAuthUrl, serverTokenUrl, serverUserIdUrl,
+func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Context, enableOauth2, skipCheckState, autoCreateUser *bool, autoCreateUserPWD, clientID, clientKey, clientHost, serverAuthUrl, serverTokenUrl, serverUserIdUrl, serverLogoutUrl,
 	accessTokenTag, userIdTag, userWechatTag, userEmailTag, loginTip *string, scopes *[]string) error {
 	oauth2C, err := d.repo.GetLastOauth2Configuration(ctx)
 	if err != nil {
@@ -40,6 +42,9 @@ func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Conte
 		if autoCreateUser != nil {
 			oauth2C.AutoCreateUser = *autoCreateUser
 		}
+		if autoCreateUserPWD != nil {
+			oauth2C.AutoCreateUserPWD = *autoCreateUserPWD
+		}
 		if clientID != nil {
 			oauth2C.ClientID = *clientID
 		}
@@ -57,6 +62,9 @@ func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Conte
 		}
 		if serverUserIdUrl != nil {
 			oauth2C.ServerUserIdUrl = *serverUserIdUrl
+		}
+		if serverLogoutUrl != nil {
+			oauth2C.ServerLogoutUrl = *serverLogoutUrl
 		}
 		if scopes != nil {
 			oauth2C.Scopes = *scopes
@@ -130,7 +138,6 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 	// TODO sqle https should also support
 	uri := oauth2C.ClientHost
 	data := callbackRedirectData{}
-	// TODO add a configuration item for verifying State on the OAuth2.0 configuration page. If this configuration item is enabled, the State will be verified
 	// check callback request
 	if !oauth2C.SkipCheckState && state != oauthState {
 		err := fmt.Errorf("invalid state: %v", state)
@@ -150,6 +157,8 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 		return data.generateQuery(uri), "", err
 	}
 	data.Oauth2Token = oauth2Token.AccessToken
+	data.IdToken, _ = oauth2Token.Extra("id_token").(string) // 尝试获取 id_token
+	d.log.Infof("oauth2Token type: %s, got id_token len: %d", oauth2Token.Type(), len(data.IdToken))
 
 	//get user is exist
 	oauth2User, err := d.getOauth2User(oauth2C, oauth2Token.AccessToken)
@@ -164,15 +173,17 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 	}
 	data.UserExist = exist
 	if oauth2C.AutoCreateUser && !exist {
-		// 使用固定密码初始化用户 密码：S01audit#$
-		password := "S01audit#$"
+		if oauth2C.AutoCreateUserPWD == "" {
+			return data.generateQuery(uri), "", fmt.Errorf("OAuth2 user default login password is empty")
+		}
 		args := &CreateUserArgs{
 			Name:                   oauth2User.UID,
-			Password:               password,
+			Password:               oauth2C.AutoCreateUserPWD,
 			IsDisabled:             false,
 			ThirdPartyUserID:       oauth2User.UID,
 			UserAuthenticationType: UserAuthenticationTypeOAUTH2,
 			ThirdPartyUserInfo:     oauth2User.ThirdPartyUserInfo,
+			ThirdPartyIdToken:      data.IdToken,
 			Email:                  oauth2User.Email,
 			WxID:                   oauth2User.WxID,
 		}
@@ -206,6 +217,7 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 		user.WxID = oauth2User.WxID
 		user.Email = oauth2User.Email
 		user.ThirdPartyUserInfo = oauth2User.ThirdPartyUserInfo
+		user.ThirdPartyIdToken = data.IdToken
 		err := d.userUsecase.SaveUser(ctx, user)
 		if err != nil {
 			d.log.Errorf("when generate callback uri, update user failed,%v", err)
@@ -219,6 +231,7 @@ type callbackRedirectData struct {
 	UserExist   bool
 	DMSToken    string
 	Oauth2Token string
+	IdToken     string
 	Error       string
 }
 
@@ -230,6 +243,9 @@ func (c callbackRedirectData) generateQuery(uri string) string {
 	}
 	if c.Oauth2Token != "" {
 		params.Set("oauth2_token", c.Oauth2Token)
+	}
+	if c.IdToken != "" {
+		params.Set("id_token", c.IdToken)
 	}
 	if c.Error != "" {
 		params.Set("error", c.Error)
@@ -245,26 +261,26 @@ func (d *Oauth2ConfigurationUsecase) getOauth2User(conf *Oauth2Configuration, to
 	uri := fmt.Sprintf("%v?%v=%v", conf.ServerUserIdUrl, conf.AccessTokenTag, token)
 	resp, err := client.Get(uri)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get userinfo, err: %v", err)
 	}
 
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get third-party user ID, unable to parse response")
+		return nil, fmt.Errorf("failed to get third-party user ID, unable to read response")
 	}
 	userId, err := ParseJsonByPath(body, conf.UserIdTag)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get third-party user ID, %v", err)
+		return nil, fmt.Errorf("failed to get third-party user ID, %v, resp: %s", err, body)
 	}
 	if userId.ToString() == "" {
-		return nil, fmt.Errorf("not found third-party user ID")
+		return nil, fmt.Errorf("not found third-party user ID, resp: %s", body)
 	}
 	user = &User{UID: userId.ToString()}
 	if conf.UserWeChatTag != "" {
 		userWeChat, err := ParseJsonByPath(body, conf.UserWeChatTag)
 		if err != nil {
-			d.log.Errorf("failed to get third-party wechat, unrecognized response format")
+			d.log.Errorf("failed to get third-party wechat, resp: %s", body)
 		} else {
 			user.WxID = userWeChat.ToString()
 		}
@@ -272,7 +288,7 @@ func (d *Oauth2ConfigurationUsecase) getOauth2User(conf *Oauth2Configuration, to
 	if conf.UserEmailTag != "" {
 		userEmail, err := ParseJsonByPath(body, conf.UserEmailTag)
 		if err != nil {
-			d.log.Errorf("failed to get third-party email, unrecognized response format")
+			d.log.Errorf("failed to get third-party email, resp: %s", body)
 		} else {
 			user.Email = userEmail.ToString()
 		}
@@ -281,7 +297,7 @@ func (d *Oauth2ConfigurationUsecase) getOauth2User(conf *Oauth2Configuration, to
 	return user, nil
 }
 
-func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2Token, userName, password string) (token string, err error) {
+func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2Token, idToken, userName, password string) (token string, err error) {
 
 	// 获取oauth2 配置
 	oauth2C, err := d.repo.GetLastOauth2Configuration(ctx)
@@ -317,6 +333,7 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 			ThirdPartyUserID:       oauth2User.UID,
 			UserAuthenticationType: UserAuthenticationTypeOAUTH2,
 			ThirdPartyUserInfo:     oauth2User.ThirdPartyUserInfo,
+			ThirdPartyIdToken:      idToken,
 			Email:                  oauth2User.Email,
 			WxID:                   oauth2User.WxID,
 		}
@@ -354,6 +371,7 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 			user.WxID = oauth2User.WxID
 			user.Email = oauth2User.Email
 			user.ThirdPartyUserInfo = oauth2User.ThirdPartyUserInfo
+			user.ThirdPartyIdToken = idToken
 			err := d.userUsecase.SaveUser(ctx, user)
 			if err != nil {
 				return "", err
@@ -361,4 +379,45 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 		}
 		return jwt.GenJwtToken(jwt.WithUserId(user.UID))
 	}
+}
+
+func (d *Oauth2ConfigurationUsecase) Logout(ctx context.Context, uid string) (string, error) {
+	user, err := d.userUsecase.GetUser(ctx, uid)
+	if err != nil {
+		return "", err
+	}
+	configuration, exist, err := d.GetOauth2Configuration(ctx)
+	if err != nil {
+		return "", err
+	}
+	if !exist || user.ThirdPartyIdToken == "" || configuration.ServerLogoutUrl == "" {
+		// 无需注销第三方平台
+		return "", nil
+	}
+	token, _ := jwtpkg.Parse(user.ThirdPartyIdToken, nil)
+	if token == nil || token.Claims == nil {
+		d.log.Warnf("failed to Parse ThirdPartyIdToken of user uid: %s", user.UID)
+		return "", nil
+	}
+	claims, ok := token.Claims.(jwtpkg.MapClaims)
+	if !ok {
+		d.log.Warnf("ThirdPartyIdToken of user uid:%s has invalid Claims", user.UID)
+		return "", nil
+	}
+	if err = claims.Valid(); err != nil {
+		// ThirdPartyIdToken 已过期，无需注销第三方平台
+		d.log.Infof("ThirdPartyIdToken of user uid:%s should have expired, %v", user.UID, err)
+		return "", nil
+	}
+
+	// 配置注销地址时，可以使用这里的键作变量
+	vars := map[string]string{
+		"${id_token}": url.PathEscape(user.ThirdPartyIdToken),
+		"${sqle_url}": url.PathEscape(configuration.ClientHost),
+	}
+	logoutUrl := configuration.ServerLogoutUrl
+	for k, v := range vars {
+		logoutUrl = strings.ReplaceAll(logoutUrl, k, v)
+	}
+	return logoutUrl, nil
 }
