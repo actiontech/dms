@@ -8,6 +8,7 @@ import (
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 
+	v1 "github.com/actiontech/dms/api/dms/service/v1"
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 
@@ -32,6 +33,7 @@ type Plugin struct {
 	// eg: 删除数据源前：
 	// 需要sqle服务中实现接口逻辑，判断该数据源上已经没有进行中的工单
 	OperateDataResourceHandleUrl string
+	GetDatabaseDriverOptionsUrl  string
 }
 
 func (p *Plugin) String() string {
@@ -240,4 +242,56 @@ func (p *PluginUsecase) CallOperateDataResourceHandle(ctx context.Context, url s
 	}
 
 	return nil
+}
+
+func (p *PluginUsecase) GetDatabaseDriverOptionsHandle(ctx context.Context) ([]*v1.DatabaseDriverOption, error) {
+	var (
+		mu      sync.Mutex
+		errs    []error
+		wg      sync.WaitGroup
+		options []*v1.DatabaseDriverOption
+	)
+
+	for _, plugin := range p.registeredPlugins {
+		if plugin.GetDatabaseDriverOptionsUrl != "" {
+			wg.Add(1)
+			go func(plugin *Plugin) {
+				defer wg.Done()
+				op, err := p.CallDatabaseDriverOptionsHandle(ctx, plugin.GetDatabaseDriverOptionsUrl)
+				if err != nil {
+					mu.Lock()
+					errs = append(errs, fmt.Errorf("call plugin %s get database driver options handle failed: %v", plugin.Name, err))
+					mu.Unlock()
+					return
+				}
+				mu.Lock()
+				options = append(options, op...)
+				mu.Unlock()
+			}(plugin)
+		}
+	}
+
+	wg.Wait()
+
+	if len(errs) > 0 {
+		return nil, fmt.Errorf("encountered errors: %v", errs)
+	}
+
+	return options, nil
+}
+
+func (p *PluginUsecase) CallDatabaseDriverOptionsHandle(ctx context.Context, url string) ([]*v1.DatabaseDriverOption, error) {
+	header := map[string]string{
+		"Authorization": pkgHttp.DefaultDMSToken,
+	}
+	reply := &v1.ListDBServiceDriverOptionReply{}
+
+	if err := pkgHttp.Get(ctx, url, header, nil, reply); err != nil {
+		return nil, err
+	}
+	if reply.Code != 0 {
+		return nil, fmt.Errorf("reply code(%v) error: %v", reply.Code, reply.Message)
+	}
+
+	return reply.Data, nil
 }

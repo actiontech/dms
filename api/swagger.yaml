@@ -456,6 +456,9 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     BindOauth2UserReq:
         properties:
+            id_token:
+                type: string
+                x-go-name: IdToken
             oauth2_token:
                 type: string
                 x-go-name: Oauth2Token

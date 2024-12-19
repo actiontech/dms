@@ -5151,6 +5151,10 @@
     "BindOauth2UserReq": {
       "type": "object",
       "properties": {
+        "id_token": {
+          "type": "string",
+          "x-go-name": "IdToken"
+        },
         "oauth2_token": {
           "type": "string",
           "x-go-name": "Oauth2Token"
