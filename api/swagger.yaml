@@ -456,6 +456,9 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     BindOauth2UserReq:
         properties:
+            id_token:
+                type: string
+                x-go-name: IdToken
             oauth2_token:
                 type: string
                 x-go-name: Oauth2Token
@@ -4082,7 +4085,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -5711,6 +5714,11 @@ paths:
                     low ProjectPriorityLow
                     unknown ProjectPriorityUnknown
                   x-go-name: FilterByProjectPriority
+                - description: filter the Project By Project description
+                  in: query
+                  name: filter_by_desc
+                  type: string
+                  x-go-name: FilterByDesc
             responses:
                 "200":
                     description: ListProjectReply

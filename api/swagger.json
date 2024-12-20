@@ -1442,6 +1442,13 @@
             "description": "filter project by project priority\nhigh ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
             "name": "filter_by_project_priority",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByDesc",
+            "description": "filter the Project By Project description",
+            "name": "filter_by_desc",
+            "in": "query"
           }
         ],
         "responses": {
@@ -5151,6 +5158,10 @@
     "BindOauth2UserReq": {
       "type": "object",
       "properties": {
+        "id_token": {
+          "type": "string",
+          "x-go-name": "IdToken"
+        },
         "oauth2_token": {
           "type": "string",
           "x-go-name": "Oauth2Token"
@@ -9679,7 +9690,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
