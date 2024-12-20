@@ -51,7 +51,15 @@ func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV1.ListProj
 			Operator: pkgConst.FilterOperatorIn,
 			Value:    req.FilterByProjectUids,
 		})
+	}	
+	if req.FilterByDesc != "" {
+		filterBy = append(filterBy, pkgConst.FilterCondition{
+			Field:    string(biz.ProjectFieldDesc),
+			Operator: pkgConst.FilterOperatorContains,
+			Value:    req.FilterByDesc,
+		})
 	}
+
 	listOption := &biz.ListProjectsOption{
 		PageNumber:   req.PageIndex,
 		LimitPerPage: req.PageSize,
