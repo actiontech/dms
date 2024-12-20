@@ -282,7 +282,7 @@ const (
 const (
 	ProjectFieldUID           ProjectField = "uid"
 	ProjectFieldName          ProjectField = "name"
-	ProjectFieldDesc          ProjectField = "desc"
+	ProjectFieldDesc          ProjectField = "`desc`" // desc是MySQL的保留字，在作为被引用的field时，需要用``括起
 	ProjectFieldCreateUserUID ProjectField = "create_user_uid"
 	ProjectFieldStatus        ProjectField = "status"
 	ProjectFieldPriority      ProjectField = "priority"
