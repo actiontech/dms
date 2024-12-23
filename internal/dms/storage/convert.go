@@ -582,6 +582,8 @@ func convertBizPlugin(t *biz.Plugin) (*model.Plugin, error) {
 	return &model.Plugin{
 		Name:                         t.Name,
 		OperateDataResourceHandleUrl: t.OperateDataResourceHandleUrl,
+		GetDatabaseDriverOptionsUrl:  t.GetDatabaseDriverOptionsUrl,
+		GetDatabaseDriverLogosUrl:    t.GetDatabaseDriverLogosUrl,
 	}, nil
 }
 
@@ -589,6 +591,8 @@ func convertModelPlugin(t *model.Plugin) (*biz.Plugin, error) {
 	p := &biz.Plugin{
 		Name:                         t.Name,
 		OperateDataResourceHandleUrl: t.OperateDataResourceHandleUrl,
+		GetDatabaseDriverOptionsUrl:  t.GetDatabaseDriverOptionsUrl,
+		GetDatabaseDriverLogosUrl:    t.GetDatabaseDriverLogosUrl,
 	}
 	return p, nil
 }

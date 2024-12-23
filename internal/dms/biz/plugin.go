@@ -4,11 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 	"sync"
 
+	v1 "github.com/actiontech/dms/api/dms/service/v1"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
-
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+	_const "github.com/actiontech/dms/pkg/dms-common/pkg/const"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
@@ -32,6 +36,8 @@ type Plugin struct {
 	// eg: 删除数据源前：
 	// 需要sqle服务中实现接口逻辑，判断该数据源上已经没有进行中的工单
 	OperateDataResourceHandleUrl string
+	GetDatabaseDriverOptionsUrl  string
+	GetDatabaseDriverLogosUrl    string
 }
 
 func (p *Plugin) String() string {
@@ -240,4 +246,153 @@ func (p *PluginUsecase) CallOperateDataResourceHandle(ctx context.Context, url s
 	}
 
 	return nil
+}
+
+func (p *PluginUsecase) GetDatabaseDriverOptionsHandle(ctx context.Context) ([]*v1.DatabaseDriverOption, error) {
+	var (
+		mu        sync.Mutex
+		errs      []error
+		wg        sync.WaitGroup
+		optionRes []struct {
+			options []*v1.DatabaseDriverOption
+			source  string
+		}
+	)
+
+	for _, plugin := range p.registeredPlugins {
+		if plugin.GetDatabaseDriverOptionsUrl != "" {
+			wg.Add(1)
+			go func(plugin *Plugin) {
+				defer wg.Done()
+				op, err := p.CallDatabaseDriverOptionsHandle(ctx, plugin.GetDatabaseDriverOptionsUrl)
+				if err != nil {
+					mu.Lock()
+					errs = append(errs, fmt.Errorf("call plugin %s get database driver options handle failed: %v", plugin.Name, err))
+					mu.Unlock()
+					return
+				}
+				mu.Lock()
+				optionRes = append(optionRes, struct {
+					options []*v1.DatabaseDriverOption
+					source  string
+				}{
+					options: op,
+					source:  plugin.Name,
+				})
+				mu.Unlock()
+			}(plugin)
+		}
+	}
+
+	wg.Wait()
+
+	if len(errs) > 0 {
+		return nil, fmt.Errorf("encountered errors: %v", errs)
+	}
+	return aggregateOptions(optionRes), nil
+}
+
+// 根据数据库类型合并各插件的options
+func aggregateOptions(optionRes []struct {
+	options []*v1.DatabaseDriverOption
+	source  string
+}) []*v1.DatabaseDriverOption {
+	dbTypeMap := make(map[string]*v1.DatabaseDriverOption)
+
+	for _, res := range optionRes {
+		for _, opt := range res.options {
+			if aggOpt, exists := dbTypeMap[opt.DBType]; exists {
+				// 聚合 LogoPath 和 Params, 选项合并时以sqle为主
+				if res.source == _const.SqleComponentName {
+					aggOpt.LogoPath = opt.LogoPath
+				}
+				aggOpt.Params = mergeParams(aggOpt.Params, opt.Params, res.source == _const.SqleComponentName)
+			} else {
+				// 初始化
+				dbTypeMap[opt.DBType] = &v1.DatabaseDriverOption{
+					DBType:   opt.DBType,
+					LogoPath: opt.LogoPath,
+					Params:   opt.Params,
+				}
+			}
+		}
+	}
+
+	// 转换为切片返回
+	result := make([]*v1.DatabaseDriverOption, 0, len(dbTypeMap))
+	for _, opt := range dbTypeMap {
+		result = append(result, opt)
+	}
+	return result
+}
+
+// 根据参数名合并additional params, preferNew代表是不是要以新参数覆盖旧参数
+func mergeParams(existing, newParams []*v1.DatabaseDriverAdditionalParam, preferNew bool) []*v1.DatabaseDriverAdditionalParam {
+	paramMap := make(map[string]*v1.DatabaseDriverAdditionalParam)
+
+	// 添加已有参数
+	for _, param := range existing {
+		paramMap[param.Name] = param
+	}
+
+	// 合并新参数
+	for _, param := range newParams {
+		if aggParam, exists := paramMap[param.Name]; exists && preferNew {
+			*aggParam = *param // 覆盖已有参数
+		} else if !exists {
+			paramMap[param.Name] = param
+		}
+	}
+
+	// 转换为切片返回
+	result := make([]*v1.DatabaseDriverAdditionalParam, 0, len(paramMap))
+	for _, param := range paramMap {
+		result = append(result, param)
+	}
+	return result
+}
+
+func (p *PluginUsecase) CallDatabaseDriverOptionsHandle(ctx context.Context, url string) ([]*v1.DatabaseDriverOption, error) {
+	header := map[string]string{
+		"Authorization": pkgHttp.DefaultDMSToken,
+	}
+	reply := &v1.ListDBServiceDriverOptionReply{}
+
+	if err := pkgHttp.Get(ctx, url, header, nil, reply); err != nil {
+		return nil, err
+	}
+	if reply.Code != 0 {
+		return nil, fmt.Errorf("reply code(%v) error: %v", reply.Code, reply.Message)
+	}
+
+	return reply.Data, nil
+}
+
+func (p *PluginUsecase) DatabaseLogoHandle(options []*v1.DatabaseDriverOption) {
+	log := utilLog.NewHelper(p.logger, utilLog.WithMessageKey("biz.dmsplugin"))
+	// 定义 logo 文件夹路径
+	logoDir := "./static/logo/"
+
+	// 确保 logo 文件夹存在
+	if err := os.MkdirAll(logoDir, os.ModePerm); err != nil {
+		log.Errorf("failed to create logo directory: %v", err)
+	}
+
+	for _, opt := range options {
+		// 根据 Name 转换为文件名：小写并替换空格为下划线
+		fileName := strings.ToLower(strings.ReplaceAll(opt.DBType, " ", "_")) + ".png"
+		filePath := filepath.Join(logoDir, fileName)
+
+		// 检查文件是否存在
+		if _, err := os.Stat(filePath); err == nil {
+			// 文件已存在，跳过保存
+			log.Errorf("logo already exists for %s, skipping...\n", opt.DBType)
+			continue
+		}
+
+		// 如果文件不存在，保存 Logo 数据为文件
+		if err := os.WriteFile(filePath, []byte(opt.LogoPath), os.ModePerm); err != nil {
+			log.Errorf("failed to save logo for %s: %v", opt.DBType, err)
+		}
+	}
 }
