@@ -238,6 +238,7 @@ type Plugin struct {
 	DelUserPreCheckUrl           string `json:"del_user_pre_check_url" gorm:"size:255;column:del_user_pre_check_url"`
 	DelUserGroupPreCheckUrl      string `json:"del_user_group_pre_check_url" gorm:"size:255;column:del_user_group_pre_check_url"`
 	OperateDataResourceHandleUrl string `json:"operate_data_resource_handle_url" gorm:"size:255;column:operate_data_resource_handle_url"`
+	GetDatabaseDriverOptionsUrl  string `json:"get_database_driver_options_url" gorm:"size:255;column:get_database_driver_options_url"`
 }
 
 // Oauth2Configuration store oauth2 server configuration.
