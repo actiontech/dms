@@ -152,6 +152,14 @@ func (d *DMSService) ListUsers(ctx context.Context, req *dmsCommonV1.ListUserReq
 			Value:    req.FilterByName,
 		})
 	}
+	
+	if req.FilterByNameFuzzy != "" {
+		filterBy = append(filterBy, pkgConst.FilterCondition{
+			Field:    string(biz.UserFieldName),
+			Operator: pkgConst.FilterOperatorContains,
+			Value:    req.FilterByNameFuzzy,
+		})
+	}
 
 	if req.FilterByUids != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{

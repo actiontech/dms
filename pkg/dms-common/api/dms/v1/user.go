@@ -297,6 +297,9 @@ type ListUserReq struct {
 	// filter deleted user to be return ,default is false
 	// in:query
 	FilterDeletedUser bool `query:"filter_del_user" json:"filter_del_user"`
+	// filter user by user name using fuzzy search
+	// in:query
+	FilterByNameFuzzy string `query:"filter_by_name_fuzzy" json:"filter_by_name_fuzzy"`
 }
 
 // swagger:enum UserOrderByField
