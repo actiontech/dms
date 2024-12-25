@@ -13,35 +13,35 @@ import (
 )
 
 type DMSService struct {
-	BasicUsecase                 *biz.BasicUsecase
-	PluginUsecase                *biz.PluginUsecase
-	DBServiceUsecase             *biz.DBServiceUsecase
-	DBServiceSyncTaskUsecase     *biz.DBServiceSyncTaskUsecase
-	UserUsecase                  *biz.UserUsecase
-	UserGroupUsecase             *biz.UserGroupUsecase
-	RoleUsecase                  *biz.RoleUsecase
-	OpPermissionUsecase          *biz.OpPermissionUsecase
-	MemberUsecase                *biz.MemberUsecase
-	MemberGroupUsecase           *biz.MemberGroupUsecase
-	OpPermissionVerifyUsecase    *biz.OpPermissionVerifyUsecase
-	ProjectUsecase               *biz.ProjectUsecase
-	DmsProxyUsecase              *biz.DmsProxyUsecase
-	Oauth2ConfigurationUsecase   *biz.Oauth2ConfigurationUsecase
-	LDAPConfigurationUsecase     *biz.LDAPConfigurationUsecase
-	SMTPConfigurationUsecase     *biz.SMTPConfigurationUsecase
-	WeChatConfigurationUsecase   *biz.WeChatConfigurationUsecase
-	WebHookConfigurationUsecase  *biz.WebHookConfigurationUsecase
-	IMConfigurationUsecase       *biz.IMConfigurationUsecase
-	CompanyNoticeUsecase         *biz.CompanyNoticeUsecase
-	LicenseUsecase               *biz.LicenseUsecase
-	ClusterUsecase               *biz.ClusterUsecase
-	DataExportWorkflowUsecase    *biz.DataExportWorkflowUsecase
-	CbOperationLogUsecase        *biz.CbOperationLogUsecase
-	DataMaskingUsecase           *biz.DataMaskingUsecase
-	AuthAccessTokenUseCase       *biz.AuthAccessTokenUsecase
-	SwaggerUseCase               *biz.SwaggerUseCase
-	log                          *utilLog.Helper
-	shutdownCallback             func() error
+	BasicUsecase                *biz.BasicUsecase
+	PluginUsecase               *biz.PluginUsecase
+	DBServiceUsecase            *biz.DBServiceUsecase
+	DBServiceSyncTaskUsecase    *biz.DBServiceSyncTaskUsecase
+	UserUsecase                 *biz.UserUsecase
+	UserGroupUsecase            *biz.UserGroupUsecase
+	RoleUsecase                 *biz.RoleUsecase
+	OpPermissionUsecase         *biz.OpPermissionUsecase
+	MemberUsecase               *biz.MemberUsecase
+	MemberGroupUsecase          *biz.MemberGroupUsecase
+	OpPermissionVerifyUsecase   *biz.OpPermissionVerifyUsecase
+	ProjectUsecase              *biz.ProjectUsecase
+	DmsProxyUsecase             *biz.DmsProxyUsecase
+	Oauth2ConfigurationUsecase  *biz.Oauth2ConfigurationUsecase
+	LDAPConfigurationUsecase    *biz.LDAPConfigurationUsecase
+	SMTPConfigurationUsecase    *biz.SMTPConfigurationUsecase
+	WeChatConfigurationUsecase  *biz.WeChatConfigurationUsecase
+	WebHookConfigurationUsecase *biz.WebHookConfigurationUsecase
+	IMConfigurationUsecase      *biz.IMConfigurationUsecase
+	CompanyNoticeUsecase        *biz.CompanyNoticeUsecase
+	LicenseUsecase              *biz.LicenseUsecase
+	ClusterUsecase              *biz.ClusterUsecase
+	DataExportWorkflowUsecase   *biz.DataExportWorkflowUsecase
+	CbOperationLogUsecase       *biz.CbOperationLogUsecase
+	DataMaskingUsecase          *biz.DataMaskingUsecase
+	AuthAccessTokenUseCase      *biz.AuthAccessTokenUsecase
+	SwaggerUseCase              *biz.SwaggerUseCase
+	log                         *utilLog.Helper
+	shutdownCallback            func() error
 }
 
 func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSService, error) {
@@ -72,7 +72,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	projectUsecase := biz.NewProjectUsecase(logger, tx, projectRepo, &memberUsecase, opPermissionVerifyUsecase, pluginUseCase)
 	dbServiceRepo := storage.NewDBServiceRepo(logger, st)
 	dmsProxyTargetRepo := storage.NewProxyTargetRepo(logger, st)
-	dbServiceUseCase := biz.NewDBServiceUsecase(logger, dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, opts.DatabaseDriverOptions)
+	dbServiceUseCase := biz.NewDBServiceUsecase(logger, dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo)
 	dbServiceTaskRepo := storage.NewDBServiceSyncTaskRepo(logger, st)
 	dbServiceTaskUsecase := biz.NewDBServiceSyncTaskUsecase(logger, dbServiceTaskRepo, opPermissionVerifyUsecase, projectUsecase, dbServiceUseCase)
 	ldapConfigurationRepo := storage.NewLDAPConfigurationRepo(logger, st)
@@ -132,34 +132,34 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	}
 
 	s := &DMSService{
-		BasicUsecase:                 basicUsecase,
-		PluginUsecase:                pluginUseCase,
-		DBServiceUsecase:             dbServiceUseCase,
-		DBServiceSyncTaskUsecase:     dbServiceTaskUsecase,
-		UserUsecase:                  userUsecase,
-		UserGroupUsecase:             userGroupUsecase,
-		RoleUsecase:                  roleUsecase,
-		OpPermissionUsecase:          opPermissionUsecase,
-		MemberUsecase:                &memberUsecase,
-		MemberGroupUsecase:           memberGroupUsecase,
-		OpPermissionVerifyUsecase:    opPermissionVerifyUsecase,
-		ProjectUsecase:               projectUsecase,
-		DmsProxyUsecase:              dmsProxyUsecase,
-		Oauth2ConfigurationUsecase:   oauth2ConfigurationUsecase,
-		LDAPConfigurationUsecase:     ldapConfigurationUsecase,
-		SMTPConfigurationUsecase:     smtpConfigurationUsecase,
-		WeChatConfigurationUsecase:   wechatConfigurationUsecase,
-		WebHookConfigurationUsecase:  webhookConfigurationUsecase,
-		IMConfigurationUsecase:       imConfigurationUsecase,
-		CompanyNoticeUsecase:         companyNoticeRepoUsecase,
-		LicenseUsecase:               LicenseUsecase,
-		ClusterUsecase:               clusterUsecase,
-		DataExportWorkflowUsecase:    DataExportWorkflowUsecase,
-		CbOperationLogUsecase:        CbOperationLogUsecase,
-		DataMaskingUsecase:           dataMaskingUsecase,
-		AuthAccessTokenUseCase:       authAccessTokenUsecase,
-		SwaggerUseCase:               swaggerUseCase,
-		log:                          utilLog.NewHelper(logger, utilLog.WithMessageKey("dms.service")),
+		BasicUsecase:                basicUsecase,
+		PluginUsecase:               pluginUseCase,
+		DBServiceUsecase:            dbServiceUseCase,
+		DBServiceSyncTaskUsecase:    dbServiceTaskUsecase,
+		UserUsecase:                 userUsecase,
+		UserGroupUsecase:            userGroupUsecase,
+		RoleUsecase:                 roleUsecase,
+		OpPermissionUsecase:         opPermissionUsecase,
+		MemberUsecase:               &memberUsecase,
+		MemberGroupUsecase:          memberGroupUsecase,
+		OpPermissionVerifyUsecase:   opPermissionVerifyUsecase,
+		ProjectUsecase:              projectUsecase,
+		DmsProxyUsecase:             dmsProxyUsecase,
+		Oauth2ConfigurationUsecase:  oauth2ConfigurationUsecase,
+		LDAPConfigurationUsecase:    ldapConfigurationUsecase,
+		SMTPConfigurationUsecase:    smtpConfigurationUsecase,
+		WeChatConfigurationUsecase:  wechatConfigurationUsecase,
+		WebHookConfigurationUsecase: webhookConfigurationUsecase,
+		IMConfigurationUsecase:      imConfigurationUsecase,
+		CompanyNoticeUsecase:        companyNoticeRepoUsecase,
+		LicenseUsecase:              LicenseUsecase,
+		ClusterUsecase:              clusterUsecase,
+		DataExportWorkflowUsecase:   DataExportWorkflowUsecase,
+		CbOperationLogUsecase:       CbOperationLogUsecase,
+		DataMaskingUsecase:          dataMaskingUsecase,
+		AuthAccessTokenUseCase:      authAccessTokenUsecase,
+		SwaggerUseCase:              swaggerUseCase,
+		log:                         utilLog.NewHelper(logger, utilLog.WithMessageKey("dms.service")),
 		shutdownCallback: func() error {
 			if err := st.Close(); nil != err {
 				return fmt.Errorf("failed to close storage: %v", err)
