@@ -610,20 +610,10 @@ func (d *DMSService) ListDBServiceDriverOption(ctx context.Context) (reply *dmsV
 
 	ret := make([]*dmsV1.DatabaseDriverOption, 0, len(options))
 	for _, item := range options {
-		additionalParams := make([]*dmsV1.DatabaseDriverAdditionalParam, 0, len(item.Params))
-		for _, param := range item.Params {
-			additionalParams = append(additionalParams, &dmsV1.DatabaseDriverAdditionalParam{
-				Name:        param.Key,
-				Value:       param.Value,
-				Type:        string(param.Type),
-				Description: param.Desc,
-			})
-		}
-
 		ret = append(ret, &dmsV1.DatabaseDriverOption{
-			DBType:   item.DbType,
+			DBType:   item.DBType,
 			LogoPath: item.LogoPath,
-			Params:   additionalParams,
+			Params:   item.Params,
 		})
 	}
 
