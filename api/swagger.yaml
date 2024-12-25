@@ -7636,6 +7636,11 @@ paths:
                   name: filter_del_user
                   type: boolean
                   x-go-name: FilterDeletedUser
+                - description: filter user by user name using fuzzy search
+                  in: query
+                  name: filter_by_name_fuzzy
+                  type: string
+                  x-go-name: FilterByNameFuzzy
             responses:
                 "200":
                     description: ListUserReply

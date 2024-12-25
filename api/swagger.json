@@ -4241,6 +4241,13 @@
             "description": "filter deleted user to be return ,default is false",
             "name": "filter_del_user",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByNameFuzzy",
+            "description": "filter user by user name using fuzzy search",
+            "name": "filter_by_name_fuzzy",
+            "in": "query"
           }
         ],
         "responses": {
