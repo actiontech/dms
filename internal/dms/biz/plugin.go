@@ -266,6 +266,12 @@ func (p *PluginUsecase) ClearDatabaseDriverOptionsCache() {
 	databaseDriverOptions = []*v1.DatabaseDriverOption{}
 }
 
+// 获取数据库插件扩展选项和加载数据库插件logo
+//  1. 首先从缓存中获取options，如果缓存为空则调用dms的plugin接口获取并保存到缓存中
+//  2. 在从plugin获取options后，会启用协程按数据库类型到dms plugin中下载缺失的logo
+//  3. 缓存清空：清空缓存后会重新调用接口获取options
+//     a) 当有新的plugin注册到dms时（provision和sqle启动）
+//     b) 当从plugin中加载logo的方法执行完成时
 func (p *PluginUsecase) GetDatabaseDriverOptionsHandle(ctx context.Context) ([]*v1.DatabaseDriverOption, error) {
 	log := utilLog.NewHelper(p.logger, utilLog.WithMessageKey("biz.dmsplugin.DatabaseDriverOptionsHandle"))
 	cacheOptions := p.GetDatabaseDriverOptionsCache()
@@ -404,7 +410,7 @@ func (p *PluginUsecase) DatabaseLogoHandle(ctx context.Context, dbTypes []string
 	log := utilLog.NewHelper(p.logger, utilLog.WithMessageKey("biz.dmsplugin.logohandle"))
 	// 定义 logo 文件夹路径
 	if err := os.MkdirAll(LogoDir, os.ModePerm); err != nil {
-		log.Errorf("crate logo dir error: %v", err)
+		log.Errorf("create logo dir error: %v", err)
 		return
 	}
 	// 获取需要保存logo的数据库插件类型
