@@ -19,6 +19,7 @@ func (d *DMSService) RegisterDMSPlugin(ctx context.Context, currentUserUid strin
 		Name:                         req.Plugin.Name,
 		OperateDataResourceHandleUrl: req.Plugin.OperateDataResourceHandleUrl,
 		GetDatabaseDriverOptionsUrl:  req.Plugin.GetDatabaseDriverOptionsUrl,
+		GetDatabaseDriverLogosUrl:    req.Plugin.GetDatabaseDriverLogosUrl,
 	}, currentUserUid); err != nil {
 		return fmt.Errorf("register dms plugin failed: %v", err)
 	}
