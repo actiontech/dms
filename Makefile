@@ -14,9 +14,7 @@ HEAD_HASH = $(shell git rev-parse HEAD)
 # 2. 如果HEAD没有tag，则GIT_VERSION=<分支名> <commit>
 # e.g. 分支名为main时，GIT_VERSION=main a6355ff4cf8d181315a2b30341bc954b29576b11
 # e.g. 分支名为release-3.2411.x时，GIT_VERSION=release-3.2411.x a6355ff4cf8d181315a2b30341bc954b29576b11
-override GIT_VERSION = $(if $(HEAD_TAG), \
-    $(shell echo $(HEAD_TAG) | sed 's/^v//')-$(EDITION), \
-    $(HEAD_BRANCH))${CUSTOM} $(HEAD_HASH)
+override GIT_VERSION = $(if $(HEAD_TAG),$(shell echo $(HEAD_TAG) | sed 's/^v//')-$(EDITION),$(HEAD_BRANCH))${CUSTOM} $(HEAD_HASH)
 override GIT_COMMIT     		= $(shell git rev-parse HEAD)
 override PROJECT_NAME 			= dms
 override DOCKER         		= $(shell which docker)
