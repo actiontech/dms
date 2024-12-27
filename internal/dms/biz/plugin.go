@@ -247,11 +247,20 @@ func (p *PluginUsecase) CallOperateDataResourceHandle(ctx context.Context, url s
 
 const LogoPath = "/logo/"
 
-var DatabaseDriverOptions []*v1.DatabaseDriverOption
+var databaseDriverOptions []*v1.DatabaseDriverOption
+
+func (p *PluginUsecase) GetDatabaseDriverOptionsCache() []*v1.DatabaseDriverOption {
+	return databaseDriverOptions
+}
+
+func (p *PluginUsecase) ClearDatabaseDriverOptionsCache() {
+	databaseDriverOptions = []*v1.DatabaseDriverOption{}
+}
 
 func (p *PluginUsecase) GetDatabaseDriverOptionsHandle(ctx context.Context) ([]*v1.DatabaseDriverOption, error) {
-	if len(DatabaseDriverOptions) != 0 {
-		return DatabaseDriverOptions, nil
+	cacheOptions := p.GetDatabaseDriverOptionsCache()
+	if len(cacheOptions) != 0 {
+		return cacheOptions, nil
 	}
 	var (
 		mu        sync.Mutex
@@ -293,8 +302,8 @@ func (p *PluginUsecase) GetDatabaseDriverOptionsHandle(ctx context.Context) ([]*
 	if len(errs) > 0 {
 		return nil, fmt.Errorf("encountered errors: %v", errs)
 	}
-	DatabaseDriverOptions = append(DatabaseDriverOptions, aggregateOptions(dbOptions)...)
-	return DatabaseDriverOptions, nil
+	databaseDriverOptions = append(databaseDriverOptions, aggregateOptions(dbOptions)...)
+	return databaseDriverOptions, nil
 }
 
 // 根据数据库类型合并各插件的options
@@ -331,8 +340,8 @@ func getLogoFileNameByDBType(dbType string) string {
 	return strings.ToLower(strings.ReplaceAll(dbType, " ", "_")) + ".png"
 }
 
-// 根据参数名合并additional和params, preferNew代表是不是要以新参数覆盖旧参数
-func mergeParamsByName(existing, newParams []*v1.DatabaseDriverAdditionalParam, preferNew bool) []*v1.DatabaseDriverAdditionalParam {
+// 根据参数名合并additional和params, overwriteExisting代表是不是要以新参数覆盖旧参数
+func mergeParamsByName(existing, newParams []*v1.DatabaseDriverAdditionalParam, overwriteExisting bool) []*v1.DatabaseDriverAdditionalParam {
 	paramMap := make(map[string]*v1.DatabaseDriverAdditionalParam)
 
 	// 添加已有参数
@@ -342,8 +351,9 @@ func mergeParamsByName(existing, newParams []*v1.DatabaseDriverAdditionalParam, 
 
 	// 合并新参数
 	for _, param := range newParams {
-		if aggParam, exists := paramMap[param.Name]; exists && preferNew {
-			*aggParam = *param // 覆盖已有参数
+		if _, exists := paramMap[param.Name]; exists && overwriteExisting {
+			newAggParam := *param
+			paramMap[param.Name] = &newAggParam // 覆盖已有参数
 		} else if !exists {
 			paramMap[param.Name] = param
 		}
