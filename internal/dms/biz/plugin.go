@@ -283,28 +283,29 @@ func (p *PluginUsecase) GetDatabaseDriverOptionsHandle(ctx context.Context) ([]*
 	)
 
 	for _, plugin := range p.registeredPlugins {
-		if plugin.GetDatabaseDriverOptionsUrl != "" {
-			wg.Add(1)
-			go func(plugin *Plugin) {
-				defer wg.Done()
-				op, err := p.CallDatabaseDriverOptionsHandle(ctx, plugin.GetDatabaseDriverOptionsUrl)
-				if err != nil {
-					mu.Lock()
-					errs = append(errs, fmt.Errorf("call plugin %s get database driver options handle failed: %v", plugin.Name, err))
-					mu.Unlock()
-					return
-				}
-				mu.Lock()
-				dbOptions = append(dbOptions, struct {
-					options []*v1.DatabaseDriverOption
-					source  string
-				}{
-					options: op,
-					source:  plugin.Name,
-				})
-				mu.Unlock()
-			}(plugin)
+		if plugin.GetDatabaseDriverOptionsUrl == "" {
+			continue
 		}
+		wg.Add(1)
+		go func(plugin *Plugin) {
+			defer wg.Done()
+			op, err := p.CallDatabaseDriverOptionsHandle(ctx, plugin.GetDatabaseDriverOptionsUrl)
+			if err != nil {
+				mu.Lock()
+				errs = append(errs, fmt.Errorf("call plugin %s get database driver options handle failed: %v", plugin.Name, err))
+				mu.Unlock()
+				return
+			}
+			mu.Lock()
+			dbOptions = append(dbOptions, struct {
+				options []*v1.DatabaseDriverOption
+				source  string
+			}{
+				options: op,
+				source:  plugin.Name,
+			})
+			mu.Unlock()
+		}(plugin)
 	}
 
 	wg.Wait()
@@ -426,33 +427,34 @@ func (p *PluginUsecase) DatabaseLogoHandle(ctx context.Context, dbTypes []string
 		}
 	)
 	for _, plugin := range p.registeredPlugins {
-		if plugin.GetDatabaseDriverLogosUrl != "" {
-
-			wg.Add(1)
-			go func(plugin *Plugin) {
-				defer wg.Done()
-				logos, err := p.CallDatabaseDriverLogosHandle(ctx, plugin.GetDatabaseDriverLogosUrl, logoDBTypes)
-				if err != nil {
-					mu.Lock()
-					errs = append(errs, fmt.Errorf("call plugin %s get database driver logos handle failed: %v", plugin.Name, err))
-					mu.Unlock()
-					return
-				}
-				mu.Lock()
-				for k, v := range logos {
-					allLogos = append(allLogos, struct {
-						logo   string
-						dbType string
-						source string
-					}{
-						logo:   v,
-						dbType: k,
-						source: plugin.Name,
-					})
-				}
-				mu.Unlock()
-			}(plugin)
+		if plugin.GetDatabaseDriverLogosUrl == "" {
+			continue
 		}
+
+		wg.Add(1)
+		go func(plugin *Plugin) {
+			defer wg.Done()
+			logos, err := p.CallDatabaseDriverLogosHandle(ctx, plugin.GetDatabaseDriverLogosUrl, logoDBTypes)
+			if err != nil {
+				mu.Lock()
+				errs = append(errs, fmt.Errorf("call plugin %s get database driver logos handle failed: %v", plugin.Name, err))
+				mu.Unlock()
+				return
+			}
+			mu.Lock()
+			for k, v := range logos {
+				allLogos = append(allLogos, struct {
+					logo   string
+					dbType string
+					source string
+				}{
+					logo:   v,
+					dbType: k,
+					source: plugin.Name,
+				})
+			}
+			mu.Unlock()
+		}(plugin)
 	}
 	wg.Wait()
 
