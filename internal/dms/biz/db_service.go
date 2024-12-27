@@ -7,7 +7,6 @@ import (
 	"time"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
-	"github.com/actiontech/dms/internal/apiserver/conf"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/pkg/locale"
 	v1Base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
@@ -166,18 +165,16 @@ type DBServiceUsecase struct {
 	pluginUsecase             *PluginUsecase
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	projectUsecase            *ProjectUsecase
-	databaseDriverOptions     []conf.DatabaseDriverOption
 	log                       *utilLog.Helper
 }
 
-func NewDBServiceUsecase(log utilLog.Logger, repo DBServiceRepo, pluginUsecase *PluginUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, databaseDriverOptions []conf.DatabaseDriverOption) *DBServiceUsecase {
+func NewDBServiceUsecase(log utilLog.Logger, repo DBServiceRepo, pluginUsecase *PluginUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo) *DBServiceUsecase {
 	return &DBServiceUsecase{
 		repo:                      repo,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 		pluginUsecase:             pluginUsecase,
 		projectUsecase:            projectUsecase,
 		dmsProxyTargetRepo:        proxyTargetRepo,
-		databaseDriverOptions:     databaseDriverOptions,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.dbService")),
 	}
 }
@@ -450,8 +447,12 @@ func (d *DBServiceUsecase) ListDBServiceTips(ctx context.Context, req *dmsV1.Lis
 	return ret, nil
 }
 
-func (d *DBServiceUsecase) ListDBServiceDriverOption(ctx context.Context) ([]conf.DatabaseDriverOption, error) {
-	return d.databaseDriverOptions, nil
+func (d *DBServiceUsecase) ListDBServiceDriverOption(ctx context.Context) ([]*dmsV1.DatabaseDriverOption, error) {
+	options, err := d.pluginUsecase.GetDatabaseDriverOptionsHandle(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return options, nil
 }
 
 func (d *DBServiceUsecase) GetDriverParamsByDBType(ctx context.Context, dbType string) (pkgParams.Params, error) {
@@ -460,12 +461,25 @@ func (d *DBServiceUsecase) GetDriverParamsByDBType(ctx context.Context, dbType s
 		return nil, err
 	}
 	for _, driverOptions := range databaseOptions {
-		if driverOptions.DbType == dbType {
-			return driverOptions.Params, nil
+		if driverOptions.DBType == dbType {
+			return convertAdditionParamsToParams(driverOptions.Params), nil
 		}
 
 	}
 	return nil, fmt.Errorf("db type %v is not support", dbType)
+}
+
+func convertAdditionParamsToParams(additionalParam []*dmsV1.DatabaseDriverAdditionalParam) pkgParams.Params {
+	params := make(pkgParams.Params, len(additionalParam))
+	for i, item := range additionalParam {
+		params[i] = &pkgParams.Param{
+			Key:   item.Name,
+			Value: item.Value,
+			Desc:  item.Description,
+			Type:  pkgParams.ParamType(item.Type),
+		}
+	}
+	return params
 }
 
 func (d *DBServiceUsecase) GetActiveDBServices(ctx context.Context, dbServiceIds []string) (dbServices []*DBService, err error) {
