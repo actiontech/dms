@@ -18,9 +18,11 @@ func (d *DMSService) RegisterDMSPlugin(ctx context.Context, currentUserUid strin
 	if err := d.PluginUsecase.RegisterPlugin(ctx, &biz.Plugin{
 		Name:                         req.Plugin.Name,
 		OperateDataResourceHandleUrl: req.Plugin.OperateDataResourceHandleUrl,
+		GetDatabaseDriverOptionsUrl:  req.Plugin.GetDatabaseDriverOptionsUrl,
 	}, currentUserUid); err != nil {
 		return fmt.Errorf("register dms plugin failed: %v", err)
 	}
-
+	// 当有plugin注册时，初始化切片，重新调用接口获取数据库选项
+	d.PluginUsecase.ClearDatabaseDriverOptionsCache()
 	return nil
 }

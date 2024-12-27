@@ -4,7 +4,6 @@ import (
 	dmsCommonConf "github.com/actiontech/dms/pkg/dms-common/conf"
 	utilConf "github.com/actiontech/dms/pkg/dms-common/pkg/config"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
-	pkgParams "github.com/actiontech/dms/pkg/params"
 )
 
 type Options struct {
@@ -21,9 +20,8 @@ type SQLEOptions struct {
 
 type DMSOptions struct {
 	dmsCommonConf.BaseOptions `yaml:",inline"`
-	CloudbeaverOpts           *CloudbeaverOpts       `yaml:"cloudbeaver"`
-	ServiceOpts               *ServiceOptions        `yaml:"service"`
-	DatabaseDriverOptions     []DatabaseDriverOption `yaml:"database_driver_options"`
+	CloudbeaverOpts           *CloudbeaverOpts `yaml:"cloudbeaver"`
+	ServiceOpts               *ServiceOptions  `yaml:"service"`
 }
 
 type CloudbeaverOpts struct {
@@ -50,12 +48,6 @@ type ServiceOptions struct {
 		MaxSizeMB       int    `yaml:"max_size_mb"`
 		MaxBackupNumber int    `yaml:"max_backup_number"`
 	} `yaml:"log"`
-}
-
-type DatabaseDriverOption struct {
-	DbType   string           `yaml:"db_type"`
-	LogoPath string           `yaml:"logo_path"`
-	Params   pkgParams.Params `yaml:"params"`
 }
 
 var optimizationEnabled bool
