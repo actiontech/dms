@@ -526,6 +526,8 @@ func (p *PluginUsecase) CallDatabaseDriverLogosHandle(ctx context.Context, url s
 	}{
 		DBTypes: strings.Join(dbTypes, ","),
 	}
+	// 因为logo数据较大，调整超时时间为1分钟
+	ctx = pkgHttp.SetTimeoutValueContext(ctx, 60)
 	if err := pkgHttp.Get(ctx, url, header, reqBody, &reply); err != nil {
 		return nil, fmt.Errorf("failed to get logos for %s: %v", url, err)
 	}
