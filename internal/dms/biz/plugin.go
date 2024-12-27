@@ -2,13 +2,18 @@ package biz
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 
 	v1 "github.com/actiontech/dms/api/dms/service/v1"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
+	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	_const "github.com/actiontech/dms/pkg/dms-common/pkg/const"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
@@ -35,6 +40,7 @@ type Plugin struct {
 	// 需要sqle服务中实现接口逻辑，判断该数据源上已经没有进行中的工单
 	OperateDataResourceHandleUrl string
 	GetDatabaseDriverOptionsUrl  string
+	GetDatabaseDriverLogosUrl    string
 }
 
 func (p *Plugin) String() string {
@@ -245,7 +251,10 @@ func (p *PluginUsecase) CallOperateDataResourceHandle(ctx context.Context, url s
 	return nil
 }
 
-const LogoPath = "/logo/"
+const (
+	LogoPath = "/logo/"
+	LogoDir  = "./static/logo/"
+)
 
 var databaseDriverOptions []*v1.DatabaseDriverOption
 
@@ -257,7 +266,14 @@ func (p *PluginUsecase) ClearDatabaseDriverOptionsCache() {
 	databaseDriverOptions = []*v1.DatabaseDriverOption{}
 }
 
+// 获取数据库插件扩展选项和加载数据库插件logo
+//  1. 首先从缓存中获取options，如果缓存为空则调用dms的plugin接口获取并保存到缓存中
+//  2. 在从plugin获取options后，会启用协程按数据库类型到dms plugin中下载缺失的logo
+//  3. 缓存清空：清空缓存后会重新调用接口获取options
+//     a) 当有新的plugin注册到dms时（provision和sqle启动）
+//     b) 当从plugin中加载logo的方法执行完成时
 func (p *PluginUsecase) GetDatabaseDriverOptionsHandle(ctx context.Context) ([]*v1.DatabaseDriverOption, error) {
+	log := utilLog.NewHelper(p.logger, utilLog.WithMessageKey("biz.dmsplugin.DatabaseDriverOptionsHandle"))
 	cacheOptions := p.GetDatabaseDriverOptionsCache()
 	if len(cacheOptions) != 0 {
 		return cacheOptions, nil
@@ -273,28 +289,29 @@ func (p *PluginUsecase) GetDatabaseDriverOptionsHandle(ctx context.Context) ([]*
 	)
 
 	for _, plugin := range p.registeredPlugins {
-		if plugin.GetDatabaseDriverOptionsUrl != "" {
-			wg.Add(1)
-			go func(plugin *Plugin) {
-				defer wg.Done()
-				op, err := p.CallDatabaseDriverOptionsHandle(ctx, plugin.GetDatabaseDriverOptionsUrl)
-				if err != nil {
-					mu.Lock()
-					errs = append(errs, fmt.Errorf("call plugin %s get database driver options handle failed: %v", plugin.Name, err))
-					mu.Unlock()
-					return
-				}
-				mu.Lock()
-				dbOptions = append(dbOptions, struct {
-					options []*v1.DatabaseDriverOption
-					source  string
-				}{
-					options: op,
-					source:  plugin.Name,
-				})
-				mu.Unlock()
-			}(plugin)
+		if plugin.GetDatabaseDriverOptionsUrl == "" {
+			continue
 		}
+		wg.Add(1)
+		go func(plugin *Plugin) {
+			defer wg.Done()
+			op, err := p.CallDatabaseDriverOptionsHandle(ctx, plugin.GetDatabaseDriverOptionsUrl)
+			if err != nil {
+				mu.Lock()
+				errs = append(errs, fmt.Errorf("call plugin %s get database driver options handle failed: %v", plugin.Name, err))
+				mu.Unlock()
+				return
+			}
+			mu.Lock()
+			dbOptions = append(dbOptions, struct {
+				options []*v1.DatabaseDriverOption
+				source  string
+			}{
+				options: op,
+				source:  plugin.Name,
+			})
+			mu.Unlock()
+		}(plugin)
 	}
 
 	wg.Wait()
@@ -302,26 +319,36 @@ func (p *PluginUsecase) GetDatabaseDriverOptionsHandle(ctx context.Context) ([]*
 	if len(errs) > 0 {
 		return nil, fmt.Errorf("encountered errors: %v", errs)
 	}
-	databaseDriverOptions = append(databaseDriverOptions, aggregateOptions(dbOptions)...)
-	return databaseDriverOptions, nil
+	options := p.aggregateOptions(log, dbOptions)
+	databaseDriverOptions = append(databaseDriverOptions, options...)
+	dbTypes := make([]string, 0, len(databaseDriverOptions))
+	for _, dbType := range databaseDriverOptions {
+		dbTypes = append(dbTypes, dbType.DBType)
+	}
+	// 处理数据库插件logo
+	go p.DatabaseLogoHandle(context.TODO(), dbTypes)
+	return options, nil
 }
 
 // 根据数据库类型合并各插件的options
-func aggregateOptions(optionRes []struct {
+func (p *PluginUsecase) aggregateOptions(log *utilLog.Helper, optionRes []struct {
 	options []*v1.DatabaseDriverOption
 	source  string
 }) []*v1.DatabaseDriverOption {
 	dbTypeMap := make(map[string]*v1.DatabaseDriverOption)
-
 	for _, res := range optionRes {
 		for _, opt := range res.options {
 			if aggOpt, exists := dbTypeMap[opt.DBType]; exists {
 				// 聚合Params, 合并时如有重复以sqle为主
 				aggOpt.Params = mergeParamsByName(aggOpt.Params, opt.Params, res.source == _const.SqleComponentName)
 			} else {
+				logofile, err := p.GetLogoFilesMap(opt.DBType)
+				if err != nil {
+					log.Errorf("get %s logo file name error: %v", opt.DBType, err)
+				}
 				dbTypeMap[opt.DBType] = &v1.DatabaseDriverOption{
 					DBType:   opt.DBType,
-					LogoPath: LogoPath + getLogoFileNameByDBType(opt.DBType),
+					LogoPath: LogoPath + logofile[opt.DBType],
 					Params:   opt.Params,
 				}
 			}
@@ -334,10 +361,6 @@ func aggregateOptions(optionRes []struct {
 		result = append(result, opt)
 	}
 	return result
-}
-
-func getLogoFileNameByDBType(dbType string) string {
-	return strings.ToLower(strings.ReplaceAll(dbType, " ", "_")) + ".png"
 }
 
 // 根据参数名合并additional和params, overwriteExisting代表是不是要以新参数覆盖旧参数
@@ -381,4 +404,192 @@ func (p *PluginUsecase) CallDatabaseDriverOptionsHandle(ctx context.Context, url
 	}
 
 	return reply.Data, nil
+}
+
+func (p *PluginUsecase) DatabaseLogoHandle(ctx context.Context, dbTypes []string) {
+	log := utilLog.NewHelper(p.logger, utilLog.WithMessageKey("biz.dmsplugin.logohandle"))
+	// 定义 logo 文件夹路径
+	if err := os.MkdirAll(LogoDir, os.ModePerm); err != nil {
+		log.Errorf("create logo dir error: %v", err)
+		return
+	}
+	// 获取需要保存logo的数据库插件类型
+	logoDBTypes, err := p.GetDBTypesForLogoSave(dbTypes)
+	if err != nil {
+		log.Errorf("get db types for logo save error: %v", err)
+		return
+	}
+	if len(logoDBTypes) == 0 {
+		return
+	}
+	var (
+		mu       sync.Mutex
+		errs     []error
+		wg       sync.WaitGroup
+		allLogos []struct {
+			logo   string
+			dbType string
+			source string
+		}
+	)
+	for _, plugin := range p.registeredPlugins {
+		if plugin.GetDatabaseDriverLogosUrl == "" {
+			continue
+		}
+
+		wg.Add(1)
+		go func(plugin *Plugin) {
+			defer wg.Done()
+			logos, err := p.CallDatabaseDriverLogosHandle(ctx, plugin.GetDatabaseDriverLogosUrl, logoDBTypes)
+			if err != nil {
+				mu.Lock()
+				errs = append(errs, fmt.Errorf("call plugin %s get database driver logos handle failed: %v", plugin.Name, err))
+				mu.Unlock()
+				return
+			}
+			mu.Lock()
+			for k, v := range logos {
+				allLogos = append(allLogos, struct {
+					logo   string
+					dbType string
+					source string
+				}{
+					logo:   v,
+					dbType: k,
+					source: plugin.Name,
+				})
+			}
+			mu.Unlock()
+		}(plugin)
+	}
+	wg.Wait()
+
+	if len(errs) > 0 {
+		log.Errorf("encountered errors: %v", errs)
+	}
+	logoMap := make(map[string]string)
+	for _, entry := range allLogos {
+		// 目前只使用sqle提供的logo，因为其他插件暂未提供logo
+		if _, found := logoMap[entry.dbType]; !found && entry.source == _const.SqleComponentName {
+			logoMap[entry.dbType] = entry.logo
+		}
+	}
+	err = p.SaveLogoFiles(log, logoMap)
+	if err != nil {
+		log.Errorf("save logo error: %v", err)
+	}
+}
+
+func (p *PluginUsecase) GetDBTypesForLogoSave(allDBTypes []string) ([]string, error) {
+	needToSave := []string{}
+	existingFiles, err := p.GetLogoFilesMap(allDBTypes...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read logo directory '%s': %w", LogoDir, err)
+	}
+	// 检查每种数据库类型对应的文件是否已存在
+	for _, dbType := range allDBTypes {
+		// 如果未找到对应文件，加入需要保存的列表
+		if _, ok := existingFiles[dbType]; !ok {
+			needToSave = append(needToSave, dbType)
+		}
+	}
+
+	return needToSave, nil
+}
+
+// 返回指定数据库类型的logo文件名称
+func (p *PluginUsecase) GetLogoFilesMap(dbTypes ...string) (map[string]string /*key: db type, value: logo file name*/, error) {
+	entries, err := os.ReadDir(LogoDir)
+	if err != nil {
+		return nil, err
+	}
+	logoFiles := make(map[string]string)
+	for _, dbType := range dbTypes {
+		// 构建文件名前缀
+		filePrefix := strings.ToLower(strings.ReplaceAll(dbType, " ", "_")) + "."
+		for _, entry := range entries {
+			if strings.HasPrefix(entry.Name(), filePrefix) {
+				logoFiles[dbType] = entry.Name()
+			}
+		}
+	}
+	return logoFiles, nil
+}
+
+func (p *PluginUsecase) CallDatabaseDriverLogosHandle(ctx context.Context, url string, dbTypes []string) (map[string]string /*key: db type; value: logo string*/, error) {
+	header := map[string]string{
+		"Authorization": pkgHttp.DefaultDMSToken,
+	}
+	var reply struct {
+		Logos []struct {
+			DBType string `json:"db_type"`
+			Logo   string `json:"logo"`
+		} `json:"data"`
+		base.GenericResp
+	}
+	reqBody := struct {
+		DBTypes string `json:"db_types"`
+	}{
+		DBTypes: strings.Join(dbTypes, ","),
+	}
+	// 因为logo数据较大，调整超时时间为1分钟
+	ctx = pkgHttp.SetTimeoutValueContext(ctx, 60)
+	if err := pkgHttp.Get(ctx, url, header, reqBody, &reply); err != nil {
+		return nil, fmt.Errorf("failed to get logos for %s: %v", url, err)
+	}
+	if reply.Code != 0 {
+		return nil, fmt.Errorf("reply code(%v) error: %v", reply.Code, reply.Message)
+	}
+	logosMap := make(map[string]string, len(reply.Logos))
+	for _, logo := range reply.Logos {
+		logosMap[logo.DBType] = logo.Logo
+	}
+	return logosMap, nil
+}
+
+func (p *PluginUsecase) SaveLogoFiles(log *utilLog.Helper, logoMap map[string]string /*key: db type; value: logo string*/) error {
+	for k, v := range logoMap {
+		if v == "" {
+			log.Errorf("%s logo base64 string is empty", k)
+			continue
+		}
+		data, err := base64.StdEncoding.DecodeString(v)
+
+		if err != nil {
+			log.Errorf("decode %s logo base64 string error: %v", k, err)
+			continue
+		}
+		mimeType := http.DetectContentType(data)
+		isSupport, logoType := p.GetLogoFileTypeByHttpContentType(mimeType)
+		if !isSupport {
+			log.Errorf("unsupported image type: %s", mimeType)
+			continue
+		}
+		fileName := p.GetLogoFileName(k, logoType)
+		if err := os.WriteFile(filepath.Join(LogoDir, fileName), data, os.ModePerm); err != nil {
+			log.Errorf("write %s logo file error: %v", k, err)
+			continue
+		}
+	}
+	p.ClearDatabaseDriverOptionsCache()
+	return nil
+}
+
+func (p *PluginUsecase) GetLogoFileName(dbType, logoType string) string {
+	return strings.ToLower(strings.ReplaceAll(dbType, " ", "_")) + logoType
+}
+
+func (p *PluginUsecase) GetLogoFileTypeByHttpContentType(mimeType string) (bool, string) {
+	switch mimeType {
+	case "image/jpeg":
+		return true, ".jpeg"
+	case "image/png":
+		return true, ".png"
+	case "image/svg+xml":
+		return true, ".svg"
+	case "image/webp":
+		return true, ".webp"
+	default:
+		return false, ""
+	}
 }
