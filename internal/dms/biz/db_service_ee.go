@@ -18,6 +18,7 @@ import (
 	v1Base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	v1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+	"github.com/actiontech/dms/pkg/dms-common/pkg/config"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 	pkgPeriods "github.com/actiontech/dms/pkg/periods"
 	pkgRand "github.com/actiontech/dms/pkg/rand"
@@ -107,7 +108,7 @@ func (d *DBServiceUsecase) getActiveProjInfo(ctx context.Context, proj *Project)
 }
 
 type ImportDbServicesCsvRow struct {
-	DbName           string `validate:"required"`
+	DbName           string `validate:"dbNameFormat"`
 	ProjName         string `validate:"required"`
 	Business         string `validate:"required"`
 	Desc             string `validate:"required"`
@@ -147,8 +148,7 @@ var rowFieldToMsg = map[string]*i18n.Message{
 }
 
 func (d *DBServiceUsecase) checkImportCsvRow(ctx context.Context, projectInfoMap map[string]*projInfo, isDmsAdmin bool, row *ImportDbServicesCsvRow) error {
-	validate := validator.New()
-	err := validate.Struct(row)
+	err := config.Validate(row)
 	if err != nil {
 		var validationErrors validator.ValidationErrors
 		if errors.As(err, &validationErrors) {
