@@ -30,7 +30,10 @@ func CollectK8sInfo() (string, error) {
 
 func GetNamespaceUID(namespaceName string) (string, error) {
 	n, err := clientSet.CoreV1().Namespaces().Get(context.TODO(), namespaceName, metav1.GetOptions{})
-	return fmt.Sprintf("%v", n.UID), err
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%v", n.UID), nil
 }
 
 var clientSet *kubernetes.Clientset
@@ -68,6 +71,6 @@ func Ink8sCluster() bool {
 func init() {
 	err := InitClientSet()
 	if err != nil {
-		fmt.Printf("init k8s client set failed: %v", err)
+		fmt.Printf("[INFO] init k8s client set failed: %v", err)
 	}
 }
