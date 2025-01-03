@@ -36,12 +36,22 @@ func CollectHardwareInfo() (string, error) {
 	if localHardware != "" {
 		return localHardware, nil
 	}
-	h, err := collectHardwareInfo()
-	if err != nil {
-		return "", err
+	// k8s环境下
+	if Ink8sCluster() {
+		content, err := CollectK8sInfo()
+		if err != nil {
+			return "", err
+		}
+		h := encoding.EncodeToString([]byte(content))
+		localHardware = h
+	} else {
+		h, err := collectHardwareInfo()
+		if err != nil {
+			return "", err
+		}
+		localHardware = h
 	}
-	localHardware = h
-	return h, nil
+	return localHardware, nil
 }
 
 func collectHardwareInfo() (string, error) {
