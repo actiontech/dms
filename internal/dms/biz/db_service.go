@@ -12,6 +12,7 @@ import (
 	v1Base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 	v1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	"github.com/actiontech/dms/pkg/dms-common/i18nPkg"
+	"github.com/actiontech/dms/pkg/dms-common/pkg/config"
 	_const "github.com/actiontech/dms/pkg/dms-common/pkg/const"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
@@ -233,6 +234,11 @@ func (d *DBServiceUsecase) CreateDBService(ctx context.Context, args *BizDBServi
 }
 
 func (d *DBServiceUsecase) createDBService(ctx context.Context, dbService *DBService) error {
+	// 数据源名称格式校验，命名不规范会造成的问题：https://github.com/actiontech/sqle/issues/2810
+	if !config.DbNameFormatPattern.MatchString(dbService.Name) {
+		return fmt.Errorf("db service name %s is not valid", dbService.Name)
+	}
+
 	// 调用其他服务对数据源进行预检查
 	if err := d.pluginUsecase.AddDBServicePreCheck(ctx, dbService); err != nil {
 		return fmt.Errorf("precheck db service failed: %w", err)
