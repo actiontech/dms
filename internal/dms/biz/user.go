@@ -189,11 +189,12 @@ type UserUsecase struct {
 	opPermissionUsecase       *OpPermissionUsecase
 	OpPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	ldapConfigurationUsecase  *LDAPConfigurationUsecase
+	cloudBeaverRepo           CloudbeaverRepo
 	log                       *utilLog.Helper
 }
 
 func NewUserUsecase(log utilLog.Logger, tx TransactionGenerator, repo UserRepo, userGroupRepo UserGroupRepo, pluginUsecase *PluginUsecase, opPermissionUsecase *OpPermissionUsecase,
-	OpPermissionVerifyUsecase *OpPermissionVerifyUsecase, ldapConfigurationUsecase *LDAPConfigurationUsecase) *UserUsecase {
+	OpPermissionVerifyUsecase *OpPermissionVerifyUsecase, ldapConfigurationUsecase *LDAPConfigurationUsecase, cloudBeaverRepo CloudbeaverRepo) *UserUsecase {
 	return &UserUsecase{
 		tx:                        tx,
 		repo:                      repo,
@@ -202,6 +203,7 @@ func NewUserUsecase(log utilLog.Logger, tx TransactionGenerator, repo UserRepo, 
 		opPermissionUsecase:       opPermissionUsecase,
 		OpPermissionVerifyUsecase: OpPermissionVerifyUsecase,
 		ldapConfigurationUsecase:  ldapConfigurationUsecase,
+		cloudBeaverRepo:           cloudBeaverRepo,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.user")),
 	}
 }
