@@ -7,9 +7,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
@@ -160,6 +162,20 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 	data.IdToken, _ = oauth2Token.Extra("id_token").(string) // 尝试获取 id_token
 	d.log.Infof("oauth2Token type: %s, got id_token len: %d", oauth2Token.Type(), len(data.IdToken))
 
+	defer func() {
+		if oauth2C.ServerLogoutUrl != "" && err != nil {
+			// 第三方平台登录成功，但后续dms流程异常，需要注销第三方平台上的会话
+			logoutErr := d.BackendLogout(ctx, data.IdToken)
+			if logoutErr != nil {
+				d.log.Errorf("BackendLogout error: %v", logoutErr)
+				// err 是命名返回值才可以完成实际返回值的修改
+				err = fmt.Errorf("%w; Clear OAuth2 session err: %v", err, logoutErr)
+			} else {
+				err = fmt.Errorf("%w; Cleared OAuth2 session", err)
+			}
+		}
+	}()
+
 	//get user is exist
 	oauth2User, err := d.getOauth2User(oauth2C, oauth2Token.AccessToken)
 	if err != nil {
@@ -200,9 +216,9 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 		data.DMSToken = dmsToken
 		data.UserExist = true
 	} else if exist {
-		// the user has successfully logged in at the third party, and the token can be returned directly after checking users'state
+		// the user has successfully logged in at the third party, and the token can be returned directly after checking users' state
 		if user.Stat == UserStatDisable {
-			err = fmt.Errorf("user %s not exist or can not login", user.Name)
+			err = fmt.Errorf("user %s can not login", user.Name)
 			data.Error = err.Error()
 			return data.generateQuery(uri), "", err
 		}
@@ -381,6 +397,11 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 	}
 }
 
+const (
+	userVariableIdToken = "${id_token}"
+	userVariableSqleUrl = "${sqle_url}"
+)
+
 func (d *Oauth2ConfigurationUsecase) Logout(ctx context.Context, uid string) (string, error) {
 	user, err := d.userUsecase.GetUser(ctx, uid)
 	if err != nil {
@@ -412,12 +433,51 @@ func (d *Oauth2ConfigurationUsecase) Logout(ctx context.Context, uid string) (st
 
 	// 配置注销地址时，可以使用这里的键作变量
 	vars := map[string]string{
-		"${id_token}": url.PathEscape(user.ThirdPartyIdToken),
-		"${sqle_url}": url.PathEscape(configuration.ClientHost),
+		userVariableIdToken: url.PathEscape(user.ThirdPartyIdToken),
+		userVariableSqleUrl: url.PathEscape(configuration.ClientHost),
 	}
 	logoutUrl := configuration.ServerLogoutUrl
 	for k, v := range vars {
 		logoutUrl = strings.ReplaceAll(logoutUrl, k, v)
 	}
 	return logoutUrl, nil
+}
+
+func (d *Oauth2ConfigurationUsecase) BackendLogout(ctx context.Context, idToken string) error {
+	configuration, exist, err := d.GetOauth2Configuration(ctx)
+	if err != nil {
+		return fmt.Errorf("get oauth2 configuration failed: %v", err)
+	}
+	if !exist {
+		return fmt.Errorf("Oauth2Configuration is not exist")
+	}
+
+	logoutUrl, err := url.Parse(configuration.ServerLogoutUrl)
+	if err != nil {
+		return fmt.Errorf("parse logout url failed: %v", err)
+	}
+
+	query := logoutUrl.Query()
+	for key := range query {
+		val := query.Get(key)
+		if val == userVariableIdToken {
+			query.Set(key, idToken)
+		} else if val == userVariableSqleUrl {
+			query.Del(key)
+		}
+	}
+	logoutUrl.RawQuery = query.Encode()
+	logoutUrlStr := logoutUrl.String()
+	d.log.Infof("BackendLogout url: %s", logoutUrlStr)
+
+	client := &http.Client{Timeout: time.Minute}
+	resp, err := client.Get(logoutUrlStr)
+	if err != nil {
+		return fmt.Errorf("request logout url failed: %v", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("request logout url resp Status: %v", resp.Status)
+	}
+	return nil
 }
