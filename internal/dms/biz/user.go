@@ -632,6 +632,10 @@ func (d *UserUsecase) DelUser(ctx context.Context, currentUserUid, UserUid strin
 		return fmt.Errorf("del user from all user groups failed: %v", err)
 	}
 
+	if err := d.cloudBeaverRepo.DeleteAllCloudbeaverCachesByUserId(tx, UserUid); nil != err {
+		return fmt.Errorf("delete cloudbeaver cache failed: %v", err)
+	}
+	
 	if err := d.repo.DelUser(tx, UserUid); nil != err {
 		return fmt.Errorf("delete user error: %v", err)
 	}
