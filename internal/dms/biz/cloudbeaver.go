@@ -69,6 +69,7 @@ type CloudbeaverRepo interface {
 	GetCloudbeaverConnectionsByUserId(ctx context.Context, userId string) ([]*CloudbeaverConnection, error)
 	UpdateCloudbeaverConnectionCache(ctx context.Context, u *CloudbeaverConnection) error
 	DeleteCloudbeaverConnectionCache(ctx context.Context, dbServiceId, userId, purpose string) error
+	DeleteAllCloudbeaverCachesByUserId(ctx context.Context, userId string) error
 }
 
 type CloudbeaverUsecase struct {

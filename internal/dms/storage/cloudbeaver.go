@@ -143,3 +143,17 @@ func (cr *CloudbeaverRepo) DeleteCloudbeaverConnectionCache(ctx context.Context,
 		return nil
 	})
 }
+
+func (cr *CloudbeaverRepo) DeleteAllCloudbeaverCachesByUserId(ctx context.Context, userId string) error {
+	return transaction(cr.log, ctx, cr.db, func(tx *gorm.DB) error {
+		err := tx.WithContext(ctx).Where("dms_user_id = ?", userId).Delete(&model.CloudbeaverConnectionCache{}).Error
+		if err != nil {
+			return fmt.Errorf("failed to delete cloudbeaver connection caches by user id %v err %v", userId, err)
+		}
+		err = tx.WithContext(ctx).Where("dms_user_id =?", userId).Delete(&model.CloudbeaverUserCache{}).Error
+		if err != nil {
+			return fmt.Errorf("failed to delete cloudbeaver user caches by user id %v err %v", userId, err)
+		}
+		return nil
+	})
+}
