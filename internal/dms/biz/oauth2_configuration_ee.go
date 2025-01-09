@@ -167,8 +167,8 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 			// 第三方平台登录成功，但后续dms流程异常，需要注销第三方平台上的会话
 			logoutErr := d.BackendLogout(ctx, data.IdToken)
 			if logoutErr != nil {
-				// err 是命名返回值才可以完成实际返回值的修改
 				d.log.Errorf("BackendLogout error: %v", logoutErr)
+				// err 是命名返回值才可以完成实际返回值的修改
 				err = fmt.Errorf("%w; Clear OAuth2 session err: %v", err, logoutErr)
 			} else {
 				err = fmt.Errorf("%w; Cleared OAuth2 session", err)
