@@ -189,11 +189,12 @@ type UserUsecase struct {
 	opPermissionUsecase       *OpPermissionUsecase
 	OpPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	ldapConfigurationUsecase  *LDAPConfigurationUsecase
+	cloudBeaverRepo           CloudbeaverRepo
 	log                       *utilLog.Helper
 }
 
 func NewUserUsecase(log utilLog.Logger, tx TransactionGenerator, repo UserRepo, userGroupRepo UserGroupRepo, pluginUsecase *PluginUsecase, opPermissionUsecase *OpPermissionUsecase,
-	OpPermissionVerifyUsecase *OpPermissionVerifyUsecase, ldapConfigurationUsecase *LDAPConfigurationUsecase) *UserUsecase {
+	OpPermissionVerifyUsecase *OpPermissionVerifyUsecase, ldapConfigurationUsecase *LDAPConfigurationUsecase, cloudBeaverRepo CloudbeaverRepo) *UserUsecase {
 	return &UserUsecase{
 		tx:                        tx,
 		repo:                      repo,
@@ -202,6 +203,7 @@ func NewUserUsecase(log utilLog.Logger, tx TransactionGenerator, repo UserRepo, 
 		opPermissionUsecase:       opPermissionUsecase,
 		OpPermissionVerifyUsecase: OpPermissionVerifyUsecase,
 		ldapConfigurationUsecase:  ldapConfigurationUsecase,
+		cloudBeaverRepo:           cloudBeaverRepo,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.user")),
 	}
 }
@@ -630,6 +632,10 @@ func (d *UserUsecase) DelUser(ctx context.Context, currentUserUid, UserUid strin
 		return fmt.Errorf("del user from all user groups failed: %v", err)
 	}
 
+	if err := d.cloudBeaverRepo.DeleteAllCloudbeaverCachesByUserId(tx, UserUid); nil != err {
+		return fmt.Errorf("delete cloudbeaver cache failed: %v", err)
+	}
+	
 	if err := d.repo.DelUser(tx, UserUid); nil != err {
 		return fmt.Errorf("delete user error: %v", err)
 	}
