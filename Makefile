@@ -37,7 +37,7 @@ ifeq ($(GOARCH), arm64)
     RPMBUILD_TARGET = aarch64
 endif
 
-EDITION ?= ce
+EDITION ?= ee
 GO_BUILD_TAGS = dummyhead
 ifeq ($(EDITION),ee)
     GO_BUILD_TAGS :=$(GO_BUILD_TAGS),enterprise
@@ -132,6 +132,7 @@ dms_sqle_provision_rpm_pre: docker_install
 	cp ${PRE_DIR}sqle/bin/sqled ./builddir/bin/sqled
 	cp ${PRE_DIR}sqle/bin/scannerd ./builddir/bin/scannerd
 	cp ${PRE_DIR}sqle/scripts/sqled.systemd ./builddir/scripts/sqled.systemd
+	cp -R ${PRE_DIR}sqle/jdk ./builddir/jdk
 
 	# 合并配置文件
 	touch ./builddir/config/config.yaml
