@@ -37,7 +37,7 @@ ifeq ($(GOARCH), arm64)
     RPMBUILD_TARGET = aarch64
 endif
 
-EDITION ?= ee
+EDITION ?= ce
 GO_BUILD_TAGS = dummyhead
 ifeq ($(EDITION),ee)
     GO_BUILD_TAGS :=$(GO_BUILD_TAGS),enterprise
