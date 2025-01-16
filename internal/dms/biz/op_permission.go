@@ -88,12 +88,6 @@ func initOpPermission() []*OpPermission {
 			Desc:      "审核/驳回工单；拥有该权限的用户可以审核/驳回工单",
 		},
 		{
-			UID:       pkgConst.UIDOfOpPermissionAuthDBServiceData,
-			Name:      "授权数据源数据权限",
-			RangeType: OpRangeTypeDBService,
-			Desc:      "授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限",
-		},
-		{
 			UID:       pkgConst.UIDOfOpPermissionExecuteWorkflow,
 			Name:      "上线工单",
 			RangeType: OpRangeTypeDBService,
@@ -156,6 +150,20 @@ func initOpPermission() []*OpPermission {
 	}
 }
 
+func GetProxyOpPermission() map[string][]*OpPermission {
+	return map[string][]*OpPermission{
+		"provision": {
+			{
+				UID:       pkgConst.UIDOfOpPermissionAuthDBServiceData,
+				Name:      "授权数据源数据权限",
+				RangeType: OpRangeTypeDBService,
+				Desc:      "授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限",
+			},
+		},
+	}
+
+}
+
 type ListOpPermissionsOption struct {
 	PageNumber   uint32
 	LimitPerPage uint32
@@ -188,8 +196,8 @@ func NewOpPermissionUsecase(log utilLog.Logger, tx TransactionGenerator, repo Op
 	}
 }
 
-func (d *OpPermissionUsecase) InitOpPermissions(ctx context.Context) (err error) {
-	for _, op := range initOpPermission() {
+func (d *OpPermissionUsecase) InitOpPermissions(ctx context.Context, ops []*OpPermission) (err error) {
+	for _, op := range ops {
 
 		_, err := d.repo.GetOpPermission(ctx, op.GetUID())
 		// already exist
@@ -208,7 +216,7 @@ func (d *OpPermissionUsecase) InitOpPermissions(ctx context.Context) (err error)
 		}
 
 	}
-	d.log.Debug("init op permissions success")
+	d.log.Debug("update op permissions success")
 	return nil
 }
 
