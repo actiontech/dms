@@ -92,7 +92,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	memberUsecase = *biz.NewMemberUsecase(logger, tx, memberRepo, userUsecase, roleUsecase, dbServiceUseCase, opPermissionVerifyUsecase, projectUsecase)
 	memberGroupRepo := storage.NewMemberGroupRepo(logger, st)
 	memberGroupUsecase := biz.NewMemberGroupUsecase(logger, tx, memberGroupRepo, userUsecase, roleUsecase, dbServiceUseCase, opPermissionVerifyUsecase, projectUsecase, &memberUsecase)
-	dmsProxyUsecase, err := biz.NewDmsProxyUsecase(logger, dmsProxyTargetRepo, opts.APIServiceOpts.Port, opPermissionUsecase)
+	dmsProxyUsecase, err := biz.NewDmsProxyUsecase(logger, dmsProxyTargetRepo, opts.APIServiceOpts.Port, opPermissionUsecase, roleUsecase)
 	oauth2ConfigurationRepo := storage.NewOauth2ConfigurationRepo(logger, st)
 	oauth2ConfigurationUsecase := biz.NewOauth2ConfigurationUsecase(logger, tx, oauth2ConfigurationRepo, userUsecase)
 	companyNoticeRepo := storage.NewCompanyNoticeRepo(logger, st)
