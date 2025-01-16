@@ -71,7 +71,7 @@ var (
 	DescRoleProjectAdmin = &i18n.Message{ID: "DescRoleProjectAdmin", Other: "project admin"}
 	DescRoleDevEngineer  = &i18n.Message{ID: "DescRoleDevEngineer", Other: "拥有该权限的用户可以创建/编辑工单,SQL工作台查询,配置流水线,创建智能调优"}
 	DescRoleDevManager   = &i18n.Message{ID: "DescRoleDevManager", Other: "拥有该权限的用户可以创建/编辑工单,审核/驳回工单,配置流水线,查看他人创建的智能调优"}
-	DescRoleOpsEngineer  = &i18n.Message{ID: "DescRoleOpsEngineer", Other: "拥有该权限的用户可以上线工单,查看他人创建的工单,创建智能扫描,查看他人的扫描任务,数据导出,授权数据源数据"}
+	DescRoleOpsEngineer  = &i18n.Message{ID: "DescRoleOpsEngineer", Other: "拥有该权限的用户可以上线工单,查看他人创建的工单,创建智能扫描,查看他人的扫描任务,数据导出"}
 )
 
 // license

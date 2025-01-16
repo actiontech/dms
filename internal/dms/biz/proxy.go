@@ -57,9 +57,10 @@ type DmsProxyUsecase struct {
 	mutex             sync.RWMutex
 	logger            utilLog.Logger
 	opPermissionUc    *OpPermissionUsecase
+	roleUc            *RoleUsecase
 }
 
-func NewDmsProxyUsecase(logger utilLog.Logger, repo ProxyTargetRepo, dmsPort int, opPermissionUC *OpPermissionUsecase) (*DmsProxyUsecase, error) {
+func NewDmsProxyUsecase(logger utilLog.Logger, repo ProxyTargetRepo, dmsPort int, opPermissionUC *OpPermissionUsecase, roleUc *RoleUsecase) (*DmsProxyUsecase, error) {
 	targets, err := repo.ListProxyTargets(context.TODO())
 	if err != nil {
 		return nil, fmt.Errorf("list proxy targets from repo error: %v", err)
@@ -83,6 +84,7 @@ func NewDmsProxyUsecase(logger utilLog.Logger, repo ProxyTargetRepo, dmsPort int
 		targets:        targets,
 		logger:         logger,
 		opPermissionUc: opPermissionUC,
+		roleUc:         roleUc,
 	}, nil
 }
 
@@ -148,10 +150,21 @@ func (d *DmsProxyUsecase) RegisterDMSProxyTarget(ctx context.Context, currentUse
 	log.Infof("add target: %s; url: %s; prefix: %v", target.Name, target.URL, args.ProxyUrlPrefixs)
 
 	// 注册独立权限
-	if err := d.opPermissionUc.InitOpPermissions(ctx, GetProxyOpPermission()[target.Name]); nil != err {
-		return err
+	proxyOpPermission := GetProxyOpPermission()[target.Name]
+	if len(proxyOpPermission) > 0 {
+		if err := d.opPermissionUc.InitOpPermissions(ctx, proxyOpPermission); nil != err {
+			return err
+		}
+		// 更新角色
+		rolePermission := OpsEngineerPermissionsStrategy{}.GetPermissions()
+		for _, proxyPermission := range GetProxyOpPermission()[target.Name] {
+			rolePermission = append(rolePermission, proxyPermission.UID)
+		}
+		err = d.roleUc.InsureOpPermissionsToRole(ctx, rolePermission, pkgConst.UIDOfRoleOpsEngineer)
+		if err != nil {
+			return fmt.Errorf("insure op permissions to role failed: %v", err)
+		}
 	}
-
 	return nil
 }
 
