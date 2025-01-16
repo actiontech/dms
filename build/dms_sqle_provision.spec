@@ -10,6 +10,7 @@ Source0: %{name}.tar.gz
 License: Commercial
 Group: Actiontech
 Prefix: /usr/local/%{name}
+AutoReq: no
 
 %description
 Acitontech dms
@@ -43,6 +44,7 @@ cp -R %{_builddir}/%{buildsubdir}/%{name}/builddir/scripts $RPM_BUILD_ROOT/usr/l
 cp -R %{_builddir}/%{buildsubdir}/%{name}/builddir/static $RPM_BUILD_ROOT/usr/local/%{name}/static
 cp -R %{_builddir}/%{buildsubdir}/%{name}/builddir/neo4j-community $RPM_BUILD_ROOT/usr/local/%{name}/neo4j-community
 cp -R %{_builddir}/%{buildsubdir}/%{name}/builddir/lib $RPM_BUILD_ROOT/usr/local/%{name}/lib
+cp -R %{_builddir}/%{buildsubdir}/%{name}/builddir/jdk $RPM_BUILD_ROOT/usr/local/%{name}/jdk
 
 ##########
 
@@ -51,6 +53,7 @@ cp -R %{_builddir}/%{buildsubdir}/%{name}/builddir/lib $RPM_BUILD_ROOT/usr/local
 /usr/local/%{name}/bin/*
 /usr/local/%{name}/plugins
 /usr/local/%{name}/scripts/*
+/usr/local/%{name}/jdk/*
 /usr/local/%{name}/static/*
 /usr/local/%{name}/neo4j-community/*
 /usr/local/%{name}/lib/*
@@ -158,6 +161,19 @@ max_lag_millis=1500
 heartbeat_interval_millis=100
 EOF
 
+# 检查 .bashrc 文件是否存在
+if [ -f ~/.bashrc ]; then
+    if grep -q "^export SQLE_JAVA_HOME=" ~/.bashrc; then
+        # 如果 SQLE_JAVA_HOME 已经存在,则更新其值
+        sed -i "s|^export SQLE_JAVA_HOME=.*|export SQLE_JAVA_HOME=$RPM_INSTALL_PREFIX/jdk|" ~/.bashrc
+    else
+        echo "export SQLE_JAVA_HOME=$RPM_INSTALL_PREFIX/jdk" >> ~/.bashrc
+    fi
+else
+    echo "warn: .bashrc file not found."
+fi
+source ~/.bashrc
+
 #chown
 chown -R %{user_name}: $RPM_INSTALL_PREFIX
 
@@ -165,6 +181,7 @@ chown -R %{user_name}: $RPM_INSTALL_PREFIX
 find $RPM_INSTALL_PREFIX -type d -exec chmod 0750 {} \;
 find $RPM_INSTALL_PREFIX -type f -exec chmod 0640 {} \;
 find $RPM_INSTALL_PREFIX/plugins -type f -exec chmod 0750 {} \;
+find $RPM_INSTALL_PREFIX/jdk/bin -type f -exec chmod 0755 {} \;
 chmod 0750 $RPM_INSTALL_PREFIX/bin/*
 chmod 0750 $RPM_INSTALL_PREFIX/neo4j-community/bin/neo4j
 chmod 0770 $RPM_INSTALL_PREFIX/etc
