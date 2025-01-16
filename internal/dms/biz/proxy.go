@@ -56,9 +56,10 @@ type DmsProxyUsecase struct {
 	rewrite           map[string]string
 	mutex             sync.RWMutex
 	logger            utilLog.Logger
+	opPermissionUc    *OpPermissionUsecase
 }
 
-func NewDmsProxyUsecase(logger utilLog.Logger, repo ProxyTargetRepo, dmsPort int) (*DmsProxyUsecase, error) {
+func NewDmsProxyUsecase(logger utilLog.Logger, repo ProxyTargetRepo, dmsPort int, opPermissionUC *OpPermissionUsecase) (*DmsProxyUsecase, error) {
 	targets, err := repo.ListProxyTargets(context.TODO())
 	if err != nil {
 		return nil, fmt.Errorf("list proxy targets from repo error: %v", err)
@@ -79,8 +80,9 @@ func NewDmsProxyUsecase(logger utilLog.Logger, repo ProxyTargetRepo, dmsPort int
 			"/sqle/*":    "/$1",
 			"/webhook/*": "/$1",
 		},
-		targets: targets,
-		logger:  logger,
+		targets:        targets,
+		logger:         logger,
+		opPermissionUc: opPermissionUC,
 	}, nil
 }
 
@@ -144,6 +146,12 @@ func (d *DmsProxyUsecase) RegisterDMSProxyTarget(ctx context.Context, currentUse
 		return fmt.Errorf("add proxy target error: %v", err)
 	}
 	log.Infof("add target: %s; url: %s; prefix: %v", target.Name, target.URL, args.ProxyUrlPrefixs)
+
+	// 注册独立权限
+	if err := d.opPermissionUc.InitOpPermissions(ctx, GetProxyOpPermission()[target.Name]); nil != err {
+		return err
+	}
+
 	return nil
 }
 
