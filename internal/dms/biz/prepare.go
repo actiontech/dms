@@ -32,7 +32,7 @@ func EnvPrepare(ctx context.Context, logger utilLog.Logger,
 
 		// 如果找到了，则判断是否需要初始化数据对象操作
 		if dmsConfig.NeedInitOpPermissions {
-			if err := opPermissionUsecase.InitOpPermissions(tx); nil != err {
+			if err := opPermissionUsecase.InitOpPermissions(tx, initOpPermission()); nil != err {
 				return err
 			}
 			dmsConfig.NeedInitOpPermissions = false
