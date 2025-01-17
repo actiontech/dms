@@ -196,10 +196,10 @@ func NewOpPermissionUsecase(log utilLog.Logger, tx TransactionGenerator, repo Op
 	}
 }
 
-func (d *OpPermissionUsecase) InitOpPermissions(ctx context.Context, ops []*OpPermission) (err error) {
-	for _, op := range ops {
+func (d *OpPermissionUsecase) InitOpPermissions(ctx context.Context, opPermissions []*OpPermission) (err error) {
+	for _, opPermission := range opPermissions {
 
-		_, err := d.repo.GetOpPermission(ctx, op.GetUID())
+		_, err := d.repo.GetOpPermission(ctx, opPermission.GetUID())
 		// already exist
 		if err == nil {
 			continue
@@ -211,7 +211,7 @@ func (d *OpPermissionUsecase) InitOpPermissions(ctx context.Context, ops []*OpPe
 		}
 
 		// not exist, then create it
-		if err := d.repo.SaveOpPermission(ctx, op); err != nil {
+		if err := d.repo.SaveOpPermission(ctx, opPermission); err != nil {
 			return fmt.Errorf("failed to init op permission: %w", err)
 		}
 
