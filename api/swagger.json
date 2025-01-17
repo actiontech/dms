@@ -5054,6 +5054,14 @@
           "type": "string",
           "x-go-name": "DBType"
         },
+        "error_info": {
+          "type": "string",
+          "x-go-name": "ErrorInfo"
+        },
+        "execution_failed": {
+          "type": "boolean",
+          "x-go-name": "ExecutionFailed"
+        },
         "level": {
           "type": "string",
           "x-go-name": "Level"
@@ -9111,6 +9119,14 @@
     "Plugin": {
       "type": "object",
       "properties": {
+        "get_database_driver_logos_url": {
+          "type": "string",
+          "x-go-name": "GetDatabaseDriverLogosUrl"
+        },
+        "get_database_driver_options_url": {
+          "type": "string",
+          "x-go-name": "GetDatabaseDriverOptionsUrl"
+        },
         "name": {
           "description": "插件名称",
           "type": "string",
@@ -9690,7 +9706,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",

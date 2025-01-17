@@ -265,9 +265,11 @@ func (d *DMSService) ListDataExportTaskSQLs(ctx context.Context, req *dmsV1.List
 		if w.AuditSQLResults != nil {
 			for _, result := range w.AuditSQLResults {
 				ret[i].AuditSQLResult = append(ret[i].AuditSQLResult, dmsV1.AuditSQLResult{
-					Level:    result.Level,
-					Message:  result.GetAuditMsgByLangTag(locale.Bundle.GetLangTagFromCtx(ctx)),
-					RuleName: result.RuleName,
+					Level:           result.Level,
+					Message:         result.GetAuditMsgByLangTag(locale.Bundle.GetLangTagFromCtx(ctx)),
+					ErrorInfo:       result.GetAuditErrorMsgByLangTag(locale.Bundle.GetLangTagFromCtx(ctx)),
+					ExecutionFailed: result.ExecutionFailed,
+					RuleName:        result.RuleName,
 				})
 			}
 		}
