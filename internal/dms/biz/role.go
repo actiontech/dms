@@ -126,6 +126,62 @@ func NewRoleUsecase(log utilLog.Logger, tx TransactionGenerator, repo RoleRepo, 
 	}
 }
 
+// 定义角色权限策略接口
+type RolePermissionsStrategy interface {
+	GetPermissions() []string
+}
+
+// 定义具体的角色权限策略
+type ProjectAdminPermissionsStrategy struct{}
+
+func (s ProjectAdminPermissionsStrategy) GetPermissions() []string {
+	return []string{pkgConst.UIDOfOpPermissionProjectAdmin}
+}
+
+type DevEngineerPermissionsStrategy struct {
+	RoleId string
+}
+
+func (s DevEngineerPermissionsStrategy) GetPermissions() []string {
+	return []string{
+		pkgConst.UIDOfOpPermissionCreateWorkflow,
+		pkgConst.UIDOfOpPermissionSQLQuery,
+		pkgConst.UIDOfOpPermissionCreatePipeline,
+		pkgConst.UIDOfOpPermissionCreateOptimization,
+	}
+}
+
+type DevManagerPermissionsStrategy struct{}
+
+func (s DevManagerPermissionsStrategy) GetPermissions() []string {
+	return []string{
+		pkgConst.UIDOfOpPermissionViewOthersWorkflow,
+		pkgConst.UIDOfOpPermissionAuditWorkflow,
+		pkgConst.UIDOfOpPermissionCreatePipeline,
+		pkgConst.UIDOfOpPermissionViewOthersOptimization,
+	}
+}
+
+type OpsEngineerPermissionsStrategy struct{}
+
+func (s OpsEngineerPermissionsStrategy) GetPermissions() []string {
+	return []string{
+		pkgConst.UIDOfOpPermissionViewOthersWorkflow,
+		pkgConst.UIDOfOpPermissionExecuteWorkflow,
+		pkgConst.UIDOfOpPermissionSaveAuditPlan,
+		pkgConst.UIDOfOpPermissionViewOthersAuditPlan,
+		pkgConst.UIDOfOpPermissionExportCreate,
+	}
+}
+
+// 权限映射关系
+var rolePermissionsMap = map[string]RolePermissionsStrategy{
+	pkgConst.UIDOfRoleProjectAdmin: ProjectAdminPermissionsStrategy{},
+	pkgConst.UIDOfRoleDevEngineer:  DevEngineerPermissionsStrategy{},
+	pkgConst.UIDOfRoleDevManager:   DevManagerPermissionsStrategy{},
+	pkgConst.UIDOfRoleOpsEngineer:  OpsEngineerPermissionsStrategy{},
+}
+
 func (d *RoleUsecase) InitRoles(ctx context.Context) (err error) {
 	for _, r := range initRole() {
 
@@ -144,44 +200,13 @@ func (d *RoleUsecase) InitRoles(ctx context.Context) (err error) {
 		if err := d.repo.SaveRole(ctx, r); err != nil {
 			return fmt.Errorf("failed to init role: %v", err)
 		}
-
 		roleId := r.GetUID()
-		switch roleId {
-		case pkgConst.UIDOfRoleProjectAdmin:
-			if err = d.InsureOpPermissionsToRole(ctx, []string{pkgConst.UIDOfOpPermissionProjectAdmin}, roleId); err != nil {
-				return fmt.Errorf("insure op permissions in role failed: %v", err)
-			}
-		case pkgConst.UIDOfRoleDevEngineer:
-			if err := d.InsureOpPermissionsToRole(ctx, []string{
-				pkgConst.UIDOfOpPermissionCreateWorkflow,
-				pkgConst.UIDOfOpPermissionSQLQuery,
-				pkgConst.UIDOfOpPermissionCreatePipeline,
-				pkgConst.UIDOfOpPermissionCreateOptimization,
-			}, roleId); err != nil {
-				return fmt.Errorf("insure op permissions in role failed: %v", err)
-			}
-		case pkgConst.UIDOfRoleDevManager:
-			if err := d.InsureOpPermissionsToRole(ctx, []string{
-				pkgConst.UIDOfOpPermissionViewOthersWorkflow,
-				pkgConst.UIDOfOpPermissionAuditWorkflow,
-				pkgConst.UIDOfOpPermissionCreatePipeline,
-				pkgConst.UIDOfOpPermissionViewOthersOptimization,
-			}, roleId); err != nil {
-				return fmt.Errorf("insure op permissions in role failed: %v", err)
-			}
-		case pkgConst.UIDOfRoleOpsEngineer:
-			if err := d.InsureOpPermissionsToRole(ctx, []string{
-				pkgConst.UIDOfOpPermissionViewOthersWorkflow,
-				pkgConst.UIDOfOpPermissionExecuteWorkflow,
-				pkgConst.UIDOfOpPermissionSaveAuditPlan,
-				pkgConst.UIDOfOpPermissionViewOthersAuditPlan,
-				pkgConst.UIDOfOpPermissionExportCreate,
-				pkgConst.UIDOfOpPermissionAuthDBServiceData,
-			}, roleId); err != nil {
-				return fmt.Errorf("insure op permissions in role failed: %v", err)
-			}
-		default:
+		if rolePermissionsStrategy, ok := rolePermissionsMap[roleId]; !ok {
 			return fmt.Errorf("invalid role uid: %s", r.GetUID())
+		} else {
+			if err = d.InsureOpPermissionsToRole(ctx, rolePermissionsStrategy.GetPermissions(), roleId); err != nil {
+				return fmt.Errorf("insure op permissions in role failed: %v", err)
+			}
 		}
 
 	}
