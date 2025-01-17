@@ -8,8 +8,8 @@ import (
 
 // swagger:model
 type AddDataExportTaskReq struct {
-    // swagger:ignore
-	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	// swagger:ignore
+	ProjectUid      string           `param:"project_uid" json:"project_uid" validate:"required"`
 	DataExportTasks []DataExportTask `json:"data_export_tasks"`
 }
 
@@ -129,10 +129,12 @@ type ListDataExportTaskSQL struct {
 	AuditSQLResult []AuditSQLResult `json:"audit_sql_result"`
 }
 type AuditSQLResult struct {
-	Level    string `json:"level" example:"warn"`
-	Message  string `json:"message" example:"避免使用不必要的内置函数md5()"`
-	RuleName string `json:"rule_name"`
-	DBType   string `json:"db_type"`
+	Level           string `json:"level" example:"warn"`
+	Message         string `json:"message" example:"避免使用不必要的内置函数md5()"`
+	ErrorInfo       string `json:"error_info"`
+	ExecutionFailed bool   `json:"execution_failed" example:"false"`
+	RuleName        string `json:"rule_name"`
+	DBType          string `json:"db_type"`
 }
 
 // swagger:parameters DownloadDataExportTask
