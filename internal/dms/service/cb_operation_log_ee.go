@@ -142,9 +142,11 @@ func (d *DMSService) listCBOperationLogs(ctx context.Context, req *dmsV1.ListCBO
 			dmsLog.AuditResult = make([]*dmsV1.AuditSQLResult, 0, len(log.AuditResults))
 			for _, auditResult := range log.AuditResults {
 				dmsLog.AuditResult = append(dmsLog.AuditResult, &dmsV1.AuditSQLResult{
-					Level:    auditResult.Level,
-					Message:  auditResult.GetAuditMsgByLangTag(locale.Bundle.GetLangTagFromCtx(ctx)),
-					RuleName: auditResult.RuleName,
+					Level:           auditResult.Level,
+					Message:         auditResult.GetAuditMsgByLangTag(locale.Bundle.GetLangTagFromCtx(ctx)),
+					RuleName:        auditResult.RuleName,
+					ErrorInfo:       auditResult.GetAuditErrorMsgByLangTag(locale.Bundle.GetLangTagFromCtx(ctx)),
+					ExecutionFailed: auditResult.ExecutionFailed,
 				})
 			}
 		}
