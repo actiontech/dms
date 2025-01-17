@@ -480,6 +480,7 @@ type DataExportTaskRecord struct {
 type AuditResult struct {
 	Level               string              `json:"level"`
 	RuleName            string              `json:"rule_name"`
+	ExecutionFailed     bool                `json:"execution_failed"`
 	I18nAuditResultInfo I18nAuditResultInfo `json:"i18n_audit_result_info"`
 }
 
@@ -509,8 +510,13 @@ func (ar *AuditResult) GetAuditMsgByLangTag(lang language.Tag) string {
 	return ar.I18nAuditResultInfo.GetAuditResultInfoByLangTag(lang).Message
 }
 
+func (ar *AuditResult) GetAuditErrorMsgByLangTag(lang language.Tag) string {
+	return ar.I18nAuditResultInfo.GetAuditResultInfoByLangTag(lang).ErrorInfo
+}
+
 type AuditResultInfo struct {
-	Message string
+	Message   string
+	ErrorInfo string
 }
 
 type I18nAuditResultInfo map[language.Tag]AuditResultInfo

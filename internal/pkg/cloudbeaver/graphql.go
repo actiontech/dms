@@ -188,6 +188,11 @@ func (r *MutationResolverImpl) AuditSQL(ctx context.Context, sql string, connect
 // AllowQuery 根据AllowQueryWhenLessThanAuditLevel字段判断能否执行SQL
 func AllowQuery(allowQueryWhenLessThanAuditLevel string, sqlResults []AuditSQLResV2) bool {
 	for _, sqlResult := range sqlResults {
+		for _, res := range sqlResult.AuditResult {
+			if res.ExecutionFailed {
+				return false
+			}
+		}
 		if dbmodel.RuleLevel(sqlResult.AuditLevel).LessOrEqual(dbmodel.RuleLevel(allowQueryWhenLessThanAuditLevel)) {
 			continue
 		}
