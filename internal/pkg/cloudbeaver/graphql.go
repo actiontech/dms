@@ -176,6 +176,13 @@ func (r *MutationResolverImpl) AuditSQL(ctx context.Context, sql string, connect
 	if reply.Code != 0 {
 		return false, nil, fmt.Errorf("reply code(%v) error: %v", reply.Code, reply.Message)
 	}
+	for _, sqlResult := range reply.Data.SQLResults {
+		for _, res := range sqlResult.AuditResult {
+			if res.ExecutionFailed {
+				return false, reply.Data.SQLResults, nil
+			}
+		}
+	}
 	if reply.Data.PassRate == 0 {
 		if AllowQuery(directAuditParams.AllowQueryWhenLessThanAuditLevel, reply.Data.SQLResults) {
 			return true, reply.Data.SQLResults, nil
@@ -188,11 +195,6 @@ func (r *MutationResolverImpl) AuditSQL(ctx context.Context, sql string, connect
 // AllowQuery 根据AllowQueryWhenLessThanAuditLevel字段判断能否执行SQL
 func AllowQuery(allowQueryWhenLessThanAuditLevel string, sqlResults []AuditSQLResV2) bool {
 	for _, sqlResult := range sqlResults {
-		for _, res := range sqlResult.AuditResult {
-			if res.ExecutionFailed {
-				return false
-			}
-		}
 		if dbmodel.RuleLevel(sqlResult.AuditLevel).LessOrEqual(dbmodel.RuleLevel(allowQueryWhenLessThanAuditLevel)) {
 			continue
 		}
