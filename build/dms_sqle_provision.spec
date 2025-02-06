@@ -174,6 +174,13 @@ else
 fi
 source ~/.bashrc
 
+cat >> /etc/profile <<EOF
+export CLASSPATH=$:CLASSPATH:$SQLE_JAVA_HOME/lib/
+export PATH=$PATH:$SQLE_JAVA_HOME/bin
+EOF
+source /etc/profile
+ln -s $SQLE_JAVA_HOME/bin/java /usr/bin/java
+
 #chown
 chown -R %{user_name}: $RPM_INSTALL_PREFIX
 
