@@ -175,10 +175,15 @@ fi
 source ~/.bashrc
 
 cat >> /etc/profile <<EOF
-export CLASSPATH=$:CLASSPATH:$SQLE_JAVA_HOME/lib/
+export CLASSPATH=$CLASSPATH:$SQLE_JAVA_HOME/lib/
 export PATH=$PATH:$SQLE_JAVA_HOME/bin
 EOF
 source /etc/profile
+
+target_path="/usr/bin/java"
+if [ -L "$target_path" ]; then
+    rm "$target_path"
+fi
 ln -s $SQLE_JAVA_HOME/bin/java /usr/bin/java
 
 #chown
