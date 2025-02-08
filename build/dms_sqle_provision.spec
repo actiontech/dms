@@ -116,6 +116,18 @@ dbms.default_listen_address=0.0.0.0
 EOF
 
 #service
+# 检查 .bashrc 文件是否存在
+if [ -f ~/.bashrc ]; then
+    if grep -q "^export SQLE_JAVA_HOME=" ~/.bashrc; then
+        # 如果 SQLE_JAVA_HOME 已经存在,则更新其值
+        sed -i "s|^export SQLE_JAVA_HOME=.*|export SQLE_JAVA_HOME=$RPM_INSTALL_PREFIX/jdk|" ~/.bashrc
+    else
+        echo "export SQLE_JAVA_HOME=$RPM_INSTALL_PREFIX/jdk" >> ~/.bashrc
+    fi
+else
+    echo "warn: .bashrc file not found."
+fi
+source ~/.bashrc
 grep systemd /proc/1/comm 1>/dev/null 2>&1
 if [ $? -eq 0 ]; then
     sed -e "s|PIDFile=|PIDFile=$RPM_INSTALL_PREFIX\/sqled.pid|g" \
@@ -133,7 +145,7 @@ if [ $? -eq 0 ]; then
     -e "s|WorkingDirectory=|WorkingDirectory=$RPM_INSTALL_PREFIX|g" \
     $RPM_INSTALL_PREFIX/scripts/provision.systemd > /lib/systemd/system/provision.service
     sed -e "s|PIDFile=|PIDFile=$RPM_INSTALL_PREFIX\/neo4j-community/run/neo4j.pid|g" \
-    -e "s|ExecStart=|ExecStart=$RPM_INSTALL_PREFIX\/neo4j-community/bin/neo4j start|g" \
+    -e "s|ExecStart=|ExecStart=/bin/bash -c 'export JAVA_HOME=$SQLE_JAVA_HOME\;\ $RPM_INSTALL_PREFIX\/neo4j-community/bin/neo4j start'|g" \
     -e "s|ExecStop=|ExecStop=$RPM_INSTALL_PREFIX\/neo4j-community/bin/neo4j stop|g" \
     -e "s|ExecReload=|ExecReload=$RPM_INSTALL_PREFIX\/neo4j-community/bin/neo4j restart|g" \
     -e "s|WorkingDirectory=|WorkingDirectory=$RPM_INSTALL_PREFIX/neo4j-community|g" \
@@ -160,31 +172,6 @@ cut_over_lock_timeout_seconds=3
 max_lag_millis=1500
 heartbeat_interval_millis=100
 EOF
-
-# 检查 .bashrc 文件是否存在
-if [ -f ~/.bashrc ]; then
-    if grep -q "^export SQLE_JAVA_HOME=" ~/.bashrc; then
-        # 如果 SQLE_JAVA_HOME 已经存在,则更新其值
-        sed -i "s|^export SQLE_JAVA_HOME=.*|export SQLE_JAVA_HOME=$RPM_INSTALL_PREFIX/jdk|" ~/.bashrc
-    else
-        echo "export SQLE_JAVA_HOME=$RPM_INSTALL_PREFIX/jdk" >> ~/.bashrc
-    fi
-else
-    echo "warn: .bashrc file not found."
-fi
-source ~/.bashrc
-
-cat >> /etc/profile <<EOF
-export CLASSPATH=$CLASSPATH:$SQLE_JAVA_HOME/lib/
-export PATH=$PATH:$SQLE_JAVA_HOME/bin
-EOF
-source /etc/profile
-
-target_path="/usr/bin/java"
-if [ -L "$target_path" ]; then
-    rm "$target_path"
-fi
-ln -s $SQLE_JAVA_HOME/bin/java /usr/bin/java
 
 #chown
 chown -R %{user_name}: $RPM_INSTALL_PREFIX
