@@ -683,11 +683,12 @@ type ComplexityRoot struct {
 	}
 
 	ServerError struct {
-		CausedBy   func(childComplexity int) int
-		ErrorCode  func(childComplexity int) int
-		ErrorType  func(childComplexity int) int
-		Message    func(childComplexity int) int
-		StackTrace func(childComplexity int) int
+		CausedBy               func(childComplexity int) int
+		ErrorCode              func(childComplexity int) int
+		ErrorType              func(childComplexity int) int
+		ExecutionFailedMessage func(childComplexity int) int
+		Message                func(childComplexity int) int
+		StackTrace             func(childComplexity int) int
 	}
 
 	ServerLanguage struct {
@@ -4812,6 +4813,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ServerError.ErrorType(childComplexity), true
 
+	case "ServerError.executionFailedMessage":
+		if e.complexity.ServerError.ExecutionFailedMessage == nil {
+			break
+		}
+
+		return e.complexity.ServerError.ExecutionFailedMessage(childComplexity), true
+
 	case "ServerError.message":
 		if e.complexity.ServerError.Message == nil {
 			break
@@ -5567,6 +5575,7 @@ type AsyncTaskInfo {
 
 type ServerError {
     message: String
+    executionFailedMessage: String
     errorCode: String
     errorType: String
     stackTrace: String
@@ -11189,6 +11198,8 @@ func (ec *executionContext) fieldContext_AsyncTaskInfo_error(ctx context.Context
 			switch field.Name {
 			case "message":
 				return ec.fieldContext_ServerError_message(ctx, field)
+			case "executionFailedMessage":
+				return ec.fieldContext_ServerError_executionFailedMessage(ctx, field)
 			case "errorCode":
 				return ec.fieldContext_ServerError_errorCode(ctx, field)
 			case "errorType":
@@ -13690,6 +13701,8 @@ func (ec *executionContext) fieldContext_ConnectionInfo_connectionError(ctx cont
 			switch field.Name {
 			case "message":
 				return ec.fieldContext_ServerError_message(ctx, field)
+			case "executionFailedMessage":
+				return ec.fieldContext_ServerError_executionFailedMessage(ctx, field)
 			case "errorCode":
 				return ec.fieldContext_ServerError_errorCode(ctx, field)
 			case "errorType":
@@ -34031,6 +34044,47 @@ func (ec *executionContext) fieldContext_ServerError_message(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _ServerError_executionFailedMessage(ctx context.Context, field graphql.CollectedField, obj *model.ServerError) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServerError_executionFailedMessage(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExecutionFailedMessage, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServerError_executionFailedMessage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServerError",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ServerError_errorCode(ctx context.Context, field graphql.CollectedField, obj *model.ServerError) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ServerError_errorCode(ctx, field)
 	if err != nil {
@@ -34192,6 +34246,8 @@ func (ec *executionContext) fieldContext_ServerError_causedBy(ctx context.Contex
 			switch field.Name {
 			case "message":
 				return ec.fieldContext_ServerError_message(ctx, field)
+			case "executionFailedMessage":
+				return ec.fieldContext_ServerError_executionFailedMessage(ctx, field)
 			case "errorCode":
 				return ec.fieldContext_ServerError_errorCode(ctx, field)
 			case "errorType":
@@ -43453,6 +43509,10 @@ func (ec *executionContext) _ServerError(ctx context.Context, sel ast.SelectionS
 		case "message":
 
 			out.Values[i] = ec._ServerError_message(ctx, field, obj)
+
+		case "executionFailedMessage":
+
+			out.Values[i] = ec._ServerError_executionFailedMessage(ctx, field, obj)
 
 		case "errorCode":
 
