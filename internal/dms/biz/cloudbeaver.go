@@ -592,13 +592,21 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 
 func convertToResp(ctx context.Context, resp cloudbeaver.AuditResults) interface{} {
 	var messages []string
+	var executionFailedMessage []string
+	langTag := locale.Bundle.GetLangTagFromCtx(ctx)
 	for _, sqlResult := range resp.Results {
 		for _, audit := range sqlResult.AuditResult {
-			messages = append(messages, audit.GetAuditMsgByLangTag(locale.Bundle.GetLangTagFromCtx(ctx)))
+			msg := audit.GetAuditMsgByLangTag(langTag)
+			if audit.ExecutionFailed {
+				executionFailedMessage = append(executionFailedMessage, msg)
+			} else {
+				messages = append(messages, msg)
+			}
 		}
 	}
 
 	messageStr := strings.Join(messages, ",")
+	executionFailedMessageStr := strings.Join(executionFailedMessage, ",")
 	name := "SQL Audit Failed"
 
 	return struct {
@@ -614,8 +622,9 @@ func convertToResp(ctx context.Context, resp cloudbeaver.AuditResults) interface
 				Running: false,
 				Status:  &resp.SQL,
 				Error: &model.ServerError{
-					Message:    &messageStr,
-					StackTrace: &messageStr,
+					Message:                &messageStr,
+					ExecutionFailedMessage: &executionFailedMessageStr,
+					StackTrace:             &messageStr,
 				},
 			},
 		},
