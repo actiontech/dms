@@ -625,11 +625,12 @@ type ServerConfigInput struct {
 }
 
 type ServerError struct {
-	Message    *string      `json:"message"`
-	ErrorCode  *string      `json:"errorCode"`
-	ErrorType  *string      `json:"errorType"`
-	StackTrace *string      `json:"stackTrace"`
-	CausedBy   *ServerError `json:"causedBy"`
+	Message                *string      `json:"message"`
+	ExecutionFailedMessage *string      `json:"executionFailedMessage"`
+	ErrorCode              *string      `json:"errorCode"`
+	ErrorType              *string      `json:"errorType"`
+	StackTrace             *string      `json:"stackTrace"`
+	CausedBy               *ServerError `json:"causedBy"`
 }
 
 type ServerLanguage struct {
