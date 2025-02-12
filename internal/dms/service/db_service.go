@@ -12,6 +12,7 @@ import (
 	"github.com/actiontech/dms/pkg/params"
 	"github.com/actiontech/dms/pkg/periods"
 	"github.com/go-openapi/strfmt"
+	"time"
 )
 
 func (d *DMSService) DelDBService(ctx context.Context, req *dmsV1.DelDBServiceReq, currentUserUid string) (err error) {
@@ -102,7 +103,7 @@ func (d *DMSService) CheckDBServiceIsConnectable(ctx context.Context, req *dmsV1
 	return ret, nil
 }
 
-func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *dmsV1.CheckDBServiceIsConnectableByIdReq) (reply *dmsV1.CheckDBServiceIsConnectableReply, err error) {
+func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *dmsV1.CheckDBServiceIsConnectableByIdReq, userUid string) (reply *dmsV1.CheckDBServiceIsConnectableReply, err error) {
 	dbService, err := d.DBServiceUsecase.GetDBService(ctx, req.DBServiceUid)
 	if err != nil {
 		return nil, err
@@ -124,14 +125,41 @@ func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *d
 		Password:         dbService.Password,
 		AdditionalParams: additionParams,
 	}
-
 	results, err := d.DBServiceUsecase.IsConnectable(ctx, checkDbConnectableParams)
-
+	lastConnectionTime := time.Now()
+	dbService.LastConnectionTime = &lastConnectionTime
 	if err != nil {
 		d.log.Errorf("IsConnectable err: %v", err)
+		connectionStatus := biz.LastConnectionStatusFailed
+		errorMsg := err.Error()
+		dbService.LastConnectionStatus = &connectionStatus
+		dbService.LastConnectionErrorMsg = &errorMsg
 		return nil, err
 	}
-
+	if len(results) == 0 {
+		connectionStatus := biz.LastConnectionStatusFailed
+		errorMsg := "check db connectable failed"
+		dbService.LastConnectionStatus = &connectionStatus
+		dbService.LastConnectionErrorMsg = &errorMsg
+	} else {
+		lastConnectionFailedStatus := biz.LastConnectionStatusFailed
+		for _, connectableResult := range results {
+			if !connectableResult.IsConnectable {
+				dbService.LastConnectionStatus = &lastConnectionFailedStatus
+				dbService.LastConnectionErrorMsg = &connectableResult.ConnectErrorMessage
+				break
+			}
+		}
+		if *dbService.LastConnectionStatus != biz.LastConnectionStatusFailed {
+			connectionSuccessStatus := biz.LastConnectionStatusSuccess
+			dbService.LastConnectionStatus = &connectionSuccessStatus
+			dbService.LastConnectionErrorMsg = nil
+		}
+	}
+	err = d.DBServiceUsecase.UpdateDBService(ctx, dbService, userUid)
+	if err != nil {
+		d.log.Errorf("dbService name: %v,UpdateDBServiceByBiz err: %v", dbService.Name, err)
+	}
 	ret := &dmsV1.CheckDBServiceIsConnectableReply{}
 	for _, item := range results {
 		ret.Data = append(ret.Data, dmsV1.CheckDBServiceIsConnectableReplyItem{
