@@ -103,7 +103,7 @@ func (d *DMSService) CheckDBServiceIsConnectable(ctx context.Context, req *dmsV1
 	return ret, nil
 }
 
-func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *dmsV1.CheckDBServiceIsConnectableByIdReq, userUid string) (reply *dmsV1.CheckDBServiceIsConnectableReply, err error) {
+func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *dmsV1.CheckDBServiceIsConnectableByIdReq) (reply *dmsV1.CheckDBServiceIsConnectableReply, err error) {
 	dbService, err := d.DBServiceUsecase.GetDBService(ctx, req.DBServiceUid)
 	if err != nil {
 		return nil, err
@@ -134,29 +134,23 @@ func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *d
 		errorMsg := err.Error()
 		dbService.LastConnectionStatus = &connectionStatus
 		dbService.LastConnectionErrorMsg = &errorMsg
+		err = d.DBServiceUsecase.DirectUpdateDBService(ctx, dbService)
+		if err != nil {
+			d.log.Errorf("dbService name: %v,UpdateDBServiceByBiz err: %v", dbService.Name, err)
+		}
 		return nil, err
 	}
-	if len(results) == 0 {
-		connectionStatus := biz.LastConnectionStatusFailed
-		errorMsg := "check db connectable failed"
-		dbService.LastConnectionStatus = &connectionStatus
-		dbService.LastConnectionErrorMsg = &errorMsg
-	} else {
+	isSuccess, connectMsg := isConnectedSuccess(results)
+	if !isSuccess {
 		lastConnectionFailedStatus := biz.LastConnectionStatusFailed
-		for _, connectableResult := range results {
-			if !connectableResult.IsConnectable {
-				dbService.LastConnectionStatus = &lastConnectionFailedStatus
-				dbService.LastConnectionErrorMsg = &connectableResult.ConnectErrorMessage
-				break
-			}
-		}
-		if *dbService.LastConnectionStatus != biz.LastConnectionStatusFailed {
-			connectionSuccessStatus := biz.LastConnectionStatusSuccess
-			dbService.LastConnectionStatus = &connectionSuccessStatus
-			dbService.LastConnectionErrorMsg = nil
-		}
+		dbService.LastConnectionStatus = &lastConnectionFailedStatus
+		dbService.LastConnectionErrorMsg = &connectMsg
+	} else {
+		lastConnectionSuccessStatus := biz.LastConnectionStatusSuccess
+		dbService.LastConnectionStatus = &lastConnectionSuccessStatus
+		dbService.LastConnectionErrorMsg = nil
 	}
-	err = d.DBServiceUsecase.UpdateDBService(ctx, dbService, userUid)
+	err = d.DBServiceUsecase.DirectUpdateDBService(ctx, dbService)
 	if err != nil {
 		d.log.Errorf("dbService name: %v,UpdateDBServiceByBiz err: %v", dbService.Name, err)
 	}
@@ -170,6 +164,18 @@ func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *d
 	}
 
 	return ret, nil
+}
+
+func isConnectedSuccess(results []*biz.IsConnectableReply) (bool, string) {
+	if len(results) == 0 {
+		return false, "check db connectable failed"
+	}
+	for _, connectableResult := range results {
+		if !connectableResult.IsConnectable {
+			return false, connectableResult.ConnectErrorMessage
+		}
+	}
+	return true, ""
 }
 
 func (d *DMSService) CheckDBServiceIsConnectableByIds(ctx context.Context, projectUID, currentUserUid string, dbServiceList []dmsV1.DbServiceConnections) (*dmsV1.DBServicesConnectionReqReply, error) {
