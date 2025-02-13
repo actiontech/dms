@@ -12,6 +12,7 @@ import (
 	"github.com/actiontech/dms/pkg/params"
 	"github.com/actiontech/dms/pkg/periods"
 	"github.com/go-openapi/strfmt"
+	"time"
 )
 
 func (d *DMSService) DelDBService(ctx context.Context, req *dmsV1.DelDBServiceReq, currentUserUid string) (err error) {
@@ -124,14 +125,14 @@ func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *d
 		Password:         dbService.Password,
 		AdditionalParams: additionParams,
 	}
-
 	results, err := d.DBServiceUsecase.IsConnectable(ctx, checkDbConnectableParams)
-
 	if err != nil {
 		d.log.Errorf("IsConnectable err: %v", err)
+		d.updateConnectionStatus(ctx, false, err.Error(), dbService)
 		return nil, err
 	}
-
+	isSuccess, connectMsg := isConnectedSuccess(results)
+	d.updateConnectionStatus(ctx, isSuccess, connectMsg, dbService)
 	ret := &dmsV1.CheckDBServiceIsConnectableReply{}
 	for _, item := range results {
 		ret.Data = append(ret.Data, dmsV1.CheckDBServiceIsConnectableReplyItem{
@@ -142,6 +143,37 @@ func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *d
 	}
 
 	return ret, nil
+}
+
+func (d *DMSService) updateConnectionStatus(ctx context.Context, isSuccess bool, errorMsg string, dbService *biz.DBService) {
+	lastConnectionStatus := *dbService.LastConnectionStatus
+	lastConnectionTime := time.Now()
+	dbService.LastConnectionTime = &lastConnectionTime
+	if !isSuccess {
+		lastConnectionStatus = biz.LastConnectionStatusFailed
+		dbService.LastConnectionStatus = &lastConnectionStatus
+		dbService.LastConnectionErrorMsg = &errorMsg
+	} else {
+		lastConnectionStatus = biz.LastConnectionStatusSuccess
+		dbService.LastConnectionStatus = &lastConnectionStatus
+		dbService.LastConnectionErrorMsg = nil
+	}
+	err := d.DBServiceUsecase.UpdateDBService(ctx, dbService, pkgConst.UIDOfOpPermissionProjectAdmin)
+	if err != nil {
+		d.log.Errorf("dbService name: %v,UpdateDBServiceByBiz err: %v", dbService.Name, err)
+	}
+}
+
+func isConnectedSuccess(results []*biz.IsConnectableReply) (bool, string) {
+	if len(results) == 0 {
+		return false, "check db connectable failed"
+	}
+	for _, connectableResult := range results {
+		if !connectableResult.IsConnectable {
+			return false, connectableResult.ConnectErrorMessage
+		}
+	}
+	return true, ""
 }
 
 func (d *DMSService) CheckDBServiceIsConnectableByIds(ctx context.Context, projectUID, currentUserUid string, dbServiceList []dmsV1.DbServiceConnections) (*dmsV1.DBServicesConnectionReqReply, error) {
