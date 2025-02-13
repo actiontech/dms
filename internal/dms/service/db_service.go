@@ -126,8 +126,6 @@ func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *d
 		AdditionalParams: additionParams,
 	}
 	results, err := d.DBServiceUsecase.IsConnectable(ctx, checkDbConnectableParams)
-	lastConnectionTime := time.Now()
-	dbService.LastConnectionTime = &lastConnectionTime
 	if err != nil {
 		d.log.Errorf("IsConnectable err: %v", err)
 		d.updateConnectionStatus(ctx, false, err.Error(), dbService)
@@ -149,6 +147,8 @@ func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *d
 
 func (d *DMSService) updateConnectionStatus(ctx context.Context, isSuccess bool, errorMsg string, dbService *biz.DBService) {
 	lastConnectionStatus := *dbService.LastConnectionStatus
+	lastConnectionTime := time.Now()
+	dbService.LastConnectionTime = &lastConnectionTime
 	if !isSuccess {
 		lastConnectionStatus = biz.LastConnectionStatusFailed
 		dbService.LastConnectionStatus = &lastConnectionStatus
