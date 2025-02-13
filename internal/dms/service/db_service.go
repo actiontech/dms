@@ -130,30 +130,11 @@ func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *d
 	dbService.LastConnectionTime = &lastConnectionTime
 	if err != nil {
 		d.log.Errorf("IsConnectable err: %v", err)
-		connectionStatus := biz.LastConnectionStatusFailed
-		errorMsg := err.Error()
-		dbService.LastConnectionStatus = &connectionStatus
-		dbService.LastConnectionErrorMsg = &errorMsg
-		err = d.DBServiceUsecase.UpdateDBService(ctx, dbService, pkgConst.UIDOfOpPermissionProjectAdmin)
-		if err != nil {
-			d.log.Errorf("dbService name: %v,UpdateDBServiceByBiz err: %v", dbService.Name, err)
-		}
+		d.updateConnectionStatus(ctx, false, err.Error(), dbService)
 		return nil, err
 	}
 	isSuccess, connectMsg := isConnectedSuccess(results)
-	if !isSuccess {
-		lastConnectionFailedStatus := biz.LastConnectionStatusFailed
-		dbService.LastConnectionStatus = &lastConnectionFailedStatus
-		dbService.LastConnectionErrorMsg = &connectMsg
-	} else {
-		lastConnectionSuccessStatus := biz.LastConnectionStatusSuccess
-		dbService.LastConnectionStatus = &lastConnectionSuccessStatus
-		dbService.LastConnectionErrorMsg = nil
-	}
-	err = d.DBServiceUsecase.UpdateDBService(ctx, dbService, pkgConst.UIDOfOpPermissionProjectAdmin)
-	if err != nil {
-		d.log.Errorf("dbService name: %v,UpdateDBServiceByBiz err: %v", dbService.Name, err)
-	}
+	d.updateConnectionStatus(ctx, isSuccess, connectMsg, dbService)
 	ret := &dmsV1.CheckDBServiceIsConnectableReply{}
 	for _, item := range results {
 		ret.Data = append(ret.Data, dmsV1.CheckDBServiceIsConnectableReplyItem{
@@ -164,6 +145,23 @@ func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *d
 	}
 
 	return ret, nil
+}
+
+func (d *DMSService) updateConnectionStatus(ctx context.Context, isSuccess bool, errorMsg string, dbService *biz.DBService) {
+	lastConnectionStatus := *dbService.LastConnectionStatus
+	if !isSuccess {
+		lastConnectionStatus = biz.LastConnectionStatusFailed
+		dbService.LastConnectionStatus = &lastConnectionStatus
+		dbService.LastConnectionErrorMsg = &errorMsg
+	} else {
+		lastConnectionStatus = biz.LastConnectionStatusSuccess
+		dbService.LastConnectionStatus = &lastConnectionStatus
+		dbService.LastConnectionErrorMsg = nil
+	}
+	err := d.DBServiceUsecase.UpdateDBService(ctx, dbService, pkgConst.UIDOfOpPermissionProjectAdmin)
+	if err != nil {
+		d.log.Errorf("dbService name: %v,UpdateDBServiceByBiz err: %v", dbService.Name, err)
+	}
 }
 
 func isConnectedSuccess(results []*biz.IsConnectableReply) (bool, string) {
