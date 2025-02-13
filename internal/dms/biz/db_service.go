@@ -636,24 +636,6 @@ func (d *DBServiceUsecase) UpdateDBService(ctx context.Context, ds *DBService, c
 	return nil
 }
 
-func (d *DBServiceUsecase) DirectUpdateDBService(ctx context.Context, ds *DBService) (err error) {
-	// 检查项目是否归档/删除
-	if err := d.projectUsecase.isProjectActive(ctx, ds.ProjectUID); err != nil {
-		return fmt.Errorf("update db service error: %v", err)
-	}
-
-	if err := d.repo.UpdateDBService(ctx, ds); nil != err {
-		return fmt.Errorf("update db service error: %v", err)
-	}
-
-	err = d.pluginUsecase.UpdateDBServiceAfterHandle(ctx, ds.UID)
-	if err != nil {
-		return fmt.Errorf("plugin handle after update db_service err: %v", err)
-	}
-
-	return nil
-}
-
 func (d *DBServiceUsecase) UpdateDBServiceByArgs(ctx context.Context, dbServiceUid string, updateDBService *BizDBServiceArgs, currentUserUid string) (err error) {
 	ds, err := d.repo.GetDBService(ctx, dbServiceUid)
 	if err != nil {

@@ -134,7 +134,7 @@ func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *d
 		errorMsg := err.Error()
 		dbService.LastConnectionStatus = &connectionStatus
 		dbService.LastConnectionErrorMsg = &errorMsg
-		err = d.DBServiceUsecase.DirectUpdateDBService(ctx, dbService)
+		err = d.DBServiceUsecase.UpdateDBService(ctx, dbService, pkgConst.UIDOfOpPermissionProjectAdmin)
 		if err != nil {
 			d.log.Errorf("dbService name: %v,UpdateDBServiceByBiz err: %v", dbService.Name, err)
 		}
@@ -150,7 +150,7 @@ func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *d
 		dbService.LastConnectionStatus = &lastConnectionSuccessStatus
 		dbService.LastConnectionErrorMsg = nil
 	}
-	err = d.DBServiceUsecase.DirectUpdateDBService(ctx, dbService)
+	err = d.DBServiceUsecase.UpdateDBService(ctx, dbService, pkgConst.UIDOfOpPermissionProjectAdmin)
 	if err != nil {
 		d.log.Errorf("dbService name: %v,UpdateDBServiceByBiz err: %v", dbService.Name, err)
 	}
