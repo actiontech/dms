@@ -360,6 +360,7 @@ func (d *DMSController) CheckDBServiceIsConnectableById(c echo.Context) error {
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
+
 	reply, err := d.DMS.CheckDBServiceIsConnectableById(c.Request().Context(), &req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
