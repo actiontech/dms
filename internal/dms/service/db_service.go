@@ -158,7 +158,7 @@ func (d *DMSService) updateConnectionStatus(ctx context.Context, isSuccess bool,
 		dbService.LastConnectionStatus = &lastConnectionStatus
 		dbService.LastConnectionErrorMsg = nil
 	}
-	err := d.DBServiceUsecase.UpdateDBService(ctx, dbService, pkgConst.UIDOfOpPermissionProjectAdmin)
+	err := d.DBServiceUsecase.UpdateDBService(ctx, dbService, pkgConst.UIDOfUserAdmin)
 	if err != nil {
 		d.log.Errorf("dbService name: %v,UpdateDBServiceByBiz err: %v", dbService.Name, err)
 	}
