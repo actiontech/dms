@@ -252,8 +252,8 @@ func (p *PluginUsecase) CallOperateDataResourceHandle(ctx context.Context, url s
 }
 
 const (
-	LogoPath = "/logo/"
-	LogoDir  = "./static/logo/"
+	LogoPath = "/logo"
+	LogoDir  = "./static/logo"
 )
 
 var databaseDriverOptions []*v1.DatabaseDriverOption
@@ -352,7 +352,7 @@ func (p *PluginUsecase) aggregateOptions(log *utilLog.Helper, optionRes []struct
 				}
 				dbTypeMap[opt.DBType] = &v1.DatabaseDriverOption{
 					DBType:   opt.DBType,
-					LogoPath: LogoPath + logofile[opt.DBType],
+					LogoPath: filepath.Join(LogoPath, logofile[opt.DBType]),
 					Params:   opt.Params,
 				}
 			}
