@@ -1310,21 +1310,14 @@ func (cu *CloudbeaverUsecase) fillDB2Params(inst *DBService, config map[string]i
 }
 
 func (cu *CloudbeaverUsecase) fillOceanBaseParams(inst *DBService, config map[string]interface{}) error {
-	tenant := inst.AdditionalParams.GetParam("tenant_name")
-	if tenant == nil {
-		return fmt.Errorf("the tenant name of oceanbase cannot be empty")
+	// 获取租户, 在用户名处指定连接的租户: user@tenant
+	tenant := inst.AdditionalParams.GetParam("tenant_name").String()
+	if !strings.Contains(inst.User, "@") && tenant != "" {
+		inst.User = fmt.Sprintf("%s@%s", inst.User, tenant)
 	}
-
-	config["driverId"] = "oceanbase:alipay_oceanbase"
-	config["authModelId"] = "oceanbase_native"
-
-	credentials := config["credentials"]
-	credentialConfig, ok := credentials.(map[string]interface{})
-	if !ok {
-		return errors.New("assert oceanbase connection params failed")
-	}
-	credentialConfig["userName"] = fmt.Sprintf("%v@%v", inst.User, tenant)
-	config["credentials"] = credentialConfig
+	// OB MySQL本身支持使用MySQL客户端连接, 此处复用MySQL driver
+	// https://github.com/actiontech/dms/issues/365
+	config["driverId"] = "mysql:mysql8"
 	return nil
 }
 
