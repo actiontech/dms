@@ -536,9 +536,9 @@ func (p *PluginUsecase) CallDatabaseDriverLogosHandle(ctx context.Context, url s
 		base.GenericResp
 	}
 	reqBody := struct {
-		DBTypes string `json:"db_types"`
+		DBTypes []string `json:"db_types"`
 	}{
-		DBTypes: strings.Join(dbTypes, ","),
+		DBTypes: dbTypes,
 	}
 	// 因为logo数据较大，调整超时时间为1分钟
 	ctx = pkgHttp.SetTimeoutValueContext(ctx, 60)
