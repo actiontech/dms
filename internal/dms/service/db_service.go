@@ -146,7 +146,7 @@ func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *d
 }
 
 func (d *DMSService) updateConnectionStatus(ctx context.Context, isSuccess bool, errorMsg string, dbService *biz.DBService) {
-	lastConnectionStatus := *dbService.LastConnectionStatus
+	lastConnectionStatus := biz.LastConnectionStatusSuccess
 	lastConnectionTime := time.Now()
 	dbService.LastConnectionTime = &lastConnectionTime
 	if !isSuccess {
