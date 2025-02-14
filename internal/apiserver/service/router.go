@@ -139,6 +139,8 @@ func (s *APIServer) initRouter() error {
 		companyNoticeV1.PATCH("", s.DMSController.UpdateCompanyNotice) /* TODO AdminUserAllowed()*/
 
 		configurationV1 := v1.Group("/dms/configurations")
+		configurationV1.GET("/login/tips", s.DMSController.GetLoginTips)
+		configurationV1.PATCH("/login", s.DMSController.UpdateLoginConfiguration)       /* TODO AdminUserAllowed()*/
 		configurationV1.GET("/oauth2", s.DMSController.GetOauth2Configuration)          /* TODO AdminUserAllowed()*/
 		configurationV1.PATCH("/oauth2", s.DMSController.UpdateOauth2Configuration)     /* TODO AdminUserAllowed()*/
 		configurationV1.GET("/ldap", s.DMSController.GetLDAPConfiguration)              /* TODO AdminUserAllowed()*/
