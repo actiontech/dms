@@ -252,14 +252,23 @@ func (p *PluginUsecase) CallOperateDataResourceHandle(ctx context.Context, url s
 }
 
 const (
-	LogoPath = "/logo/"
-	LogoDir  = "./static/logo/"
+	LogoPath = "/logo"
+	LogoDir  = "./static/logo"
 )
 
 var databaseDriverOptions []*v1.DatabaseDriverOption
 
-func (p *PluginUsecase) GetDatabaseDriverOptionsCache() []*v1.DatabaseDriverOption {
-	return databaseDriverOptions
+func (p *PluginUsecase) GetDatabaseDriverOptionsCache(ctx context.Context) ([]*v1.DatabaseDriverOption, error) {
+	if len(databaseDriverOptions) != 0 {
+		return databaseDriverOptions, nil
+	}
+	// refresh the cache
+	options, err := p.GetDatabaseDriverOptionsHandle(ctx)
+	if err != nil {
+		return nil, err
+	}
+	databaseDriverOptions = append(databaseDriverOptions, options...)
+	return databaseDriverOptions, nil
 }
 
 func (p *PluginUsecase) ClearDatabaseDriverOptionsCache() {
@@ -274,10 +283,6 @@ func (p *PluginUsecase) ClearDatabaseDriverOptionsCache() {
 //     b) 当从plugin中加载logo的方法执行完成时
 func (p *PluginUsecase) GetDatabaseDriverOptionsHandle(ctx context.Context) ([]*v1.DatabaseDriverOption, error) {
 	log := utilLog.NewHelper(p.logger, utilLog.WithMessageKey("biz.dmsplugin.DatabaseDriverOptionsHandle"))
-	cacheOptions := p.GetDatabaseDriverOptionsCache()
-	if len(cacheOptions) != 0 {
-		return cacheOptions, nil
-	}
 	var (
 		mu        sync.Mutex
 		errs      []error
@@ -320,9 +325,8 @@ func (p *PluginUsecase) GetDatabaseDriverOptionsHandle(ctx context.Context) ([]*
 		return nil, fmt.Errorf("encountered errors: %v", errs)
 	}
 	options := p.aggregateOptions(log, dbOptions)
-	databaseDriverOptions = append(databaseDriverOptions, options...)
-	dbTypes := make([]string, 0, len(databaseDriverOptions))
-	for _, dbType := range databaseDriverOptions {
+	dbTypes := make([]string, 0, len(options))
+	for _, dbType := range options {
 		dbTypes = append(dbTypes, dbType.DBType)
 	}
 	// 处理数据库插件logo
@@ -348,7 +352,7 @@ func (p *PluginUsecase) aggregateOptions(log *utilLog.Helper, optionRes []struct
 				}
 				dbTypeMap[opt.DBType] = &v1.DatabaseDriverOption{
 					DBType:   opt.DBType,
-					LogoPath: LogoPath + logofile[opt.DBType],
+					LogoPath: filepath.Join(LogoPath, logofile[opt.DBType]),
 					Params:   opt.Params,
 				}
 			}
@@ -474,9 +478,13 @@ func (p *PluginUsecase) DatabaseLogoHandle(ctx context.Context, dbTypes []string
 			logoMap[entry.dbType] = entry.logo
 		}
 	}
-	err = p.SaveLogoFiles(log, logoMap)
+	addedNewLogo, err := p.SaveLogoFiles(log, logoMap)
 	if err != nil {
 		log.Errorf("save logo error: %v", err)
+	}
+	// 当有新的logo文件被加载时, 清空缓存, 用以重新加载logo path
+	if addedNewLogo {
+		p.ClearDatabaseDriverOptionsCache()
 	}
 }
 
@@ -528,9 +536,9 @@ func (p *PluginUsecase) CallDatabaseDriverLogosHandle(ctx context.Context, url s
 		base.GenericResp
 	}
 	reqBody := struct {
-		DBTypes string `json:"db_types"`
+		DBTypes []string `json:"db_types"`
 	}{
-		DBTypes: strings.Join(dbTypes, ","),
+		DBTypes: dbTypes,
 	}
 	// 因为logo数据较大，调整超时时间为1分钟
 	ctx = pkgHttp.SetTimeoutValueContext(ctx, 60)
@@ -547,7 +555,8 @@ func (p *PluginUsecase) CallDatabaseDriverLogosHandle(ctx context.Context, url s
 	return logosMap, nil
 }
 
-func (p *PluginUsecase) SaveLogoFiles(log *utilLog.Helper, logoMap map[string]string /*key: db type; value: logo string*/) error {
+func (p *PluginUsecase) SaveLogoFiles(log *utilLog.Helper, logoMap map[string]string /*key: db type; value: logo string*/) (bool /*added new logo file*/, error) {
+	var addedNewLogo bool
 	for k, v := range logoMap {
 		if v == "" {
 			log.Errorf("%s logo base64 string is empty", k)
@@ -570,9 +579,9 @@ func (p *PluginUsecase) SaveLogoFiles(log *utilLog.Helper, logoMap map[string]st
 			log.Errorf("write %s logo file error: %v", k, err)
 			continue
 		}
+		addedNewLogo = true
 	}
-	p.ClearDatabaseDriverOptionsCache()
-	return nil
+	return addedNewLogo, nil
 }
 
 func (p *PluginUsecase) GetLogoFileName(dbType, logoType string) string {
