@@ -454,7 +454,7 @@ func (d *DBServiceUsecase) ListDBServiceTips(ctx context.Context, req *dmsV1.Lis
 }
 
 func (d *DBServiceUsecase) ListDBServiceDriverOption(ctx context.Context) ([]*dmsV1.DatabaseDriverOption, error) {
-	options, err := d.pluginUsecase.GetDatabaseDriverOptionsHandle(ctx)
+	options, err := d.pluginUsecase.GetDatabaseDriverOptionsCache(ctx)
 	if err != nil {
 		return nil, err
 	}
