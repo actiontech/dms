@@ -17,6 +17,7 @@ type DMSService struct {
 	PluginUsecase               *biz.PluginUsecase
 	DBServiceUsecase            *biz.DBServiceUsecase
 	DBServiceSyncTaskUsecase    *biz.DBServiceSyncTaskUsecase
+	LoginConfigurationUsecase   *biz.LoginConfigurationUsecase
 	UserUsecase                 *biz.UserUsecase
 	UserGroupUsecase            *biz.UserGroupUsecase
 	RoleUsecase                 *biz.RoleUsecase
@@ -82,7 +83,9 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	opPermissionRepo := storage.NewOpPermissionRepo(logger, st)
 	opPermissionUsecase := biz.NewOpPermissionUsecase(logger, tx, opPermissionRepo, pluginUseCase)
 	cloudbeaverRepo := storage.NewCloudbeaverRepo(logger, st)
-	userUsecase := biz.NewUserUsecase(logger, tx, userRepo, userGroupRepo, pluginUseCase, opPermissionUsecase, opPermissionVerifyUsecase, ldapConfigurationUsecase, cloudbeaverRepo)
+	loginConfigurationRepo := storage.NewLoginConfigurationRepo(logger, st)
+	loginConfigurationUsecase := biz.NewLoginConfigurationUsecase(logger, tx, loginConfigurationRepo)
+	userUsecase := biz.NewUserUsecase(logger, tx, userRepo, userGroupRepo, pluginUseCase, opPermissionUsecase, opPermissionVerifyUsecase, loginConfigurationUsecase, ldapConfigurationUsecase, cloudbeaverRepo)
 	userGroupUsecase := biz.NewUserGroupUsecase(logger, tx, userGroupRepo, userRepo, pluginUseCase, opPermissionVerifyUsecase)
 	roleRepo := storage.NewRoleRepo(logger, st)
 	memberRepo := storage.NewMemberRepo(logger, st)
@@ -137,6 +140,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		PluginUsecase:               pluginUseCase,
 		DBServiceUsecase:            dbServiceUseCase,
 		DBServiceSyncTaskUsecase:    dbServiceTaskUsecase,
+		LoginConfigurationUsecase:   loginConfigurationUsecase,
 		UserUsecase:                 userUsecase,
 		UserGroupUsecase:            userGroupUsecase,
 		RoleUsecase:                 roleUsecase,
