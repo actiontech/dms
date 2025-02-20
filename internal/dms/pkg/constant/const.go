@@ -210,4 +210,5 @@ func ParseDBServiceSource(s string) (DBServiceSourceName, error) {
 
 const (
 	DMSToken = "dms-token"
+	VerifyCodeKey = "verify_code"
 )

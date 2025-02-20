@@ -3,8 +3,10 @@ package biz
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/actiontech/dms/internal/dms/storage/model"
 	"io"
 	"net/http"
 	"time"
@@ -379,6 +381,29 @@ type WebHookConfigurationUsecase struct {
 	log  *utilLog.Helper
 }
 
+func initSmsConfiguration() (*model.SmsConfiguration, error) {
+	uid, err := pkgRand.GenStrUid()
+	if err != nil {
+		return nil, err
+	}
+	return &model.SmsConfiguration{
+		Model: model.Model{
+			UID: uid,
+		},
+	}, nil
+}
+
+type SmsConfigurationRepo interface {
+	UpdateSmsConfiguration(ctx context.Context, configuration *model.SmsConfiguration) error
+	GetLastSmsConfiguration(ctx context.Context) (*model.SmsConfiguration, error)
+}
+
+type SmsConfigurationUseCase struct {
+	tx   TransactionGenerator
+	repo SmsConfigurationRepo
+	log  *utilLog.Helper
+}
+
 func NewWebHookConfigurationUsecase(log utilLog.Logger, tx TransactionGenerator, repo WebHookConfigurationRepo) *WebHookConfigurationUsecase {
 	return &WebHookConfigurationUsecase{
 		tx:   tx,
@@ -442,6 +467,58 @@ func (d *WebHookConfigurationUsecase) TestWebHookConfiguration(ctx context.Conte
 	}
 
 	return d.webhookSendRequest(ctx, "hello")
+}
+
+func NewSmsConfigurationUsecase(log utilLog.Logger, tx TransactionGenerator, repo SmsConfigurationRepo) *SmsConfigurationUseCase {
+	return &SmsConfigurationUseCase{
+		tx:   tx,
+		repo: repo,
+		log:  utilLog.NewHelper(log, utilLog.WithMessageKey("biz.webhook_configuration")),
+	}
+}
+
+func (d *SmsConfigurationUseCase) UpdateSmsConfiguration(ctx context.Context, enable *bool, url *string, smsType *string, configuration *map[string]string) error {
+	smsConfiguration, err := d.repo.GetLastSmsConfiguration(ctx)
+	if err != nil {
+		if !errors.Is(err, pkgErr.ErrStorageNoData) {
+			return err
+		}
+		// 查询不到sms配置,默认生成一个带uid的配置
+		smsConfiguration, err = initSmsConfiguration()
+		if err != nil {
+			return err
+		}
+	}
+	if configuration != nil {
+		jsonConfiguration, _ := json.Marshal(*configuration)
+		smsConfiguration.Configuration = jsonConfiguration
+	}
+	if url != nil {
+		smsConfiguration.Url = *url
+	}
+	if smsType != nil {
+		smsConfiguration.Type = *smsType
+	}
+	if enable != nil {
+		smsConfiguration.Enable = *enable
+	}
+	return d.repo.UpdateSmsConfiguration(ctx, smsConfiguration)
+}
+
+func (d *SmsConfigurationUseCase) TestSmsConfiguration(ctx context.Context, recipientPhone string) error {
+	// TODO: 查询sms配置并根据配置发送测试消息到手机
+	return nil
+}
+
+func (d *SmsConfigurationUseCase) GetSmsConfiguration(ctx context.Context) (smsConfiguration *model.SmsConfiguration, exist bool, err error) {
+	smsConfiguration, err = d.repo.GetLastSmsConfiguration(ctx)
+	if err != nil {
+		if errors.Is(err, pkgErr.ErrStorageNoData) {
+			return nil, false, nil
+		}
+		return nil, false, err
+	}
+	return smsConfiguration, true, nil
 }
 
 func (d *WebHookConfigurationUsecase) SendWebHookMessage(ctx context.Context, triggerEventType string /*TODO validate TriggerEventType*/, message string) error {

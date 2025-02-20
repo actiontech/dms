@@ -82,6 +82,7 @@ type User struct {
 	WxID                   string
 	Language               string
 	Desc                   string
+	TwoFactorEnabled       bool
 	UserAuthenticationType UserAuthenticationType
 	Stat                   UserStat
 	// 用户上次登录时间的时间
@@ -208,34 +209,35 @@ func NewUserUsecase(log utilLog.Logger, tx TransactionGenerator, repo UserRepo, 
 	}
 }
 
-func (d *UserUsecase) UserLogin(ctx context.Context, name string, password string) (uid string, err error) {
-	loginVerifier, err := d.GetUserLoginVerifier(ctx, name)
+func (d *UserUsecase) UserLogin(ctx context.Context, name string, password string) (uid string, twoFactorEnabled bool, err error) {
+	loginVerifier, twoFactorEnabled, err := d.GetUserLoginVerifier(ctx, name)
 	if err != nil {
-		return "", fmt.Errorf("get user login verifier failed: %v", err)
+		return "", twoFactorEnabled, fmt.Errorf("get user login verifier failed: %v", err)
 	}
 	userUid, err := loginVerifier.Verify(ctx, name, password)
 	if err != nil {
-		return "", fmt.Errorf("verify user login failed: %v", err)
+		return "", twoFactorEnabled, fmt.Errorf("verify user login failed: %v", err)
 	}
 
-	return userUid, nil
+	return userUid, twoFactorEnabled, nil
 }
 
 // GetUserLoginVerifier get login Verifier by user name and init login verifier
-func (d *UserUsecase) GetUserLoginVerifier(ctx context.Context, name string) (UserLoginVerifier, error) {
+func (d *UserUsecase) GetUserLoginVerifier(ctx context.Context, name string) (UserLoginVerifier, bool, error) {
 	user, err := d.repo.GetUserByName(ctx, name)
 	if nil != err && !errors.Is(err, pkgErr.ErrStorageNoData) {
-		return nil, fmt.Errorf("get user by name error: %v", err)
+		return nil, false, fmt.Errorf("get user by name error: %v", err)
 	}
+	towFactorEnabled := user.TwoFactorEnabled
 
 	ldapC, _, err := d.ldapConfigurationUsecase.GetLDAPConfiguration(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("get ldap configuration failed: %v", err)
+		return nil, towFactorEnabled, fmt.Errorf("get ldap configuration failed: %v", err)
 	}
 
 	loginVerifierType, exist := d.getLoginVerifierType(user, ldapC)
 	if err != nil {
-		return nil, fmt.Errorf("get login verifier type failed: %v", err)
+		return nil, towFactorEnabled, fmt.Errorf("get login verifier type failed: %v", err)
 	}
 
 	var userLoginVerifier UserLoginVerifier
@@ -257,13 +259,13 @@ func (d *UserUsecase) GetUserLoginVerifier(ctx context.Context, name string) (Us
 				userUsecase: d,
 			}
 		case loginVerifierTypeUnknown:
-			return nil, fmt.Errorf("the user login type is unsupported")
+			return nil, towFactorEnabled,fmt.Errorf("the user login type is unsupported")
 		default:
-			return nil, fmt.Errorf("the user does not exist or the password is wrong")
+			return nil, towFactorEnabled,fmt.Errorf("the user does not exist or the password is wrong")
 		}
 
 	}
-	return userLoginVerifier, nil
+	return userLoginVerifier, towFactorEnabled, nil
 }
 
 type verifierType int
@@ -635,7 +637,7 @@ func (d *UserUsecase) DelUser(ctx context.Context, currentUserUid, UserUid strin
 	if err := d.cloudBeaverRepo.DeleteAllCloudbeaverCachesByUserId(tx, UserUid); nil != err {
 		return fmt.Errorf("delete cloudbeaver cache failed: %v", err)
 	}
-	
+
 	if err := d.repo.DelUser(tx, UserUid); nil != err {
 		return fmt.Errorf("delete user error: %v", err)
 	}
@@ -778,7 +780,7 @@ func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid, updateUser
 	return nil
 }
 
-func (d *UserUsecase) UpdateCurrentUser(ctx context.Context, currentUserUid string, oldPassword, password, email, phone, wxId, language *string) error {
+func (d *UserUsecase) UpdateCurrentUser(ctx context.Context, currentUserUid string, oldPassword, password, email, phone, wxId, language *string, twoFactorEnabled *bool) error {
 	user, err := d.GetUser(ctx, currentUserUid)
 	if err != nil {
 		return fmt.Errorf("get user failed: %v", err)
@@ -806,6 +808,9 @@ func (d *UserUsecase) UpdateCurrentUser(ctx context.Context, currentUserUid stri
 	}
 	if language != nil {
 		user.Language = *language
+	}
+	if twoFactorEnabled != nil {
+		user.TwoFactorEnabled = *twoFactorEnabled
 	}
 
 	if err := d.repo.UpdateUser(ctx, user); nil != err {

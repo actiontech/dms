@@ -72,6 +72,7 @@ func (s *APIServer) initRouter() error {
 		userV1.GET(dmsV1.GetUserOpPermissionRouterWithoutPrefix(":user_uid"), s.DMSController.GetUserOpPermission)
 		userV1.PUT("", s.DMSController.UpdateCurrentUser)
 		userV1.POST("/gen_token", s.DMSController.GenAccessToken)
+		userV1.POST("/verify_user_login", s.DMSController.VerifyUserLogin)
 
 		sessionv1 := v1.Group(dmsV1.SessionRouterGroup)
 		sessionv1.POST("", s.DMSController.AddSession)
@@ -155,6 +156,11 @@ func (s *APIServer) initRouter() error {
 		configurationV1.GET("/webhook", s.DMSController.GetWebHookConfiguration)        /* TODO AdminUserAllowed()*/
 		configurationV1.PATCH("/webhook", s.DMSController.UpdateWebHookConfiguration)   /* TODO AdminUserAllowed()*/
 		configurationV1.POST("/webhook/test", s.DMSController.TestWebHookConfiguration) /* TODO AdminUserAllowed()*/
+		configurationV1.GET("/sms", s.DMSController.GetSmsConfiguration)                /* TODO AdminUserAllowed()*/
+		configurationV1.POST("/sms/test", s.DMSController.TestSmsConfiguration)
+		configurationV1.PATCH("/sms", s.DMSController.UpdateSmsConfiguration)
+		configurationV1.POST("/sms/send_code", s.DMSController.SendSmsCode)
+		configurationV1.POST("/sms/verify_code", s.DMSController.VerifySmsCode)
 		configurationV1.GET("/sql_query", s.CloudbeaverController.GetSQLQueryConfiguration)
 
 		configurationV1.GET("/license", s.DMSController.GetLicense)            /* TODO AdminUserAllowed()*/
@@ -310,6 +316,7 @@ func (s *APIServer) installMiddleware() error {
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/oauth2" /* TODO 使用统一方法skip */) ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/personalization/logo") ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/license" /* TODO 使用统一方法skip */) ||
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/users/verify_user_login" /* TODO 使用统一方法skip */) ||
 				!strings.HasPrefix(c.Request().RequestURI, dmsV1.CurrentGroupVersion) {
 				logger.Debugf("skipper url jwt check: %v", c.Request().RequestURI)
 				return true

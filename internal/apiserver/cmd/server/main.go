@@ -21,6 +21,7 @@ import (
 	pkgLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	"github.com/actiontech/dms/pkg/rand"
 
+	cache "github.com/actiontech/dms/internal/cache"
 	utilIo "github.com/actiontech/dms/pkg/dms-common/pkg/io"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	kLog "github.com/go-kratos/kratos/v2/log"
@@ -109,6 +110,10 @@ func run(logger utilLog.Logger, opts *conf.DMSOptions) error {
 		return fmt.Errorf("startPid err: %v", err)
 	}
 	defer func() {
+		err = cache.Close()
+		if nil != err {
+			log_.Errorf("cache close error: %v", err.Error())
+		}
 		if err := stopPid(logger, pidFile); err != nil {
 			log_.Errorf("stopPid error: %v", err.Error())
 		}

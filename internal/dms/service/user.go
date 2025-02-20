@@ -23,7 +23,7 @@ func (d *DMSService) VerifyUserLogin(ctx context.Context, req *dmsV1.VerifyUserL
 	}()
 
 	var verifyFailedMsg string
-	uid, err := d.UserUsecase.UserLogin(ctx, req.UserName, req.Password)
+	uid, twoFactorEnabled, err := d.UserUsecase.UserLogin(ctx, req.UserName, req.Password)
 	if nil != err {
 		verifyFailedMsg = err.Error()
 	}
@@ -34,7 +34,8 @@ func (d *DMSService) VerifyUserLogin(ctx context.Context, req *dmsV1.VerifyUserL
 			VerifyFailedMsg string `json:"verify_failed_msg"`
 			// If verify Successful, return user uid
 			UserUid string `json:"user_uid"`
-		}{UserUid: uid, VerifyFailedMsg: verifyFailedMsg},
+			TwoFactorEnabled bool `json:"two_factor_enabled"`
+		}{UserUid: uid, VerifyFailedMsg: verifyFailedMsg, TwoFactorEnabled: twoFactorEnabled},
 	}, nil
 }
 
@@ -114,7 +115,7 @@ func (d *DMSService) UpdateUser(ctx context.Context, req *dmsV1.UpdateUserReq, c
 }
 
 func (d *DMSService) UpdateCurrentUser(ctx context.Context, req *dmsV1.UpdateCurrentUserReq, currentUserUid string) (err error) {
-	if err = d.UserUsecase.UpdateCurrentUser(ctx, currentUserUid, req.User.OldPassword, req.User.Password, req.User.Email, req.User.Phone, req.User.WxID, req.User.Language); nil != err {
+	if err = d.UserUsecase.UpdateCurrentUser(ctx, currentUserUid, req.User.OldPassword, req.User.Password, req.User.Email, req.User.Phone, req.User.WxID, req.User.Language, req.User.TwoFactorEnabled); nil != err {
 		return fmt.Errorf("update user failed: %v", err)
 	}
 
@@ -450,6 +451,7 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 		Phone:              u.Phone,
 		WxID:               u.WxID,
 		Language:           u.Language,
+		TwoFactorEnabled:   u.TwoFactorEnabled,
 		ThirdPartyUserInfo: u.ThirdPartyUserInfo,
 	}
 

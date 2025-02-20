@@ -2,9 +2,15 @@ package service
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"math/rand"
+	"strconv"
+	"time"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
+	cache "github.com/actiontech/dms/internal/cache"
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/pkg/locale"
@@ -431,6 +437,54 @@ func (d *DMSService) TestWebHookConfiguration(ctx context.Context) (reply *dmsV1
 	}, nil
 }
 
+func (d *DMSService) UpdateSmsConfiguration(ctx context.Context, req *dmsV1.UpdateSmsConfigurationReq) (err error) {
+	d.log.Infof("UpdateSmsConfiguration")
+	defer func() {
+		d.log.Infof("UpdateSmsConfiguration;error=%v", err)
+	}()
+	return d.SmsConfigurationUseCase.UpdateSmsConfiguration(ctx, req.UpdateSmsConfiguration.EnableSms, req.UpdateSmsConfiguration.Url, req.UpdateSmsConfiguration.SmsType, req.UpdateSmsConfiguration.Configuration)
+}
+
+func (d *DMSService) TestSmsConfiguration(ctx context.Context, req *dmsV1.TestSmsConfigurationReq) (reply *dmsV1.TestSmsConfigurationReply, err error) {
+	d.log.Infof("TestSmsConfiguration")
+	defer func() {
+		d.log.Infof("TestSmsConfiguration;error=%v", err)
+	}()
+	isSmsSendNormal, sendErrorMessage := true, "ok"
+	err = d.SmsConfigurationUseCase.TestSmsConfiguration(ctx, req.TestSmsConfiguration.RecipientPhone)
+	if err != nil {
+		isSmsSendNormal = false
+		sendErrorMessage = err.Error()
+	}
+	return &dmsV1.TestSmsConfigurationReply{
+		Data: dmsV1.TestSmsConfigurationResData{
+			IsSmsSendNormal: isSmsSendNormal,
+			SendErrorMessage: sendErrorMessage,
+		},
+	}, nil
+}
+
+func (d *DMSService) GetSmsConfiguration(ctx context.Context) (reply *dmsV1.GetSmsConfigurationReply, err error) {
+	smsConfiguration, exist, err := d.SmsConfigurationUseCase.GetSmsConfiguration(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if !exist {
+		return &dmsV1.GetSmsConfigurationReply{
+			Data: dmsV1.GetSmsConfigurationReplyItem{},
+		}, nil
+	}
+	configuration := map[string]string{}
+	err = json.Unmarshal([]byte(smsConfiguration.Configuration), &configuration)
+	return &dmsV1.GetSmsConfigurationReply{
+		Data: dmsV1.GetSmsConfigurationReplyItem{
+			Enable:        smsConfiguration.Enable,
+			Url:           smsConfiguration.Url,
+			Configuration: configuration,
+		},
+	}, nil
+}
+
 func (d *DMSService) NotifyMessage(ctx context.Context, req *dmsCommonV1.NotificationReq) (err error) {
 	d.log.Infof("notifyMessage")
 	defer func() {
@@ -474,4 +528,55 @@ func (d *DMSService) WebHookSendMessage(ctx context.Context, req *dmsCommonV1.We
 	}()
 
 	return d.WebHookConfigurationUsecase.SendWebHookMessage(ctx, string(req.WebHookMessage.TriggerEventType), req.WebHookMessage.Message)
+}
+
+func (d *DMSService) SendSmsCode(ctx context.Context, userId string) (reply *dmsV1.SendSmsCodeReply, err error) {
+	d.log.Infof("send sms code")
+	// 1. 生成4位的随机数
+	rand.New(rand.NewSource(time.Now().UnixNano()))
+	code := strconv.Itoa(rand.Intn(9000) + 1000)
+	// 2. 调用短信接口发送随机数
+	_, exist, err := d.SmsConfigurationUseCase.GetSmsConfiguration(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if !exist {
+		return nil, errors.New("sms configuration not exist")
+	}
+	// TODO: 等到有真正的短信平台后进行对接, 这里暂时通过SendErrorMessage返回code,代替接收短信
+	// 3. 发送成功后将随机数保存到缓存，设置五分钟过期时间。发送失败返回失败原因。
+	err = cache.Set(fmt.Sprintf("%s:%s", pkgConst.VerifyCodeKey, userId), []byte(code))
+	return &dmsV1.SendSmsCodeReply{
+		Data: dmsV1.SendSmsCodeReplyData{
+			IsSmsCodeSentNormally: true,
+			SendErrorMessage: code,
+		},
+	}, nil
+}
+
+func (d *DMSService) VerifySmsCode(request *dmsV1.VerifySmsCodeReq, userId string) (reply *dmsV1.VerifySmsCodeReply, err error) {
+	d.log.Infof("verify sms code")
+	verifyCodeBytes, err := cache.Get(fmt.Sprintf("%s:%s", pkgConst.VerifyCodeKey, userId))
+	if err != nil {
+		return &dmsV1.VerifySmsCodeReply{
+			Data: dmsV1.VerifySmsCodeReplyData{
+				IsVerifyNormally: false,
+				VerifyErrorMessage: "验证码已过期",
+			},
+		}, err
+	}
+	verifyCodeInCache := string(verifyCodeBytes)
+	if verifyCodeInCache == request.Code {
+		return &dmsV1.VerifySmsCodeReply{
+			Data: dmsV1.VerifySmsCodeReplyData{
+				IsVerifyNormally: true,
+			},
+		}, err
+	}
+	return &dmsV1.VerifySmsCodeReply{
+		Data: dmsV1.VerifySmsCodeReplyData{
+			IsVerifyNormally: false,
+			VerifyErrorMessage: "验证码错误",
+		},
+	}, err
 }
