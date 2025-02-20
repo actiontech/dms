@@ -372,6 +372,63 @@
         }
       }
     },
+    "/v1/dms/configurations/login": {
+      "patch": {
+        "tags": [
+          "Configuration"
+        ],
+        "summary": "Update login configuration.",
+        "operationId": "UpdateLoginConfiguration",
+        "parameters": [
+          {
+            "description": "update login configuration",
+            "name": "login",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateLoginConfigurationReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/login/tips": {
+      "get": {
+        "tags": [
+          "Configuration"
+        ],
+        "summary": "get login configuration.",
+        "operationId": "GetLoginTips",
+        "responses": {
+          "200": {
+            "description": "GetLoginTipsReply",
+            "schema": {
+              "$ref": "#/definitions/GetLoginTipsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/configurations/oauth2": {
       "get": {
         "tags": [
@@ -6474,6 +6531,26 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "GetLoginTipsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/LoginTipsResData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "GetMemberGroup": {
       "type": "object",
       "properties": {
@@ -8743,6 +8820,34 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "LoginConfiguration": {
+      "type": "object",
+      "properties": {
+        "disable_user_pwd_login": {
+          "type": "boolean",
+          "x-go-name": "DisableUserPwdLogin"
+        },
+        "login_button_text": {
+          "type": "string",
+          "x-go-name": "LoginButtonText"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "LoginTipsResData": {
+      "type": "object",
+      "properties": {
+        "disable_user_pwd_login": {
+          "type": "boolean",
+          "x-go-name": "DisableUserPwdLogin"
+        },
+        "login_button_text": {
+          "type": "string",
+          "x-go-name": "LoginButtonText"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "MIMEHeader": {
       "description": "A MIMEHeader represents a MIME-style header mapping\nkeys to sets of values.",
       "type": "object",
@@ -9706,7 +9811,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
@@ -9938,6 +10043,15 @@
       "properties": {
         "ldap": {
           "$ref": "#/definitions/LDAPConfiguration"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateLoginConfigurationReq": {
+      "type": "object",
+      "properties": {
+        "login": {
+          "$ref": "#/definitions/LoginConfiguration"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
