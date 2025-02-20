@@ -10,6 +10,8 @@ type AddSession struct {
 	// User password
 	// Required: true
 	Password string `json:"password" example:"admin" description:"password" validate:"required"`
+
+	VerifyCode *string `json:"verify_code" example:"1111" description:"verify_code"`
 }
 
 // swagger:model
@@ -23,6 +25,8 @@ type AddSessionReply struct {
 	Data struct {
 		// Session token
 		Token string `json:"token"`
+		// Message
+		Message string `json:"message"`
 	} `json:"data"`
 
 	// Generic reply

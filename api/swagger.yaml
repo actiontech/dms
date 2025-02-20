@@ -255,6 +255,9 @@ definitions:
                 description: User name
                 type: string
                 x-go-name: UserName
+            verify_code:
+                type: string
+                x-go-name: VerifyCode
         required:
             - username
             - password
@@ -270,6 +273,10 @@ definitions:
             data:
                 description: Add user reply
                 properties:
+                    message:
+                        description: Message
+                        type: string
+                        x-go-name: Message
                     token:
                         description: Session token
                         type: string
@@ -1197,7 +1204,6 @@ definitions:
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GenericResp:
-        description: GenericResp defines the return code and msg
         properties:
             code:
                 description: code
@@ -1654,6 +1660,36 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetSmsConfigurationReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/GetSmsConfigurationReplyItem'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetSmsConfigurationReplyItem:
+        properties:
+            configuration:
+                additionalProperties:
+                    type: string
+                type: object
+                x-go-name: Configuration
+            enable:
+                type: boolean
+                x-go-name: Enable
+            url:
+                type: string
+                x-go-name: Url
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetUser:
         description: A dms user
         properties:
@@ -1732,6 +1768,10 @@ definitions:
             third_party_user_info:
                 type: string
                 x-go-name: ThirdPartyUserInfo
+            two_factor_enabled:
+                description: user two factor enabled
+                type: boolean
+                x-go-name: TwoFactorEnabled
             uid:
                 description: user uid
                 type: string
@@ -3892,6 +3932,31 @@ definitions:
                 x-go-name: QueryTimeoutSecond
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    SendSmsCodeReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/SendSmsCodeReplyData'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    SendSmsCodeReplyData:
+        properties:
+            is_sms_code_sent_normally:
+                type: boolean
+                x-go-name: IsSmsCodeSentNormally
+            send_error_message:
+                type: string
+                x-go-name: SendErrorMessage
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     Task:
         properties:
             task_uid:
@@ -3995,6 +4060,44 @@ definitions:
             is_smtp_send_normal:
                 type: boolean
                 x-go-name: IsSMTPSendNormal
+            send_error_message:
+                type: string
+                x-go-name: SendErrorMessage
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TestSmsConfiguration:
+        properties:
+            recipient_phone:
+                type: string
+                x-go-name: RecipientPhone
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TestSmsConfigurationReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/TestSmsConfigurationResData'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TestSmsConfigurationReq:
+        properties:
+            test_sms_configuration:
+                $ref: '#/definitions/TestSmsConfiguration'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TestSmsConfigurationResData:
+        properties:
+            is_smtp_send_normal:
+                type: boolean
+                x-go-name: IsSmsSendNormal
             send_error_message:
                 type: string
                 x-go-name: SendErrorMessage
@@ -4135,6 +4238,10 @@ definitions:
                 description: User phone
                 type: string
                 x-go-name: Phone
+            two_factor_enabled:
+                description: User two factor enabled
+                type: boolean
+                x-go-name: TwoFactorEnabled
             wxid:
                 description: User wxid
                 type: string
@@ -4416,6 +4523,30 @@ definitions:
                 $ref: '#/definitions/UpdateSMTPConfiguration'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateSmsConfiguration:
+        properties:
+            configuration:
+                additionalProperties:
+                    type: string
+                type: object
+                x-go-name: Configuration
+            enable_sms:
+                type: boolean
+                x-go-name: EnableSms
+            sms_type:
+                type: string
+                x-go-name: SmsType
+            url:
+                type: string
+                x-go-name: Url
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateSmsConfigurationReq:
+        properties:
+            update_sms_configuration:
+                $ref: '#/definitions/UpdateSmsConfiguration'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateUser:
         properties:
             email:
@@ -4606,6 +4737,66 @@ definitions:
                 x-go-name: ProjectUid
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    VerifySmsCodeReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/VerifySmsCodeReplyData'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    VerifySmsCodeReplyData:
+        properties:
+            is_verify_sent_normally:
+                type: boolean
+                x-go-name: IsVerifyNormally
+            verify_error_message:
+                type: string
+                x-go-name: VerifyErrorMessage
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    VerifySmsCodeReq:
+        properties:
+            code:
+                type: string
+                x-go-name: Code
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    VerifyUserLoginReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                properties:
+                    two_factor_enabled:
+                        type: boolean
+                        x-go-name: TwoFactorEnabled
+                    user_uid:
+                        description: If verify Successful, return user uid
+                        type: string
+                        x-go-name: UserUid
+                    verify_failed_msg:
+                        description: If verify Successful, return empty string, otherwise return error message
+                        type: string
+                        x-go-name: VerifyFailedMsg
+                type: object
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     WeChatConfigurationResData:
         properties:
             agent_id:
@@ -4797,7 +4988,7 @@ paths:
                   name: company_notice
                   required: true
                   schema:
-                    $ref: '#/definitions/UpdateCompanyNoticeReq'
+                      $ref: '#/definitions/UpdateCompanyNoticeReq'
             responses:
                 "200":
                     description: GenericResp
@@ -4831,7 +5022,7 @@ paths:
                   in: body
                   name: update_feishu_configuration
                   schema:
-                    $ref: '#/definitions/UpdateFeishuConfigurationReq'
+                      $ref: '#/definitions/UpdateFeishuConfigurationReq'
             responses:
                 "200":
                     description: GenericResp
@@ -4853,7 +5044,7 @@ paths:
                   name: test_feishu_configuration
                   required: true
                   schema:
-                    $ref: '#/definitions/TestFeishuConfigurationReq'
+                      $ref: '#/definitions/TestFeishuConfigurationReq'
             responses:
                 "200":
                     description: TestFeishuConfigurationReply
@@ -4889,7 +5080,7 @@ paths:
                   name: ldap
                   required: true
                   schema:
-                    $ref: '#/definitions/UpdateLDAPConfigurationReq'
+                      $ref: '#/definitions/UpdateLDAPConfigurationReq'
             responses:
                 "200":
                     description: GenericResp
@@ -5013,7 +5204,7 @@ paths:
                   name: oauth2
                   required: true
                   schema:
-                    $ref: '#/definitions/Oauth2ConfigurationReq'
+                      $ref: '#/definitions/Oauth2ConfigurationReq'
             responses:
                 "200":
                     description: GenericResp
@@ -5026,6 +5217,101 @@ paths:
             summary: Update Oauth2 configuration..
             tags:
                 - Configuration
+    /v1/dms/configurations/sms:
+        get:
+            operationId: GetSmsConfiguration
+            responses:
+                "200":
+                    description: GetSmsConfigurationReply
+                    schema:
+                        $ref: '#/definitions/GetSmsConfigurationReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: get sms configuration.
+            tags:
+                - Configuration
+        patch:
+            operationId: UpdateSmsConfiguration
+            parameters:
+                - description: update sms configuration
+                  in: body
+                  name: update_sms_configuration
+                  required: true
+                  schema:
+                      $ref: '#/definitions/UpdateSmsConfigurationReq'
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: update sms configuration.
+            tags:
+                - Configuration
+    /v1/dms/configurations/sms/send_code:
+        post:
+            operationId: SendSmsCode
+            responses:
+                "200":
+                    description: SendSmsCodeReply
+                    schema:
+                        $ref: '#/definitions/SendSmsCodeReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: send sms code.
+            tags:
+                - SMS
+    /v1/dms/configurations/sms/test:
+        post:
+            operationId: TestSmsConfiguration
+            parameters:
+                - description: test sms configuration
+                  in: body
+                  name: test_sms_configuration
+                  required: true
+                  schema:
+                      $ref: '#/definitions/TestSmsConfigurationReq'
+            responses:
+                "200":
+                    description: TestSmsConfigurationReply
+                    schema:
+                        $ref: '#/definitions/TestSmsConfigurationReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: test smtp configuration.
+            tags:
+                - Configuration
+    /v1/dms/configurations/sms/verify_code:
+        post:
+            operationId: VerifySmsCode
+            parameters:
+                - description: verify sms code
+                  in: body
+                  name: code
+                  required: true
+                  schema:
+                      $ref: '#/definitions/VerifySmsCodeReq'
+            responses:
+                "200":
+                    description: VerifySmsCodeReply
+                    schema:
+                        $ref: '#/definitions/VerifySmsCodeReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: verify sms code.
+            tags:
+                - SMS
     /v1/dms/configurations/smtp:
         get:
             operationId: GetSMTPConfiguration
@@ -5049,7 +5335,7 @@ paths:
                   name: smtp_configuration
                   required: true
                   schema:
-                    $ref: '#/definitions/UpdateSMTPConfigurationReq'
+                      $ref: '#/definitions/UpdateSMTPConfigurationReq'
             responses:
                 "200":
                     description: GenericResp
@@ -5071,7 +5357,7 @@ paths:
                   name: test_smtp_configuration
                   required: true
                   schema:
-                    $ref: '#/definitions/TestSMTPConfigurationReq'
+                      $ref: '#/definitions/TestSMTPConfigurationReq'
             responses:
                 "200":
                     description: TestSMTPConfigurationReply
@@ -5121,7 +5407,7 @@ paths:
                   in: body
                   name: webhook_config
                   schema:
-                    $ref: '#/definitions/UpdateWebHookConfigurationReq'
+                      $ref: '#/definitions/UpdateWebHookConfigurationReq'
             responses:
                 "200":
                     description: GenericResp
@@ -5171,7 +5457,7 @@ paths:
                   in: body
                   name: update_wechat_configuration
                   schema:
-                    $ref: '#/definitions/UpdateWeChatConfigurationReq'
+                      $ref: '#/definitions/UpdateWeChatConfigurationReq'
             responses:
                 "200":
                     description: GenericResp
@@ -5192,7 +5478,7 @@ paths:
                   in: body
                   name: test_wechat_configuration
                   schema:
-                    $ref: '#/definitions/TestWeChatConfigurationReq'
+                      $ref: '#/definitions/TestWeChatConfigurationReq'
             responses:
                 "200":
                     description: TestWeChatConfigurationReply
@@ -5228,7 +5514,7 @@ paths:
                   name: db_service_sync_task
                   required: true
                   schema:
-                    $ref: '#/definitions/AddDBServiceSyncTaskReq'
+                      $ref: '#/definitions/AddDBServiceSyncTaskReq'
             responses:
                 "200":
                     description: AddDBServiceReply
@@ -5295,7 +5581,7 @@ paths:
                   name: db_service_sync_task
                   required: true
                   schema:
-                    $ref: '#/definitions/UpdateDBServiceSyncTaskReq'
+                      $ref: '#/definitions/UpdateDBServiceSyncTaskReq'
             responses:
                 "200":
                     description: GenericResp
@@ -5363,10 +5649,10 @@ paths:
                   type: integer
                   x-go-name: PageIndex
                 - description: |-
-                    Multiple of ["name"], default is ["name"]
-                    name DBServiceOrderByName
+                      Multiple of ["name"], default is ["name"]
+                      name DBServiceOrderByName
                   enum:
-                    - name
+                      - name
                   in: query
                   name: order_by
                   type: string
@@ -5374,8 +5660,8 @@ paths:
                   x-go-name: OrderBy
                 - description: the db service connection
                   enum:
-                    - connect_success
-                    - connect_failed
+                      - connect_success
+                      - connect_failed
                   in: query
                   name: filter_last_connection_test_status
                   type: string
@@ -5489,7 +5775,7 @@ paths:
                   in: body
                   name: notification
                   schema:
-                    $ref: '#/definitions/Notification'
+                      $ref: '#/definitions/Notification'
                   x-go-name: Notification
             responses:
                 "200":
@@ -5532,7 +5818,7 @@ paths:
                   name: BindOauth2UserReq
                   required: true
                   schema:
-                    $ref: '#/definitions/BindOauth2UserReq'
+                      $ref: '#/definitions/BindOauth2UserReq'
             responses:
                 "200":
                     description: BindOauth2UserReply
@@ -5563,31 +5849,31 @@ paths:
                   type: integer
                   x-go-name: PageIndex
                 - description: |-
-                    Order by the specified field
-                    name OpPermissionOrderByName
+                      Order by the specified field
+                      name OpPermissionOrderByName
                   enum:
-                    - name
+                      - name
                   in: query
                   name: order_by
                   type: string
                   x-go-enum-desc: name OpPermissionOrderByName
                   x-go-name: OrderBy
                 - description: |-
-                    filter by op permission target
-                    all OpPermissionTargetAll
-                    user OpPermissionTargetUser
-                    member OpPermissionTargetMember
+                      filter by op permission target
+                      all OpPermissionTargetAll
+                      user OpPermissionTargetUser
+                      member OpPermissionTargetMember
                   enum:
-                    - all
-                    - user
-                    - member
+                      - all
+                      - user
+                      - member
                   in: query
                   name: filter_by_target
                   type: string
                   x-go-enum-desc: |-
-                    all OpPermissionTargetAll
-                    user OpPermissionTargetUser
-                    member OpPermissionTargetMember
+                      all OpPermissionTargetAll
+                      user OpPermissionTargetUser
+                      member OpPermissionTargetMember
                   x-go-name: FilterByTarget
             responses:
                 "200":
@@ -5649,7 +5935,7 @@ paths:
                   name: plugin
                   required: true
                   schema:
-                    $ref: '#/definitions/RegisterDMSPluginReq'
+                      $ref: '#/definitions/RegisterDMSPluginReq'
             responses:
                 "200":
                     description: GenericResp
@@ -5680,10 +5966,10 @@ paths:
                   type: integer
                   x-go-name: PageIndex
                 - description: |-
-                    Multiple of ["name"], default is ["name"]
-                    name ProjectOrderByName
+                      Multiple of ["name"], default is ["name"]
+                      name ProjectOrderByName
                   enum:
-                    - name
+                      - name
                   in: query
                   name: order_by
                   type: string
@@ -5702,29 +5988,29 @@ paths:
                 - description: filter project by project id list, using in condition
                   in: query
                   items:
-                    type: string
+                      type: string
                   name: filter_by_project_uids
                   type: array
                   x-go-name: FilterByProjectUids
                 - description: |-
-                    filter project by project priority
-                    high ProjectPriorityHigh
-                    medium ProjectPriorityMedium
-                    low ProjectPriorityLow
-                    unknown ProjectPriorityUnknown
+                      filter project by project priority
+                      high ProjectPriorityHigh
+                      medium ProjectPriorityMedium
+                      low ProjectPriorityLow
+                      unknown ProjectPriorityUnknown
                   enum:
-                    - high
-                    - medium
-                    - low
-                    - unknown
+                      - high
+                      - medium
+                      - low
+                      - unknown
                   in: query
                   name: filter_by_project_priority
                   type: string
                   x-go-enum-desc: |-
-                    high ProjectPriorityHigh
-                    medium ProjectPriorityMedium
-                    low ProjectPriorityLow
-                    unknown ProjectPriorityUnknown
+                      high ProjectPriorityHigh
+                      medium ProjectPriorityMedium
+                      low ProjectPriorityLow
+                      unknown ProjectPriorityUnknown
                   x-go-name: FilterByProjectPriority
                 - description: filter the Project By Project description
                   in: query
@@ -5751,7 +6037,7 @@ paths:
                   name: project
                   required: true
                   schema:
-                    $ref: '#/definitions/AddProjectReq'
+                      $ref: '#/definitions/AddProjectReq'
             responses:
                 "200":
                     description: AddProjectReply
@@ -5799,7 +6085,7 @@ paths:
                   name: project
                   required: true
                   schema:
-                    $ref: '#/definitions/UpdateProjectReq'
+                      $ref: '#/definitions/UpdateProjectReq'
             responses:
                 "200":
                     description: GenericResp
@@ -6000,7 +6286,7 @@ paths:
                   in: body
                   name: data_export_tasks
                   schema:
-                    $ref: '#/definitions/AddDataExportTaskReq'
+                      $ref: '#/definitions/AddDataExportTaskReq'
             responses:
                 "200":
                     description: AddDataExportTaskReply
@@ -6127,33 +6413,33 @@ paths:
                   type: integer
                   x-go-name: PageIndex
                 - description: |-
-                    filter the status
-                    wait_for_approve DataExportWorkflowStatusWaitForApprove
-                    wait_for_export DataExportWorkflowStatusWaitForExport
-                    exporting DataExportWorkflowStatusWaitForExporting
-                    rejected DataExportWorkflowStatusRejected
-                    cancel DataExportWorkflowStatusCancel
-                    failed DataExportWorkflowStatusFailed
-                    finish DataExportWorkflowStatusFinish
+                      filter the status
+                      wait_for_approve DataExportWorkflowStatusWaitForApprove
+                      wait_for_export DataExportWorkflowStatusWaitForExport
+                      exporting DataExportWorkflowStatusWaitForExporting
+                      rejected DataExportWorkflowStatusRejected
+                      cancel DataExportWorkflowStatusCancel
+                      failed DataExportWorkflowStatusFailed
+                      finish DataExportWorkflowStatusFinish
                   enum:
-                    - wait_for_approve
-                    - wait_for_export
-                    - exporting
-                    - rejected
-                    - cancel
-                    - failed
-                    - finish
+                      - wait_for_approve
+                      - wait_for_export
+                      - exporting
+                      - rejected
+                      - cancel
+                      - failed
+                      - finish
                   in: query
                   name: filter_by_status
                   type: string
                   x-go-enum-desc: |-
-                    wait_for_approve DataExportWorkflowStatusWaitForApprove
-                    wait_for_export DataExportWorkflowStatusWaitForExport
-                    exporting DataExportWorkflowStatusWaitForExporting
-                    rejected DataExportWorkflowStatusRejected
-                    cancel DataExportWorkflowStatusCancel
-                    failed DataExportWorkflowStatusFailed
-                    finish DataExportWorkflowStatusFinish
+                      wait_for_approve DataExportWorkflowStatusWaitForApprove
+                      wait_for_export DataExportWorkflowStatusWaitForExport
+                      exporting DataExportWorkflowStatusWaitForExporting
+                      rejected DataExportWorkflowStatusRejected
+                      cancel DataExportWorkflowStatusCancel
+                      failed DataExportWorkflowStatusFailed
+                      finish DataExportWorkflowStatusFinish
                   x-go-name: FilterByStatus
                 - description: filter create user id
                   in: query
@@ -6209,7 +6495,7 @@ paths:
                   in: body
                   name: data_export_workflow
                   schema:
-                    $ref: '#/definitions/AddDataExportWorkflowReq'
+                      $ref: '#/definitions/AddDataExportWorkflowReq'
             responses:
                 "200":
                     description: AddDataExportWorkflowReply
@@ -6320,7 +6606,7 @@ paths:
                   name: payload
                   required: true
                   schema:
-                    $ref: '#/definitions/RejectDataExportWorkflowReq'
+                      $ref: '#/definitions/RejectDataExportWorkflowReq'
             responses:
                 "200":
                     description: GenericResp
@@ -6346,7 +6632,7 @@ paths:
                   name: payload
                   required: true
                   schema:
-                    $ref: '#/definitions/CancelDataExportWorkflowReq'
+                      $ref: '#/definitions/CancelDataExportWorkflowReq'
             responses:
                 "200":
                     description: GenericResp
@@ -6377,10 +6663,10 @@ paths:
                   type: integer
                   x-go-name: PageIndex
                 - description: |-
-                    Multiple of ["name"], default is ["name"]
-                    name DBServiceOrderByName
+                      Multiple of ["name"], default is ["name"]
+                      name DBServiceOrderByName
                   enum:
-                    - name
+                      - name
                   in: query
                   name: order_by
                   type: string
@@ -6393,8 +6679,8 @@ paths:
                   x-go-name: FilterByBusiness
                 - description: the db service connection
                   enum:
-                    - connect_success
-                    - connect_failed
+                      - connect_success
+                      - connect_failed
                   in: query
                   name: filter_last_connection_test_status
                   type: string
@@ -6433,7 +6719,7 @@ paths:
                 - description: filter db services by db service id list using in condition
                   in: query
                   items:
-                    type: string
+                      type: string
                   name: filter_by_db_service_ids
                   type: array
                   x-go-name: FilterByDBServiceIds
@@ -6472,7 +6758,7 @@ paths:
                   name: db_service
                   required: true
                   schema:
-                    $ref: '#/definitions/AddDBServiceReq'
+                      $ref: '#/definitions/AddDBServiceReq'
             responses:
                 "200":
                     description: AddDBServiceReply
@@ -6530,7 +6816,7 @@ paths:
                   in: body
                   name: db_service
                   schema:
-                    $ref: '#/definitions/UpdateDBServiceReq'
+                      $ref: '#/definitions/UpdateDBServiceReq'
             responses:
                 "200":
                     description: GenericResp
@@ -6582,7 +6868,7 @@ paths:
                   in: body
                   name: db_service
                   schema:
-                    $ref: '#/definitions/CheckDBServiceIsConnectableReq'
+                      $ref: '#/definitions/CheckDBServiceIsConnectableReq'
             responses:
                 "200":
                     description: CheckDBServiceIsConnectableReply
@@ -6608,7 +6894,7 @@ paths:
                   in: body
                   name: db_services
                   schema:
-                    $ref: '#/definitions/CheckDBServicesIsConnectableReq'
+                      $ref: '#/definitions/CheckDBServicesIsConnectableReq'
             responses:
                 "200":
                     description: CheckDBServicesIsConnectableReply
@@ -6635,7 +6921,7 @@ paths:
                   name: db_services
                   required: true
                   schema:
-                    $ref: '#/definitions/ImportDBServicesOfOneProjectReq'
+                      $ref: '#/definitions/ImportDBServicesOfOneProjectReq'
             responses:
                 "200":
                     description: GenericResp
@@ -6693,9 +6979,9 @@ paths:
                   type: string
                   x-go-name: FilterDBType
                 - enum:
-                    - save_audit_plan
-                    - create_workflow
-                    - create_export_task
+                      - save_audit_plan
+                      - create_workflow
+                      - create_export_task
                   in: query
                   name: functional_module
                   type: string
@@ -6730,10 +7016,10 @@ paths:
                   type: integer
                   x-go-name: PageIndex
                 - description: |-
-                    Multiple of ["name"], default is ["name"]
-                    name MemberGroupOrderByName
+                      Multiple of ["name"], default is ["name"]
+                      name MemberGroupOrderByName
                   enum:
-                    - name
+                      - name
                   in: query
                   name: order_by
                   type: string
@@ -6775,7 +7061,7 @@ paths:
                   name: member_group
                   required: true
                   schema:
-                    $ref: '#/definitions/AddMemberGroupReq'
+                      $ref: '#/definitions/AddMemberGroupReq'
             responses:
                 "200":
                     description: AddMemberGroupReply
@@ -6861,7 +7147,7 @@ paths:
                   name: member_group
                   required: true
                   schema:
-                    $ref: '#/definitions/UpdateMemberGroupReq'
+                      $ref: '#/definitions/UpdateMemberGroupReq'
             responses:
                 "200":
                     description: GenericResp
@@ -6892,10 +7178,10 @@ paths:
                   type: integer
                   x-go-name: PageIndex
                 - description: |-
-                    Multiple of ["name"], default is ["name"]
-                    user_uid MemberOrderByUserUid
+                      Multiple of ["name"], default is ["name"]
+                      user_uid MemberOrderByUserUid
                   enum:
-                    - user_uid
+                      - user_uid
                   in: query
                   name: order_by
                   type: string
@@ -6937,7 +7223,7 @@ paths:
                   name: member
                   required: true
                   schema:
-                    $ref: '#/definitions/AddMemberReq'
+                      $ref: '#/definitions/AddMemberReq'
             responses:
                 "200":
                     description: AddMemberReply
@@ -6996,7 +7282,7 @@ paths:
                   name: member
                   required: true
                   schema:
-                    $ref: '#/definitions/UpdateMemberReq'
+                      $ref: '#/definitions/UpdateMemberReq'
             responses:
                 "200":
                     description: GenericResp
@@ -7096,7 +7382,7 @@ paths:
                   in: body
                   name: db_services
                   schema:
-                    $ref: '#/definitions/DBServiceConnectionReq'
+                      $ref: '#/definitions/DBServiceConnectionReq'
             responses:
                 "200":
                     description: DBServicesConnectionReply
@@ -7117,7 +7403,7 @@ paths:
                   in: body
                   name: db_services
                   schema:
-                    $ref: '#/definitions/DBServicesConnectionReq'
+                      $ref: '#/definitions/DBServicesConnectionReq'
             responses:
                 "200":
                     description: DBServicesConnectionReqReply
@@ -7135,10 +7421,10 @@ paths:
             operationId: ExportProjects
             parameters:
                 - description: |-
-                    Multiple of ["name"], default is ["name"]
-                    name ProjectOrderByName
+                      Multiple of ["name"], default is ["name"]
+                      name ProjectOrderByName
                   enum:
-                    - name
+                      - name
                   in: query
                   name: order_by
                   type: string
@@ -7173,7 +7459,7 @@ paths:
                   name: projects
                   required: true
                   schema:
-                    $ref: '#/definitions/ImportProjectsReq'
+                      $ref: '#/definitions/ImportProjectsReq'
             responses:
                 "200":
                     description: GenericResp
@@ -7195,7 +7481,7 @@ paths:
                   name: db_services
                   required: true
                   schema:
-                    $ref: '#/definitions/ImportDBServicesOfProjectsReq'
+                      $ref: '#/definitions/ImportDBServicesOfProjectsReq'
             responses:
                 "200":
                     description: GenericResp
@@ -7311,7 +7597,7 @@ paths:
                   name: dms_proxy_target
                   required: true
                   schema:
-                    $ref: '#/definitions/RegisterDMSProxyTargetReq'
+                      $ref: '#/definitions/RegisterDMSProxyTargetReq'
             responses:
                 "200":
                     description: GenericResp
@@ -7342,10 +7628,10 @@ paths:
                   type: integer
                   x-go-name: PageIndex
                 - description: |-
-                    Multiple of ["name"], default is ["name"]
-                    name RoleOrderByName
+                      Multiple of ["name"], default is ["name"]
+                      name RoleOrderByName
                   enum:
-                    - name
+                      - name
                   in: query
                   name: order_by
                   type: string
@@ -7376,7 +7662,7 @@ paths:
                   name: role
                   required: true
                   schema:
-                    $ref: '#/definitions/AddRoleReq'
+                      $ref: '#/definitions/AddRoleReq'
             responses:
                 "200":
                     description: AddRoleReply
@@ -7424,7 +7710,7 @@ paths:
                   name: role
                   required: true
                   schema:
-                    $ref: '#/definitions/UpdateRoleReq'
+                      $ref: '#/definitions/UpdateRoleReq'
             responses:
                 "200":
                     description: GenericResp
@@ -7460,7 +7746,7 @@ paths:
                   name: session
                   required: true
                   schema:
-                    $ref: '#/definitions/AddSessionReq'
+                      $ref: '#/definitions/AddSessionReq'
             responses:
                 "200":
                     description: AddSessionReply
@@ -7511,10 +7797,10 @@ paths:
                   type: integer
                   x-go-name: PageIndex
                 - description: |-
-                    Multiple of ["name"], default is ["name"]
-                    name UserGroupOrderByName
+                      Multiple of ["name"], default is ["name"]
+                      name UserGroupOrderByName
                   enum:
-                    - name
+                      - name
                   in: query
                   name: order_by
                   type: string
@@ -7545,7 +7831,7 @@ paths:
                   name: user_group
                   required: true
                   schema:
-                    $ref: '#/definitions/AddUserGroupReq'
+                      $ref: '#/definitions/AddUserGroupReq'
             responses:
                 "200":
                     description: AddUserGroupReply
@@ -7593,7 +7879,7 @@ paths:
                   name: user_group
                   required: true
                   schema:
-                    $ref: '#/definitions/UpdateUserGroupReq'
+                      $ref: '#/definitions/UpdateUserGroupReq'
             responses:
                 "200":
                     description: GenericResp
@@ -7624,10 +7910,10 @@ paths:
                   type: integer
                   x-go-name: PageIndex
                 - description: |-
-                    Multiple of ["name"], default is ["name"]
-                    name UserOrderByName
+                      Multiple of ["name"], default is ["name"]
+                      name UserOrderByName
                   enum:
-                    - name
+                      - name
                   in: query
                   name: order_by
                   type: string
@@ -7668,7 +7954,7 @@ paths:
                   name: user
                   required: true
                   schema:
-                    $ref: '#/definitions/AddUserReq'
+                      $ref: '#/definitions/AddUserReq'
             responses:
                 "200":
                     description: AddUserReply
@@ -7689,7 +7975,7 @@ paths:
                   name: current_user
                   required: true
                   schema:
-                    $ref: '#/definitions/UpdateCurrentUserReq'
+                      $ref: '#/definitions/UpdateCurrentUserReq'
             responses:
                 "200":
                     description: GenericResp
@@ -7757,7 +8043,7 @@ paths:
                   in: body
                   name: user
                   schema:
-                    $ref: '#/definitions/UpdateUserReq'
+                      $ref: '#/definitions/UpdateUserReq'
             responses:
                 "200":
                     description: GenericResp
@@ -7788,7 +8074,7 @@ paths:
                   in: body
                   name: user_op_permission
                   schema:
-                    $ref: '#/definitions/UserOpPermission'
+                      $ref: '#/definitions/UserOpPermission'
                   x-go-name: UserOpPermission
             responses:
                 "200":
@@ -7810,7 +8096,7 @@ paths:
                   name: expiration_days
                   required: true
                   schema:
-                    $ref: '#/definitions/GenAccessToken'
+                      $ref: '#/definitions/GenAccessToken'
             responses:
                 "200":
                     description: GenAccessTokenReply
@@ -7823,6 +8109,28 @@ paths:
             summary: Gen user access token.
             tags:
                 - User
+    /v1/dms/verify_user_login:
+        post:
+            operationId: VerifyUserLogin
+            parameters:
+                - description: Add a new session
+                  in: body
+                  name: session
+                  required: true
+                  schema:
+                      $ref: '#/definitions/AddSessionReq'
+            responses:
+                "200":
+                    description: VerifyUserLoginReply
+                    schema:
+                        $ref: '#/definitions/VerifyUserLoginReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Verify user login.
+            tags:
+                - User
     /v1/dms/webhooks:
         post:
             operationId: WebHookSendMessage
@@ -7832,7 +8140,7 @@ paths:
                   name: webhook_message
                   required: true
                   schema:
-                    $ref: '#/definitions/WebHookSendMessageReq'
+                      $ref: '#/definitions/WebHookSendMessageReq'
             responses:
                 "200":
                     description: WebHookSendMessageReply
@@ -7864,16 +8172,6 @@ responses:
         description: ""
         schema:
             type: file
-    GenericResp:
-        description: GenericResp defines the return code and msg
-        headers:
-            code:
-                description: code
-                format: int64
-                type: integer
-            message:
-                description: message
-                type: string
     GetImportDBServicesTemplateReply:
         description: ""
         schema:

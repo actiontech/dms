@@ -1,7 +1,6 @@
 package v1
 
-// GenericResp defines the return code and msg
-// swagger:response GenericResp
+// swagger:model GenericResp
 type GenericResp struct {
 	// code
 	Code int `json:"code"`

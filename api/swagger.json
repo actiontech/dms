@@ -427,6 +427,152 @@
         }
       }
     },
+    "/v1/dms/configurations/sms": {
+      "get": {
+        "tags": [
+          "Configuration"
+        ],
+        "summary": "get sms configuration.",
+        "operationId": "GetSmsConfiguration",
+        "responses": {
+          "200": {
+            "description": "GetSmsConfigurationReply",
+            "schema": {
+              "$ref": "#/definitions/GetSmsConfigurationReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Configuration"
+        ],
+        "summary": "update sms configuration.",
+        "operationId": "UpdateSmsConfiguration",
+        "parameters": [
+          {
+            "description": "update sms configuration",
+            "name": "update_sms_configuration",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateSmsConfigurationReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/sms/send_code": {
+      "post": {
+        "tags": [
+          "SMS"
+        ],
+        "summary": "send sms code.",
+        "operationId": "SendSmsCode",
+        "responses": {
+          "200": {
+            "description": "SendSmsCodeReply",
+            "schema": {
+              "$ref": "#/definitions/SendSmsCodeReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/sms/test": {
+      "post": {
+        "tags": [
+          "Configuration"
+        ],
+        "summary": "test smtp configuration.",
+        "operationId": "TestSmsConfiguration",
+        "parameters": [
+          {
+            "description": "test sms configuration",
+            "name": "test_sms_configuration",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TestSmsConfigurationReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "TestSmsConfigurationReply",
+            "schema": {
+              "$ref": "#/definitions/TestSmsConfigurationReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/sms/verify_code": {
+      "post": {
+        "tags": [
+          "SMS"
+        ],
+        "summary": "verify sms code.",
+        "operationId": "VerifySmsCode",
+        "parameters": [
+          {
+            "description": "verify sms code",
+            "name": "code",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VerifySmsCodeReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "VerifySmsCodeReply",
+            "schema": {
+              "$ref": "#/definitions/VerifySmsCodeReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/configurations/smtp": {
       "get": {
         "tags": [
@@ -4506,6 +4652,40 @@
         }
       }
     },
+    "/v1/dms/verify_user_login": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Verify user login.",
+        "operationId": "VerifyUserLogin",
+        "parameters": [
+          {
+            "description": "Add a new session",
+            "name": "session",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddSessionReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "VerifyUserLoginReply",
+            "schema": {
+              "$ref": "#/definitions/VerifyUserLoginReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/webhooks": {
       "post": {
         "tags": [
@@ -4888,6 +5068,10 @@
           "description": "User name",
           "type": "string",
           "x-go-name": "UserName"
+        },
+        "verify_code": {
+          "type": "string",
+          "x-go-name": "VerifyCode"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -4905,6 +5089,11 @@
           "description": "Add user reply",
           "type": "object",
           "properties": {
+            "message": {
+              "description": "Message",
+              "type": "string",
+              "x-go-name": "Message"
+            },
             "token": {
               "description": "Session token",
               "type": "string",
@@ -6129,7 +6318,6 @@
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "GenericResp": {
-      "description": "GenericResp defines the return code and msg",
       "type": "object",
       "properties": {
         "code": {
@@ -6730,6 +6918,47 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "GetSmsConfigurationReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/GetSmsConfigurationReplyItem"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetSmsConfigurationReplyItem": {
+      "type": "object",
+      "properties": {
+        "configuration": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "x-go-name": "Configuration"
+        },
+        "enable": {
+          "type": "boolean",
+          "x-go-name": "Enable"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "Url"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "GetUser": {
       "description": "A dms user",
       "type": "object",
@@ -6799,6 +7028,11 @@
         "third_party_user_info": {
           "type": "string",
           "x-go-name": "ThirdPartyUserInfo"
+        },
+        "two_factor_enabled": {
+          "description": "user two factor enabled",
+          "type": "boolean",
+          "x-go-name": "TwoFactorEnabled"
         },
         "uid": {
           "description": "user uid",
@@ -9426,6 +9660,40 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "SendSmsCodeReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/SendSmsCodeReplyData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "SendSmsCodeReplyData": {
+      "type": "object",
+      "properties": {
+        "is_sms_code_sent_normally": {
+          "type": "boolean",
+          "x-go-name": "IsSmsCodeSentNormally"
+        },
+        "send_error_message": {
+          "type": "string",
+          "x-go-name": "SendErrorMessage"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "Task": {
       "type": "object",
       "properties": {
@@ -9565,6 +9833,59 @@
         "is_smtp_send_normal": {
           "type": "boolean",
           "x-go-name": "IsSMTPSendNormal"
+        },
+        "send_error_message": {
+          "type": "string",
+          "x-go-name": "SendErrorMessage"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "TestSmsConfiguration": {
+      "type": "object",
+      "properties": {
+        "recipient_phone": {
+          "type": "string",
+          "x-go-name": "RecipientPhone"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "TestSmsConfigurationReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/TestSmsConfigurationResData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "TestSmsConfigurationReq": {
+      "type": "object",
+      "properties": {
+        "test_sms_configuration": {
+          "$ref": "#/definitions/TestSmsConfiguration"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "TestSmsConfigurationResData": {
+      "type": "object",
+      "properties": {
+        "is_smtp_send_normal": {
+          "type": "boolean",
+          "x-go-name": "IsSmsSendNormal"
         },
         "send_error_message": {
           "type": "string",
@@ -9756,6 +10077,11 @@
           "description": "User phone",
           "type": "string",
           "x-go-name": "Phone"
+        },
+        "two_factor_enabled": {
+          "description": "User two factor enabled",
+          "type": "boolean",
+          "x-go-name": "TwoFactorEnabled"
         },
         "wxid": {
           "description": "User wxid",
@@ -10126,6 +10452,40 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "UpdateSmsConfiguration": {
+      "type": "object",
+      "properties": {
+        "configuration": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "x-go-name": "Configuration"
+        },
+        "enable_sms": {
+          "type": "boolean",
+          "x-go-name": "EnableSms"
+        },
+        "sms_type": {
+          "type": "string",
+          "x-go-name": "SmsType"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "Url"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateSmsConfigurationReq": {
+      "type": "object",
+      "properties": {
+        "update_sms_configuration": {
+          "$ref": "#/definitions/UpdateSmsConfiguration"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "UpdateUser": {
       "type": "object",
       "properties": {
@@ -10382,6 +10742,87 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "VerifySmsCodeReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/VerifySmsCodeReplyData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "VerifySmsCodeReplyData": {
+      "type": "object",
+      "properties": {
+        "is_verify_sent_normally": {
+          "type": "boolean",
+          "x-go-name": "IsVerifyNormally"
+        },
+        "verify_error_message": {
+          "type": "string",
+          "x-go-name": "VerifyErrorMessage"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "VerifySmsCodeReq": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "x-go-name": "Code"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "VerifyUserLoginReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "two_factor_enabled": {
+              "type": "boolean",
+              "x-go-name": "TwoFactorEnabled"
+            },
+            "user_uid": {
+              "description": "If verify Successful, return user uid",
+              "type": "string",
+              "x-go-name": "UserUid"
+            },
+            "verify_failed_msg": {
+              "description": "If verify Successful, return empty string, otherwise return error message",
+              "type": "string",
+              "x-go-name": "VerifyFailedMsg"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "WeChatConfigurationResData": {
       "type": "object",
       "properties": {
@@ -10589,20 +11030,6 @@
       "description": "",
       "schema": {
         "type": "file"
-      }
-    },
-    "GenericResp": {
-      "description": "GenericResp defines the return code and msg",
-      "headers": {
-        "code": {
-          "type": "integer",
-          "format": "int64",
-          "description": "code"
-        },
-        "message": {
-          "type": "string",
-          "description": "message"
-        }
       }
     },
     "GetImportDBServicesTemplateReply": {

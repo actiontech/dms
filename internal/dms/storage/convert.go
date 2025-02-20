@@ -154,6 +154,7 @@ func convertBizUser(u *biz.User) (*model.User, error) {
 		Model: model.Model{
 			UID: u.UID,
 		},
+		TwoFactorEnabled:       u.TwoFactorEnabled,
 		Name:                   u.Name,
 		ThirdPartyUserID:       u.ThirdPartyUserID,
 		ThirdPartyUserInfo:     u.ThirdPartyUserInfo,
@@ -241,6 +242,7 @@ func convertModelUser(u *model.User) (*biz.User, error) {
 		Language:               u.Language,
 		UserAuthenticationType: typ,
 		Stat:                   stat,
+		TwoFactorEnabled:       u.TwoFactorEnabled,
 		LastLoginAt:            lastLoginAt,
 		Password:               decrypted,
 		Deleted:                u.DeletedAt.Valid,

@@ -136,6 +136,8 @@ type UpdateCurrentUser struct {
 	WxID *string `json:"wxid"`
 	// User language
 	Language *string `json:"language"`
+	// User two factor enabled
+	TwoFactorEnabled *bool `json:"two_factor_enabled"`
 }
 
 type VerifyUserLoginReq struct {
@@ -152,12 +154,15 @@ func (u *VerifyUserLoginReq) String() string {
 	return fmt.Sprintf("VerifyUserLoginReq{UserName:%s}", u.UserName)
 }
 
+// swagger:model
 type VerifyUserLoginReply struct {
+	base.GenericResp
 	Data struct {
 		// If verify Successful, return empty string, otherwise return error message
 		VerifyFailedMsg string `json:"verify_failed_msg"`
 		// If verify Successful, return user uid
 		UserUid string `json:"user_uid"`
+		TwoFactorEnabled bool `json:"two_factor_enabled"`
 	} `json:"data"`
 }
 
