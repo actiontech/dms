@@ -15,9 +15,9 @@ func init() {
 		// 设置分区的数量，必须是2的整倍数
 		Shards: 1024,
 		// LifeWindow后,缓存对象被认为不活跃,但并不会删除对象
-		LifeWindow: 5 * time.Minute,
+		LifeWindow: 1 * time.Minute,
 		// CleanWindow后，会删除被认为不活跃的对象，0代表不操作；
-		CleanWindow: 10 * time.Second,
+		CleanWindow: 5 * time.Minute,
 		// 设置最大存储对象数量，仅在初始化时可以设置
 		//MaxEntriesInWindow: 1000 * 10 * 60,
 		MaxEntriesInWindow: 1,
@@ -32,7 +32,6 @@ func init() {
 	}
 	var err error
 	globalCache, err = bigcache.New(context.TODO(), config)
-	globalCache.Close()
 	if err != nil {
 		log.Fatal(fmt.Printf("缓存初始化失败: %v", err))
 	}

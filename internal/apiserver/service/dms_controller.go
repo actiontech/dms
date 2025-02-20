@@ -571,12 +571,9 @@ func (a *DMSController) AddSession(c echo.Context) error {
 		return NewErrResp(c, errors.New(reply.Data.VerifyFailedMsg), apiError.BadRequestErr)
 	}
 	if req.Session.VerifyCode != nil {
-		verifyCodeReply, err := a.DMS.VerifySmsCode(&aV1.VerifySmsCodeReq{
+		verifyCodeReply := a.DMS.VerifySmsCode(&aV1.VerifySmsCodeReq{
 			Code: *req.Session.VerifyCode,
 		},reply.Data.UserUid)
-		if nil != err {
-			return NewErrResp(c, err, apiError.APIServerErr)
-		}
 		if !verifyCodeReply.Data.IsVerifyNormally {
 			return NewOkRespWithReply(c, &aV1.AddSessionReply{
 				Data: struct {
@@ -2914,10 +2911,7 @@ func (d *DMSController) VerifySmsCode(context echo.Context) error {
 		return NewErrResp(context, err, apiError.DMSServiceErr)
 	}
 	// 2. 取到验证码后，将前端传递的验证码进行比较是否相同，如果相同则返回验证成功
-	reply, err :=d.DMS.VerifySmsCode(req, userId)
-	if err != nil {
-		return NewErrResp(context, err, apiError.APIServerErr)
-	}
+	reply :=d.DMS.VerifySmsCode(req, userId)
 	return NewOkRespWithReply(context, reply)
 }
 

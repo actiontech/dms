@@ -554,7 +554,7 @@ func (d *DMSService) SendSmsCode(ctx context.Context, userId string) (reply *dms
 	}, nil
 }
 
-func (d *DMSService) VerifySmsCode(request *dmsV1.VerifySmsCodeReq, userId string) (reply *dmsV1.VerifySmsCodeReply, err error) {
+func (d *DMSService) VerifySmsCode(request *dmsV1.VerifySmsCodeReq, userId string) (reply *dmsV1.VerifySmsCodeReply) {
 	d.log.Infof("verify sms code")
 	verifyCodeBytes, err := cache.Get(fmt.Sprintf("%s:%s", pkgConst.VerifyCodeKey, userId))
 	if err != nil {
@@ -563,7 +563,7 @@ func (d *DMSService) VerifySmsCode(request *dmsV1.VerifySmsCodeReq, userId strin
 				IsVerifyNormally: false,
 				VerifyErrorMessage: "验证码已过期",
 			},
-		}, err
+		}
 	}
 	verifyCodeInCache := string(verifyCodeBytes)
 	if verifyCodeInCache == request.Code {
@@ -571,12 +571,12 @@ func (d *DMSService) VerifySmsCode(request *dmsV1.VerifySmsCodeReq, userId strin
 			Data: dmsV1.VerifySmsCodeReplyData{
 				IsVerifyNormally: true,
 			},
-		}, err
+		}
 	}
 	return &dmsV1.VerifySmsCodeReply{
 		Data: dmsV1.VerifySmsCodeReplyData{
 			IsVerifyNormally: false,
 			VerifyErrorMessage: "验证码错误",
 		},
-	}, err
+	}
 }
