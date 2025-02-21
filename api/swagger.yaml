@@ -255,6 +255,10 @@ definitions:
                 description: User name
                 type: string
                 x-go-name: UserName
+            verify_code:
+                description: VerifyCode
+                type: string
+                x-go-name: VerifyCode
         required:
             - username
             - password
@@ -270,6 +274,10 @@ definitions:
             data:
                 description: Add user reply
                 properties:
+                    message:
+                        description: Message
+                        type: string
+                        x-go-name: Message
                     token:
                         description: Session token
                         type: string
@@ -1667,6 +1675,39 @@ definitions:
                 description: message
                 type: string
                 x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetSmsConfigurationReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/GetSmsConfigurationReplyItem'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetSmsConfigurationReplyItem:
+        properties:
+            configuration:
+                additionalProperties:
+                    type: string
+                type: object
+                x-go-name: Configuration
+            enable:
+                type: boolean
+                x-go-name: Enable
+            sms_type:
+                type: string
+                x-go-name: SmsType
+            url:
+                type: string
+                x-go-name: Url
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetUser:
@@ -3927,6 +3968,38 @@ definitions:
                 x-go-name: QueryTimeoutSecond
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    SendSmsCodeReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/SendSmsCodeReplyData'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    SendSmsCodeReplyData:
+        properties:
+            is_sms_code_sent_normally:
+                type: boolean
+                x-go-name: IsSmsCodeSentNormally
+            send_error_message:
+                type: string
+                x-go-name: SendErrorMessage
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    SendSmsCodeReq:
+        properties:
+            username:
+                type: string
+                x-go-name: Username
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     Task:
         properties:
             task_uid:
@@ -4030,6 +4103,44 @@ definitions:
             is_smtp_send_normal:
                 type: boolean
                 x-go-name: IsSMTPSendNormal
+            send_error_message:
+                type: string
+                x-go-name: SendErrorMessage
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TestSmsConfiguration:
+        properties:
+            recipient_phone:
+                type: string
+                x-go-name: RecipientPhone
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TestSmsConfigurationReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/TestSmsConfigurationResData'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TestSmsConfigurationReq:
+        properties:
+            test_sms_configuration:
+                $ref: '#/definitions/TestSmsConfiguration'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TestSmsConfigurationResData:
+        properties:
+            is_smtp_send_normal:
+                type: boolean
+                x-go-name: IsSmsSendNormal
             send_error_message:
                 type: string
                 x-go-name: SendErrorMessage
@@ -4170,6 +4281,10 @@ definitions:
                 description: User phone
                 type: string
                 x-go-name: Phone
+            two_factor_enabled:
+                description: User two factor enabled
+                type: boolean
+                x-go-name: TwoFactorEnabled
             wxid:
                 description: User wxid
                 type: string
@@ -4457,6 +4572,30 @@ definitions:
                 $ref: '#/definitions/UpdateSMTPConfiguration'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateSmsConfiguration:
+        properties:
+            configuration:
+                additionalProperties:
+                    type: string
+                type: object
+                x-go-name: Configuration
+            enable_sms:
+                type: boolean
+                x-go-name: EnableSms
+            sms_type:
+                type: string
+                x-go-name: SmsType
+            url:
+                type: string
+                x-go-name: Url
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateSmsConfigurationReq:
+        properties:
+            update_sms_configuration:
+                $ref: '#/definitions/UpdateSmsConfiguration'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateUser:
         properties:
             email:
@@ -4647,6 +4786,72 @@ definitions:
                 x-go-name: ProjectUid
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    VerifySmsCodeReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/VerifySmsCodeReplyData'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    VerifySmsCodeReplyData:
+        properties:
+            is_verify_sent_normally:
+                type: boolean
+                x-go-name: IsVerifyNormally
+            verify_error_message:
+                type: string
+                x-go-name: VerifyErrorMessage
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    VerifySmsCodeReq:
+        properties:
+            code:
+                type: string
+                x-go-name: Code
+            username:
+                type: string
+                x-go-name: Username
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    VerifyUserLoginReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                properties:
+                    phone:
+                        type: string
+                        x-go-name: Phone
+                    two_factor_enabled:
+                        type: boolean
+                        x-go-name: TwoFactorEnabled
+                    user_uid:
+                        description: If verify Successful, return user uid
+                        type: string
+                        x-go-name: UserUid
+                    verify_failed_msg:
+                        description: If verify Successful, return empty string, otherwise return error message
+                        type: string
+                        x-go-name: VerifyFailedMsg
+                type: object
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     WeChatConfigurationResData:
         properties:
             agent_id:
@@ -5104,6 +5309,114 @@ paths:
             summary: Update Oauth2 configuration..
             tags:
                 - Configuration
+    /v1/dms/configurations/sms:
+        get:
+            operationId: GetSmsConfiguration
+            responses:
+                "200":
+                    description: GetSmsConfigurationReply
+                    schema:
+                        $ref: '#/definitions/GetSmsConfigurationReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: get sms configuration.
+            tags:
+                - Configuration
+        patch:
+            operationId: UpdateSmsConfiguration
+            parameters:
+                - description: update sms configuration
+                  in: body
+                  name: update_sms_configuration
+                  required: true
+                  schema:
+                    $ref: '#/definitions/UpdateSmsConfigurationReq'
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: update sms configuration.
+            tags:
+                - Configuration
+    /v1/dms/configurations/sms/send_code:
+        post:
+            operationId: SendSmsCode
+            parameters:
+                - description: user name
+                  in: body
+                  name: username
+                  required: true
+                  schema:
+                    $ref: '#/definitions/SendSmsCodeReq'
+            responses:
+                "200":
+                    description: SendSmsCodeReply
+                    schema:
+                        $ref: '#/definitions/SendSmsCodeReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: send sms code.
+            tags:
+                - SMS
+    /v1/dms/configurations/sms/test:
+        post:
+            operationId: TestSmsConfiguration
+            parameters:
+                - description: test sms configuration
+                  in: body
+                  name: test_sms_configuration
+                  required: true
+                  schema:
+                    $ref: '#/definitions/TestSmsConfigurationReq'
+            responses:
+                "200":
+                    description: TestSmsConfigurationReply
+                    schema:
+                        $ref: '#/definitions/TestSmsConfigurationReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: test smtp configuration.
+            tags:
+                - Configuration
+    /v1/dms/configurations/sms/verify_code:
+        post:
+            operationId: VerifySmsCode
+            parameters:
+                - description: verify sms code
+                  in: body
+                  name: code
+                  required: true
+                  schema:
+                    $ref: '#/definitions/VerifySmsCodeReq'
+                - description: user name
+                  in: body
+                  name: username
+                  required: true
+                  schema:
+                    $ref: '#/definitions/VerifySmsCodeReq'
+            responses:
+                "200":
+                    description: VerifySmsCodeReply
+                    schema:
+                        $ref: '#/definitions/VerifySmsCodeReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: verify sms code.
+            tags:
+                - SMS
     /v1/dms/configurations/smtp:
         get:
             operationId: GetSMTPConfiguration
@@ -7899,6 +8212,28 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: Gen user access token.
+            tags:
+                - User
+    /v1/dms/users/verify_user_login:
+        post:
+            operationId: VerifyUserLogin
+            parameters:
+                - description: Add a new session
+                  in: body
+                  name: session
+                  required: true
+                  schema:
+                    $ref: '#/definitions/AddSessionReq'
+            responses:
+                "200":
+                    description: VerifyUserLoginReply
+                    schema:
+                        $ref: '#/definitions/VerifyUserLoginReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Verify user login.
             tags:
                 - User
     /v1/dms/webhooks:

@@ -496,6 +496,43 @@ func (d *DMSController) Personalization(c echo.Context) error {
 	return NewOkResp(c)
 }
 
+// swagger:operation POST /v1/dms/users/verify_user_login User VerifyUserLogin
+//
+// Verify user login.
+//
+// ---
+// parameters:
+//   - name: session
+//     in: body
+//     required: true
+//     description: Add a new session
+//     schema:
+//       "$ref": "#/definitions/AddSessionReq"
+// responses:
+//   '200':
+//     description: VerifyUserLoginReply
+//     schema:
+//       "$ref": "#/definitions/VerifyUserLoginReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (a *DMSController) VerifyUserLogin(c echo.Context) error {
+	req := new(aV1.AddSessionReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	reply, err := a.DMS.VerifyUserLogin(c.Request().Context(), &aV1.VerifyUserLoginReq{
+		UserName: req.Session.UserName,
+		Password: req.Session.Password,
+	})
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
 // swagger:operation POST /v1/dms/sessions Session AddSession
 //
 // Add a session.
@@ -534,6 +571,22 @@ func (a *DMSController) AddSession(c echo.Context) error {
 		return NewErrResp(c, errors.New(reply.Data.VerifyFailedMsg), apiError.BadRequestErr)
 	}
 
+	if req.Session.VerifyCode != nil {
+		verifyCodeReply := a.DMS.VerifySmsCode(&aV1.VerifySmsCodeReq{
+			Code: *req.Session.VerifyCode,
+		},req.Session.UserName)
+		if !verifyCodeReply.Data.IsVerifyNormally {
+			return NewOkRespWithReply(c, &aV1.AddSessionReply{
+				Data: struct {
+					Token string `json:"token"`
+					Message string `json:"message"`
+				}{
+					Message: verifyCodeReply.Data.VerifyErrorMessage,
+				},
+			})
+		}
+	}
+
 	// Create token with claims
 	token, err := jwt.GenJwtToken(jwt.WithUserId(reply.Data.UserUid))
 	if nil != err {
@@ -557,6 +610,7 @@ func (a *DMSController) AddSession(c echo.Context) error {
 	return NewOkRespWithReply(c, &aV1.AddSessionReply{
 		Data: struct {
 			Token string `json:"token"`
+			Message string `json:"message"`
 		}{
 			Token: token,
 		},
@@ -2776,6 +2830,159 @@ func (d *DMSController) TestWebHookConfiguration(c echo.Context) error {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
 	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:operation PATCH /v1/dms/configurations/sms Configuration UpdateSmsConfiguration
+//
+// update sms configuration.
+//
+// ---
+// parameters:
+//   - name: update_sms_configuration
+//     description: update sms configuration
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateSmsConfigurationReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (d *DMSController) UpdateSmsConfiguration(context echo.Context) error {
+	req := new(aV1.UpdateSmsConfigurationReq)
+	err := bindAndValidateReq(context, req)
+	if nil != err {
+		return NewErrResp(context, err, apiError.BadRequestErr)
+	}
+	err = d.DMS.UpdateSmsConfiguration(context.Request().Context(), req)
+	if err != nil {
+		return NewErrResp(context, err, apiError.APIServerErr)
+	}
+	return NewOkResp(context)
+}
+
+// swagger:operation POST /v1/dms/configurations/sms/test Configuration TestSmsConfiguration
+//
+// test smtp configuration.
+//
+// ---
+// parameters:
+//   - name: test_sms_configuration
+//     description: test sms configuration
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/TestSmsConfigurationReq"
+// responses:
+//   '200':
+//     description: TestSmsConfigurationReply
+//     schema:
+//       "$ref": "#/definitions/TestSmsConfigurationReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (d *DMSController) TestSmsConfiguration(context echo.Context) error {
+	req := new(aV1.TestSmsConfigurationReq)
+	err := bindAndValidateReq(context, req)
+	if nil != err {
+		return NewErrResp(context, err, apiError.BadRequestErr)
+	}
+	reply, err := d.DMS.TestSmsConfiguration(context.Request().Context(), req)
+	if err != nil {
+		return NewErrResp(context, err, apiError.APIServerErr)
+	}
+	return NewOkRespWithReply(context, reply)
+}
+
+
+// swagger:route GET /v1/dms/configurations/sms Configuration GetSmsConfiguration
+//
+// get sms configuration.
+//
+//	responses:
+//	  200: body:GetSmsConfigurationReply
+//	  default: body:GenericResp
+func (d *DMSController) GetSmsConfiguration(c echo.Context) error {
+	reply, err := d.DMS.GetSmsConfiguration(c.Request().Context())
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:operation POST /v1/dms/configurations/sms/send_code SMS SendSmsCode
+//
+// send sms code.
+//
+// ---
+// parameters:
+//   - name: username
+//     description: user name
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/SendSmsCodeReq"
+// responses:
+//   '200':
+//     description: SendSmsCodeReply
+//     schema:
+//       "$ref": "#/definitions/SendSmsCodeReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (d *DMSController) SendSmsCode(context echo.Context) error {
+	req := new(aV1.SendSmsCodeReq)
+	err := bindAndValidateReq(context, req)
+	reply, err := d.DMS.SendSmsCode(context.Request().Context(), req.Username)
+	if err != nil {
+		return NewErrResp(context, err, apiError.APIServerErr)
+	}
+	return NewOkRespWithReply(context, reply)
+}
+
+// swagger:operation POST /v1/dms/configurations/sms/verify_code SMS VerifySmsCode
+//
+// verify sms code.
+//
+// ---
+// parameters:
+//   - name: code
+//     description: verify sms code
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/VerifySmsCodeReq"
+//   - name: username
+//     description: user name
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/VerifySmsCodeReq"
+// responses:
+//   '200':
+//     description: VerifySmsCodeReply
+//     schema:
+//       "$ref": "#/definitions/VerifySmsCodeReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (d *DMSController) VerifySmsCode(context echo.Context) error {
+	req := new(aV1.VerifySmsCodeReq)
+	err := bindAndValidateReq(context, req)
+	if nil != err {
+		return NewErrResp(context, err, apiError.BadRequestErr)
+	}
+	// 2. 取到验证码后，将前端传递的验证码进行比较是否相同，如果相同则返回验证成功
+	reply :=d.DMS.VerifySmsCode(req, req.Username)
+	return NewOkRespWithReply(context, reply)
 }
 
 // swagger:route POST /v1/dms/notifications Notification Notification
