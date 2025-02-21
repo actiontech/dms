@@ -36,6 +36,7 @@ var AutoMigrateList = []interface{}{
 	WebHookConfiguration{},
 	WeChatConfiguration{},
 	IMConfiguration{},
+	SmsConfiguration{},
 	CloudbeaverUserCache{},
 	CloudbeaverConnectionCache{},
 	DBServiceSyncTask{},
@@ -121,6 +122,7 @@ type User struct {
 	Password               string         `json:"password" gorm:"size:255;column:password"`
 	UserAuthenticationType string         `json:"user_authentication_type" gorm:"size:255;not null;column:user_authentication_type"`
 	Stat                   uint           `json:"stat" gorm:"not null"`
+	TwoFactorEnabled       bool           `json:"two_factor_enabled" gorm:"default:false; not null"`
 	LastLoginAt            *time.Time     `json:"last_login_at" gorm:"column:last_login_at"`
 	DeletedAt              gorm.DeletedAt `json:"delete_at" gorm:"column:delete_at" sql:"index"`
 
@@ -326,6 +328,17 @@ type WebHookConfiguration struct {
 	RetryIntervalSeconds int    `json:"retry_interval_seconds" gorm:"not null"`
 	EncryptedToken       string `json:"encrypted_token" gorm:"size:255;not null"`
 	URL                  string `json:"url" gorm:"size:255;not null"`
+}
+
+
+type JSON json.RawMessage
+
+type SmsConfiguration struct {
+	Model
+	Enable        bool   `json:"enable" gorm:"default:true;not null"`
+	Type          string `json:"type" gorm:"size:255;not null"`
+	Url           string `json:"url"  gorm:"size:255;not null"`
+	Configuration JSON   `json:"configuration" gorm:"type:json"`
 }
 
 const (
