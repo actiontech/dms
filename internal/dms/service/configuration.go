@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
@@ -457,6 +457,71 @@ func (d *DMSService) TestWebHookConfiguration(ctx context.Context) (reply *dmsV1
 			SendErrorMessage:      sendErrorMessage,
 		},
 	}, nil
+}
+
+func (d *DMSService) UpdateSmsConfiguration(ctx context.Context, req *dmsV1.UpdateSmsConfigurationReq) (err error) {
+	d.log.Infof("UpdateSmsConfiguration")
+	defer func() {
+		d.log.Infof("UpdateSmsConfiguration;error=%v", err)
+	}()
+	return d.SmsConfigurationUseCase.UpdateSmsConfiguration(ctx, req.UpdateSmsConfiguration.EnableSms, req.UpdateSmsConfiguration.Url, req.UpdateSmsConfiguration.SmsType, req.UpdateSmsConfiguration.Configuration)
+}
+
+func (d *DMSService) TestSmsConfiguration(ctx context.Context, req *dmsV1.TestSmsConfigurationReq) (reply *dmsV1.TestSmsConfigurationReply, err error) {
+	d.log.Infof("TestSmsConfiguration")
+	defer func() {
+		d.log.Infof("TestSmsConfiguration;error=%v", err)
+	}()
+	isSmsSendNormal, sendErrorMessage := true, "ok"
+	err = d.SmsConfigurationUseCase.TestSmsConfiguration(ctx, req.TestSmsConfiguration.RecipientPhone)
+	if err != nil {
+		isSmsSendNormal = false
+		sendErrorMessage = err.Error()
+	}
+	return &dmsV1.TestSmsConfigurationReply{
+		Data: dmsV1.TestSmsConfigurationResData{
+			IsSmsSendNormal: isSmsSendNormal,
+			SendErrorMessage: sendErrorMessage,
+		},
+	}, nil
+}
+
+func (d *DMSService) GetSmsConfiguration(ctx context.Context) (reply *dmsV1.GetSmsConfigurationReply, err error) {
+	smsConfiguration, exist, err := d.SmsConfigurationUseCase.GetSmsConfiguration(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if !exist {
+		return &dmsV1.GetSmsConfigurationReply{
+			Data: dmsV1.GetSmsConfigurationReplyItem{},
+		}, nil
+	}
+	configuration := map[string]string{}
+	err = json.Unmarshal([]byte(smsConfiguration.Configuration), &configuration)
+	return &dmsV1.GetSmsConfigurationReply{
+		Data: dmsV1.GetSmsConfigurationReplyItem{
+			Enable:        smsConfiguration.Enable,
+			Url:           smsConfiguration.Url,
+			Configuration: configuration,
+			SmsType:       smsConfiguration.Type,
+		},
+	}, nil
+}
+
+func (d *DMSService) SendSmsCode(ctx context.Context, username string) (reply *dmsV1.SendSmsCodeReply, err error) {
+	d.log.Infof("send sms code")
+	defer func() {
+		d.log.Infof("send sms code;error=%v", err)
+	}()
+    return d.SmsConfigurationUseCase.SendSmsCode(ctx, username)
+}
+
+func (d *DMSService) VerifySmsCode(request *dmsV1.VerifySmsCodeReq, username string) (reply *dmsV1.VerifySmsCodeReply) {
+	d.log.Infof("verify sms code")
+	defer func() {
+		d.log.Infof("verify sms code %v", reply)
+	}()
+	return d.SmsConfigurationUseCase.VerifySmsCode(request, username)
 }
 
 func (d *DMSService) NotifyMessage(ctx context.Context, req *dmsCommonV1.NotificationReq) (err error) {
