@@ -2,6 +2,29 @@ package v1
 
 import base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 
+// swagger:model GetLoginTipsReply
+type GetLoginTipsReply struct {
+	Data LoginTipsResData `json:"data"`
+
+	// Generic reply
+	base.GenericResp
+}
+
+type LoginTipsResData struct {
+	LoginButtonText     string `json:"login_button_text"`
+	DisableUserPwdLogin bool   `json:"disable_user_pwd_login"`
+}
+
+// swagger:model
+type UpdateLoginConfigurationReq struct {
+	LoginConfiguration LoginConfiguration `json:"login" validate:"required"`
+}
+
+type LoginConfiguration struct {
+	LoginButtonText     *string `json:"login_button_text"`
+	DisableUserPwdLogin *bool   `json:"disable_user_pwd_login"`
+}
+
 type GetOauth2ConfigurationResData struct {
 	EnableOauth2    bool     `json:"enable_oauth2"`
 	SkipCheckState  bool     `json:"skip_check_state"`
