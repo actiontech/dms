@@ -280,6 +280,92 @@ type UpdateFeishuConfiguration struct {
 }
 
 // swagger:model
+type UpdateSmsConfigurationReq struct {
+	UpdateSmsConfiguration UpdateSmsConfiguration `json:"update_sms_configuration"`
+}
+
+// swagger:model
+type TestSmsConfigurationReq struct {
+	TestSmsConfiguration TestSmsConfiguration `json:"test_sms_configuration"`
+}
+
+type TestSmsConfiguration struct {
+	RecipientPhone string `json:"recipient_phone" validate:"required"`
+}
+
+// swagger:model TestSmsConfigurationReply
+type TestSmsConfigurationReply struct {
+	Data TestSmsConfigurationResData `json:"data"`
+
+	// Generic reply
+	base.GenericResp
+}
+
+type TestSmsConfigurationResData struct {
+	IsSmsSendNormal bool   `json:"is_smtp_send_normal"`
+	SendErrorMessage string `json:"send_error_message,omitempty"`
+}
+
+// swagger:model
+type VerifySmsCodeReq struct {
+	Code     string `json:"code" validate:"required"`
+	Username string `json:"username" validate:"required"`
+}
+
+// swagger:model
+type SendSmsCodeReq struct {
+	Username string `json:"username" validate:"required"`
+}
+
+type UpdateSmsConfiguration struct {
+	EnableSms     *bool              `json:"enable_sms" form:"enable_sms"`
+	Url           *string            `json:"url" form:"url"`
+	SmsType       *string            `json:"sms_type" form:"sms_type" enums:"ali,tencent,webhook"`
+	Configuration *map[string]string `json:"configuration" form:"configuration"`
+}
+
+// swagger:model GetSmsConfigurationReply
+type GetSmsConfigurationReply struct {
+	Data GetSmsConfigurationReplyItem `json:"data"`
+
+	// Generic reply
+	base.GenericResp
+}
+
+type GetSmsConfigurationReplyItem struct {
+	Enable        bool              `json:"enable" description:"是否启用"`
+	Url           string            `json:"url" description:"服务地址"`
+	SmsType       string            `json:"sms_type" description:"短信服务类型"`
+	Configuration map[string]string `json:"configuration" description:"配置详情"`
+}
+
+// swagger:model SendSmsCodeReply
+type SendSmsCodeReply struct {
+	Data SendSmsCodeReplyData `json:"data"`
+
+	// Generic reply
+	base.GenericResp
+}
+
+type SendSmsCodeReplyData struct {
+	IsSmsCodeSentNormally bool   `json:"is_sms_code_sent_normally"`
+	SendErrorMessage      string `json:"send_error_message,omitempty"`
+}
+
+// swagger:model VerifySmsCodeReply
+type VerifySmsCodeReply struct {
+	Data VerifySmsCodeReplyData `json:"data"`
+
+	// Generic reply
+	base.GenericResp
+}
+
+type VerifySmsCodeReplyData struct {
+	IsVerifyNormally   bool   `json:"is_verify_sent_normally"`
+	VerifyErrorMessage string `json:"verify_error_message,omitempty"`
+}
+
+// swagger:model
 type TestFeishuConfigurationReq struct {
 	TestFeishuConfiguration TestFeishuConfiguration `json:"test_feishu_configuration" validate:"required"`
 }
