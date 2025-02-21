@@ -211,49 +211,50 @@ func NewUserUsecase(log utilLog.Logger, tx TransactionGenerator, repo UserRepo, 
 	}
 }
 
-func (d *UserUsecase) UserLogin(ctx context.Context, name string, password string) (uid string, twoFactorEnabled bool, err error) {
-	loginVerifier, twoFactorEnabled, err := d.GetUserLoginVerifier(ctx, name)
+func (d *UserUsecase) UserLogin(ctx context.Context, name string, password string) (uid string, twoFactorEnabled bool, phone string, err error) {
+	loginVerifier, twoFactorEnabled, phone, err := d.GetUserLoginVerifier(ctx, name)
 	if err != nil {
-		return "", twoFactorEnabled, fmt.Errorf("get user login verifier failed: %v", err)
+		return "", twoFactorEnabled, phone, fmt.Errorf("get user login verifier failed: %v", err)
 	}
 	userUid, err := loginVerifier.Verify(ctx, name, password)
 	if err != nil {
-		return "", twoFactorEnabled, fmt.Errorf("verify user login failed: %v", err)
+		return "", twoFactorEnabled, phone, fmt.Errorf("verify user login failed: %v", err)
 	}
 
 	loginC, err := d.loginConfigurationUsecase.GetLoginConfiguration(ctx)
 	if err != nil {
-		return "", twoFactorEnabled, err
+		return "", twoFactorEnabled, phone,err
 	}
 	if loginC.DisableUserPwdLogin {
 		isDmsAdmin, err := d.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, userUid)
 		if err != nil {
-			return "", twoFactorEnabled, err
+			return "", twoFactorEnabled, phone, err
 		}
 		if !isDmsAdmin {
-			return "", twoFactorEnabled, fmt.Errorf("normal user account password login has been disabled")
+			return "", twoFactorEnabled, phone, fmt.Errorf("normal user account password login has been disabled")
 		}
 	}
 
-	return userUid, twoFactorEnabled, nil
+	return userUid, twoFactorEnabled, phone, nil
 }
 
 // GetUserLoginVerifier get login Verifier by user name and init login verifier
-func (d *UserUsecase) GetUserLoginVerifier(ctx context.Context, name string) (UserLoginVerifier, bool, error) {
+func (d *UserUsecase) GetUserLoginVerifier(ctx context.Context, name string) (UserLoginVerifier, bool, string, error) {
 	user, err := d.repo.GetUserByName(ctx, name)
 	if nil != err && !errors.Is(err, pkgErr.ErrStorageNoData) {
-		return nil, false, fmt.Errorf("get user by name error: %v", err)
+		return nil, false, "",fmt.Errorf("get user by name error: %v", err)
 	}
 	towFactorEnabled := user.TwoFactorEnabled
+	phone := user.Phone
 
 	ldapC, _, err := d.ldapConfigurationUsecase.GetLDAPConfiguration(ctx)
 	if err != nil {
-		return nil, towFactorEnabled, fmt.Errorf("get ldap configuration failed: %v", err)
+		return nil, towFactorEnabled, phone, fmt.Errorf("get ldap configuration failed: %v", err)
 	}
 
 	loginVerifierType, exist := d.getLoginVerifierType(user, ldapC)
 	if err != nil {
-		return nil, towFactorEnabled, fmt.Errorf("get login verifier type failed: %v", err)
+		return nil, towFactorEnabled, phone, fmt.Errorf("get login verifier type failed: %v", err)
 	}
 
 	var userLoginVerifier UserLoginVerifier
@@ -275,13 +276,13 @@ func (d *UserUsecase) GetUserLoginVerifier(ctx context.Context, name string) (Us
 				userUsecase: d,
 			}
 		case loginVerifierTypeUnknown:
-			return nil, towFactorEnabled,fmt.Errorf("the user login type is unsupported")
+			return nil, towFactorEnabled, phone, fmt.Errorf("the user login type is unsupported")
 		default:
-			return nil, towFactorEnabled,fmt.Errorf("the user does not exist or the password is wrong")
+			return nil, towFactorEnabled, phone, fmt.Errorf("the user does not exist or the password is wrong")
 		}
 
 	}
-	return userLoginVerifier, towFactorEnabled, nil
+	return userLoginVerifier, towFactorEnabled, phone , nil
 }
 
 type verifierType int

@@ -509,6 +509,7 @@ func (d *DMSService) GetSmsConfiguration(ctx context.Context) (reply *dmsV1.GetS
 			Enable:        smsConfiguration.Enable,
 			Url:           smsConfiguration.Url,
 			Configuration: configuration,
+			SmsType:       smsConfiguration.Type,
 		},
 	}, nil
 }

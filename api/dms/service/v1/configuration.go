@@ -410,6 +410,7 @@ type GetSmsConfigurationReply struct {
 type GetSmsConfigurationReplyItem struct {
 	Enable        bool              `json:"enable" description:"是否启用"`
 	Url           string            `json:"url" description:"服务地址"`
+	SmsType       string            `json:"sms_type" description:"短信服务类型"`
 	Configuration map[string]string `json:"configuration" description:"配置详情"`
 }
 

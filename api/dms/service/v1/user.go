@@ -162,6 +162,7 @@ type VerifyUserLoginReply struct {
 		VerifyFailedMsg string `json:"verify_failed_msg"`
 		// If verify Successful, return user uid
 		UserUid string `json:"user_uid"`
+		Phone string  `json:"phone"`
 		TwoFactorEnabled bool `json:"two_factor_enabled"`
 	} `json:"data"`
 }

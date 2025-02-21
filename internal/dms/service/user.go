@@ -23,7 +23,7 @@ func (d *DMSService) VerifyUserLogin(ctx context.Context, req *dmsV1.VerifyUserL
 	}()
 
 	var verifyFailedMsg string
-	uid, twoFactorEnabled, err := d.UserUsecase.UserLogin(ctx, req.UserName, req.Password)
+	uid, twoFactorEnabled, phone, err := d.UserUsecase.UserLogin(ctx, req.UserName, req.Password)
 	if nil != err {
 		verifyFailedMsg = err.Error()
 	}
@@ -34,8 +34,9 @@ func (d *DMSService) VerifyUserLogin(ctx context.Context, req *dmsV1.VerifyUserL
 			VerifyFailedMsg string `json:"verify_failed_msg"`
 			// If verify Successful, return user uid
 			UserUid string `json:"user_uid"`
+			Phone   string `json:"phone"`
 			TwoFactorEnabled bool `json:"two_factor_enabled"`
-		}{UserUid: uid, VerifyFailedMsg: verifyFailedMsg, TwoFactorEnabled: twoFactorEnabled},
+		}{UserUid: uid, VerifyFailedMsg: verifyFailedMsg, Phone: phone, TwoFactorEnabled: twoFactorEnabled},
 	}, nil
 }
 
