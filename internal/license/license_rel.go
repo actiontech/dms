@@ -56,6 +56,7 @@ type LicensePermission struct {
 	Version                    string          // SQLE version
 	UserCount                  int             // The number of user
 	NumberOfInstanceOfEachType LimitOfEachType // Instance limit
+	KnowledgeBaseDBTypes       []string        // Knowledge base database type
 }
 
 type ClusterHardwareSign struct {
