@@ -172,7 +172,7 @@ func (d *SmsConfigurationRepo) GetLastSmsConfiguration(ctx context.Context) (*mo
 	var smsConfiguration *model.SmsConfiguration
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		if err := tx.Last(&smsConfiguration).Error; err != nil {
-			return fmt.Errorf("failed to get webhook configuration: %v", err)
+			return fmt.Errorf("failed to get sms configuration: %v", err)
 		}
 		return nil
 	}); err != nil {

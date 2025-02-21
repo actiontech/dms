@@ -20,7 +20,7 @@ func init() {
 		CleanWindow: 5 * time.Minute,
 		// 设置最大存储对象数量，仅在初始化时可以设置
 		//MaxEntriesInWindow: 1000 * 10 * 60,
-		MaxEntriesInWindow: 1,
+		MaxEntriesInWindow: 1000 * 10 * 60,
 		// 缓存对象的最大字节数，仅在初始化时可以设置
 		MaxEntrySize: 500,
 		// 是否打印内存分配信息
