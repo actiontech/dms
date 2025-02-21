@@ -13,12 +13,12 @@ import (
 	"github.com/actiontech/dms/internal/dms/storage/model"
 	"math/rand"
 	"strconv"
-	"time"
 )
 
 const VerifyCodeKey = "verify_code"
 
 func (d *SmsConfigurationUseCase) UpdateSmsConfiguration(ctx context.Context, enable *bool, url *string, smsType *string, configuration *map[string]string) error {
+	d.log.Infof("update sms configuration")
 	smsConfiguration, err := d.repo.GetLastSmsConfiguration(ctx)
 	if err != nil {
 		if !errors.Is(err, pkgErr.ErrStorageNoData) {
@@ -65,7 +65,6 @@ func (d *SmsConfigurationUseCase) GetSmsConfiguration(ctx context.Context) (smsC
 func (d *SmsConfigurationUseCase) SendSmsCode(ctx context.Context, username string) (reply *dmsV1.SendSmsCodeReply, err error) {
 	d.log.Infof("send sms code")
 	// 1. 生成4位的随机数
-	rand.New(rand.NewSource(time.Now().UnixNano()))
 	code := strconv.Itoa(rand.Intn(9000) + 1000)
 	// 2. 调用短信接口发送随机数
 	_, exist, err := d.GetSmsConfiguration(ctx)
