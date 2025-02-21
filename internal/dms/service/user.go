@@ -116,7 +116,7 @@ func (d *DMSService) UpdateUser(ctx context.Context, req *dmsV1.UpdateUserReq, c
 }
 
 func (d *DMSService) UpdateCurrentUser(ctx context.Context, req *dmsV1.UpdateCurrentUserReq, currentUserUid string) (err error) {
-	if err = d.UserUsecase.UpdateCurrentUser(ctx, currentUserUid, req.User.OldPassword, req.User.Password, req.User.Email, req.User.Phone, req.User.WxID, req.User.Language); nil != err {
+	if err = d.UserUsecase.UpdateCurrentUser(ctx, currentUserUid, req.User.OldPassword, req.User.Password, req.User.Email, req.User.Phone, req.User.WxID, req.User.Language, req.User.TwoFactorEnabled); nil != err {
 		return fmt.Errorf("update user failed: %v", err)
 	}
 
@@ -452,6 +452,7 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 		Phone:              u.Phone,
 		WxID:               u.WxID,
 		Language:           u.Language,
+		TwoFactorEnabled:   u.TwoFactorEnabled,
 		ThirdPartyUserInfo: u.ThirdPartyUserInfo,
 	}
 
