@@ -32,6 +32,7 @@ type DMSService struct {
 	SMTPConfigurationUsecase    *biz.SMTPConfigurationUsecase
 	WeChatConfigurationUsecase  *biz.WeChatConfigurationUsecase
 	WebHookConfigurationUsecase *biz.WebHookConfigurationUsecase
+	SmsConfigurationUseCase     *biz.SmsConfigurationUseCase
 	IMConfigurationUsecase      *biz.IMConfigurationUsecase
 	CompanyNoticeUsecase        *biz.CompanyNoticeUsecase
 	LicenseUsecase              *biz.LicenseUsecase
@@ -106,6 +107,8 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	wechatConfigurationUsecase := biz.NewWeChatConfigurationUsecase(logger, tx, wechatConfigurationRepo)
 	webhookConfigurationRepo := storage.NewWebHookConfigurationRepo(logger, st)
 	webhookConfigurationUsecase := biz.NewWebHookConfigurationUsecase(logger, tx, webhookConfigurationRepo)
+	smsConfigurationRepo := storage.NewSmsConfigurationRepo(logger, st)
+	smsConfigurationUsecase := biz.NewSmsConfigurationUsecase(logger, tx, smsConfigurationRepo)
 	imConfigurationRepo := storage.NewIMConfigurationRepo(logger, st)
 	imConfigurationUsecase := biz.NewIMConfigurationUsecase(logger, tx, imConfigurationRepo)
 	basicConfigRepo := storage.NewBasicConfigRepo(logger, st)
@@ -156,6 +159,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		WeChatConfigurationUsecase:  wechatConfigurationUsecase,
 		WebHookConfigurationUsecase: webhookConfigurationUsecase,
 		IMConfigurationUsecase:      imConfigurationUsecase,
+		SmsConfigurationUseCase:     smsConfigurationUsecase,
 		CompanyNoticeUsecase:        companyNoticeRepoUsecase,
 		LicenseUsecase:              LicenseUsecase,
 		ClusterUsecase:              clusterUsecase,
