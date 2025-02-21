@@ -317,6 +317,8 @@ func (s *APIServer) installMiddleware() error {
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/personalization/logo") ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/license" /* TODO 使用统一方法skip */) ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/users/verify_user_login" /* TODO 使用统一方法skip */) ||
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/sms/send_code" /* TODO 使用统一方法skip */) ||
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/sms/verify_code" /* TODO 使用统一方法skip */) ||
 				!strings.HasPrefix(c.Request().RequestURI, dmsV1.CurrentGroupVersion) {
 				logger.Debugf("skipper url jwt check: %v", c.Request().RequestURI)
 				return true

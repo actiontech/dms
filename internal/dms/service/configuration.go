@@ -530,7 +530,7 @@ func (d *DMSService) WebHookSendMessage(ctx context.Context, req *dmsCommonV1.We
 	return d.WebHookConfigurationUsecase.SendWebHookMessage(ctx, string(req.WebHookMessage.TriggerEventType), req.WebHookMessage.Message)
 }
 
-func (d *DMSService) SendSmsCode(ctx context.Context, userId string) (reply *dmsV1.SendSmsCodeReply, err error) {
+func (d *DMSService) SendSmsCode(ctx context.Context, username string) (reply *dmsV1.SendSmsCodeReply, err error) {
 	d.log.Infof("send sms code")
 	// 1. 生成4位的随机数
 	rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -545,7 +545,7 @@ func (d *DMSService) SendSmsCode(ctx context.Context, userId string) (reply *dms
 	}
 	// TODO: 等到有真正的短信平台后进行对接, 这里暂时通过SendErrorMessage返回code,代替接收短信
 	// 3. 发送成功后将随机数保存到缓存，设置五分钟过期时间。发送失败返回失败原因。
-	err = cache.Set(fmt.Sprintf("%s:%s", pkgConst.VerifyCodeKey, userId), []byte(code))
+	err = cache.Set(fmt.Sprintf("%s:%s", pkgConst.VerifyCodeKey, username), []byte(code))
 	return &dmsV1.SendSmsCodeReply{
 		Data: dmsV1.SendSmsCodeReplyData{
 			IsSmsCodeSentNormally: true,
@@ -554,9 +554,9 @@ func (d *DMSService) SendSmsCode(ctx context.Context, userId string) (reply *dms
 	}, nil
 }
 
-func (d *DMSService) VerifySmsCode(request *dmsV1.VerifySmsCodeReq, userId string) (reply *dmsV1.VerifySmsCodeReply) {
+func (d *DMSService) VerifySmsCode(request *dmsV1.VerifySmsCodeReq, username string) (reply *dmsV1.VerifySmsCodeReply) {
 	d.log.Infof("verify sms code")
-	verifyCodeBytes, err := cache.Get(fmt.Sprintf("%s:%s", pkgConst.VerifyCodeKey, userId))
+	verifyCodeBytes, err := cache.Get(fmt.Sprintf("%s:%s", pkgConst.VerifyCodeKey, username))
 	if err != nil {
 		return &dmsV1.VerifySmsCodeReply{
 			Data: dmsV1.VerifySmsCodeReplyData{

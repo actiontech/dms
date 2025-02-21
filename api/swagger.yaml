@@ -3957,6 +3957,13 @@ definitions:
                 x-go-name: SendErrorMessage
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    SendSmsCodeReq:
+        properties:
+            username:
+                type: string
+                x-go-name: Username
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     Task:
         properties:
             task_uid:
@@ -4200,7 +4207,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -4767,6 +4774,9 @@ definitions:
             code:
                 type: string
                 x-go-name: Code
+            username:
+                type: string
+                x-go-name: Username
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     VerifyUserLoginReply:
@@ -5256,6 +5266,13 @@ paths:
     /v1/dms/configurations/sms/send_code:
         post:
             operationId: SendSmsCode
+            parameters:
+                - description: user name
+                  in: body
+                  name: username
+                  required: true
+                  schema:
+                      $ref: '#/definitions/SendSmsCodeReq'
             responses:
                 "200":
                     description: SendSmsCodeReply
@@ -5297,6 +5314,12 @@ paths:
                 - description: verify sms code
                   in: body
                   name: code
+                  required: true
+                  schema:
+                      $ref: '#/definitions/VerifySmsCodeReq'
+                - description: user name
+                  in: body
+                  name: username
                   required: true
                   schema:
                       $ref: '#/definitions/VerifySmsCodeReq'

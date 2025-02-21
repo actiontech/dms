@@ -573,7 +573,7 @@ func (a *DMSController) AddSession(c echo.Context) error {
 	if req.Session.VerifyCode != nil {
 		verifyCodeReply := a.DMS.VerifySmsCode(&aV1.VerifySmsCodeReq{
 			Code: *req.Session.VerifyCode,
-		},reply.Data.UserUid)
+		},req.Session.UserName)
 		if !verifyCodeReply.Data.IsVerifyNormally {
 			return NewOkRespWithReply(c, &aV1.AddSessionReply{
 				Data: struct {
@@ -2859,19 +2859,31 @@ func (d *DMSController) GetSmsConfiguration(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route POST /v1/dms/configurations/sms/send_code SMS SendSmsCode
+// swagger:operation POST /v1/dms/configurations/sms/send_code SMS SendSmsCode
 //
 // send sms code.
 //
-//	responses:
-//	  200: body:SendSmsCodeReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: username
+//     description: user name
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/SendSmsCodeReq"
+// responses:
+//   '200':
+//     description: SendSmsCodeReply
+//     schema:
+//       "$ref": "#/definitions/SendSmsCodeReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) SendSmsCode(context echo.Context) error {
-	userId, err := jwt.GetUserUidStrFromContext(context)
-	if err != nil {
-		return NewErrResp(context, err, apiError.DMSServiceErr)
-	}
-	reply, err := d.DMS.SendSmsCode(context.Request().Context(), userId)
+	req := new(aV1.SendSmsCodeReq)
+	err := bindAndValidateReq(context, req)
+	reply, err := d.DMS.SendSmsCode(context.Request().Context(), req.Username)
 	if err != nil {
 		return NewErrResp(context, err, apiError.APIServerErr)
 	}
@@ -2886,6 +2898,12 @@ func (d *DMSController) SendSmsCode(context echo.Context) error {
 // parameters:
 //   - name: code
 //     description: verify sms code
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/VerifySmsCodeReq"
+//   - name: username
+//     description: user name
 //     required: true
 //     in: body
 //     schema:
@@ -2905,13 +2923,8 @@ func (d *DMSController) VerifySmsCode(context echo.Context) error {
 	if nil != err {
 		return NewErrResp(context, err, apiError.BadRequestErr)
 	}
-	// 1. 从缓存中根据用户id取随机数，如果取不到则返回验证码过期
-	userId, err := jwt.GetUserUidStrFromContext(context)
-	if err != nil {
-		return NewErrResp(context, err, apiError.DMSServiceErr)
-	}
 	// 2. 取到验证码后，将前端传递的验证码进行比较是否相同，如果相同则返回验证成功
-	reply :=d.DMS.VerifySmsCode(req, userId)
+	reply :=d.DMS.VerifySmsCode(req, req.Username)
 	return NewOkRespWithReply(context, reply)
 }
 

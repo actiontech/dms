@@ -285,7 +285,13 @@ type TestSmsConfigurationResData struct {
 
 // swagger:model
 type VerifySmsCodeReq struct {
-	Code string `json:"code" validate:"required"`
+	Code     string `json:"code" validate:"required"`
+	Username string `json:"username" validate:"required"`
+}
+
+// swagger:model
+type SendSmsCodeReq struct {
+	Username string `json:"username" validate:"required"`
 }
 
 type UpdateSmsConfiguration struct {

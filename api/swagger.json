@@ -489,6 +489,17 @@
         ],
         "summary": "send sms code.",
         "operationId": "SendSmsCode",
+        "parameters": [
+          {
+            "description": "user name",
+            "name": "username",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SendSmsCodeReq"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "SendSmsCodeReply",
@@ -550,6 +561,15 @@
           {
             "description": "verify sms code",
             "name": "code",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VerifySmsCodeReq"
+            }
+          },
+          {
+            "description": "user name",
+            "name": "username",
             "in": "body",
             "required": true,
             "schema": {
@@ -9694,6 +9714,16 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "SendSmsCodeReq": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "x-go-name": "Username"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "Task": {
       "type": "object",
       "properties": {
@@ -10027,7 +10057,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
@@ -10782,6 +10812,10 @@
         "code": {
           "type": "string",
           "x-go-name": "Code"
+        },
+        "username": {
+          "type": "string",
+          "x-go-name": "Username"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
