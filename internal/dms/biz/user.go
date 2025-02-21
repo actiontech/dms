@@ -797,7 +797,7 @@ func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid, updateUser
 	return nil
 }
 
-func (d *UserUsecase) UpdateCurrentUser(ctx context.Context, currentUserUid string, oldPassword, password, email, phone, wxId, language *string) error {
+func (d *UserUsecase) UpdateCurrentUser(ctx context.Context, currentUserUid string, oldPassword, password, email, phone, wxId, language *string, twoFactorEnabled *bool) error {
 	user, err := d.GetUser(ctx, currentUserUid)
 	if err != nil {
 		return fmt.Errorf("get user failed: %v", err)
@@ -825,6 +825,9 @@ func (d *UserUsecase) UpdateCurrentUser(ctx context.Context, currentUserUid stri
 	}
 	if language != nil {
 		user.Language = *language
+	}
+	if twoFactorEnabled != nil {
+		user.TwoFactorEnabled = *twoFactorEnabled
 	}
 
 	if err := d.repo.UpdateUser(ctx, user); nil != err {
