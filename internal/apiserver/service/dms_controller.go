@@ -2280,6 +2280,61 @@ func (d *DMSController) RegisterDMSPlugin(c echo.Context) error {
 	return NewOkResp(c)
 }
 
+// swagger:route GET /v1/dms/configurations/login/tips Configuration GetLoginTips
+//
+// get login configuration.
+//
+//	responses:
+//	  200: body:GetLoginTipsReply
+//	  default: body:GenericResp
+func (d *DMSController) GetLoginTips(c echo.Context) error {
+	reply, err := d.DMS.GetLoginTips(c.Request().Context())
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:operation PATCH /v1/dms/configurations/login Configuration UpdateLoginConfiguration
+//
+// Update login configuration.
+//
+// ---
+// parameters:
+//   - name: login
+//     description: update login configuration
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateLoginConfigurationReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (d *DMSController) UpdateLoginConfiguration(c echo.Context) error {
+	req := new(aV1.UpdateLoginConfigurationReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	err = d.DMS.UpdateLoginConfiguration(c.Request().Context(), currentUserUid, req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	return NewOkResp(c)
+}
+
 // swagger:route GET /v1/dms/configurations/oauth2 Configuration GetOauth2Configuration
 //
 // Get Oauth2 configuration.

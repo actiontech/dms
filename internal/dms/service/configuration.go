@@ -19,12 +19,39 @@ import (
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
 
-func (d *DMSService) GetOauth2Configuration(ctx context.Context) (reply *dmsV1.GetOauth2ConfigurationReply, err error) {
-	d.log.Infof("GetOauth2Configuration")
+func (d *DMSService) GetLoginTips(ctx context.Context) (reply *dmsV1.GetLoginTipsReply, err error) {
+	loginConfiguration, err := d.LoginConfigurationUsecase.GetLoginConfiguration(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dmsV1.GetLoginTipsReply{
+		Data: dmsV1.LoginTipsResData{
+			LoginButtonText:     loginConfiguration.LoginButtonText,
+			DisableUserPwdLogin: loginConfiguration.DisableUserPwdLogin,
+		},
+	}, nil
+}
+
+func (d *DMSService) UpdateLoginConfiguration(ctx context.Context, userId string, req *dmsV1.UpdateLoginConfigurationReq) (err error) {
+	d.log.Infof("UpdateLoginConfiguration")
 	defer func() {
-		d.log.Infof("GetOauth2Configuration.reply=%v;error=%v", reply, err)
+		d.log.Infof("UpdateLoginConfiguration;error=%v", err)
 	}()
 
+	// 权限校验
+	if canGlobalOp, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, userId); err != nil {
+		return fmt.Errorf("check user op permission failed: %v", err)
+	} else if !canGlobalOp {
+		return fmt.Errorf("user is not project admin or golobal op permission user")
+	}
+
+	loginConfiguration := req.LoginConfiguration
+	err = d.LoginConfigurationUsecase.UpdateLoginConfiguration(ctx, loginConfiguration.LoginButtonText, loginConfiguration.DisableUserPwdLogin)
+	return
+}
+
+func (d *DMSService) GetOauth2Configuration(ctx context.Context) (reply *dmsV1.GetOauth2ConfigurationReply, err error) {
 	oauth2C, exist, err := d.Oauth2ConfigurationUsecase.GetOauth2Configuration(ctx)
 	if err != nil {
 		return nil, err
@@ -79,6 +106,7 @@ func (d *DMSService) GetOauth2ConfigurationTip(ctx context.Context) (reply *dmsV
 		},
 	}, nil
 }
+
 func (d *DMSService) UpdateOauth2Configuration(ctx context.Context, req *dmsV1.Oauth2ConfigurationReq) (err error) {
 	d.log.Infof("UpdateOauth2Configuration")
 	defer func() {

@@ -1469,6 +1469,21 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetLoginTipsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/LoginTipsResData'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetMemberGroup:
         properties:
             is_project_admin:
@@ -3347,6 +3362,26 @@ definitions:
                 x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    LoginConfiguration:
+        properties:
+            disable_user_pwd_login:
+                type: boolean
+                x-go-name: DisableUserPwdLogin
+            login_button_text:
+                type: string
+                x-go-name: LoginButtonText
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    LoginTipsResData:
+        properties:
+            disable_user_pwd_login:
+                type: boolean
+                x-go-name: DisableUserPwdLogin
+            login_button_text:
+                type: string
+                x-go-name: LoginButtonText
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     MIMEHeader:
         additionalProperties:
             items:
@@ -4207,7 +4242,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -4385,6 +4420,12 @@ definitions:
         properties:
             ldap:
                 $ref: '#/definitions/LDAPConfiguration'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateLoginConfigurationReq:
+        properties:
+            login:
+                $ref: '#/definitions/LoginConfiguration'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateMember:
@@ -5189,6 +5230,43 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: get license usage.
+            tags:
+                - Configuration
+    /v1/dms/configurations/login:
+        patch:
+            operationId: UpdateLoginConfiguration
+            parameters:
+                - description: update login configuration
+                  in: body
+                  name: login
+                  required: true
+                  schema:
+                    $ref: '#/definitions/UpdateLoginConfigurationReq'
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Update login configuration.
+            tags:
+                - Configuration
+    /v1/dms/configurations/login/tips:
+        get:
+            operationId: GetLoginTips
+            responses:
+                "200":
+                    description: GetLoginTipsReply
+                    schema:
+                        $ref: '#/definitions/GetLoginTipsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: get login configuration.
             tags:
                 - Configuration
     /v1/dms/configurations/oauth2:

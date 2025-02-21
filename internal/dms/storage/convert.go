@@ -599,6 +599,25 @@ func convertModelPlugin(t *model.Plugin) (*biz.Plugin, error) {
 	return p, nil
 }
 
+func convertBizLoginConfiguration(b *biz.LoginConfiguration) (*model.LoginConfiguration, error) {
+	return &model.LoginConfiguration{
+		Model: model.Model{
+			UID: b.UID,
+		},
+		LoginButtonText:     b.LoginButtonText,
+		DisableUserPwdLogin: b.DisableUserPwdLogin,
+	}, nil
+}
+
+func convertModelLoginConfiguration(m *model.LoginConfiguration) (*biz.LoginConfiguration, error) {
+	return &biz.LoginConfiguration{
+		Base:                convertBase(m.Model),
+		UID:                 m.UID,
+		LoginButtonText:     m.LoginButtonText,
+		DisableUserPwdLogin: m.DisableUserPwdLogin,
+	}, nil
+}
+
 func convertBizOauth2Configuration(b *biz.Oauth2Configuration) (*model.Oauth2Configuration, error) {
 	data, err := pkgAes.AesEncrypt(b.ClientKey)
 	if err != nil {

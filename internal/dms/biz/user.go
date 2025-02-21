@@ -189,13 +189,14 @@ type UserUsecase struct {
 	pluginUsecase             *PluginUsecase
 	opPermissionUsecase       *OpPermissionUsecase
 	OpPermissionVerifyUsecase *OpPermissionVerifyUsecase
+	loginConfigurationUsecase *LoginConfigurationUsecase
 	ldapConfigurationUsecase  *LDAPConfigurationUsecase
 	cloudBeaverRepo           CloudbeaverRepo
 	log                       *utilLog.Helper
 }
 
 func NewUserUsecase(log utilLog.Logger, tx TransactionGenerator, repo UserRepo, userGroupRepo UserGroupRepo, pluginUsecase *PluginUsecase, opPermissionUsecase *OpPermissionUsecase,
-	OpPermissionVerifyUsecase *OpPermissionVerifyUsecase, ldapConfigurationUsecase *LDAPConfigurationUsecase, cloudBeaverRepo CloudbeaverRepo) *UserUsecase {
+	OpPermissionVerifyUsecase *OpPermissionVerifyUsecase, loginConfigurationUsecase *LoginConfigurationUsecase, ldapConfigurationUsecase *LDAPConfigurationUsecase, cloudBeaverRepo CloudbeaverRepo) *UserUsecase {
 	return &UserUsecase{
 		tx:                        tx,
 		repo:                      repo,
@@ -203,6 +204,7 @@ func NewUserUsecase(log utilLog.Logger, tx TransactionGenerator, repo UserRepo, 
 		pluginUsecase:             pluginUsecase,
 		opPermissionUsecase:       opPermissionUsecase,
 		OpPermissionVerifyUsecase: OpPermissionVerifyUsecase,
+		loginConfigurationUsecase: loginConfigurationUsecase,
 		ldapConfigurationUsecase:  ldapConfigurationUsecase,
 		cloudBeaverRepo:           cloudBeaverRepo,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.user")),
@@ -217,6 +219,20 @@ func (d *UserUsecase) UserLogin(ctx context.Context, name string, password strin
 	userUid, err := loginVerifier.Verify(ctx, name, password)
 	if err != nil {
 		return "", twoFactorEnabled, fmt.Errorf("verify user login failed: %v", err)
+	}
+
+	loginC, err := d.loginConfigurationUsecase.GetLoginConfiguration(ctx)
+	if err != nil {
+		return "", twoFactorEnabled, err
+	}
+	if loginC.DisableUserPwdLogin {
+		isDmsAdmin, err := d.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, userUid)
+		if err != nil {
+			return "", twoFactorEnabled, err
+		}
+		if !isDmsAdmin {
+			return "", twoFactorEnabled, fmt.Errorf("normal user account password login has been disabled")
+		}
 	}
 
 	return userUid, twoFactorEnabled, nil
