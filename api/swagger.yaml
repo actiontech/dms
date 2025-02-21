@@ -1788,6 +1788,10 @@ definitions:
             third_party_user_info:
                 type: string
                 x-go-name: ThirdPartyUserInfo
+            two_factor_enabled:
+                description: user two factor enabled
+                type: boolean
+                x-go-name: TwoFactorEnabled
             uid:
                 description: user uid
                 type: string
