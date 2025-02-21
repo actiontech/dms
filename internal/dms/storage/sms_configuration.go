@@ -23,7 +23,7 @@ func NewSmsConfigurationRepo(log utilLog.Logger, s *Storage) *SmsConfigurationRe
 func (d *SmsConfigurationRepo) UpdateSmsConfiguration(ctx context.Context, smsConfiguration *model.SmsConfiguration) error {
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Model(smsConfiguration).Where("uid = ?", smsConfiguration.UID).Omit("created_at").Save(smsConfiguration).Error; err != nil {
-			return fmt.Errorf("failed to save webhook configuration: %v", err)
+			return fmt.Errorf("failed to save sms configuration: %v", err)
 		}
 		return nil
 	}); err != nil {
