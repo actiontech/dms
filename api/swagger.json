@@ -4502,6 +4502,40 @@
         }
       }
     },
+    "/v1/dms/users/verify_user_login": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Verify user login.",
+        "operationId": "VerifyUserLogin",
+        "parameters": [
+          {
+            "description": "Add a new session",
+            "name": "session",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddSessionReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "VerifyUserLoginReply",
+            "schema": {
+              "$ref": "#/definitions/VerifyUserLoginReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/users/{user_uid}": {
       "get": {
         "tags": [
@@ -4641,40 +4675,6 @@
             "description": "GetUserOpPermissionReply",
             "schema": {
               "$ref": "#/definitions/GetUserOpPermissionReply"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      }
-    },
-    "/v1/dms/verify_user_login": {
-      "post": {
-        "tags": [
-          "User"
-        ],
-        "summary": "Verify user login.",
-        "operationId": "VerifyUserLogin",
-        "parameters": [
-          {
-            "description": "Add a new session",
-            "name": "session",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/AddSessionReq"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "VerifyUserLoginReply",
-            "schema": {
-              "$ref": "#/definitions/VerifyUserLoginReply"
             }
           },
           "default": {
@@ -10027,7 +10027,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",

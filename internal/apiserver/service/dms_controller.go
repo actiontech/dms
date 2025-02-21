@@ -496,7 +496,7 @@ func (d *DMSController) Personalization(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:operation POST /v1/dms/verify_user_login User VerifyUserLogin
+// swagger:operation POST /v1/dms/users/verify_user_login User VerifyUserLogin
 //
 // Verify user login.
 //

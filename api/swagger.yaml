@@ -4200,7 +4200,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -8109,7 +8109,7 @@ paths:
             summary: Gen user access token.
             tags:
                 - User
-    /v1/dms/verify_user_login:
+    /v1/dms/users/verify_user_login:
         post:
             operationId: VerifyUserLogin
             parameters:
