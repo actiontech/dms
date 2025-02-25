@@ -176,7 +176,7 @@ func (d *SmsConfigurationUseCase) sendSmsCode(ctx context.Context, phone string)
 	return nil
 }
 
-func (d *SmsConfigurationUseCase) SendSmsCode(ctx context.Context, username string) (*dmsV1.SendSmsCodeReplyData, error) {
+func (d *SmsConfigurationUseCase) SendSmsCode(ctx context.Context, username string) (*dmsV1.SendSmsCodeReply, error) {
 	d.log.Infof("send sms code to user: %s", username)
 
 	// 1. 获取用户电话
@@ -191,14 +191,18 @@ func (d *SmsConfigurationUseCase) SendSmsCode(ctx context.Context, username stri
 
 	// 2. 发送短信
 	if err := d.sendSmsCode(ctx, phone); err != nil {
-		return &dmsV1.SendSmsCodeReplyData{
-			IsSmsCodeSentNormally: false,
-			SendErrorMessage:      err.Error(),
+		return &dmsV1.SendSmsCodeReply{
+			Data: dmsV1.SendSmsCodeReplyData{
+				IsSmsCodeSentNormally: false,
+				SendErrorMessage:      err.Error(),
+			},
 		}, nil
 	}
 
-	return &dmsV1.SendSmsCodeReplyData{
-		IsSmsCodeSentNormally: true,
+	return &dmsV1.SendSmsCodeReply{
+		Data: dmsV1.SendSmsCodeReplyData{
+			IsSmsCodeSentNormally: true,
+		},
 	}, nil
 }
 
