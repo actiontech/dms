@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+
 	"github.com/actiontech/dms/internal/dms/storage/model"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	pkgRand "github.com/actiontech/dms/pkg/rand"
@@ -25,15 +26,17 @@ type SmsConfigurationRepo interface {
 }
 
 type SmsConfigurationUseCase struct {
-	tx   TransactionGenerator
-	repo SmsConfigurationRepo
-	log  *utilLog.Helper
+	tx          TransactionGenerator
+	repo        SmsConfigurationRepo
+	userUsecase *UserUsecase
+	log         *utilLog.Helper
 }
 
-func NewSmsConfigurationUsecase(log utilLog.Logger, tx TransactionGenerator, repo SmsConfigurationRepo) *SmsConfigurationUseCase {
+func NewSmsConfigurationUsecase(log utilLog.Logger, tx TransactionGenerator, repo SmsConfigurationRepo, userUsecase *UserUsecase) *SmsConfigurationUseCase {
 	return &SmsConfigurationUseCase{
-		tx:   tx,
-		repo: repo,
-		log:  utilLog.NewHelper(log, utilLog.WithMessageKey("biz.webhook_configuration")),
+		tx:          tx,
+		repo:        repo,
+		userUsecase: userUsecase,
+		log:         utilLog.NewHelper(log, utilLog.WithMessageKey("biz.webhook_configuration")),
 	}
 }
