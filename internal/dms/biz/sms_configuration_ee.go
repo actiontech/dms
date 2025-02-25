@@ -51,8 +51,8 @@ func (c *SmsClient) SendCode(ctx context.Context, phone, verifyCode string) erro
 
 	// 构建请求体
 	reqBody := map[string]interface{}{
-		"phone":      phone,
-		"verifyCode": verifyCode,
+		"phone":       phone,
+		"verify_code": verifyCode,
 	}
 
 	// 添加配置中的参数
@@ -191,12 +191,7 @@ func (d *SmsConfigurationUseCase) SendSmsCode(ctx context.Context, username stri
 
 	// 2. 发送短信
 	if err := d.sendSmsCode(ctx, phone); err != nil {
-		return &dmsV1.SendSmsCodeReply{
-			Data: dmsV1.SendSmsCodeReplyData{
-				IsSmsCodeSentNormally: false,
-				SendErrorMessage:      err.Error(),
-			},
-		}, nil
+		return nil, err
 	}
 
 	return &dmsV1.SendSmsCodeReply{
@@ -206,10 +201,35 @@ func (d *SmsConfigurationUseCase) SendSmsCode(ctx context.Context, username stri
 	}, nil
 }
 
-func (d *SmsConfigurationUseCase) VerifySmsCode(request *dmsV1.VerifySmsCodeReq, username string) (reply *dmsV1.VerifySmsCodeReply) {
-	d.log.Infof("verify sms code")
-	verifyCodeBytes, err := cache.Get(fmt.Sprintf("%s:%s", VerifyCodeKey, username))
+func (d *SmsConfigurationUseCase) VerifySmsCode(request *dmsV1.VerifySmsCodeReq, username string) *dmsV1.VerifySmsCodeReply {
+	d.log.Infof("start to verify sms code for user: %s", request.Username)
+
+	// 1. 获取用户信息
+	user, exist, err := d.userUsecase.GetUserByName(context.TODO(), username)
 	if err != nil {
+		d.log.Errorf("failed to get user info: %v", err)
+		return &dmsV1.VerifySmsCodeReply{
+			Data: dmsV1.VerifySmsCodeReplyData{
+				IsVerifyNormally:   false,
+				VerifyErrorMessage: fmt.Sprintf("get user failed: %v", err),
+			},
+		}
+	}
+	if !exist {
+		d.log.Warnf("user not found: %s", username)
+		return &dmsV1.VerifySmsCodeReply{
+			Data: dmsV1.VerifySmsCodeReplyData{
+				IsVerifyNormally:   false,
+				VerifyErrorMessage: "user not exist",
+			},
+		}
+	}
+
+	// 2. 从缓存获取验证码
+	cacheKey := fmt.Sprintf("%s:%s", VerifyCodeKey, user.Phone)
+	verifyCodeBytes, err := cache.Get(cacheKey)
+	if err != nil {
+		d.log.Warnf("verify code expired or not found for phone: %s", user.Phone)
 		return &dmsV1.VerifySmsCodeReply{
 			Data: dmsV1.VerifySmsCodeReplyData{
 				IsVerifyNormally:   false,
@@ -217,6 +237,8 @@ func (d *SmsConfigurationUseCase) VerifySmsCode(request *dmsV1.VerifySmsCodeReq,
 			},
 		}
 	}
+
+	// 3. 验证码比对
 	verifyCodeInCache := string(verifyCodeBytes)
 	if verifyCodeInCache == request.Code {
 		return &dmsV1.VerifySmsCodeReply{
@@ -225,6 +247,8 @@ func (d *SmsConfigurationUseCase) VerifySmsCode(request *dmsV1.VerifySmsCodeReq,
 			},
 		}
 	}
+
+	d.log.Warnf("verify code failed for user: %s, code not match", username)
 	return &dmsV1.VerifySmsCodeReply{
 		Data: dmsV1.VerifySmsCodeReplyData{
 			IsVerifyNormally:   false,
