@@ -27,6 +27,25 @@ func (d *DMSService) VerifyUserLogin(ctx context.Context, req *dmsV1.VerifyUserL
 	if nil != err {
 		verifyFailedMsg = err.Error()
 	}
+	if twoFactorEnabled && req.VerifyCode != nil {
+		// 如果启用了双因子认证，则需要验证短信验证码
+		verifyCodeReply := d.VerifySmsCode(&dmsV1.VerifySmsCodeReq{
+			Code: *req.VerifyCode,
+			Username: req.UserName,
+		})
+		if !verifyCodeReply.Data.IsVerifyNormally {
+			return &dmsV1.VerifyUserLoginReply{
+				Data: struct {
+					// If verify Successful, return empty string, otherwise return error message
+					VerifyFailedMsg string `json:"verify_failed_msg"`
+					// If verify Successful, return user uid
+					UserUid          string `json:"user_uid"`
+					Phone            string `json:"phone"`
+					TwoFactorEnabled bool   `json:"two_factor_enabled"`
+				}{UserUid: uid, VerifyFailedMsg: verifyCodeReply.Data.VerifyErrorMessage, Phone: phone, TwoFactorEnabled: twoFactorEnabled},
+			}, nil
+		}
+	}
 
 	return &dmsV1.VerifyUserLoginReply{
 		Data: struct {

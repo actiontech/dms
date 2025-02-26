@@ -516,12 +516,12 @@ func (d *DMSService) SendSmsCode(ctx context.Context, username string) (reply *d
     return d.SmsConfigurationUseCase.SendSmsCode(ctx, username)
 }
 
-func (d *DMSService) VerifySmsCode(request *dmsV1.VerifySmsCodeReq, username string) (reply *dmsV1.VerifySmsCodeReply) {
+func (d *DMSService) VerifySmsCode(request *dmsV1.VerifySmsCodeReq) (reply *dmsV1.VerifySmsCodeReply) {
 	d.log.Infof("verify sms code")
 	defer func() {
 		d.log.Infof("verify sms code %v", reply)
 	}()
-	return d.SmsConfigurationUseCase.VerifySmsCode(request, username)
+	return d.SmsConfigurationUseCase.VerifySmsCode(request.Code, request.Username)
 }
 
 func (d *DMSService) NotifyMessage(ctx context.Context, req *dmsCommonV1.NotificationReq) (err error) {

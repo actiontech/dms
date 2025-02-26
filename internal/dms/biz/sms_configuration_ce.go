@@ -28,7 +28,7 @@ func (d *SmsConfigurationUseCase) SendSmsCode(ctx context.Context, username stri
 	return nil, errNotSupportSms
 }
 
-func (d *SmsConfigurationUseCase) VerifySmsCode(request *dmsV1.VerifySmsCodeReq, username string) (reply *dmsV1.VerifySmsCodeReply) {
+func (d *SmsConfigurationUseCase) VerifySmsCode(code string, username string) (reply *dmsV1.VerifySmsCodeReply) {
 	return nil
 }
 
