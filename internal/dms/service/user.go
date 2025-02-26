@@ -27,6 +27,27 @@ func (d *DMSService) VerifyUserLogin(ctx context.Context, req *dmsV1.VerifyUserL
 	if nil != err {
 		verifyFailedMsg = err.Error()
 	}
+	// TODO: 这里应该只根据twoFactorEnabled判断是否执行验证码校验
+	// 目前这个VerifyUserLogin方法被controller层的VerifyUserLogin调用，前侧不传递验证码的时候只校验用户名密码
+	if twoFactorEnabled && req.VerifyCode != nil{
+		// 如果启用了双因子认证，则需要验证短信验证码
+		verifyCodeReply := d.VerifySmsCode(&dmsV1.VerifySmsCodeReq{
+			Code: *req.VerifyCode,
+			Username: req.UserName,
+		})
+		if !verifyCodeReply.Data.IsVerifyNormally {
+			return &dmsV1.VerifyUserLoginReply{
+				Data: struct {
+					// If verify Successful, return empty string, otherwise return error message
+					VerifyFailedMsg  string `json:"verify_failed_msg"`
+					// If verify Successful, return user uid
+					UserUid          string `json:"user_uid"`
+					Phone            string `json:"phone"`
+					TwoFactorEnabled bool   `json:"two_factor_enabled"`
+				}{UserUid: uid, VerifyFailedMsg: verifyCodeReply.Data.VerifyErrorMessage, Phone: phone, TwoFactorEnabled: twoFactorEnabled},
+			}, nil
+		}
+	}
 
 	return &dmsV1.VerifyUserLoginReply{
 		Data: struct {
