@@ -2965,7 +2965,6 @@ func (d *DMSController) VerifySmsCode(context echo.Context) error {
 	if nil != err {
 		return NewErrResp(context, err, apiError.BadRequestErr)
 	}
-	// 2. 取到验证码后，将前端传递的验证码进行比较是否相同，如果相同则返回验证成功
 	reply :=d.DMS.VerifySmsCode(req)
 	return NewOkRespWithReply(context, reply)
 }
