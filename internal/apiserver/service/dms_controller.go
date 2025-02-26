@@ -563,28 +563,13 @@ func (a *DMSController) AddSession(c echo.Context) error {
 	reply, err := a.DMS.VerifyUserLogin(c.Request().Context(), &aV1.VerifyUserLoginReq{
 		UserName: req.Session.UserName,
 		Password: req.Session.Password,
+		VerifyCode: req.Session.VerifyCode,
 	})
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 	if reply.Data.VerifyFailedMsg != "" {
 		return NewErrResp(c, errors.New(reply.Data.VerifyFailedMsg), apiError.BadRequestErr)
-	}
-
-	if req.Session.VerifyCode != nil {
-		verifyCodeReply := a.DMS.VerifySmsCode(&aV1.VerifySmsCodeReq{
-			Code: *req.Session.VerifyCode,
-		},req.Session.UserName)
-		if !verifyCodeReply.Data.IsVerifyNormally {
-			return NewOkRespWithReply(c, &aV1.AddSessionReply{
-				Data: struct {
-					Token string `json:"token"`
-					Message string `json:"message"`
-				}{
-					Message: verifyCodeReply.Data.VerifyErrorMessage,
-				},
-			})
-		}
 	}
 
 	// Create token with claims
@@ -2980,8 +2965,7 @@ func (d *DMSController) VerifySmsCode(context echo.Context) error {
 	if nil != err {
 		return NewErrResp(context, err, apiError.BadRequestErr)
 	}
-	// 2. 取到验证码后，将前端传递的验证码进行比较是否相同，如果相同则返回验证成功
-	reply :=d.DMS.VerifySmsCode(req, req.Username)
+	reply :=d.DMS.VerifySmsCode(req)
 	return NewOkRespWithReply(context, reply)
 }
 

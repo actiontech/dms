@@ -5,7 +5,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/actiontech/dms/internal/cache"
 	"log"
 	"os"
 	"os/signal"
@@ -110,10 +109,6 @@ func run(logger utilLog.Logger, opts *conf.DMSOptions) error {
 		return fmt.Errorf("startPid err: %v", err)
 	}
 	defer func() {
-		err = cache.Close()
-		if nil != err {
-			log_.Errorf("cache close error: %v", err.Error())
-		}
 		if err := stopPid(logger, pidFile); err != nil {
 			log_.Errorf("stopPid error: %v", err.Error())
 		}

@@ -145,6 +145,8 @@ type VerifyUserLoginReq struct {
 	UserName string `json:"user_name" validate:"required"`
 	// user password
 	Password string `json:"password" validate:"required"`
+	// VerifyCode
+	VerifyCode *string `json:"verify_code" description:"verify_code"`
 }
 
 func (u *VerifyUserLoginReq) String() string {
