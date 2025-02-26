@@ -97,6 +97,9 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	memberGroupRepo := storage.NewMemberGroupRepo(logger, st)
 	memberGroupUsecase := biz.NewMemberGroupUsecase(logger, tx, memberGroupRepo, userUsecase, roleUsecase, dbServiceUseCase, opPermissionVerifyUsecase, projectUsecase, &memberUsecase)
 	dmsProxyUsecase, err := biz.NewDmsProxyUsecase(logger, dmsProxyTargetRepo, opts.APIServiceOpts.Port, opPermissionUsecase, roleUsecase)
+	if err != nil {
+		return nil, fmt.Errorf("failed to new dms proxy usecase: %v", err)
+	}
 	oauth2ConfigurationRepo := storage.NewOauth2ConfigurationRepo(logger, st)
 	oauth2ConfigurationUsecase := biz.NewOauth2ConfigurationUsecase(logger, tx, oauth2ConfigurationRepo, userUsecase)
 	companyNoticeRepo := storage.NewCompanyNoticeRepo(logger, st)
@@ -108,7 +111,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	webhookConfigurationRepo := storage.NewWebHookConfigurationRepo(logger, st)
 	webhookConfigurationUsecase := biz.NewWebHookConfigurationUsecase(logger, tx, webhookConfigurationRepo)
 	smsConfigurationRepo := storage.NewSmsConfigurationRepo(logger, st)
-	smsConfigurationUsecase := biz.NewSmsConfigurationUsecase(logger, tx, smsConfigurationRepo)
+	smsConfigurationUsecase := biz.NewSmsConfigurationUsecase(logger, tx, smsConfigurationRepo, userUsecase)
 	imConfigurationRepo := storage.NewIMConfigurationRepo(logger, st)
 	imConfigurationUsecase := biz.NewIMConfigurationUsecase(logger, tx, imConfigurationRepo)
 	basicConfigRepo := storage.NewBasicConfigRepo(logger, st)
