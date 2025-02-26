@@ -201,8 +201,8 @@ func (d *SmsConfigurationUseCase) SendSmsCode(ctx context.Context, username stri
 	}, nil
 }
 
-func (d *SmsConfigurationUseCase) VerifySmsCode(request *dmsV1.VerifySmsCodeReq, username string) *dmsV1.VerifySmsCodeReply {
-	d.log.Infof("start to verify sms code for user: %s", request.Username)
+func (d *SmsConfigurationUseCase) VerifySmsCode(code string, username string) *dmsV1.VerifySmsCodeReply {
+	d.log.Infof("start to verify sms code for user: %s", username)
 
 	// 1. 获取用户信息
 	user, exist, err := d.userUsecase.GetUserByName(context.TODO(), username)
@@ -239,7 +239,7 @@ func (d *SmsConfigurationUseCase) VerifySmsCode(request *dmsV1.VerifySmsCodeReq,
 	}
 
 	// 3. 验证码比对
-	if verifyCodeInCache == request.Code {
+	if verifyCodeInCache == code {
 		return &dmsV1.VerifySmsCodeReply{
 			Data: dmsV1.VerifySmsCodeReplyData{
 				IsVerifyNormally: true,
