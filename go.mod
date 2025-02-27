@@ -26,6 +26,7 @@ require (
 	github.com/labstack/echo-jwt/v4 v4.1.0
 	github.com/moby/sys/mountinfo v0.5.0
 	github.com/nicksnyder/go-i18n/v2 v2.4.0
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sijms/go-ora/v2 v2.8.9
 	github.com/stretchr/testify v1.8.2

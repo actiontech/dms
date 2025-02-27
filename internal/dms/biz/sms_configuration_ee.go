@@ -14,13 +14,16 @@ import (
 	"time"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
-	"github.com/actiontech/dms/internal/cache"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	"github.com/actiontech/dms/internal/dms/storage/model"
 	"github.com/actiontech/dms/pkg/dms-common/pkg/log"
+	"github.com/patrickmn/go-cache"
 )
 
 const VerifyCodeKey = "verify_code"
+
+var verifyCodeCache = cache.New(cache.NoExpiration, 10 * time.Minute)
+var verifyCodeExpirationTime = 5 * time.Minute
 
 type SmsClient struct {
 	url           string
@@ -169,10 +172,7 @@ func (d *SmsConfigurationUseCase) sendSmsCode(ctx context.Context, phone string)
 		return fmt.Errorf("send sms failed: %w", err)
 	}
 	// 5. 缓存验证码
-	err = cache.Set(fmt.Sprintf("%s:%s", VerifyCodeKey, phone), []byte(code))
-	if err != nil {
-		return fmt.Errorf("set cache failed: %w", err)
-	}
+	verifyCodeCache.Set(fmt.Sprintf("%s:%s", VerifyCodeKey, phone), code, verifyCodeExpirationTime)
 	return nil
 }
 
@@ -201,8 +201,8 @@ func (d *SmsConfigurationUseCase) SendSmsCode(ctx context.Context, username stri
 	}, nil
 }
 
-func (d *SmsConfigurationUseCase) VerifySmsCode(request *dmsV1.VerifySmsCodeReq, username string) *dmsV1.VerifySmsCodeReply {
-	d.log.Infof("start to verify sms code for user: %s", request.Username)
+func (d *SmsConfigurationUseCase) VerifySmsCode(code string, username string) *dmsV1.VerifySmsCodeReply {
+	d.log.Infof("start to verify sms code for user: %s", username)
 
 	// 1. 获取用户信息
 	user, exist, err := d.userUsecase.GetUserByName(context.TODO(), username)
@@ -227,8 +227,8 @@ func (d *SmsConfigurationUseCase) VerifySmsCode(request *dmsV1.VerifySmsCodeReq,
 
 	// 2. 从缓存获取验证码
 	cacheKey := fmt.Sprintf("%s:%s", VerifyCodeKey, user.Phone)
-	verifyCodeBytes, err := cache.Get(cacheKey)
-	if err != nil {
+	verifyCodeInCache, exist := verifyCodeCache.Get(cacheKey)
+	if !exist {
 		d.log.Warnf("verify code expired or not found for phone: %s", user.Phone)
 		return &dmsV1.VerifySmsCodeReply{
 			Data: dmsV1.VerifySmsCodeReplyData{
@@ -239,8 +239,7 @@ func (d *SmsConfigurationUseCase) VerifySmsCode(request *dmsV1.VerifySmsCodeReq,
 	}
 
 	// 3. 验证码比对
-	verifyCodeInCache := string(verifyCodeBytes)
-	if verifyCodeInCache == request.Code {
+	if verifyCodeInCache == code {
 		return &dmsV1.VerifySmsCodeReply{
 			Data: dmsV1.VerifySmsCodeReplyData{
 				IsVerifyNormally: true,
