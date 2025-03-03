@@ -10,10 +10,11 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/labstack/echo/v4"
+
 	v1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/internal/license"
-	"github.com/labstack/echo/v4"
 )
 
 func licenseAdapter(l *biz.LicenseUsecase) echo.MiddlewareFunc {
@@ -89,6 +90,7 @@ func (c *LicenseChecker) allowApi() (bool, error) {
 	path := strings.TrimSuffix(c.ctx.Path(), "/")
 	switch path {
 	case "/v1/dms/sessions",
+		"/v1/dms/users/verify_user_login",
 		"/v1/dms/configurations/license",
 		"/v1/dms/configurations/license/check",
 		"/v1/dms/configurations/license/info",
