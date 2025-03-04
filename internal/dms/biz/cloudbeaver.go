@@ -427,11 +427,16 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						}
 
 						task := taskInfo.Data.TaskInfo
-						if task.Running == true || task.Error == nil {
+						if task.Running {
 							return nil
 						}
+						if task.Error != nil {
+							operationLog.ExecResult = *task.Error.Message
+						}
+						if task.TaskResult != nil {
+							operationLog.ExecResult = fmt.Sprintf("%s", task.TaskResult)
+						}
 
-						operationLog.ExecResult = *task.Error.Message
 						err := cu.cbOperationLogUsecase.UpdateCbOperationLog(ctx, operationLog)
 						if err != nil {
 							cu.log.Error(err)
