@@ -448,6 +448,52 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				}
 
 				if params.OperationName == "getSqlExecuteTaskResults" {
+					cloudbeaverResBuf := new(bytes.Buffer)
+					mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
+					writer := &cloudbeaverResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
+					c.Response().Writer = writer
+
+					if err = next(c); err != nil {
+						return err
+					}
+
+					cbUid, exist := taskIDAssocUid.Load(params.Variables["taskId"])
+					if !exist {
+						return nil
+					}
+					cbUidStr, ok := cbUid.(string)
+					if !ok {
+						return nil
+					}
+
+					operationLog, err := cu.cbOperationLogUsecase.GetCbOperationLogByID(ctx, cbUidStr)
+					if err != nil {
+						cu.log.Errorf("get cb operation log by id %s failed: %v", cbUidStr, err)
+						return nil
+					} else {
+						resp := &struct {
+							Data struct {
+								Result *model.SQLExecuteInfo `json:"result"`
+							} `json:"data"`
+						}{}
+						if err := json.Unmarshal(cloudbeaverResBuf.Bytes(), resp); err != nil {
+							cu.log.Errorf("extract task id err: %v", err)
+							return nil
+						}
+						operationLog.ExecTotalSec = int64(resp.Data.Result.Duration)
+						if resp.Data.Result != nil && len(resp.Data.Result.Results) > 0 {
+							// 目前每一条SQL只会返回一个结果集，因此只需要记录第一个结果集的行数即可
+							if resp.Data.Result.Results[0].ResultSet != nil {
+								operationLog.ResultSetRowCount = int64(len(resp.Data.Result.Results[0].ResultSet.Rows))
+							}
+						}
+						err := cu.cbOperationLogUsecase.UpdateCbOperationLog(ctx, operationLog)
+						if err != nil {
+							cu.log.Error(err)
+							return nil
+						}
+					}
+
 					taskIdAssocMaskingVal, exist := taskIdAssocMasking.LoadAndDelete(params.Variables["taskId"])
 					if !exist {
 						return next(c)
