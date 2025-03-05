@@ -285,15 +285,18 @@ func (cu *CloudbeaverUsecase) buildTaskIdAssocDataMasking(raw []byte, enableMask
 	return nil
 }
 
+// GraphQLDistributor 返回一个Echo中间件函数，用于分发和处理CloudBeaver的GraphQL请求
 func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) (err error) {
+			// 检查请求URI是否匹配CloudBeaver的GraphQL API路径
 			if c.Request().RequestURI != path.Join(CbRootUri, CbGqlApi) {
 				return next(c)
 			}
-			// copy request body
+
+			// 复制请求体内容
 			var reqBody = make([]byte, 0)
-			if c.Request().Body != nil { // Read
+			if c.Request().Body != nil { // 读取请求体
 				reqBody, err = io.ReadAll(c.Request().Body)
 
 				if err != nil {
@@ -301,8 +304,10 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					return err
 				}
 			}
-			c.Request().Body = io.NopCloser(bytes.NewBuffer(reqBody)) // Reset
+			// 重置请求体以便后续处理
+			c.Request().Body = io.NopCloser(bytes.NewBuffer(reqBody))
 
+			// 解析GraphQL请求参数
 			var params *graphql.RawParams
 			err = json.Unmarshal(reqBody, &params)
 			if err != nil {
@@ -310,11 +315,13 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				return err
 			}
 
+			// 根据操作名称查找对应的处理器
 			cloudbeaverHandle, ok := cloudbeaver.GraphQLHandlerRouters[params.OperationName]
 			if !ok {
 				return next(c)
 			}
 
+			// 如果该操作被禁用，返回错误响应
 			if cloudbeaverHandle.Disable {
 				message := "this feature is prohibited"
 				cu.log.Errorf("%v:%v", message, params.OperationName)
@@ -323,6 +330,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				})
 			}
 
+			// 执行预处理函数（如果存在）
 			if cloudbeaverHandle.Preprocessing != nil {
 				if err = cloudbeaverHandle.Preprocessing(c, params); err != nil {
 					cu.log.Error(err)
@@ -330,10 +338,12 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				}
 			}
 
+			// 使用本地处理方法
 			if cloudbeaverHandle.UseLocalHandler {
 				ctx := graphql.StartOperationTrace(c.Request().Context())
 
 				var dbService *DBService
+				// 处理异步SQL执行查询请求
 				if params.OperationName == "asyncSqlExecuteQuery" {
 					dbService, err = cu.getDbService(c.Request().Context(), params)
 					if err != nil {
@@ -341,8 +351,11 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						return err
 					}
 
+					// 如果未启用SQL审计
 					if !cu.isEnableSQLAudit(dbService) {
+						// 创建缓冲区用于存储响应
 						cloudbeaverResBuf := new(bytes.Buffer)
+						// 使用多写器同时写入响应和缓冲区
 						mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
 						writer := &cloudbeaverResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
 						c.Response().Writer = writer
@@ -351,19 +364,23 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 							return err
 						}
 
+						// 保存未启用SQL审计的日志
 						err := cu.SaveCbLogSqlAuditNotEnable(c, dbService, params, cloudbeaverResBuf)
 						if err != nil {
 							cu.log.Error(err)
 						}
 
+						// 构建任务ID与数据脱敏的关联
 						return cu.buildTaskIdAssocDataMasking(cloudbeaverResBuf.Bytes(), dbService.IsMaskingSwitch)
 					}
 
+					// 获取SQLE服务地址
 					sqleUrl, err := cu.getSQLEUrl(c.Request().Context())
 					if err != nil {
 						return err
 					}
 
+					// 构建直接审计请求参数
 					directAuditReq := cloudbeaver.DirectAuditParams{
 						AuditSQLReq: cloudbeaver.AuditSQLReq{
 							InstanceType:     dbService.DBType,
@@ -374,10 +391,11 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						AllowQueryWhenLessThanAuditLevel: dbService.GetAllowQueryWhenLessThanAuditLevel(),
 					}
 
-					// pass sqle direct audit params
+					// 将SQLE直接审计参数传递到上下文中
 					ctx = context.WithValue(ctx, cloudbeaver.SQLEDirectAudit, directAuditReq)
 				}
 
+				// 处理批量更新结果请求
 				if params.OperationName == "updateResultsDataBatch" {
 					cloudbeaverResBuf := new(bytes.Buffer)
 					mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
@@ -388,6 +406,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						return err
 					}
 
+					// 保存UI操作日志
 					if err := cu.SaveUiOp(c, cloudbeaverResBuf, params); err != nil {
 						cu.log.Errorf("save ui op err: %v", err)
 						return nil
@@ -396,6 +415,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					return nil
 				}
 
+				// 处理获取异步任务信息请求
 				if params.OperationName == "getAsyncTaskInfo" {
 					cloudbeaverResBuf := new(bytes.Buffer)
 					mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
@@ -406,6 +426,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						return err
 					}
 
+					// 从任务ID关联中获取用户ID
 					cbUid, exist := taskIDAssocUid.Load(params.Variables["taskId"])
 					if !exist {
 						return nil
@@ -415,6 +436,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						return nil
 					}
 
+					// 获取操作日志
 					operationLog, err := cu.cbOperationLogUsecase.GetCbOperationLogByID(ctx, cbUidStr)
 					if err != nil {
 						cu.log.Errorf("get cb operation log by id %s failed: %v", cbUidStr, err)
@@ -437,6 +459,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 							operationLog.ExecResult = fmt.Sprintf("%s", task.TaskResult)
 						}
 
+						// 更新操作日志
 						err := cu.cbOperationLogUsecase.UpdateCbOperationLog(ctx, operationLog)
 						if err != nil {
 							cu.log.Error(err)
@@ -447,6 +470,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					return nil
 				}
 
+				// 处理获取SQL执行任务结果请求
 				if params.OperationName == "getSqlExecuteTaskResults" {
 					cloudbeaverResBuf := new(bytes.Buffer)
 					mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
@@ -457,6 +481,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						return err
 					}
 
+					// 从任务ID关联中获取用户ID
 					cbUid, exist := taskIDAssocUid.Load(params.Variables["taskId"])
 					if !exist {
 						return nil
@@ -466,6 +491,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						return nil
 					}
 
+					// 获取操作日志
 					operationLog, err := cu.cbOperationLogUsecase.GetCbOperationLogByID(ctx, cbUidStr)
 					if err != nil {
 						cu.log.Errorf("get cb operation log by id %s failed: %v", cbUidStr, err)
@@ -480,6 +506,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 							cu.log.Errorf("extract task id err: %v", err)
 							return nil
 						}
+						// 更新执行总时间
 						operationLog.ExecTotalSec = int64(resp.Data.Result.Duration)
 						if resp.Data.Result != nil && len(resp.Data.Result.Results) > 0 {
 							// 目前每一条SQL只会返回一个结果集，因此只需要记录第一个结果集的行数即可
@@ -487,6 +514,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 								operationLog.ResultSetRowCount = int64(len(resp.Data.Result.Results[0].ResultSet.Rows))
 							}
 						}
+						// 更新操作日志
 						err := cu.cbOperationLogUsecase.UpdateCbOperationLog(ctx, operationLog)
 						if err != nil {
 							cu.log.Error(err)
@@ -494,6 +522,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						}
 					}
 
+					// 检查是否需要数据脱敏
 					taskIdAssocMaskingVal, exist := taskIdAssocMasking.LoadAndDelete(params.Variables["taskId"])
 					if !exist {
 						return next(c)
@@ -505,16 +534,19 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					}
 				}
 
+				// 设置GraphQL请求的读取时间
 				params.ReadTime = graphql.TraceTiming{
 					Start: graphql.Now(),
 					End:   graphql.Now(),
 				}
 
+				// 克隆请求头
 				params.Headers = c.Request().Header.Clone()
 
 				var cloudbeaverNext cloudbeaver.Next
 				var resWrite *responseProcessWriter
 				var resp cloudbeaver.AuditResults
+				// 如果不需要修改远程响应
 				if !cloudbeaverHandle.NeedModifyRemoteRes {
 					cloudbeaverNext = func(c echo.Context) ([]byte, error) {
 						resp, ok = c.Get(cloudbeaver.AuditResultKey).(cloudbeaver.AuditResults)
@@ -564,7 +596,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 
 						return nil, nil
 					}
-				} else {
+				} else { // 需要修改远程响应
 					cloudbeaverNext = func(c echo.Context) ([]byte, error) {
 						resp, ok = c.Get(cloudbeaver.AuditResultKey).(cloudbeaver.AuditResults)
 						if ok && !resp.IsSuccess {
@@ -595,7 +627,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 								}
 							}
 						}
-
+						// 处理SQL执行结果
 						if params.OperationName == "getSqlExecuteTaskResults" {
 							err = cu.UpdateCbOpResult(c, resWrite.tmp, params, ctx)
 							if err != nil {
@@ -607,18 +639,23 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					}
 				}
 
+				// 创建GraphQL可执行schema
 				g := resolver.NewExecutableSchema(resolver.Config{
 					Resolvers: cloudbeaver.NewResolverImpl(c, cloudbeaverNext, cu.dataMaskingUseCase.SQLExecuteResultsDataMasking),
 				})
 
+				// 创建GraphQL执行器
 				exec := executor.New(g)
 
+				// 创建操作上下文
 				rc, err := exec.CreateOperationContext(ctx, params)
 				if err != nil {
 					return err
 				}
+				// 分发操作
 				responses, ctx := exec.DispatchOperation(ctx, rc)
 
+				// 获取响应
 				res := responses(ctx)
 				if res.Errors.Error() != "" {
 					return res.Errors
@@ -626,12 +663,14 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				if !cloudbeaverHandle.NeedModifyRemoteRes {
 					return nil
 				} else {
+					// 设置响应头
 					header := resWrite.ResponseWriter.Header()
 					b, err := json.Marshal(res)
 					if err != nil {
 						return err
 					}
 					header.Set("Content-Length", fmt.Sprintf("%d", len(b)))
+					// 写入响应
 					_, err = resWrite.ResponseWriter.Write(b)
 					return err
 				}
