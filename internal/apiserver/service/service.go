@@ -86,10 +86,24 @@ func (s *APIServer) RunHttpServer(logger utilLog.Logger) error {
 	if err := s.initRouter(); nil != err {
 		return fmt.Errorf("failed to init router: %v", err)
 	}
-
-	if err := s.echo.Start(s.opts.GetAPIServer().GetHTTPAddr()); nil != err {
-		if err != http.ErrServerClosed {
-			return fmt.Errorf("failed to run http server: %v", err)
+	if s.opts.APIServiceOpts.EnableHttps {
+		if s.opts.APIServiceOpts.CertFilePath == "" || s.opts.APIServiceOpts.KeyFilePath == "" {
+			return fmt.Errorf("cert file path and key file path are required on https mode")
+		}
+		if err := s.echo.StartTLS(
+			s.opts.GetAPIServer().GetHTTPAddr(),
+			s.opts.APIServiceOpts.CertFilePath,
+			s.opts.APIServiceOpts.KeyFilePath,
+		); err != nil {
+			if err != http.ErrServerClosed {
+				return fmt.Errorf("failed to run https server: %v", err)
+			}
+		}
+	} else {
+		if err := s.echo.Start(s.opts.GetAPIServer().GetHTTPAddr()); nil != err {
+			if err != http.ErrServerClosed {
+				return fmt.Errorf("failed to run http server: %v", err)
+			}
 		}
 	}
 	return nil
