@@ -96,7 +96,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	memberUsecase = *biz.NewMemberUsecase(logger, tx, memberRepo, userUsecase, roleUsecase, dbServiceUseCase, opPermissionVerifyUsecase, projectUsecase)
 	memberGroupRepo := storage.NewMemberGroupRepo(logger, st)
 	memberGroupUsecase := biz.NewMemberGroupUsecase(logger, tx, memberGroupRepo, userUsecase, roleUsecase, dbServiceUseCase, opPermissionVerifyUsecase, projectUsecase, &memberUsecase)
-	dmsProxyUsecase, err := biz.NewDmsProxyUsecase(logger, dmsProxyTargetRepo, opts.APIServiceOpts.Port, opPermissionUsecase, roleUsecase)
+	dmsProxyUsecase, err := biz.NewDmsProxyUsecase(logger, dmsProxyTargetRepo, opts.APIServiceOpts, opPermissionUsecase, roleUsecase)
 	if err != nil {
 		return nil, fmt.Errorf("failed to new dms proxy usecase: %v", err)
 	}
