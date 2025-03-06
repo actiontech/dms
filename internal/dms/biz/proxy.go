@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
+	"github.com/actiontech/dms/pkg/dms-common/conf"
 	_const "github.com/actiontech/dms/pkg/dms-common/pkg/const"
 
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
@@ -60,13 +61,19 @@ type DmsProxyUsecase struct {
 	roleUc            *RoleUsecase
 }
 
-func NewDmsProxyUsecase(logger utilLog.Logger, repo ProxyTargetRepo, dmsPort int, opPermissionUC *OpPermissionUsecase, roleUc *RoleUsecase) (*DmsProxyUsecase, error) {
+func NewDmsProxyUsecase(logger utilLog.Logger, repo ProxyTargetRepo, apiCnf *conf.APIServerOpts, opPermissionUC *OpPermissionUsecase, roleUc *RoleUsecase) (*DmsProxyUsecase, error) {
 	targets, err := repo.ListProxyTargets(context.TODO())
 	if err != nil {
 		return nil, fmt.Errorf("list proxy targets from repo error: %v", err)
 	}
 
-	dmsUrl, _ := url.Parse(fmt.Sprintf("http://127.0.0.1:%v", dmsPort))
+	dmsUrl, err := url.Parse(fmt.Sprintf("http://127.0.0.1:%v", apiCnf.Port))
+	if err != nil {
+		return nil, fmt.Errorf("parse dms url error: %v", err)
+	}
+	if apiCnf.EnableHttps {
+		dmsUrl.Scheme = "https"
+	}
 	return &DmsProxyUsecase{
 		repo: repo,
 		// 将自身定义为默认代理，当无法匹配转发规则时，转发到自身
