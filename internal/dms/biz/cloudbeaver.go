@@ -442,32 +442,30 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					if err != nil {
 						cu.log.Errorf("get cb operation log by id %s failed: %v", cbUidStr, err)
 						return nil
-					} else {
-						var taskInfo TaskInfo
-						if err := json.Unmarshal(cloudbeaverResBuf.Bytes(), &taskInfo); err != nil {
-							cu.log.Errorf("extract task id err: %v", err)
-							return nil
-						}
-
-						task := taskInfo.Data.TaskInfo
-						if task.Running {
-							return nil
-						}
-						if task.Error != nil {
-							operationLog.ExecResult = *task.Error.Message
-						}
-						if task.TaskResult != nil {
-							operationLog.ExecResult = fmt.Sprintf("%s", task.TaskResult)
-						}
-
-						// 更新操作日志
-						err := cu.cbOperationLogUsecase.UpdateCbOperationLog(ctx, operationLog)
-						if err != nil {
-							cu.log.Error(err)
-							return nil
-						}
 					}
 
+					var taskInfo TaskInfo
+					if err := json.Unmarshal(cloudbeaverResBuf.Bytes(), &taskInfo); err != nil {
+						cu.log.Errorf("extract task id err: %v", err)
+						return nil
+					}
+					task := taskInfo.Data.TaskInfo
+					if task.Running {
+						return nil
+					}
+					if task.Error != nil {
+						operationLog.ExecResult = *task.Error.Message
+					}
+					if task.TaskResult != nil {
+						operationLog.ExecResult = fmt.Sprintf("%s", task.TaskResult)
+					}
+
+					// 更新操作日志
+					err = cu.cbOperationLogUsecase.UpdateCbOperationLog(ctx, operationLog)
+					if err != nil {
+						cu.log.Error(err)
+						return nil
+					}
 					return nil
 				}
 
