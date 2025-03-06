@@ -506,10 +506,10 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 							return nil
 						}
 						// 更新执行总时间
-						operationLog.ExecTotalSec = int64(resp.Data.Result.Duration)
-						if resp.Data.Result != nil && len(resp.Data.Result.Results) > 0 {
+						if resp.Data.Result != nil {
+							operationLog.ExecTotalSec = int64(resp.Data.Result.Duration)
 							// 目前每一条SQL只会返回一个结果集，因此只需要记录第一个结果集的行数即可
-							if resp.Data.Result.Results[0].ResultSet != nil {
+							if len(resp.Data.Result.Results) > 0 && resp.Data.Result.Results[0].ResultSet != nil {
 								operationLog.ResultSetRowCount = int64(len(resp.Data.Result.Results[0].ResultSet.Rows))
 							}
 						}
