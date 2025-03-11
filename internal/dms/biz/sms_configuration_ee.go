@@ -282,9 +282,32 @@ func (d *SmsConfigurationUseCase) SendSmsCode(ctx context.Context, username stri
 }
 
 // 验证短信验证码
-func (d *SmsConfigurationUseCase) VerifySmsCode( phone, inputCode string) 	*dmsV1.VerifySmsCodeReply {
+func (d *SmsConfigurationUseCase) VerifySmsCode(  inputCode,username string) 	*dmsV1.VerifySmsCodeReply {
+	d.log.Infof("start to verify sms code for user: %s", username)
+
+	// 1. 获取用户信息
+	user, exist, err := d.userUsecase.GetUserByName(context.TODO(), username)
+	if err != nil {
+		d.log.Errorf("failed to get user info: %v", err)
+		return &dmsV1.VerifySmsCodeReply{
+			Data: dmsV1.VerifySmsCodeReplyData{
+				IsVerifyNormally:   false,
+				VerifyErrorMessage: fmt.Sprintf("get user failed: %v", err),
+			},
+		}
+	}
+	if !exist {
+		d.log.Warnf("user not found: %s", username)
+		return &dmsV1.VerifySmsCodeReply{
+			Data: dmsV1.VerifySmsCodeReplyData{
+				IsVerifyNormally:   false,
+				VerifyErrorMessage: "user not exist",
+			},
+		}
+	}
+
 	// 使用相同的key和phone生成验证码进行比对
-	if !ValidateStatelessCode(VerifyCodeKey+phone, inputCode) {
+	if !ValidateStatelessCode(VerifyCodeKey+user.Phone, inputCode) {
 		return &dmsV1.VerifySmsCodeReply{
 			Data: dmsV1.VerifySmsCodeReplyData{
 				IsVerifyNormally:   false,
