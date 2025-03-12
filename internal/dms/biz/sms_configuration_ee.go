@@ -5,25 +5,31 @@ package biz
 import (
 	"bytes"
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
-	"math/rand"
 	"net/http"
 	"time"
+
+	"github.com/patrickmn/go-cache"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	"github.com/actiontech/dms/internal/dms/storage/model"
 	"github.com/actiontech/dms/pkg/dms-common/pkg/log"
-	"github.com/patrickmn/go-cache"
 )
 
 const VerifyCodeKey = "verify_code"
-
 var verifyCodeCache = cache.New(cache.NoExpiration, 10 * time.Minute)
-var verifyCodeExpirationTime = 5 * time.Minute
+
+const VerifyCodeTimeSlot = 300 // 300秒 = 5分
+var (
+	ErrTooFrequentMinute = errors.New("请求过于频繁，请1分钟后再试")
+)
 
 type SmsClient struct {
 	url           string
@@ -146,13 +152,88 @@ func (d *SmsConfigurationUseCase) GetSmsConfiguration(ctx context.Context) (smsC
 	return smsConfiguration, true, nil
 }
 
-// 核心发送短信逻辑
+// GenerateStatelessCode 生成无状态验证码
+// key: 用于生成验证码的密钥
+// 返回4位数字验证码
+func GenerateStatelessCode(key string) string {
+	// 获取当前时间戳并按5分钟间隔取整
+	timeSlot := time.Now().Unix() / VerifyCodeTimeSlot 
+
+	// 将时间戳转换为字节数组
+	timeBytes := make([]byte, 8)
+	binary.BigEndian.PutUint64(timeBytes, uint64(timeSlot))
+
+	// 使用HMAC-SHA256计算哈希
+	h := hmac.New(sha256.New, []byte(key))
+	h.Write(timeBytes)
+	hash := h.Sum(nil)
+
+	// 使用哈希的最后4个字节生成一个数字
+	num := binary.BigEndian.Uint32(hash[len(hash)-4:])
+	
+	// 取模得到4位数字（1000-9999）
+	code := (num % 9000) + 1000
+
+	return fmt.Sprintf("%04d", code)
+}
+
+// ValidateStatelessCode 验证无状态验证码
+// key: 用于生成验证码的密钥
+// inputCode: 用户输入的验证码
+// 返回验证是否成功
+func ValidateStatelessCode(key, inputCode string) bool {
+	// 生成当前时间段的验证码
+	currentCode := GenerateStatelessCode(key)
+	
+	// 检查当前时间段的验证码
+	if currentCode == inputCode {
+		return true
+	}
+
+	// 检查上一个时间段的验证码（处理时间边界情况）
+	timeSlot := time.Now().Unix()/VerifyCodeTimeSlot - 1
+	timeBytes := make([]byte, 8)
+	binary.BigEndian.PutUint64(timeBytes, uint64(timeSlot))
+	
+	h := hmac.New(sha256.New, []byte(key))
+	h.Write(timeBytes)
+	hash := h.Sum(nil)
+	
+	prevNum := binary.BigEndian.Uint32(hash[len(hash)-4:])
+	prevCode := fmt.Sprintf("%04d", (prevNum%9000)+1000)
+
+	return prevCode == inputCode
+}
+
+// checkSmsRateLimit 检查是否可以发送短信
+// 如果缓存中存在key，则表示最近已发送过短信，返回错误
+// 如果缓存中不存在key，则可以发送短信，并将key存入缓存
+func checkSmsRateLimit(key string, phone string) error {
+    // 生成缓存key
+    cacheKey := fmt.Sprintf("%s:%s", key, phone)
+    
+    // 检查是否存在未过期的缓存
+    if _, found := verifyCodeCache.Get(cacheKey); found {
+        return ErrTooFrequentMinute
+    }
+    
+    // 如果不存在缓存，则添加缓存（有效期1分钟）
+    verifyCodeCache.Set(cacheKey, true, 1*time.Minute)
+    
+    return nil
+}
+
+// 修改后的发送短信逻辑
 func (d *SmsConfigurationUseCase) sendSmsCode(ctx context.Context, phone string) error {
+	// 1. 检查发送频率
+	if err := checkSmsRateLimit(VerifyCodeKey, phone); err != nil {
+		return err
+	}
 
-	// 1. 生成4位随机验证码
-	code := fmt.Sprintf("%04d", rand.Intn(9000)+1000)
+	// 2. 生成4位随机验证码
+	code := GenerateStatelessCode(VerifyCodeKey + phone) // 加入phone作为额外的熵源
 
-	// 2. 获取短信配置
+	// 3. 获取短信配置
 	smsConfig, exist, err := d.GetSmsConfiguration(ctx)
 	if err != nil {
 		return fmt.Errorf("get sms configuration failed: %w", err)
@@ -161,18 +242,17 @@ func (d *SmsConfigurationUseCase) sendSmsCode(ctx context.Context, phone string)
 		return fmt.Errorf("sms service is not configured or disabled")
 	}
 
-	// 3. 创建SMS客户端
+	// 4. 创建SMS客户端
 	smsClient, err := NewSmsClient(smsConfig.Url, smsConfig.Configuration, d.log)
 	if err != nil {
 		return fmt.Errorf("create sms client failed: %w", err)
 	}
 
-	// 4. 发送验证码
+	// 5. 发送验证码
 	if err := smsClient.SendCode(ctx, phone, code); err != nil {
 		return fmt.Errorf("send sms failed: %w", err)
 	}
-	// 5. 缓存验证码
-	verifyCodeCache.Set(fmt.Sprintf("%s:%s", VerifyCodeKey, phone), code, verifyCodeExpirationTime)
+
 	return nil
 }
 
@@ -201,7 +281,8 @@ func (d *SmsConfigurationUseCase) SendSmsCode(ctx context.Context, username stri
 	}, nil
 }
 
-func (d *SmsConfigurationUseCase) VerifySmsCode(code string, username string) *dmsV1.VerifySmsCodeReply {
+// 验证短信验证码
+func (d *SmsConfigurationUseCase) VerifySmsCode(  inputCode,username string) 	*dmsV1.VerifySmsCodeReply {
 	d.log.Infof("start to verify sms code for user: %s", username)
 
 	// 1. 获取用户信息
@@ -225,33 +306,19 @@ func (d *SmsConfigurationUseCase) VerifySmsCode(code string, username string) *d
 		}
 	}
 
-	// 2. 从缓存获取验证码
-	cacheKey := fmt.Sprintf("%s:%s", VerifyCodeKey, user.Phone)
-	verifyCodeInCache, exist := verifyCodeCache.Get(cacheKey)
-	if !exist {
-		d.log.Warnf("verify code expired or not found for phone: %s", user.Phone)
+	// 使用相同的key和phone生成验证码进行比对
+	if !ValidateStatelessCode(VerifyCodeKey+user.Phone, inputCode) {
 		return &dmsV1.VerifySmsCodeReply{
 			Data: dmsV1.VerifySmsCodeReplyData{
 				IsVerifyNormally:   false,
-				VerifyErrorMessage: "验证码已过期",
+				VerifyErrorMessage: "验证码错误或者已过期",
 			},
 		}
 	}
-
-	// 3. 验证码比对
-	if verifyCodeInCache == code {
-		return &dmsV1.VerifySmsCodeReply{
-			Data: dmsV1.VerifySmsCodeReplyData{
-				IsVerifyNormally: true,
-			},
-		}
-	}
-
-	d.log.Warnf("verify code failed for user: %s, code not match", username)
 	return &dmsV1.VerifySmsCodeReply{
 		Data: dmsV1.VerifySmsCodeReplyData{
-			IsVerifyNormally:   false,
-			VerifyErrorMessage: "验证码错误",
+			IsVerifyNormally:   true,
+			VerifyErrorMessage: "",
 		},
 	}
 }
