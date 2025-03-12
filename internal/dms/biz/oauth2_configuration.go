@@ -34,6 +34,7 @@ type Oauth2Configuration struct {
 	UserIdTag            string
 	UserEmailTag         string
 	UserWeChatTag        string
+	LoginPermExpr        string
 	LoginTip             string
 }
 
