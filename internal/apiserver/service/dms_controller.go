@@ -578,6 +578,8 @@ func (a *DMSController) AddSession(c echo.Context) error {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
 
+	// todo set refresh token
+
 	err = a.DMS.AfterUserLogin(c.Request().Context(), &aV1.AfterUserLoginReq{
 		UserUid: reply.Data.UserUid,
 	})
@@ -639,6 +641,63 @@ func (a *DMSController) DelSession(c echo.Context) error {
 	}
 
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
+}
+
+// swagger:operation POST /v1/dms/sessions/refresh Session RefreshSession
+//
+// refresh a session.
+//
+// ---
+// responses:
+//   '200':
+//     description: AddSessionReply
+//     schema:
+//       "$ref": "#/definitions/AddSessionReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (a *DMSController) RefreshSession(c echo.Context) error {
+	refreshToken, err := c.Cookie("refresh_token")
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, map[string]string{
+			"message": "Refresh token not found",
+		})
+	}
+
+	// todo update tokens
+
+	// todo impl business
+
+	// Create token with claims
+	token, err := jwt.GenJwtToken(jwt.WithUserId(""))
+	if nil != err {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+
+	c.SetCookie(&http.Cookie{
+		Name:    constant.DMSToken,
+		Value:   token,
+		Path:    "/",
+		Expires: time.Now().Add(24 * time.Hour),
+	})
+	c.SetCookie(&http.Cookie{
+		Name:    constant.DMSRefreshToken,
+		Value:   refreshToken.Value,
+		Path:    "/",
+		HttpOnly: true, // 增加安全性
+		SameSite:  http.SameSiteStrictMode, // cookie只会在同站请求中发送。
+		Expires: time.Now().Add(24 * time.Hour),
+	})
+
+	return NewOkRespWithReply(c, &aV1.AddSessionReply{
+		Data: struct {
+			Token string `json:"token"`
+			Message string `json:"message"`
+		}{
+			Token: token,
+		},
+	})
 }
 
 // swagger:route GET /v1/dms/sessions/user Session GetUserBySession
