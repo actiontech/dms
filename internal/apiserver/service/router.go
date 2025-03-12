@@ -78,6 +78,7 @@ func (s *APIServer) initRouter() error {
 		sessionv1.POST("", s.DMSController.AddSession)
 		sessionv1.GET("/user", s.DMSController.GetUserBySession)
 		sessionv1.DELETE("", s.DMSController.DelSession)
+		sessionv1.POST("/refresh", s.DMSController.RefreshSession)
 
 		userGroupV1 := v1.Group("/dms/user_groups")
 		userGroupV1.POST("", s.DMSController.AddUserGroup)
