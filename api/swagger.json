@@ -4213,6 +4213,29 @@
         }
       }
     },
+    "/v1/dms/sessions/refresh": {
+      "post": {
+        "tags": [
+          "Session"
+        ],
+        "summary": "refresh a session.",
+        "operationId": "RefreshSession",
+        "responses": {
+          "200": {
+            "description": "AddSessionReply",
+            "schema": {
+              "$ref": "#/definitions/AddSessionReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/sessions/user": {
       "get": {
         "tags": [
@@ -6828,6 +6851,10 @@
           "type": "boolean",
           "x-go-name": "AutoCreateUser"
         },
+        "back_channel_logout_uri": {
+          "type": "string",
+          "x-go-name": "BackChannelLogoutUri"
+        },
         "client_host": {
           "type": "string",
           "x-go-name": "ClientHost"
@@ -6839,6 +6866,10 @@
         "enable_oauth2": {
           "type": "boolean",
           "x-go-name": "EnableOauth2"
+        },
+        "login_perm_expr": {
+          "type": "string",
+          "x-go-name": "LoginPermExpr"
         },
         "login_tip": {
           "type": "string",
@@ -9292,6 +9323,10 @@
         "enable_oauth2": {
           "type": "boolean",
           "x-go-name": "EnableOauth2"
+        },
+        "login_perm_expr": {
+          "type": "string",
+          "x-go-name": "LoginPermExpr"
         },
         "login_tip": {
           "type": "string",
