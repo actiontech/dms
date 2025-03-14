@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
@@ -73,6 +74,7 @@ func (d *DMSService) GetOauth2Configuration(ctx context.Context) (reply *dmsV1.G
 			LoginTip:        oauth2C.LoginTip,
 			UserEmailTag:    oauth2C.UserEmailTag,
 			UserWeChatTag:   oauth2C.UserWeChatTag,
+			LoginPermExpr:   oauth2C.LoginPermExpr,
 		},
 	}, nil
 }
@@ -108,26 +110,7 @@ func (d *DMSService) UpdateOauth2Configuration(ctx context.Context, req *dmsV1.O
 	}()
 
 	oauth2Configuration := req.Oauth2Configuration
-	return d.Oauth2ConfigurationUsecase.UpdateOauth2Configuration(
-		ctx,
-		oauth2Configuration.EnableOauth2,
-		oauth2Configuration.SkipCheckState,
-		oauth2Configuration.AutoCreateUser,
-		oauth2Configuration.AutoCreateUserPWD,
-		oauth2Configuration.ClientID,
-		oauth2Configuration.ClientKey,
-		oauth2Configuration.ClientHost,
-		oauth2Configuration.ServerAuthUrl,
-		oauth2Configuration.ServerTokenUrl,
-		oauth2Configuration.ServerUserIdUrl,
-		oauth2Configuration.ServerLogoutUrl,
-		oauth2Configuration.AccessTokenTag,
-		oauth2Configuration.UserIdTag,
-		oauth2Configuration.UserWeChatTag,
-		oauth2Configuration.UserEmailTag,
-		oauth2Configuration.LoginTip,
-		oauth2Configuration.Scopes,
-	)
+	return d.Oauth2ConfigurationUsecase.UpdateOauth2Configuration(ctx, oauth2Configuration)
 }
 
 func (d *DMSService) Oauth2Link(ctx context.Context) (uri string, err error) {
@@ -480,7 +463,7 @@ func (d *DMSService) TestSmsConfiguration(ctx context.Context, req *dmsV1.TestSm
 	}
 	return &dmsV1.TestSmsConfigurationReply{
 		Data: dmsV1.TestSmsConfigurationResData{
-			IsSmsSendNormal: isSmsSendNormal,
+			IsSmsSendNormal:  isSmsSendNormal,
 			SendErrorMessage: sendErrorMessage,
 		},
 	}, nil
@@ -513,7 +496,7 @@ func (d *DMSService) SendSmsCode(ctx context.Context, username string) (reply *d
 	defer func() {
 		d.log.Infof("send sms code;error=%v", err)
 	}()
-    return d.SmsConfigurationUseCase.SendSmsCode(ctx, username)
+	return d.SmsConfigurationUseCase.SendSmsCode(ctx, username)
 }
 
 func (d *DMSService) VerifySmsCode(request *dmsV1.VerifySmsCodeReq) (reply *dmsV1.VerifySmsCodeReply) {

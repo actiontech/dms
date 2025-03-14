@@ -6840,6 +6840,10 @@
           "type": "boolean",
           "x-go-name": "EnableOauth2"
         },
+        "login_perm_expr": {
+          "type": "string",
+          "x-go-name": "LoginPermExpr"
+        },
         "login_tip": {
           "type": "string",
           "x-go-name": "LoginTip"
@@ -9293,6 +9297,10 @@
           "type": "boolean",
           "x-go-name": "EnableOauth2"
         },
+        "login_perm_expr": {
+          "type": "string",
+          "x-go-name": "LoginPermExpr"
+        },
         "login_tip": {
           "type": "string",
           "maximum": 28,
@@ -10168,7 +10176,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
