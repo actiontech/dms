@@ -15,6 +15,8 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
+const BackChannelLogoutUri = "/backchannel_logout"
+
 type Oauth2Configuration struct {
 	Base
 
