@@ -26,22 +26,23 @@ type LoginConfiguration struct {
 }
 
 type GetOauth2ConfigurationResData struct {
-	EnableOauth2    bool     `json:"enable_oauth2"`
-	SkipCheckState  bool     `json:"skip_check_state"`
-	AutoCreateUser  bool     `json:"auto_create_user"`
-	ClientID        string   `json:"client_id"`
-	ClientHost      string   `json:"client_host"`
-	ServerAuthUrl   string   `json:"server_auth_url"`
-	ServerTokenUrl  string   `json:"server_token_url"`
-	ServerUserIdUrl string   `json:"server_user_id_url"`
-	ServerLogoutUrl string   `json:"server_logout_url"`
-	Scopes          []string `json:"scopes"`
-	AccessTokenTag  string   `json:"access_token_tag"`
-	UserIdTag       string   `json:"user_id_tag"`
-	UserEmailTag    string   `json:"user_email_tag"`
-	UserWeChatTag   string   `json:"user_wechat_tag"`
-	LoginPermExpr   string   `json:"login_perm_expr"` // GJSON查询表达式 eg：`resource_access.sqle.roles.#(=="login")` 即判断查询的json文档的 resource_access.sqle.roles 中是否存在login元素
-	LoginTip        string   `json:"login_tip"`
+	EnableOauth2         bool     `json:"enable_oauth2"`
+	SkipCheckState       bool     `json:"skip_check_state"`
+	AutoCreateUser       bool     `json:"auto_create_user"`
+	ClientID             string   `json:"client_id"`
+	ClientHost           string   `json:"client_host"`
+	ServerAuthUrl        string   `json:"server_auth_url"`
+	ServerTokenUrl       string   `json:"server_token_url"`
+	ServerUserIdUrl      string   `json:"server_user_id_url"`
+	ServerLogoutUrl      string   `json:"server_logout_url"`
+	Scopes               []string `json:"scopes"`
+	AccessTokenTag       string   `json:"access_token_tag"`
+	UserIdTag            string   `json:"user_id_tag"`
+	UserEmailTag         string   `json:"user_email_tag"`
+	UserWeChatTag        string   `json:"user_wechat_tag"`
+	LoginPermExpr        string   `json:"login_perm_expr"` // GJSON查询表达式 eg：`resource_access.sqle.roles.#(=="login")` 即判断查询的json文档的 resource_access.sqle.roles 中是否存在login元素
+	LoginTip             string   `json:"login_tip"`
+	BackChannelLogoutUri string   `json:"back_channel_logout_uri"`
 }
 
 // swagger:model GetOauth2ConfigurationResDataReply
