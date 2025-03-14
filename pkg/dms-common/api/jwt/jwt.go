@@ -60,26 +60,28 @@ func GenRefreshToken(customClaims ...CustomClaimFunc) (tokenStr string, err erro
 	return genJwtToken(mapClaims, customClaims...)
 }
 
-func ParseRefreshToken(tokenStr string) (uid string, err error) {
+func ParseRefreshToken(tokenStr string) (userUid, sub, sid string, err error) {
 	token, err := parseJwtTokenStr(tokenStr)
 	if err != nil {
-		return "", err
+		return "", "", "", err
 	}
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return "", fmt.Errorf("failed to convert token claims to jwt")
+		return "", "", "", fmt.Errorf("failed to convert token claims to jwt")
 	}
 
 	if fmt.Sprint(claims[JWTType]) != constant.DMSRefreshToken {
-		return "", fmt.Errorf("invalid jwt type")
+		return "", "", "", fmt.Errorf("invalid jwt type")
 	}
 
-	uidStr := fmt.Sprint(claims[JWTUserId])
-	if uidStr == "" {
-		return "", fmt.Errorf("failed to parse user id: empty uid")
+	userUid, _ = claims[JWTUserId].(string)
+	if userUid == "" {
+		return "", "", "", fmt.Errorf("failed to parse user id: empty userUid")
 	}
+	sub, _ = claims["sub"].(string)
+	sid, _ = claims["sid"].(string)
 
-	return uidStr, nil
+	return
 }
 
 func genJwtToken(mapClaims jwt.MapClaims, customClaims ...CustomClaimFunc) (tokenStr string, err error) {

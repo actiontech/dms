@@ -2599,6 +2599,27 @@ func (d *DMSController) BindOauth2User(c echo.Context) error {
 	})
 }
 
+// BackChannelLogout is a hidden interface for third-party platform callbacks for logout event
+func (d *DMSController) BackChannelLogout(c echo.Context) error {
+	if err := c.Request().ParseForm(); err != nil {
+		return c.String(http.StatusBadRequest, "Invalid form data")
+	}
+
+	logoutToken := c.Request().Form.Get("logout_token")
+	if logoutToken == "" {
+		return c.String(http.StatusBadRequest, "Missing logout_token")
+	}
+
+	// todo Verifier logoutToken by provider
+
+	err := d.DMS.BackChannelLogout(c.Request().Context(), logoutToken)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Handle logout event err: " + err.Error())
+	}
+
+	return c.NoContent(http.StatusOK)
+}
+
 // swagger:operation PATCH /v1/dms/configurations/ldap Configuration UpdateLDAPConfiguration
 //
 // Update ldap configuration.
