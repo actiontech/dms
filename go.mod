@@ -32,6 +32,7 @@ require (
 	github.com/stretchr/testify v1.8.2
 	github.com/swaggo/echo-swagger v1.4.1
 	github.com/swaggo/swag v1.16.3
+	github.com/tidwall/gjson v1.18.0
 	github.com/ungerik/go-dry v0.0.0-20210209114055-a3e162a9e62e
 	github.com/vektah/gqlparser/v2 v2.5.1
 	github.com/vishvananda/netlink v1.1.1-0.20201029203352-d40f9887b852
@@ -76,6 +77,8 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
 	github.com/swaggo/files/v2 v2.0.0 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/vishvananda/netns v0.0.0-20200728191858-db3c7e526aae // indirect
 	golang.org/x/mod v0.9.0 // indirect
 	golang.org/x/term v0.15.0 // indirect
