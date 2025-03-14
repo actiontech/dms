@@ -4,6 +4,7 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -13,15 +14,16 @@ import (
 	"strings"
 	"time"
 
+	v1 "github.com/actiontech/dms/api/dms/service/v1"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	jwtpkg "github.com/golang-jwt/jwt/v4"
+	"github.com/tidwall/gjson"
 	"golang.org/x/oauth2"
 )
 
-func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Context, enableOauth2, skipCheckState, autoCreateUser *bool, autoCreateUserPWD, clientID, clientKey, clientHost, serverAuthUrl, serverTokenUrl, serverUserIdUrl, serverLogoutUrl,
-	accessTokenTag, userIdTag, userWechatTag, userEmailTag, loginTip *string, scopes *[]string) error {
+func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Context, conf v1.Oauth2Configuration) error {
 	oauth2C, err := d.repo.GetLastOauth2Configuration(ctx)
 	if err != nil {
 		if !errors.Is(err, pkgErr.ErrStorageNoData) {
@@ -35,56 +37,59 @@ func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Conte
 	}
 
 	{ // patch oauth2 config
-		if enableOauth2 != nil {
-			oauth2C.EnableOauth2 = *enableOauth2
+		if conf.EnableOauth2 != nil {
+			oauth2C.EnableOauth2 = *conf.EnableOauth2
 		}
-		if skipCheckState != nil {
-			oauth2C.SkipCheckState = *skipCheckState
+		if conf.SkipCheckState != nil {
+			oauth2C.SkipCheckState = *conf.SkipCheckState
 		}
-		if autoCreateUser != nil {
-			oauth2C.AutoCreateUser = *autoCreateUser
+		if conf.AutoCreateUser != nil {
+			oauth2C.AutoCreateUser = *conf.AutoCreateUser
 		}
-		if autoCreateUserPWD != nil {
-			oauth2C.AutoCreateUserPWD = *autoCreateUserPWD
+		if conf.AutoCreateUserPWD != nil {
+			oauth2C.AutoCreateUserPWD = *conf.AutoCreateUserPWD
 		}
-		if clientID != nil {
-			oauth2C.ClientID = *clientID
+		if conf.ClientID != nil {
+			oauth2C.ClientID = *conf.ClientID
 		}
-		if clientKey != nil {
-			oauth2C.ClientKey = *clientKey
+		if conf.ClientKey != nil {
+			oauth2C.ClientKey = *conf.ClientKey
 		}
-		if clientHost != nil {
-			oauth2C.ClientHost = *clientHost
+		if conf.ClientHost != nil {
+			oauth2C.ClientHost = *conf.ClientHost
 		}
-		if serverAuthUrl != nil {
-			oauth2C.ServerAuthUrl = *serverAuthUrl
+		if conf.ServerAuthUrl != nil {
+			oauth2C.ServerAuthUrl = *conf.ServerAuthUrl
 		}
-		if serverTokenUrl != nil {
-			oauth2C.ServerTokenUrl = *serverTokenUrl
+		if conf.ServerTokenUrl != nil {
+			oauth2C.ServerTokenUrl = *conf.ServerTokenUrl
 		}
-		if serverUserIdUrl != nil {
-			oauth2C.ServerUserIdUrl = *serverUserIdUrl
+		if conf.ServerUserIdUrl != nil {
+			oauth2C.ServerUserIdUrl = *conf.ServerUserIdUrl
 		}
-		if serverLogoutUrl != nil {
-			oauth2C.ServerLogoutUrl = *serverLogoutUrl
+		if conf.ServerLogoutUrl != nil {
+			oauth2C.ServerLogoutUrl = *conf.ServerLogoutUrl
 		}
-		if scopes != nil {
-			oauth2C.Scopes = *scopes
+		if conf.Scopes != nil {
+			oauth2C.Scopes = *conf.Scopes
 		}
-		if accessTokenTag != nil {
-			oauth2C.AccessTokenTag = *accessTokenTag
+		if conf.AccessTokenTag != nil {
+			oauth2C.AccessTokenTag = *conf.AccessTokenTag
 		}
-		if userIdTag != nil {
-			oauth2C.UserIdTag = *userIdTag
+		if conf.UserIdTag != nil {
+			oauth2C.UserIdTag = *conf.UserIdTag
 		}
-		if loginTip != nil {
-			oauth2C.LoginTip = *loginTip
+		if conf.LoginTip != nil {
+			oauth2C.LoginTip = *conf.LoginTip
 		}
-		if userEmailTag != nil {
-			oauth2C.UserEmailTag = *userEmailTag
+		if conf.UserEmailTag != nil {
+			oauth2C.UserEmailTag = *conf.UserEmailTag
 		}
-		if userWechatTag != nil {
-			oauth2C.UserWeChatTag = *userWechatTag
+		if conf.UserWeChatTag != nil {
+			oauth2C.UserWeChatTag = *conf.UserWeChatTag
+		}
+		if conf.LoginPermExpr != nil {
+			oauth2C.LoginPermExpr = *conf.LoginPermExpr
 		}
 	}
 	return d.repo.UpdateOauth2Configuration(ctx, oauth2C)
@@ -176,6 +181,12 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 		}
 	}()
 
+	token, err := jwtpkg.Parse(oauth2Token.AccessToken, nil)
+	canLogin, err := d.getLoginPermFromToken(ctx, token)
+	if err != nil {
+		return data.generateQuery(uri), "", fmt.Errorf("get login perm from token err: %v", err)
+	}
+
 	//get user is exist
 	oauth2User, err := d.getOauth2User(oauth2C, oauth2Token.AccessToken)
 	if err != nil {
@@ -203,6 +214,9 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 			Email:                  oauth2User.Email,
 			WxID:                   oauth2User.WxID,
 		}
+		if canLogin != nil && !*canLogin {
+			args.IsDisabled = true
+		}
 		uid, err := d.userUsecase.CreateUser(ctx, pkgConst.UIDOfUserSys, args)
 		if err != nil {
 			d.log.Errorf("when generate callback uri, userUsecase.CreateUser failed,%v", err)
@@ -216,12 +230,6 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 		data.DMSToken = dmsToken
 		data.UserExist = true
 	} else if exist {
-		// the user has successfully logged in at the third party, and the token can be returned directly after checking users' state
-		if user.Stat == UserStatDisable {
-			err = fmt.Errorf("user %s can not login", user.Name)
-			data.Error = err.Error()
-			return data.generateQuery(uri), "", err
-		}
 		dmsToken, err = jwt.GenJwtToken(jwt.WithUserId(user.GetUID()))
 		if err != nil {
 			data.Error = err.Error()
@@ -234,10 +242,21 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 		user.Email = oauth2User.Email
 		user.ThirdPartyUserInfo = oauth2User.ThirdPartyUserInfo
 		user.ThirdPartyIdToken = data.IdToken
+		if canLogin != nil && *canLogin {
+			user.Stat = UserStatOK
+		} else if canLogin != nil && !*canLogin {
+			user.Stat = UserStatDisable
+		}
 		err := d.userUsecase.SaveUser(ctx, user)
 		if err != nil {
 			d.log.Errorf("when generate callback uri, update user failed,%v", err)
 		}
+	}
+
+	if canLogin != nil && !*canLogin {
+		err = fmt.Errorf("user %s can not login", user.Name)
+		data.Error = err.Error()
+		return data.generateQuery(uri), "", err
 	}
 
 	return data.generateQuery(uri), dmsToken, nil
@@ -311,6 +330,73 @@ func (d *Oauth2ConfigurationUsecase) getOauth2User(conf *Oauth2Configuration, to
 	}
 	user.ThirdPartyUserInfo = string(body)
 	return user, nil
+}
+
+func (d *Oauth2ConfigurationUsecase) getLoginPermFromToken(ctx context.Context, token *jwtpkg.Token) (*bool, error) {
+	Oauth2Conf, err := d.repo.GetLastOauth2Configuration(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if Oauth2Conf.LoginPermExpr == "" {
+		return nil, nil
+	}
+
+	claims, err := json.Marshal(token.Claims)
+	if err != nil {
+		return nil, err
+	}
+	// claims eg:
+	//
+	// {
+	//  "exp": 1741593656,
+	//  "iat": 1741593356,
+	//  "auth_time": 1741593356,
+	//  "jti": "a3ce017a-f00b-42b2-aac3-b54ebfc86a86",
+	//  "iss": "http://localhost:8080/realms/test",
+	//  "aud": "account",
+	//  "sub": "1cda12c9-ca15-40b5-af45-1f4e73df4600",
+	//  "typ": "Bearer",
+	//  "azp": "sqle",
+	//  "sid": "036bf71b-6696-4fb4-b9fb-dadb924991ba",
+	//  "acr": "1",
+	//  "allowed-origins": [
+	//    "*"
+	//  ],
+	//  "realm_access": {
+	//    "roles": [
+	//      "default-roles-test",
+	//      "offline_access",
+	//      "uma_authorization"
+	//    ]
+	//  },
+	//  "resource_access": {
+	//    "sqle": {
+	//      "roles": [
+	//        "login"
+	//      ]
+	//    },
+	//    "account": {
+	//      "roles": [
+	//        "manage-account",
+	//        "manage-account-links",
+	//        "view-profile"
+	//      ]
+	//    }
+	//  },
+	//  "scope": "openid email profile",
+	//  "email_verified": false,
+	//  "name": "l wq",
+	//  "preferred_username": "sqle",
+	//  "given_name": "l",
+	//  "family_name": "wq",
+	//  "email": "sqle@xxx.com"
+	//}
+
+	// LoginPermExpr eg：`resource_access.sqle.roles.#(=="login")`
+	// 即 判断查询的json文档的 resource_access.sqle.roles 中是否存在login元素
+	canLogin := gjson.Get(string(claims), Oauth2Conf.LoginPermExpr).Exists()
+
+	return &canLogin, nil
 }
 
 func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2Token, idToken, userName, password string) (token string, err error) {
