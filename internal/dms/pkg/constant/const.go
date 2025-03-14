@@ -209,5 +209,6 @@ func ParseDBServiceSource(s string) (DBServiceSourceName, error) {
 }
 
 const (
-	DMSToken = "dms-token"
+	DMSToken        = "dms-token"
+	DMSRefreshToken = "dms-refresh-token"
 )

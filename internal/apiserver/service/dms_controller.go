@@ -577,6 +577,10 @@ func (a *DMSController) AddSession(c echo.Context) error {
 	if nil != err {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
+	refreshToken, err := jwt.GenRefreshToken(jwt.WithUserId(reply.Data.UserUid))
+	if nil != err {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
 
 	err = a.DMS.AfterUserLogin(c.Request().Context(), &aV1.AfterUserLoginReq{
 		UserUid: reply.Data.UserUid,
@@ -589,7 +593,15 @@ func (a *DMSController) AddSession(c echo.Context) error {
 		Name:    constant.DMSToken,
 		Value:   token,
 		Path:    "/",
-		Expires: time.Now().Add(24 * time.Hour),
+		Expires: time.Now().Add(jwt.DefaultDmsTokenExpHours * time.Hour),
+	})
+	c.SetCookie(&http.Cookie{
+		Name:    constant.DMSRefreshToken,
+		Value:   refreshToken,
+		Path:    "/",
+		HttpOnly: true, // 增加安全性
+		SameSite:  http.SameSiteStrictMode, // cookie只会在同站请求中发送。
+		Expires: time.Now().Add(jwt.DefaultDmsRefreshTokenExpHours * time.Hour),
 	})
 
 	return NewOkRespWithReply(c, &aV1.AddSessionReply{
@@ -610,23 +622,28 @@ func (a *DMSController) AddSession(c echo.Context) error {
 //	  200: body:DelSessionReply
 //	  default: body:GenericResp
 func (a *DMSController) DelSession(c echo.Context) error {
-	uid, err := jwt.GetUserUidStrFromContext(c)
-	if err != nil {
-		return NewErrResp(c, err, apiError.BadRequestErr)
-	}
-	redirectUri, err := a.DMS.Oauth2ConfigurationUsecase.Logout(c.Request().Context(), uid)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
+	var redirectUri string
+
+	dmsToken, err := c.Cookie(constant.DMSToken)
+	if err == nil {
+		uid, err := jwt.ParseUidFromJwtTokenStr(dmsToken.Value)
+		if err == nil {
+			redirectUri, err = a.DMS.Oauth2ConfigurationUsecase.Logout(c.Request().Context(), uid)
+			if err != nil {
+				return NewErrResp(c, err, apiError.DMSServiceErr)
+			}
+		}
+
 	}
 
 	cookie, err := c.Cookie(constant.DMSToken)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
+	if err == nil {
+		// cookie 未过期
+		cookie.MaxAge = -1 // MaxAge<0 means delete cookie now
+		cookie.Path = "/"
+		c.SetCookie(cookie)
+		a.CloudbeaverService.Logout(cookie.Value)
 	}
-	cookie.MaxAge = -1 // MaxAge<0 means delete cookie now
-	cookie.Path = "/"
-	c.SetCookie(cookie)
-	a.CloudbeaverService.Logout(cookie.Value)
 
 	reply := &aV1.DelSessionReply{Data: struct {
 		Location string `json:"location"`
@@ -639,6 +656,95 @@ func (a *DMSController) DelSession(c echo.Context) error {
 	}
 
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
+}
+
+// swagger:operation POST /v1/dms/sessions/refresh Session RefreshSession
+//
+// refresh a session.
+//
+// ---
+// responses:
+//   '200':
+//     description: AddSessionReply
+//     schema:
+//       "$ref": "#/definitions/AddSessionReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (a *DMSController) RefreshSession(c echo.Context) error {
+	refreshToken, err := c.Cookie(constant.DMSRefreshToken)
+	if err != nil {
+		return c.String(http.StatusUnauthorized, "refresh token not found")
+	}
+
+	uid, sub, sid, err := jwt.ParseRefreshToken(refreshToken.Value)
+	if err != nil {
+		return c.String(http.StatusUnauthorized, err.Error())
+	}
+
+	// 签发的token包含第三方平台信息，需要同步刷新第三方平台token
+	if sub != "" || sid != "" {
+		claims, err := a.DMS.RefreshOauth2Token(c.Request().Context(), uid, sub, sid)
+		if err != nil {
+			return c.String(http.StatusUnauthorized, err.Error())
+		}
+
+		newDmsToken, dmsTokenExp, err := claims.DmsToken()
+		if err != nil {
+			return NewErrResp(c, err, apiError.APIServerErr)
+		}
+		newRefreshToken, dmsRefreshTokenExp, err := claims.DmsRefreshToken()
+		if err != nil {
+			return NewErrResp(c, err, apiError.APIServerErr)
+		}
+
+		c.SetCookie(&http.Cookie{
+			Name:    constant.DMSToken,
+			Value:   newDmsToken,
+			Path:    "/",
+			Expires: time.Now().Add(dmsTokenExp),
+		})
+		c.SetCookie(&http.Cookie{
+			Name:    constant.DMSRefreshToken,
+			Value:   newRefreshToken,
+			Path:    "/",
+			HttpOnly: true, // 增加安全性
+			SameSite: http.SameSiteStrictMode, // cookie只会在同站请求中发送。
+			Expires: time.Now().Add(dmsRefreshTokenExp),
+		})
+
+		return NewOkRespWithReply(c, &aV1.AddSessionReply{
+			Data: struct {
+				Token string `json:"token"`
+				Message string `json:"message"`
+			}{
+				Token: newDmsToken,
+			},
+		})
+	}
+
+	// Create token with claims
+	token, err := jwt.GenJwtToken(jwt.WithUserId(uid))
+	if nil != err {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+
+	c.SetCookie(&http.Cookie{
+		Name:    constant.DMSToken,
+		Value:   token,
+		Path:    "/",
+		Expires: time.Now().Add(jwt.DefaultDmsTokenExpHours * time.Hour),
+	})
+
+	return NewOkRespWithReply(c, &aV1.AddSessionReply{
+		Data: struct {
+			Token string `json:"token"`
+			Message string `json:"message"`
+		}{
+			Token: token,
+		},
+	})
 }
 
 // swagger:route GET /v1/dms/sessions/user Session GetUserBySession
@@ -2404,19 +2510,38 @@ func (d *DMSController) Oauth2Callback(c echo.Context) error {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	uri, token, err := d.DMS.Oauth2Callback(c.Request().Context(), req)
+	callbackData, claims, err := d.DMS.Oauth2Callback(c.Request().Context(), req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
-	if token != "" {
-		c.SetCookie(&http.Cookie{
-			Name:    constant.DMSToken,
-			Value:   token,
-			Path:    "/",
-			Expires: time.Now().Add(24 * time.Hour),
-		})
+
+	dmsToken, dmsTokenExp, err := claims.DmsToken()
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
 	}
-	return c.Redirect(http.StatusFound, uri)
+	refreshToken, dmsRefreshTokenExp, err := claims.DmsRefreshToken()
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+
+	callbackData.DMSToken = dmsToken
+	c.SetCookie(&http.Cookie{
+		Name:    constant.DMSToken,
+		Value:   dmsToken,
+		Path:    "/",
+		Expires: time.Now().Add(dmsTokenExp),
+	})
+	c.SetCookie(&http.Cookie{
+		Name:    constant.DMSRefreshToken,
+		Value:   refreshToken,
+		Path:    "/",
+		HttpOnly: true, // 增加安全性
+		SameSite:  http.SameSiteStrictMode, // cookie只会在同站请求中发送。
+		Expires: time.Now().Add(dmsRefreshTokenExp),
+	})
+
+
+	return c.Redirect(http.StatusFound, callbackData.Generate())
 }
 
 // swagger:operation POST /v1/dms/oauth2/user/bind OAuth2 BindOauth2User
@@ -2445,17 +2570,59 @@ func (d *DMSController) BindOauth2User(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
-	reply, err := d.DMS.BindOauth2User(c.Request().Context(), req)
+	claims, err := d.DMS.BindOauth2User(c.Request().Context(), req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
+
+	dmsToken, dmsTokenExp, err := claims.DmsToken()
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	refreshToken, dmsRefreshTokenExp, err := claims.DmsRefreshToken()
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+
 	c.SetCookie(&http.Cookie{
 		Name:    constant.DMSToken,
-		Value:   reply.Data.Token,
+		Value:   dmsToken,
 		Path:    "/",
-		Expires: time.Now().Add(24 * time.Hour),
+		Expires: time.Now().Add(dmsTokenExp),
 	})
-	return NewOkRespWithReply(c, reply)
+	c.SetCookie(&http.Cookie{
+		Name:    constant.DMSRefreshToken,
+		Value:   refreshToken,
+		Path:    "/",
+		HttpOnly: true, // 增加安全性
+		SameSite:  http.SameSiteStrictMode, // cookie只会在同站请求中发送。
+		Expires: time.Now().Add(dmsRefreshTokenExp),
+	})
+		
+	return NewOkRespWithReply(c, &aV1.BindOauth2UserReply{
+		Data:aV1.BindOauth2UserResData{Token: dmsToken},
+	})
+}
+
+// BackChannelLogout is a hidden interface for third-party platform callbacks for logout event
+func (d *DMSController) BackChannelLogout(c echo.Context) error {
+	if err := c.Request().ParseForm(); err != nil {
+		return c.String(http.StatusBadRequest, "Invalid form data")
+	}
+
+	logoutToken := c.Request().Form.Get("logout_token")
+	if logoutToken == "" {
+		return c.String(http.StatusBadRequest, "Missing logout_token")
+	}
+
+	// todo Verifier logoutToken by provider
+
+	err := d.DMS.BackChannelLogout(c.Request().Context(), logoutToken)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Handle logout event err: " + err.Error())
+	}
+
+	return c.NoContent(http.StatusOK)
 }
 
 // swagger:operation PATCH /v1/dms/configurations/ldap Configuration UpdateLDAPConfiguration

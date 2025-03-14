@@ -4213,6 +4213,29 @@
         }
       }
     },
+    "/v1/dms/sessions/refresh": {
+      "post": {
+        "tags": [
+          "Session"
+        ],
+        "summary": "refresh a session.",
+        "operationId": "RefreshSession",
+        "responses": {
+          "200": {
+            "description": "AddSessionReply",
+            "schema": {
+              "$ref": "#/definitions/AddSessionReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/sessions/user": {
       "get": {
         "tags": [

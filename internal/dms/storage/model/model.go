@@ -1,6 +1,7 @@
 package model
 
 import (
+	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
@@ -29,6 +30,7 @@ var AutoMigrateList = []interface{}{
 	Project{},
 	ProxyTarget{},
 	Plugin{},
+	Session{},
 	LoginConfiguration{},
 	Oauth2Configuration{},
 	LDAPConfiguration{},
@@ -243,6 +245,16 @@ type Plugin struct {
 	OperateDataResourceHandleUrl string `json:"operate_data_resource_handle_url" gorm:"size:255;column:operate_data_resource_handle_url"`
 	GetDatabaseDriverOptionsUrl  string `json:"get_database_driver_options_url" gorm:"size:255;column:get_database_driver_options_url"`
 	GetDatabaseDriverLogosUrl    string `json:"get_database_driver_logos_url" gorm:"size:255;column:get_database_driver_logos_url"`
+}
+
+type Session struct {
+	Model
+	UserUID               string         `json:"user_uid" gorm:"size:32;column:user_uid;index:idx_user_uid"`
+	OAuth2Sub             string         `json:"oauth2_sub" gorm:"size:255;column:oauth2_sub;index:idx_oauth2_sub_sid,unique"`
+	OAuth2Sid             string         `json:"oauth2_sid" gorm:"size:255;column:oauth2_sid;index:idx_oauth2_sub_sid,unique"`
+	OAuth2IdToken         string         `json:"oauth2_id_token" gorm:"type:text;column:oauth2_id_token"`
+	OAuth2RefreshToken    string         `json:"oauth2_refresh_token" gorm:"type:text;column:oauth2_refresh_token"`
+	OAuth2LastLogoutEvent sql.NullString `json:"oauth2_last_logout_event" gorm:"size:255;column:oauth2_last_logout_event;"`
 }
 
 // LoginConfiguration store local login configuration.

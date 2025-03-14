@@ -7,6 +7,7 @@ import (
 
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 
+	"github.com/actiontech/dms/internal/dms/pkg/constant"
 	jwtOld "github.com/golang-jwt/jwt"
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -24,12 +25,17 @@ const (
 	JWTExpiredTime   = "exp"
 	JWTAuditPlanName = "apn"
 	JWTLoginType     = "loginType"
+	JWTType          = "typ"
+
+	DefaultDmsTokenExpHours        = 2
+	DefaultDmsRefreshTokenExpHours = 24
 )
 
 func GenJwtToken(customClaims ...CustomClaimFunc) (tokenStr string, err error) {
 	var mapClaims = jwt.MapClaims{
 		"iss":          "actiontech dms",
-		JWTExpiredTime: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+		JWTExpiredTime: jwt.NewNumericDate(time.Now().Add(DefaultDmsTokenExpHours * time.Hour)),
+		JWTType:        constant.DMSToken,
 	}
 
 	return genJwtToken(mapClaims, customClaims...)
@@ -44,10 +50,45 @@ func GenJwtTokenWithExpirationTime(expiredTime *jwt.NumericDate, customClaims ..
 	return genJwtToken(mapClaims, customClaims...)
 }
 
+func GenRefreshToken(customClaims ...CustomClaimFunc) (tokenStr string, err error) {
+	var mapClaims = jwt.MapClaims{
+		"iss":          "actiontech dms",
+		JWTExpiredTime: jwt.NewNumericDate(time.Now().Add(DefaultDmsRefreshTokenExpHours * time.Hour)),
+		JWTType:        constant.DMSRefreshToken,
+	}
+
+	return genJwtToken(mapClaims, customClaims...)
+}
+
+func ParseRefreshToken(tokenStr string) (userUid, sub, sid string, err error) {
+	token, err := parseJwtTokenStr(tokenStr)
+	if err != nil {
+		return "", "", "", err
+	}
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", "", "", fmt.Errorf("failed to convert token claims to jwt")
+	}
+
+	if fmt.Sprint(claims[JWTType]) != constant.DMSRefreshToken {
+		return "", "", "", fmt.Errorf("invalid jwt type")
+	}
+
+	userUid, _ = claims[JWTUserId].(string)
+	if userUid == "" {
+		return "", "", "", fmt.Errorf("failed to parse user id: empty userUid")
+	}
+	sub, _ = claims["sub"].(string)
+	sid, _ = claims["sid"].(string)
+
+	return
+}
+
 func genJwtToken(mapClaims jwt.MapClaims, customClaims ...CustomClaimFunc) (tokenStr string, err error) {
 	for _, claimFunc := range customClaims {
 		claimFunc(mapClaims)
 	}
+	mapClaims["iat"] = jwt.NewNumericDate(time.Now())
 	// Create token with claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, mapClaims)
 
@@ -62,6 +103,12 @@ func genJwtToken(mapClaims jwt.MapClaims, customClaims ...CustomClaimFunc) (toke
 func WithUserId(userId string) CustomClaimFunc {
 	return func(claims jwt.MapClaims) {
 		claims[JWTUserId] = userId
+	}
+}
+
+func WithJTWType(typ string) CustomClaimFunc {
+	return func(claims jwt.MapClaims) {
+		claims[JWTType] = typ
 	}
 }
 
@@ -86,6 +133,17 @@ func WithExpiredTime(duration time.Duration) CustomClaimFunc {
 func WithAccessTokenMark(loginType string) CustomClaimFunc {
 	return func(claims jwt.MapClaims) {
 		claims[JWTLoginType] = loginType
+	}
+}
+func WithSub(sub string) CustomClaimFunc {
+	return func(claims jwt.MapClaims) {
+		claims["sub"] = sub
+	}
+}
+
+func WithSid(sid string) CustomClaimFunc {
+	return func(claims jwt.MapClaims) {
+		claims["sid"] = sid
 	}
 }
 
