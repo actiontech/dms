@@ -7874,6 +7874,21 @@ paths:
             summary: Add a session.
             tags:
                 - Session
+    /v1/dms/sessions/refresh:
+        post:
+            operationId: RefreshSession
+            responses:
+                "200":
+                    description: AddSessionReply
+                    schema:
+                        $ref: '#/definitions/AddSessionReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: refresh a session.
+            tags:
+                - Session
     /v1/dms/sessions/user:
         get:
             operationId: GetUserBySession

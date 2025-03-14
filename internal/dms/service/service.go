@@ -28,6 +28,7 @@ type DMSService struct {
 	ProjectUsecase              *biz.ProjectUsecase
 	DmsProxyUsecase             *biz.DmsProxyUsecase
 	Oauth2ConfigurationUsecase  *biz.Oauth2ConfigurationUsecase
+	SessionUsecase              *biz.SessionUsecase
 	LDAPConfigurationUsecase    *biz.LDAPConfigurationUsecase
 	SMTPConfigurationUsecase    *biz.SMTPConfigurationUsecase
 	WeChatConfigurationUsecase  *biz.WeChatConfigurationUsecase
@@ -100,8 +101,10 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	if err != nil {
 		return nil, fmt.Errorf("failed to new dms proxy usecase: %v", err)
 	}
+	sessionRepo := storage.NewSessionRepo(logger, st)
+	sessionUsecase := biz.NewSessionUsecase(logger, tx, sessionRepo)
 	oauth2ConfigurationRepo := storage.NewOauth2ConfigurationRepo(logger, st)
-	oauth2ConfigurationUsecase := biz.NewOauth2ConfigurationUsecase(logger, tx, oauth2ConfigurationRepo, userUsecase)
+	oauth2ConfigurationUsecase := biz.NewOauth2ConfigurationUsecase(logger, tx, oauth2ConfigurationRepo, userUsecase, sessionUsecase)
 	companyNoticeRepo := storage.NewCompanyNoticeRepo(logger, st)
 	companyNoticeRepoUsecase := biz.NewCompanyNoticeUsecase(logger, tx, companyNoticeRepo, userUsecase)
 	smtpConfigurationRepo := storage.NewSMTPConfigurationRepo(logger, st)
@@ -157,6 +160,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		ProjectUsecase:              projectUsecase,
 		DmsProxyUsecase:             dmsProxyUsecase,
 		Oauth2ConfigurationUsecase:  oauth2ConfigurationUsecase,
+		SessionUsecase:              sessionUsecase,
 		LDAPConfigurationUsecase:    ldapConfigurationUsecase,
 		SMTPConfigurationUsecase:    smtpConfigurationUsecase,
 		WeChatConfigurationUsecase:  wechatConfigurationUsecase,
