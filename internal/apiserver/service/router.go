@@ -316,6 +316,7 @@ func (s *APIServer) installMiddleware() error {
 		Skipper: middleware.Skipper(func(c echo.Context) bool {
 			logger := log.NewHelper(log.With(pkgLog.NewKLogWrapper(s.logger), "middleware", "jwt"))
 			if strings.HasSuffix(c.Request().RequestURI, dmsV1.SessionRouterGroup) && c.Request().Method != http.MethodDelete ||
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/sessions/refresh" /* TODO 使用统一方法skip */) ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/oauth2" /* TODO 使用统一方法skip */) ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/login/tips" /* TODO 使用统一方法skip */) ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/personalization/logo") ||
