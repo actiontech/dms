@@ -622,23 +622,28 @@ func (a *DMSController) AddSession(c echo.Context) error {
 //	  200: body:DelSessionReply
 //	  default: body:GenericResp
 func (a *DMSController) DelSession(c echo.Context) error {
-	uid, err := jwt.GetUserUidStrFromContext(c)
-	if err != nil {
-		return NewErrResp(c, err, apiError.BadRequestErr)
-	}
-	redirectUri, err := a.DMS.Oauth2ConfigurationUsecase.Logout(c.Request().Context(), uid)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
+	var redirectUri string
+
+	dmsToken, err := c.Cookie(constant.DMSToken)
+	if err == nil {
+		uid, err := jwt.ParseUidFromJwtTokenStr(dmsToken.Value)
+		if err == nil {
+			redirectUri, err = a.DMS.Oauth2ConfigurationUsecase.Logout(c.Request().Context(), uid)
+			if err != nil {
+				return NewErrResp(c, err, apiError.DMSServiceErr)
+			}
+		}
+
 	}
 
 	cookie, err := c.Cookie(constant.DMSToken)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
+	if err == nil {
+		// cookie 未过期
+		cookie.MaxAge = -1 // MaxAge<0 means delete cookie now
+		cookie.Path = "/"
+		c.SetCookie(cookie)
+		a.CloudbeaverService.Logout(cookie.Value)
 	}
-	cookie.MaxAge = -1 // MaxAge<0 means delete cookie now
-	cookie.Path = "/"
-	c.SetCookie(cookie)
-	a.CloudbeaverService.Logout(cookie.Value)
 
 	reply := &aV1.DelSessionReply{Data: struct {
 		Location string `json:"location"`
