@@ -127,32 +127,40 @@ func (d *DMSService) Oauth2Link(ctx context.Context) (uri string, err error) {
 }
 
 // if redirect directly to SQLE, will return token, otherwise this parameter will be an empty string
-func (d *DMSService) Oauth2Callback(ctx context.Context, req *dmsV1.Oauth2CallbackReq) (uri string, token string, err error) {
+func (d *DMSService) Oauth2Callback(ctx context.Context, req *dmsV1.Oauth2CallbackReq) (data *biz.CallbackRedirectData, claims *biz.ClaimsInfo, err error) {
 	d.log.Infof("Oauth2Callback")
 	defer func() {
 		d.log.Infof("Oauth2Callback;error=%v", err)
 	}()
 
-	uri, token, err = d.Oauth2ConfigurationUsecase.GenerateCallbackUri(ctx, req.State, req.Code)
-	if err != nil {
-		return "", "", err
-	}
-	return uri, token, nil
+	return d.Oauth2ConfigurationUsecase.GenerateCallbackUri(ctx, req.State, req.Code)
 }
 
-func (d *DMSService) BindOauth2User(ctx context.Context, bindOauth2User *dmsV1.BindOauth2UserReq) (reply *dmsV1.BindOauth2UserReply, err error) {
+func (d *DMSService) BindOauth2User(ctx context.Context, bindOauth2User *dmsV1.BindOauth2UserReq) (claims *biz.ClaimsInfo, err error) {
 	d.log.Infof("BindOauth2User")
 	defer func() {
 		d.log.Infof("BindOauth2User;error=%v", err)
 	}()
 
-	token, err := d.Oauth2ConfigurationUsecase.BindOauth2User(ctx, bindOauth2User.Oauth2Token, bindOauth2User.IdToken, bindOauth2User.UserName, bindOauth2User.Pwd)
-	if err != nil {
-		return nil, err
-	}
-	return &dmsV1.BindOauth2UserReply{
-		Data: dmsV1.BindOauth2UserResData{Token: token},
-	}, nil
+	return d.Oauth2ConfigurationUsecase.BindOauth2User(ctx, bindOauth2User.Oauth2Token, bindOauth2User.IdToken, bindOauth2User.UserName, bindOauth2User.Pwd)
+}
+
+func (d *DMSService) RefreshOauth2Token(ctx context.Context, userUid, sub, sid string) (claims *biz.ClaimsInfo, err error) {
+	d.log.Infof("RefreshOauth2Token")
+	defer func() {
+		d.log.Infof("RefreshOauth2Token;error=%v", err)
+	}()
+
+	return d.Oauth2ConfigurationUsecase.RefreshOauth2Token(ctx, userUid, sub, sid)
+}
+
+func (d *DMSService) BackChannelLogout(ctx context.Context, logoutToken string) (err error) {
+	d.log.Infof("BackChannelLogout")
+	defer func() {
+		d.log.Infof("BackChannelLogout;error=%v", err)
+	}()
+
+	return d.Oauth2ConfigurationUsecase.BackChannelLogout(ctx, logoutToken)
 }
 
 func (d *DMSService) GetLDAPConfiguration(ctx context.Context) (reply *dmsV1.GetLDAPConfigurationReply, err error) {
