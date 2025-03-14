@@ -10,15 +10,14 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
 	"time"
 
 	v1 "github.com/actiontech/dms/api/dms/service/v1"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
-	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	jwtpkg "github.com/golang-jwt/jwt/v4"
+	"github.com/labstack/echo/v4"
 	"github.com/tidwall/gjson"
 	"golang.org/x/oauth2"
 )
@@ -137,31 +136,30 @@ func (d *Oauth2ConfigurationUsecase) generateOauth2Config(oauth2C *Oauth2Configu
 }
 
 // if user is exist and valid, will return dmsToken, otherwise this parameter will be an empty string
-func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, state, code string) (redirectUri string, dmsToken string, err error) {
+func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, state, code string) (data *CallbackRedirectData, claims *ClaimsInfo, err error) {
 	oauth2C, err := d.repo.GetLastOauth2Configuration(ctx)
 	if err != nil {
-		return "", "", err
+		return nil, nil, err
 	}
 	// TODO sqle https should also support
-	uri := oauth2C.ClientHost
-	data := callbackRedirectData{}
+	data = &CallbackRedirectData{uri: oauth2C.ClientHost}
 	// check callback request
 	if !oauth2C.SkipCheckState && state != oauthState {
 		err := fmt.Errorf("invalid state: %v", state)
 		data.Error = err.Error()
-		return data.generateQuery(uri), "", err
+		return data, nil, err
 	}
 	if code == "" {
 		err := fmt.Errorf("code is nil")
 		data.Error = err.Error()
-		return data.generateQuery(uri), "", err
+		return data, nil, err
 	}
 
 	// get oauth2 token
 	oauth2Token, err := d.generateOauth2Config(oauth2C).Exchange(ctx, code)
 	if err != nil {
 		data.Error = err.Error()
-		return data.generateQuery(uri), "", err
+		return data, nil, err
 	}
 	data.Oauth2Token = oauth2Token.AccessToken
 	data.IdToken, _ = oauth2Token.Extra("id_token").(string) // 尝试获取 id_token
@@ -184,24 +182,26 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 	token, err := jwtpkg.Parse(oauth2Token.AccessToken, nil)
 	canLogin, err := d.getLoginPermFromToken(ctx, token)
 	if err != nil {
-		return data.generateQuery(uri), "", fmt.Errorf("get login perm from token err: %v", err)
+		return data, nil, fmt.Errorf("get login perm from token err: %v", err)
 	}
 
 	//get user is exist
 	oauth2User, err := d.getOauth2User(oauth2C, oauth2Token.AccessToken)
 	if err != nil {
 		data.Error = err.Error()
-		return data.generateQuery(uri), "", err
+		return data, nil, err
 	}
 	user, exist, err := d.userUsecase.GetUserByThirdPartyUserID(ctx, oauth2User.UID)
 	if err != nil {
 		data.Error = err.Error()
-		return data.generateQuery(uri), "", err
+		return data, nil, err
 	}
 	data.UserExist = exist
+
+	var userID string
 	if oauth2C.AutoCreateUser && !exist {
 		if oauth2C.AutoCreateUserPWD == "" {
-			return data.generateQuery(uri), "", fmt.Errorf("OAuth2 user default login password is empty")
+			return data, nil, fmt.Errorf("OAuth2 user default login password is empty")
 		}
 		args := &CreateUserArgs{
 			Name:                   oauth2User.UID,
@@ -220,22 +220,12 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 		uid, err := d.userUsecase.CreateUser(ctx, pkgConst.UIDOfUserSys, args)
 		if err != nil {
 			d.log.Errorf("when generate callback uri, userUsecase.CreateUser failed,%v", err)
-			return "", "", err
+			return data, nil, err
 		}
-		dmsToken, err = jwt.GenJwtToken(jwt.WithUserId(uid))
-		if err != nil {
-			data.Error = err.Error()
-			return data.generateQuery(uri), "", err
-		}
-		data.DMSToken = dmsToken
+		userID = uid
 		data.UserExist = true
 	} else if exist {
-		dmsToken, err = jwt.GenJwtToken(jwt.WithUserId(user.GetUID()))
-		if err != nil {
-			data.Error = err.Error()
-			return data.generateQuery(uri), "", err
-		}
-		data.DMSToken = dmsToken
+		userID = user.GetUID()
 		// update user whenever login via oauth2
 		user.UserAuthenticationType = UserAuthenticationTypeOAUTH2
 		user.WxID = oauth2User.WxID
@@ -256,36 +246,21 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 	if canLogin != nil && !*canLogin {
 		err = fmt.Errorf("user %s can not login", user.Name)
 		data.Error = err.Error()
-		return data.generateQuery(uri), "", err
+		return data, nil, err
 	}
 
-	return data.generateQuery(uri), dmsToken, nil
-}
+	sub, sid, exp, iat, err := d.getClaimsInfoFromToken(ctx, token)
+	if err != nil {
+		return data, nil, err
+	}
+	_, err = d.sessionUsecase.CreateOrUpdateSession(ctx, userID, sub, sid, data.IdToken, oauth2Token.RefreshToken)
+	if err != nil {
+		return data, nil, err
+	}
 
-type callbackRedirectData struct {
-	UserExist   bool
-	DMSToken    string
-	Oauth2Token string
-	IdToken     string
-	Error       string
-}
+	claims = &ClaimsInfo{UserId: userID, Iat: iat, Exp: exp, Sub: sub, Sid: sid}
 
-func (c callbackRedirectData) generateQuery(uri string) string {
-	params := url.Values{}
-	params.Set("user_exist", strconv.FormatBool(c.UserExist))
-	if c.DMSToken != "" {
-		params.Set("dms_token", c.DMSToken)
-	}
-	if c.Oauth2Token != "" {
-		params.Set("oauth2_token", c.Oauth2Token)
-	}
-	if c.IdToken != "" {
-		params.Set("id_token", c.IdToken)
-	}
-	if c.Error != "" {
-		params.Set("error", c.Error)
-	}
-	return fmt.Sprintf("%v/user/bind?%v", uri, params.Encode())
+	return data, claims, err
 }
 
 func (d *Oauth2ConfigurationUsecase) getOauth2User(conf *Oauth2Configuration, token string) (user *User, err error) {
@@ -399,32 +374,73 @@ func (d *Oauth2ConfigurationUsecase) getLoginPermFromToken(ctx context.Context, 
 	return &canLogin, nil
 }
 
-func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2Token, idToken, userName, password string) (token string, err error) {
+func (d *Oauth2ConfigurationUsecase) getClaimsInfoFromToken(ctx context.Context, token *jwtpkg.Token) (sub, sid string, exp, iat float64, err error) {
+	claims, ok := token.Claims.(jwtpkg.MapClaims)
+	if !ok {
+		return sub, sid, exp, iat, fmt.Errorf("unexpected claims type")
+	}
+
+	sub = getClaim[string](claims, "sub")
+	sid = getClaim[string](claims, "sid")
+	exp = getClaim[float64](claims, "exp")
+	iat = getClaim[float64](claims, "iat")
+
+	if exp == 0 || iat == 0 {
+		return sub, sid, exp, iat, fmt.Errorf("invalid exp or iat")
+	}
+
+	return
+}
+
+func getClaim[T any](claims map[string]interface{}, key string) T {
+	var zero T
+	value, ok := claims[key]
+	if !ok {
+		return zero
+	}
+
+	// 检查值的类型是否与泛型类型匹配
+	typedValue, ok := value.(T)
+	if !ok {
+		return zero
+	}
+
+	return typedValue
+}
+
+func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2Token, idToken, userName, password string) (claims *ClaimsInfo, err error) {
 
 	// 获取oauth2 配置
 	oauth2C, err := d.repo.GetLastOauth2Configuration(ctx)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	// 读取Oauth2Token中的 第三方用户ID
 	oauth2User, err := d.getOauth2User(oauth2C, oauth2Token)
 	if err != nil {
-		return "", fmt.Errorf("get third part user id from oauth2 token failed:%v", err)
+		return nil, fmt.Errorf("get third part user id from oauth2 token failed:%v", err)
 	}
 
 	// check third-party users have bound dms user
 	_, exist, err := d.userUsecase.GetUserByThirdPartyUserID(ctx, oauth2User.UID)
 	if err != nil {
-		return "", fmt.Errorf("get user by third party user id failed : %v", err)
+		return nil, fmt.Errorf("get user by third party user id failed : %v", err)
 	}
 	if exist {
-		return "", pkgErr.ErrBeenBoundOrThePasswordIsWrong
+		return nil, pkgErr.ErrBeenBoundOrThePasswordIsWrong
 	}
 
 	user, exist, err := d.userUsecase.GetUserByName(ctx, userName)
 	if err != nil {
-		return "", fmt.Errorf("get user by name failed: %v", err)
+		return nil, fmt.Errorf("get user by name failed: %v", err)
 	}
+
+	accessToken, err := jwtpkg.Parse(oauth2Token, nil)
+	sub, sid, exp, iat, err := d.getClaimsInfoFromToken(ctx, accessToken)
+	if err != nil {
+		return nil, fmt.Errorf("getClaimsInfoFromToken failed: %v", err)
+	}
+	claims = &ClaimsInfo{UserId: "", Iat: iat, Exp: exp, Sub: sub, Sid: sid}
 
 	// create user if not exist
 	if !exist {
@@ -441,29 +457,29 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 		}
 		uid, err := d.userUsecase.CreateUser(ctx, pkgConst.UIDOfUserSys, args)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
-		return jwt.GenJwtToken(jwt.WithUserId(uid))
+		claims.UserId = uid
 	} else {
 		// check user state
 		if user.Stat == UserStatDisable {
-			return "", fmt.Errorf("user %s not exist or can not login", userName)
+			return nil, fmt.Errorf("user %s not exist or can not login", userName)
 		}
 		// check password
 		if user.Password != password {
-			return "", pkgErr.ErrBeenBoundOrThePasswordIsWrong
+			return nil, pkgErr.ErrBeenBoundOrThePasswordIsWrong
 		}
 
 		// check user login type
 		if user.UserAuthenticationType != UserAuthenticationTypeOAUTH2 &&
 			user.UserAuthenticationType != UserAuthenticationTypeDMS &&
 			user.UserAuthenticationType != "" {
-			return "", fmt.Errorf("the user has bound other login methods")
+			return nil, fmt.Errorf("the user has bound other login methods")
 		}
 
 		// check user bind third party users
 		if user.ThirdPartyUserID != oauth2User.UID && user.ThirdPartyUserID != "" {
-			return "", fmt.Errorf("the user has bound other third-party user")
+			return nil, fmt.Errorf("the user has bound other third-party user")
 		}
 
 		// modify user login type
@@ -476,11 +492,17 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 			user.ThirdPartyIdToken = idToken
 			err := d.userUsecase.SaveUser(ctx, user)
 			if err != nil {
-				return "", err
+				return nil, err
 			}
 		}
-		return jwt.GenJwtToken(jwt.WithUserId(user.UID))
+		claims.UserId = user.GetUID()
 	}
+
+	if err = d.sessionUsecase.UpdateUserIdBySub(ctx, claims.UserId, sub); err != nil {
+		return nil, err
+	}
+
+	return claims, nil
 }
 
 const (
@@ -566,4 +588,125 @@ func (d *Oauth2ConfigurationUsecase) BackendLogout(ctx context.Context, idToken 
 		return fmt.Errorf("request logout url resp Status: %v", resp.Status)
 	}
 	return nil
+}
+
+func (d *Oauth2ConfigurationUsecase) RefreshOauth2Token(ctx context.Context, userUid, sub, sid string) (claims *ClaimsInfo, err error) {
+	// 获取会话信息
+	filterBy := []pkgConst.FilterCondition{
+		{Field: "oauth2_sub", Operator: pkgConst.FilterOperatorEqual, Value: sub},
+		{Field: "oauth2_sid", Operator: pkgConst.FilterOperatorEqual, Value: sid},
+		{Field: "user_uid", Operator: pkgConst.FilterOperatorEqual, Value: userUid},
+		{Field: "oauth2_last_logout_event", Operator: pkgConst.FilterOperatorEqual, Value: ""},
+	}
+	sessions, err := d.sessionUsecase.GetSessions(ctx, filterBy)
+	if err != nil {
+		return nil, err
+	}
+	if len(sessions) != 1 {
+		return nil, fmt.Errorf("invalid sessions for user:%s, sub:%s, sid:%s", userUid, sub, sid)
+	}
+
+	// 获取OAuth2配置
+	oauth2C, err := d.repo.GetLastOauth2Configuration(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("get oauth2 configuration failed: %v", err)
+	}
+
+	// 刷新token
+	oauth2Config := d.generateOauth2Config(oauth2C)
+	newToken, err := oauth2Config.TokenSource(ctx, &oauth2.Token{RefreshToken: sessions[0].OAuth2RefreshToken}).Token()
+	if err != nil {
+		return nil, fmt.Errorf("refresh oauth2 token failed: %v", err)
+	}
+	idToken, _ := newToken.Extra("id_token").(string) // 尝试获取 id_token
+
+	accessToken, err := jwtpkg.Parse(newToken.AccessToken, nil)
+	// 验证登录权限
+	canLogin, err := d.getLoginPermFromToken(ctx, accessToken)
+	if canLogin != nil && !*canLogin {
+		return nil, fmt.Errorf("sub %s can not login", sub)
+	}
+
+	newSub, newSid, newExp, newIat, err := d.getClaimsInfoFromToken(ctx, accessToken)
+	if err != nil {
+		return nil, err
+	}
+	claims = &ClaimsInfo{
+		UserId: sessions[0].UserUID,
+		Iat:    newIat,
+		Exp:    newExp,
+		Sub:    newSub,
+		Sid:    newSid,
+	}
+
+	// 更新会话信息
+	updateSession := &Session{
+		Base: Base{
+			CreatedAt: sessions[0].CreatedAt,
+			UpdatedAt: time.Now(),
+		},
+		UID:                   sessions[0].UID,
+		UserUID:               sessions[0].UserUID,
+		OAuth2Sub:             newSub,
+		OAuth2Sid:             newSid,
+		OAuth2IdToken:         idToken,
+		OAuth2RefreshToken:    newToken.RefreshToken,
+		OAuth2LastLogoutEvent: sessions[0].OAuth2LastLogoutEvent,
+	}
+
+	return claims, d.sessionUsecase.SaveSession(ctx, updateSession)
+}
+
+func (d *Oauth2ConfigurationUsecase) BackChannelLogout(ctx context.Context, logoutToken string) (err error) {
+	// parse always err: no Keyfunc was provided.
+	token, _ := jwtpkg.Parse(logoutToken, nil)
+	if token == nil {
+		return fmt.Errorf("failed to parse logout token")
+	}
+
+	sub, sid, _, iat, err := d.getClaimsInfoFromToken(ctx, token)
+	if err != nil {
+		return err
+	}
+
+	return d.sessionUsecase.UpdateLogoutEvent(ctx, sub, sid, fmt.Sprint(int(iat)))
+}
+
+func (d *Oauth2ConfigurationUsecase) CheckBackChannelLogoutEvent() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			// Gets user token from the context.
+			dmsToken, ok := c.Get("user").(*jwtpkg.Token)
+			if !ok {
+				// jwt skipper
+				return next(c)
+			}
+			sub, sid, _, _, _ := d.getClaimsInfoFromToken(c.Request().Context(), dmsToken)
+			if sub == "" && sid == "" {
+				return next(c)
+			}
+
+			// 获取会话信息
+			filterBy := []pkgConst.FilterCondition{
+				{Field: "oauth2_sub", Operator: pkgConst.FilterOperatorEqual, Value: sub},
+				{Field: "oauth2_sid", Operator: pkgConst.FilterOperatorEqual, Value: sid},
+			}
+			sessions, err := d.sessionUsecase.GetSessions(c.Request().Context(), filterBy)
+			if err != nil {
+				return err
+			}
+
+			if len(sessions) == 0 {
+				return echo.NewHTTPError(http.StatusUnauthorized, "the session has been logged out by a third-party platform")
+			}
+
+			for _, v := range sessions {
+				if v.OAuth2LastLogoutEvent != "" {
+					return echo.NewHTTPError(http.StatusUnauthorized, "the session has been logged out by a third-party platform")
+				}
+			}
+
+			return next(c)
+		}
+	}
 }
