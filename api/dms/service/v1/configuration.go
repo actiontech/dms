@@ -40,6 +40,7 @@ type GetOauth2ConfigurationResData struct {
 	UserIdTag       string   `json:"user_id_tag"`
 	UserEmailTag    string   `json:"user_email_tag"`
 	UserWeChatTag   string   `json:"user_wechat_tag"`
+	LoginPermExpr   string   `json:"login_perm_expr"` // GJSON查询表达式 eg：`resource_access.sqle.roles.#(=="login")` 即判断查询的json文档的 resource_access.sqle.roles 中是否存在login元素
 	LoginTip        string   `json:"login_tip"`
 }
 
@@ -72,6 +73,7 @@ type Oauth2Configuration struct {
 	UserIdTag         *string   `json:"user_id_tag"`
 	UserEmailTag      *string   `json:"user_email_tag"`
 	UserWeChatTag     *string   `json:"user_wechat_tag"`
+	LoginPermExpr     *string   `json:"login_perm_expr"`
 	// Maximum: 28
 	LoginTip *string `json:"login_tip" validate:"max=28"`
 }
@@ -302,7 +304,7 @@ type TestSmsConfigurationReply struct {
 }
 
 type TestSmsConfigurationResData struct {
-	IsSmsSendNormal bool   `json:"is_smtp_send_normal"`
+	IsSmsSendNormal  bool   `json:"is_smtp_send_normal"`
 	SendErrorMessage string `json:"send_error_message,omitempty"`
 }
 

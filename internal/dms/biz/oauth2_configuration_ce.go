@@ -5,12 +5,13 @@ package biz
 import (
 	"context"
 	"errors"
+
+	v1 "github.com/actiontech/dms/api/dms/service/v1"
 )
 
 var errNotSupportOauth2 = errors.New("oauth2 related functions are enterprise version functions")
 
-func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Context, enableOauth2, skipCheckState, autoCreateUser *bool, autoCreateUserPWD, clientID, clientKey, clientHost, serverAuthUrl, serverTokenUrl, serverUserIdUrl, serverLogoutUrl,
-	accessTokenTag, userIdTag, userWechatTag, userEmailTag, loginTip *string, scopes *[]string) error {
+func (d *Oauth2ConfigurationUsecase) UpdateOauth2Configuration(ctx context.Context, conf v1.Oauth2Configuration) error {
 
 	return errNotSupportOauth2
 }

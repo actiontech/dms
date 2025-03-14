@@ -273,6 +273,7 @@ type Oauth2Configuration struct {
 	UserIdTag            string `json:"user_id_tag" gorm:"size:255;column:user_id_tag"`
 	UserWeChatTag        string `json:"user_wechat_tag" gorm:"size:255;column:user_wechat_tag"`
 	UserEmailTag         string `json:"user_email_tag" gorm:"size:255;column:user_email_tag"`
+	LoginPermExpr        string `json:"login_perm_expr" gorm:"size:255;column:login_perm_expr"`
 	LoginTip             string `json:"login_tip" gorm:"size:255;column:login_tip; default:'使用第三方账户登录'"`
 }
 
@@ -329,7 +330,6 @@ type WebHookConfiguration struct {
 	EncryptedToken       string `json:"encrypted_token" gorm:"size:255;not null"`
 	URL                  string `json:"url" gorm:"size:255;not null"`
 }
-
 
 type JSON json.RawMessage
 
