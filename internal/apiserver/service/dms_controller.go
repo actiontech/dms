@@ -665,7 +665,7 @@ func (a *DMSController) DelSession(c echo.Context) error {
 // ---
 // responses:
 //   '200':
-//     description: AddSessionReply
+//     description: RefreshSession reply
 //     schema:
 //       "$ref": "#/definitions/AddSessionReply"
 //   default:
