@@ -133,6 +133,7 @@ func (s *APIServer) initRouter() error {
 		oauth2V1.GET("/link", s.DMSController.Oauth2Link)
 		oauth2V1.GET("/callback", s.DMSController.Oauth2Callback)
 		oauth2V1.POST("/user/bind", s.DMSController.BindOauth2User)
+		oauth2V1.POST(biz.BackChannelLogoutUri, s.DMSController.BackChannelLogout)
 
 		// company notice
 		companyNoticeV1 := v1.Group("/dms/company_notice")
@@ -159,7 +160,7 @@ func (s *APIServer) initRouter() error {
 		configurationV1.PATCH("/webhook", s.DMSController.UpdateWebHookConfiguration)   /* TODO AdminUserAllowed()*/
 		configurationV1.POST("/webhook/test", s.DMSController.TestWebHookConfiguration) /* TODO AdminUserAllowed()*/
 		configurationV1.GET("/sql_query", s.CloudbeaverController.GetSQLQueryConfiguration)
-		configurationV1.GET("/sms", s.DMSController.GetSmsConfiguration)                /* TODO AdminUserAllowed()*/
+		configurationV1.GET("/sms", s.DMSController.GetSmsConfiguration) /* TODO AdminUserAllowed()*/
 		configurationV1.POST("/sms/test", s.DMSController.TestSmsConfiguration)
 		configurationV1.PATCH("/sms", s.DMSController.UpdateSmsConfiguration)
 		configurationV1.POST("/sms/send_code", s.DMSController.SendSmsCode)

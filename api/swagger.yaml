@@ -1536,6 +1536,9 @@ definitions:
             auto_create_user:
                 type: boolean
                 x-go-name: AutoCreateUser
+            back_channel_logout_uri:
+                type: string
+                x-go-name: BackChannelLogoutUri
             client_host:
                 type: string
                 x-go-name: ClientHost
@@ -4253,7 +4256,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -7879,7 +7882,7 @@ paths:
             operationId: RefreshSession
             responses:
                 "200":
-                    description: AddSessionReply
+                    description: RefreshSession reply
                     schema:
                         $ref: '#/definitions/AddSessionReply'
                 default:
