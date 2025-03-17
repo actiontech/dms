@@ -180,7 +180,7 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 	}()
 
 	token, err := jwtpkg.Parse(oauth2Token.AccessToken, nil)
-	canLogin, err := d.getLoginPermFromToken(ctx, token)
+	needUpdateState, canLogin, err := d.getLoginPermFromToken(ctx, token)
 	if err != nil {
 		return data, nil, fmt.Errorf("get login perm from token err: %v", err)
 	}
@@ -198,6 +198,13 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 	}
 	data.UserExist = exist
 
+	if !exist && needUpdateState && !canLogin {
+		// 没有登录权限时且用户不存在时，返回登录错误
+		err = fmt.Errorf("the user does not have login permission")
+		data.Error = err.Error()
+		return data, nil, err
+	}
+
 	var userID string
 	if oauth2C.AutoCreateUser && !exist {
 		if oauth2C.AutoCreateUserPWD == "" {
@@ -214,9 +221,6 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 			Email:                  oauth2User.Email,
 			WxID:                   oauth2User.WxID,
 		}
-		if canLogin != nil && !*canLogin {
-			args.IsDisabled = true
-		}
 		uid, err := d.userUsecase.CreateUser(ctx, pkgConst.UIDOfUserSys, args)
 		if err != nil {
 			d.log.Errorf("when generate callback uri, userUsecase.CreateUser failed,%v", err)
@@ -232,21 +236,20 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 		user.Email = oauth2User.Email
 		user.ThirdPartyUserInfo = oauth2User.ThirdPartyUserInfo
 		user.ThirdPartyIdToken = data.IdToken
-		if canLogin != nil && *canLogin {
+		if needUpdateState && canLogin {
 			user.Stat = UserStatOK
-		} else if canLogin != nil && !*canLogin {
+		} else if needUpdateState && !canLogin {
 			user.Stat = UserStatDisable
 		}
 		err := d.userUsecase.SaveUser(ctx, user)
 		if err != nil {
 			d.log.Errorf("when generate callback uri, update user failed,%v", err)
 		}
-	}
-
-	if canLogin != nil && !*canLogin {
-		err = fmt.Errorf("user %s can not login", user.Name)
-		data.Error = err.Error()
-		return data, nil, err
+		if user.Stat == UserStatDisable {
+			err = fmt.Errorf("user %s can not login", user.Name)
+			data.Error = err.Error()
+			return data, nil, err
+		}
 	}
 
 	sub, sid, exp, iat, err := d.getClaimsInfoFromToken(ctx, token)
@@ -307,18 +310,18 @@ func (d *Oauth2ConfigurationUsecase) getOauth2User(conf *Oauth2Configuration, to
 	return user, nil
 }
 
-func (d *Oauth2ConfigurationUsecase) getLoginPermFromToken(ctx context.Context, token *jwtpkg.Token) (*bool, error) {
+func (d *Oauth2ConfigurationUsecase) getLoginPermFromToken(ctx context.Context, token *jwtpkg.Token) (configured, canLogin bool, err error) {
 	Oauth2Conf, err := d.repo.GetLastOauth2Configuration(ctx)
 	if err != nil {
-		return nil, err
+		return false, false, err
 	}
 	if Oauth2Conf.LoginPermExpr == "" {
-		return nil, nil
+		return false, false, nil
 	}
 
 	claims, err := json.Marshal(token.Claims)
 	if err != nil {
-		return nil, err
+		return false, false, err
 	}
 	// claims eg:
 	//
@@ -369,9 +372,9 @@ func (d *Oauth2ConfigurationUsecase) getLoginPermFromToken(ctx context.Context, 
 
 	// LoginPermExpr eg：`resource_access.sqle.roles.#(=="login")`
 	// 即 判断查询的json文档的 resource_access.sqle.roles 中是否存在login元素
-	canLogin := gjson.Get(string(claims), Oauth2Conf.LoginPermExpr).Exists()
+	canLogin = gjson.Get(string(claims), Oauth2Conf.LoginPermExpr).Exists()
 
-	return &canLogin, nil
+	return true, canLogin, nil
 }
 
 func (d *Oauth2ConfigurationUsecase) getClaimsInfoFromToken(ctx context.Context, token *jwtpkg.Token) (sub, sid string, exp, iat float64, err error) {
@@ -622,9 +625,9 @@ func (d *Oauth2ConfigurationUsecase) RefreshOauth2Token(ctx context.Context, use
 
 	accessToken, err := jwtpkg.Parse(newToken.AccessToken, nil)
 	// 验证登录权限
-	canLogin, err := d.getLoginPermFromToken(ctx, accessToken)
-	if canLogin != nil && !*canLogin {
-		return nil, fmt.Errorf("sub %s can not login", sub)
+	configured, canLogin, err := d.getLoginPermFromToken(ctx, accessToken)
+	if configured && !canLogin {
+		return nil, fmt.Errorf("the user:%s does not have login permission", sub)
 	}
 
 	newSub, newSid, newExp, newIat, err := d.getClaimsInfoFromToken(ctx, accessToken)
