@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"fmt"
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
@@ -22,10 +21,6 @@ type OAuth2Session struct {
 }
 
 func newOAuth2Session(UserUID, Sub, Sid, IdToken, RefreshToken string) (*OAuth2Session, error) {
-	if UserUID == "" {
-		return nil, fmt.Errorf("userId is empty")
-	}
-
 	uid, err := pkgRand.GenStrUid()
 	if err != nil {
 		return nil, err
