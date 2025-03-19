@@ -59,20 +59,20 @@ type Oauth2ConfigurationRepo interface {
 }
 
 type Oauth2ConfigurationUsecase struct {
-	tx             TransactionGenerator
-	repo           Oauth2ConfigurationRepo
-	userUsecase    *UserUsecase
-	sessionUsecase *SessionUsecase
-	log            *utilLog.Helper
+	tx                   TransactionGenerator
+	repo                 Oauth2ConfigurationRepo
+	userUsecase          *UserUsecase
+	oauth2SessionUsecase *OAuth2SessionUsecase
+	log                  *utilLog.Helper
 }
 
-func NewOauth2ConfigurationUsecase(log utilLog.Logger, tx TransactionGenerator, repo Oauth2ConfigurationRepo, userUsecase *UserUsecase, sessionUsecase *SessionUsecase) *Oauth2ConfigurationUsecase {
+func NewOauth2ConfigurationUsecase(log utilLog.Logger, tx TransactionGenerator, repo Oauth2ConfigurationRepo, userUsecase *UserUsecase, oauth2SessionUsecase *OAuth2SessionUsecase) *Oauth2ConfigurationUsecase {
 	return &Oauth2ConfigurationUsecase{
-		tx:             tx,
-		repo:           repo,
-		userUsecase:    userUsecase,
-		sessionUsecase: sessionUsecase,
-		log:            utilLog.NewHelper(log, utilLog.WithMessageKey("biz.oauth2_configuration")),
+		tx:                   tx,
+		repo:                 repo,
+		userUsecase:          userUsecase,
+		oauth2SessionUsecase: oauth2SessionUsecase,
+		log:                  utilLog.NewHelper(log, utilLog.WithMessageKey("biz.oauth2_configuration")),
 	}
 }
 
