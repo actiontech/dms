@@ -254,16 +254,16 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 
 	sub, sid, exp, iat, err := d.getClaimsInfoFromToken(ctx, token)
 	if err != nil {
-		return data, nil, err
+		return data, nil, fmt.Errorf("get claims info from oauth2 access token err: %v", err)
 	}
 	_, err = d.oauth2SessionUsecase.CreateOrUpdateSession(ctx, userID, sub, sid, data.IdToken, oauth2Token.RefreshToken)
 	if err != nil {
-		return data, nil, err
+		return data, nil, fmt.Errorf("create or update oauth2 session failed:%v", err)
 	}
 
 	claims = &ClaimsInfo{UserId: userID, Iat: iat, Exp: exp, Sub: sub, Sid: sid}
 
-	return data, claims, err
+	return data, claims, nil
 }
 
 func (d *Oauth2ConfigurationUsecase) getOauth2User(conf *Oauth2Configuration, token string) (user *User, err error) {
@@ -606,6 +606,8 @@ func (d *Oauth2ConfigurationUsecase) RefreshOauth2Token(ctx context.Context, use
 		return nil, err
 	}
 	if len(sessions) != 1 {
+		// sub(第三方用户标识)+sid(第三方会话标识)是唯一索引，至多一条记录
+		// 不存在则是该会话被注销
 		return nil, fmt.Errorf("invalid sessions for user:%s, sub:%s, sid:%s", userUid, sub, sid)
 	}
 
@@ -684,11 +686,14 @@ func (d *Oauth2ConfigurationUsecase) CheckBackChannelLogoutEvent() echo.Middlewa
 				// jwt skipper
 				return next(c)
 			}
+			// 检查dms-token中是否包含OAuth2登录信息：sub(用户标识)、sid(会话标识)
 			sub, sid, _, _, _ := d.getClaimsInfoFromToken(c.Request().Context(), dmsToken)
 			if sub == "" && sid == "" {
+				// 不包含OAuth2信息，继续处理
 				return next(c)
 			}
 
+			// 包含OAuth2信息，则通过sub和sid查询OAuth2会话表，检查是否被注销
 			// 获取会话信息
 			filterBy := []pkgConst.FilterCondition{
 				{Field: "sub", Operator: pkgConst.FilterOperatorEqual, Value: sub},
@@ -700,15 +705,18 @@ func (d *Oauth2ConfigurationUsecase) CheckBackChannelLogoutEvent() echo.Middlewa
 			}
 
 			if len(sessions) == 0 {
+				// 会话被清理
 				return echo.NewHTTPError(http.StatusUnauthorized, "the session has been logged out by a third-party platform")
 			}
 
 			for _, v := range sessions {
 				if v.LastLogoutEvent != "" {
+					// 会话被注销
 					return echo.NewHTTPError(http.StatusUnauthorized, "the session has been logged out by a third-party platform")
 				}
 			}
 
+			// 会话正常
 			return next(c)
 		}
 	}
