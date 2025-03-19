@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"time"
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
@@ -18,9 +19,10 @@ type OAuth2Session struct {
 	IdToken         string
 	RefreshToken    string
 	LastLogoutEvent string
+	DeleteAfter     time.Time // 记录保留时间，在此时间之后将删除该记录
 }
 
-func newOAuth2Session(UserUID, Sub, Sid, IdToken, RefreshToken string) (*OAuth2Session, error) {
+func newOAuth2Session(UserUID, Sub, Sid, IdToken, RefreshToken string, deleteAfter time.Time) (*OAuth2Session, error) {
 	uid, err := pkgRand.GenStrUid()
 	if err != nil {
 		return nil, err
@@ -32,6 +34,7 @@ func newOAuth2Session(UserUID, Sub, Sid, IdToken, RefreshToken string) (*OAuth2S
 		Sid:          Sid,
 		IdToken:      IdToken,
 		RefreshToken: RefreshToken,
+		DeleteAfter:  deleteAfter,
 	}, nil
 }
 
@@ -44,6 +47,7 @@ type OAuth2SessionRepo interface {
 	GetSessions(ctx context.Context, conditions []pkgConst.FilterCondition) ([]*OAuth2Session, error)
 	UpdateUserUidBySub(ctx context.Context, userid, sub string) error
 	UpdateLogoutEvent(ctx context.Context, Sub, Sid, logoutIat string) error
+	DeleteExpiredSessions(ctx context.Context) error
 }
 
 type OAuth2SessionUsecase struct {

@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
@@ -71,5 +72,11 @@ func (d *OAuth2SessionRepo) UpdateLogoutEvent(ctx context.Context, sub, sid, log
 			Where("sub = ?", sub).
 			Where("sid = ?", sid).
 			Update("last_logout_event", logoutIat).Error
+	})
+}
+
+func (d *OAuth2SessionRepo) DeleteExpiredSessions(ctx context.Context) error {
+	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		return tx.WithContext(ctx).Unscoped().Delete(&model.OAuth2Session{}, "delete_after < ?", time.Now()).Error
 	})
 }

@@ -613,6 +613,7 @@ func convertBizOAuth2Session(s *biz.OAuth2Session) (*model.OAuth2Session, error)
 		IdToken:         s.IdToken,
 		RefreshToken:    s.RefreshToken,
 		LastLogoutEvent: sql.NullString{String: s.LastLogoutEvent, Valid: true},
+		DeleteAfter:     s.DeleteAfter,
 	}, nil
 }
 
@@ -626,6 +627,7 @@ func convertModelOAuth2Session(m *model.OAuth2Session) (*biz.OAuth2Session, erro
 		IdToken:         m.IdToken,
 		RefreshToken:    m.RefreshToken,
 		LastLogoutEvent: m.LastLogoutEvent.String,
+		DeleteAfter:     m.DeleteAfter,
 	}, nil
 }
 

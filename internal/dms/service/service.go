@@ -138,7 +138,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	}
 	dataMaskingUsecase := biz.NewMaskingUsecase(logger, dataMasking)
 
-	cronTask := biz.NewCronTaskUsecase(logger, DataExportWorkflowUsecase, CbOperationLogUsecase)
+	cronTask := biz.NewCronTaskUsecase(logger, DataExportWorkflowUsecase, CbOperationLogUsecase, oauth2SessionUsecase)
 	err = cronTask.InitialTask()
 	if err != nil {
 		return nil, fmt.Errorf("failed to new cron task: %v", err)
