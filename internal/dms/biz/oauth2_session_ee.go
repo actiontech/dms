@@ -10,7 +10,7 @@ import (
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 )
 
-func (d *OAuth2SessionUsecase) CreateOrUpdateSession(ctx context.Context, UserUid, Sub, Sid, IdToken, RefreshToken string) (uid string, err error) {
+func (d *OAuth2SessionUsecase) CreateOrUpdateSession(ctx context.Context, UserUid, Sub, Sid, IdToken, RefreshToken string, deleteAfter time.Time) (uid string, err error) {
 	filterBy := []pkgConst.FilterCondition{
 		{Field: "sub", Operator: pkgConst.FilterOperatorEqual, Value: Sub},
 		{Field: "sid", Operator: pkgConst.FilterOperatorEqual, Value: Sid},
@@ -34,11 +34,12 @@ func (d *OAuth2SessionUsecase) CreateOrUpdateSession(ctx context.Context, UserUi
 			IdToken:         IdToken,
 			RefreshToken:    RefreshToken,
 			LastLogoutEvent: "",
+			DeleteAfter:     deleteAfter,
 		})
 	}
 
 	// 不存在则新建会话记录
-	s, err := newOAuth2Session(UserUid, Sub, Sid, IdToken, RefreshToken)
+	s, err := newOAuth2Session(UserUid, Sub, Sid, IdToken, RefreshToken, deleteAfter)
 	if err != nil {
 		return "", fmt.Errorf("new oauth2 session failed: %v", err)
 	}
@@ -82,4 +83,13 @@ func (d *OAuth2SessionUsecase) UpdateLogoutEvent(ctx context.Context, sub, sid, 
 		return fmt.Errorf("failed to update oauth2 session last_logout_event: %v", err)
 	}
 	return nil
+}
+
+func (d *OAuth2SessionUsecase) DeleteExpiredSessions() {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	if err := d.repo.DeleteExpiredSessions(ctx); err != nil {
+		d.log.Error(fmt.Sprintf("failed to delete expired oauth2 sessions: %v", err))
+	}
+	return
 }
