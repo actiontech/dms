@@ -30,7 +30,7 @@ var AutoMigrateList = []interface{}{
 	Project{},
 	ProxyTarget{},
 	Plugin{},
-	Session{},
+	OAuth2Session{},
 	LoginConfiguration{},
 	Oauth2Configuration{},
 	LDAPConfiguration{},
@@ -247,14 +247,14 @@ type Plugin struct {
 	GetDatabaseDriverLogosUrl    string `json:"get_database_driver_logos_url" gorm:"size:255;column:get_database_driver_logos_url"`
 }
 
-type Session struct {
+type OAuth2Session struct {
 	Model
-	UserUID               string         `json:"user_uid" gorm:"size:32;column:user_uid;index:idx_user_uid"`
-	OAuth2Sub             string         `json:"oauth2_sub" gorm:"size:255;column:oauth2_sub;index:idx_oauth2_sub_sid,unique"`
-	OAuth2Sid             string         `json:"oauth2_sid" gorm:"size:255;column:oauth2_sid;index:idx_oauth2_sub_sid,unique"`
-	OAuth2IdToken         string         `json:"oauth2_id_token" gorm:"type:text;column:oauth2_id_token"`
-	OAuth2RefreshToken    string         `json:"oauth2_refresh_token" gorm:"type:text;column:oauth2_refresh_token"`
-	OAuth2LastLogoutEvent sql.NullString `json:"oauth2_last_logout_event" gorm:"size:255;column:oauth2_last_logout_event;"`
+	UserUID         string         `json:"user_uid" gorm:"size:32;column:user_uid;index:idx_user_uid"`
+	Sub             string         `json:"sub" gorm:"size:255;column:sub;index:idx_sub_sid,unique"`
+	Sid             string         `json:"sid" gorm:"size:255;column:sid;index:idx_sub_sid,unique"`
+	IdToken         string         `json:"id_token" gorm:"type:text;column:id_token"`
+	RefreshToken    string         `json:"refresh_token" gorm:"type:text;column:refresh_token"`
+	LastLogoutEvent sql.NullString `json:"last_logout_event" gorm:"size:255;column:last_logout_event;"`
 }
 
 // LoginConfiguration store local login configuration.

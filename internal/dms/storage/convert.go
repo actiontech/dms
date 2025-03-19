@@ -600,32 +600,32 @@ func convertModelPlugin(t *model.Plugin) (*biz.Plugin, error) {
 	return p, nil
 }
 
-func convertBizSession(s *biz.Session) (*model.Session, error) {
-	return &model.Session{
+func convertBizOAuth2Session(s *biz.OAuth2Session) (*model.OAuth2Session, error) {
+	return &model.OAuth2Session{
 		Model: model.Model{
 			UID:       s.UID,
 			CreatedAt: s.CreatedAt,
 			UpdatedAt: s.UpdatedAt,
 		},
-		UserUID:               s.UserUID,
-		OAuth2Sub:             s.OAuth2Sub,
-		OAuth2Sid:             s.OAuth2Sid,
-		OAuth2IdToken:         s.OAuth2IdToken,
-		OAuth2RefreshToken:    s.OAuth2RefreshToken,
-		OAuth2LastLogoutEvent: sql.NullString{String: s.OAuth2LastLogoutEvent, Valid: true},
+		UserUID:         s.UserUID,
+		Sub:             s.Sub,
+		Sid:             s.Sid,
+		IdToken:         s.IdToken,
+		RefreshToken:    s.RefreshToken,
+		LastLogoutEvent: sql.NullString{String: s.LastLogoutEvent, Valid: true},
 	}, nil
 }
 
-func convertModelSession(m *model.Session) (*biz.Session, error) {
-	return &biz.Session{
-		Base:                  convertBase(m.Model),
-		UID:                   m.UID,
-		UserUID:               m.UserUID,
-		OAuth2Sub:             m.OAuth2Sub,
-		OAuth2Sid:             m.OAuth2Sid,
-		OAuth2IdToken:         m.OAuth2IdToken,
-		OAuth2RefreshToken:    m.OAuth2RefreshToken,
-		OAuth2LastLogoutEvent: m.OAuth2LastLogoutEvent.String,
+func convertModelOAuth2Session(m *model.OAuth2Session) (*biz.OAuth2Session, error) {
+	return &biz.OAuth2Session{
+		Base:            convertBase(m.Model),
+		UID:             m.UID,
+		UserUID:         m.UserUID,
+		Sub:             m.Sub,
+		Sid:             m.Sid,
+		IdToken:         m.IdToken,
+		RefreshToken:    m.RefreshToken,
+		LastLogoutEvent: m.LastLogoutEvent.String,
 	}, nil
 }
 
