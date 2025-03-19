@@ -255,6 +255,11 @@ type OAuth2Session struct {
 	IdToken         string         `json:"id_token" gorm:"type:text;column:id_token"`
 	RefreshToken    string         `json:"refresh_token" gorm:"type:text;column:refresh_token"`
 	LastLogoutEvent sql.NullString `json:"last_logout_event" gorm:"size:255;column:last_logout_event;"`
+	DeleteAfter     time.Time      `json:"delete_after" gorm:"column:delete_after;not null"` // 记录保留时间，在此时间之后将删除该记录
+}
+
+func (OAuth2Session) TableName() string {
+	return "oauth2_sessions"
 }
 
 // LoginConfiguration store local login configuration.
