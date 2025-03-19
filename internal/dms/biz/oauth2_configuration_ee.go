@@ -256,7 +256,7 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 	if err != nil {
 		return data, nil, err
 	}
-	_, err = d.sessionUsecase.CreateOrUpdateSession(ctx, userID, sub, sid, data.IdToken, oauth2Token.RefreshToken)
+	_, err = d.oauth2SessionUsecase.CreateOrUpdateSession(ctx, userID, sub, sid, data.IdToken, oauth2Token.RefreshToken)
 	if err != nil {
 		return data, nil, err
 	}
@@ -501,7 +501,7 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 		claims.UserId = user.GetUID()
 	}
 
-	if err = d.sessionUsecase.UpdateUserIdBySub(ctx, claims.UserId, sub); err != nil {
+	if err = d.oauth2SessionUsecase.UpdateUserIdBySub(ctx, claims.UserId, sub); err != nil {
 		return nil, err
 	}
 
@@ -596,12 +596,12 @@ func (d *Oauth2ConfigurationUsecase) BackendLogout(ctx context.Context, idToken 
 func (d *Oauth2ConfigurationUsecase) RefreshOauth2Token(ctx context.Context, userUid, sub, sid string) (claims *ClaimsInfo, err error) {
 	// 获取会话信息
 	filterBy := []pkgConst.FilterCondition{
-		{Field: "oauth2_sub", Operator: pkgConst.FilterOperatorEqual, Value: sub},
-		{Field: "oauth2_sid", Operator: pkgConst.FilterOperatorEqual, Value: sid},
+		{Field: "sub", Operator: pkgConst.FilterOperatorEqual, Value: sub},
+		{Field: "sid", Operator: pkgConst.FilterOperatorEqual, Value: sid},
 		{Field: "user_uid", Operator: pkgConst.FilterOperatorEqual, Value: userUid},
-		{Field: "oauth2_last_logout_event", Operator: pkgConst.FilterOperatorEqual, Value: ""},
+		{Field: "last_logout_event", Operator: pkgConst.FilterOperatorEqual, Value: ""},
 	}
-	sessions, err := d.sessionUsecase.GetSessions(ctx, filterBy)
+	sessions, err := d.oauth2SessionUsecase.GetSessions(ctx, filterBy)
 	if err != nil {
 		return nil, err
 	}
@@ -617,7 +617,7 @@ func (d *Oauth2ConfigurationUsecase) RefreshOauth2Token(ctx context.Context, use
 
 	// 刷新token
 	oauth2Config := d.generateOauth2Config(oauth2C)
-	newToken, err := oauth2Config.TokenSource(ctx, &oauth2.Token{RefreshToken: sessions[0].OAuth2RefreshToken}).Token()
+	newToken, err := oauth2Config.TokenSource(ctx, &oauth2.Token{RefreshToken: sessions[0].RefreshToken}).Token()
 	if err != nil {
 		return nil, fmt.Errorf("refresh oauth2 token failed: %v", err)
 	}
@@ -643,21 +643,21 @@ func (d *Oauth2ConfigurationUsecase) RefreshOauth2Token(ctx context.Context, use
 	}
 
 	// 更新会话信息
-	updateSession := &Session{
+	updateSession := &OAuth2Session{
 		Base: Base{
 			CreatedAt: sessions[0].CreatedAt,
 			UpdatedAt: time.Now(),
 		},
-		UID:                   sessions[0].UID,
-		UserUID:               sessions[0].UserUID,
-		OAuth2Sub:             newSub,
-		OAuth2Sid:             newSid,
-		OAuth2IdToken:         idToken,
-		OAuth2RefreshToken:    newToken.RefreshToken,
-		OAuth2LastLogoutEvent: sessions[0].OAuth2LastLogoutEvent,
+		UID:             sessions[0].UID,
+		UserUID:         sessions[0].UserUID,
+		Sub:             newSub,
+		Sid:             newSid,
+		IdToken:         idToken,
+		RefreshToken:    newToken.RefreshToken,
+		LastLogoutEvent: sessions[0].LastLogoutEvent,
 	}
 
-	return claims, d.sessionUsecase.SaveSession(ctx, updateSession)
+	return claims, d.oauth2SessionUsecase.SaveSession(ctx, updateSession)
 }
 
 func (d *Oauth2ConfigurationUsecase) BackChannelLogout(ctx context.Context, logoutToken string) (err error) {
@@ -672,7 +672,7 @@ func (d *Oauth2ConfigurationUsecase) BackChannelLogout(ctx context.Context, logo
 		return err
 	}
 
-	return d.sessionUsecase.UpdateLogoutEvent(ctx, sub, sid, fmt.Sprint(int(iat)))
+	return d.oauth2SessionUsecase.UpdateLogoutEvent(ctx, sub, sid, fmt.Sprint(int(iat)))
 }
 
 func (d *Oauth2ConfigurationUsecase) CheckBackChannelLogoutEvent() echo.MiddlewareFunc {
@@ -691,10 +691,10 @@ func (d *Oauth2ConfigurationUsecase) CheckBackChannelLogoutEvent() echo.Middlewa
 
 			// 获取会话信息
 			filterBy := []pkgConst.FilterCondition{
-				{Field: "oauth2_sub", Operator: pkgConst.FilterOperatorEqual, Value: sub},
-				{Field: "oauth2_sid", Operator: pkgConst.FilterOperatorEqual, Value: sid},
+				{Field: "sub", Operator: pkgConst.FilterOperatorEqual, Value: sub},
+				{Field: "sid", Operator: pkgConst.FilterOperatorEqual, Value: sid},
 			}
-			sessions, err := d.sessionUsecase.GetSessions(c.Request().Context(), filterBy)
+			sessions, err := d.oauth2SessionUsecase.GetSessions(c.Request().Context(), filterBy)
 			if err != nil {
 				return err
 			}
@@ -704,7 +704,7 @@ func (d *Oauth2ConfigurationUsecase) CheckBackChannelLogoutEvent() echo.Middlewa
 			}
 
 			for _, v := range sessions {
-				if v.OAuth2LastLogoutEvent != "" {
+				if v.LastLogoutEvent != "" {
 					return echo.NewHTTPError(http.StatusUnauthorized, "the session has been logged out by a third-party platform")
 				}
 			}
