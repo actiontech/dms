@@ -42,7 +42,7 @@ type GetOauth2ConfigurationResData struct {
 	UserWeChatTag        string   `json:"user_wechat_tag"`
 	LoginPermExpr        string   `json:"login_perm_expr"` // GJSON查询表达式 eg：`resource_access.sqle.roles.#(=="login")` 即判断查询的json文档的 resource_access.sqle.roles 中是否存在login元素
 	LoginTip             string   `json:"login_tip"`
-	BackChannelLogoutUri string   `json:"back_channel_logout_uri"`
+	BackChannelLogoutUri string   `json:"back_channel_logout_uri"` // sqle实现OIDC后端通道注销接口的地址
 }
 
 // swagger:model GetOauth2ConfigurationResDataReply

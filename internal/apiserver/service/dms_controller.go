@@ -2605,6 +2605,7 @@ func (d *DMSController) BindOauth2User(c echo.Context) error {
 }
 
 // BackChannelLogout is a hidden interface for third-party platform callbacks for logout event
+// https://openid.net/specs/openid-connect-backchannel-1_0.html#BCRequest
 func (d *DMSController) BackChannelLogout(c echo.Context) error {
 	if err := c.Request().ParseForm(); err != nil {
 		return c.String(http.StatusBadRequest, "Invalid form data")
