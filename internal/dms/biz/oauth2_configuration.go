@@ -124,11 +124,11 @@ func (c CallbackRedirectData) Generate() string {
 }
 
 type ClaimsInfo struct {
-	UserId string
-	Iat    float64
-	Exp    float64
-	Sub    string
-	Sid    string
+	UserId string  `json:"user_id"` // dms用户ID
+	Iat    float64 `json:"iat"`     // 第三方JWT 签发时间 (Issued At)，Unix 时间戳
+	Exp    float64 `json:"exp"`     // 第三方JWT 过期时间 (Expiration Time)，Unix 时间戳
+	Sub    string  `json:"sub"`     // 第三方JWT 主题 (Subject)，通常是用户ID或唯一标识符
+	Sid    string  `json:"sid"`     // 第三方JWT 会话ID (Session ID)，用于跟踪用户会话
 }
 
 func (c ClaimsInfo) DmsToken() (token string, expDura time.Duration, err error) {
