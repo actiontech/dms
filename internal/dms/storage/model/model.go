@@ -249,13 +249,13 @@ type Plugin struct {
 
 type OAuth2Session struct {
 	Model
-	UserUID         string         `json:"user_uid" gorm:"size:32;column:user_uid;index:idx_user_uid"`
+	UserUID         string         `json:"user_uid" gorm:"size:32;column:user_uid"`
 	Sub             string         `json:"sub" gorm:"size:255;column:sub;index:idx_sub_sid,unique"`
 	Sid             string         `json:"sid" gorm:"size:255;column:sid;index:idx_sub_sid,unique"`
 	IdToken         string         `json:"id_token" gorm:"type:text;column:id_token"`
 	RefreshToken    string         `json:"refresh_token" gorm:"type:text;column:refresh_token"`
 	LastLogoutEvent sql.NullString `json:"last_logout_event" gorm:"size:255;column:last_logout_event;"`
-	DeleteAfter     time.Time      `json:"delete_after" gorm:"column:delete_after;not null"` // 记录保留时间，在此时间之后将删除该记录
+	DeleteAfter     time.Time      `json:"delete_after" gorm:"column:delete_after;not null;index:idx_delete_after"` // 记录保留时间，在此时间之后将删除该记录
 }
 
 func (OAuth2Session) TableName() string {
