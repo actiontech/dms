@@ -161,16 +161,16 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 		data.Error = err.Error()
 		return data, nil, err
 	}
-	data.Oauth2Token = oauth2Token.AccessToken
-	data.IdToken, _ = oauth2Token.Extra("id_token").(string) // 尝试获取 id_token
-	d.log.Infof("oauth2Token type: %s, got id_token len: %d", oauth2Token.Type(), len(data.IdToken))
+	data.Oauth2Token, data.RefreshToken = oauth2Token.AccessToken, oauth2Token.RefreshToken
+	idToken, _ := oauth2Token.Extra("id_token").(string) // 尝试获取 id_token
+	d.log.Infof("oauth2Token type: %s, got id_token len: %d", oauth2Token.Type(), len(idToken))
 
 	defer func() {
 		if oauth2C.ServerLogoutUrl != "" && err != nil {
 			// 第三方平台登录成功，但后续dms流程异常，需要注销第三方平台上的会话
-			logoutErr := d.BackendLogout(ctx, data.IdToken)
+			logoutErr := d.backendLogout(ctx, idToken)
 			if logoutErr != nil {
-				d.log.Errorf("BackendLogout error: %v", logoutErr)
+				d.log.Errorf("backendLogout error: %v", logoutErr)
 				// err 是命名返回值才可以完成实际返回值的修改
 				err = fmt.Errorf("%w; Clear OAuth2 session err: %v", err, logoutErr)
 			} else {
@@ -265,12 +265,12 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 	if err != nil {
 		return data, nil, fmt.Errorf("get refresh token claims failed: %v", err)
 	}
-	_, err = d.oauth2SessionUsecase.CreateOrUpdateSession(ctx, userID, sub, sid, data.IdToken, oauth2Token.RefreshToken, time.Now().Add(time.Duration(refExp-refIat)*time.Second*2))
+	_, err = d.oauth2SessionUsecase.CreateOrUpdateSession(ctx, userID, sub, sid, idToken, oauth2Token.RefreshToken, time.Now().Add(time.Duration(refExp-refIat)*time.Second*2))
 	if err != nil {
 		return data, nil, fmt.Errorf("create or update oauth2 session failed:%v", err)
 	}
 
-	claims = &ClaimsInfo{UserId: userID, Iat: iat, Exp: exp, Sub: sub, Sid: sid}
+	claims = &ClaimsInfo{UserId: userID, Iat: iat, Exp: exp, Sub: sub, Sid: sid, RefreshIat: refIat, RefreshExp: refExp}
 
 	return data, claims, nil
 }
@@ -420,7 +420,7 @@ func getClaim[T any](claims map[string]interface{}, key string) T {
 	return typedValue
 }
 
-func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2Token, idToken, userName, password string) (claims *ClaimsInfo, err error) {
+func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2Token, refreshTokenStr, userName, password string) (claims *ClaimsInfo, err error) {
 
 	// 获取oauth2 配置
 	oauth2C, err := d.repo.GetLastOauth2Configuration(ctx)
@@ -455,7 +455,15 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 	if err != nil {
 		return nil, fmt.Errorf("getClaimsInfoFromToken failed: %v", err)
 	}
-	claims = &ClaimsInfo{UserId: "", Iat: iat, Exp: exp, Sub: sub, Sid: sid}
+	refreshToken, err := jwtpkg.Parse(refreshTokenStr, nil)
+	if refreshToken == nil {
+		return nil, fmt.Errorf("parse oauth2 refresh token failed: %v", err)
+	}
+	_, _, refExp, refIat, err := d.getClaimsInfoFromToken(ctx, refreshToken)
+	if err != nil {
+		return nil, fmt.Errorf("get refresh token claims failed: %v", err)
+	}
+	claims = &ClaimsInfo{UserId: "", Iat: iat, Exp: exp, Sub: sub, Sid: sid, RefreshIat: refIat, RefreshExp: refExp}
 
 	// create user if not exist
 	if !exist {
@@ -523,38 +531,41 @@ const (
 	userVariableSqleUrl = "${sqle_url}"
 )
 
-func (d *Oauth2ConfigurationUsecase) Logout(ctx context.Context, uid string) (string, error) {
-	user, err := d.userUsecase.GetUser(ctx, uid)
-	if err != nil {
-		return "", err
-	}
+func (d *Oauth2ConfigurationUsecase) Logout(ctx context.Context, sub, sid string) (string, error) {
 	configuration, exist, err := d.GetOauth2Configuration(ctx)
 	if err != nil {
 		return "", err
 	}
-	if !exist || user.ThirdPartyIdToken == "" || configuration.ServerLogoutUrl == "" {
+
+	// 获取会话信息
+	session, sessionExist, err := d.oauth2SessionUsecase.GetSessionBySubSid(ctx, sub, sid)
+	if err != nil {
+		return "", fmt.Errorf("failed to get session by sub:%s sid:%s err: %v", sub, sid, err)
+	}
+	if !exist || !sessionExist || configuration.ServerLogoutUrl == "" || session.IdToken == "" || session.LastLogoutEvent != "" {
 		// 无需注销第三方平台
 		return "", nil
 	}
-	token, _ := jwtpkg.Parse(user.ThirdPartyIdToken, nil)
+
+	token, _ := jwtpkg.Parse(session.IdToken, nil)
 	if token == nil || token.Claims == nil {
-		d.log.Warnf("failed to Parse ThirdPartyIdToken of user uid: %s", user.UID)
+		d.log.Warnf("failed to Parse idToken, sub:%s sid:%s", session.Sub, session.Sid)
 		return "", nil
 	}
 	claims, ok := token.Claims.(jwtpkg.MapClaims)
 	if !ok {
-		d.log.Warnf("ThirdPartyIdToken of user uid:%s has invalid Claims", user.UID)
+		d.log.Warnf("idToken has invalid Claims, sub:%s sid:%s", session.Sub, session.Sid)
 		return "", nil
 	}
 	if err = claims.Valid(); err != nil {
-		// ThirdPartyIdToken 已过期，无需注销第三方平台
-		d.log.Infof("ThirdPartyIdToken of user uid:%s should have expired, %v", user.UID, err)
+		// IdToken 已过期，无需注销第三方平台
+		d.log.Infof("IdToken should have expired, sub:%s sid:%s", session.Sub, session.Sid)
 		return "", nil
 	}
 
 	// 配置注销地址时，可以使用这里的键作变量
 	vars := map[string]string{
-		userVariableIdToken: url.PathEscape(user.ThirdPartyIdToken),
+		userVariableIdToken: url.PathEscape(session.IdToken),
 		userVariableSqleUrl: url.PathEscape(configuration.ClientHost),
 	}
 	logoutUrl := configuration.ServerLogoutUrl
@@ -564,7 +575,30 @@ func (d *Oauth2ConfigurationUsecase) Logout(ctx context.Context, uid string) (st
 	return logoutUrl, nil
 }
 
-func (d *Oauth2ConfigurationUsecase) BackendLogout(ctx context.Context, idToken string) error {
+func (d *Oauth2ConfigurationUsecase) BackendLogout(ctx context.Context, sub, sid string) error {
+	if sub == "" && sid == "" {
+		return nil
+	}
+
+	configuration, exist, err := d.GetOauth2Configuration(ctx)
+	if err != nil {
+		return fmt.Errorf("GetOauth2Configuration err:%v", err)
+	}
+
+	// 获取会话信息
+	session, sessionExist, err := d.oauth2SessionUsecase.GetSessionBySubSid(ctx, sub, sid)
+	if err != nil {
+		return fmt.Errorf("failed to get session by sub:%s sid:%s err: %v", sub, sid, err)
+	}
+	if !exist || !sessionExist || configuration.ServerLogoutUrl == "" || session.IdToken == "" || session.LastLogoutEvent != "" {
+		// 无需注销第三方平台
+		return nil
+	}
+
+	return d.backendLogout(ctx, session.IdToken)
+}
+
+func (d *Oauth2ConfigurationUsecase) backendLogout(ctx context.Context, idToken string) error {
 	configuration, exist, err := d.GetOauth2Configuration(ctx)
 	if err != nil {
 		return fmt.Errorf("get oauth2 configuration failed: %v", err)
@@ -589,7 +623,7 @@ func (d *Oauth2ConfigurationUsecase) BackendLogout(ctx context.Context, idToken 
 	}
 	logoutUrl.RawQuery = query.Encode()
 	logoutUrlStr := logoutUrl.String()
-	d.log.Infof("BackendLogout url: %s", logoutUrlStr)
+	d.log.Infof("backendLogout url: %s", logoutUrlStr)
 
 	client := &http.Client{Timeout: time.Minute}
 	resp, err := client.Get(logoutUrlStr)
@@ -649,13 +683,7 @@ func (d *Oauth2ConfigurationUsecase) RefreshOauth2Token(ctx context.Context, use
 	if err != nil {
 		return nil, fmt.Errorf("get access token claims failed: %v", err)
 	}
-	claims = &ClaimsInfo{
-		UserId: sessions[0].UserUID,
-		Iat:    newIat,
-		Exp:    newExp,
-		Sub:    newSub,
-		Sid:    newSid,
-	}
+
 	refreshToken, err := jwtpkg.Parse(newToken.RefreshToken, nil)
 	if refreshToken == nil {
 		return nil, fmt.Errorf("parse oauth2 refresh token failed: %v", err)
@@ -663,6 +691,16 @@ func (d *Oauth2ConfigurationUsecase) RefreshOauth2Token(ctx context.Context, use
 	_, _, refExp, refIat, err := d.getClaimsInfoFromToken(ctx, refreshToken)
 	if err != nil {
 		return nil, fmt.Errorf("get refresh token claims failed: %v", err)
+	}
+
+	claims = &ClaimsInfo{
+		UserId:     sessions[0].UserUID,
+		Iat:        newIat,
+		Exp:        newExp,
+		Sub:        newSub,
+		Sid:        newSid,
+		RefreshIat: refIat,
+		RefreshExp: refExp,
 	}
 
 	// 更新会话信息
