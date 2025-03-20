@@ -5456,10 +5456,6 @@
     "BindOauth2UserReq": {
       "type": "object",
       "properties": {
-        "id_token": {
-          "type": "string",
-          "x-go-name": "IdToken"
-        },
         "oauth2_token": {
           "type": "string",
           "x-go-name": "Oauth2Token"
@@ -5467,6 +5463,10 @@
         "pwd": {
           "type": "string",
           "x-go-name": "Pwd"
+        },
+        "refresh_token": {
+          "type": "string",
+          "x-go-name": "RefreshToken"
         },
         "user_name": {
           "type": "string",
@@ -10203,7 +10203,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",

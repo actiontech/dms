@@ -143,7 +143,7 @@ func (d *DMSService) BindOauth2User(ctx context.Context, bindOauth2User *dmsV1.B
 		d.log.Infof("BindOauth2User;error=%v", err)
 	}()
 
-	return d.Oauth2ConfigurationUsecase.BindOauth2User(ctx, bindOauth2User.Oauth2Token, bindOauth2User.IdToken, bindOauth2User.UserName, bindOauth2User.Pwd)
+	return d.Oauth2ConfigurationUsecase.BindOauth2User(ctx, bindOauth2User.Oauth2Token, bindOauth2User.RefreshToken, bindOauth2User.UserName, bindOauth2User.Pwd)
 }
 
 func (d *DMSService) RefreshOauth2Token(ctx context.Context, userUid, sub, sid string) (claims *biz.ClaimsInfo, err error) {
