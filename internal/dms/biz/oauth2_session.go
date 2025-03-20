@@ -45,6 +45,7 @@ func (u *OAuth2Session) GetUID() string {
 type OAuth2SessionRepo interface {
 	SaveSession(ctx context.Context, s *OAuth2Session) error
 	GetSessions(ctx context.Context, conditions []pkgConst.FilterCondition) ([]*OAuth2Session, error)
+	GetSessionBySubSid(ctx context.Context, sub, sid string) (session *OAuth2Session, exist bool, err error)
 	UpdateUserUidBySub(ctx context.Context, userid, sub string) error
 	UpdateLogoutEvent(ctx context.Context, Sub, Sid, logoutIat string) error
 	DeleteExpiredSessions(ctx context.Context) error

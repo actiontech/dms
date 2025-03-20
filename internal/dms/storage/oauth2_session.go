@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -58,6 +59,25 @@ func (d *OAuth2SessionRepo) GetSessions(ctx context.Context, conditions []pkgCon
 		sessions = append(sessions, ds)
 	}
 	return sessions, nil
+}
+
+func (d *OAuth2SessionRepo) GetSessionBySubSid(ctx context.Context, sub, sid string) (session *biz.OAuth2Session, exist bool, err error) {
+	record := &model.OAuth2Session{}
+	err = d.db.WithContext(ctx).Where("sub = ? and sid = ?", sub, sid).First(record).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, false, nil
+		}
+		return nil, false, err
+	}
+
+	// convert model to biz
+	bizSession, err := convertModelOAuth2Session(record)
+	if err != nil {
+		return nil, true, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert model oauth2 session: %w", err))
+	}
+
+	return bizSession, true, nil
 }
 
 func (d *OAuth2SessionRepo) UpdateUserUidBySub(ctx context.Context, userUid string, sub string) error {
