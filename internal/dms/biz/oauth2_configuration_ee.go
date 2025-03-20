@@ -220,7 +220,6 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 			ThirdPartyUserID:       oauth2User.UID,
 			UserAuthenticationType: UserAuthenticationTypeOAUTH2,
 			ThirdPartyUserInfo:     oauth2User.ThirdPartyUserInfo,
-			ThirdPartyIdToken:      data.IdToken,
 			Email:                  oauth2User.Email,
 			WxID:                   oauth2User.WxID,
 		}
@@ -238,7 +237,6 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 		user.WxID = oauth2User.WxID
 		user.Email = oauth2User.Email
 		user.ThirdPartyUserInfo = oauth2User.ThirdPartyUserInfo
-		user.ThirdPartyIdToken = data.IdToken
 		if needUpdateState && canLogin {
 			user.Stat = UserStatOK
 		} else if needUpdateState && !canLogin {
@@ -468,7 +466,6 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 			ThirdPartyUserID:       oauth2User.UID,
 			UserAuthenticationType: UserAuthenticationTypeOAUTH2,
 			ThirdPartyUserInfo:     oauth2User.ThirdPartyUserInfo,
-			ThirdPartyIdToken:      idToken,
 			Email:                  oauth2User.Email,
 			WxID:                   oauth2User.WxID,
 		}
@@ -506,7 +503,6 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 			user.WxID = oauth2User.WxID
 			user.Email = oauth2User.Email
 			user.ThirdPartyUserInfo = oauth2User.ThirdPartyUserInfo
-			user.ThirdPartyIdToken = idToken
 			err := d.userUsecase.SaveUser(ctx, user)
 			if err != nil {
 				return nil, err
