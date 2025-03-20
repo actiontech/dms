@@ -2627,6 +2627,9 @@ func (d *DMSController) BindOauth2User(c echo.Context) error {
 // BackChannelLogout is a hidden interface for third-party platform callbacks for logout event
 // https://openid.net/specs/openid-connect-backchannel-1_0.html#BCRequest
 func (d *DMSController) BackChannelLogout(c echo.Context) error {
+	// no-store 指令告诉浏览器和任何中间缓存（例如代理服务器）不要存储响应的任何副本。
+	// 这意味着每次请求该资源时，都必须从服务器重新获取
+	c.Response().Header().Set(echo.HeaderCacheControl, "no-store")
 	if err := c.Request().ParseForm(); err != nil {
 		return c.String(http.StatusBadRequest, "Invalid form data")
 	}
@@ -2638,10 +2641,8 @@ func (d *DMSController) BackChannelLogout(c echo.Context) error {
 
 	// todo Verifier logoutToken by provider
 
-	err := d.DMS.BackChannelLogout(c.Request().Context(), logoutToken)
-	if err != nil {
-		return c.String(http.StatusInternalServerError, "Handle logout event err: " + err.Error())
-	}
+	// 异步处理避免响应超时
+	go d.DMS.BackChannelLogout(logoutToken)
 
 	return c.NoContent(http.StatusOK)
 }
