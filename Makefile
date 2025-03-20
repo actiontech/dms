@@ -158,6 +158,9 @@ upload_rpm:
 validation_swag:
 	$(DOCKER) run --rm -e VERBOSE=1 --volume=$(shell pwd):/source $(DOCKER_IMAGE_GO_SWAGGER) validate /source/api/swagger.json
 
+test:
+	echo "test"
+
 golangci_lint:
 	golangci-lint run -c ./build/golangci-lint/.golangci.yml --timeout=10m
 # check go lint on dev
