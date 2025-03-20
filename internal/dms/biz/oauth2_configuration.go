@@ -97,12 +97,12 @@ func ParseJsonByPath(jsonBytes []byte, jsonPath string) (jsoniter.Any, error) {
 }
 
 type CallbackRedirectData struct {
-	UserExist   bool
-	DMSToken    string
-	Oauth2Token string
-	IdToken     string
-	Error       string
-	uri         string
+	UserExist    bool
+	DMSToken     string
+	Oauth2Token  string
+	RefreshToken string
+	Error        string
+	uri          string
 }
 
 func (c CallbackRedirectData) Generate() string {
@@ -114,8 +114,8 @@ func (c CallbackRedirectData) Generate() string {
 	if c.Oauth2Token != "" {
 		params.Set("oauth2_token", c.Oauth2Token)
 	}
-	if c.IdToken != "" {
-		params.Set("id_token", c.IdToken)
+	if c.RefreshToken != "" {
+		params.Set("refresh_token", c.RefreshToken)
 	}
 	if c.Error != "" {
 		params.Set("error", c.Error)
