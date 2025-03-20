@@ -197,6 +197,8 @@ install_i18n_tool:
 
 extract_i18n:
 	cd ${LOCALE_PATH} && $(GOBIN)/goi18n extract -sourceLanguage zh
+test:
+	echo "test"
 
 start_trans_i18n:
 	cd ${LOCALE_PATH} && touch translate.en.toml && $(GOBIN)/goi18n merge -sourceLanguage=zh active.*.toml
