@@ -76,7 +76,6 @@ type User struct {
 	Password               string
 	ThirdPartyUserID       string
 	ThirdPartyUserInfo     string
-	ThirdPartyIdToken      string
 	Email                  string
 	Phone                  string
 	WxID                   string
@@ -146,7 +145,6 @@ func newUser(args *CreateUserArgs) (*User, error) {
 		UserAuthenticationType: args.UserAuthenticationType,
 		ThirdPartyUserID:       args.ThirdPartyUserID,
 		ThirdPartyUserInfo:     args.ThirdPartyUserInfo,
-		ThirdPartyIdToken:      args.ThirdPartyIdToken,
 		Stat:                   UserStatOK,
 	}, nil
 }
@@ -223,7 +221,7 @@ func (d *UserUsecase) UserLogin(ctx context.Context, name string, password strin
 
 	loginC, err := d.loginConfigurationUsecase.GetLoginConfiguration(ctx)
 	if err != nil {
-		return "", twoFactorEnabled, phone,err
+		return "", twoFactorEnabled, phone, err
 	}
 	if loginC.DisableUserPwdLogin {
 		isDmsAdmin, err := d.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, userUid)
@@ -239,7 +237,7 @@ func (d *UserUsecase) UserLogin(ctx context.Context, name string, password strin
 }
 
 // GetUserLoginVerifier get login Verifier by user name and init login verifier
-func (d *UserUsecase) GetUserLoginVerifier(ctx context.Context, name string) (UserLoginVerifier, bool, string ,error) {
+func (d *UserUsecase) GetUserLoginVerifier(ctx context.Context, name string) (UserLoginVerifier, bool, string, error) {
 	user, err := d.repo.GetUserByName(ctx, name)
 	if nil != err && !errors.Is(err, pkgErr.ErrStorageNoData) {
 		return nil, false, "", fmt.Errorf("get user by name error: %v", err)
@@ -249,12 +247,12 @@ func (d *UserUsecase) GetUserLoginVerifier(ctx context.Context, name string) (Us
 
 	ldapC, _, err := d.ldapConfigurationUsecase.GetLDAPConfiguration(ctx)
 	if err != nil {
-		return nil, towFactorEnabled, phone,fmt.Errorf("get ldap configuration failed: %v", err)
+		return nil, towFactorEnabled, phone, fmt.Errorf("get ldap configuration failed: %v", err)
 	}
 
 	loginVerifierType, exist := d.getLoginVerifierType(user, ldapC)
 	if err != nil {
-		return nil, towFactorEnabled, phone,fmt.Errorf("get login verifier type failed: %v", err)
+		return nil, towFactorEnabled, phone, fmt.Errorf("get login verifier type failed: %v", err)
 	}
 
 	var userLoginVerifier UserLoginVerifier
@@ -276,13 +274,13 @@ func (d *UserUsecase) GetUserLoginVerifier(ctx context.Context, name string) (Us
 				userUsecase: d,
 			}
 		case loginVerifierTypeUnknown:
-			return nil, towFactorEnabled, phone,fmt.Errorf("the user login type is unsupported")
+			return nil, towFactorEnabled, phone, fmt.Errorf("the user login type is unsupported")
 		default:
-			return nil, towFactorEnabled, phone,fmt.Errorf("the user does not exist or the password is wrong")
+			return nil, towFactorEnabled, phone, fmt.Errorf("the user does not exist or the password is wrong")
 		}
 
 	}
-	return userLoginVerifier, towFactorEnabled, phone,nil
+	return userLoginVerifier, towFactorEnabled, phone, nil
 }
 
 type verifierType int
@@ -445,7 +443,6 @@ type CreateUserArgs struct {
 	Password               string
 	ThirdPartyUserID       string
 	ThirdPartyUserInfo     string
-	ThirdPartyIdToken      string
 	Email                  string
 	Phone                  string
 	WxID                   string
@@ -654,7 +651,7 @@ func (d *UserUsecase) DelUser(ctx context.Context, currentUserUid, UserUid strin
 	if err := d.cloudBeaverRepo.DeleteAllCloudbeaverCachesByUserId(tx, UserUid); nil != err {
 		return fmt.Errorf("delete cloudbeaver cache failed: %v", err)
 	}
-	
+
 	if err := d.repo.DelUser(tx, UserUid); nil != err {
 		return fmt.Errorf("delete user error: %v", err)
 	}
