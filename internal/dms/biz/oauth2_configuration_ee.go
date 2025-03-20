@@ -180,6 +180,9 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 	}()
 
 	token, err := jwtpkg.Parse(oauth2Token.AccessToken, nil)
+	if token == nil {
+		return data, nil, fmt.Errorf("parse oauth2 access token failed: %v", err)
+	}
 	needUpdateState, canLogin, err := d.getLoginPermFromToken(ctx, token)
 	if err != nil {
 		return data, nil, fmt.Errorf("get login perm from token err: %v", err)
@@ -254,16 +257,24 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 
 	sub, sid, exp, iat, err := d.getClaimsInfoFromToken(ctx, token)
 	if err != nil {
-		return data, nil, err
+		return data, nil, fmt.Errorf("get claims info from oauth2 access token err: %v", err)
 	}
-	_, err = d.sessionUsecase.CreateOrUpdateSession(ctx, userID, sub, sid, data.IdToken, oauth2Token.RefreshToken)
+	refreshToken, err := jwtpkg.Parse(oauth2Token.RefreshToken, nil)
+	if refreshToken == nil {
+		return data, nil, fmt.Errorf("parse oauth2 refresh token failed: %v", err)
+	}
+	_, _, refExp, refIat, err := d.getClaimsInfoFromToken(ctx, refreshToken)
 	if err != nil {
-		return data, nil, err
+		return data, nil, fmt.Errorf("get refresh token claims failed: %v", err)
+	}
+	_, err = d.oauth2SessionUsecase.CreateOrUpdateSession(ctx, userID, sub, sid, data.IdToken, oauth2Token.RefreshToken, time.Now().Add(time.Duration(refExp-refIat)*time.Second*2))
+	if err != nil {
+		return data, nil, fmt.Errorf("create or update oauth2 session failed:%v", err)
 	}
 
 	claims = &ClaimsInfo{UserId: userID, Iat: iat, Exp: exp, Sub: sub, Sid: sid}
 
-	return data, claims, err
+	return data, claims, nil
 }
 
 func (d *Oauth2ConfigurationUsecase) getOauth2User(conf *Oauth2Configuration, token string) (user *User, err error) {
@@ -439,6 +450,9 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 	}
 
 	accessToken, err := jwtpkg.Parse(oauth2Token, nil)
+	if accessToken == nil {
+		return nil, fmt.Errorf("parse oauth2 access token failed: %v", err)
+	}
 	sub, sid, exp, iat, err := d.getClaimsInfoFromToken(ctx, accessToken)
 	if err != nil {
 		return nil, fmt.Errorf("getClaimsInfoFromToken failed: %v", err)
@@ -501,7 +515,7 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 		claims.UserId = user.GetUID()
 	}
 
-	if err = d.sessionUsecase.UpdateUserIdBySub(ctx, claims.UserId, sub); err != nil {
+	if err = d.oauth2SessionUsecase.UpdateUserIdBySub(ctx, claims.UserId, sub); err != nil {
 		return nil, err
 	}
 
@@ -596,16 +610,18 @@ func (d *Oauth2ConfigurationUsecase) BackendLogout(ctx context.Context, idToken 
 func (d *Oauth2ConfigurationUsecase) RefreshOauth2Token(ctx context.Context, userUid, sub, sid string) (claims *ClaimsInfo, err error) {
 	// 获取会话信息
 	filterBy := []pkgConst.FilterCondition{
-		{Field: "oauth2_sub", Operator: pkgConst.FilterOperatorEqual, Value: sub},
-		{Field: "oauth2_sid", Operator: pkgConst.FilterOperatorEqual, Value: sid},
+		{Field: "sub", Operator: pkgConst.FilterOperatorEqual, Value: sub},
+		{Field: "sid", Operator: pkgConst.FilterOperatorEqual, Value: sid},
 		{Field: "user_uid", Operator: pkgConst.FilterOperatorEqual, Value: userUid},
-		{Field: "oauth2_last_logout_event", Operator: pkgConst.FilterOperatorEqual, Value: ""},
+		{Field: "last_logout_event", Operator: pkgConst.FilterOperatorEqual, Value: ""},
 	}
-	sessions, err := d.sessionUsecase.GetSessions(ctx, filterBy)
+	sessions, err := d.oauth2SessionUsecase.GetSessions(ctx, filterBy)
 	if err != nil {
 		return nil, err
 	}
 	if len(sessions) != 1 {
+		// sub(第三方用户标识)+sid(第三方会话标识)是唯一索引，至多一条记录
+		// 不存在则是该会话被注销
 		return nil, fmt.Errorf("invalid sessions for user:%s, sub:%s, sid:%s", userUid, sub, sid)
 	}
 
@@ -617,13 +633,16 @@ func (d *Oauth2ConfigurationUsecase) RefreshOauth2Token(ctx context.Context, use
 
 	// 刷新token
 	oauth2Config := d.generateOauth2Config(oauth2C)
-	newToken, err := oauth2Config.TokenSource(ctx, &oauth2.Token{RefreshToken: sessions[0].OAuth2RefreshToken}).Token()
+	newToken, err := oauth2Config.TokenSource(ctx, &oauth2.Token{RefreshToken: sessions[0].RefreshToken}).Token()
 	if err != nil {
 		return nil, fmt.Errorf("refresh oauth2 token failed: %v", err)
 	}
 	idToken, _ := newToken.Extra("id_token").(string) // 尝试获取 id_token
 
 	accessToken, err := jwtpkg.Parse(newToken.AccessToken, nil)
+	if accessToken == nil {
+		return nil, fmt.Errorf("parse oauth2 access token failed: %v", err)
+	}
 	// 验证登录权限
 	configured, canLogin, err := d.getLoginPermFromToken(ctx, accessToken)
 	if configured && !canLogin {
@@ -632,7 +651,7 @@ func (d *Oauth2ConfigurationUsecase) RefreshOauth2Token(ctx context.Context, use
 
 	newSub, newSid, newExp, newIat, err := d.getClaimsInfoFromToken(ctx, accessToken)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get access token claims failed: %v", err)
 	}
 	claims = &ClaimsInfo{
 		UserId: sessions[0].UserUID,
@@ -641,30 +660,39 @@ func (d *Oauth2ConfigurationUsecase) RefreshOauth2Token(ctx context.Context, use
 		Sub:    newSub,
 		Sid:    newSid,
 	}
+	refreshToken, err := jwtpkg.Parse(newToken.RefreshToken, nil)
+	if refreshToken == nil {
+		return nil, fmt.Errorf("parse oauth2 refresh token failed: %v", err)
+	}
+	_, _, refExp, refIat, err := d.getClaimsInfoFromToken(ctx, refreshToken)
+	if err != nil {
+		return nil, fmt.Errorf("get refresh token claims failed: %v", err)
+	}
 
 	// 更新会话信息
-	updateSession := &Session{
+	updateSession := &OAuth2Session{
 		Base: Base{
 			CreatedAt: sessions[0].CreatedAt,
 			UpdatedAt: time.Now(),
 		},
-		UID:                   sessions[0].UID,
-		UserUID:               sessions[0].UserUID,
-		OAuth2Sub:             newSub,
-		OAuth2Sid:             newSid,
-		OAuth2IdToken:         idToken,
-		OAuth2RefreshToken:    newToken.RefreshToken,
-		OAuth2LastLogoutEvent: sessions[0].OAuth2LastLogoutEvent,
+		UID:             sessions[0].UID,
+		UserUID:         sessions[0].UserUID,
+		Sub:             newSub,
+		Sid:             newSid,
+		IdToken:         idToken,
+		RefreshToken:    newToken.RefreshToken,
+		LastLogoutEvent: sessions[0].LastLogoutEvent,
+		DeleteAfter:     time.Now().Add(time.Duration(refExp-refIat) * time.Second * 2),
 	}
 
-	return claims, d.sessionUsecase.SaveSession(ctx, updateSession)
+	return claims, d.oauth2SessionUsecase.SaveSession(ctx, updateSession)
 }
 
 func (d *Oauth2ConfigurationUsecase) BackChannelLogout(ctx context.Context, logoutToken string) (err error) {
 	// parse always err: no Keyfunc was provided.
-	token, _ := jwtpkg.Parse(logoutToken, nil)
+	token, err := jwtpkg.Parse(logoutToken, nil)
 	if token == nil {
-		return fmt.Errorf("failed to parse logout token")
+		return fmt.Errorf("failed to parse logout token: %v", err)
 	}
 
 	sub, sid, _, iat, err := d.getClaimsInfoFromToken(ctx, token)
@@ -672,7 +700,7 @@ func (d *Oauth2ConfigurationUsecase) BackChannelLogout(ctx context.Context, logo
 		return err
 	}
 
-	return d.sessionUsecase.UpdateLogoutEvent(ctx, sub, sid, fmt.Sprint(int(iat)))
+	return d.oauth2SessionUsecase.UpdateLogoutEvent(ctx, sub, sid, fmt.Sprint(int(iat)))
 }
 
 func (d *Oauth2ConfigurationUsecase) CheckBackChannelLogoutEvent() echo.MiddlewareFunc {
@@ -684,31 +712,37 @@ func (d *Oauth2ConfigurationUsecase) CheckBackChannelLogoutEvent() echo.Middlewa
 				// jwt skipper
 				return next(c)
 			}
+			// 检查dms-token中是否包含OAuth2登录信息：sub(用户标识)、sid(会话标识)
 			sub, sid, _, _, _ := d.getClaimsInfoFromToken(c.Request().Context(), dmsToken)
 			if sub == "" && sid == "" {
+				// 不包含OAuth2信息，继续处理
 				return next(c)
 			}
 
+			// 包含OAuth2信息，则通过sub和sid查询OAuth2会话表，检查是否被注销
 			// 获取会话信息
 			filterBy := []pkgConst.FilterCondition{
-				{Field: "oauth2_sub", Operator: pkgConst.FilterOperatorEqual, Value: sub},
-				{Field: "oauth2_sid", Operator: pkgConst.FilterOperatorEqual, Value: sid},
+				{Field: "sub", Operator: pkgConst.FilterOperatorEqual, Value: sub},
+				{Field: "sid", Operator: pkgConst.FilterOperatorEqual, Value: sid},
 			}
-			sessions, err := d.sessionUsecase.GetSessions(c.Request().Context(), filterBy)
+			sessions, err := d.oauth2SessionUsecase.GetSessions(c.Request().Context(), filterBy)
 			if err != nil {
 				return err
 			}
 
 			if len(sessions) == 0 {
+				// 会话被清理
 				return echo.NewHTTPError(http.StatusUnauthorized, "the session has been logged out by a third-party platform")
 			}
 
 			for _, v := range sessions {
-				if v.OAuth2LastLogoutEvent != "" {
+				if v.LastLogoutEvent != "" {
+					// 会话被注销
 					return echo.NewHTTPError(http.StatusUnauthorized, "the session has been logged out by a third-party platform")
 				}
 			}
 
+			// 会话正常
 			return next(c)
 		}
 	}
