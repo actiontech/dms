@@ -36,6 +36,7 @@ type DMSController struct {
 	DMS                *service.DMSService
 	CloudbeaverService *service.CloudbeaverService
 
+	log *utilLog.Helper
 	shutdownCallback func() error
 }
 
@@ -48,6 +49,7 @@ func NewDMSController(logger utilLog.Logger, opts *conf.DMSOptions, cbService *s
 		// log:   log.NewHelper(log.With(logger, "module", "controller/DMS")),
 		DMS:                dmsService,
 		CloudbeaverService: cbService,
+		log: utilLog.NewHelper(logger, utilLog.WithMessageKey("controller")),
 		shutdownCallback: func() error {
 			if err := dmsService.Shutdown(); err != nil {
 				return err
@@ -624,20 +626,26 @@ func (a *DMSController) AddSession(c echo.Context) error {
 func (a *DMSController) DelSession(c echo.Context) error {
 	var redirectUri string
 
-	dmsToken, err := c.Cookie(constant.DMSToken)
-	if err == nil {
-		uid, err := jwt.ParseUidFromJwtTokenStr(dmsToken.Value)
-		if err == nil {
-			redirectUri, err = a.DMS.Oauth2ConfigurationUsecase.Logout(c.Request().Context(), uid)
+	refreshToken, err := c.Cookie(constant.DMSRefreshToken)
+	if err != nil {
+		a.log.Warnf("DelSession get refresh token cookie failed: %v, will not logout third-party platform session", err)
+	} else {
+		_, sub, sid, _, err := jwt.ParseRefreshToken(refreshToken.Value)
+		if err != nil {
+			a.log.Errorf("DelSession parse refresh token failed: %v, will not logout third-party platform session", err)
+		} else {
+			// 包含第三方会话信息，同步注销第三方平台会话
+			redirectUri, err = a.DMS.Oauth2ConfigurationUsecase.Logout(c.Request().Context(), sub, sid)
 			if err != nil {
 				return NewErrResp(c, err, apiError.DMSServiceErr)
 			}
 		}
-
 	}
 
 	cookie, err := c.Cookie(constant.DMSToken)
-	if err == nil {
+	if err != nil {
+		a.log.Warnf("DelSession get dms token cookie failed: %v", err)
+	} else {
 		// cookie 未过期
 		cookie.MaxAge = -1 // MaxAge<0 means delete cookie now
 		cookie.Path = "/"
@@ -678,9 +686,18 @@ func (a *DMSController) RefreshSession(c echo.Context) error {
 		return c.String(http.StatusUnauthorized, "refresh token not found")
 	}
 
-	uid, sub, sid, err := jwt.ParseRefreshToken(refreshToken.Value)
+	uid, sub, sid, expired, err := jwt.ParseRefreshToken(refreshToken.Value)
 	if err != nil {
 		return c.String(http.StatusUnauthorized, err.Error())
+	}
+	if expired {
+		// 刷新token过期时，且包含第三方平台会话信息，注销第三方平台会话
+		err = a.DMS.Oauth2ConfigurationUsecase.BackendLogout(c.Request().Context(), sub, sid)
+		if err != nil {
+			a.log.Errorf("expired refresh token, call BackendLogout err: %v", err)
+			return NewErrResp(c, err, apiError.APIServerErr)
+		}
+		return c.String(http.StatusUnauthorized, "refresh token is expired")
 	}
 
 	// 签发的token包含第三方平台信息，需要同步刷新第三方平台token
@@ -690,11 +707,11 @@ func (a *DMSController) RefreshSession(c echo.Context) error {
 			return c.String(http.StatusUnauthorized, err.Error())
 		}
 
-		newDmsToken, dmsTokenExp, err := claims.DmsToken()
+		newDmsToken, dmsCookieExp, err := claims.DmsToken()
 		if err != nil {
 			return NewErrResp(c, err, apiError.APIServerErr)
 		}
-		newRefreshToken, dmsRefreshTokenExp, err := claims.DmsRefreshToken()
+		newRefreshToken, dmsRefreshCookieExp, err := claims.DmsRefreshToken()
 		if err != nil {
 			return NewErrResp(c, err, apiError.APIServerErr)
 		}
@@ -703,7 +720,7 @@ func (a *DMSController) RefreshSession(c echo.Context) error {
 			Name:    constant.DMSToken,
 			Value:   newDmsToken,
 			Path:    "/",
-			Expires: time.Now().Add(dmsTokenExp),
+			Expires: time.Now().Add(dmsCookieExp),
 		})
 		c.SetCookie(&http.Cookie{
 			Name:    constant.DMSRefreshToken,
@@ -711,7 +728,7 @@ func (a *DMSController) RefreshSession(c echo.Context) error {
 			Path:    "/",
 			HttpOnly: true, // 增加安全性
 			SameSite: http.SameSiteStrictMode, // cookie只会在同站请求中发送。
-			Expires: time.Now().Add(dmsRefreshTokenExp),
+			Expires: time.Now().Add(dmsRefreshCookieExp),
 		})
 
 		return NewOkRespWithReply(c, &aV1.AddSessionReply{
@@ -2515,30 +2532,33 @@ func (d *DMSController) Oauth2Callback(c echo.Context) error {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
 
-	dmsToken, dmsTokenExp, err := claims.DmsToken()
-	if err != nil {
-		return NewErrResp(c, err, apiError.APIServerErr)
-	}
-	refreshToken, dmsRefreshTokenExp, err := claims.DmsRefreshToken()
-	if err != nil {
-		return NewErrResp(c, err, apiError.APIServerErr)
-	}
+	// 只有在用户存在才签发tokens，不存在时后续会重定向到用户绑定页，绑定成功后再签发tokens
+	if callbackData.UserExist {
+		dmsToken, dmsCookieExp, err := claims.DmsToken()
+		if err != nil {
+			return NewErrResp(c, err, apiError.APIServerErr)
+		}
+		refreshToken, dmsRefreshCookieExp, err := claims.DmsRefreshToken()
+		if err != nil {
+			return NewErrResp(c, err, apiError.APIServerErr)
+		}
 
-	callbackData.DMSToken = dmsToken
-	c.SetCookie(&http.Cookie{
-		Name:    constant.DMSToken,
-		Value:   dmsToken,
-		Path:    "/",
-		Expires: time.Now().Add(dmsTokenExp),
-	})
-	c.SetCookie(&http.Cookie{
-		Name:    constant.DMSRefreshToken,
-		Value:   refreshToken,
-		Path:    "/",
-		HttpOnly: true, // 增加安全性
-		SameSite:  http.SameSiteStrictMode, // cookie只会在同站请求中发送。
-		Expires: time.Now().Add(dmsRefreshTokenExp),
-	})
+		callbackData.DMSToken = dmsToken
+		c.SetCookie(&http.Cookie{
+			Name:    constant.DMSToken,
+			Value:   dmsToken,
+			Path:    "/",
+			Expires: time.Now().Add(dmsCookieExp),
+		})
+		c.SetCookie(&http.Cookie{
+			Name:    constant.DMSRefreshToken,
+			Value:   refreshToken,
+			Path:    "/",
+			HttpOnly: true, // 增加安全性
+			SameSite:  http.SameSiteStrictMode, // cookie只会在同站请求中发送。
+			Expires: time.Now().Add(dmsRefreshCookieExp),
+		})
+	}
 
 
 	return c.Redirect(http.StatusFound, callbackData.Generate())
@@ -2575,11 +2595,11 @@ func (d *DMSController) BindOauth2User(c echo.Context) error {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
 
-	dmsToken, dmsTokenExp, err := claims.DmsToken()
+	dmsToken, dmsCookieExp, err := claims.DmsToken()
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
-	refreshToken, dmsRefreshTokenExp, err := claims.DmsRefreshToken()
+	refreshToken, dmsRefreshCookieExp, err := claims.DmsRefreshToken()
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -2588,7 +2608,7 @@ func (d *DMSController) BindOauth2User(c echo.Context) error {
 		Name:    constant.DMSToken,
 		Value:   dmsToken,
 		Path:    "/",
-		Expires: time.Now().Add(dmsTokenExp),
+		Expires: time.Now().Add(dmsCookieExp),
 	})
 	c.SetCookie(&http.Cookie{
 		Name:    constant.DMSRefreshToken,
@@ -2596,7 +2616,7 @@ func (d *DMSController) BindOauth2User(c echo.Context) error {
 		Path:    "/",
 		HttpOnly: true, // 增加安全性
 		SameSite:  http.SameSiteStrictMode, // cookie只会在同站请求中发送。
-		Expires: time.Now().Add(dmsRefreshTokenExp),
+		Expires: time.Now().Add(dmsRefreshCookieExp),
 	})
 		
 	return NewOkRespWithReply(c, &aV1.BindOauth2UserReply{
@@ -2607,6 +2627,9 @@ func (d *DMSController) BindOauth2User(c echo.Context) error {
 // BackChannelLogout is a hidden interface for third-party platform callbacks for logout event
 // https://openid.net/specs/openid-connect-backchannel-1_0.html#BCRequest
 func (d *DMSController) BackChannelLogout(c echo.Context) error {
+	// no-store 指令告诉浏览器和任何中间缓存（例如代理服务器）不要存储响应的任何副本。
+	// 这意味着每次请求该资源时，都必须从服务器重新获取
+	c.Response().Header().Set(echo.HeaderCacheControl, "no-store")
 	if err := c.Request().ParseForm(); err != nil {
 		return c.String(http.StatusBadRequest, "Invalid form data")
 	}
@@ -2618,9 +2641,9 @@ func (d *DMSController) BackChannelLogout(c echo.Context) error {
 
 	// todo Verifier logoutToken by provider
 
-	err := d.DMS.BackChannelLogout(c.Request().Context(), logoutToken)
+	err := d.DMS.BackChannelLogout(logoutToken)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "Handle logout event err: " + err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.NoContent(http.StatusOK)
