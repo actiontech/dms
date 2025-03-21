@@ -18,7 +18,7 @@ type OAuth2Session struct {
 	Sid             string
 	IdToken         string
 	RefreshToken    string
-	LastLogoutEvent string
+	LastLogoutEvent string    // 记录第三方注销事件的时间戳，有值意味着该会话被注销过
 	DeleteAfter     time.Time // 记录保留时间，在此时间之后将删除该记录
 }
 
@@ -45,6 +45,7 @@ func (u *OAuth2Session) GetUID() string {
 type OAuth2SessionRepo interface {
 	SaveSession(ctx context.Context, s *OAuth2Session) error
 	GetSessions(ctx context.Context, conditions []pkgConst.FilterCondition) ([]*OAuth2Session, error)
+	GetSessionBySubSid(ctx context.Context, sub, sid string) (session *OAuth2Session, exist bool, err error)
 	UpdateUserUidBySub(ctx context.Context, userid, sub string) error
 	UpdateLogoutEvent(ctx context.Context, Sub, Sid, logoutIat string) error
 	DeleteExpiredSessions(ctx context.Context) error
