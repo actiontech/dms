@@ -257,13 +257,16 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 	if err != nil {
 		return data, nil, fmt.Errorf("get claims info from oauth2 access token err: %v", err)
 	}
-	refreshToken, err := jwtpkg.Parse(oauth2Token.RefreshToken, nil)
-	if refreshToken == nil {
-		return data, nil, fmt.Errorf("parse oauth2 refresh token failed: %v", err)
-	}
-	_, _, refExp, refIat, err := d.getClaimsInfoFromToken(ctx, refreshToken)
-	if err != nil {
-		return data, nil, fmt.Errorf("get refresh token claims failed: %v", err)
+	refExp, refIat := exp, iat
+	if oauth2Token.RefreshToken != "" {
+		refreshToken, err := jwtpkg.Parse(oauth2Token.RefreshToken, nil)
+		if refreshToken == nil {
+			return data, nil, fmt.Errorf("parse oauth2 refresh token failed: %v", err)
+		}
+		_, _, refExp, refIat, err = d.getClaimsInfoFromToken(ctx, refreshToken)
+		if err != nil {
+			return data, nil, fmt.Errorf("get refresh token claims failed: %v", err)
+		}
 	}
 	_, err = d.oauth2SessionUsecase.CreateOrUpdateSession(ctx, userID, sub, sid, idToken, oauth2Token.RefreshToken, time.Now().Add(time.Duration(refExp-refIat)*time.Second*2))
 	if err != nil {
@@ -455,13 +458,16 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 	if err != nil {
 		return nil, fmt.Errorf("getClaimsInfoFromToken failed: %v", err)
 	}
-	refreshToken, err := jwtpkg.Parse(refreshTokenStr, nil)
-	if refreshToken == nil {
-		return nil, fmt.Errorf("parse oauth2 refresh token failed: %v", err)
-	}
-	_, _, refExp, refIat, err := d.getClaimsInfoFromToken(ctx, refreshToken)
-	if err != nil {
-		return nil, fmt.Errorf("get refresh token claims failed: %v", err)
+	refExp, refIat := exp, iat
+	if refreshTokenStr != "" {
+		refreshToken, err := jwtpkg.Parse(refreshTokenStr, nil)
+		if refreshToken == nil {
+			return nil, fmt.Errorf("parse oauth2 refresh token failed: %v", err)
+		}
+		_, _, refExp, refIat, err = d.getClaimsInfoFromToken(ctx, refreshToken)
+		if err != nil {
+			return nil, fmt.Errorf("get refresh token claims failed: %v", err)
+		}
 	}
 	claims = &ClaimsInfo{UserId: "", Iat: iat, Exp: exp, Sub: sub, Sid: sid, RefreshIat: refIat, RefreshExp: refExp}
 
@@ -684,13 +690,16 @@ func (d *Oauth2ConfigurationUsecase) RefreshOauth2Token(ctx context.Context, use
 		return nil, fmt.Errorf("get access token claims failed: %v", err)
 	}
 
-	refreshToken, err := jwtpkg.Parse(newToken.RefreshToken, nil)
-	if refreshToken == nil {
-		return nil, fmt.Errorf("parse oauth2 refresh token failed: %v", err)
-	}
-	_, _, refExp, refIat, err := d.getClaimsInfoFromToken(ctx, refreshToken)
-	if err != nil {
-		return nil, fmt.Errorf("get refresh token claims failed: %v", err)
+	refExp, refIat := newExp, newIat
+	if newToken.RefreshToken != "" {
+		refreshToken, err := jwtpkg.Parse(newToken.RefreshToken, nil)
+		if refreshToken == nil {
+			return nil, fmt.Errorf("parse oauth2 refresh token failed: %v", err)
+		}
+		_, _, refExp, refIat, err = d.getClaimsInfoFromToken(ctx, refreshToken)
+		if err != nil {
+			return nil, fmt.Errorf("get refresh token claims failed: %v", err)
+		}
 	}
 
 	claims = &ClaimsInfo{
