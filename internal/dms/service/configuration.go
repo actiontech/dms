@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
@@ -143,7 +144,7 @@ func (d *DMSService) BindOauth2User(ctx context.Context, bindOauth2User *dmsV1.B
 		d.log.Infof("BindOauth2User;error=%v", err)
 	}()
 
-	return d.Oauth2ConfigurationUsecase.BindOauth2User(ctx, bindOauth2User.Oauth2Token, bindOauth2User.IdToken, bindOauth2User.UserName, bindOauth2User.Pwd)
+	return d.Oauth2ConfigurationUsecase.BindOauth2User(ctx, bindOauth2User.Oauth2Token, bindOauth2User.RefreshToken, bindOauth2User.UserName, bindOauth2User.Pwd)
 }
 
 func (d *DMSService) RefreshOauth2Token(ctx context.Context, userUid, sub, sid string) (claims *biz.ClaimsInfo, err error) {
@@ -155,13 +156,20 @@ func (d *DMSService) RefreshOauth2Token(ctx context.Context, userUid, sub, sid s
 	return d.Oauth2ConfigurationUsecase.RefreshOauth2Token(ctx, userUid, sub, sid)
 }
 
-func (d *DMSService) BackChannelLogout(ctx context.Context, logoutToken string) (err error) {
+func (d *DMSService) BackChannelLogout(logoutToken string) error {
 	d.log.Infof("BackChannelLogout")
-	defer func() {
-		d.log.Infof("BackChannelLogout;error=%v", err)
+
+	// 异步处理避免响应超时
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+		defer cancel()
+		err := d.Oauth2ConfigurationUsecase.BackChannelLogout(ctx, logoutToken)
+		if err != nil {
+			d.log.Errorf("BackChannelLogout logout token:%s err:%v", logoutToken, err)
+		}
 	}()
 
-	return d.Oauth2ConfigurationUsecase.BackChannelLogout(ctx, logoutToken)
+	return nil
 }
 
 func (d *DMSService) GetLDAPConfiguration(ctx context.Context) (reply *dmsV1.GetLDAPConfigurationReply, err error) {

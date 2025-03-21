@@ -34,8 +34,12 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 	return nil, errNotSupportOauth2
 }
 
-func (d *Oauth2ConfigurationUsecase) Logout(ctx context.Context, uid string) (string, error) {
+func (d *Oauth2ConfigurationUsecase) Logout(ctx context.Context, sub, sid string) (string, error) {
 	return "", nil
+}
+
+func (d *Oauth2ConfigurationUsecase) BackendLogout(ctx context.Context, sub, sid string) error {
+	return nil
 }
 
 func (d *Oauth2ConfigurationUsecase) RefreshOauth2Token(ctx context.Context, userUid, sub, sid string) (claims *ClaimsInfo, err error) {
