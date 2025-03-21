@@ -168,7 +168,7 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 	defer func() {
 		if oauth2C.ServerLogoutUrl != "" && err != nil {
 			// 第三方平台登录成功，但后续dms流程异常，需要注销第三方平台上的会话
-			logoutErr := d.backendLogout(ctx, idToken)
+			logoutErr := d.backendLogout(ctx, oauth2C, idToken)
 			if logoutErr != nil {
 				d.log.Errorf("backendLogout error: %v", logoutErr)
 				// err 是命名返回值才可以完成实际返回值的修改
@@ -537,19 +537,34 @@ const (
 	userVariableSqleUrl = "${sqle_url}"
 )
 
-func (d *Oauth2ConfigurationUsecase) Logout(ctx context.Context, sub, sid string) (string, error) {
+func (d *Oauth2ConfigurationUsecase) ifSessionNeedLogout(ctx context.Context, sub, sid string) (oauth2Conf *Oauth2Configuration, oauth2Session *OAuth2Session, needLogout bool, err error) {
+	if sub == "" && sid == "" {
+		return nil, nil, false, nil
+	}
+
 	configuration, exist, err := d.GetOauth2Configuration(ctx)
 	if err != nil {
-		return "", err
+		return nil, nil, false, fmt.Errorf("GetOauth2Configuration err:%v", err)
 	}
 
 	// 获取会话信息
 	session, sessionExist, err := d.oauth2SessionUsecase.GetSessionBySubSid(ctx, sub, sid)
 	if err != nil {
-		return "", fmt.Errorf("failed to get session by sub:%s sid:%s err: %v", sub, sid, err)
+		return nil, nil, false, fmt.Errorf("failed to get session by sub:%s sid:%s err: %v", sub, sid, err)
 	}
 	if !exist || !sessionExist || configuration.ServerLogoutUrl == "" || session.IdToken == "" || session.LastLogoutEvent != "" {
 		// 无需注销第三方平台
+		return configuration, session, false, nil
+	}
+
+	return configuration, session, true, nil
+}
+func (d *Oauth2ConfigurationUsecase) Logout(ctx context.Context, sub, sid string) (string, error) {
+	configuration, session, needLogout, err := d.ifSessionNeedLogout(ctx, sub, sid)
+	if err != nil {
+		return "", err
+	}
+	if !needLogout {
 		return "", nil
 	}
 
@@ -582,37 +597,18 @@ func (d *Oauth2ConfigurationUsecase) Logout(ctx context.Context, sub, sid string
 }
 
 func (d *Oauth2ConfigurationUsecase) BackendLogout(ctx context.Context, sub, sid string) error {
-	if sub == "" && sid == "" {
+	oauth2Conf, session, needLogout, err := d.ifSessionNeedLogout(ctx, sub, sid)
+	if err != nil {
+		return err
+	}
+	if !needLogout {
 		return nil
 	}
 
-	configuration, exist, err := d.GetOauth2Configuration(ctx)
-	if err != nil {
-		return fmt.Errorf("GetOauth2Configuration err:%v", err)
-	}
-
-	// 获取会话信息
-	session, sessionExist, err := d.oauth2SessionUsecase.GetSessionBySubSid(ctx, sub, sid)
-	if err != nil {
-		return fmt.Errorf("failed to get session by sub:%s sid:%s err: %v", sub, sid, err)
-	}
-	if !exist || !sessionExist || configuration.ServerLogoutUrl == "" || session.IdToken == "" || session.LastLogoutEvent != "" {
-		// 无需注销第三方平台
-		return nil
-	}
-
-	return d.backendLogout(ctx, session.IdToken)
+	return d.backendLogout(ctx, oauth2Conf, session.IdToken)
 }
 
-func (d *Oauth2ConfigurationUsecase) backendLogout(ctx context.Context, idToken string) error {
-	configuration, exist, err := d.GetOauth2Configuration(ctx)
-	if err != nil {
-		return fmt.Errorf("get oauth2 configuration failed: %v", err)
-	}
-	if !exist {
-		return fmt.Errorf("Oauth2Configuration is not exist")
-	}
-
+func (d *Oauth2ConfigurationUsecase) backendLogout(ctx context.Context, configuration *Oauth2Configuration, idToken string) error {
 	logoutUrl, err := url.Parse(configuration.ServerLogoutUrl)
 	if err != nil {
 		return fmt.Errorf("parse logout url failed: %v", err)
