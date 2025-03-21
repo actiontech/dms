@@ -134,6 +134,7 @@ type ClaimsInfo struct {
 }
 
 func (c ClaimsInfo) DmsToken() (token string, cookieExp time.Duration, err error) {
+	// 为了在第三方会话“快过期”时去刷新第三方token，故此时（通过OAuth2登录）签发的DmsToken有效期为第三方平台的0.9
 	cookieExp = time.Duration((c.Exp-c.Iat)*0.9) * time.Second
 	token, err = jwt.GenJwtToken(jwt.WithUserId(c.UserId), jwt.WithExpiredTime(cookieExp), jwt.WithSub(c.Sub), jwt.WithSid(c.Sid))
 	return

@@ -18,7 +18,7 @@ type OAuth2Session struct {
 	Sid             string
 	IdToken         string
 	RefreshToken    string
-	LastLogoutEvent string
+	LastLogoutEvent string    // 记录第三方注销事件的时间戳，有值意味着该会话被注销过
 	DeleteAfter     time.Time // 记录保留时间，在此时间之后将删除该记录
 }
 

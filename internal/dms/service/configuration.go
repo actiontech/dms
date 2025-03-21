@@ -156,9 +156,10 @@ func (d *DMSService) RefreshOauth2Token(ctx context.Context, userUid, sub, sid s
 	return d.Oauth2ConfigurationUsecase.RefreshOauth2Token(ctx, userUid, sub, sid)
 }
 
-func (d *DMSService) BackChannelLogout(logoutToken string) {
+func (d *DMSService) BackChannelLogout(logoutToken string) error {
 	d.log.Infof("BackChannelLogout")
 
+	// 异步处理避免响应超时
 	go func() {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 		defer cancel()
@@ -168,7 +169,7 @@ func (d *DMSService) BackChannelLogout(logoutToken string) {
 		}
 	}()
 
-	return
+	return nil
 }
 
 func (d *DMSService) GetLDAPConfiguration(ctx context.Context) (reply *dmsV1.GetLDAPConfigurationReply, err error) {

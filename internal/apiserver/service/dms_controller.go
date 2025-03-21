@@ -628,11 +628,11 @@ func (a *DMSController) DelSession(c echo.Context) error {
 
 	refreshToken, err := c.Cookie(constant.DMSRefreshToken)
 	if err != nil {
-		a.log.Warnf("DelSession get refresh token cookie failed: %v", err)
+		a.log.Warnf("DelSession get refresh token cookie failed: %v, will not logout third-party platform session", err)
 	} else {
 		_, sub, sid, _, err := jwt.ParseRefreshToken(refreshToken.Value)
 		if err != nil {
-			a.log.Errorf("DelSession parse refresh token failed: %v", err)
+			a.log.Errorf("DelSession parse refresh token failed: %v, will not logout third-party platform session", err)
 		} else {
 			// 包含第三方会话信息，同步注销第三方平台会话
 			redirectUri, err = a.DMS.Oauth2ConfigurationUsecase.Logout(c.Request().Context(), sub, sid)
@@ -2641,8 +2641,10 @@ func (d *DMSController) BackChannelLogout(c echo.Context) error {
 
 	// todo Verifier logoutToken by provider
 
-	// 异步处理避免响应超时
-	go d.DMS.BackChannelLogout(logoutToken)
+	err := d.DMS.BackChannelLogout(logoutToken)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
 
 	return c.NoContent(http.StatusOK)
 }
