@@ -68,21 +68,21 @@ func ParseRefreshToken(tokenStr string) (userUid, sub, sid string, expired bool,
 		if errors.As(err, &validationErr) && validationErr.Errors&jwt.ValidationErrorExpired != 0 {
 			expired = true
 		} else {
-			return userUid, sub, sid, expired, err
+			return "", "", "", false, err
 		}
 	}
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return userUid, sub, sid, expired, fmt.Errorf("failed to convert token claims to jwt")
+		return "", "", "", expired, fmt.Errorf("failed to convert token claims to jwt")
 	}
 
 	if fmt.Sprint(claims[JWTType]) != constant.DMSRefreshToken {
-		return userUid, sub, sid, expired, fmt.Errorf("invalid jwt type")
+		return "", "", "", expired, fmt.Errorf("invalid jwt type")
 	}
 
 	userUid, _ = claims[JWTUserId].(string)
 	if userUid == "" {
-		return userUid, sub, sid, expired, fmt.Errorf("failed to parse user id: empty userUid")
+		return "", "", "", expired, fmt.Errorf("failed to parse user id: empty userUid")
 	}
 	sub, _ = claims["sub"].(string)
 	sid, _ = claims["sid"].(string)
