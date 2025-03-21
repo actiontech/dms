@@ -71,6 +71,13 @@ func (d *OAuth2SessionUsecase) GetSessions(ctx context.Context, conditions []pkg
 	return sessions, nil
 }
 
+func (d *OAuth2SessionUsecase) GetSessionBySubSid(ctx context.Context, sub, sid string) (session *OAuth2Session, exist bool, err error) {
+	if session, exist, err = d.repo.GetSessionBySubSid(ctx, sub, sid); err != nil {
+		return session, exist, fmt.Errorf("failed to get oauth2 session: %v", err)
+	}
+	return session, exist, nil
+}
+
 func (d *OAuth2SessionUsecase) UpdateUserIdBySub(ctx context.Context, userid, sub string) (err error) {
 	if err = d.repo.UpdateUserUidBySub(ctx, userid, sub); err != nil {
 		return fmt.Errorf("failed to update oauth2 session user uid: %v", err)
