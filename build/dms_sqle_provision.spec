@@ -116,25 +116,12 @@ dbms.default_listen_address=0.0.0.0
 EOF
 
 #service
-# 检查 .bashrc 文件是否存在
-if [ -f ~/.bashrc ]; then
-    if grep -q "^export SQLE_JAVA_HOME=" ~/.bashrc; then
-        # 如果 SQLE_JAVA_HOME 已经存在,则更新其值
-        sed -i "s|^export SQLE_JAVA_HOME=.*|export SQLE_JAVA_HOME=$RPM_INSTALL_PREFIX/jdk|" ~/.bashrc
-    else
-        echo "export SQLE_JAVA_HOME=$RPM_INSTALL_PREFIX/jdk" >> ~/.bashrc
-    fi
-else
-    echo "warn: .bashrc file not found."
-fi
-source ~/.bashrc
 grep systemd /proc/1/comm 1>/dev/null 2>&1
 if [ $? -eq 0 ]; then
     sed -e "s|PIDFile=|PIDFile=$RPM_INSTALL_PREFIX\/sqled.pid|g" \
     -e "s|User=|User=actiontech-universe|g" \
     -e "s|ExecStart=|ExecStart=/bin/sh -c 'exec $RPM_INSTALL_PREFIX\/bin\/sqled --config $RPM_INSTALL_PREFIX\/etc\/config.yaml --pidfile=$RPM_INSTALL_PREFIX\/sqled.pid >>$RPM_INSTALL_PREFIX\/std.log 2>\&1'|g" \
     -e "s|WorkingDirectory=|WorkingDirectory=$RPM_INSTALL_PREFIX|g" \
-    -e "s|Environment=|Environment=SQLE_JAVA_HOME=$RPM_INSTALL_PREFIX\/jdk|g" \
     $RPM_INSTALL_PREFIX/scripts/sqled.systemd > /lib/systemd/system/sqled.service
     sed -e "s|PIDFile=|PIDFile=$RPM_INSTALL_PREFIX\/dms.pid|g" \
     -e "s|User=|User=actiontech-universe|g" \
@@ -146,7 +133,7 @@ if [ $? -eq 0 ]; then
     -e "s|WorkingDirectory=|WorkingDirectory=$RPM_INSTALL_PREFIX|g" \
     $RPM_INSTALL_PREFIX/scripts/provision.systemd > /lib/systemd/system/provision.service
     sed -e "s|PIDFile=|PIDFile=$RPM_INSTALL_PREFIX\/neo4j-community/run/neo4j.pid|g" \
-    -e "s|ExecStart=|ExecStart=/bin/bash -c 'export JAVA_HOME=$SQLE_JAVA_HOME\;\ $RPM_INSTALL_PREFIX\/neo4j-community/bin/neo4j start'|g" \
+    -e "s|ExecStart=|ExecStart=/bin/bash -c 'export JAVA_HOME=$RPM_INSTALL_PREFIX/jdk\;\ $RPM_INSTALL_PREFIX\/neo4j-community/bin/neo4j start'|g" \
     -e "s|ExecStop=|ExecStop=$RPM_INSTALL_PREFIX\/neo4j-community/bin/neo4j stop|g" \
     -e "s|ExecReload=|ExecReload=$RPM_INSTALL_PREFIX\/neo4j-community/bin/neo4j restart|g" \
     -e "s|WorkingDirectory=|WorkingDirectory=$RPM_INSTALL_PREFIX/neo4j-community|g" \
