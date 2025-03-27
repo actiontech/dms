@@ -88,7 +88,7 @@ func (d dmpManager) SyncDatabaseSource(ctx context.Context, params *DBServiceSyn
 	}
 	dmpFilterType := d.getDmpFilterType(dbType)
 
-	url := fmt.Sprintf("%s/v3/support/data_sources?filter_by_type=%s", params.URL, dmpFilterType)
+	url := fmt.Sprintf("%s/v3/support/data_sources?page_index=1&page_size=9999&filter_by_type=%s", params.URL, dmpFilterType)
 
 	header := map[string]string{
 		"Content-Type":  "application/json",
