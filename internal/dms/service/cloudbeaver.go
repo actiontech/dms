@@ -80,7 +80,6 @@ func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) 
 		}
 	}
 
-
 	cloudbeaverUsecase := biz.NewCloudbeaverUsecase(logger, cfg, userUsecase, dbServiceUseCase, opPermissionVerifyUsecase, dmsConfigUseCase, dataMaskingUsecase, cloudbeaverRepo, dmsProxyTargetRepo, cbOperationLogUsecase, projectUsecase)
 	proxyUsecase := biz.NewCloudbeaverProxyUsecase(logger, cloudbeaverUsecase)
 
@@ -103,7 +102,7 @@ func (cs *CloudbeaverService) GetCloudbeaverConfiguration(ctx context.Context) (
 			SQLQueryRootURI string `json:"sql_query_root_uri"`
 		}{
 			EnableSQLQuery:  cs.CloudbeaverUsecase.IsCloudbeaverConfigured(),
-			SQLQueryRootURI: cs.CloudbeaverUsecase.GetRootUri(),
+			SQLQueryRootURI: cs.CloudbeaverUsecase.GetRootUri() + "/",
 		},
 	}, nil
 }
