@@ -11,6 +11,12 @@ import (
 )
 
 func (d *OAuth2SessionUsecase) CreateOrUpdateSession(ctx context.Context, UserUid, Sub, Sid, IdToken, RefreshToken string, deleteAfter time.Time) (uid string, err error) {
+	if Sub == "" && Sid == "" {
+		// sub(第三方用户标识), sid(第三方会话标识)
+		// 没有第三方会话信息，不创建会话记录
+		d.log.Debugf("CreateOrUpdateSession with empty sub and sid")
+		return "", nil
+	}
 	filterBy := []pkgConst.FilterCondition{
 		{Field: "sub", Operator: pkgConst.FilterOperatorEqual, Value: Sub},
 		{Field: "sid", Operator: pkgConst.FilterOperatorEqual, Value: Sid},
