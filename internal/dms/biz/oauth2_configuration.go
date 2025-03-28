@@ -133,17 +133,38 @@ type ClaimsInfo struct {
 	RefreshExp float64 `json:"refresh_exp"` // 第三方RefreshToken 过期时间 (Expiration Time)，Unix 时间戳
 }
 
-func (c ClaimsInfo) DmsToken() (token string, cookieExp time.Duration, err error) {
+func (c *ClaimsInfo) DmsToken() (token string, cookieExp time.Duration, err error) {
+	c.setDefaults()
 	// 为了在第三方会话“快过期”时去刷新第三方token，故此时（通过OAuth2登录）签发的DmsToken有效期为第三方平台的0.9
 	cookieExp = time.Duration((c.Exp-c.Iat)*0.9) * time.Second
 	token, err = jwt.GenJwtToken(jwt.WithUserId(c.UserId), jwt.WithExpiredTime(cookieExp), jwt.WithSub(c.Sub), jwt.WithSid(c.Sid))
 	return
 }
 
-func (c ClaimsInfo) DmsRefreshToken() (token string, cookieExp time.Duration, err error) {
+func (c *ClaimsInfo) DmsRefreshToken() (token string, cookieExp time.Duration, err error) {
+	c.setDefaults()
 	// cookie有效期更久，和第三方refresh token有效期保持一致
 	// 这样在DmsRefreshToken过期时，cookie仍可获取，用于注销第三方会话
 	cookieExp = time.Duration(c.RefreshExp-c.RefreshIat) * time.Second
 	token, err = jwt.GenRefreshToken(jwt.WithUserId(c.UserId), jwt.WithExpiredTime(time.Duration(c.Exp-c.Iat)*time.Second), jwt.WithSub(c.Sub), jwt.WithSid(c.Sid))
+	return
+}
+
+func (c *ClaimsInfo) setDefaults() {
+	now := time.Now()
+
+	if c.Iat == 0 {
+		c.Iat = float64(now.Unix())
+	}
+	if c.Exp == 0 {
+		c.Exp = float64(now.Add(jwt.DefaultDmsTokenExpHours * time.Hour).Unix())
+	}
+	if c.RefreshIat == 0 {
+		c.RefreshIat = c.Iat
+	}
+	if c.RefreshExp == 0 {
+		c.RefreshExp = c.Exp
+	}
+
 	return
 }
