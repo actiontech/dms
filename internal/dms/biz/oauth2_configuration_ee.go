@@ -179,13 +179,9 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 		}
 	}()
 
-	token, err := jwtpkg.Parse(oauth2Token.AccessToken, nil)
-	if token == nil {
-		return data, nil, fmt.Errorf("parse oauth2 access token failed: %v", err)
-	}
-	needUpdateState, canLogin, err := d.getLoginPermFromToken(ctx, token)
+	claims, needUpdateState, canLogin, err := d.handleOAuth2Token(ctx, oauth2Token)
 	if err != nil {
-		return data, nil, fmt.Errorf("get login perm from token err: %v", err)
+		return data, nil, fmt.Errorf("oauth2 callback, handle oauth2 token err: %v", err)
 	}
 
 	//get user is exist
@@ -253,27 +249,11 @@ func (d *Oauth2ConfigurationUsecase) GenerateCallbackUri(ctx context.Context, st
 		}
 	}
 
-	sub, sid, exp, iat, err := d.getClaimsInfoFromToken(ctx, token)
-	if err != nil {
-		return data, nil, fmt.Errorf("get claims info from oauth2 access token err: %v", err)
-	}
-	refExp, refIat := exp, iat
-	if oauth2Token.RefreshToken != "" {
-		refreshToken, err := jwtpkg.Parse(oauth2Token.RefreshToken, nil)
-		if refreshToken == nil {
-			return data, nil, fmt.Errorf("parse oauth2 refresh token failed: %v", err)
-		}
-		_, _, refExp, refIat, err = d.getClaimsInfoFromToken(ctx, refreshToken)
-		if err != nil {
-			return data, nil, fmt.Errorf("get refresh token claims failed: %v", err)
-		}
-	}
-	_, err = d.oauth2SessionUsecase.CreateOrUpdateSession(ctx, userID, sub, sid, idToken, oauth2Token.RefreshToken, time.Now().Add(time.Duration(refExp-refIat)*time.Second*2))
+	claims.UserId = userID
+	_, err = d.oauth2SessionUsecase.CreateOrUpdateSession(ctx, userID, claims.Sub, claims.Sid, idToken, oauth2Token.RefreshToken, time.Now().Add(time.Duration(claims.RefreshExp-claims.RefreshIat)*time.Second*2))
 	if err != nil {
 		return data, nil, fmt.Errorf("create or update oauth2 session failed:%v", err)
 	}
-
-	claims = &ClaimsInfo{UserId: userID, Iat: iat, Exp: exp, Sub: sub, Sid: sid, RefreshIat: refIat, RefreshExp: refExp}
 
 	return data, claims, nil
 }
@@ -320,6 +300,44 @@ func (d *Oauth2ConfigurationUsecase) getOauth2User(conf *Oauth2Configuration, to
 	}
 	user.ThirdPartyUserInfo = string(body)
 	return user, nil
+}
+
+func (d *Oauth2ConfigurationUsecase) handleOAuth2Token(ctx context.Context, oauth2Token *oauth2.Token) (claims *ClaimsInfo, needUpdateState, canLogin bool, err error) {
+	claims = &ClaimsInfo{}
+	defer claims.setDefaults()
+	accessTokenJWT, parseErr := jwtpkg.Parse(oauth2Token.AccessToken, nil)
+	if accessTokenJWT == nil {
+		// AccessToken may be not JWT
+		d.log.Warnf("parse oauth2 access token err: %v", parseErr)
+		return
+	}
+	d.log.Debugf("oauth2 access token jwt claims: %+v", accessTokenJWT.Claims)
+
+	needUpdateState, canLogin, err = d.getLoginPermFromToken(ctx, accessTokenJWT)
+	if err != nil {
+		err = fmt.Errorf("get login perm from token err: %v", err)
+		return
+	}
+	claims.Sub, claims.Sid, claims.Exp, claims.Iat, err = d.getClaimsInfoFromToken(ctx, accessTokenJWT)
+	if err != nil {
+		err = fmt.Errorf("get claims info from oauth2 access token err: %v", err)
+		return
+	}
+
+	refreshTokenJWT, parseErr := jwtpkg.Parse(oauth2Token.RefreshToken, nil)
+	if refreshTokenJWT == nil {
+		// RefreshToken may be not JWT
+		d.log.Warnf("parse oauth2 refresh token err: %v", parseErr)
+		return
+	}
+	d.log.Debugf("oauth2 refresh token jwt claims: %+v", refreshTokenJWT.Claims)
+	_, _, claims.RefreshExp, claims.RefreshIat, err = d.getClaimsInfoFromToken(ctx, refreshTokenJWT)
+	if err != nil {
+		err = fmt.Errorf("get refresh token claims failed: %v", err)
+		return
+	}
+
+	return
 }
 
 func (d *Oauth2ConfigurationUsecase) getLoginPermFromToken(ctx context.Context, token *jwtpkg.Token) (configured, canLogin bool, err error) {
@@ -390,6 +408,9 @@ func (d *Oauth2ConfigurationUsecase) getLoginPermFromToken(ctx context.Context, 
 }
 
 func (d *Oauth2ConfigurationUsecase) getClaimsInfoFromToken(ctx context.Context, token *jwtpkg.Token) (sub, sid string, exp, iat float64, err error) {
+	if token.Claims == nil {
+		return sub, sid, exp, iat, fmt.Errorf("token claims is nil")
+	}
 	claims, ok := token.Claims.(jwtpkg.MapClaims)
 	if !ok {
 		return sub, sid, exp, iat, fmt.Errorf("unexpected claims type")
@@ -399,10 +420,6 @@ func (d *Oauth2ConfigurationUsecase) getClaimsInfoFromToken(ctx context.Context,
 	sid = getClaim[string](claims, "sid")
 	exp = getClaim[float64](claims, "exp")
 	iat = getClaim[float64](claims, "iat")
-
-	if exp == 0 || iat == 0 {
-		return sub, sid, exp, iat, fmt.Errorf("invalid exp or iat")
-	}
 
 	return
 }
@@ -450,26 +467,10 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 		return nil, fmt.Errorf("get user by name failed: %v", err)
 	}
 
-	accessToken, err := jwtpkg.Parse(oauth2Token, nil)
-	if accessToken == nil {
-		return nil, fmt.Errorf("parse oauth2 access token failed: %v", err)
-	}
-	sub, sid, exp, iat, err := d.getClaimsInfoFromToken(ctx, accessToken)
+	claims, _, _, err = d.handleOAuth2Token(ctx, &oauth2.Token{AccessToken: oauth2Token, RefreshToken: refreshTokenStr})
 	if err != nil {
-		return nil, fmt.Errorf("getClaimsInfoFromToken failed: %v", err)
+		return nil, fmt.Errorf("handle oauth2 token failed: %v", err)
 	}
-	refExp, refIat := exp, iat
-	if refreshTokenStr != "" {
-		refreshToken, err := jwtpkg.Parse(refreshTokenStr, nil)
-		if refreshToken == nil {
-			return nil, fmt.Errorf("parse oauth2 refresh token failed: %v", err)
-		}
-		_, _, refExp, refIat, err = d.getClaimsInfoFromToken(ctx, refreshToken)
-		if err != nil {
-			return nil, fmt.Errorf("get refresh token claims failed: %v", err)
-		}
-	}
-	claims = &ClaimsInfo{UserId: "", Iat: iat, Exp: exp, Sub: sub, Sid: sid, RefreshIat: refIat, RefreshExp: refExp}
 
 	// create user if not exist
 	if !exist {
@@ -525,7 +526,7 @@ func (d *Oauth2ConfigurationUsecase) BindOauth2User(ctx context.Context, oauth2T
 		claims.UserId = user.GetUID()
 	}
 
-	if err = d.oauth2SessionUsecase.UpdateUserIdBySub(ctx, claims.UserId, sub); err != nil {
+	if err = d.oauth2SessionUsecase.UpdateUserIdBySub(ctx, claims.UserId, claims.Sub); err != nil {
 		return nil, err
 	}
 
@@ -671,43 +672,16 @@ func (d *Oauth2ConfigurationUsecase) RefreshOauth2Token(ctx context.Context, use
 	}
 	idToken, _ := newToken.Extra("id_token").(string) // 尝试获取 id_token
 
-	accessToken, err := jwtpkg.Parse(newToken.AccessToken, nil)
-	if accessToken == nil {
-		return nil, fmt.Errorf("parse oauth2 access token failed: %v", err)
+	claims, configured, canLogin, err := d.handleOAuth2Token(ctx, newToken)
+	if err != nil {
+		return nil, fmt.Errorf("refresh oauth2 token, handle oauth2 token err: %v", err)
 	}
 	// 验证登录权限
-	configured, canLogin, err := d.getLoginPermFromToken(ctx, accessToken)
 	if configured && !canLogin {
 		return nil, fmt.Errorf("the user:%s does not have login permission", sub)
 	}
 
-	newSub, newSid, newExp, newIat, err := d.getClaimsInfoFromToken(ctx, accessToken)
-	if err != nil {
-		return nil, fmt.Errorf("get access token claims failed: %v", err)
-	}
-
-	refExp, refIat := newExp, newIat
-	if newToken.RefreshToken != "" {
-		refreshToken, err := jwtpkg.Parse(newToken.RefreshToken, nil)
-		if refreshToken == nil {
-			return nil, fmt.Errorf("parse oauth2 refresh token failed: %v", err)
-		}
-		_, _, refExp, refIat, err = d.getClaimsInfoFromToken(ctx, refreshToken)
-		if err != nil {
-			return nil, fmt.Errorf("get refresh token claims failed: %v", err)
-		}
-	}
-
-	claims = &ClaimsInfo{
-		UserId:     sessions[0].UserUID,
-		Iat:        newIat,
-		Exp:        newExp,
-		Sub:        newSub,
-		Sid:        newSid,
-		RefreshIat: refIat,
-		RefreshExp: refExp,
-	}
-
+	claims.UserId = userUid
 	// 更新会话信息
 	updateSession := &OAuth2Session{
 		Base: Base{
@@ -716,12 +690,12 @@ func (d *Oauth2ConfigurationUsecase) RefreshOauth2Token(ctx context.Context, use
 		},
 		UID:             sessions[0].UID,
 		UserUID:         sessions[0].UserUID,
-		Sub:             newSub,
-		Sid:             newSid,
+		Sub:             claims.Sub,
+		Sid:             claims.Sid,
 		IdToken:         idToken,
 		RefreshToken:    newToken.RefreshToken,
 		LastLogoutEvent: sessions[0].LastLogoutEvent,
-		DeleteAfter:     time.Now().Add(time.Duration(refExp-refIat) * time.Second * 2),
+		DeleteAfter:     time.Now().Add(time.Duration(claims.RefreshExp-claims.RefreshIat) * time.Second * 2),
 	}
 
 	return claims, d.oauth2SessionUsecase.SaveSession(ctx, updateSession)
