@@ -77,3 +77,155 @@ func (d *DMSController) PreviewImportProjectsV2(c echo.Context) error{
 func (d *DMSController) ListProjectsV2(c echo.Context) error {
 	return d.ListProjects(c)
 }
+
+// swagger:operation POST /v2/dms/projects/{project_uid}/db_services DBService AddDBServiceV2
+//
+// Add DB Service.
+//
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: db_service
+//     description: Add new db service
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/AddDBServiceReq"
+// responses:
+//   '200':
+//     description: AddDBServiceReply
+//     schema:
+//       "$ref": "#/definitions/AddDBServiceReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (d *DMSController) AddDBServiceV2(c echo.Context) error{
+	return d.AddDBService(c)
+}
+
+// swagger:operation POST /v2/dms/projects/{project_uid}/db_services/import DBService ImportDBServicesOfOneProjectV2
+//
+// Import DBServices.
+//
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: db_services
+//     description: new db services
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/ImportDBServicesOfOneProjectReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (d *DMSController) ImportDBServicesOfOneProjectV2(c echo.Context) error {
+	return d.ImportDBServicesOfOneProject(c)
+}
+
+// swagger:route POST /v2/dms/projects/{project_uid}/db_services/import_check DBService ImportDBServicesOfOneProjectCheckV2
+//
+// Import DBServices.
+//
+//	Consumes:
+//	- multipart/form-data
+//
+//	Produces:
+//	- application/json
+//	- text/csv
+//
+//	responses:
+//	  200: ImportDBServicesCheckCsvReply
+//	  default: body:ImportDBServicesCheckReply
+func (d *DMSController) ImportDBServicesOfOneProjectCheckV2(c echo.Context) error {
+	return d.ImportDBServicesOfOneProjectCheck(c)
+}
+
+// swagger:route POST /v2/dms/projects/import_db_services_check Project ImportDBServicesOfProjectsCheckV2
+//
+// Import DBServices.
+//
+//		Consumes:
+//		- multipart/form-data
+//
+//		Produces:
+//		- application/json
+//		- text/csv
+//
+//	responses:
+//	  200: ImportDBServicesCheckCsvReply
+//	  default: body:ImportDBServicesCheckReply
+func (d *DMSController) ImportDBServicesOfProjectsCheckV2(c echo.Context) error {
+	return d.ImportDBServicesOfProjectsCheck(c)
+}
+
+// swagger:operation PUT /v2/dms/projects/{project_uid}/db_services/{db_service_uid} DBService UpdateDBServiceV2
+//
+// update a DB Service.
+//
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: db_service_uid
+//     description: db_service_uid id
+//     in: path
+//     required: true
+//     type: string
+//   - name: db_service
+//     description: Update a DB service
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateDBServiceReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (d *DMSController) UpdateDBServiceV2(c echo.Context) error{
+	return d.UpdateDBService(c) 
+}
+
+// swagger:route GET /v2/dms/db_services DBService ListGlobalDBServicesV2
+//
+// list global DBServices
+//
+//	responses:
+//	  200: body:ListGlobalDBServicesReply
+//	  default: body:GenericResp
+func (d *DMSController) ListGlobalDBServicesV2(c echo.Context) error {
+	return d.ListGlobalDBServices(c)
+}
+
+// swagger:route GET /v2/dms/projects/{project_uid}/db_services DBService ListDBServicesV2
+//
+// List db service.
+//
+//	responses:
+//	  200: body:ListDBServiceReply
+//	  default: body:GenericResp
+func (d *DMSController) ListDBServicesV2(c echo.Context) error {
+	return d.ListDBServices(c)
+}
