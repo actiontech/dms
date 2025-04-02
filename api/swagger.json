@@ -1668,6 +1668,13 @@
           },
           {
             "type": "string",
+            "x-go-name": "FilterByBusinessTag",
+            "description": "filter project by business tag",
+            "name": "filter_by_business_tag",
+            "in": "query"
+          },
+          {
+            "type": "string",
             "x-go-name": "FilterByDesc",
             "description": "filter the Project By Project description",
             "name": "filter_by_desc",
@@ -1695,6 +1702,7 @@
         ],
         "summary": "Add project.",
         "operationId": "AddProject",
+        "deprecated": true,
         "parameters": [
           {
             "description": "Add new Project",
@@ -1711,6 +1719,140 @@
             "description": "AddProjectReply",
             "schema": {
               "$ref": "#/definitions/AddProjectReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/business_tags": {
+      "get": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "List business tags.",
+        "operationId": "ListBusinessTags",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListBusinessTagsReply",
+            "schema": {
+              "$ref": "#/definitions/ListBusinessTagsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Create a new business tag.",
+        "operationId": "CreateBusinessTag",
+        "parameters": [
+          {
+            "description": "business tag to be created",
+            "name": "business_tag",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateBusinessTagReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/business_tags/{business_tag_id}": {
+      "put": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Update an existing business tag.",
+        "operationId": "UpdateBusinessTag",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "business tag id",
+            "name": "business_tag_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "the business tag to be updated",
+            "name": "business_tag",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateBusinessTagReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Delete an existing business tag.",
+        "operationId": "DeleteBusinessTag",
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
             }
           },
           "default": {
@@ -1842,6 +1984,7 @@
         ],
         "summary": "Import projects.",
         "operationId": "ImportProjects",
+        "deprecated": true,
         "parameters": [
           {
             "description": "import projects",
@@ -1989,6 +2132,7 @@
         ],
         "summary": "Preview import projects.",
         "operationId": "PreviewImportProjects",
+        "deprecated": true,
         "parameters": [
           {
             "type": "file",
@@ -4819,6 +4963,100 @@
           }
         }
       }
+    },
+    "/v2/dms/projects": {
+      "post": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Add project.",
+        "operationId": "AddProjectV2",
+        "parameters": [
+          {
+            "description": "Add new Project",
+            "name": "project",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddProjectReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddProjectReply",
+            "schema": {
+              "$ref": "#/definitions/AddProjectReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v2/dms/projects/import": {
+      "post": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Import projects.",
+        "operationId": "ImportProjectsV2",
+        "parameters": [
+          {
+            "description": "import projects",
+            "name": "projects",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ImportProjectsReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v2/dms/projects/preview_import": {
+      "post": {
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "Project"
+        ],
+        "summary": "Preview import projects.",
+        "operationId": "PreviewImportProjectsV2",
+        "responses": {
+          "200": {
+            "description": "PreviewImportProjectsReply",
+            "schema": {
+              "$ref": "#/definitions/PreviewImportProjectsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -5517,6 +5755,22 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "BusinessTag": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "description": "业务标签至少1个字符，最多50个字符",
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "CBOperationLog": {
       "type": "object",
       "properties": {
@@ -5874,6 +6128,15 @@
         "version": {
           "type": "string",
           "x-go-name": "Version"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "CreateBusinessTagReq": {
+      "type": "object",
+      "properties": {
+        "business_tag": {
+          "$ref": "#/definitions/BusinessTag"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -7498,12 +7761,15 @@
       "type": "object",
       "properties": {
         "business": {
-          "description": "business",
+          "description": "TODO This parameter is deprecated and will be removed soon.\nbusiness",
           "type": "array",
           "items": {
             "type": "string"
           },
           "x-go-name": "Business"
+        },
+        "business_tag": {
+          "$ref": "#/definitions/BusinessTag"
         },
         "desc": {
           "description": "Project desc",
@@ -7669,6 +7935,35 @@
           "type": "integer",
           "format": "uint64",
           "x-go-name": "Used"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListBusinessTagsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BusinessTag"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -8768,12 +9063,15 @@
           "x-go-name": "Archived"
         },
         "business": {
-          "description": "Project business",
+          "description": "TODO This parameter is deprecated and will be removed soon.\nProject business",
           "type": "array",
           "items": {
             "$ref": "#/definitions/Business"
           },
           "x-go-name": "Business"
+        },
+        "business_tag": {
+          "$ref": "#/definitions/BusinessTag"
         },
         "create_time": {
           "description": "create time",
@@ -9544,12 +9842,15 @@
       "type": "object",
       "properties": {
         "business": {
-          "description": "business",
+          "description": "TODO This parameter is deprecated and will be removed soon.\nbusiness",
           "type": "array",
           "items": {
             "type": "string"
           },
           "x-go-name": "Business"
+        },
+        "business_tag": {
+          "$ref": "#/definitions/BusinessTag"
         },
         "desc": {
           "description": "Project desc",
@@ -9594,12 +9895,15 @@
       "type": "object",
       "properties": {
         "business": {
-          "description": "project business",
+          "description": "TODO This parameter is deprecated and will be removed soon.\nproject business",
           "type": "array",
           "items": {
             "type": "string"
           },
           "x-go-name": "Business"
+        },
+        "business_tag": {
+          "$ref": "#/definitions/BusinessTag"
         },
         "desc": {
           "description": "project desc",
@@ -9607,7 +9911,7 @@
           "x-go-name": "Desc"
         },
         "is_fixed_business": {
-          "description": "is fixed business",
+          "description": "TODO This parameter is deprecated and will be removed soon.\nis fixed business",
           "type": "boolean",
           "x-go-name": "IsFixedBusiness"
         },
@@ -10203,7 +10507,16 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateBusinessTagReq": {
+      "type": "object",
+      "properties": {
+        "business_tag": {
+          "$ref": "#/definitions/BusinessTag"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
