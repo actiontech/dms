@@ -525,7 +525,7 @@ definitions:
                 type: string
                 x-go-name: Name
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     CBOperationLog:
         properties:
             audit_result:
@@ -4314,7 +4314,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateBusinessTagReq:
         properties:
             business_tag:
@@ -6132,6 +6132,7 @@ paths:
                 - DMSPlugin
     /v1/dms/projects:
         get:
+            deprecated: true
             operationId: ListProjects
             parameters:
                 - description: the maximum count of Project to be returned
@@ -8448,6 +8449,20 @@ paths:
             tags:
                 - Webhook
     /v2/dms/projects:
+        get:
+            operationId: ListProjectsV2
+            responses:
+                "200":
+                    description: ListProjectReply
+                    schema:
+                        $ref: '#/definitions/ListProjectReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List projects.
+            tags:
+                - Project
         post:
             operationId: AddProjectV2
             parameters:

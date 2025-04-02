@@ -66,3 +66,14 @@ func (d *DMSController) ImportProjectsV2(c echo.Context) error {
 func (d *DMSController) PreviewImportProjectsV2(c echo.Context) error{
 	return d.PreviewImportProjects(c)
 }
+
+// swagger:route GET /v2/dms/projects Project ListProjectsV2
+//
+// List projects.
+//
+//	responses:
+//	  200: body:ListProjectReply
+//	  default: body:GenericResp
+func (d *DMSController) ListProjectsV2(c echo.Context) error {
+	return d.ListProjects(c)
+}

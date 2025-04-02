@@ -1599,6 +1599,7 @@
         ],
         "summary": "List projects.",
         "operationId": "ListProjects",
+        "deprecated": true,
         "parameters": [
           {
             "type": "integer",
@@ -4965,6 +4966,27 @@
       }
     },
     "/v2/dms/projects": {
+      "get": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "List projects.",
+        "operationId": "ListProjectsV2",
+        "responses": {
+          "200": {
+            "description": "ListProjectReply",
+            "schema": {
+              "$ref": "#/definitions/ListProjectReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
       "post": {
         "tags": [
           "Project"
@@ -5769,7 +5791,7 @@
           "x-go-name": "Name"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "CBOperationLog": {
       "type": "object",
@@ -10507,7 +10529,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateBusinessTagReq": {
       "type": "object",

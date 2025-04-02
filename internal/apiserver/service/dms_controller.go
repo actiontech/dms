@@ -1690,6 +1690,7 @@ func (d *DMSController) ListOpPermissions(c echo.Context) error {
 //	responses:
 //	  200: body:ListProjectReply
 //	  default: body:GenericResp
+// deprecated: true
 func (d *DMSController) ListProjects(c echo.Context) error {
 	req := new(dmsV1.ListProjectReq)
 	err := bindAndValidateReq(c, req)
