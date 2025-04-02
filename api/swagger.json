@@ -1144,6 +1144,7 @@
           "DBService"
         ],
         "operationId": "ListGlobalDBServices",
+        "deprecated": true,
         "parameters": [
           {
             "type": "integer",
@@ -1931,6 +1932,140 @@
         }
       }
     },
+    "/v1/dms/projects/environment_tags": {
+      "get": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "List environment tags.",
+        "operationId": "ListEnvironmentTags",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListEnvironmentTagsReply",
+            "schema": {
+              "$ref": "#/definitions/ListEnvironmentTagsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Create a new environment tag.",
+        "operationId": "CreateEnvironmentTag",
+        "parameters": [
+          {
+            "description": "environment tag to be created",
+            "name": "environment_tag",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateEnvironmentTagReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/environment_tags/{environment_tag_id}": {
+      "put": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Update an existing environment tag.",
+        "operationId": "UpdateEnvironmentTag",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "environment tag id",
+            "name": "environment_tag_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "the environment tag to be updated",
+            "name": "environment_tag",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateEnvironmentTagReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Delete an existing environment tag.",
+        "operationId": "DeleteEnvironmentTag",
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/projects/export": {
       "get": {
         "tags": [
@@ -2061,6 +2196,7 @@
         ],
         "summary": "Import DBServices.",
         "operationId": "ImportDBServicesOfProjectsCheck",
+        "deprecated": true,
         "parameters": [
           {
             "type": "file",
@@ -2161,10 +2297,11 @@
     },
     "/v1/dms/projects/tips": {
       "get": {
+        "description": "Get project tips.",
         "tags": [
           "Project"
         ],
-        "summary": "Get project tips.",
+        "summary": "TODO This API is deprecated and will be removed soon.",
         "operationId": "GetProjectTips",
         "parameters": [
           {
@@ -3052,6 +3189,7 @@
         ],
         "summary": "List db service.",
         "operationId": "ListDBServices",
+        "deprecated": true,
         "parameters": [
           {
             "type": "integer",
@@ -3154,6 +3292,13 @@
           },
           {
             "type": "string",
+            "x-go-name": "FilterByEnvironmentTag",
+            "description": "filter db services by environment tag",
+            "name": "filter_by_environment_tag",
+            "in": "query"
+          },
+          {
+            "type": "string",
             "x-go-name": "FuzzyKeyword",
             "description": "the db service fuzzy keyword,include host/port",
             "name": "fuzzy_keyword",
@@ -3188,6 +3333,7 @@
         ],
         "summary": "Add DB Service.",
         "operationId": "AddDBService",
+        "deprecated": true,
         "parameters": [
           {
             "type": "string",
@@ -3309,6 +3455,7 @@
         ],
         "summary": "Import DBServices.",
         "operationId": "ImportDBServicesOfOneProject",
+        "deprecated": true,
         "parameters": [
           {
             "type": "string",
@@ -3357,6 +3504,7 @@
         ],
         "summary": "Import DBServices.",
         "operationId": "ImportDBServicesOfOneProjectCheck",
+        "deprecated": true,
         "parameters": [
           {
             "type": "string",
@@ -3444,6 +3592,7 @@
         ],
         "summary": "update a DB Service.",
         "operationId": "UpdateDBService",
+        "deprecated": true,
         "parameters": [
           {
             "type": "string",
@@ -4965,6 +5114,29 @@
         }
       }
     },
+    "/v2/dms/db_services": {
+      "get": {
+        "description": "list global DBServices",
+        "tags": [
+          "DBService"
+        ],
+        "operationId": "ListGlobalDBServicesV2",
+        "responses": {
+          "200": {
+            "description": "ListGlobalDBServicesReply",
+            "schema": {
+              "$ref": "#/definitions/ListGlobalDBServicesReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v2/dms/projects": {
       "get": {
         "tags": [
@@ -5054,6 +5226,33 @@
         }
       }
     },
+    "/v2/dms/projects/import_db_services_check": {
+      "post": {
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json",
+          "text/csv"
+        ],
+        "tags": [
+          "Project"
+        ],
+        "summary": "Import DBServices.",
+        "operationId": "ImportDBServicesOfProjectsCheckV2",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/ImportDBServicesCheckCsvReply"
+          },
+          "default": {
+            "description": "ImportDBServicesCheckReply",
+            "schema": {
+              "$ref": "#/definitions/ImportDBServicesCheckReply"
+            }
+          }
+        }
+      }
+    },
     "/v2/dms/projects/preview_import": {
       "post": {
         "consumes": [
@@ -5069,6 +5268,183 @@
             "description": "PreviewImportProjectsReply",
             "schema": {
               "$ref": "#/definitions/PreviewImportProjectsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v2/dms/projects/{project_uid}/db_services": {
+      "get": {
+        "tags": [
+          "DBService"
+        ],
+        "summary": "List db service.",
+        "operationId": "ListDBServicesV2",
+        "responses": {
+          "200": {
+            "description": "ListDBServiceReply",
+            "schema": {
+              "$ref": "#/definitions/ListDBServiceReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "DBService"
+        ],
+        "summary": "Add DB Service.",
+        "operationId": "AddDBServiceV2",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Add new db service",
+            "name": "db_service",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddDBServiceReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddDBServiceReply",
+            "schema": {
+              "$ref": "#/definitions/AddDBServiceReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v2/dms/projects/{project_uid}/db_services/import": {
+      "post": {
+        "tags": [
+          "DBService"
+        ],
+        "summary": "Import DBServices.",
+        "operationId": "ImportDBServicesOfOneProjectV2",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "new db services",
+            "name": "db_services",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ImportDBServicesOfOneProjectReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v2/dms/projects/{project_uid}/db_services/import_check": {
+      "post": {
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json",
+          "text/csv"
+        ],
+        "tags": [
+          "DBService"
+        ],
+        "summary": "Import DBServices.",
+        "operationId": "ImportDBServicesOfOneProjectCheckV2",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/ImportDBServicesCheckCsvReply"
+          },
+          "default": {
+            "description": "ImportDBServicesCheckReply",
+            "schema": {
+              "$ref": "#/definitions/ImportDBServicesCheckReply"
+            }
+          }
+        }
+      }
+    },
+    "/v2/dms/projects/{project_uid}/db_services/{db_service_uid}": {
+      "put": {
+        "tags": [
+          "DBService"
+        ],
+        "summary": "update a DB Service.",
+        "operationId": "UpdateDBServiceV2",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "db_service_uid id",
+            "name": "db_service_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Update a DB service",
+            "name": "db_service",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateDBServiceReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
             }
           },
           "default": {
@@ -6163,6 +6539,15 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "CreateEnvironmentTagReq": {
+      "type": "object",
+      "properties": {
+        "business_tag": {
+          "$ref": "#/definitions/EnvironmentTag"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "DBService": {
       "description": "A db service",
       "type": "object",
@@ -6174,6 +6559,7 @@
         "user",
         "password",
         "business",
+        "environment_tag",
         "maintenance_times"
       ],
       "properties": {
@@ -6192,7 +6578,7 @@
           "x-go-name": "BackupMaxRows"
         },
         "business": {
-          "description": "DB Service business name",
+          "description": "TODO This parameter is deprecated and will be removed soon.\nDB Service business name",
           "type": "string",
           "x-go-name": "Business"
         },
@@ -6210,6 +6596,9 @@
           "description": "backup switch",
           "type": "boolean",
           "x-go-name": "EnableBackup"
+        },
+        "environment_tag": {
+          "$ref": "#/definitions/EnvironmentTag"
         },
         "host": {
           "description": "DB Service Host",
@@ -6638,6 +7027,22 @@
           "description": "message",
           "type": "string",
           "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "EnvironmentTag": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "description": "环境属性标签至少1个字符，最多50个字符",
+          "type": "string",
+          "x-go-name": "Name"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -7650,6 +8055,9 @@
     },
     "ImportDBService": {
       "type": "object",
+      "required": [
+        "environment_tag"
+      ],
       "properties": {
         "additional_params": {
           "description": "DB Service Custom connection parameters",
@@ -7660,7 +8068,7 @@
           "x-go-name": "AdditionalParams"
         },
         "business": {
-          "description": "the db service business name",
+          "description": "TODO This parameter is deprecated and will be removed soon.\nthe db service business name",
           "type": "string",
           "x-go-name": "Business"
         },
@@ -7673,6 +8081,9 @@
           "description": "DB desc",
           "type": "string",
           "x-go-name": "Desc"
+        },
+        "environment_tag": {
+          "$ref": "#/definitions/EnvironmentTag"
         },
         "host": {
           "description": "db service host",
@@ -8071,7 +8482,7 @@
           "x-go-name": "BackupMaxRows"
         },
         "business": {
-          "description": "the db service business name",
+          "description": "TODO This parameter is deprecated and will be removed soon.\nthe db service business name",
           "type": "string",
           "x-go-name": "Business"
         },
@@ -8089,6 +8500,9 @@
           "description": "backup switch",
           "type": "boolean",
           "x-go-name": "EnableBackup"
+        },
+        "environment_tag": {
+          "$ref": "#/definitions/EnvironmentTag"
         },
         "host": {
           "description": "db service host",
@@ -8545,6 +8959,35 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "ListEnvironmentTagsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EnvironmentTag"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "ListGlobalDBService": {
       "type": "object",
       "properties": {
@@ -8555,7 +8998,7 @@
           "x-go-name": "BackupMaxRows"
         },
         "business": {
-          "description": "the db service business name",
+          "description": "TODO This parameter is deprecated and will be removed soon.\nthe db service business name",
           "type": "string",
           "x-go-name": "Business"
         },
@@ -8573,6 +9016,9 @@
           "description": "backup switch",
           "type": "boolean",
           "x-go-name": "EnableBackup"
+        },
+        "environment_tag": {
+          "$ref": "#/definitions/EnvironmentTag"
         },
         "host": {
           "description": "db service host",
@@ -10529,7 +10975,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateBusinessTagReq": {
       "type": "object",
@@ -10620,6 +11066,7 @@
         "port",
         "user",
         "business",
+        "environment_tag",
         "maintenance_times"
       ],
       "properties": {
@@ -10638,7 +11085,7 @@
           "x-go-name": "BackupMaxRows"
         },
         "business": {
-          "description": "DB Service business name",
+          "description": "TODO This parameter is deprecated and will be removed soon.\nDB Service business name",
           "type": "string",
           "x-go-name": "Business"
         },
@@ -10656,6 +11103,9 @@
           "description": "backup switch",
           "type": "boolean",
           "x-go-name": "EnableBackup"
+        },
+        "environment_tag": {
+          "$ref": "#/definitions/EnvironmentTag"
         },
         "host": {
           "description": "DB Service Host",
@@ -10739,6 +11189,15 @@
       "properties": {
         "db_service_sync_task": {
           "$ref": "#/definitions/DBServiceSyncTask"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateEnvironmentTagReq": {
+      "type": "object",
+      "properties": {
+        "business_tag": {
+          "$ref": "#/definitions/EnvironmentTag"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
