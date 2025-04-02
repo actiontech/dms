@@ -78,6 +78,9 @@ type ListDBServiceReq struct {
 	// filter db services by db service id list using in condition
 	// in:query
 	FilterByDBServiceIds []string `query:"filter_by_db_service_ids" json:"filter_by_db_service_ids"`
+	// filter db services by environment tag
+	// in:query
+	FilterByEnvironmentTag string `query:"filter_by_environment_tag" json:"filter_by_environment_tag"`
 	// the db service fuzzy keyword,include host/port
 	// in:query
 	FuzzyKeyword string `query:"fuzzy_keyword" json:"fuzzy_keyword"`
@@ -133,8 +136,11 @@ type ListDBService struct {
 	User string `json:"user"`
 	// db service admin encrypted password
 	Password string `json:"password"`
+	// TODO This parameter is deprecated and will be removed soon.
 	// the db service business name
 	Business string `json:"business"`
+	// DB Service environment tag
+	EnvironmentTag *EnvironmentTag `json:"environment_tag"`
 	// DB Service maintenance time
 	MaintenanceTimes []*MaintenanceTime `json:"maintenance_times"`
 	// DB desc
@@ -163,6 +169,13 @@ type ListDBService struct {
 	LastConnectionTestStatus LastConnectionTestStatus `json:"last_connection_test_status"`
 	// DB connect test error message
 	LastConnectionTestErrorMessage string `json:"last_connection_test_error_message,omitempty"`
+}
+
+// swagger:model
+type EnvironmentTag struct {
+	ID uint `json:"id,omitempty"`
+	// 环境属性标签至少1个字符，最多50个字符
+	Name string `json:"name" validate:"min=1,max=50"`
 }
 
 type SQLEConfig struct {
