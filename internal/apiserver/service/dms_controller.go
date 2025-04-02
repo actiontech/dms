@@ -1710,11 +1710,89 @@ func (d *DMSController) ListProjects(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
+// swagger:operation POST /v1/dms/projects/business_tags Project CreateBusinessTag
+//
+// Create a new business tag.
+//
+// ---
+// parameters:
+//   - name: business_tag
+//     description: business tag to be created
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/CreateBusinessTagReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (d *DMSController) CreateBusinessTag(c echo.Context) error {
+	return nil
+}
+
+// swagger:operation PUT /v1/dms/projects/business_tags/{business_tag_id} Project UpdateBusinessTag
+//
+// Update an existing business tag.
+//
+// ---
+// parameters:
+//   - name: business_tag_id
+//     description: business tag id
+//     in: path
+//     required: true
+//     type: string
+//   - name: business_tag
+//     description: the business tag to be updated
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateBusinessTagReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (d *DMSController) UpdateBusinessTag(c echo.Context) error {
+	return nil
+}
+
+// swagger:route DELETE /v1/dms/projects/business_tags/{business_tag_id} Project DeleteBusinessTag
+//
+// Delete an existing business tag.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (a *DMSController) DeleteBusinessTag(c echo.Context) error {
+	return nil
+}
+
+// swagger:route GET /v1/dms/projects/business_tags Project ListBusinessTags
+//
+// List business tags.
+//
+//	responses:
+//	  200: body:ListBusinessTagsReply
+//	  default: body:GenericResp
+func (d *DMSController) ListBusinessTags(c echo.Context) error{
+	return nil
+}
+
 // swagger:operation POST /v1/dms/projects Project AddProject
 //
 // Add project.
 //
 // ---
+// deprecated: true
 // parameters:
 //   - name: project
 //     description: Add new Project
@@ -1876,6 +1954,7 @@ func (a *DMSController) UnarchiveProject(c echo.Context) error {
 // Import projects.
 //
 // ---
+// deprecated: true
 // parameters:
 //   - name: projects
 //     description: import projects
@@ -1922,6 +2001,7 @@ func (a *DMSController) ImportProjects(c echo.Context) error {
 //	responses:
 //	  200: PreviewImportProjectsReply
 //	  default: body:GenericResp
+// deprecated: true
 func (a *DMSController) PreviewImportProjects(c echo.Context) error {
 	file, exist, err := ReadFileContent(c, ProjectsFileParamKey)
 	if err != nil {
