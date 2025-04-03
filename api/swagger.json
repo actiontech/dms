@@ -1949,140 +1949,6 @@
         }
       }
     },
-    "/v1/dms/projects/environment_tags": {
-      "get": {
-        "tags": [
-          "Project"
-        ],
-        "summary": "List environment tags.",
-        "operationId": "ListEnvironmentTags",
-        "parameters": [
-          {
-            "type": "integer",
-            "format": "uint32",
-            "x-go-name": "PageIndex",
-            "name": "page_index",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "format": "uint32",
-            "x-go-name": "PageSize",
-            "name": "page_size",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "ListEnvironmentTagsReply",
-            "schema": {
-              "$ref": "#/definitions/ListEnvironmentTagsReply"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Project"
-        ],
-        "summary": "Create a new environment tag.",
-        "operationId": "CreateEnvironmentTag",
-        "parameters": [
-          {
-            "description": "environment tag to be created",
-            "name": "environment_tag",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/CreateEnvironmentTagReq"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      }
-    },
-    "/v1/dms/projects/environment_tags/{environment_tag_id}": {
-      "put": {
-        "tags": [
-          "Project"
-        ],
-        "summary": "Update an existing environment tag.",
-        "operationId": "UpdateEnvironmentTag",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "environment tag id",
-            "name": "environment_tag_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "description": "the environment tag to be updated",
-            "name": "environment_tag",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UpdateEnvironmentTagReq"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Project"
-        ],
-        "summary": "Delete an existing environment tag.",
-        "operationId": "DeleteEnvironmentTag",
-        "responses": {
-          "200": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      }
-    },
     "/v1/dms/projects/export": {
       "get": {
         "tags": [
@@ -3718,6 +3584,178 @@
             "description": "CheckDBServiceIsConnectableReply",
             "schema": {
               "$ref": "#/definitions/CheckDBServiceIsConnectableReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/environment_tags": {
+      "get": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "List environment tags.",
+        "operationId": "ListEnvironmentTags",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUID",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListEnvironmentTagsReply",
+            "schema": {
+              "$ref": "#/definitions/ListEnvironmentTagsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Create a new environment tag.",
+        "operationId": "CreateEnvironmentTag",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "environment tag to be created",
+            "name": "environment_tag",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateEnvironmentTagReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/environment_tags/{environment_tag_id}": {
+      "put": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Update an existing environment tag.",
+        "operationId": "UpdateEnvironmentTag",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "environment tag id",
+            "name": "environment_tag_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "the environment tag to be updated",
+            "name": "environment_tag",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateEnvironmentTagReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Delete an existing environment tag.",
+        "operationId": "DeleteEnvironmentTag",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint64",
+            "x-go-name": "EnvironmentTagID",
+            "name": "environment_tag_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "ProjectUID",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
             }
           },
           "default": {
@@ -11367,7 +11405,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateBusinessTagReq": {
       "type": "object",
