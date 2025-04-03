@@ -1200,7 +1200,7 @@ definitions:
                 type: string
                 x-go-name: Name
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     FeishuConfigurationResData:
         properties:
             app_id:
@@ -7339,16 +7339,15 @@ paths:
             summary: Create a new environment tag.
             tags:
                 - Project
-    /v1/dms/projects/{project_uid}/environment_tags/{environment_tag_id}:
+    /v1/dms/projects/{project_uid}/environment_tags/{environment_tag_uid}:
         delete:
             operationId: DeleteEnvironmentTag
             parameters:
-                - format: uint64
-                  in: path
-                  name: environment_tag_id
+                - in: path
+                  name: environment_tag_uid
                   required: true
-                  type: integer
-                  x-go-name: EnvironmentTagID
+                  type: string
+                  x-go-name: EnvironmentTagUID
                 - in: path
                   name: project_uid
                   required: true
@@ -7376,7 +7375,7 @@ paths:
                   type: string
                 - description: environment tag id
                   in: path
-                  name: environment_tag_id
+                  name: environment_tag_uid
                   required: true
                   type: string
                 - description: the environment tag to be updated
@@ -7821,16 +7820,15 @@ paths:
             summary: Create a new business tag.
             tags:
                 - Project
-    /v1/dms/projects/business_tags/{business_tag_id}:
+    /v1/dms/projects/business_tags/{business_tag_uid}:
         delete:
             operationId: DeleteBusinessTag
             parameters:
-                - format: uint64
-                  in: path
-                  name: business_tag_id
+                - in: path
+                  name: business_tag_uid
                   required: true
-                  type: integer
-                  x-go-name: BusinessTagID
+                  type: string
+                  x-go-name: BusinessTagUID
             responses:
                 "200":
                     description: GenericResp
@@ -7848,7 +7846,7 @@ paths:
             parameters:
                 - description: business tag id
                   in: path
-                  name: business_tag_id
+                  name: business_tag_uid
                   required: true
                   type: string
                 - description: the business tag to be updated
