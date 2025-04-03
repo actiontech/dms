@@ -97,7 +97,7 @@ func (d *DMSController) CreateEnvironmentTag(c echo.Context) error {
 	return nil
 }
 
-// swagger:operation PUT /v1/dms/projects/{project_uid}/environment_tags/{environment_tag_id} Project UpdateEnvironmentTag
+// swagger:operation PUT /v1/dms/projects/{project_uid}/environment_tags/{environment_tag_uid} Project UpdateEnvironmentTag
 //
 // Update an existing environment tag.
 //
@@ -108,7 +108,7 @@ func (d *DMSController) CreateEnvironmentTag(c echo.Context) error {
 //     in: path
 //     required: true
 //     type: string
-//   - name: environment_tag_id
+//   - name: environment_tag_uid
 //     description: environment tag id
 //     in: path
 //     required: true
@@ -132,7 +132,7 @@ func (d *DMSController) UpdateEnvironmentTag(c echo.Context) error {
 	return nil
 }
 
-// swagger:route DELETE /v1/dms/projects/{project_uid}/environment_tags/{environment_tag_id} Project DeleteEnvironmentTag
+// swagger:route DELETE /v1/dms/projects/{project_uid}/environment_tags/{environment_tag_uid} Project DeleteEnvironmentTag
 //
 // Delete an existing environment tag.
 //
@@ -1845,13 +1845,13 @@ func (d *DMSController) CreateBusinessTag(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:operation PUT /v1/dms/projects/business_tags/{business_tag_id} Project UpdateBusinessTag
+// swagger:operation PUT /v1/dms/projects/business_tags/{business_tag_uid} Project UpdateBusinessTag
 //
 // Update an existing business tag.
 //
 // ---
 // parameters:
-//   - name: business_tag_id
+//   - name: business_tag_uid
 //     description: business tag id
 //     in: path
 //     required: true
@@ -1875,7 +1875,7 @@ func (d *DMSController) UpdateBusinessTag(c echo.Context) error {
 	return nil
 }
 
-// swagger:route DELETE /v1/dms/projects/business_tags/{business_tag_id} Project DeleteBusinessTag
+// swagger:route DELETE /v1/dms/projects/business_tags/{business_tag_uid} Project DeleteBusinessTag
 //
 // Delete an existing business tag.
 //
