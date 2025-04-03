@@ -1815,7 +1815,24 @@ func (d *DMSController) ListProjects(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) CreateBusinessTag(c echo.Context) error {
-	return nil
+	req := new(aV1.CreateBusinessTagReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	err = d.DMS.CreateBusinessTag(c.Request().Context(), currentUserUid, req.BusinessTag)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkResp(c)
 }
 
 // swagger:operation PUT /v1/dms/projects/business_tags/{business_tag_id} Project UpdateBusinessTag
