@@ -525,7 +525,7 @@ definitions:
                 type: string
                 x-go-name: Name
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     CBOperationLog:
         properties:
             audit_result:
@@ -1200,7 +1200,7 @@ definitions:
                 type: string
                 x-go-name: Name
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     FeishuConfigurationResData:
         properties:
             app_id:
@@ -4374,7 +4374,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateBusinessTagReq:
         properties:
             business_tag:
@@ -7708,6 +7708,13 @@ paths:
     /v1/dms/projects/business_tags/{business_tag_id}:
         delete:
             operationId: DeleteBusinessTag
+            parameters:
+                - format: uint64
+                  in: path
+                  name: business_tag_id
+                  required: true
+                  type: integer
+                  x-go-name: BusinessTagID
             responses:
                 "200":
                     description: GenericResp
