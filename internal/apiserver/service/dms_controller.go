@@ -67,12 +67,17 @@ func (a *DMSController) Shutdown() error {
 }
 
 
-// swagger:operation POST /v1/dms/projects/environment_tags Project CreateEnvironmentTag
+// swagger:operation POST /v1/dms/projects/{project_uid}/environment_tags Project CreateEnvironmentTag
 //
 // Create a new environment tag.
 //
 // ---
 // parameters:
+//   - name: project_uid
+//     description: project uid
+//     in: path
+//     required: true
+//     type: string
 //   - name: environment_tag
 //     description: environment tag to be created
 //     in: body
@@ -92,12 +97,17 @@ func (d *DMSController) CreateEnvironmentTag(c echo.Context) error {
 	return nil
 }
 
-// swagger:operation PUT /v1/dms/projects/environment_tags/{environment_tag_id} Project UpdateEnvironmentTag
+// swagger:operation PUT /v1/dms/projects/{project_uid}/environment_tags/{environment_tag_id} Project UpdateEnvironmentTag
 //
 // Update an existing environment tag.
 //
 // ---
 // parameters:
+//   - name: project_uid
+//     description: project uid
+//     in: path
+//     required: true
+//     type: string
 //   - name: environment_tag_id
 //     description: environment tag id
 //     in: path
@@ -122,7 +132,7 @@ func (d *DMSController) UpdateEnvironmentTag(c echo.Context) error {
 	return nil
 }
 
-// swagger:route DELETE /v1/dms/projects/environment_tags/{environment_tag_id} Project DeleteEnvironmentTag
+// swagger:route DELETE /v1/dms/projects/{project_uid}/environment_tags/{environment_tag_id} Project DeleteEnvironmentTag
 //
 // Delete an existing environment tag.
 //
@@ -133,7 +143,7 @@ func (a *DMSController) DeleteEnvironmentTag(c echo.Context) error {
 	return nil
 }
 
-// swagger:route GET /v1/dms/projects/environment_tags Project ListEnvironmentTags
+// swagger:route GET /v1/dms/projects/{project_uid}/environment_tags Project ListEnvironmentTags
 //
 // List environment tags.
 //
