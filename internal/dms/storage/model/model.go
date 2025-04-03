@@ -27,6 +27,7 @@ var AutoMigrateList = []interface{}{
 	MemberRoleOpRange{},
 	MemberGroup{},
 	MemberGroupRoleOpRange{},
+	BusinessTag{},
 	Project{},
 	ProxyTarget{},
 	Plugin{},
@@ -640,4 +641,9 @@ type DBServiceSyncTask struct {
 	LastSyncErr         string          `json:"last_sync_err" gorm:"column:last_sync_err"`
 	LastSyncSuccessTime *time.Time      `json:"last_sync_success_time" gorm:"column:last_sync_success_time"`
 	ExtraParameters     ExtraParameters `json:"extra_parameters" gorm:"TYPE:json"`
+}
+
+type BusinessTag struct {
+	Model
+	BusinessName string `gorm:"type:varchar(255);unique;column:business_name"`
 }
