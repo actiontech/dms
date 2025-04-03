@@ -24,23 +24,23 @@ func NewBusinessTagUsecase(businessTagRepo BusinessTagRepo, logger utilLog.Logge
 }
 
 type BusinessTag struct {
-	UID             string
-	BusinessTagName string
+	UID  string
+	Name string
 }
 
-func (uc *BusinessTagUsecase) newBusinessTag(businessTag string) (*BusinessTag, error) {
+func (uc *BusinessTagUsecase) newBusinessTag(tagName string) (*BusinessTag, error) {
 	uid, err := pkgRand.GenStrUid()
 	if err != nil {
 		return nil, err
 	}
 	return &BusinessTag{
-		UID:             uid,
-		BusinessTagName: businessTag,
+		UID:  uid,
+		Name: tagName,
 	}, nil
 }
 
-func (uc *BusinessTagUsecase) CreateBusinessTag(ctx context.Context, businessTagName string) error {
-	businessTag, err := uc.newBusinessTag(businessTagName)
+func (uc *BusinessTagUsecase) CreateBusinessTag(ctx context.Context, tagName string) error {
+	businessTag, err := uc.newBusinessTag(tagName)
 	if err != nil {
 		uc.log.Errorf("new business tag failed: %v", err)
 		return err

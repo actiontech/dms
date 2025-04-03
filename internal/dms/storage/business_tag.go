@@ -27,8 +27,8 @@ func NewBusinessTagRepo(log utilLog.Logger, s *Storage) *BusinessTagRepo {
 
 func (b *BusinessTagRepo) toModel(businessTag *biz.BusinessTag) *model.BusinessTag {
 	return &model.BusinessTag{
-		BusinessName: businessTag.BusinessTagName,
-		Model:        model.Model{UID: businessTag.UID},
+		Name:  businessTag.Name,
+		Model: model.Model{UID: businessTag.UID},
 	}
 }
 
