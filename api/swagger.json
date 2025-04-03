@@ -6591,7 +6591,7 @@
     "CreateEnvironmentTagReq": {
       "type": "object",
       "properties": {
-        "business_tag": {
+        "environment_tag": {
           "$ref": "#/definitions/EnvironmentTag"
         }
       },
@@ -11246,7 +11246,7 @@
     "UpdateEnvironmentTagReq": {
       "type": "object",
       "properties": {
-        "business_tag": {
+        "environment_tag": {
           "$ref": "#/definitions/EnvironmentTag"
         }
       },

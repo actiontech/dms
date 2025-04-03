@@ -11,7 +11,7 @@ type EnvironmentTag struct {
 
 // swagger:model
 type CreateEnvironmentTagReq struct {
-	EnvironmentTag *EnvironmentTag `json:"business_tag" validate:"required"`
+	EnvironmentTag *EnvironmentTag `json:"environment_tag" validate:"required"`
 }
 
 // swagger:model
@@ -21,7 +21,7 @@ type UpdateEnvironmentTagReq struct {
 	// swagger:ignore
 	ProjectUID string `param:"project_uid" json:"project_uid" validate:"required"`
 
-	EnvironmentTag *EnvironmentTag `json:"business_tag" validate:"required"`
+	EnvironmentTag *EnvironmentTag `json:"environment_tag" validate:"required"`
 }
 
 // swagger:parameters ListEnvironmentTags
