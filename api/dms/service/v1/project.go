@@ -14,10 +14,14 @@ type Project struct {
 	Name string `json:"name"`
 	// project desc
 	Desc string `json:"desc"`
+	// TODO This parameter is deprecated and will be removed soon.
 	// is fixed business
 	IsFixedBusiness bool `json:"is_fixed_business"`
+	// TODO This parameter is deprecated and will be removed soon.
 	// project business
 	Business []string `json:"business"`
+	// project business tag
+	BusinessTag *BusinessTag `json:"business_tag"`
 	// project priority
 	ProjectPriority dmsCommonV1.ProjectPriority `json:"project_priority"  enums:"high,medium,low"`
 }
@@ -85,9 +89,9 @@ type BusinessForUpdate struct {
 
 // swagger:model
 type UpdateProjectReq struct {
-    // swagger:ignore
-	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-	Project *UpdateProject `json:"project" validate:"required"`
+	// swagger:ignore
+	ProjectUid string         `param:"project_uid" json:"project_uid" validate:"required"`
+	Project    *UpdateProject `json:"project" validate:"required"`
 }
 
 func (u *UpdateProjectReq) String() string {
@@ -126,8 +130,11 @@ type ImportProjects struct {
 	Name string `json:"name" validate:"required"`
 	// Project desc
 	Desc string `json:"desc"`
+	// TODO This parameter is deprecated and will be removed soon.
 	// business
 	Business []string `json:"business" validate:"required"`
+	// project business tag
+	BusinessTag *BusinessTag `json:"business_tag"`
 }
 
 // swagger:parameters PreviewImportProjects
@@ -153,8 +160,11 @@ type PreviewImportProjects struct {
 	Name string `json:"name"`
 	// Project desc
 	Desc string `json:"desc"`
+	// TODO This parameter is deprecated and will be removed soon.
 	// business
 	Business []string `json:"business"`
+	// project business tag
+	BusinessTag *BusinessTag `json:"business_tag"`
 }
 
 // swagger:parameters ExportProjects

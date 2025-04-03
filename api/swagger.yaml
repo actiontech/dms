@@ -514,6 +514,18 @@ definitions:
                 x-go-name: Name
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    BusinessTag:
+        properties:
+            id:
+                format: uint64
+                type: integer
+                x-go-name: ID
+            name:
+                description: 业务标签至少1个字符，最多50个字符
+                type: string
+                x-go-name: Name
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     CBOperationLog:
         properties:
             audit_result:
@@ -783,6 +795,12 @@ definitions:
             version:
                 type: string
                 x-go-name: Version
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CreateBusinessTagReq:
+        properties:
+            business_tag:
+                $ref: '#/definitions/BusinessTag'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DBService:
@@ -2049,11 +2067,15 @@ definitions:
     ImportProjects:
         properties:
             business:
-                description: business
+                description: |-
+                    TODO This parameter is deprecated and will be removed soon.
+                    business
                 items:
                     type: string
                 type: array
                 x-go-name: Business
+            business_tag:
+                $ref: '#/definitions/BusinessTag'
             desc:
                 description: Project desc
                 type: string
@@ -2175,6 +2197,28 @@ definitions:
                 format: uint64
                 type: integer
                 x-go-name: Used
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListBusinessTagsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/BusinessTag'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListCBOperationLogsReply:
@@ -3047,11 +3091,15 @@ definitions:
                 type: boolean
                 x-go-name: Archived
             business:
-                description: Project business
+                description: |-
+                    TODO This parameter is deprecated and will be removed soon.
+                    Project business
                 items:
                     $ref: '#/definitions/Business'
                 type: array
                 x-go-name: Business
+            business_tag:
+                $ref: '#/definitions/BusinessTag'
             create_time:
                 description: create time
                 format: date-time
@@ -3758,11 +3806,15 @@ definitions:
     PreviewImportProjects:
         properties:
             business:
-                description: business
+                description: |-
+                    TODO This parameter is deprecated and will be removed soon.
+                    business
                 items:
                     type: string
                 type: array
                 x-go-name: Business
+            business_tag:
+                $ref: '#/definitions/BusinessTag'
             desc:
                 description: Project desc
                 type: string
@@ -3796,17 +3848,23 @@ definitions:
         description: A Project
         properties:
             business:
-                description: project business
+                description: |-
+                    TODO This parameter is deprecated and will be removed soon.
+                    project business
                 items:
                     type: string
                 type: array
                 x-go-name: Business
+            business_tag:
+                $ref: '#/definitions/BusinessTag'
             desc:
                 description: project desc
                 type: string
                 x-go-name: Desc
             is_fixed_business:
-                description: is fixed business
+                description: |-
+                    TODO This parameter is deprecated and will be removed soon.
+                    is fixed business
                 type: boolean
                 x-go-name: IsFixedBusiness
             name:
@@ -4257,6 +4315,12 @@ definitions:
                 x-go-name: Uid
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    UpdateBusinessTagReq:
+        properties:
+            business_tag:
+                $ref: '#/definitions/BusinessTag'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -6068,6 +6132,7 @@ paths:
                 - DMSPlugin
     /v1/dms/projects:
         get:
+            deprecated: true
             operationId: ListProjects
             parameters:
                 - description: the maximum count of Project to be returned
@@ -6130,6 +6195,11 @@ paths:
                     low ProjectPriorityLow
                     unknown ProjectPriorityUnknown
                   x-go-name: FilterByProjectPriority
+                - description: filter project by business tag
+                  in: query
+                  name: filter_by_business_tag
+                  type: string
+                  x-go-name: FilterByBusinessTag
                 - description: filter the Project By Project description
                   in: query
                   name: filter_by_desc
@@ -6148,6 +6218,7 @@ paths:
             tags:
                 - Project
         post:
+            deprecated: true
             operationId: AddProject
             parameters:
                 - description: Add new Project
@@ -7492,6 +7563,95 @@ paths:
             summary: Unarchive a project.
             tags:
                 - Project
+    /v1/dms/projects/business_tags:
+        get:
+            operationId: ListBusinessTags
+            parameters:
+                - format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+            responses:
+                "200":
+                    description: ListBusinessTagsReply
+                    schema:
+                        $ref: '#/definitions/ListBusinessTagsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List business tags.
+            tags:
+                - Project
+        post:
+            operationId: CreateBusinessTag
+            parameters:
+                - description: business tag to be created
+                  in: body
+                  name: business_tag
+                  required: true
+                  schema:
+                    $ref: '#/definitions/CreateBusinessTagReq'
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Create a new business tag.
+            tags:
+                - Project
+    /v1/dms/projects/business_tags/{business_tag_id}:
+        delete:
+            operationId: DeleteBusinessTag
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Delete an existing business tag.
+            tags:
+                - Project
+        put:
+            operationId: UpdateBusinessTag
+            parameters:
+                - description: business tag id
+                  in: path
+                  name: business_tag_id
+                  required: true
+                  type: string
+                - description: the business tag to be updated
+                  in: body
+                  name: business_tag
+                  required: true
+                  schema:
+                    $ref: '#/definitions/UpdateBusinessTagReq'
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Update an existing business tag.
+            tags:
+                - Project
     /v1/dms/projects/db_services_connection:
         post:
             operationId: DBServicesConnection
@@ -7570,6 +7730,7 @@ paths:
                 - Project
     /v1/dms/projects/import:
         post:
+            deprecated: true
             operationId: ImportProjects
             parameters:
                 - description: import projects
@@ -7666,6 +7827,7 @@ paths:
         post:
             consumes:
                 - multipart/form-data
+            deprecated: true
             operationId: PreviewImportProjects
             parameters:
                 - description: projects file.
@@ -8286,6 +8448,81 @@ paths:
             summary: webhook send message.
             tags:
                 - Webhook
+    /v2/dms/projects:
+        get:
+            operationId: ListProjectsV2
+            responses:
+                "200":
+                    description: ListProjectReply
+                    schema:
+                        $ref: '#/definitions/ListProjectReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List projects.
+            tags:
+                - Project
+        post:
+            operationId: AddProjectV2
+            parameters:
+                - description: Add new Project
+                  in: body
+                  name: project
+                  required: true
+                  schema:
+                    $ref: '#/definitions/AddProjectReq'
+            responses:
+                "200":
+                    description: AddProjectReply
+                    schema:
+                        $ref: '#/definitions/AddProjectReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Add project.
+            tags:
+                - Project
+    /v2/dms/projects/import:
+        post:
+            operationId: ImportProjectsV2
+            parameters:
+                - description: import projects
+                  in: body
+                  name: projects
+                  required: true
+                  schema:
+                    $ref: '#/definitions/ImportProjectsReq'
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Import projects.
+            tags:
+                - Project
+    /v2/dms/projects/preview_import:
+        post:
+            consumes:
+                - multipart/form-data
+            operationId: PreviewImportProjectsV2
+            responses:
+                "200":
+                    description: PreviewImportProjectsReply
+                    schema:
+                        $ref: '#/definitions/PreviewImportProjectsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Preview import projects.
+            tags:
+                - Project
 produces:
     - application/json
 responses:
