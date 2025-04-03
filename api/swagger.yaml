@@ -525,7 +525,7 @@ definitions:
                 type: string
                 x-go-name: Name
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CBOperationLog:
         properties:
             audit_result:
@@ -803,6 +803,12 @@ definitions:
                 $ref: '#/definitions/BusinessTag'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CreateEnvironmentTagReq:
+        properties:
+            environment_tag:
+                $ref: '#/definitions/EnvironmentTag'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DBService:
         description: A db service
         properties:
@@ -818,7 +824,9 @@ definitions:
                 type: integer
                 x-go-name: BackupMaxRows
             business:
-                description: DB Service business name
+                description: |-
+                    TODO This parameter is deprecated and will be removed soon.
+                    DB Service business name
                 type: string
                 x-go-name: Business
             db_type:
@@ -833,6 +841,8 @@ definitions:
                 description: backup switch
                 type: boolean
                 x-go-name: EnableBackup
+            environment_tag:
+                $ref: '#/definitions/EnvironmentTag'
             host:
                 description: DB Service Host
                 type: string
@@ -875,6 +885,7 @@ definitions:
             - user
             - password
             - business
+            - environment_tag
             - maintenance_times
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
@@ -1178,6 +1189,18 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    EnvironmentTag:
+        properties:
+            id:
+                format: uint64
+                type: integer
+                x-go-name: ID
+            name:
+                description: 环境属性标签至少1个字符，最多50个字符
+                type: string
+                x-go-name: Name
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     FeishuConfigurationResData:
         properties:
             app_id:
@@ -1974,7 +1997,9 @@ definitions:
                 type: array
                 x-go-name: AdditionalParams
             business:
-                description: the db service business name
+                description: |-
+                    TODO This parameter is deprecated and will be removed soon.
+                    the db service business name
                 type: string
                 x-go-name: Business
             db_type:
@@ -1985,6 +2010,8 @@ definitions:
                 description: DB desc
                 type: string
                 x-go-name: Desc
+            environment_tag:
+                $ref: '#/definitions/EnvironmentTag'
             host:
                 description: db service host
                 type: string
@@ -2025,6 +2052,8 @@ definitions:
                 description: db service admin user
                 type: string
                 x-go-name: User
+        required:
+            - environment_tag
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ImportDBServicesCheckReply:
@@ -2285,7 +2314,9 @@ definitions:
                 type: integer
                 x-go-name: BackupMaxRows
             business:
-                description: the db service business name
+                description: |-
+                    TODO This parameter is deprecated and will be removed soon.
+                    the db service business name
                 type: string
                 x-go-name: Business
             db_type:
@@ -2300,6 +2331,8 @@ definitions:
                 description: backup switch
                 type: boolean
                 x-go-name: EnableBackup
+            environment_tag:
+                $ref: '#/definitions/EnvironmentTag'
             host:
                 description: db service host
                 type: string
@@ -2661,6 +2694,28 @@ definitions:
                 x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListEnvironmentTagsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/EnvironmentTag'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListGlobalDBService:
         properties:
             backup_max_rows:
@@ -2669,7 +2724,9 @@ definitions:
                 type: integer
                 x-go-name: BackupMaxRows
             business:
-                description: the db service business name
+                description: |-
+                    TODO This parameter is deprecated and will be removed soon.
+                    the db service business name
                 type: string
                 x-go-name: Business
             db_type:
@@ -2684,6 +2741,8 @@ definitions:
                 description: backup switch
                 type: boolean
                 x-go-name: EnableBackup
+            environment_tag:
+                $ref: '#/definitions/EnvironmentTag'
             host:
                 description: db service host
                 type: string
@@ -3902,6 +3961,7 @@ definitions:
             is_fixed_business:
                 type: boolean
                 x-go-name: IsFixedBusiness
+        title: TODO This model will be removed due to it's related API is deprecated and will be removed soon.
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     RegisterDMSPluginReply:
@@ -4314,7 +4374,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateBusinessTagReq:
         properties:
             business_tag:
@@ -4389,7 +4449,9 @@ definitions:
                 type: integer
                 x-go-name: BackupMaxRows
             business:
-                description: DB Service business name
+                description: |-
+                    TODO This parameter is deprecated and will be removed soon.
+                    DB Service business name
                 type: string
                 x-go-name: Business
             db_type:
@@ -4404,6 +4466,8 @@ definitions:
                 description: backup switch
                 type: boolean
                 x-go-name: EnableBackup
+            environment_tag:
+                $ref: '#/definitions/EnvironmentTag'
             host:
                 description: DB Service Host
                 type: string
@@ -4438,6 +4502,7 @@ definitions:
             - port
             - user
             - business
+            - environment_tag
             - maintenance_times
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
@@ -4473,6 +4538,12 @@ definitions:
         properties:
             db_service_sync_task:
                 $ref: '#/definitions/DBServiceSyncTask'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateEnvironmentTagReq:
+        properties:
+            environment_tag:
+                $ref: '#/definitions/EnvironmentTag'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateFeishuConfiguration:
@@ -4562,12 +4633,16 @@ definitions:
                     $ref: '#/definitions/BusinessForUpdate'
                 type: array
                 x-go-name: Business
+            business_tag:
+                $ref: '#/definitions/BusinessTag'
             desc:
                 description: Project desc
                 type: string
                 x-go-name: Desc
             is_fixed_business:
-                description: is fixed business
+                description: |-
+                    is fixed business
+                    TODO This parameter is deprecated and will be removed soon.
                 type: boolean
                 x-go-name: IsFixedBusiness
             project_priority:
@@ -5814,6 +5889,7 @@ paths:
                 - DBServiceSyncTask
     /v1/dms/db_services:
         get:
+            deprecated: true
             description: list global DBServices
             operationId: ListGlobalDBServices
             parameters:
@@ -5848,11 +5924,18 @@ paths:
                   name: filter_last_connection_test_status
                   type: string
                   x-go-name: FilterLastConnectionTestStatus
-                - description: the db service business name
+                - description: |-
+                    TODO This parameter is deprecated and will be removed soon.
+                    the db service business name
                   in: query
                   name: filter_by_business
                   type: string
                   x-go-name: FilterByBusiness
+                - description: filter db services by environment tag
+                  in: query
+                  name: filter_by_environment_tag
+                  type: string
+                  x-go-name: FilterByEnvironmentTag
                 - description: the db service host
                   in: query
                   name: filter_by_host
@@ -6262,6 +6345,7 @@ paths:
             tags:
                 - Project
         put:
+            deprecated: true
             operationId: UpdateProject
             parameters:
                 - description: project id
@@ -6836,6 +6920,7 @@ paths:
                 - DataExportWorkflows
     /v1/dms/projects/{project_uid}/db_services:
         get:
+            deprecated: true
             operationId: ListDBServices
             parameters:
                 - description: the maximum count of db service to be returned
@@ -6912,6 +6997,11 @@ paths:
                   name: filter_by_db_service_ids
                   type: array
                   x-go-name: FilterByDBServiceIds
+                - description: filter db services by environment tag
+                  in: query
+                  name: filter_by_environment_tag
+                  type: string
+                  x-go-name: FilterByEnvironmentTag
                 - description: the db service fuzzy keyword,include host/port
                   in: query
                   name: fuzzy_keyword
@@ -6935,6 +7025,7 @@ paths:
             tags:
                 - DBService
         post:
+            deprecated: true
             operationId: AddDBService
             parameters:
                 - description: project id
@@ -6989,6 +7080,7 @@ paths:
             tags:
                 - DBService
         put:
+            deprecated: true
             operationId: UpdateDBService
             parameters:
                 - description: project id
@@ -7098,6 +7190,7 @@ paths:
                 - DBService
     /v1/dms/projects/{project_uid}/db_services/import:
         post:
+            deprecated: true
             operationId: ImportDBServicesOfOneProject
             parameters:
                 - description: project id
@@ -7127,6 +7220,7 @@ paths:
         post:
             consumes:
                 - multipart/form-data
+            deprecated: true
             operationId: ImportDBServicesOfOneProjectCheck
             parameters:
                 - description: project id
@@ -7694,6 +7788,95 @@ paths:
             summary: check if the global db_services is connectable.
             tags:
                 - Project
+    /v1/dms/projects/environment_tags:
+        get:
+            operationId: ListEnvironmentTags
+            parameters:
+                - format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+            responses:
+                "200":
+                    description: ListEnvironmentTagsReply
+                    schema:
+                        $ref: '#/definitions/ListEnvironmentTagsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List environment tags.
+            tags:
+                - Project
+        post:
+            operationId: CreateEnvironmentTag
+            parameters:
+                - description: environment tag to be created
+                  in: body
+                  name: environment_tag
+                  required: true
+                  schema:
+                    $ref: '#/definitions/CreateEnvironmentTagReq'
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Create a new environment tag.
+            tags:
+                - Project
+    /v1/dms/projects/environment_tags/{environment_tag_id}:
+        delete:
+            operationId: DeleteEnvironmentTag
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Delete an existing environment tag.
+            tags:
+                - Project
+        put:
+            operationId: UpdateEnvironmentTag
+            parameters:
+                - description: environment tag id
+                  in: path
+                  name: environment_tag_id
+                  required: true
+                  type: string
+                - description: the environment tag to be updated
+                  in: body
+                  name: environment_tag
+                  required: true
+                  schema:
+                    $ref: '#/definitions/UpdateEnvironmentTagReq'
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Update an existing environment tag.
+            tags:
+                - Project
     /v1/dms/projects/export:
         get:
             operationId: ExportProjects
@@ -7777,6 +7960,7 @@ paths:
         post:
             consumes:
                 - multipart/form-data
+            deprecated: true
             operationId: ImportDBServicesOfProjectsCheck
             parameters:
                 - description: DBServices file.
@@ -7849,6 +8033,7 @@ paths:
                 - Project
     /v1/dms/projects/tips:
         get:
+            description: Get project tips.
             operationId: GetProjectTips
             parameters:
                 - description: Project uid
@@ -7865,7 +8050,7 @@ paths:
                     description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: Get project tips.
+            summary: TODO This API is deprecated and will be removed soon.
             tags:
                 - Project
     /v1/dms/proxys:
@@ -8448,6 +8633,21 @@ paths:
             summary: webhook send message.
             tags:
                 - Webhook
+    /v2/dms/db_services:
+        get:
+            description: list global DBServices
+            operationId: ListGlobalDBServicesV2
+            responses:
+                "200":
+                    description: ListGlobalDBServicesReply
+                    schema:
+                        $ref: '#/definitions/ListGlobalDBServicesReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            tags:
+                - DBService
     /v2/dms/projects:
         get:
             operationId: ListProjectsV2
@@ -8484,6 +8684,150 @@ paths:
             summary: Add project.
             tags:
                 - Project
+    /v2/dms/projects/{project_uid}:
+        put:
+            operationId: UpdateProjectV2
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                - description: Update a project
+                  in: body
+                  name: project
+                  required: true
+                  schema:
+                    $ref: '#/definitions/UpdateProjectReq'
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: update a project.
+            tags:
+                - Project
+    /v2/dms/projects/{project_uid}/db_services:
+        get:
+            operationId: ListDBServicesV2
+            responses:
+                "200":
+                    description: ListDBServiceReply
+                    schema:
+                        $ref: '#/definitions/ListDBServiceReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List db service.
+            tags:
+                - DBService
+        post:
+            operationId: AddDBServiceV2
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                - description: Add new db service
+                  in: body
+                  name: db_service
+                  required: true
+                  schema:
+                    $ref: '#/definitions/AddDBServiceReq'
+            responses:
+                "200":
+                    description: AddDBServiceReply
+                    schema:
+                        $ref: '#/definitions/AddDBServiceReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Add DB Service.
+            tags:
+                - DBService
+    /v2/dms/projects/{project_uid}/db_services/{db_service_uid}:
+        put:
+            operationId: UpdateDBServiceV2
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                - description: db_service_uid id
+                  in: path
+                  name: db_service_uid
+                  required: true
+                  type: string
+                - description: Update a DB service
+                  in: body
+                  name: db_service
+                  schema:
+                    $ref: '#/definitions/UpdateDBServiceReq'
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: update a DB Service.
+            tags:
+                - DBService
+    /v2/dms/projects/{project_uid}/db_services/import:
+        post:
+            operationId: ImportDBServicesOfOneProjectV2
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                - description: new db services
+                  in: body
+                  name: db_services
+                  required: true
+                  schema:
+                    $ref: '#/definitions/ImportDBServicesOfOneProjectReq'
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Import DBServices.
+            tags:
+                - DBService
+    /v2/dms/projects/{project_uid}/db_services/import_check:
+        post:
+            consumes:
+                - multipart/form-data
+            operationId: ImportDBServicesOfOneProjectCheckV2
+            produces:
+                - application/json
+                - text/csv
+            responses:
+                "200":
+                    $ref: '#/responses/ImportDBServicesCheckCsvReply'
+                default:
+                    description: ImportDBServicesCheckReply
+                    schema:
+                        $ref: '#/definitions/ImportDBServicesCheckReply'
+            summary: Import DBServices.
+            tags:
+                - DBService
     /v2/dms/projects/import:
         post:
             operationId: ImportProjectsV2
@@ -8504,6 +8848,24 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: Import projects.
+            tags:
+                - Project
+    /v2/dms/projects/import_db_services_check:
+        post:
+            consumes:
+                - multipart/form-data
+            operationId: ImportDBServicesOfProjectsCheckV2
+            produces:
+                - application/json
+                - text/csv
+            responses:
+                "200":
+                    $ref: '#/responses/ImportDBServicesCheckCsvReply'
+                default:
+                    description: ImportDBServicesCheckReply
+                    schema:
+                        $ref: '#/definitions/ImportDBServicesCheckReply'
+            summary: Import DBServices.
             tags:
                 - Project
     /v2/dms/projects/preview_import:

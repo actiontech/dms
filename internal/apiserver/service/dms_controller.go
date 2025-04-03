@@ -66,11 +66,90 @@ func (a *DMSController) Shutdown() error {
 	return nil
 }
 
+
+// swagger:operation POST /v1/dms/projects/environment_tags Project CreateEnvironmentTag
+//
+// Create a new environment tag.
+//
+// ---
+// parameters:
+//   - name: environment_tag
+//     description: environment tag to be created
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/CreateEnvironmentTagReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (d *DMSController) CreateEnvironmentTag(c echo.Context) error {
+	return nil
+}
+
+// swagger:operation PUT /v1/dms/projects/environment_tags/{environment_tag_id} Project UpdateEnvironmentTag
+//
+// Update an existing environment tag.
+//
+// ---
+// parameters:
+//   - name: environment_tag_id
+//     description: environment tag id
+//     in: path
+//     required: true
+//     type: string
+//   - name: environment_tag
+//     description: the environment tag to be updated
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateEnvironmentTagReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (d *DMSController) UpdateEnvironmentTag(c echo.Context) error {
+	return nil
+}
+
+// swagger:route DELETE /v1/dms/projects/environment_tags/{environment_tag_id} Project DeleteEnvironmentTag
+//
+// Delete an existing environment tag.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (a *DMSController) DeleteEnvironmentTag(c echo.Context) error {
+	return nil
+}
+
+// swagger:route GET /v1/dms/projects/environment_tags Project ListEnvironmentTags
+//
+// List environment tags.
+//
+//	responses:
+//	  200: body:ListEnvironmentTagsReply
+//	  default: body:GenericResp
+func (d *DMSController) ListEnvironmentTags(c echo.Context) error{
+	return nil
+}
+
 // swagger:operation POST /v1/dms/projects/{project_uid}/db_services DBService AddDBService
 //
 // Add DB Service.
 //
 // ---
+// deprecated: true
 // parameters:
 //   - name: project_uid
 //     description: project id
@@ -119,6 +198,7 @@ func (d *DMSController) AddDBService(c echo.Context) error {
 //	responses:
 //	  200: body:ListDBServiceReply
 //	  default: body:GenericResp
+// deprecated: true
 func (d *DMSController) ListDBServices(c echo.Context) error {
 	req := new(dmsV1.ListDBServiceReq)
 	err := bindAndValidateReq(c, req)
@@ -183,6 +263,7 @@ func (d *DMSController) ListDBServiceDriverOption(c echo.Context) error {
 //	responses:
 //	  200: body:ListGlobalDBServicesReply
 //	  default: body:GenericResp
+// deprecated: true
 func (d *DMSController) ListGlobalDBServices(c echo.Context) error {
 	req := new(aV1.ListGlobalDBServicesReq)
 	err := bindAndValidateReq(c, req)
@@ -249,6 +330,7 @@ func (a *DMSController) DelDBService(c echo.Context) error {
 // update a DB Service.
 //
 // ---
+// deprecated: true
 // parameters:
 //   - name: project_uid
 //     description: project id
@@ -1859,6 +1941,7 @@ func (a *DMSController) DelProject(c echo.Context) error {
 // update a project.
 //
 // ---
+// deprecated: true
 // parameters:
 //   - name: project_uid
 //     description: project id
@@ -2082,6 +2165,7 @@ func (a *DMSController) ExportProjects(c echo.Context) error {
 
 // swagger:route GET /v1/dms/projects/tips Project GetProjectTips
 //
+// TODO This API is deprecated and will be removed soon.
 // Get project tips.
 //
 //	responses:
@@ -2145,6 +2229,7 @@ func (a *DMSController) GetImportDBServicesTemplate(c echo.Context) error {
 //	responses:
 //	  200: ImportDBServicesCheckCsvReply
 //	  default: body:ImportDBServicesCheckReply
+// deprecated: true
 func (a *DMSController) ImportDBServicesOfOneProjectCheck(c echo.Context) error {
 	req := new(aV1.ImportDBServicesOfOneProjectCheckReq)
 	err := bindAndValidateReq(c, req)
@@ -2183,6 +2268,7 @@ func (a *DMSController) ImportDBServicesOfOneProjectCheck(c echo.Context) error 
 // Import DBServices.
 //
 // ---
+// deprecated: true
 // parameters:
 //   - name: project_uid
 //     description: project id
@@ -2238,6 +2324,7 @@ func (a *DMSController) ImportDBServicesOfOneProject(c echo.Context) error {
 //	responses:
 //	  200: ImportDBServicesCheckCsvReply
 //	  default: body:ImportDBServicesCheckReply
+// deprecated: true
 func (a *DMSController) ImportDBServicesOfProjectsCheck(c echo.Context) error {
 	fileContent, exist, err := ReadFileContent(c, DBServicesFileParamKey)
 	if err != nil {
