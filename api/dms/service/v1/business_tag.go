@@ -36,3 +36,10 @@ type ListBusinessTagsReply struct {
 	Total int64          `json:"total_nums"`
 	base.GenericResp
 }
+
+// swagger:parameters DeleteBusinessTag
+type DeleteBusinessTagReq struct {
+	// in:path
+	// Required: true
+	BusinessTagID uint `param:"business_tag_id" json:"business_tag_id" validate:"required"`
+}
