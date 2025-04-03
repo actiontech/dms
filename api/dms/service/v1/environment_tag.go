@@ -11,6 +11,8 @@ type EnvironmentTag struct {
 
 // swagger:model
 type CreateEnvironmentTagReq struct {
+	// swagger:ignore
+	ProjectUID     string          `param:"project_uid" json:"project_uid" validate:"required"`
 	EnvironmentTag *EnvironmentTag `json:"environment_tag" validate:"required"`
 }
 
@@ -26,6 +28,9 @@ type UpdateEnvironmentTagReq struct {
 
 // swagger:parameters ListEnvironmentTags
 type ListEnvironmentTagReq struct {
+	// in:path
+	// Required: true
+	ProjectUID string `param:"project_uid" json:"project_uid" validate:"required"`
 	// in:query
 	PageIndex uint32 `query:"page_index" json:"page_index"`
 	// in:query
@@ -38,4 +43,14 @@ type ListEnvironmentTagsReply struct {
 	Data  []*EnvironmentTag `json:"data"`
 	Total int64             `json:"total_nums"`
 	base.GenericResp
+}
+
+// swagger:parameters DeleteEnvironmentTag
+type DeleteEnvironmentTagReq struct {
+	// in:path
+	// Required: true
+	EnvironmentTagID uint `json:"environment_tag_id" validate:"required"`
+	// in:path
+	// Required: true
+	ProjectUID string `param:"project_uid" json:"project_uid" validate:"required"`
 }
