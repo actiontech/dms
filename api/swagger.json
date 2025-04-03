@@ -1188,8 +1188,15 @@
           {
             "type": "string",
             "x-go-name": "FilterByBusiness",
-            "description": "the db service business name",
+            "description": "TODO This parameter is deprecated and will be removed soon.\nthe db service business name",
             "name": "filter_by_business",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByEnvironmentTag",
+            "description": "filter db services by environment tag",
+            "name": "filter_by_environment_tag",
             "in": "query"
           },
           {
@@ -2335,6 +2342,7 @@
         ],
         "summary": "update a project.",
         "operationId": "UpdateProject",
+        "deprecated": true,
         "parameters": [
           {
             "type": "string",
@@ -5279,6 +5287,47 @@
         }
       }
     },
+    "/v2/dms/projects/{project_uid}": {
+      "put": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "update a project.",
+        "operationId": "UpdateProjectV2",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Update a project",
+            "name": "project",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateProjectReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v2/dms/projects/{project_uid}/db_services": {
       "get": {
         "tags": [
@@ -6167,7 +6216,7 @@
           "x-go-name": "Name"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "CBOperationLog": {
       "type": "object",
@@ -7045,7 +7094,7 @@
           "x-go-name": "Name"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "FeishuConfigurationResData": {
       "type": "object",
@@ -10405,6 +10454,7 @@
     },
     "ProjectTips": {
       "type": "object",
+      "title": "TODO This model will be removed due to it's related API is deprecated and will be removed soon.",
       "properties": {
         "business": {
           "type": "array",
@@ -11325,13 +11375,16 @@
           },
           "x-go-name": "Business"
         },
+        "business_tag": {
+          "$ref": "#/definitions/BusinessTag"
+        },
         "desc": {
           "description": "Project desc",
           "type": "string",
           "x-go-name": "Desc"
         },
         "is_fixed_business": {
-          "description": "is fixed business",
+          "description": "is fixed business\nTODO This parameter is deprecated and will be removed soon.",
           "type": "boolean",
           "x-go-name": "IsFixedBusiness"
         },

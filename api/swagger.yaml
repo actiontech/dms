@@ -525,7 +525,7 @@ definitions:
                 type: string
                 x-go-name: Name
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CBOperationLog:
         properties:
             audit_result:
@@ -1200,7 +1200,7 @@ definitions:
                 type: string
                 x-go-name: Name
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     FeishuConfigurationResData:
         properties:
             app_id:
@@ -3961,6 +3961,7 @@ definitions:
             is_fixed_business:
                 type: boolean
                 x-go-name: IsFixedBusiness
+        title: TODO This model will be removed due to it's related API is deprecated and will be removed soon.
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     RegisterDMSPluginReply:
@@ -4632,12 +4633,16 @@ definitions:
                     $ref: '#/definitions/BusinessForUpdate'
                 type: array
                 x-go-name: Business
+            business_tag:
+                $ref: '#/definitions/BusinessTag'
             desc:
                 description: Project desc
                 type: string
                 x-go-name: Desc
             is_fixed_business:
-                description: is fixed business
+                description: |-
+                    is fixed business
+                    TODO This parameter is deprecated and will be removed soon.
                 type: boolean
                 x-go-name: IsFixedBusiness
             project_priority:
@@ -5919,11 +5924,18 @@ paths:
                   name: filter_last_connection_test_status
                   type: string
                   x-go-name: FilterLastConnectionTestStatus
-                - description: the db service business name
+                - description: |-
+                    TODO This parameter is deprecated and will be removed soon.
+                    the db service business name
                   in: query
                   name: filter_by_business
                   type: string
                   x-go-name: FilterByBusiness
+                - description: filter db services by environment tag
+                  in: query
+                  name: filter_by_environment_tag
+                  type: string
+                  x-go-name: FilterByEnvironmentTag
                 - description: the db service host
                   in: query
                   name: filter_by_host
@@ -6333,6 +6345,7 @@ paths:
             tags:
                 - Project
         put:
+            deprecated: true
             operationId: UpdateProject
             parameters:
                 - description: project id
@@ -8669,6 +8682,33 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: Add project.
+            tags:
+                - Project
+    /v2/dms/projects/{project_uid}:
+        put:
+            operationId: UpdateProjectV2
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                - description: Update a project
+                  in: body
+                  name: project
+                  required: true
+                  schema:
+                    $ref: '#/definitions/UpdateProjectReq'
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: update a project.
             tags:
                 - Project
     /v2/dms/projects/{project_uid}/db_services:
