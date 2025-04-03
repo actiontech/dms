@@ -229,3 +229,33 @@ func (d *DMSController) ListGlobalDBServicesV2(c echo.Context) error {
 func (d *DMSController) ListDBServicesV2(c echo.Context) error {
 	return d.ListDBServices(c)
 }
+
+// swagger:operation PUT /v2/dms/projects/{project_uid} Project UpdateProjectV2
+//
+// update a project.
+//
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: project
+//     description: Update a project
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateProjectReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (d *DMSController) UpdateProjectV2(c echo.Context) error {
+	return d.UpdateProject(c)
+}
