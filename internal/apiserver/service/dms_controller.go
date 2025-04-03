@@ -67,12 +67,17 @@ func (a *DMSController) Shutdown() error {
 }
 
 
-// swagger:operation POST /v1/dms/projects/environment_tags Project CreateEnvironmentTag
+// swagger:operation POST /v1/dms/projects/{project_uid}/environment_tags Project CreateEnvironmentTag
 //
 // Create a new environment tag.
 //
 // ---
 // parameters:
+//   - name: project_uid
+//     description: project uid
+//     in: path
+//     required: true
+//     type: string
 //   - name: environment_tag
 //     description: environment tag to be created
 //     in: body
@@ -92,13 +97,18 @@ func (d *DMSController) CreateEnvironmentTag(c echo.Context) error {
 	return nil
 }
 
-// swagger:operation PUT /v1/dms/projects/environment_tags/{environment_tag_id} Project UpdateEnvironmentTag
+// swagger:operation PUT /v1/dms/projects/{project_uid}/environment_tags/{environment_tag_uid} Project UpdateEnvironmentTag
 //
 // Update an existing environment tag.
 //
 // ---
 // parameters:
-//   - name: environment_tag_id
+//   - name: project_uid
+//     description: project uid
+//     in: path
+//     required: true
+//     type: string
+//   - name: environment_tag_uid
 //     description: environment tag id
 //     in: path
 //     required: true
@@ -122,7 +132,7 @@ func (d *DMSController) UpdateEnvironmentTag(c echo.Context) error {
 	return nil
 }
 
-// swagger:route DELETE /v1/dms/projects/environment_tags/{environment_tag_id} Project DeleteEnvironmentTag
+// swagger:route DELETE /v1/dms/projects/{project_uid}/environment_tags/{environment_tag_uid} Project DeleteEnvironmentTag
 //
 // Delete an existing environment tag.
 //
@@ -133,7 +143,7 @@ func (a *DMSController) DeleteEnvironmentTag(c echo.Context) error {
 	return nil
 }
 
-// swagger:route GET /v1/dms/projects/environment_tags Project ListEnvironmentTags
+// swagger:route GET /v1/dms/projects/{project_uid}/environment_tags Project ListEnvironmentTags
 //
 // List environment tags.
 //
@@ -1815,16 +1825,33 @@ func (d *DMSController) ListProjects(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) CreateBusinessTag(c echo.Context) error {
-	return nil
+	req := new(aV1.CreateBusinessTagReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	err = d.DMS.CreateBusinessTag(c.Request().Context(), currentUserUid, req.BusinessTag)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkResp(c)
 }
 
-// swagger:operation PUT /v1/dms/projects/business_tags/{business_tag_id} Project UpdateBusinessTag
+// swagger:operation PUT /v1/dms/projects/business_tags/{business_tag_uid} Project UpdateBusinessTag
 //
 // Update an existing business tag.
 //
 // ---
 // parameters:
-//   - name: business_tag_id
+//   - name: business_tag_uid
 //     description: business tag id
 //     in: path
 //     required: true
@@ -1848,7 +1875,7 @@ func (d *DMSController) UpdateBusinessTag(c echo.Context) error {
 	return nil
 }
 
-// swagger:route DELETE /v1/dms/projects/business_tags/{business_tag_id} Project DeleteBusinessTag
+// swagger:route DELETE /v1/dms/projects/business_tags/{business_tag_uid} Project DeleteBusinessTag
 //
 // Delete an existing business tag.
 //

@@ -1811,7 +1811,7 @@
         }
       }
     },
-    "/v1/dms/projects/business_tags/{business_tag_id}": {
+    "/v1/dms/projects/business_tags/{business_tag_uid}": {
       "put": {
         "tags": [
           "Project"
@@ -1822,7 +1822,7 @@
           {
             "type": "string",
             "description": "business tag id",
-            "name": "business_tag_id",
+            "name": "business_tag_uid",
             "in": "path",
             "required": true
           },
@@ -1857,6 +1857,15 @@
         ],
         "summary": "Delete an existing business tag.",
         "operationId": "DeleteBusinessTag",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "BusinessTagUID",
+            "name": "business_tag_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
         "responses": {
           "200": {
             "description": "GenericResp",
@@ -1928,140 +1937,6 @@
             "description": "DBServicesConnectionReqReply",
             "schema": {
               "$ref": "#/definitions/DBServicesConnectionReqReply"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      }
-    },
-    "/v1/dms/projects/environment_tags": {
-      "get": {
-        "tags": [
-          "Project"
-        ],
-        "summary": "List environment tags.",
-        "operationId": "ListEnvironmentTags",
-        "parameters": [
-          {
-            "type": "integer",
-            "format": "uint32",
-            "x-go-name": "PageIndex",
-            "name": "page_index",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "format": "uint32",
-            "x-go-name": "PageSize",
-            "name": "page_size",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "ListEnvironmentTagsReply",
-            "schema": {
-              "$ref": "#/definitions/ListEnvironmentTagsReply"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Project"
-        ],
-        "summary": "Create a new environment tag.",
-        "operationId": "CreateEnvironmentTag",
-        "parameters": [
-          {
-            "description": "environment tag to be created",
-            "name": "environment_tag",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/CreateEnvironmentTagReq"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      }
-    },
-    "/v1/dms/projects/environment_tags/{environment_tag_id}": {
-      "put": {
-        "tags": [
-          "Project"
-        ],
-        "summary": "Update an existing environment tag.",
-        "operationId": "UpdateEnvironmentTag",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "environment tag id",
-            "name": "environment_tag_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "description": "the environment tag to be updated",
-            "name": "environment_tag",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UpdateEnvironmentTagReq"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Project"
-        ],
-        "summary": "Delete an existing environment tag.",
-        "operationId": "DeleteEnvironmentTag",
-        "responses": {
-          "200": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
             }
           },
           "default": {
@@ -3719,6 +3594,177 @@
         }
       }
     },
+    "/v1/dms/projects/{project_uid}/environment_tags": {
+      "get": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "List environment tags.",
+        "operationId": "ListEnvironmentTags",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUID",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListEnvironmentTagsReply",
+            "schema": {
+              "$ref": "#/definitions/ListEnvironmentTagsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Create a new environment tag.",
+        "operationId": "CreateEnvironmentTag",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "environment tag to be created",
+            "name": "environment_tag",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateEnvironmentTagReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/environment_tags/{environment_tag_uid}": {
+      "put": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Update an existing environment tag.",
+        "operationId": "UpdateEnvironmentTag",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "environment tag id",
+            "name": "environment_tag_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "the environment tag to be updated",
+            "name": "environment_tag",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateEnvironmentTagReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Delete an existing environment tag.",
+        "operationId": "DeleteEnvironmentTag",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "EnvironmentTagUID",
+            "name": "environment_tag_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "ProjectUID",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/projects/{project_uid}/member_groups": {
       "get": {
         "tags": [
@@ -5129,6 +5175,117 @@
           "DBService"
         ],
         "operationId": "ListGlobalDBServicesV2",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of db service to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of users to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "name"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "name DBServiceOrderByName",
+            "x-go-name": "OrderBy",
+            "description": "Multiple of [\"name\"], default is [\"name\"]\nname DBServiceOrderByName",
+            "name": "order_by",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "connect_success",
+              "connect_failed"
+            ],
+            "type": "string",
+            "x-go-name": "FilterLastConnectionTestStatus",
+            "description": "the db service connection",
+            "name": "filter_last_connection_test_status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByBusiness",
+            "description": "TODO This parameter is deprecated and will be removed soon.\nthe db service business name",
+            "name": "filter_by_business",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByEnvironmentTag",
+            "description": "filter db services by environment tag",
+            "name": "filter_by_environment_tag",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByHost",
+            "description": "the db service host",
+            "name": "filter_by_host",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByUID",
+            "description": "the db service uid",
+            "name": "filter_by_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByName",
+            "description": "the db service name",
+            "name": "filter_by_name",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByPort",
+            "description": "the db service port",
+            "name": "filter_by_port",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByDBType",
+            "description": "the db service db type",
+            "name": "filter_by_db_type",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByProjectUid",
+            "description": "the db service project id",
+            "name": "filter_by_project_uid",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "x-go-name": "FilterByIsEnableMasking",
+            "description": "is masking",
+            "name": "filter_by_is_enable_masking",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FuzzyKeyword",
+            "description": "the db service fuzzy keyword",
+            "name": "fuzzy_keyword",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "ListGlobalDBServicesReply",
@@ -5152,6 +5309,88 @@
         ],
         "summary": "List projects.",
         "operationId": "ListProjectsV2",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of Project to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of Projects to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "name"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "name ProjectOrderByName",
+            "x-go-name": "OrderBy",
+            "description": "Multiple of [\"name\"], default is [\"name\"]\nname ProjectOrderByName",
+            "name": "order_by",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByName",
+            "description": "filter the Project name",
+            "name": "filter_by_name",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByUID",
+            "description": "filter the Project UID",
+            "name": "filter_by_uid",
+            "in": "query"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "x-go-name": "FilterByProjectUids",
+            "description": "filter project by project id list, using in condition",
+            "name": "filter_by_project_uids",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "high",
+              "medium",
+              "low",
+              "unknown"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "high ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
+            "x-go-name": "FilterByProjectPriority",
+            "description": "filter project by project priority\nhigh ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
+            "name": "filter_by_project_priority",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByBusinessTag",
+            "description": "filter project by business tag",
+            "name": "filter_by_business_tag",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByDesc",
+            "description": "filter the Project By Project description",
+            "name": "filter_by_desc",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "ListProjectReply",
@@ -5335,6 +5574,128 @@
         ],
         "summary": "List db service.",
         "operationId": "ListDBServicesV2",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of db service to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of users to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "name"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "name DBServiceOrderByName",
+            "x-go-name": "OrderBy",
+            "description": "Multiple of [\"name\"], default is [\"name\"]\nname DBServiceOrderByName",
+            "name": "order_by",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByBusiness",
+            "description": "the db service business name",
+            "name": "filter_by_business",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "connect_success",
+              "connect_failed"
+            ],
+            "type": "string",
+            "x-go-name": "FilterLastConnectionTestStatus",
+            "description": "the db service connection",
+            "name": "filter_last_connection_test_status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByHost",
+            "description": "the db service host",
+            "name": "filter_by_host",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByUID",
+            "description": "the db service uid",
+            "name": "filter_by_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByName",
+            "description": "the db service name",
+            "name": "filter_by_name",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByPort",
+            "description": "the db service port",
+            "name": "filter_by_port",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByDBType",
+            "description": "the db service db type",
+            "name": "filter_by_db_type",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "x-go-name": "FilterByDBServiceIds",
+            "description": "filter db services by db service id list using in condition",
+            "name": "filter_by_db_service_ids",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByEnvironmentTag",
+            "description": "filter db services by environment tag",
+            "name": "filter_by_environment_tag",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FuzzyKeyword",
+            "description": "the db service fuzzy keyword,include host/port",
+            "name": "fuzzy_keyword",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "x-go-name": "IsEnableMasking",
+            "description": "is masking",
+            "name": "is_enable_masking",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "ListDBServiceReply",
@@ -5445,6 +5806,23 @@
         ],
         "summary": "Import DBServices.",
         "operationId": "ImportDBServicesOfOneProjectCheckV2",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "x-go-name": "DBServicesFile",
+            "description": "DBServices file.",
+            "name": "db_services_file",
+            "in": "formData"
+          }
+        ],
         "responses": {
           "200": {
             "$ref": "#/responses/ImportDBServicesCheckCsvReply"
@@ -6216,7 +6594,7 @@
           "x-go-name": "Name"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "CBOperationLog": {
       "type": "object",

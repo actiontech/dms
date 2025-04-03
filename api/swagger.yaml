@@ -525,7 +525,7 @@ definitions:
                 type: string
                 x-go-name: Name
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     CBOperationLog:
         properties:
             audit_result:
@@ -7281,6 +7281,121 @@ paths:
             summary: List db service tip.
             tags:
                 - DBService
+    /v1/dms/projects/{project_uid}/environment_tags:
+        get:
+            operationId: ListEnvironmentTags
+            parameters:
+                - in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUID
+                - format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+            responses:
+                "200":
+                    description: ListEnvironmentTagsReply
+                    schema:
+                        $ref: '#/definitions/ListEnvironmentTagsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List environment tags.
+            tags:
+                - Project
+        post:
+            operationId: CreateEnvironmentTag
+            parameters:
+                - description: project uid
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                - description: environment tag to be created
+                  in: body
+                  name: environment_tag
+                  required: true
+                  schema:
+                    $ref: '#/definitions/CreateEnvironmentTagReq'
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Create a new environment tag.
+            tags:
+                - Project
+    /v1/dms/projects/{project_uid}/environment_tags/{environment_tag_uid}:
+        delete:
+            operationId: DeleteEnvironmentTag
+            parameters:
+                - in: path
+                  name: environment_tag_uid
+                  required: true
+                  type: string
+                  x-go-name: EnvironmentTagUID
+                - in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUID
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Delete an existing environment tag.
+            tags:
+                - Project
+        put:
+            operationId: UpdateEnvironmentTag
+            parameters:
+                - description: project uid
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                - description: environment tag id
+                  in: path
+                  name: environment_tag_uid
+                  required: true
+                  type: string
+                - description: the environment tag to be updated
+                  in: body
+                  name: environment_tag
+                  required: true
+                  schema:
+                    $ref: '#/definitions/UpdateEnvironmentTagReq'
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Update an existing environment tag.
+            tags:
+                - Project
     /v1/dms/projects/{project_uid}/member_groups:
         get:
             operationId: ListMemberGroups
@@ -7705,9 +7820,15 @@ paths:
             summary: Create a new business tag.
             tags:
                 - Project
-    /v1/dms/projects/business_tags/{business_tag_id}:
+    /v1/dms/projects/business_tags/{business_tag_uid}:
         delete:
             operationId: DeleteBusinessTag
+            parameters:
+                - in: path
+                  name: business_tag_uid
+                  required: true
+                  type: string
+                  x-go-name: BusinessTagUID
             responses:
                 "200":
                     description: GenericResp
@@ -7725,7 +7846,7 @@ paths:
             parameters:
                 - description: business tag id
                   in: path
-                  name: business_tag_id
+                  name: business_tag_uid
                   required: true
                   type: string
                 - description: the business tag to be updated
@@ -7786,95 +7907,6 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: check if the global db_services is connectable.
-            tags:
-                - Project
-    /v1/dms/projects/environment_tags:
-        get:
-            operationId: ListEnvironmentTags
-            parameters:
-                - format: uint32
-                  in: query
-                  name: page_index
-                  type: integer
-                  x-go-name: PageIndex
-                - format: uint32
-                  in: query
-                  name: page_size
-                  required: true
-                  type: integer
-                  x-go-name: PageSize
-            responses:
-                "200":
-                    description: ListEnvironmentTagsReply
-                    schema:
-                        $ref: '#/definitions/ListEnvironmentTagsReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: List environment tags.
-            tags:
-                - Project
-        post:
-            operationId: CreateEnvironmentTag
-            parameters:
-                - description: environment tag to be created
-                  in: body
-                  name: environment_tag
-                  required: true
-                  schema:
-                    $ref: '#/definitions/CreateEnvironmentTagReq'
-            responses:
-                "200":
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: Create a new environment tag.
-            tags:
-                - Project
-    /v1/dms/projects/environment_tags/{environment_tag_id}:
-        delete:
-            operationId: DeleteEnvironmentTag
-            responses:
-                "200":
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: Delete an existing environment tag.
-            tags:
-                - Project
-        put:
-            operationId: UpdateEnvironmentTag
-            parameters:
-                - description: environment tag id
-                  in: path
-                  name: environment_tag_id
-                  required: true
-                  type: string
-                - description: the environment tag to be updated
-                  in: body
-                  name: environment_tag
-                  required: true
-                  schema:
-                    $ref: '#/definitions/UpdateEnvironmentTagReq'
-            responses:
-                "200":
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: Update an existing environment tag.
             tags:
                 - Project
     /v1/dms/projects/export:

@@ -4,20 +4,22 @@ import base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 
 // swagger:model
 type EnvironmentTag struct {
-	ID uint `json:"id,omitempty"`
+	UID string `json:"uid,omitempty"`
 	// 环境属性标签至少1个字符，最多50个字符
 	Name string `json:"name" validate:"min=1,max=50"`
 }
 
 // swagger:model
 type CreateEnvironmentTagReq struct {
+	// swagger:ignore
+	ProjectUID     string          `param:"project_uid" json:"project_uid" validate:"required"`
 	EnvironmentTag *EnvironmentTag `json:"environment_tag" validate:"required"`
 }
 
 // swagger:model
 type UpdateEnvironmentTagReq struct {
 	// swagger:ignore
-	EnvironmentTagID uint `json:"business_tag_id" validate:"required"`
+	EnvironmentTagUID string `json:"environment_tag_uid" validate:"required"`
 	// swagger:ignore
 	ProjectUID string `param:"project_uid" json:"project_uid" validate:"required"`
 
@@ -26,6 +28,9 @@ type UpdateEnvironmentTagReq struct {
 
 // swagger:parameters ListEnvironmentTags
 type ListEnvironmentTagReq struct {
+	// in:path
+	// Required: true
+	ProjectUID string `param:"project_uid" json:"project_uid" validate:"required"`
 	// in:query
 	PageIndex uint32 `query:"page_index" json:"page_index"`
 	// in:query
@@ -38,4 +43,14 @@ type ListEnvironmentTagsReply struct {
 	Data  []*EnvironmentTag `json:"data"`
 	Total int64             `json:"total_nums"`
 	base.GenericResp
+}
+
+// swagger:parameters DeleteEnvironmentTag
+type DeleteEnvironmentTagReq struct {
+	// in:path
+	// Required: true
+	EnvironmentTagUID string `json:"environment_tag_uid" validate:"required"`
+	// in:path
+	// Required: true
+	ProjectUID string `param:"project_uid" json:"project_uid" validate:"required"`
 }
