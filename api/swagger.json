@@ -1811,7 +1811,7 @@
         }
       }
     },
-    "/v1/dms/projects/business_tags/{business_tag_id}": {
+    "/v1/dms/projects/business_tags/{business_tag_uid}": {
       "put": {
         "tags": [
           "Project"
@@ -1822,7 +1822,7 @@
           {
             "type": "string",
             "description": "business tag id",
-            "name": "business_tag_id",
+            "name": "business_tag_uid",
             "in": "path",
             "required": true
           },
@@ -1859,10 +1859,9 @@
         "operationId": "DeleteBusinessTag",
         "parameters": [
           {
-            "type": "integer",
-            "format": "uint64",
-            "x-go-name": "BusinessTagID",
-            "name": "business_tag_id",
+            "type": "string",
+            "x-go-name": "BusinessTagUID",
+            "name": "business_tag_uid",
             "in": "path",
             "required": true
           }
@@ -3681,7 +3680,7 @@
         }
       }
     },
-    "/v1/dms/projects/{project_uid}/environment_tags/{environment_tag_id}": {
+    "/v1/dms/projects/{project_uid}/environment_tags/{environment_tag_uid}": {
       "put": {
         "tags": [
           "Project"
@@ -3699,7 +3698,7 @@
           {
             "type": "string",
             "description": "environment tag id",
-            "name": "environment_tag_id",
+            "name": "environment_tag_uid",
             "in": "path",
             "required": true
           },
@@ -3736,10 +3735,9 @@
         "operationId": "DeleteEnvironmentTag",
         "parameters": [
           {
-            "type": "integer",
-            "format": "uint64",
-            "x-go-name": "EnvironmentTagID",
-            "name": "environment_tag_id",
+            "type": "string",
+            "x-go-name": "EnvironmentTagUID",
+            "name": "environment_tag_uid",
             "in": "path",
             "required": true
           },
@@ -7474,7 +7472,7 @@
           "x-go-name": "Name"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "FeishuConfigurationResData": {
       "type": "object",
