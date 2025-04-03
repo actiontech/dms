@@ -14,6 +14,7 @@ import (
 
 type DMSService struct {
 	BasicUsecase                *biz.BasicUsecase
+	BusinessTagUsecase          *biz.BusinessTagUsecase
 	PluginUsecase               *biz.PluginUsecase
 	DBServiceUsecase            *biz.DBServiceUsecase
 	DBServiceSyncTaskUsecase    *biz.DBServiceSyncTaskUsecase
@@ -144,8 +145,11 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		return nil, fmt.Errorf("failed to new cron task: %v", err)
 	}
 
+	businessTagUsecase := biz.NewBusinessTagUsecase(storage.NewBusinessTagRepo(logger, st), logger)
+
 	s := &DMSService{
 		BasicUsecase:                basicUsecase,
+		BusinessTagUsecase:          businessTagUsecase,
 		PluginUsecase:               pluginUseCase,
 		DBServiceUsecase:            dbServiceUseCase,
 		DBServiceSyncTaskUsecase:    dbServiceTaskUsecase,
