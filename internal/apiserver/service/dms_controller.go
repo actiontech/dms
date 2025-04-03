@@ -1941,6 +1941,7 @@ func (a *DMSController) DelProject(c echo.Context) error {
 // update a project.
 //
 // ---
+// deprecated: true
 // parameters:
 //   - name: project_uid
 //     description: project id

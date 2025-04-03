@@ -75,9 +75,12 @@ type UpdateProject struct {
 	// Project desc
 	Desc *string `json:"desc"`
 	// is fixed business
+	// TODO This parameter is deprecated and will be removed soon.
 	IsFixedBusiness *bool `json:"is_fixed_business"`
 	// Project business
 	Business []BusinessForUpdate `json:"business"`
+	// project business tag
+	BusinessTag *BusinessTag `json:"business_tag"`
 	// project priority
 	ProjectPriority *dmsCommonV1.ProjectPriority `json:"project_priority"  enums:"high,medium,low"`
 }
@@ -207,6 +210,7 @@ type GetProjectTipsReply struct {
 	Data []*ProjectTips `json:"data"`
 }
 
+// TODO This model will be removed due to it's related API is deprecated and will be removed soon.
 type ProjectTips struct {
 	IsFixedBusiness bool     `json:"is_fixed_business"`
 	Business        []string `json:"business"`
