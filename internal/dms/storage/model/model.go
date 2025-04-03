@@ -645,5 +645,5 @@ type DBServiceSyncTask struct {
 
 type BusinessTag struct {
 	Model
-	BusinessName string `gorm:"type:varchar(255);unique;column:business_name"`
+	BusinessName string `gorm:"type:varchar(100);unique;column:business_name"`
 }
