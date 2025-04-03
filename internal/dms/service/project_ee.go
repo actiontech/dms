@@ -30,7 +30,10 @@ func convertImportReqToBiz(req *dmsV1.ImportProjectsReq, uid string) ([]*biz.Pro
 	projects := make([]*biz.Project, 0, len(req.Projects))
 	for _, p := range req.Projects {
 		// TODO 批量创建项目目前不支持配置项目优先级，先按照中优先级配置
-		project, err := biz.NewProject(uid, p.Name, p.Desc, dmsCommonV1.ProjectPriorityMedium, true, p.Business)
+		if p.BusinessTag == nil {
+			return nil, fmt.Errorf("business tag is required")
+		}
+		project, err := biz.NewProject(uid, p.Name, p.Desc, dmsCommonV1.ProjectPriorityMedium, p.BusinessTag.UID)
 		if err != nil {
 			return nil, fmt.Errorf("create project failed: %w", err)
 		}
