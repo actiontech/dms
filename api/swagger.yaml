@@ -805,7 +805,7 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CreateEnvironmentTagReq:
         properties:
-            business_tag:
+            environment_tag:
                 $ref: '#/definitions/EnvironmentTag'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
@@ -4542,7 +4542,7 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateEnvironmentTagReq:
         properties:
-            business_tag:
+            environment_tag:
                 $ref: '#/definitions/EnvironmentTag'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
