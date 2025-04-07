@@ -71,9 +71,9 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	}
 	// 预定义解决usecase循环依赖问题
 	memberUsecase := biz.MemberUsecase{}
-
+	businessTagUsecase := biz.NewBusinessTagUsecase(storage.NewBusinessTagRepo(logger, st), logger)
 	projectRepo := storage.NewProjectRepo(logger, st)
-	projectUsecase := biz.NewProjectUsecase(logger, tx, projectRepo, &memberUsecase, opPermissionVerifyUsecase, pluginUseCase)
+	projectUsecase := biz.NewProjectUsecase(logger, tx, projectRepo, &memberUsecase, opPermissionVerifyUsecase, pluginUseCase, businessTagUsecase)
 	dbServiceRepo := storage.NewDBServiceRepo(logger, st)
 	dmsProxyTargetRepo := storage.NewProxyTargetRepo(logger, st)
 	dbServiceUseCase := biz.NewDBServiceUsecase(logger, dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo)
@@ -144,8 +144,6 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	if err != nil {
 		return nil, fmt.Errorf("failed to new cron task: %v", err)
 	}
-
-	businessTagUsecase := biz.NewBusinessTagUsecase(storage.NewBusinessTagRepo(logger, st), logger)
 
 	s := &DMSService{
 		BasicUsecase:                basicUsecase,
