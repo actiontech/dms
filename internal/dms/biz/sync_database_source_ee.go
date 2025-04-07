@@ -276,7 +276,7 @@ func getOrCreateProject(ctx context.Context, projectName, projectDesc string, sy
 		return nil, err
 	}
 	// TODO 批量创建项目目前不支持配置项目优先级，先按照中配置
-	project, err = NewProject(pkgConst.UIDOfUserAdmin, projectName, projectDesc, dmsCommonV1.ProjectPriorityMedium, false, nil)
+	project, err = NewProject(pkgConst.UIDOfUserAdmin, projectName, projectDesc, dmsCommonV1.ProjectPriorityMedium, project.BusinessTag.UID)
 	if err != nil {
 		return nil, err
 	}
