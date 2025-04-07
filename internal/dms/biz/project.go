@@ -42,9 +42,9 @@ type Business struct {
 }
 
 type PreviewProject struct {
-	Name     string
-	Desc     string
-	Business []string
+	Name            string
+	Desc            string
+	BusinessTagName string
 }
 
 func NewProject(createUserUID, name, desc string, priority dmsCommonV1.ProjectPriority, businessTagUID string) (*Project, error) {
