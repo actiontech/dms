@@ -17,7 +17,7 @@ type CreateBusinessTagReq struct {
 // swagger:model
 type UpdateBusinessTagReq struct {
 	// swagger:ignore
-	BusinessTagUID string       `json:"business_tag_uid" validate:"required"`
+	BusinessTagUID string       `param:"business_tag_uid" json:"business_tag_uid"`
 	BusinessTag    *BusinessTag `json:"business_tag" validate:"required"`
 }
 
