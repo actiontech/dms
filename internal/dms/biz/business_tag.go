@@ -68,19 +68,33 @@ func (uc *BusinessTagUsecase) GetBusinessTagByName(ctx context.Context, tagName 
 	return businessTag, nil
 }
 
+// LoadBusinessTagForProjects 根据 UID 和名称补全项目的所属业务标签。
+// 对于每个项目，如果 BusinessTag 的 Name 为空但 UID 不为空，则通过 UID 查找并填充 Name。
+// 如果 BusinessTag 的 Name 不为空但 UID 为空，则通过 Name 查找并填充 UID。
 func (uc *BusinessTagUsecase) LoadBusinessTagForProjects(ctx context.Context, projects []*Project) error {
 	businessTags, err := uc.businessTagRepo.ListBusinessTags(ctx)
 	if err != nil {
 		uc.log.Errorf("list business tags failed: %v", err)
 		return err
 	}
-	businessTagMap := make(map[string]*BusinessTag)
+	businessTagUIDMap := make(map[string]*BusinessTag)
+	businessTagNameMap := make(map[string]*BusinessTag)
 	for _, businessTag := range businessTags {
-		businessTagMap[businessTag.UID] = businessTag
+		businessTagUIDMap[businessTag.UID] = businessTag
+		businessTagNameMap[businessTag.Name] = businessTag
 	}
 	for _, project := range projects {
-		if businessTag, ok := businessTagMap[project.BusinessTag.UID]; ok {
-			project.BusinessTag.Name = businessTag.Name
+		if project.BusinessTag.Name == "" && project.BusinessTag.UID != "" {
+			if businessTag, ok := businessTagUIDMap[project.BusinessTag.UID]; ok {
+				project.BusinessTag.Name = businessTag.Name
+				continue
+			}
+		}
+		if project.BusinessTag.Name != "" && project.BusinessTag.UID == "" {
+			if businessTag, ok := businessTagNameMap[project.BusinessTag.Name]; ok {
+				project.BusinessTag.UID = businessTag.UID
+				continue
+			}
 		}
 	}
 	return nil
