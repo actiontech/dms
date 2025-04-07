@@ -395,7 +395,10 @@ func (d *ProjectUsecase) ExportProjects(ctx context.Context, uid string, option 
 	}); err != nil {
 		return nil, fmt.Errorf("failed to write csv header: %v", err)
 	}
-
+	err = d.businessTagUsecase.LoadBusinessTagForProjects(ctx, projects)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load business tag for projects: %v", err)
+	}
 	for _, project := range projects {
 		var status string
 		if project.Status == ProjectStatusArchived {
@@ -404,16 +407,11 @@ func (d *ProjectUsecase) ExportProjects(ctx context.Context, uid string, option 
 			status = locale.Bundle.LocalizeMsgByCtx(ctx, locale.ProjectAvailable)
 		}
 
-		var business string
-		for _, b := range project.Business {
-			business += b.Name + ";"
-		}
-
 		if err := csvWriter.Write([]string{
 			project.Name,
 			project.Desc,
 			status,
-			business,
+			project.BusinessTag.Name,
 			project.CreateTime.Format("2006-01-02 15:04:05"),
 		}); err != nil {
 			return nil, fmt.Errorf("failed to write csv row: %v", err)
