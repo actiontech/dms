@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
+	"net/http"
 	"strings"
 
 	dmsMiddleware "github.com/actiontech/dms/internal/apiserver/middleware"
@@ -19,6 +20,11 @@ import (
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+)
+
+const (
+	apiV1 = "v1"
+	apiV2 = "v2"
 )
 
 func (s *APIServer) initRouter() error {
@@ -42,7 +48,7 @@ func (s *APIServer) initRouter() error {
 		dmsPluginV1.POST("", s.DMSController.RegisterDMSPlugin)
 
 		dbServiceV1 := v1.Group(dmsV1.DBServiceRouterGroup)
-		dbServiceV1.POST("", s.DMSController.AddDBService)
+		dbServiceV1.POST("", DeprecatedBy(apiV2))
 		dbServiceV1.GET("", s.DMSController.ListDBServices)
 		dbServiceV1.GET("/tips", s.DMSController.ListDBServiceTips)
 		dbServiceV1.DELETE("/:db_service_uid", s.DMSController.DelDBService)
@@ -382,4 +388,12 @@ func (s *APIServer) Shutdown() error {
 		return fmt.Errorf("failed to shutdown dmsController: %v", err)
 	}
 	return nil
+}
+
+// DeprecatedBy is a controller used to mark deprecated and used to replace the original controller.
+func DeprecatedBy(version string) func(echo.Context) error {
+	return func(ctx echo.Context) error {
+		return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf(
+			"the API has been deprecated, please using the %s version", version))
+	}
 }
