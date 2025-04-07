@@ -85,3 +85,29 @@ func (d *DMSService) DeleteBusinessTag(ctx context.Context, currentUserUid strin
 
 	return nil
 }
+
+func (d *DMSService) ListBusinessTags(ctx context.Context, req *v1.ListBusinessTagReq) (reply *v1.ListBusinessTagsReply, err error) {
+	d.log.Infof("ListBusinessTags.req=%v", *req)
+	defer func() {
+		d.log.Infof("ListBusinessTags.req=%v;error=%v", *req, err)
+	}()
+	limit, offset := d.GetLimitAndOffset(req.PageIndex, req.PageSize)
+	bizBusinessTags, count, err := d.BusinessTagUsecase.ListBusinessTags(ctx, &biz.ListBusinessTagsOption{
+		Limit:  limit,
+		Offset: offset,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("list business tags failed: %w", err)
+	}
+	businessTags := make([]*v1.BusinessTag, 0, len(bizBusinessTags))
+	for _, bizBusinessTag := range bizBusinessTags {
+		businessTags = append(businessTags, &v1.BusinessTag{
+			UID:  bizBusinessTag.UID,
+			Name: bizBusinessTag.Name,
+		})
+	}
+	return &v1.ListBusinessTagsReply{
+		Data:  businessTags,
+		Total: count,
+	}, nil
+}
