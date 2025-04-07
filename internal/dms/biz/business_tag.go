@@ -11,6 +11,7 @@ import (
 type BusinessTagRepo interface {
 	CreateBusinessTag(ctx context.Context, businessTag *BusinessTag) error
 	GetBusinessTagByName(ctx context.Context, name string) (*BusinessTag, error)
+	GetBusinessTagByUID(ctx context.Context, uid string) (*BusinessTag, error)
 	ListBusinessTags(ctx context.Context) ([]*BusinessTag, error)
 }
 
@@ -61,6 +62,15 @@ func (uc *BusinessTagUsecase) CreateBusinessTag(ctx context.Context, tagName str
 
 func (uc *BusinessTagUsecase) GetBusinessTagByName(ctx context.Context, tagName string) (*BusinessTag, error) {
 	businessTag, err := uc.businessTagRepo.GetBusinessTagByName(ctx, tagName)
+	if err != nil {
+		uc.log.Errorf("get business tag failed: %v", err)
+		return nil, err
+	}
+	return businessTag, nil
+}
+
+func(uc *BusinessTagUsecase) GetBusinessTagByUID(ctx context.Context, uid string) (*BusinessTag, error) {
+	businessTag, err := uc.businessTagRepo.GetBusinessTagByUID(ctx, uid)
 	if err != nil {
 		uc.log.Errorf("get business tag failed: %v", err)
 		return nil, err
