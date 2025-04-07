@@ -25,10 +25,17 @@ func NewBusinessTagRepo(log utilLog.Logger, s *Storage) *BusinessTagRepo {
 	}
 }
 
-func (b *BusinessTagRepo) toModel(businessTag *biz.BusinessTag) *model.BusinessTag {
+func (repo *BusinessTagRepo) toModel(businessTag *biz.BusinessTag) *model.BusinessTag {
 	return &model.BusinessTag{
 		Name:  businessTag.Name,
 		Model: model.Model{UID: businessTag.UID},
+	}
+}
+
+func (repo *BusinessTagRepo) toBiz(businessTag *model.BusinessTag) *biz.BusinessTag {
+	return &biz.BusinessTag{
+		Name: businessTag.Name,
+		UID:  businessTag.UID,
 	}
 }
 
@@ -39,4 +46,27 @@ func (repo *BusinessTagRepo) CreateBusinessTag(ctx context.Context, businessTag 
 		}
 		return nil
 	})
+}
+
+func (repo *BusinessTagRepo) GetBusinessTagByName(ctx context.Context, name string) (*biz.BusinessTag, error) {
+	var businessTag model.BusinessTag
+	if err := repo.db.WithContext(ctx).Where("name = ?", name).First(&businessTag).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, pkgErr.ErrStorageNoData
+		}
+		return nil, fmt.Errorf("failed to get business tag by name: %w", err)
+	}
+	return repo.toBiz(&businessTag), nil
+}
+
+func (repo *BusinessTagRepo) ListBusinessTags(ctx context.Context) ([]*biz.BusinessTag, error) {
+	var businessTags []*model.BusinessTag
+	if err := repo.db.WithContext(ctx).Find(&businessTags).Error; err != nil {
+		return nil, fmt.Errorf("failed to list business tags: %w", err)
+	}
+	bizBusinessTags := make([]*biz.BusinessTag, 0, len(businessTags))
+	for _, businessTag := range businessTags {
+		bizBusinessTags = append(bizBusinessTags, repo.toBiz(businessTag))
+	}
+	return bizBusinessTags, nil
 }

@@ -51,12 +51,25 @@ func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV1.ListProj
 			Operator: pkgConst.FilterOperatorIn,
 			Value:    req.FilterByProjectUids,
 		})
-	}	
+	}
 	if req.FilterByDesc != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.ProjectFieldDesc),
 			Operator: pkgConst.FilterOperatorContains,
 			Value:    req.FilterByDesc,
+		})
+	}
+
+	if req.FilterByBusinessTag != "" {
+		businessTag, err := d.BusinessTagUsecase.GetBusinessTagByName(ctx, req.FilterByBusinessTag)
+		if err != nil {
+			d.log.Errorf("get business tag failed: %v", err)
+			return nil, err
+		}
+		filterBy = append(filterBy, pkgConst.FilterCondition{
+			Field:    string(biz.ProjectFieldBusinessTagUID),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    businessTag.UID,
 		})
 	}
 
@@ -72,15 +85,22 @@ func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV1.ListProj
 		return nil, err
 	}
 
+	err = d.BusinessTagUsecase.LoadBusinessTagForProjects(ctx, projects)
+	if err != nil {
+		return nil, err
+	}
 	ret := make([]*dmsCommonV1.ListProject, len(projects))
 	for i, n := range projects {
 		ret[i] = &dmsCommonV1.ListProject{
-			ProjectUid:      n.UID,
-			Name:            n.Name,
-			Archived:        (n.Status == biz.ProjectStatusArchived),
-			Desc:            n.Desc,
-			IsFixedBusiness: n.IsFixedBusiness,
-			CreateTime:      strfmt.DateTime(n.CreateTime),
+			ProjectUid: n.UID,
+			Name:       n.Name,
+			Archived:   (n.Status == biz.ProjectStatusArchived),
+			Desc:       n.Desc,
+			CreateTime: strfmt.DateTime(n.CreateTime),
+			BusinessTag: &dmsCommonV1.BusinessTag{
+				UID:  n.BusinessTag.UID,
+				Name: n.BusinessTag.Name,
+			},
 			ProjectPriority: n.Priority,
 		}
 		user, err := d.UserUsecase.GetUser(ctx, n.CreateUserUID)
@@ -91,21 +111,6 @@ func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV1.ListProj
 		ret[i].CreateUser = dmsCommonV1.UidWithName{
 			Uid:  n.UID,
 			Name: user.Name,
-		}
-
-		business, err := d.DBServiceUsecase.GetBusiness(ctx, n.UID)
-		if err != nil {
-			d.log.Errorf("get business error: %v", err)
-			continue
-		}
-
-		for _, b := range n.Business {
-			isBusinessInUse := isStrInSlice(b.Name, business)
-			ret[i].Business = append(ret[i].Business, dmsCommonV1.Business{
-				Id:     b.Uid,
-				Name:   b.Name,
-				IsUsed: isBusinessInUse,
-			})
 		}
 	}
 
@@ -141,9 +146,13 @@ func (d *DMSService) AddProject(ctx context.Context, currentUserUid string, req 
 		if !errors.Is(err, pkgErr.ErrStorageNoData) {
 			return nil, fmt.Errorf("failed to get project by name: %w", err)
 		}
+		// check business tag is exist
+		if req.Project.BusinessTag == nil || req.Project.BusinessTag.UID == "" {
+			return nil, fmt.Errorf("business tag is empty")
+		}
 	}
 
-	project, err := biz.NewProject(currentUserUid, req.Project.Name, req.Project.Desc, req.Project.ProjectPriority, req.Project.IsFixedBusiness, req.Project.Business)
+	project, err := biz.NewProject(currentUserUid, req.Project.Name, req.Project.Desc, req.Project.ProjectPriority, req.Project.BusinessTag.UID)
 	if err != nil {
 		return nil, err
 	}
