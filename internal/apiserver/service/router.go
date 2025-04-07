@@ -142,6 +142,7 @@ func (s *APIServer) initRouter() error {
 		projectV1.POST("/db_services_connection", s.DMSController.DBServicesConnection)
 		projectV1.POST("/db_services_connections", s.DMSController.CheckGlobalDBServicesConnections)
 		projectV1.POST("/business_tags", s.DMSController.CreateBusinessTag)
+		projectV1.GET("/business_tags", s.DMSController.ListBusinessTags)
 		projectV1.PUT("/business_tags/:business_tag_uid", s.DMSController.UpdateBusinessTag)
 		projectV1.DELETE("/business_tags/:business_tag_uid", s.DMSController.DeleteBusinessTag)
 
