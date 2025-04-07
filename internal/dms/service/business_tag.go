@@ -5,6 +5,9 @@ import (
 	"fmt"
 
 	v1 "github.com/actiontech/dms/api/dms/service/v1"
+	"github.com/actiontech/dms/internal/dms/biz"
+	"github.com/actiontech/dms/internal/dms/pkg/constant"
+	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 )
 
 func (d *DMSService) CreateBusinessTag(ctx context.Context, currentUserUid string, businessTag *v1.BusinessTag) (err error) {
@@ -43,5 +46,42 @@ func (d *DMSService) UpdateBusinessTag(ctx context.Context, currentUserUid strin
 	if err := d.BusinessTagUsecase.UpdateBusinessTag(ctx, businessTagUID, businessTagForUpdate.Name); err != nil {
 		return fmt.Errorf("update business tag failed: %w", err)
 	}
+	return nil
+}
+
+func (d *DMSService) DeleteBusinessTag(ctx context.Context, currentUserUid string, businessTagUID string) (err error) {
+	d.log.Infof("DeleteBusinessTag.req=%v", businessTagUID)
+	defer func() {
+		d.log.Infof("DeleteBusinessTag.req=%v;error=%v", businessTagUID, err)
+	}()
+
+	// 权限校验
+	if canGlobalOp, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid); err != nil {
+		return fmt.Errorf("check user op permission failed: %v", err)
+	} else if !canGlobalOp {
+		return fmt.Errorf("user is not project admin or global op permission user")
+	}
+
+	// 业务标签被项目关联时，不允许删除
+	filterBy := []constant.FilterCondition{
+		pkgConst.FilterCondition{
+			Field:    string(biz.ProjectFieldBusinessTagUID),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    businessTagUID,
+		},
+	}
+
+	_, total, err := d.ProjectUsecase.ListProject(ctx, &biz.ListProjectsOption{FilterBy: filterBy}, currentUserUid)
+	if err != nil {
+		return fmt.Errorf("list project failed: %w", err)
+	}
+	if total > 0 {
+		return fmt.Errorf("business tag is used by project, please detach business tag with project first")
+	}
+
+	if err := d.BusinessTagUsecase.DeleteBusinessTag(ctx, businessTagUID); err != nil {
+		return fmt.Errorf("delete business tag failed: %w", err)
+	}
+
 	return nil
 }
