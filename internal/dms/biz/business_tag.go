@@ -11,6 +11,7 @@ import (
 type BusinessTagRepo interface {
 	CreateBusinessTag(ctx context.Context, businessTag *BusinessTag) error
 	UpdateBusinessTag(ctx context.Context, businessTagName, businessTagUID string) error
+	DeleteBusinessTag(ctx context.Context, businessTagUID string) error
 	GetBusinessTagByName(ctx context.Context, name string) (*BusinessTag, error)
 	GetBusinessTagByUID(ctx context.Context, uid string) (*BusinessTag, error)
 	ListBusinessTags(ctx context.Context) ([]*BusinessTag, error)
@@ -73,6 +74,20 @@ func (uc *BusinessTagUsecase) UpdateBusinessTag(ctx context.Context, businessTag
 	err = uc.businessTagRepo.UpdateBusinessTag(ctx, businessTagUID, businessTagName)
 	if err != nil {
 		uc.log.Errorf("update business tag failed: %v", err)
+		return err
+	}
+	return nil
+}
+
+func (uc *BusinessTagUsecase) DeleteBusinessTag(ctx context.Context, businessTagUID string) error {
+	_, err := uc.businessTagRepo.GetBusinessTagByUID(ctx, businessTagUID)
+	if err != nil {
+		uc.log.Errorf("get business tag failed: %v", err)
+		return err
+	}
+	err = uc.businessTagRepo.DeleteBusinessTag(ctx, businessTagUID)
+	if err != nil {
+		uc.log.Errorf("delete business tag failed: %v", err)
 		return err
 	}
 	return nil
