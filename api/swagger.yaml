@@ -516,16 +516,15 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     BusinessTag:
         properties:
-            id:
-                format: uint64
-                type: integer
-                x-go-name: ID
             name:
-                description: 业务标签至少1个字符，最多50个字符
+                description: 业务标签最多50个字符
                 type: string
                 x-go-name: Name
+            uid:
+                type: string
+                x-go-name: UID
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CBOperationLog:
         properties:
             audit_result:
@@ -3906,26 +3905,12 @@ definitions:
     Project:
         description: A Project
         properties:
-            business:
-                description: |-
-                    TODO This parameter is deprecated and will be removed soon.
-                    project business
-                items:
-                    type: string
-                type: array
-                x-go-name: Business
             business_tag:
                 $ref: '#/definitions/BusinessTag'
             desc:
                 description: project desc
                 type: string
                 x-go-name: Desc
-            is_fixed_business:
-                description: |-
-                    TODO This parameter is deprecated and will be removed soon.
-                    is fixed business
-                type: boolean
-                x-go-name: IsFixedBusiness
             name:
                 description: project name
                 type: string

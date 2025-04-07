@@ -483,49 +483,31 @@ func convertModelRangeUIDs(uids string) []string {
 	return strings.Split(uids, ",")
 }
 
-func convertBizProject(m *biz.Project) (*model.Project, error) {
-	busList := make([]model.Business, 0)
-	for _, business := range m.Business {
-		busList = append(busList, model.Business{
-			Uid:  business.Uid,
-			Name: business.Name,
-		})
-	}
-
+func convertBizProject(m *biz.Project) *model.Project {
 	return &model.Project{
 		Model: model.Model{
 			UID: m.UID,
 		},
-		Name:            m.Name,
-		Desc:            m.Desc,
-		Business:        busList,
-		Status:          string(m.Status),
-		IsFixedBusiness: m.IsFixedBusiness,
-		CreateUserUID:   m.CreateUserUID,
-		Priority:        dmsCommonV1.ToPriorityNum(m.Priority),
-	}, nil
+		Name:           m.Name,
+		Desc:           m.Desc,
+		BusinessTagUID: m.BusinessTag.UID,
+		Status:         string(m.Status),
+		CreateUserUID:  m.CreateUserUID,
+		Priority:       dmsCommonV1.ToPriorityNum(m.Priority),
+	}
 }
 
 func convertModelProject(m *model.Project) (*biz.Project, error) {
-	businessList := make([]biz.Business, 0)
-	for _, business := range m.Business {
-		businessList = append(businessList, biz.Business{
-			Uid:  business.Uid,
-			Name: business.Name,
-		})
-	}
-
 	return &biz.Project{
-		Base:            convertBase(m.Model),
-		UID:             m.UID,
-		Name:            m.Name,
-		Desc:            m.Desc,
-		IsFixedBusiness: m.IsFixedBusiness,
-		Business:        businessList,
-		Status:          convertModelProjectStatus(m.Status),
-		CreateUserUID:   m.CreateUserUID,
-		CreateTime:      m.CreatedAt,
-		Priority:        dmsCommonV1.ToPriority(m.Priority),
+		Base:          convertBase(m.Model),
+		UID:           m.UID,
+		Name:          m.Name,
+		Desc:          m.Desc,
+		BusinessTag:   biz.BusinessTag{UID: m.BusinessTagUID},
+		Status:        convertModelProjectStatus(m.Status),
+		CreateUserUID: m.CreateUserUID,
+		CreateTime:    m.CreatedAt,
+		Priority:      dmsCommonV1.ToPriority(m.Priority),
 	}, nil
 }
 
