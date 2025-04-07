@@ -17,12 +17,31 @@ func (d *DMSService) CreateBusinessTag(ctx context.Context, currentUserUid strin
 	if canGlobalOp, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid); err != nil {
 		return fmt.Errorf("check user op permission failed: %v", err)
 	} else if !canGlobalOp {
-		return fmt.Errorf("user is not project admin or golobal op permission user")
+		return fmt.Errorf("user is not project admin or global op permission user")
 	}
 
 	if err := d.BusinessTagUsecase.CreateBusinessTag(ctx, businessTag.Name); err != nil {
 		return fmt.Errorf("create business tag failed: %w", err)
 	}
 
+	return nil
+}
+
+func (d *DMSService) UpdateBusinessTag(ctx context.Context, currentUserUid string, businessTagUID string, businessTagForUpdate *v1.BusinessTag) (err error) {
+	d.log.Infof("UpdateBusinessTag.req=%v", businessTagForUpdate)
+	defer func() {
+		d.log.Infof("UpdateBusinessTag.req=%v;error=%v", businessTagForUpdate, err)
+	}()
+
+	// 权限校验
+	if canGlobalOp, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid); err != nil {
+		return fmt.Errorf("check user op permission failed: %v", err)
+	} else if !canGlobalOp {
+		return fmt.Errorf("user is not project admin or global op permission user")
+	}
+
+	if err := d.BusinessTagUsecase.UpdateBusinessTag(ctx, businessTagUID, businessTagForUpdate.Name); err != nil {
+		return fmt.Errorf("update business tag failed: %w", err)
+	}
 	return nil
 }

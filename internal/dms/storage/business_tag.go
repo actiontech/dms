@@ -48,6 +48,15 @@ func (repo *BusinessTagRepo) CreateBusinessTag(ctx context.Context, businessTag 
 	})
 }
 
+func (repo *BusinessTagRepo) UpdateBusinessTag(ctx context.Context, businessTagUID, businessTagName string) error {
+	return transaction(repo.log, ctx, repo.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Model(&model.BusinessTag{}).Where("uid = ?", businessTagUID).Update("name", businessTagName).Error; err != nil {
+			return pkgErr.WrapStorageErr(repo.log, fmt.Errorf("failed to update business tag: %v", err))
+		}
+		return nil
+	})
+}
+
 func (repo *BusinessTagRepo) GetBusinessTagByName(ctx context.Context, name string) (*biz.BusinessTag, error) {
 	var businessTag model.BusinessTag
 	if err := repo.db.WithContext(ctx).Where("name = ?", name).First(&businessTag).Error; err != nil {
