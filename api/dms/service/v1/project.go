@@ -14,12 +14,6 @@ type Project struct {
 	Name string `json:"name"`
 	// project desc
 	Desc string `json:"desc"`
-	// TODO This parameter is deprecated and will be removed soon.
-	// is fixed business
-	IsFixedBusiness bool `json:"is_fixed_business"`
-	// TODO This parameter is deprecated and will be removed soon.
-	// project business
-	Business []string `json:"business"`
 	// project business tag
 	BusinessTag *BusinessTag `json:"business_tag"`
 	// project priority

@@ -105,9 +105,9 @@ type ListProject struct {
 
 // swagger:model
 type BusinessTag struct {
-	ID uint `json:"id,omitempty"`
-	// 业务标签至少1个字符，最多50个字符
-	Name string `json:"name" validate:"min=1,max=50"`
+	UID string `json:"uid,omitempty"`
+	// 业务标签最多50个字符
+	Name string `json:"name" validate:"max=50"`
 }
 
 type Business struct {
