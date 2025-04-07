@@ -1926,7 +1926,16 @@ func (d *DMSController) DeleteBusinessTag(c echo.Context) error {
 //	  200: body:ListBusinessTagsReply
 //	  default: body:GenericResp
 func (d *DMSController) ListBusinessTags(c echo.Context) error{
-	return nil
+	req := new(aV1.ListBusinessTagReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	reply, err := d.DMS.ListBusinessTags(c.Request().Context(), req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:operation POST /v1/dms/projects Project AddProject
