@@ -59,6 +59,17 @@ func (repo *BusinessTagRepo) GetBusinessTagByName(ctx context.Context, name stri
 	return repo.toBiz(&businessTag), nil
 }
 
+func (repo *BusinessTagRepo) GetBusinessTagByUID(ctx context.Context, uid string) (*biz.BusinessTag, error) {
+	var businessTag model.BusinessTag
+	if err := repo.db.WithContext(ctx).Where("uid = ?", uid).First(&businessTag).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, pkgErr.ErrStorageNoData
+		}
+		return nil, fmt.Errorf("failed to get business tag by uid: %w", err)
+	}
+	return repo.toBiz(&businessTag), nil
+}
+
 func (repo *BusinessTagRepo) ListBusinessTags(ctx context.Context) ([]*biz.BusinessTag, error) {
 	var businessTags []*model.BusinessTag
 	if err := repo.db.WithContext(ctx).Find(&businessTags).Error; err != nil {
