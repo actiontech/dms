@@ -1884,7 +1884,7 @@ func (d *DMSController) UpdateBusinessTag(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = d.DMS.UpdateBusinessTag(c.Request().Context(), currentUserUid, req.BusinessTagUID,req.BusinessTag)
+	err = d.DMS.UpdateBusinessTag(c.Request().Context(), currentUserUid, req.BusinessTagUID, req.BusinessTag)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1898,8 +1898,24 @@ func (d *DMSController) UpdateBusinessTag(c echo.Context) error {
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (a *DMSController) DeleteBusinessTag(c echo.Context) error {
-	return nil
+func (d *DMSController) DeleteBusinessTag(c echo.Context) error {
+	req := new(aV1.DeleteBusinessTagReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	err = d.DMS.DeleteBusinessTag(c.Request().Context(), currentUserUid, req.BusinessTagUID)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkResp(c)
 }
 
 // swagger:route GET /v1/dms/projects/business_tags Project ListBusinessTags
