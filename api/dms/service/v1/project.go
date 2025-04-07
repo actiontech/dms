@@ -68,11 +68,6 @@ func (u *DelProjectReq) String() string {
 type UpdateProject struct {
 	// Project desc
 	Desc *string `json:"desc"`
-	// is fixed business
-	// TODO This parameter is deprecated and will be removed soon.
-	IsFixedBusiness *bool `json:"is_fixed_business"`
-	// Project business
-	Business []BusinessForUpdate `json:"business"`
 	// project business tag
 	BusinessTag *BusinessTag `json:"business_tag"`
 	// project priority
