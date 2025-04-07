@@ -126,7 +126,7 @@ var (
 	ProjectName         = &i18n.Message{ID: "ProjectName", Other: "项目名称"}
 	ProjectDesc         = &i18n.Message{ID: "ProjectDesc", Other: "项目描述"}
 	ProjectStatus       = &i18n.Message{ID: "ProjectStatus", Other: "项目状态"}
-	ProjectBusiness     = &i18n.Message{ID: "ProjectBusiness", Other: "可用业务"}
+	ProjectBusiness     = &i18n.Message{ID: "ProjectBusiness", Other: "所属业务"}
 	ProjectCreateTime   = &i18n.Message{ID: "ProjectCreateTime", Other: "创建时间"}
 	ProjectAvailable    = &i18n.Message{ID: "ProjectAvailable", Other: "可用"}
 	ProjectNotAvailable = &i18n.Message{ID: "ProjectNotAvailable", Other: "不可用"}
