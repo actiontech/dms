@@ -91,19 +91,21 @@ type ProjectUsecase struct {
 	tx                        TransactionGenerator
 	repo                      ProjectRepo
 	memberUsecase             *MemberUsecase
+	businessTagUsecase        *BusinessTagUsecase
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	pluginUsecase             *PluginUsecase
 	log                       *utilLog.Helper
 }
 
 func NewProjectUsecase(log utilLog.Logger, tx TransactionGenerator, repo ProjectRepo, memberUsecase *MemberUsecase,
-	opPermissionVerifyUsecase *OpPermissionVerifyUsecase, pluginUsecase *PluginUsecase) *ProjectUsecase {
+	opPermissionVerifyUsecase *OpPermissionVerifyUsecase, pluginUsecase *PluginUsecase, businessTagUsecase *BusinessTagUsecase) *ProjectUsecase {
 	return &ProjectUsecase{
 		tx:                        tx,
 		repo:                      repo,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.project")),
 		memberUsecase:             memberUsecase,
 		pluginUsecase:             pluginUsecase,
+		businessTagUsecase:        businessTagUsecase,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 	}
 }
@@ -121,7 +123,7 @@ func (d *ProjectUsecase) ListProject(ctx context.Context, option *ListProjectsOp
 		return nil, 0, err
 	}
 
-	// filter visible namespce space in advance
+	// filter visible namespace space in advance
 	// user can only view his belonging project,sys user can view all project
 	if currentUserUid != pkgConst.UIDOfUserSys && !canViewGlobal {
 		projects, err := d.opPermissionVerifyUsecase.GetUserProject(ctx, currentUserUid)
@@ -192,9 +194,9 @@ func (d *ProjectUsecase) UpdateDBServiceBusiness(ctx context.Context, currentUse
 
 	// 检查当前用户有项目管理员权限
 	if canOpProject, err := d.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, projectUid); err != nil {
-		return fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
+		return fmt.Errorf("check user is project admin or global op permission failed: %v", err)
 	} else if !canOpProject {
-		return fmt.Errorf("user is not project admin or golobal op permission user")
+		return fmt.Errorf("user is not project admin or global op permission user")
 	}
 
 	err := d.repo.UpdateDBServiceBusiness(ctx, projectUid, originBusiness, descBusiness)
