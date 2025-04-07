@@ -28,8 +28,9 @@ type Project struct {
 	Name            string
 	Desc            string
 	Priority        dmsCommonV1.ProjectPriority
-	IsFixedBusiness bool
-	Business        []Business
+	IsFixedBusiness bool       // TODO 业务改造完成后删除
+	Business        []Business // TODO 业务改造完成后删除
+	BusinessTag     BusinessTag
 	CreateUserUID   string
 	CreateTime      time.Time
 	Status          ProjectStatus
@@ -46,34 +47,19 @@ type PreviewProject struct {
 	Business []string
 }
 
-func NewProject(createUserUID, name, desc string, priority dmsCommonV1.ProjectPriority, isFixedBusiness bool, business []string) (*Project, error) {
+func NewProject(createUserUID, name, desc string, priority dmsCommonV1.ProjectPriority, businessTagUID string) (*Project, error) {
 	uid, err := pkgRand.GenStrUid()
 	if err != nil {
 		return nil, err
 	}
-
-	businessList := make([]Business, 0)
-	for _, b := range business {
-		uid, err = pkgRand.GenStrUid()
-		if err != nil {
-			return nil, err
-		}
-
-		businessList = append(businessList, Business{
-			Uid:  uid,
-			Name: b,
-		})
-	}
-
 	return &Project{
-		UID:             uid,
-		Name:            name,
-		Desc:            desc,
-		Business:        businessList,
-		Status:          ProjectStatusActive,
-		IsFixedBusiness: isFixedBusiness,
-		CreateUserUID:   createUserUID,
-		Priority:        priority,
+		UID:           uid,
+		Name:          name,
+		Desc:          desc,
+		Status:        ProjectStatusActive,
+		CreateUserUID: createUserUID,
+		BusinessTag:   BusinessTag{UID: businessTagUID},
+		Priority:      priority,
 	}, nil
 }
 
