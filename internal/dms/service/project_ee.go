@@ -97,9 +97,11 @@ func (d *DMSService) previewImportProjects(ctx context.Context, uid string, file
 	resp := make([]*dmsV1.PreviewImportProjects, len(projects))
 	for i, p := range projects {
 		resp[i] = &dmsV1.PreviewImportProjects{
-			Name:     p.Name,
-			Desc:     p.Desc,
-			Business: p.Business,
+			Name: p.Name,
+			Desc: p.Desc,
+			BusinessTag: &dmsV1.BusinessTag{
+				Name: p.BusinessTagName,
+			},
 		}
 	}
 

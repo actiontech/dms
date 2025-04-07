@@ -361,9 +361,9 @@ func (d *ProjectUsecase) PreviewImportProjects(ctx context.Context, uid, file st
 		}
 
 		projects = append(projects, &PreviewProject{
-			Name:     record[0],
-			Desc:     record[1],
-			Business: strings.Split(record[2], ";"),
+			Name:            record[0],
+			Desc:            record[1],
+			BusinessTagName: record[2],
 		})
 	}
 
