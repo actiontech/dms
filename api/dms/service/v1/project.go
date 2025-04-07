@@ -157,9 +157,6 @@ type PreviewImportProjects struct {
 	Name string `json:"name"`
 	// Project desc
 	Desc string `json:"desc"`
-	// TODO This parameter is deprecated and will be removed soon.
-	// business
-	Business []string `json:"business"`
 	// project business tag
 	BusinessTag *BusinessTag `json:"business_tag"`
 }
