@@ -6583,18 +6583,17 @@
     "BusinessTag": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "integer",
-          "format": "uint64",
-          "x-go-name": "ID"
-        },
         "name": {
-          "description": "业务标签至少1个字符，最多50个字符",
+          "description": "业务标签最多50个字符",
           "type": "string",
           "x-go-name": "Name"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "UID"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "CBOperationLog": {
       "type": "object",
@@ -10789,14 +10788,6 @@
       "description": "A Project",
       "type": "object",
       "properties": {
-        "business": {
-          "description": "TODO This parameter is deprecated and will be removed soon.\nproject business",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "x-go-name": "Business"
-        },
         "business_tag": {
           "$ref": "#/definitions/BusinessTag"
         },
@@ -10804,11 +10795,6 @@
           "description": "project desc",
           "type": "string",
           "x-go-name": "Desc"
-        },
-        "is_fixed_business": {
-          "description": "TODO This parameter is deprecated and will be removed soon.\nis fixed business",
-          "type": "boolean",
-          "x-go-name": "IsFixedBusiness"
         },
         "name": {
           "description": "project name",
