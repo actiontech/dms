@@ -87,15 +87,34 @@ func (repo *BusinessTagRepo) GetBusinessTagByUID(ctx context.Context, uid string
 	}
 	return repo.toBiz(&businessTag), nil
 }
-
-func (repo *BusinessTagRepo) ListBusinessTags(ctx context.Context) ([]*biz.BusinessTag, error) {
+func (repo *BusinessTagRepo) ListBusinessTags(ctx context.Context, options *biz.ListBusinessTagsOption) ([]*biz.BusinessTag, int64, error) {
 	var businessTags []*model.BusinessTag
-	if err := repo.db.WithContext(ctx).Find(&businessTags).Error; err != nil {
-		return nil, fmt.Errorf("failed to list business tags: %w", err)
+	db := repo.db.WithContext(ctx)
+
+	// 构建查询条件
+	query := db.Model(&model.BusinessTag{})
+	if options.Limit >= 0 {
+		query = query.Limit(options.Limit)
 	}
+	if options.Offset >= 0 {
+		query = query.Offset(options.Offset)
+	}
+
+	// 获取分页结果
+	if err := query.Find(&businessTags).Error; err != nil {
+		return nil, 0, fmt.Errorf("failed to list business tags: %w", err)
+	}
+
+	// 获取总数
+	var count int64
+	if err := repo.db.WithContext(ctx).Model(&model.BusinessTag{}).Count(&count).Error; err != nil {
+		return nil, 0, fmt.Errorf("failed to count business tags: %w", err)
+	}
+
 	bizBusinessTags := make([]*biz.BusinessTag, 0, len(businessTags))
 	for _, businessTag := range businessTags {
 		bizBusinessTags = append(bizBusinessTags, repo.toBiz(businessTag))
 	}
-	return bizBusinessTags, nil
+
+	return bizBusinessTags, count, nil
 }
