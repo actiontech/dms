@@ -5546,6 +5546,15 @@
         ],
         "summary": "Preview import projects.",
         "operationId": "PreviewImportProjectsV2",
+        "parameters": [
+          {
+            "type": "file",
+            "x-go-name": "ProjectsFile",
+            "description": "projects file.",
+            "name": "projects_file",
+            "in": "formData"
+          }
+        ],
         "responses": {
           "200": {
             "description": "PreviewImportProjectsReplyV2",
@@ -8880,13 +8889,8 @@
     "ImportProjects": {
       "type": "object",
       "properties": {
-        "business": {
-          "description": "business",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "x-go-name": "Business"
+        "business_tag": {
+          "$ref": "#/definitions/BusinessTag"
         },
         "desc": {
           "description": "Project desc",
@@ -8899,7 +8903,7 @@
           "x-go-name": "Name"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "ImportProjectsReq": {
       "type": "object",
@@ -10216,8 +10220,68 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
-    "ListProject": {
-      "description": "A dms Project",
+    "ListProjectReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List project reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListProjectV1"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "ListProjectReplyV2": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List project reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListProjectV2"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-name": "ListProjectReply",
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
+    },
+    "ListProjectV1": {
       "type": "object",
       "properties": {
         "archived": {
@@ -10275,67 +10339,58 @@
           "x-go-name": "ProjectUid"
         }
       },
+      "x-go-name": "ListProject",
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
-    "ListProjectReply": {
+    "ListProjectV2": {
       "type": "object",
       "properties": {
-        "code": {
-          "description": "code",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Code"
+        "archived": {
+          "description": "Project is archived",
+          "type": "boolean",
+          "x-go-name": "Archived"
         },
-        "data": {
-          "description": "List project reply",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ListProject"
-          },
-          "x-go-name": "Data"
+        "business_tag": {
+          "$ref": "#/definitions/BusinessTag"
         },
-        "message": {
-          "description": "message",
+        "create_time": {
+          "description": "create time",
           "type": "string",
-          "x-go-name": "Message"
+          "format": "date-time",
+          "x-go-name": "CreateTime"
         },
-        "total_nums": {
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Total"
+        "create_user": {
+          "$ref": "#/definitions/UidWithName"
+        },
+        "desc": {
+          "description": "Project desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "name": {
+          "description": "Project name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "project_priority": {
+          "description": "project priority\nhigh ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low",
+            "unknown"
+          ],
+          "x-go-enum-desc": "high ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
+          "x-go-name": "ProjectPriority"
+        },
+        "uid": {
+          "description": "Project uid",
+          "type": "string",
+          "x-go-name": "ProjectUid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
-    },
-    "ListProjectReplyV2": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "code",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Code"
-        },
-        "data": {
-          "description": "List project reply",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ListProject"
-          },
-          "x-go-name": "Data"
-        },
-        "message": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Message"
-        },
-        "total_nums": {
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Total"
-        }
-      },
-      "x-go-name": "ListProjectReply",
+      "x-go-name": "ListProject",
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
     },
     "ListRole": {
@@ -11032,8 +11087,13 @@
     "PreviewImportProjects": {
       "type": "object",
       "properties": {
-        "business_tag": {
-          "$ref": "#/definitions/BusinessTag"
+        "business": {
+          "description": "business",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Business"
         },
         "desc": {
           "description": "Project desc",
@@ -11046,7 +11106,7 @@
           "x-go-name": "Name"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "PreviewImportProjectsReply": {
       "type": "object",
@@ -11103,13 +11163,23 @@
       "description": "A Project",
       "type": "object",
       "properties": {
-        "business_tag": {
-          "$ref": "#/definitions/BusinessTag"
+        "business": {
+          "description": "project business",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Business"
         },
         "desc": {
           "description": "project desc",
           "type": "string",
           "x-go-name": "Desc"
+        },
+        "is_fixed_business": {
+          "description": "is fixed business",
+          "type": "boolean",
+          "x-go-name": "IsFixedBusiness"
         },
         "name": {
           "description": "project name",
@@ -11129,7 +11199,7 @@
           "x-go-name": "ProjectPriority"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ProjectTips": {
       "type": "object",
@@ -11703,7 +11773,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateBusinessTagReq": {
       "type": "object",
@@ -12041,13 +12111,23 @@
     "UpdateProject": {
       "type": "object",
       "properties": {
-        "business_tag": {
-          "$ref": "#/definitions/BusinessTag"
+        "business": {
+          "description": "Project business",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BusinessForUpdate"
+          },
+          "x-go-name": "Business"
         },
         "desc": {
           "description": "Project desc",
           "type": "string",
           "x-go-name": "Desc"
+        },
+        "is_fixed_business": {
+          "description": "is fixed business",
+          "type": "boolean",
+          "x-go-name": "IsFixedBusiness"
         },
         "project_priority": {
           "description": "project priority\nhigh ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
@@ -12062,7 +12142,7 @@
           "x-go-name": "ProjectPriority"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateProjectReq": {
       "type": "object",

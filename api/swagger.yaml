@@ -2267,12 +2267,8 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v2
     ImportProjects:
         properties:
-            business:
-                description: business
-                items:
-                    type: string
-                type: array
-                x-go-name: Business
+            business_tag:
+                $ref: '#/definitions/BusinessTag'
             desc:
                 description: Project desc
                 type: string
@@ -2282,7 +2278,7 @@ definitions:
                 type: string
                 x-go-name: Name
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     ImportProjectsReq:
         properties:
             projects:
@@ -3319,8 +3315,54 @@ definitions:
                 x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    ListProject:
-        description: A dms Project
+    ListProjectReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: List project reply
+                items:
+                    $ref: '#/definitions/ListProjectV1'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    ListProjectReplyV2:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: List project reply
+                items:
+                    $ref: '#/definitions/ListProjectV2'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-name: ListProjectReply
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v2
+    ListProjectV1:
         properties:
             archived:
                 description: Project is archived
@@ -3375,53 +3417,56 @@ definitions:
                 type: string
                 x-go-name: ProjectUid
         type: object
+        x-go-name: ListProject
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    ListProjectReply:
+    ListProjectV2:
         properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: List project reply
-                items:
-                    $ref: '#/definitions/ListProject'
-                type: array
-                x-go-name: Data
-            message:
-                description: message
+            archived:
+                description: Project is archived
+                type: boolean
+                x-go-name: Archived
+            business_tag:
+                $ref: '#/definitions/BusinessTag'
+            create_time:
+                description: create time
+                format: date-time
                 type: string
-                x-go-name: Message
-            total_nums:
-                format: int64
-                type: integer
-                x-go-name: Total
-        type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    ListProjectReplyV2:
-        properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: List project reply
-                items:
-                    $ref: '#/definitions/ListProject'
-                type: array
-                x-go-name: Data
-            message:
-                description: message
+                x-go-name: CreateTime
+            create_user:
+                $ref: '#/definitions/UidWithName'
+            desc:
+                description: Project desc
                 type: string
-                x-go-name: Message
-            total_nums:
-                format: int64
-                type: integer
-                x-go-name: Total
+                x-go-name: Desc
+            name:
+                description: Project name
+                type: string
+                x-go-name: Name
+            project_priority:
+                description: |-
+                    project priority
+                    high ProjectPriorityHigh
+                    medium ProjectPriorityMedium
+                    low ProjectPriorityLow
+                    unknown ProjectPriorityUnknown
+                enum:
+                    - high
+                    - medium
+                    - low
+                    - unknown
+                type: string
+                x-go-enum-desc: |-
+                    high ProjectPriorityHigh
+                    medium ProjectPriorityMedium
+                    low ProjectPriorityLow
+                    unknown ProjectPriorityUnknown
+                x-go-name: ProjectPriority
+            uid:
+                description: Project uid
+                type: string
+                x-go-name: ProjectUid
         type: object
-        x-go-name: ListProjectReply
+        x-go-name: ListProject
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v2
     ListRole:
         description: A dms role
@@ -4061,8 +4106,12 @@ definitions:
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     PreviewImportProjects:
         properties:
-            business_tag:
-                $ref: '#/definitions/BusinessTag'
+            business:
+                description: business
+                items:
+                    type: string
+                type: array
+                x-go-name: Business
             desc:
                 description: Project desc
                 type: string
@@ -4072,7 +4121,7 @@ definitions:
                 type: string
                 x-go-name: Name
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v2
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     PreviewImportProjectsReply:
         properties:
             code:
@@ -4115,12 +4164,20 @@ definitions:
     Project:
         description: A Project
         properties:
-            business_tag:
-                $ref: '#/definitions/BusinessTag'
+            business:
+                description: project business
+                items:
+                    type: string
+                type: array
+                x-go-name: Business
             desc:
                 description: project desc
                 type: string
                 x-go-name: Desc
+            is_fixed_business:
+                description: is fixed business
+                type: boolean
+                x-go-name: IsFixedBusiness
             name:
                 description: project name
                 type: string
@@ -4145,7 +4202,7 @@ definitions:
                     unknown ProjectPriorityUnknown
                 x-go-name: ProjectPriority
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v2
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ProjectTips:
         properties:
             business:
@@ -4568,7 +4625,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateBusinessTagReq:
         properties:
             business_tag:
@@ -4816,12 +4873,20 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateProject:
         properties:
-            business_tag:
-                $ref: '#/definitions/BusinessTag'
+            business:
+                description: Project business
+                items:
+                    $ref: '#/definitions/BusinessForUpdate'
+                type: array
+                x-go-name: Business
             desc:
                 description: Project desc
                 type: string
                 x-go-name: Desc
+            is_fixed_business:
+                description: is fixed business
+                type: boolean
+                x-go-name: IsFixedBusiness
             project_priority:
                 description: |-
                     project priority
@@ -4842,7 +4907,7 @@ definitions:
                     unknown ProjectPriorityUnknown
                 x-go-name: ProjectPriority
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v2
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateProjectReq:
         properties:
             project:
@@ -9369,6 +9434,12 @@ paths:
             consumes:
                 - multipart/form-data
             operationId: PreviewImportProjectsV2
+            parameters:
+                - description: projects file.
+                  in: formData
+                  name: projects_file
+                  type: file
+                  x-go-name: ProjectsFile
             responses:
                 "200":
                     description: PreviewImportProjectsReplyV2
