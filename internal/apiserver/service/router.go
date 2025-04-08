@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/http"
 	"strings"
 
 	dmsMiddleware "github.com/actiontech/dms/internal/apiserver/middleware"
@@ -238,7 +237,6 @@ func (s *APIServer) initRouter() error {
 		}
 	}
 
-	v2 := s.echo.Group(dmsV1.GroupV2)
 	{
 		projectV2 := v2.Group(dmsV1.ProjectRouterGroup)
 		projectV2.POST("", s.DMSController.AddProjectV2)

@@ -225,7 +225,7 @@ func (d *DMSService) GetImportProjectsTemplate(ctx context.Context, uid string) 
 }
 
 func (d *DMSService) PreviewImportProjects(ctx context.Context, uid string, file string) (reply *dmsV2.PreviewImportProjectsReply, err error) {
-	return d.previewImportProjects(ctx, uid, file, err)
+	return d.previewImportProjects(ctx, uid, file)
 }
 
 func (d *DMSService) ExportProjects(ctx context.Context, uid string, req *dmsV1.ExportProjectsReq) ([]byte, error) {
