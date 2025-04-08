@@ -32,14 +32,15 @@ func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
 		Model: model.Model{
 			UID: ds.UID,
 		},
-		Name:              ds.Name,
-		Desc:              ds.Desc,
-		DBType:            ds.DBType,
-		Host:              ds.Host,
-		Port:              ds.Port,
-		User:              ds.User,
-		Password:          encrypted,
-		Business:          ds.Business,
+		Name:     ds.Name,
+		Desc:     ds.Desc,
+		DBType:   ds.DBType,
+		Host:     ds.Host,
+		Port:     ds.Port,
+		User:     ds.User,
+		Password: encrypted,
+		// Business:          ds.Business,
+		EnvironmentTagID:  ds.EnvironmentTag.ID,
 		AdditionalParams:  ds.AdditionalParams,
 		Source:            ds.Source,
 		MaintenancePeriod: ds.MaintenancePeriod,
@@ -100,13 +101,13 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 		User:              ds.User,
 		Password:          decrypted,
 		MaintenancePeriod: ds.MaintenancePeriod,
-		Business:          ds.Business,
-		AdditionalParams:  ds.AdditionalParams,
-		Source:            ds.Source,
-		ProjectUID:        ds.ProjectUID,
-		IsMaskingSwitch:   ds.IsEnableMasking,
-		EnableBackup:      ds.EnableBackup,
-		BackupMaxRows:     ds.BackupMaxRows,
+		// Business:          ds.Business,
+		AdditionalParams: ds.AdditionalParams,
+		Source:           ds.Source,
+		ProjectUID:       ds.ProjectUID,
+		IsMaskingSwitch:  ds.IsEnableMasking,
+		EnableBackup:     ds.EnableBackup,
+		BackupMaxRows:    ds.BackupMaxRows,
 	}
 
 	if ds.LastConnectionStatus != nil {
@@ -117,6 +118,13 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 	}
 	if ds.LastConnectionErrorMsg != nil {
 		dbService.LastConnectionErrorMsg = ds.LastConnectionErrorMsg
+	}
+
+	{
+		dbService.EnvironmentTag = &dmsCommonV1.EnvironmentTag{
+			ID:   ds.EnvironmentTagID,
+			Name: ds.EnvironmentTag.EnvironmentName,
+		}
 	}
 
 	{

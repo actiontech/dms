@@ -4,7 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	"time"
+
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
+	dmsV2 "github.com/actiontech/dms/api/dms/service/v2"
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -12,7 +15,6 @@ import (
 	"github.com/actiontech/dms/pkg/params"
 	"github.com/actiontech/dms/pkg/periods"
 	"github.com/go-openapi/strfmt"
-	"time"
 )
 
 func (d *DMSService) DelDBService(ctx context.Context, req *dmsV1.DelDBServiceReq, currentUserUid string) (err error) {
@@ -46,13 +48,13 @@ func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV1.UpdateDBSer
 	}
 
 	args := &biz.BizDBServiceArgs{
-		DBType:            req.DBService.DBType,
-		Desc:              req.DBService.Desc,
-		Host:              req.DBService.Host,
-		Port:              req.DBService.Port,
-		User:              req.DBService.User,
-		Password:          req.DBService.Password,
-		Business:          req.DBService.Business,
+		DBType:   req.DBService.DBType,
+		Desc:     req.DBService.Desc,
+		Host:     req.DBService.Host,
+		Port:     req.DBService.Port,
+		User:     req.DBService.User,
+		Password: req.DBService.Password,
+		// Business:          req.DBService.Business,
 		EnableBackup:      req.DBService.EnableBackup,
 		BackupMaxRows:     autoChooseBackupMaxRows(req.DBService.EnableBackup, req.DBService.BackupMaxRows),
 		MaintenancePeriod: d.convertMaintenanceTimeToPeriod(req.DBService.MaintenanceTimes),
@@ -232,7 +234,69 @@ func autoChooseBackupMaxRows(enableBackup bool, backupMaxRows *uint64) uint64 {
 	return DefaultBackupMaxRows
 }
 
+// Deprecated
 func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceReq, currentUserUid string) (reply *dmsV1.AddDBServiceReply, err error) {
+	d.log.Infof("AddDBServices.req=%v", req)
+	defer func() {
+		d.log.Infof("AddDBServices.req=%v;reply=%v;error=%v", req, reply, err)
+	}()
+
+	additionalParams, err := d.DBServiceUsecase.GetDriverParamsByDBType(ctx, req.DBService.DBType)
+	for _, additionalParam := range req.DBService.AdditionalParams {
+		err = additionalParams.SetParamValue(additionalParam.Name, additionalParam.Value)
+		if err != nil {
+			return nil, fmt.Errorf("set param value failed,invalid db type: %s", req.DBService.DBType)
+		}
+	}
+
+	args := &biz.BizDBServiceArgs{
+		Name:     req.DBService.Name,
+		Desc:     &req.DBService.Desc,
+		DBType:   req.DBService.DBType,
+		Host:     req.DBService.Host,
+		Port:     req.DBService.Port,
+		User:     req.DBService.User,
+		Password: &req.DBService.Password,
+		// Business:          req.DBService.Business,
+		MaintenancePeriod: d.convertMaintenanceTimeToPeriod(req.DBService.MaintenanceTimes),
+		ProjectUID:        req.ProjectUid,
+		Source:            string(pkgConst.DBServiceSourceNameSQLE),
+		AdditionalParams:  additionalParams,
+		EnableBackup:      req.DBService.EnableBackup,
+		BackupMaxRows:     autoChooseBackupMaxRows(req.DBService.EnableBackup, req.DBService.BackupMaxRows),
+	}
+
+	if biz.IsDMS() {
+		args.IsMaskingSwitch = req.DBService.IsEnableMasking
+	}
+
+	sqleConfig := req.DBService.SQLEConfig
+	if sqleConfig != nil {
+		args.RuleTemplateName = sqleConfig.RuleTemplateName
+		args.RuleTemplateID = sqleConfig.RuleTemplateID
+		if sqleConfig.SQLQueryConfig != nil {
+			args.SQLQueryConfig = &biz.SQLQueryConfig{
+				MaxPreQueryRows:                  sqleConfig.SQLQueryConfig.MaxPreQueryRows,
+				QueryTimeoutSecond:               sqleConfig.SQLQueryConfig.QueryTimeoutSecond,
+				AuditEnabled:                     sqleConfig.SQLQueryConfig.AuditEnabled,
+				AllowQueryWhenLessThanAuditLevel: string(sqleConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel),
+			}
+		}
+	}
+	uid, err := d.DBServiceUsecase.CreateDBService(ctx, args, currentUserUid)
+	if err != nil {
+		return nil, fmt.Errorf("create db service failed: %w", err)
+	}
+
+	return &dmsV1.AddDBServiceReply{
+		Data: struct {
+			// db service UID
+			Uid string `json:"uid"`
+		}{Uid: uid},
+	}, nil
+}
+
+func (d *DMSService) AddDBServiceV2(ctx context.Context, req *dmsV2.AddDBServiceReq, currentUserUid string) (reply *dmsV1.AddDBServiceReply, err error) {
 	d.log.Infof("AddDBServices.req=%v", req)
 	defer func() {
 		d.log.Infof("AddDBServices.req=%v;reply=%v;error=%v", req, reply, err)
@@ -254,7 +318,7 @@ func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceRe
 		Port:              req.DBService.Port,
 		User:              req.DBService.User,
 		Password:          &req.DBService.Password,
-		Business:          req.DBService.Business,
+		EnvironmentTag:    req.DBService.EnvironmentTag,
 		MaintenancePeriod: d.convertMaintenanceTimeToPeriod(req.DBService.MaintenanceTimes),
 		ProjectUID:        req.ProjectUid,
 		Source:            string(pkgConst.DBServiceSourceNameSQLE),
@@ -327,13 +391,13 @@ func (d *DMSService) convertBizDBServiceArgs2ImportDBService(dbs []*biz.BizDBSer
 	ret := make([]*dmsV1.ImportDBService, len(dbs))
 	for i, u := range dbs {
 		ret[i] = &dmsV1.ImportDBService{
-			Name:             u.Name,
-			DBType:           u.DBType,
-			Host:             u.Host,
-			Port:             u.Port,
-			User:             u.User,
-			Password:         *u.Password,
-			Business:         u.Business,
+			Name:     u.Name,
+			DBType:   u.DBType,
+			Host:     u.Host,
+			Port:     u.Port,
+			User:     u.User,
+			Password: *u.Password,
+			// Business:         u.Business,
 			MaintenanceTimes: d.convertPeriodToMaintenanceTime(u.MaintenancePeriod),
 			Desc:             *u.Desc,
 			Source:           u.Source,
@@ -377,15 +441,15 @@ func (d *DMSService) convertImportDBService2BizDBService(importDbs []dmsV1.Impor
 	ret := make([]*biz.DBService, len(importDbs))
 	for i, u := range importDbs {
 		ret[i] = &biz.DBService{
-			UID:               "",
-			Name:              u.Name,
-			Desc:              u.Desc,
-			DBType:            u.DBType,
-			Host:              u.Host,
-			Port:              u.Port,
-			User:              u.User,
-			Password:          u.Password,
-			Business:          u.Business,
+			UID:      "",
+			Name:     u.Name,
+			Desc:     u.Desc,
+			DBType:   u.DBType,
+			Host:     u.Host,
+			Port:     u.Port,
+			User:     u.User,
+			Password: u.Password,
+			// Business:         u.Business,
 			AdditionalParams:  nil,
 			ProjectUID:        u.ProjectUID,
 			MaintenancePeriod: d.convertMaintenanceTimeToPeriod(u.MaintenanceTimes),
@@ -548,14 +612,14 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 			return nil, fmt.Errorf("failed to encrypt password: %w", err)
 		}
 		ret[i] = &dmsCommonV1.ListDBService{
-			DBServiceUid:        u.GetUID(),
-			Name:                u.Name,
-			DBType:              u.DBType,
-			Host:                u.Host,
-			Port:                u.Port,
-			User:                u.User,
-			Password:            password,
-			Business:            u.Business,
+			DBServiceUid: u.GetUID(),
+			Name:         u.Name,
+			DBType:       u.DBType,
+			Host:         u.Host,
+			Port:         u.Port,
+			User:         u.User,
+			Password:     password,
+			// Business:         u.Business,
 			MaintenanceTimes:    d.convertPeriodToMaintenanceTime(u.MaintenancePeriod),
 			Desc:                u.Desc,
 			Source:              u.Source,
