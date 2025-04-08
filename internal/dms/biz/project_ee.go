@@ -11,12 +11,10 @@ import (
 	"fmt"
 	"strings"
 
-	v1 "github.com/actiontech/dms/api/dms/service/v1"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	"github.com/actiontech/dms/internal/pkg/locale"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
-	pkgRand "github.com/actiontech/dms/pkg/rand"
 )
 
 func (d *ProjectUsecase) CreateProject(ctx context.Context, project *Project, createUserUID string) (err error) {
@@ -361,9 +359,9 @@ func (d *ProjectUsecase) PreviewImportProjects(ctx context.Context, uid, file st
 		}
 
 		projects = append(projects, &PreviewProject{
-			Name:     record[0],
-			Desc:     record[1],
-			Business: strings.Split(record[2], ";"),
+			Name:            record[0],
+			Desc:            record[1],
+			BusinessTagName: record[2],
 		})
 	}
 
@@ -395,7 +393,10 @@ func (d *ProjectUsecase) ExportProjects(ctx context.Context, uid string, option 
 	}); err != nil {
 		return nil, fmt.Errorf("failed to write csv header: %v", err)
 	}
-
+	err = d.businessTagUsecase.LoadBusinessTagForProjects(ctx, projects)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load business tag for projects: %v", err)
+	}
 	for _, project := range projects {
 		var status string
 		if project.Status == ProjectStatusArchived {
@@ -404,16 +405,11 @@ func (d *ProjectUsecase) ExportProjects(ctx context.Context, uid string, option 
 			status = locale.Bundle.LocalizeMsgByCtx(ctx, locale.ProjectAvailable)
 		}
 
-		var business string
-		for _, b := range project.Business {
-			business += b.Name + ";"
-		}
-
 		if err := csvWriter.Write([]string{
 			project.Name,
 			project.Desc,
 			status,
-			business,
+			project.BusinessTag.Name,
 			project.CreateTime.Format("2006-01-02 15:04:05"),
 		}); err != nil {
 			return nil, fmt.Errorf("failed to write csv row: %v", err)
@@ -429,7 +425,7 @@ func (d *ProjectUsecase) ExportProjects(ctx context.Context, uid string, option 
 	return buff.Bytes(), nil
 }
 
-func (d *ProjectUsecase) UpdateProject(ctx context.Context, currentUserUid, projectUid string, desc *string, priority *dmsCommonV1.ProjectPriority, isFixBusiness *bool, business []v1.BusinessForUpdate) (err error) {
+func (d *ProjectUsecase) UpdateProject(ctx context.Context, currentUserUid, projectUid string, desc *string, priority *dmsCommonV1.ProjectPriority, businessTagUID string) (err error) {
 	if err := d.checkUserCanUpdateProject(ctx, currentUserUid, projectUid); err != nil {
 		return fmt.Errorf("user can't update project: %v", err)
 	}
@@ -443,12 +439,16 @@ func (d *ProjectUsecase) UpdateProject(ctx context.Context, currentUserUid, proj
 		project.Desc = *desc
 	}
 
-	if isFixBusiness != nil {
-		project.IsFixedBusiness = *isFixBusiness
-	}
-
 	if priority != nil {
 		project.Priority = *priority
+	}
+
+	if businessTagUID != "" {
+		businessTag, err := d.businessTagUsecase.GetBusinessTagByUID(ctx, businessTagUID)
+		if err != nil {
+			return fmt.Errorf("get business tag failed: %v", err)
+		}
+		project.BusinessTag.UID = businessTag.UID
 	}
 
 	tx := d.tx.BeginTX(ctx)
@@ -457,44 +457,6 @@ func (d *ProjectUsecase) UpdateProject(ctx context.Context, currentUserUid, proj
 			err = tx.RollbackWithError(d.log, err)
 		}
 	}()
-
-	if business != nil {
-		businessList := make([]Business, 0)
-		for _, b := range business {
-			var oldBusiness string
-			newBusiness := b.Name
-			uid := b.ID
-			if b.ID == "" {
-				uid, err = pkgRand.GenStrUid()
-				if err != nil {
-					return fmt.Errorf("gen business uid failed: %v", err)
-				}
-			} else {
-				pj := new(Project)
-				pj, err = d.repo.GetProject(tx, projectUid)
-				if err != nil {
-					return fmt.Errorf("get business by uid failed: %v", err)
-				}
-				for _, bs := range pj.Business {
-					if bs.Uid == b.ID {
-						oldBusiness = bs.Name
-					}
-				}
-
-				err = d.UpdateDBServiceBusiness(tx, currentUserUid, project.UID, oldBusiness, newBusiness)
-				if err != nil {
-					return fmt.Errorf("update db service business failed: %v", err)
-				}
-			}
-
-			businessList = append(businessList, Business{
-				Uid:  uid,
-				Name: newBusiness,
-			})
-		}
-
-		project.Business = businessList
-	}
 
 	err = d.repo.UpdateProject(tx, project)
 	if err != nil {

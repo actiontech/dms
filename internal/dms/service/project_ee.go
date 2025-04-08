@@ -17,7 +17,23 @@ func (d *DMSService) importProjects(ctx context.Context, uid string, req *dmsV1.
 	if err != nil {
 		return fmt.Errorf("convert req to biz failed: %w", err)
 	}
-
+	err = d.BusinessTagUsecase.LoadBusinessTagForProjects(ctx, projects)
+	if err != nil {
+		return fmt.Errorf("failed to load business tag for projects: %v", err)
+	}
+	for _, project := range projects {
+		if project.BusinessTag.UID == "" && project.BusinessTag.Name != "" {
+			err = d.BusinessTagUsecase.CreateBusinessTag(ctx, project.BusinessTag.Name)
+			if err != nil {
+				return fmt.Errorf("create business tag failed: %w", err)
+			}
+			businessTag, err := d.BusinessTagUsecase.GetBusinessTagByName(ctx, project.BusinessTag.Name)
+			if err != nil {
+				return fmt.Errorf("get business tag failed: %w", err)
+			}
+			project.BusinessTag.UID = businessTag.UID
+		}
+	}
 	err = d.ProjectUsecase.ImportProjects(ctx, uid, projects)
 	if err != nil {
 		return fmt.Errorf("import projects failed: %w", err)
@@ -37,6 +53,7 @@ func convertImportReqToBiz(req *dmsV1.ImportProjectsReq, uid string) ([]*biz.Pro
 		if err != nil {
 			return nil, fmt.Errorf("create project failed: %w", err)
 		}
+		project.BusinessTag.Name = p.BusinessTag.Name
 		projects = append(projects, project)
 	}
 
@@ -97,9 +114,11 @@ func (d *DMSService) previewImportProjects(ctx context.Context, uid string, file
 	resp := make([]*dmsV1.PreviewImportProjects, len(projects))
 	for i, p := range projects {
 		resp[i] = &dmsV1.PreviewImportProjects{
-			Name:     p.Name,
-			Desc:     p.Desc,
-			Business: p.Business,
+			Name: p.Name,
+			Desc: p.Desc,
+			BusinessTag: &dmsV1.BusinessTag{
+				Name: p.BusinessTagName,
+			},
 		}
 	}
 
