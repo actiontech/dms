@@ -531,7 +531,7 @@ definitions:
                 type: string
                 x-go-name: UID
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     CBOperationLog:
         properties:
             audit_result:
@@ -830,9 +830,7 @@ definitions:
                 type: integer
                 x-go-name: BackupMaxRows
             business:
-                description: |-
-                    TODO This parameter is deprecated and will be removed soon.
-                    DB Service business name
+                description: DB Service business name
                 type: string
                 x-go-name: Business
             db_type:
@@ -847,8 +845,6 @@ definitions:
                 description: backup switch
                 type: boolean
                 x-go-name: EnableBackup
-            environment_tag:
-                $ref: '#/definitions/EnvironmentTag'
             host:
                 description: DB Service Host
                 type: string
@@ -891,7 +887,6 @@ definitions:
             - user
             - password
             - business
-            - environment_tag
             - maintenance_times
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
@@ -2077,10 +2072,68 @@ definitions:
                 x-go-name: AdditionalParams
             business:
                 description: |-
-                    TODO This parameter is deprecated and will be removed soon.
                     the db service business name
+                    Deprecated: the business field is replaced with the environmentTag of the v2 interface.
                 type: string
                 x-go-name: Business
+            db_type:
+                description: db service DB type
+                type: string
+                x-go-name: DBType
+            desc:
+                description: DB desc
+                type: string
+                x-go-name: Desc
+            host:
+                description: db service host
+                type: string
+                x-go-name: Host
+            is_enable_masking:
+                description: is enable masking
+                type: boolean
+                x-go-name: IsEnableMasking
+            maintenance_times:
+                description: DB Service maintenance time
+                items:
+                    $ref: '#/definitions/MaintenanceTime'
+                type: array
+                x-go-name: MaintenanceTimes
+            name:
+                description: db service name
+                type: string
+                x-go-name: Name
+            password:
+                description: db service admin encrypted password
+                type: string
+                x-go-name: Password
+            port:
+                description: db service port
+                type: string
+                x-go-name: Port
+            project_uid:
+                description: DB project uid
+                type: string
+                x-go-name: ProjectUID
+            source:
+                description: DB source
+                type: string
+                x-go-name: Source
+            sqle_config:
+                $ref: '#/definitions/SQLEConfig'
+            user:
+                description: db service admin user
+                type: string
+                x-go-name: User
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ImportDBServiceV2:
+        properties:
+            additional_params:
+                description: DB Service Custom connection parameters
+                items:
+                    $ref: '#/definitions/AdditionalParam'
+                type: array
+                x-go-name: AdditionalParams
             db_type:
                 description: db service DB type
                 type: string
@@ -2134,7 +2187,7 @@ definitions:
         required:
             - environment_tag
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     ImportDBServicesCheckReply:
         properties:
             code:
@@ -2172,16 +2225,18 @@ definitions:
                 x-go-name: DBServices
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ImportDBServicesOfProjectsReqV2:
+        properties:
+            db_services:
+                items:
+                    $ref: '#/definitions/ImportDBServiceV2'
+                type: array
+                x-go-name: DBServices
+        type: object
+        x-go-name: ImportDBServicesOfProjectsReq
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     ImportProjects:
         properties:
-            business:
-                description: |-
-                    TODO This parameter is deprecated and will be removed soon.
-                    business
-                items:
-                    type: string
-                type: array
-                x-go-name: Business
             business_tag:
                 $ref: '#/definitions/BusinessTag'
             desc:
@@ -2806,6 +2861,7 @@ definitions:
                 description: |-
                     TODO This parameter is deprecated and will be removed soon.
                     the db service business name
+                    Deprecated: the business field is replaced with the environmentTag of the v2 interface.
                 type: string
                 x-go-name: Business
             db_type:
@@ -2820,8 +2876,6 @@ definitions:
                 description: backup switch
                 type: boolean
                 x-go-name: EnableBackup
-            environment_tag:
-                $ref: '#/definitions/EnvironmentTag'
             host:
                 description: db service host
                 type: string
@@ -3943,14 +3997,6 @@ definitions:
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     PreviewImportProjects:
         properties:
-            business:
-                description: |-
-                    TODO This parameter is deprecated and will be removed soon.
-                    business
-                items:
-                    type: string
-                type: array
-                x-go-name: Business
             business_tag:
                 $ref: '#/definitions/BusinessTag'
             desc:
@@ -4514,9 +4560,7 @@ definitions:
                 type: integer
                 x-go-name: BackupMaxRows
             business:
-                description: |-
-                    TODO This parameter is deprecated and will be removed soon.
-                    DB Service business name
+                description: DB Service business name
                 type: string
                 x-go-name: Business
             db_type:
@@ -4531,8 +4575,6 @@ definitions:
                 description: backup switch
                 type: boolean
                 x-go-name: EnableBackup
-            environment_tag:
-                $ref: '#/definitions/EnvironmentTag'
             host:
                 description: DB Service Host
                 type: string
@@ -4567,7 +4609,6 @@ definitions:
             - port
             - user
             - business
-            - environment_tag
             - maintenance_times
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
@@ -9204,11 +9245,39 @@ paths:
             summary: Import projects.
             tags:
                 - Project
+    /v2/dms/projects/import_db_services:
+        post:
+            operationId: ImportDBServicesOfProjectsV2
+            parameters:
+                - description: new db services
+                  in: body
+                  name: db_services
+                  required: true
+                  schema:
+                    $ref: '#/definitions/ImportDBServicesOfProjectsReqV2'
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Import DBServices.
+            tags:
+                - Project
     /v2/dms/projects/import_db_services_check:
         post:
             consumes:
                 - multipart/form-data
             operationId: ImportDBServicesOfProjectsCheckV2
+            parameters:
+                - description: DBServices file.
+                  in: formData
+                  name: db_services_file
+                  type: file
+                  x-go-name: DBServicesFile
             produces:
                 - application/json
                 - text/csv
