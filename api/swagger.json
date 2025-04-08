@@ -1677,13 +1677,6 @@
           },
           {
             "type": "string",
-            "x-go-name": "FilterByBusinessTag",
-            "description": "filter project by business tag",
-            "name": "filter_by_business_tag",
-            "in": "query"
-          },
-          {
-            "type": "string",
             "x-go-name": "FilterByDesc",
             "description": "filter the Project By Project description",
             "name": "filter_by_desc",
@@ -2179,12 +2172,12 @@
     },
     "/v1/dms/projects/tips": {
       "get": {
-        "description": "Get project tips.",
         "tags": [
           "Project"
         ],
-        "summary": "TODO This API is deprecated and will be removed soon.",
+        "summary": "Get project tips.",
         "operationId": "GetProjectTips",
+        "deprecated": true,
         "parameters": [
           {
             "type": "string",
@@ -5393,9 +5386,9 @@
         ],
         "responses": {
           "200": {
-            "description": "ListProjectReply",
+            "description": "ListProjectReplyV2",
             "schema": {
-              "$ref": "#/definitions/ListProjectReply"
+              "$ref": "#/definitions/ListProjectReplyV2"
             }
           },
           "default": {
@@ -5419,15 +5412,15 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/AddProjectReq"
+              "$ref": "#/definitions/AddProjectReqV2"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "AddProjectReply",
+            "description": "AddProjectReplyV2",
             "schema": {
-              "$ref": "#/definitions/AddProjectReply"
+              "$ref": "#/definitions/AddProjectReplyV2"
             }
           },
           "default": {
@@ -5453,7 +5446,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ImportProjectsReq"
+              "$ref": "#/definitions/ImportProjectsReqV2"
             }
           }
         ],
@@ -5555,9 +5548,9 @@
         "operationId": "PreviewImportProjectsV2",
         "responses": {
           "200": {
-            "description": "PreviewImportProjectsReply",
+            "description": "PreviewImportProjectsReplyV2",
             "schema": {
-              "$ref": "#/definitions/PreviewImportProjectsReply"
+              "$ref": "#/definitions/PreviewImportProjectsReplyV2"
             }
           },
           "default": {
@@ -5590,7 +5583,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateProjectReq"
+              "$ref": "#/definitions/UpdateProjectReqV2"
             }
           }
         ],
@@ -6220,6 +6213,36 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "AddProjectReplyV2": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "Add Project reply",
+          "type": "object",
+          "properties": {
+            "uid": {
+              "description": "Project UID",
+              "type": "string",
+              "x-go-name": "Uid"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-name": "AddProjectReply",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
     "AddProjectReq": {
       "type": "object",
       "properties": {
@@ -6228,6 +6251,16 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddProjectReqV2": {
+      "type": "object",
+      "properties": {
+        "project": {
+          "$ref": "#/definitions/Project"
+        }
+      },
+      "x-go-name": "AddProjectReq",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "AddRoleReply": {
       "type": "object",
@@ -6646,7 +6679,7 @@
           "x-go-name": "UID"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "CBOperationLog": {
       "type": "object",
@@ -8847,8 +8880,13 @@
     "ImportProjects": {
       "type": "object",
       "properties": {
-        "business_tag": {
-          "$ref": "#/definitions/BusinessTag"
+        "business": {
+          "description": "business",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Business"
         },
         "desc": {
           "description": "Project desc",
@@ -8875,6 +8913,20 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ImportProjectsReqV2": {
+      "type": "object",
+      "properties": {
+        "projects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImportProjects"
+          },
+          "x-go-name": "Projects"
+        }
+      },
+      "x-go-name": "ImportProjectsReq",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "LDAPConfiguration": {
       "type": "object",
@@ -10174,15 +10226,12 @@
           "x-go-name": "Archived"
         },
         "business": {
-          "description": "TODO This parameter is deprecated and will be removed soon.\nProject business",
+          "description": "Project business",
           "type": "array",
           "items": {
             "$ref": "#/definitions/Business"
           },
           "x-go-name": "Business"
-        },
-        "business_tag": {
-          "$ref": "#/definitions/BusinessTag"
         },
         "create_time": {
           "description": "create time",
@@ -10257,6 +10306,37 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "ListProjectReplyV2": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List project reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListProject"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-name": "ListProjectReply",
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
     },
     "ListRole": {
       "description": "A dms role",
@@ -10966,7 +11046,7 @@
           "x-go-name": "Name"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "PreviewImportProjectsReply": {
       "type": "object",
@@ -10992,6 +11072,32 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "PreviewImportProjectsReplyV2": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "list preview import projects",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PreviewImportProjects"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-name": "PreviewImportProjectsReply",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "Project": {
       "description": "A Project",
@@ -11023,11 +11129,10 @@
           "x-go-name": "ProjectPriority"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "ProjectTips": {
       "type": "object",
-      "title": "TODO This model will be removed due to it's related API is deprecated and will be removed soon.",
       "properties": {
         "business": {
           "type": "array",
@@ -11598,7 +11703,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateBusinessTagReq": {
       "type": "object",
@@ -11936,14 +12041,6 @@
     "UpdateProject": {
       "type": "object",
       "properties": {
-        "business": {
-          "description": "Project business",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/BusinessForUpdate"
-          },
-          "x-go-name": "Business"
-        },
         "business_tag": {
           "$ref": "#/definitions/BusinessTag"
         },
@@ -11951,11 +12048,6 @@
           "description": "Project desc",
           "type": "string",
           "x-go-name": "Desc"
-        },
-        "is_fixed_business": {
-          "description": "is fixed business\nTODO This parameter is deprecated and will be removed soon.",
-          "type": "boolean",
-          "x-go-name": "IsFixedBusiness"
         },
         "project_priority": {
           "description": "project priority\nhigh ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
@@ -11970,7 +12062,7 @@
           "x-go-name": "ProjectPriority"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "UpdateProjectReq": {
       "type": "object",
@@ -11980,6 +12072,16 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateProjectReqV2": {
+      "type": "object",
+      "properties": {
+        "project": {
+          "$ref": "#/definitions/UpdateProject"
+        }
+      },
+      "x-go-name": "UpdateProjectReq",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "UpdateRole": {
       "type": "object",

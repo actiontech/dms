@@ -1,7 +1,10 @@
 package service
 
 import (
-	aV2 "github.com/actiontech/dms/api/dms/service/v2"
+	"fmt"
+
+	dmsApiV2 "github.com/actiontech/dms/api/dms/service/v2"
+	commonApiV2 "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
 	apiError "github.com/actiontech/dms/internal/apiserver/pkg/error"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	"github.com/labstack/echo/v4"
@@ -18,18 +21,33 @@ import (
 //     in: body
 //     required: true
 //     schema:
-//       "$ref": "#/definitions/AddProjectReq"
+//       "$ref": "#/definitions/AddProjectReqV2"
 // responses:
 //   '200':
-//     description: AddProjectReply
+//     description: AddProjectReplyV2
 //     schema:
-//       "$ref": "#/definitions/AddProjectReply"
+//       "$ref": "#/definitions/AddProjectReplyV2"
 //   default:
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) AddProjectV2(c echo.Context) error {
-	return d.AddProject(c)
+func (ctl *DMSController) AddProjectV2(c echo.Context) error {
+	req := new(dmsApiV2.AddProjectReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, err := ctl.DMS.AddProject(c.Request().Context(), currentUserUid, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:operation POST /v2/dms/projects/import Project ImportProjectsV2
@@ -43,7 +61,7 @@ func (d *DMSController) AddProjectV2(c echo.Context) error {
 //     in: body
 //     required: true
 //     schema:
-//       "$ref": "#/definitions/ImportProjectsReq"
+//       "$ref": "#/definitions/ImportProjectsReqV2"
 // responses:
 //   '200':
 //     description: GenericResp
@@ -53,8 +71,24 @@ func (d *DMSController) AddProjectV2(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) ImportProjectsV2(c echo.Context) error {
-	return d.ImportProjects(c)
+func (ctl *DMSController) ImportProjectsV2(c echo.Context) error {
+	req := new(dmsApiV2.ImportProjectsReq)
+	err := bindAndValidateReq(c, req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	err = ctl.DMS.ImportProjects(c.Request().Context(), currentUserUid, req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkResp(c)
 }
 
 
@@ -66,10 +100,28 @@ func (d *DMSController) ImportProjectsV2(c echo.Context) error {
 //	- multipart/form-data
 //
 //	responses:
-//	  200: PreviewImportProjectsReply
+//	  200: PreviewImportProjectsReplyV2
 //	  default: body:GenericResp
-func (d *DMSController) PreviewImportProjectsV2(c echo.Context) error{
-	return d.PreviewImportProjects(c)
+func (ctl *DMSController) PreviewImportProjectsV2(c echo.Context) error{
+	file, exist, err := ReadFileContent(c, ProjectsFileParamKey)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	if !exist {
+		return NewErrResp(c, fmt.Errorf("upload file is not exist"), apiError.APIServerErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, err := ctl.DMS.PreviewImportProjects(c.Request().Context(), currentUserUid, file)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:route GET /v2/dms/projects Project ListProjectsV2
@@ -77,11 +129,73 @@ func (d *DMSController) PreviewImportProjectsV2(c echo.Context) error{
 // List projects.
 //
 //	responses:
-//	  200: body:ListProjectReply
+//	  200: body:ListProjectReplyV2
 //	  default: body:GenericResp
-func (d *DMSController) ListProjectsV2(c echo.Context) error {
-	return d.ListProjects(c)
+func (ctl *DMSController) ListProjectsV2(c echo.Context) error {
+	req := new(commonApiV2.ListProjectReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, err := ctl.DMS.ListProjects(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
 }
+
+
+// swagger:operation PUT /v2/dms/projects/{project_uid} Project UpdateProjectV2
+//
+// update a project.
+//
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: project
+//     description: Update a project
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateProjectReqV2"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) UpdateProjectV2(c echo.Context) error {
+	req := &dmsApiV2.UpdateProjectReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	err = ctl.DMS.UpdateProject(c.Request().Context(), currentUserUid, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkResp(c)
+}
+
 
 // swagger:operation POST /v2/dms/projects/{project_uid}/db_services DBService AddDBServiceV2
 //
@@ -110,7 +224,7 @@ func (d *DMSController) ListProjectsV2(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddDBServiceV2(c echo.Context) error{
-	req := new(aV2.AddDBServiceReq)
+	req := new(dmsApiV2.AddDBServiceReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
@@ -181,8 +295,8 @@ func (d *DMSController) ImportDBServicesOfProjectsV2(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) ImportDBServicesOfOneProjectV2(c echo.Context) error {
-	return d.ImportDBServicesOfOneProject(c)
+func (ctl *DMSController) ImportDBServicesOfOneProjectV2(c echo.Context) error {
+	return ctl.ImportDBServicesOfOneProject(c)
 }
 
 // swagger:route POST /v2/dms/projects/{project_uid}/db_services/import_check DBService ImportDBServicesOfOneProjectCheckV2
@@ -199,8 +313,8 @@ func (d *DMSController) ImportDBServicesOfOneProjectV2(c echo.Context) error {
 //	responses:
 //	  200: ImportDBServicesCheckCsvReply
 //	  default: body:ImportDBServicesCheckReply
-func (d *DMSController) ImportDBServicesOfOneProjectCheckV2(c echo.Context) error {
-	return d.ImportDBServicesOfOneProjectCheck(c)
+func (ctl *DMSController) ImportDBServicesOfOneProjectCheckV2(c echo.Context) error {
+	return ctl.ImportDBServicesOfOneProjectCheck(c)
 }
 
 // swagger:route POST /v2/dms/projects/import_db_services_check Project ImportDBServicesOfProjectsCheckV2
@@ -217,8 +331,8 @@ func (d *DMSController) ImportDBServicesOfOneProjectCheckV2(c echo.Context) erro
 //	responses:
 //	  200: ImportDBServicesCheckCsvReply
 //	  default: body:ImportDBServicesCheckReply
-func (d *DMSController) ImportDBServicesOfProjectsCheckV2(c echo.Context) error {
-	return d.ImportDBServicesOfProjectsCheck(c)
+func (ctl *DMSController) ImportDBServicesOfProjectsCheckV2(c echo.Context) error {
+	return ctl.ImportDBServicesOfProjectsCheck(c)
 }
 
 // swagger:operation PUT /v2/dms/projects/{project_uid}/db_services/{db_service_uid} DBService UpdateDBServiceV2
@@ -251,8 +365,8 @@ func (d *DMSController) ImportDBServicesOfProjectsCheckV2(c echo.Context) error 
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) UpdateDBServiceV2(c echo.Context) error{
-	return d.UpdateDBService(c) 
+func (ctl *DMSController) UpdateDBServiceV2(c echo.Context) error{
+	return ctl.UpdateDBService(c) 
 }
 
 // swagger:route GET /v2/dms/db_services DBService ListGlobalDBServicesV2
@@ -262,8 +376,8 @@ func (d *DMSController) UpdateDBServiceV2(c echo.Context) error{
 //	responses:
 //	  200: body:ListGlobalDBServicesReply
 //	  default: body:GenericResp
-func (d *DMSController) ListGlobalDBServicesV2(c echo.Context) error {
-	return d.ListGlobalDBServices(c)
+func (ctl *DMSController) ListGlobalDBServicesV2(c echo.Context) error {
+	return ctl.ListGlobalDBServices(c)
 }
 
 // swagger:route GET /v2/dms/projects/{project_uid}/db_services DBService ListDBServicesV2
@@ -273,36 +387,6 @@ func (d *DMSController) ListGlobalDBServicesV2(c echo.Context) error {
 //	responses:
 //	  200: body:ListDBServiceReply
 //	  default: body:GenericResp
-func (d *DMSController) ListDBServicesV2(c echo.Context) error {
-	return d.ListDBServices(c)
-}
-
-// swagger:operation PUT /v2/dms/projects/{project_uid} Project UpdateProjectV2
-//
-// update a project.
-//
-// ---
-// parameters:
-//   - name: project_uid
-//     description: project id
-//     in: path
-//     required: true
-//     type: string
-//   - name: project
-//     description: Update a project
-//     required: true
-//     in: body
-//     schema:
-//       "$ref": "#/definitions/UpdateProjectReq"
-// responses:
-//   '200':
-//     description: GenericResp
-//     schema:
-//       "$ref": "#/definitions/GenericResp"
-//   default:
-//     description: GenericResp
-//     schema:
-//       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) UpdateProjectV2(c echo.Context) error {
-	return d.UpdateProject(c)
+func (ctl *DMSController) ListDBServicesV2(c echo.Context) error {
+	return ctl.ListDBServices(c)
 }

@@ -1784,23 +1784,7 @@ func (d *DMSController) ListOpPermissions(c echo.Context) error {
 //	  default: body:GenericResp
 // deprecated: true
 func (d *DMSController) ListProjects(c echo.Context) error {
-	req := new(dmsV1.ListProjectReq)
-	err := bindAndValidateReq(c, req)
-	if nil != err {
-		return NewErrResp(c, err, apiError.BadRequestErr)
-	}
-
-	// get current user id
-	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-
-	reply, err := d.DMS.ListProjects(c.Request().Context(), req, currentUserUid)
-	if nil != err {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-	return NewOkRespWithReply(c, reply)
+	return nil
 }
 
 // swagger:operation POST /v1/dms/projects/business_tags Project CreateBusinessTag
@@ -1872,7 +1856,23 @@ func (d *DMSController) CreateBusinessTag(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateBusinessTag(c echo.Context) error {
-	return nil
+	req := new(aV1.UpdateBusinessTagReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	err = d.DMS.UpdateBusinessTag(c.Request().Context(), currentUserUid, req.BusinessTagUID, req.BusinessTag)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkResp(c)
 }
 
 // swagger:route DELETE /v1/dms/projects/business_tags/{business_tag_uid} Project DeleteBusinessTag
@@ -1882,8 +1882,24 @@ func (d *DMSController) UpdateBusinessTag(c echo.Context) error {
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (a *DMSController) DeleteBusinessTag(c echo.Context) error {
-	return nil
+func (d *DMSController) DeleteBusinessTag(c echo.Context) error {
+	req := new(aV1.DeleteBusinessTagReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	err = d.DMS.DeleteBusinessTag(c.Request().Context(), currentUserUid, req.BusinessTagUID)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkResp(c)
 }
 
 // swagger:route GET /v1/dms/projects/business_tags Project ListBusinessTags
@@ -1894,7 +1910,16 @@ func (a *DMSController) DeleteBusinessTag(c echo.Context) error {
 //	  200: body:ListBusinessTagsReply
 //	  default: body:GenericResp
 func (d *DMSController) ListBusinessTags(c echo.Context) error{
-	return nil
+	req := new(aV1.ListBusinessTagReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	reply, err := d.DMS.ListBusinessTags(c.Request().Context(), req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:operation POST /v1/dms/projects Project AddProject
@@ -1920,22 +1945,7 @@ func (d *DMSController) ListBusinessTags(c echo.Context) error{
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddProject(c echo.Context) error {
-	req := new(aV1.AddProjectReq)
-	err := bindAndValidateReq(c, req)
-	if nil != err {
-		return NewErrResp(c, err, apiError.BadRequestErr)
-	}
-	// get current user id
-	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-
-	reply, err := d.DMS.AddProject(c.Request().Context(), currentUserUid, req)
-	if nil != err {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-	return NewOkRespWithReply(c, reply)
+	return nil
 }
 
 // swagger:route DELETE /v1/dms/projects/{project_uid} Project DelProject
@@ -1991,21 +2001,7 @@ func (a *DMSController) DelProject(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (a *DMSController) UpdateProject(c echo.Context) error {
-	req := &aV1.UpdateProjectReq{}
-	err := bindAndValidateReq(c, req)
-	if nil != err {
-		return NewErrResp(c, err, apiError.BadRequestErr)
-	}
-	// get current user id
-	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-	err = a.DMS.UpdateProject(c.Request().Context(), currentUserUid, req)
-	if nil != err {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-	return NewOkResp(c)
+	return nil
 }
 
 // swagger:route PUT /v1/dms/projects/{project_uid}/archive Project ArchiveProject
@@ -2083,23 +2079,7 @@ func (a *DMSController) UnarchiveProject(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (a *DMSController) ImportProjects(c echo.Context) error {
-	req := new(aV1.ImportProjectsReq)
-	err := bindAndValidateReq(c, req)
-	if err != nil {
-		return NewErrResp(c, err, apiError.BadRequestErr)
-	}
-
-	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-
-	err = a.DMS.ImportProjects(c.Request().Context(), currentUserUid, req)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-
-	return NewOkResp(c)
+	return nil 
 }
 
 // swagger:route POST /v1/dms/projects/preview_import Project PreviewImportProjects
@@ -2114,25 +2094,7 @@ func (a *DMSController) ImportProjects(c echo.Context) error {
 //	  default: body:GenericResp
 // deprecated: true
 func (a *DMSController) PreviewImportProjects(c echo.Context) error {
-	file, exist, err := ReadFileContent(c, ProjectsFileParamKey)
-	if err != nil {
-		return NewErrResp(c, err, apiError.APIServerErr)
-	}
-	if !exist {
-		return NewErrResp(c, fmt.Errorf("upload file is not exist"), apiError.APIServerErr)
-	}
-
-	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-
-	reply, err := a.DMS.PreviewImportProjects(c.Request().Context(), currentUserUid, file)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-
-	return NewOkRespWithReply(c, reply)
+	return nil
 }
 
 // swagger:route GET /v1/dms/projects/import_template Project GetImportProjectsTemplate
@@ -2192,30 +2154,14 @@ func (a *DMSController) ExportProjects(c echo.Context) error {
 
 // swagger:route GET /v1/dms/projects/tips Project GetProjectTips
 //
-// TODO This API is deprecated and will be removed soon.
 // Get project tips.
 //
 //	responses:
 //	  200: body:GetProjectTipsReply
 //	  default: body:GenericResp
+// deprecated: true
 func (a *DMSController) GetProjectTips(c echo.Context) error {
-	req := new(aV1.GetProjectTipsReq)
-	err := bindAndValidateReq(c, req)
-	if err != nil {
-		return NewErrResp(c, err, apiError.BadRequestErr)
-	}
-
-	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-
-	reply, err := a.DMS.GetProjectTips(c.Request().Context(), currentUserUid, req)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-
-	return NewOkRespWithReply(c, reply)
+	return nil
 }
 
 // swagger:route GET /v1/dms/projects/import_db_services_template Project GetImportDBServicesTemplate

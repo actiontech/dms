@@ -14,8 +14,10 @@ type Project struct {
 	Name string `json:"name"`
 	// project desc
 	Desc string `json:"desc"`
-	// project business tag
-	BusinessTag *BusinessTag `json:"business_tag"`
+	// is fixed business
+	IsFixedBusiness bool `json:"is_fixed_business"`
+	// project business
+	Business []string `json:"business"`
 	// project priority
 	ProjectPriority dmsCommonV1.ProjectPriority `json:"project_priority"  enums:"high,medium,low"`
 }
@@ -69,12 +71,9 @@ type UpdateProject struct {
 	// Project desc
 	Desc *string `json:"desc"`
 	// is fixed business
-	// TODO This parameter is deprecated and will be removed soon.
 	IsFixedBusiness *bool `json:"is_fixed_business"`
 	// Project business
 	Business []BusinessForUpdate `json:"business"`
-	// project business tag
-	BusinessTag *BusinessTag `json:"business_tag"`
 	// project priority
 	ProjectPriority *dmsCommonV1.ProjectPriority `json:"project_priority"  enums:"high,medium,low"`
 }
@@ -127,8 +126,8 @@ type ImportProjects struct {
 	Name string `json:"name" validate:"required"`
 	// Project desc
 	Desc string `json:"desc"`
-	// project business tag
-	BusinessTag *BusinessTag `json:"business_tag"`
+	// business
+	Business []string `json:"business" validate:"required"`
 }
 
 // swagger:parameters PreviewImportProjects
@@ -154,8 +153,8 @@ type PreviewImportProjects struct {
 	Name string `json:"name"`
 	// Project desc
 	Desc string `json:"desc"`
-	// project business tag
-	BusinessTag *BusinessTag `json:"business_tag"`
+	// business
+	Business []string `json:"business"`
 }
 
 // swagger:parameters ExportProjects
@@ -198,7 +197,6 @@ type GetProjectTipsReply struct {
 	Data []*ProjectTips `json:"data"`
 }
 
-// TODO This model will be removed due to it's related API is deprecated and will be removed soon.
 type ProjectTips struct {
 	IsFixedBusiness bool     `json:"is_fixed_business"`
 	Business        []string `json:"business"`

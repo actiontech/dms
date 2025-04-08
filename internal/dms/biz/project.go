@@ -28,8 +28,6 @@ type Project struct {
 	Name            string
 	Desc            string
 	Priority        dmsCommonV1.ProjectPriority
-	IsFixedBusiness bool       // TODO 业务改造完成后删除
-	Business        []Business // TODO 业务改造完成后删除
 	BusinessTag     BusinessTag
 	CreateUserUID   string
 	CreateTime      time.Time

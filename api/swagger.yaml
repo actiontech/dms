@@ -217,12 +217,42 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddProjectReplyV2:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: Add Project reply
+                properties:
+                    uid:
+                        description: Project UID
+                        type: string
+                        x-go-name: Uid
+                type: object
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-name: AddProjectReply
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     AddProjectReq:
         properties:
             project:
                 $ref: '#/definitions/Project'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddProjectReqV2:
+        properties:
+            project:
+                $ref: '#/definitions/Project'
+        type: object
+        x-go-name: AddProjectReq
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     AddRoleReply:
         properties:
             code:
@@ -531,7 +561,7 @@ definitions:
                 type: string
                 x-go-name: UID
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CBOperationLog:
         properties:
             audit_result:
@@ -2237,8 +2267,12 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v2
     ImportProjects:
         properties:
-            business_tag:
-                $ref: '#/definitions/BusinessTag'
+            business:
+                description: business
+                items:
+                    type: string
+                type: array
+                x-go-name: Business
             desc:
                 description: Project desc
                 type: string
@@ -2258,6 +2292,16 @@ definitions:
                 x-go-name: Projects
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ImportProjectsReqV2:
+        properties:
+            projects:
+                items:
+                    $ref: '#/definitions/ImportProjects'
+                type: array
+                x-go-name: Projects
+        type: object
+        x-go-name: ImportProjectsReq
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     LDAPConfiguration:
         properties:
             enable_ldap:
@@ -3283,15 +3327,11 @@ definitions:
                 type: boolean
                 x-go-name: Archived
             business:
-                description: |-
-                    TODO This parameter is deprecated and will be removed soon.
-                    Project business
+                description: Project business
                 items:
                     $ref: '#/definitions/Business'
                 type: array
                 x-go-name: Business
-            business_tag:
-                $ref: '#/definitions/BusinessTag'
             create_time:
                 description: create time
                 format: date-time
@@ -3359,6 +3399,30 @@ definitions:
                 x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    ListProjectReplyV2:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: List project reply
+                items:
+                    $ref: '#/definitions/ListProject'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-name: ListProjectReply
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v2
     ListRole:
         description: A dms role
         properties:
@@ -4008,7 +4072,7 @@ definitions:
                 type: string
                 x-go-name: Name
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     PreviewImportProjectsReply:
         properties:
             code:
@@ -4028,6 +4092,26 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    PreviewImportProjectsReplyV2:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: list preview import projects
+                items:
+                    $ref: '#/definitions/PreviewImportProjects'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-name: PreviewImportProjectsReply
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     Project:
         description: A Project
         properties:
@@ -4061,7 +4145,7 @@ definitions:
                     unknown ProjectPriorityUnknown
                 x-go-name: ProjectPriority
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     ProjectTips:
         properties:
             business:
@@ -4072,7 +4156,6 @@ definitions:
             is_fixed_business:
                 type: boolean
                 x-go-name: IsFixedBusiness
-        title: TODO This model will be removed due to it's related API is deprecated and will be removed soon.
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     RegisterDMSPluginReply:
@@ -4485,7 +4568,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateBusinessTagReq:
         properties:
             business_tag:
@@ -4733,24 +4816,12 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateProject:
         properties:
-            business:
-                description: Project business
-                items:
-                    $ref: '#/definitions/BusinessForUpdate'
-                type: array
-                x-go-name: Business
             business_tag:
                 $ref: '#/definitions/BusinessTag'
             desc:
                 description: Project desc
                 type: string
                 x-go-name: Desc
-            is_fixed_business:
-                description: |-
-                    is fixed business
-                    TODO This parameter is deprecated and will be removed soon.
-                type: boolean
-                x-go-name: IsFixedBusiness
             project_priority:
                 description: |-
                     project priority
@@ -4771,13 +4842,20 @@ definitions:
                     unknown ProjectPriorityUnknown
                 x-go-name: ProjectPriority
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     UpdateProjectReq:
         properties:
             project:
                 $ref: '#/definitions/UpdateProject'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateProjectReqV2:
+        properties:
+            project:
+                $ref: '#/definitions/UpdateProject'
+        type: object
+        x-go-name: UpdateProjectReq
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     UpdateRole:
         properties:
             desc:
@@ -6384,11 +6462,6 @@ paths:
                     low ProjectPriorityLow
                     unknown ProjectPriorityUnknown
                   x-go-name: FilterByProjectPriority
-                - description: filter project by business tag
-                  in: query
-                  name: filter_by_business_tag
-                  type: string
-                  x-go-name: FilterByBusinessTag
                 - description: filter the Project By Project description
                   in: query
                   name: filter_by_desc
@@ -8171,7 +8244,7 @@ paths:
                 - Project
     /v1/dms/projects/tips:
         get:
-            description: Get project tips.
+            deprecated: true
             operationId: GetProjectTips
             parameters:
                 - description: Project uid
@@ -8188,7 +8261,7 @@ paths:
                     description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: TODO This API is deprecated and will be removed soon.
+            summary: Get project tips.
             tags:
                 - Project
     /v1/dms/proxys:
@@ -8946,9 +9019,9 @@ paths:
                   x-go-name: FilterByDesc
             responses:
                 "200":
-                    description: ListProjectReply
+                    description: ListProjectReplyV2
                     schema:
-                        $ref: '#/definitions/ListProjectReply'
+                        $ref: '#/definitions/ListProjectReplyV2'
                 default:
                     description: GenericResp
                     schema:
@@ -8964,12 +9037,12 @@ paths:
                   name: project
                   required: true
                   schema:
-                    $ref: '#/definitions/AddProjectReq'
+                    $ref: '#/definitions/AddProjectReqV2'
             responses:
                 "200":
-                    description: AddProjectReply
+                    description: AddProjectReplyV2
                     schema:
-                        $ref: '#/definitions/AddProjectReply'
+                        $ref: '#/definitions/AddProjectReplyV2'
                 default:
                     description: GenericResp
                     schema:
@@ -8991,7 +9064,7 @@ paths:
                   name: project
                   required: true
                   schema:
-                    $ref: '#/definitions/UpdateProjectReq'
+                    $ref: '#/definitions/UpdateProjectReqV2'
             responses:
                 "200":
                     description: GenericResp
@@ -9232,7 +9305,7 @@ paths:
                   name: projects
                   required: true
                   schema:
-                    $ref: '#/definitions/ImportProjectsReq'
+                    $ref: '#/definitions/ImportProjectsReqV2'
             responses:
                 "200":
                     description: GenericResp
@@ -9298,9 +9371,9 @@ paths:
             operationId: PreviewImportProjectsV2
             responses:
                 "200":
-                    description: PreviewImportProjectsReply
+                    description: PreviewImportProjectsReplyV2
                     schema:
-                        $ref: '#/definitions/PreviewImportProjectsReply'
+                        $ref: '#/definitions/PreviewImportProjectsReplyV2'
                 default:
                     description: GenericResp
                     schema:

@@ -7,11 +7,12 @@ import (
 	"errors"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
+	dmsV2 "github.com/actiontech/dms/api/dms/service/v2"
 )
 
 var errNotSupportProject = errors.New("project related functions are enterprise version functions")
 
-func (d *DMSService) importProjects(ctx context.Context, uid string, req *dmsV1.ImportProjectsReq) error {
+func (d *DMSService) importProjects(ctx context.Context, uid string, req *dmsV2.ImportProjectsReq) error {
 	return errNotSupportProject
 }
 
@@ -19,19 +20,7 @@ func (d *DMSService) getImportProjectsTemplate(ctx context.Context, uid string) 
 	return nil, errNotSupportProject
 }
 
-func (d *DMSService) getProjectTips(ctx context.Context, uid string, req *dmsV1.GetProjectTipsReq, err error) (*dmsV1.GetProjectTipsReply, error) {
-	business, err := d.DBServiceUsecase.GetBusiness(ctx, req.ProjectUid)
-	if err != nil {
-		return nil, err
-	}
-	return &dmsV1.GetProjectTipsReply{
-		Data: []*dmsV1.ProjectTips{
-			{Business: business},
-		},
-	}, nil
-}
-
-func (d *DMSService) previewImportProjects(ctx context.Context, uid string, file string, err error) (*dmsV1.PreviewImportProjectsReply, error) {
+func (d *DMSService) previewImportProjects(ctx context.Context, uid string, file string) (reply *dmsV2.PreviewImportProjectsReply, err error) {
 	return nil, errNotSupportProject
 }
 

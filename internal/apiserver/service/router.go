@@ -51,7 +51,7 @@ func (s *APIServer) initRouter() error {
 
 		dbServiceV1 := v1.Group(dmsV1.DBServiceRouterGroup)
 		{
-			dbServiceV1.POST("", DeprecatedBy(apiV2))
+			dbServiceV1.POST("", s.DeprecatedBy(apiV2))
 			dbServiceV1.GET("", s.DMSController.ListDBServices)
 			dbServiceV1.GET("/tips", s.DMSController.ListDBServiceTips)
 			dbServiceV1.DELETE("/:db_service_uid", s.DMSController.DelDBService)
@@ -125,15 +125,15 @@ func (s *APIServer) initRouter() error {
 		opPermissionV1.GET("", s.DMSController.ListOpPermissions)
 
 		projectV1 := v1.Group(dmsV1.ProjectRouterGroup)
-		projectV1.GET("", s.DMSController.ListProjects)
-		projectV1.POST("", s.DMSController.AddProject)
+		projectV1.GET("", s.DeprecatedBy(dmsV1.GroupV2))
+		projectV1.POST("", s.DeprecatedBy(dmsV1.GroupV2))
 		projectV1.DELETE("/:project_uid", s.DMSController.DelProject)
-		projectV1.PUT("/:project_uid", s.DMSController.UpdateProject)
+		projectV1.PUT("/:project_uid", s.DeprecatedBy(dmsV1.GroupV2))
 		projectV1.PUT("/:project_uid/archive", s.DMSController.ArchiveProject)
 		projectV1.PUT("/:project_uid/unarchive", s.DMSController.UnarchiveProject)
-		projectV1.POST("/import", s.DMSController.ImportProjects)
+		projectV1.POST("/import", s.DeprecatedBy(dmsV1.GroupV2))
 		projectV1.GET("/import_template", s.DMSController.GetImportProjectsTemplate)
-		projectV1.POST("/preview_import", s.DMSController.PreviewImportProjects)
+		projectV1.POST("/preview_import", s.DeprecatedBy(dmsV1.GroupV2))
 		projectV1.GET("/export", s.DMSController.ExportProjects)
 		projectV1.GET("/tips", s.DMSController.GetProjectTips)
 		projectV1.GET("/import_db_services_template", s.DMSController.GetImportDBServicesTemplate)
@@ -142,6 +142,9 @@ func (s *APIServer) initRouter() error {
 		projectV1.POST("/db_services_connection", s.DMSController.DBServicesConnection)
 		projectV1.POST("/db_services_connections", s.DMSController.CheckGlobalDBServicesConnections)
 		projectV1.POST("/business_tags", s.DMSController.CreateBusinessTag)
+		projectV1.GET("/business_tags", s.DMSController.ListBusinessTags)
+		projectV1.PUT("/business_tags/:business_tag_uid", s.DMSController.UpdateBusinessTag)
+		projectV1.DELETE("/business_tags/:business_tag_uid", s.DMSController.DeleteBusinessTag)
 
 		// oauth2 interface does not require login authentication
 		oauth2V1 := v1.Group("/dms/oauth2")
@@ -232,6 +235,15 @@ func (s *APIServer) initRouter() error {
 				Balancer: middleware.NewRandomBalancer(targets),
 			}))
 		}
+	}
+
+	{
+		projectV2 := v2.Group(dmsV1.ProjectRouterGroup)
+		projectV2.POST("", s.DMSController.AddProjectV2)
+		projectV2.GET("", s.DMSController.ListProjectsV2)
+		projectV2.PUT("/:project_uid", s.DMSController.UpdateProjectV2)
+		projectV2.POST("/import", s.DMSController.ImportProjectsV2)
+		projectV2.POST("/preview_import", s.DMSController.PreviewImportProjectsV2)
 	}
 	return nil
 }
@@ -401,7 +413,7 @@ func (s *APIServer) Shutdown() error {
 }
 
 // DeprecatedBy is a controller used to mark deprecated and used to replace the original controller.
-func DeprecatedBy(version string) func(echo.Context) error {
+func (s *APIServer) DeprecatedBy(version string) func(echo.Context) error {
 	return func(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf(
 			"the API has been deprecated, please using the %s version", version))

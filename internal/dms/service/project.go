@@ -6,14 +6,16 @@ import (
 	"fmt"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
+	dmsV2 "github.com/actiontech/dms/api/dms/service/v2"
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+	dmsCommonV2 "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
 	"github.com/go-openapi/strfmt"
 )
 
-func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV1.ListProjectReq, currentUserUid string) (reply *dmsCommonV1.ListProjectReply, err error) {
+func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV2.ListProjectReq, currentUserUid string) (reply *dmsCommonV2.ListProjectReply, err error) {
 	var orderBy biz.ProjectField
 	switch req.OrderBy {
 	case dmsCommonV1.ProjectOrderByName:
@@ -89,15 +91,15 @@ func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV1.ListProj
 	if err != nil {
 		return nil, err
 	}
-	ret := make([]*dmsCommonV1.ListProject, len(projects))
+	ret := make([]*dmsCommonV2.ListProject, len(projects))
 	for i, n := range projects {
-		ret[i] = &dmsCommonV1.ListProject{
+		ret[i] = &dmsCommonV2.ListProject{
 			ProjectUid: n.UID,
 			Name:       n.Name,
 			Archived:   (n.Status == biz.ProjectStatusArchived),
 			Desc:       n.Desc,
 			CreateTime: strfmt.DateTime(n.CreateTime),
-			BusinessTag: &dmsCommonV1.BusinessTag{
+			BusinessTag: &dmsCommonV2.BusinessTag{
 				UID:  n.BusinessTag.UID,
 				Name: n.BusinessTag.Name,
 			},
@@ -114,7 +116,7 @@ func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV1.ListProj
 		}
 	}
 
-	return &dmsCommonV1.ListProjectReply{
+	return &dmsCommonV2.ListProjectReply{
 		Data: ret, Total: total,
 	}, nil
 }
@@ -128,7 +130,7 @@ func isStrInSlice(str string, slice []string) bool {
 	return false
 }
 
-func (d *DMSService) AddProject(ctx context.Context, currentUserUid string, req *dmsV1.AddProjectReq) (reply *dmsV1.AddProjectReply, err error) {
+func (d *DMSService) AddProject(ctx context.Context, currentUserUid string, req *dmsV2.AddProjectReq) (reply *dmsV2.AddProjectReply, err error) {
 	// check
 	{
 		// check current user has enough permission
@@ -161,7 +163,7 @@ func (d *DMSService) AddProject(ctx context.Context, currentUserUid string, req 
 		return nil, fmt.Errorf("create  project failed: %w", err)
 	}
 
-	return &dmsV1.AddProjectReply{
+	return &dmsV2.AddProjectReply{
 		Data: struct {
 			//  project UID
 			Uid string `json:"uid"`
@@ -187,8 +189,8 @@ func (d *DMSService) UpdateProjectDesc(ctx context.Context, currentUserUid strin
 	return nil
 }
 
-func (d *DMSService) UpdateProject(ctx context.Context, currentUserUid string, req *dmsV1.UpdateProjectReq) (err error) {
-	err = d.ProjectUsecase.UpdateProject(ctx, currentUserUid, req.ProjectUid, req.Project.Desc, req.Project.ProjectPriority, req.Project.IsFixedBusiness, req.Project.Business)
+func (d *DMSService) UpdateProject(ctx context.Context, currentUserUid string, req *dmsV2.UpdateProjectReq) (err error) {
+	err = d.ProjectUsecase.UpdateProject(ctx, currentUserUid, req.ProjectUid, req.Project.Desc, req.Project.ProjectPriority, req.Project.BusinessTag.UID)
 	if err != nil {
 		return fmt.Errorf("update project failed: %w", err)
 	}
@@ -214,7 +216,7 @@ func (d *DMSService) UnarchiveProject(ctx context.Context, currentUserUid string
 	return nil
 }
 
-func (d *DMSService) ImportProjects(ctx context.Context, uid string, req *dmsV1.ImportProjectsReq) error {
+func (d *DMSService) ImportProjects(ctx context.Context, uid string, req *dmsV2.ImportProjectsReq) error {
 	return d.importProjects(ctx, uid, req)
 }
 
@@ -222,12 +224,8 @@ func (d *DMSService) GetImportProjectsTemplate(ctx context.Context, uid string) 
 	return d.getImportProjectsTemplate(ctx, uid)
 }
 
-func (d *DMSService) GetProjectTips(ctx context.Context, uid string, req *dmsV1.GetProjectTipsReq) (reply *dmsV1.GetProjectTipsReply, err error) {
-	return d.getProjectTips(ctx, uid, req, err)
-}
-
-func (d *DMSService) PreviewImportProjects(ctx context.Context, uid string, file string) (reply *dmsV1.PreviewImportProjectsReply, err error) {
-	return d.previewImportProjects(ctx, uid, file, err)
+func (d *DMSService) PreviewImportProjects(ctx context.Context, uid string, file string) (reply *dmsV2.PreviewImportProjectsReply, err error) {
+	return d.previewImportProjects(ctx, uid, file)
 }
 
 func (d *DMSService) ExportProjects(ctx context.Context, uid string, req *dmsV1.ExportProjectsReq) ([]byte, error) {
