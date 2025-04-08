@@ -1,6 +1,12 @@
 package v2
 
-import v1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+import (
+	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
+
+	"github.com/go-openapi/strfmt"
+
+	v1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+)
 
 // swagger:parameters ListProjectsV2
 type ListProjectReq struct {
@@ -29,4 +35,41 @@ type ListProjectReq struct {
 	FilterByBusinessTag string `query:"filter_by_business_tag" json:"filter_by_business_tag"`
 	// filter the Project By Project description
 	FilterByDesc string `query:"filter_by_desc" json:"filter_by_desc"`
+}
+
+// A dms Project
+type ListProject struct {
+	// Project uid
+	ProjectUid string `json:"uid"`
+	// Project name
+	Name string `json:"name"`
+	// Project is archived
+	Archived bool `json:"archived"`
+	// Project desc
+	Desc string `json:"desc"`
+	// project business tag
+	BusinessTag *BusinessTag `json:"business_tag"`
+	// create user
+	CreateUser v1.UidWithName `json:"create_user"`
+	// create time
+	CreateTime strfmt.DateTime `json:"create_time"`
+	// project priority
+	ProjectPriority v1.ProjectPriority `json:"project_priority" enums:"high,medium,low"`
+}
+
+// swagger:model
+type BusinessTag struct {
+	UID string `json:"uid,omitempty"`
+	// 业务标签最多50个字符
+	Name string `json:"name" validate:"max=50"`
+}
+
+// swagger:model ListProjectReplyV2
+type ListProjectReply struct {
+	// List project reply
+	Data  []*ListProject `json:"data"`
+	Total int64          `json:"total_nums"`
+
+	// Generic reply
+	base.GenericResp
 }
