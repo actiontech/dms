@@ -12,6 +12,7 @@ import (
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/internal/pkg/locale"
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+	dmsV2 "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	"github.com/actiontech/dms/pkg/dms-common/i18nPkg"
 	commonLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
@@ -31,7 +32,8 @@ func (s *APIServer) initRouter() error {
 	s.echo.GET("/swagger/*", s.DMSController.SwaggerHandler, SwaggerMiddleWare)
 
 	v1 := s.echo.Group(dmsV1.CurrentGroupVersion)
-
+	v2 := s.echo.Group(dmsV2.CurrentGroupVersion)
+	v2.Use(dmsMiddleware.JWTTokenAdapter())
 	// DMS RESTful resource
 	{
 		v1.GET("/dms/basic_info", s.DMSController.GetBasicInfo)
@@ -48,16 +50,23 @@ func (s *APIServer) initRouter() error {
 		dmsPluginV1.POST("", s.DMSController.RegisterDMSPlugin)
 
 		dbServiceV1 := v1.Group(dmsV1.DBServiceRouterGroup)
-		dbServiceV1.POST("", DeprecatedBy(apiV2))
-		dbServiceV1.GET("", s.DMSController.ListDBServices)
-		dbServiceV1.GET("/tips", s.DMSController.ListDBServiceTips)
-		dbServiceV1.DELETE("/:db_service_uid", s.DMSController.DelDBService)
-		dbServiceV1.PUT("/:db_service_uid", s.DMSController.UpdateDBService)
-		dbServiceV1.POST("/connection", s.DMSController.CheckDBServiceIsConnectable)
-		dbServiceV1.POST("/:db_service_uid/connection", s.DMSController.CheckDBServiceIsConnectableById)
-		dbServiceV1.POST("/connections", s.DMSController.CheckProjectDBServicesConnections)
-		dbServiceV1.POST("/import_check", s.DMSController.ImportDBServicesOfOneProjectCheck)
-		dbServiceV1.POST("/import", s.DMSController.ImportDBServicesOfOneProject)
+		{
+			dbServiceV1.POST("", DeprecatedBy(apiV2))
+			dbServiceV1.GET("", s.DMSController.ListDBServices)
+			dbServiceV1.GET("/tips", s.DMSController.ListDBServiceTips)
+			dbServiceV1.DELETE("/:db_service_uid", s.DMSController.DelDBService)
+			dbServiceV1.PUT("/:db_service_uid", s.DMSController.UpdateDBService)
+			dbServiceV1.POST("/connection", s.DMSController.CheckDBServiceIsConnectable)
+			dbServiceV1.POST("/:db_service_uid/connection", s.DMSController.CheckDBServiceIsConnectableById)
+			dbServiceV1.POST("/connections", s.DMSController.CheckProjectDBServicesConnections)
+			dbServiceV1.POST("/import_check", s.DMSController.ImportDBServicesOfOneProjectCheck)
+			dbServiceV1.POST("/import", s.DMSController.ImportDBServicesOfOneProject)
+		}
+
+		dbServiceV2 := v2.Group(dmsV1.DBServiceRouterGroup)
+		{
+			dbServiceV2.POST("", s.DMSController.AddDBServiceV2)
+		}
 
 		dbServiceSyncTaskV1 := v1.Group("/dms/db_service_sync_tasks")
 		dbServiceSyncTaskV1.GET("/tips", s.DMSController.ListDBServiceSyncTaskTips)
@@ -331,7 +340,8 @@ func (s *APIServer) installMiddleware() error {
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/users/verify_user_login" /* TODO 使用统一方法skip */) ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/sms/send_code" /* TODO 使用统一方法skip */) ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/sms/verify_code" /* TODO 使用统一方法skip */) ||
-				!strings.HasPrefix(c.Request().RequestURI, dmsV1.CurrentGroupVersion) {
+				!(strings.HasPrefix(c.Request().RequestURI, dmsV1.CurrentGroupVersion) ||
+				strings.HasPrefix(c.Request().RequestURI, dmsV2.CurrentGroupVersion)) {
 				logger.Debugf("skipper url jwt check: %v", c.Request().RequestURI)
 				return true
 			}
