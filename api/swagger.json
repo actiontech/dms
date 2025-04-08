@@ -11103,23 +11103,13 @@
       "description": "A Project",
       "type": "object",
       "properties": {
-        "business": {
-          "description": "project business",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "x-go-name": "Business"
+        "business_tag": {
+          "$ref": "#/definitions/BusinessTag"
         },
         "desc": {
           "description": "project desc",
           "type": "string",
           "x-go-name": "Desc"
-        },
-        "is_fixed_business": {
-          "description": "is fixed business",
-          "type": "boolean",
-          "x-go-name": "IsFixedBusiness"
         },
         "name": {
           "description": "project name",
@@ -11139,7 +11129,7 @@
           "x-go-name": "ProjectPriority"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "ProjectTips": {
       "type": "object",
