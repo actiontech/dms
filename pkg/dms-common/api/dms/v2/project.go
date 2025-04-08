@@ -37,7 +37,7 @@ type ListProjectReq struct {
 	FilterByDesc string `query:"filter_by_desc" json:"filter_by_desc"`
 }
 
-// A dms Project
+// swagger:model ListProjectV2
 type ListProject struct {
 	// Project uid
 	ProjectUid string `json:"uid"`

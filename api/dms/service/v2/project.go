@@ -1,6 +1,8 @@
 package v2
 
 import (
+	"bytes"
+
 	v1 "github.com/actiontech/dms/api/dms/service/v1"
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -63,6 +65,16 @@ type ImportProjects struct {
 	Desc string `json:"desc"`
 	// project business tag
 	BusinessTag *v1.BusinessTag `json:"business_tag"`
+}
+
+// swagger:parameters PreviewImportProjectsV2
+type PreviewImportProjectsRep struct {
+	// projects file.
+	//
+	// in: formData
+	//
+	// swagger:file
+	ProjectsFile *bytes.Buffer `json:"projects_file"`
 }
 
 // swagger:model PreviewImportProjectsReplyV2
