@@ -1,19 +1,15 @@
 package v1
 
-import base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
-
-// swagger:model
-type EnvironmentTag struct {
-	UID string `json:"uid,omitempty"`
-	// 环境属性标签至少1个字符，最多50个字符
-	Name string `json:"name" validate:"min=1,max=50"`
-}
+import (
+	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+)
 
 // swagger:model
 type CreateEnvironmentTagReq struct {
 	// swagger:ignore
 	ProjectUID     string          `param:"project_uid" json:"project_uid" validate:"required"`
-	EnvironmentTag *EnvironmentTag `json:"environment_tag" validate:"required"`
+	EnvironmentTag *dmsCommonV1.EnvironmentTag `json:"environment_tag" validate:"required"`
 }
 
 // swagger:model
@@ -23,7 +19,7 @@ type UpdateEnvironmentTagReq struct {
 	// swagger:ignore
 	ProjectUID string `param:"project_uid" json:"project_uid" validate:"required"`
 
-	EnvironmentTag *EnvironmentTag `json:"environment_tag" validate:"required"`
+	EnvironmentTag *dmsCommonV1.EnvironmentTag `json:"environment_tag" validate:"required"`
 }
 
 // swagger:parameters ListEnvironmentTags
@@ -40,7 +36,7 @@ type ListEnvironmentTagReq struct {
 
 // swagger:model ListEnvironmentTagsReply
 type ListEnvironmentTagsReply struct {
-	Data  []*EnvironmentTag `json:"data"`
+	Data  []*dmsCommonV1.EnvironmentTag `json:"data"`
 	Total int64             `json:"total_nums"`
 	base.GenericResp
 }
