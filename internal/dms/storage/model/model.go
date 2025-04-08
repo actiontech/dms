@@ -225,9 +225,7 @@ type Project struct {
 	Model
 	Name            string `json:"name" gorm:"size:200;column:name;index:name,unique"`
 	Desc            string `json:"desc" gorm:"column:desc"`
-	Business        Bus    `json:"business" gorm:"type:json"` // TODO 业务改造完成后删除
 	BusinessTagUID  string `json:"business_tag_uid" gorm:"size:32;column:business_tag_uid"`
-	IsFixedBusiness bool   `json:"is_fixed_business" gorm:"not null"` // TODO 业务改造完成后删除
 	CreateUserUID   string `json:"create_user_uid" gorm:"size:32;column:create_user_uid"`
 	Status          string `gorm:"size:64;default:'active'"`
 	Priority        uint8  `json:"priority" gorm:"type:tinyint unsigned;not null;default:20;comment:'优先级：10=低, 20=中, 30=高'"`
