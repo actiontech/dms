@@ -3,7 +3,7 @@ package service
 import (
 	"fmt"
 
-	apiV2 "github.com/actiontech/dms/api/dms/service/v2"
+	dmsApiV2 "github.com/actiontech/dms/api/dms/service/v2"
 	commonApiV2 "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
 	apiError "github.com/actiontech/dms/internal/apiserver/pkg/error"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
@@ -32,7 +32,7 @@ import (
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (ctl *DMSController) AddProjectV2(c echo.Context) error {
-	req := new(apiV2.AddProjectReq)
+	req := new(dmsApiV2.AddProjectReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
@@ -72,7 +72,7 @@ func (ctl *DMSController) AddProjectV2(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (ctl *DMSController) ImportProjectsV2(c echo.Context) error {
-	req := new(apiV2.ImportProjectsReq)
+	req := new(dmsApiV2.ImportProjectsReq)
 	err := bindAndValidateReq(c, req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.BadRequestErr)
@@ -179,7 +179,7 @@ func (ctl *DMSController) ListProjectsV2(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (ctl *DMSController) UpdateProjectV2(c echo.Context) error {
-	req := &apiV2.UpdateProjectReq{}
+	req := &dmsApiV2.UpdateProjectReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
@@ -224,7 +224,7 @@ func (ctl *DMSController) UpdateProjectV2(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddDBServiceV2(c echo.Context) error{
-	req := new(apiV2.AddDBServiceReq)
+	req := new(dmsApiV2.AddDBServiceReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
