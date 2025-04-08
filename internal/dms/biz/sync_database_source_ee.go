@@ -162,7 +162,7 @@ func (d dmpManager) SyncDatabaseSource(ctx context.Context, params *DBServiceSyn
 			Port:       item.DataSrcPort,
 			User:       item.DataSrcUser,
 			Password:   &password,
-			Business:   strings.Join(businessArr, ","),
+			// Business:   strings.Join(businessArr, ","),
 			ProjectUID: pkgConst.UIDOfProjectDefault,
 			Source:     string(pkgConst.DBServiceSourceNameDMP),
 		}
@@ -345,7 +345,7 @@ func convertDbServiceToDbParams(dbService *SyncDBService, project *Project) BizD
 		Port:              dbService.Port,
 		User:              dbService.User,
 		Password:          &dbService.Password,
-		Business:          dbService.Business,
+		// Business:          dbService.Business,
 		Source:            dbService.Source,
 		AdditionalParams:  dbService.AdditionalParams,
 		ProjectUID:        project.UID,

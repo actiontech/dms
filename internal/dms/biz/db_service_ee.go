@@ -335,7 +335,7 @@ func (d *DBServiceUsecase) genBizDBServiceArgs4Import(ctx context.Context, proje
 			Port:              row.Port,
 			User:              row.User,
 			Password:          &pass,
-			Business:          row.Business,
+			// Business:          row.Business,
 			Source:            string(pkgConst.DBServiceSourceNameSQLE),
 			AdditionalParams:  additionalParams,
 			ProjectUID:        projectInfoMap[row.ProjName].proj.UID,

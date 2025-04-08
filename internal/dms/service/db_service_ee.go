@@ -153,7 +153,7 @@ func (d *DMSService) listGlobalDBServices(ctx context.Context, req *dmsV1.ListGl
 			DBType:                u.DBType,
 			Host:                  u.Host,
 			Port:                  u.Port,
-			Business:              u.Business,
+			// Business:              u.Business,
 			MaintenanceTimes:      d.convertPeriodToMaintenanceTime(u.MaintenancePeriod),
 			Desc:                  u.Desc,
 			Source:                u.Source,
