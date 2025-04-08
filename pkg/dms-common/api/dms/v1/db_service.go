@@ -78,9 +78,6 @@ type ListDBServiceReq struct {
 	// filter db services by db service id list using in condition
 	// in:query
 	FilterByDBServiceIds []string `query:"filter_by_db_service_ids" json:"filter_by_db_service_ids"`
-	// filter db services by environment tag
-	// in:query
-	FilterByEnvironmentTag string `query:"filter_by_environment_tag" json:"filter_by_environment_tag"`
 	// the db service fuzzy keyword,include host/port
 	// in:query
 	FuzzyKeyword string `query:"fuzzy_keyword" json:"fuzzy_keyword"`
@@ -139,8 +136,6 @@ type ListDBService struct {
 	// TODO This parameter is deprecated and will be removed soon.
 	// the db service business name
 	Business string `json:"business"`
-	// DB Service environment tag
-	EnvironmentTag *EnvironmentTag `json:"environment_tag"`
 	// DB Service maintenance time
 	MaintenanceTimes []*MaintenanceTime `json:"maintenance_times"`
 	// DB desc

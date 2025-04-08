@@ -8,7 +8,7 @@ import (
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
 
-// A Project
+// swagger:model ProjectV1
 type Project struct {
 	// project name
 	Name string `json:"name"`
@@ -67,6 +67,7 @@ func (u *DelProjectReq) String() string {
 	return fmt.Sprintf("DelProjectReq{Uid:%s}", u.ProjectUid)
 }
 
+// swagger:model UpdateProject
 type UpdateProject struct {
 	// Project desc
 	Desc *string `json:"desc"`

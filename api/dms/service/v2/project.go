@@ -8,7 +8,7 @@ import (
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
 
-// A Project
+// swagger:model ProjectV2
 type Project struct {
 	// project name
 	Name string `json:"name"`
@@ -44,6 +44,7 @@ type UpdateProjectReq struct {
 	Project    *UpdateProject `json:"project" validate:"required"`
 }
 
+// swagger:model UpdateProjectV2
 type UpdateProject struct {
 	// Project desc
 	Desc *string `json:"desc"`
@@ -58,6 +59,7 @@ type ImportProjectsReq struct {
 	Projects []*ImportProjects `json:"projects" validate:"required"`
 }
 
+// swagger:model ImportProjectsV2
 type ImportProjects struct {
 	// Project name
 	Name string `json:"name" validate:"required"`
@@ -85,6 +87,7 @@ type PreviewImportProjectsReply struct {
 	Data []*PreviewImportProjects `json:"data"`
 }
 
+// swagger:model PreviewImportProjectsV2
 type PreviewImportProjects struct {
 	// Project name
 	Name string `json:"name"`
