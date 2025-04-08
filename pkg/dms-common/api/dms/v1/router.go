@@ -30,6 +30,7 @@ var (
 var (
 	GroupV1             = "/v1"
 	CurrentGroupVersion = GroupV1
+	GroupV2             = "/v2"
 )
 
 func ResetJWTSigningKey(val string) {
