@@ -106,6 +106,16 @@ type ImportDBServicesOfOneProjectCheckReq struct {
 	DBServicesFile *bytes.Buffer `json:"db_services_file"`
 }
 
+// swagger:parameters ImportDBServicesOfProjectsCheckV2
+type ImportDBServicesOfProjectsCheckReq struct {
+	// DBServices file.
+	//
+	// in: formData
+	//
+	// swagger:file
+	DBServicesFile *bytes.Buffer `json:"db_services_file"`
+}
+
 // A db service
 type DBServicev2 struct {
 	// Service name
