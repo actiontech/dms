@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
-	v1 "github.com/actiontech/dms/api/dms/service/v1"
 )
 
 var errNotSupportProject = errors.New("project related functions are enterprise version functions")
@@ -49,7 +48,7 @@ func (d *ProjectUsecase) PreviewImportProjects(ctx context.Context, uid, file st
 	return nil, errNotSupportProject
 }
 
-func (d *ProjectUsecase)  UpdateProject(ctx context.Context, currentUserUid, projectUid string, desc *string, priority *dmsCommonV1.ProjectPriority, businessTagUID string) (err error)  {
+func (d *ProjectUsecase) UpdateProject(ctx context.Context, currentUserUid, projectUid string, desc *string, priority *dmsCommonV1.ProjectPriority, businessTagUID string) (err error) {
 	return errNotSupportProject
 }
 
