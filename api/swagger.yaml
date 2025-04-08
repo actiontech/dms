@@ -43,6 +43,13 @@ definitions:
                 $ref: '#/definitions/DBService'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddDBServiceReqV2:
+        properties:
+            db_service:
+                $ref: '#/definitions/DBServicev2'
+        type: object
+        x-go-name: AddDBServiceReq
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     AddDBServiceSyncTaskReply:
         properties:
             code:
@@ -1040,6 +1047,79 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DBServicev2:
+        description: A db service
+        properties:
+            additional_params:
+                description: DB Service Custom connection parameters
+                items:
+                    $ref: '#/definitions/AdditionalParam'
+                type: array
+                x-go-name: AdditionalParams
+            backup_max_rows:
+                description: backup switch
+                format: uint64
+                type: integer
+                x-go-name: BackupMaxRows
+            db_type:
+                description: Service DB type
+                type: string
+                x-go-name: DBType
+            desc:
+                description: Service description
+                type: string
+                x-go-name: Desc
+            enable_backup:
+                description: backup switch
+                type: boolean
+                x-go-name: EnableBackup
+            environment_tag:
+                $ref: '#/definitions/EnvironmentTag'
+            host:
+                description: DB Service Host
+                type: string
+                x-go-name: Host
+            is_enable_masking:
+                description: data masking switch
+                type: boolean
+                x-go-name: IsEnableMasking
+            maintenance_times:
+                description: |-
+                    DB Service maintenance time
+                    empty value means that maintenance time is unlimited
+                items:
+                    $ref: '#/definitions/MaintenanceTime'
+                type: array
+                x-go-name: MaintenanceTimes
+            name:
+                description: Service name
+                type: string
+                x-go-name: Name
+            password:
+                description: DB Service admin password
+                type: string
+                x-go-name: Password
+            port:
+                description: DB Service port
+                type: string
+                x-go-name: Port
+            sqle_config:
+                $ref: '#/definitions/SQLEConfig'
+            user:
+                description: DB Service admin user
+                type: string
+                x-go-name: User
+        required:
+            - name
+            - db_type
+            - host
+            - port
+            - user
+            - password
+            - environment_tag
+            - maintenance_times
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     DBType:
         type: string
         x-go-package: github.com/actiontech/dms/internal/dms/pkg/constant
@@ -8654,6 +8734,90 @@ paths:
         get:
             description: list global DBServices
             operationId: ListGlobalDBServicesV2
+            parameters:
+                - description: the maximum count of db service to be returned
+                  format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of users to be returned, default is 0
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - description: |-
+                    Multiple of ["name"], default is ["name"]
+                    name DBServiceOrderByName
+                  enum:
+                    - name
+                  in: query
+                  name: order_by
+                  type: string
+                  x-go-enum-desc: name DBServiceOrderByName
+                  x-go-name: OrderBy
+                - description: the db service connection
+                  enum:
+                    - connect_success
+                    - connect_failed
+                  in: query
+                  name: filter_last_connection_test_status
+                  type: string
+                  x-go-name: FilterLastConnectionTestStatus
+                - description: |-
+                    TODO This parameter is deprecated and will be removed soon.
+                    the db service business name
+                  in: query
+                  name: filter_by_business
+                  type: string
+                  x-go-name: FilterByBusiness
+                - description: filter db services by environment tag
+                  in: query
+                  name: filter_by_environment_tag
+                  type: string
+                  x-go-name: FilterByEnvironmentTag
+                - description: the db service host
+                  in: query
+                  name: filter_by_host
+                  type: string
+                  x-go-name: FilterByHost
+                - description: the db service uid
+                  in: query
+                  name: filter_by_uid
+                  type: string
+                  x-go-name: FilterByUID
+                - description: the db service name
+                  in: query
+                  name: filter_by_name
+                  type: string
+                  x-go-name: FilterByName
+                - description: the db service port
+                  in: query
+                  name: filter_by_port
+                  type: string
+                  x-go-name: FilterByPort
+                - description: the db service db type
+                  in: query
+                  name: filter_by_db_type
+                  type: string
+                  x-go-name: FilterByDBType
+                - description: the db service project id
+                  in: query
+                  name: filter_by_project_uid
+                  type: string
+                  x-go-name: FilterByProjectUid
+                - description: is masking
+                  in: query
+                  name: filter_by_is_enable_masking
+                  type: boolean
+                  x-go-name: FilterByIsEnableMasking
+                - description: the db service fuzzy keyword
+                  in: query
+                  name: fuzzy_keyword
+                  type: string
+                  x-go-name: FuzzyKeyword
             responses:
                 "200":
                     description: ListGlobalDBServicesReply
@@ -8668,6 +8832,77 @@ paths:
     /v2/dms/projects:
         get:
             operationId: ListProjectsV2
+            parameters:
+                - description: the maximum count of Project to be returned
+                  format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of Projects to be returned, default is 0
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - description: |-
+                    Multiple of ["name"], default is ["name"]
+                    name ProjectOrderByName
+                  enum:
+                    - name
+                  in: query
+                  name: order_by
+                  type: string
+                  x-go-enum-desc: name ProjectOrderByName
+                  x-go-name: OrderBy
+                - description: filter the Project name
+                  in: query
+                  name: filter_by_name
+                  type: string
+                  x-go-name: FilterByName
+                - description: filter the Project UID
+                  in: query
+                  name: filter_by_uid
+                  type: string
+                  x-go-name: FilterByUID
+                - description: filter project by project id list, using in condition
+                  in: query
+                  items:
+                    type: string
+                  name: filter_by_project_uids
+                  type: array
+                  x-go-name: FilterByProjectUids
+                - description: |-
+                    filter project by project priority
+                    high ProjectPriorityHigh
+                    medium ProjectPriorityMedium
+                    low ProjectPriorityLow
+                    unknown ProjectPriorityUnknown
+                  enum:
+                    - high
+                    - medium
+                    - low
+                    - unknown
+                  in: query
+                  name: filter_by_project_priority
+                  type: string
+                  x-go-enum-desc: |-
+                    high ProjectPriorityHigh
+                    medium ProjectPriorityMedium
+                    low ProjectPriorityLow
+                    unknown ProjectPriorityUnknown
+                  x-go-name: FilterByProjectPriority
+                - description: filter project by business tag
+                  in: query
+                  name: filter_by_business_tag
+                  type: string
+                  x-go-name: FilterByBusinessTag
+                - description: filter the Project By Project description
+                  in: query
+                  name: filter_by_desc
+                  type: string
+                  x-go-name: FilterByDesc
             responses:
                 "200":
                     description: ListProjectReply
@@ -8731,6 +8966,96 @@ paths:
     /v2/dms/projects/{project_uid}/db_services:
         get:
             operationId: ListDBServicesV2
+            parameters:
+                - description: the maximum count of db service to be returned
+                  format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of users to be returned, default is 0
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - description: |-
+                    Multiple of ["name"], default is ["name"]
+                    name DBServiceOrderByName
+                  enum:
+                    - name
+                  in: query
+                  name: order_by
+                  type: string
+                  x-go-enum-desc: name DBServiceOrderByName
+                  x-go-name: OrderBy
+                - description: the db service business name
+                  in: query
+                  name: filter_by_business
+                  type: string
+                  x-go-name: FilterByBusiness
+                - description: the db service connection
+                  enum:
+                    - connect_success
+                    - connect_failed
+                  in: query
+                  name: filter_last_connection_test_status
+                  type: string
+                  x-go-name: FilterLastConnectionTestStatus
+                - description: the db service host
+                  in: query
+                  name: filter_by_host
+                  type: string
+                  x-go-name: FilterByHost
+                - description: the db service uid
+                  in: query
+                  name: filter_by_uid
+                  type: string
+                  x-go-name: FilterByUID
+                - description: the db service name
+                  in: query
+                  name: filter_by_name
+                  type: string
+                  x-go-name: FilterByName
+                - description: the db service port
+                  in: query
+                  name: filter_by_port
+                  type: string
+                  x-go-name: FilterByPort
+                - description: the db service db type
+                  in: query
+                  name: filter_by_db_type
+                  type: string
+                  x-go-name: FilterByDBType
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: filter db services by db service id list using in condition
+                  in: query
+                  items:
+                    type: string
+                  name: filter_by_db_service_ids
+                  type: array
+                  x-go-name: FilterByDBServiceIds
+                - description: filter db services by environment tag
+                  in: query
+                  name: filter_by_environment_tag
+                  type: string
+                  x-go-name: FilterByEnvironmentTag
+                - description: the db service fuzzy keyword,include host/port
+                  in: query
+                  name: fuzzy_keyword
+                  type: string
+                  x-go-name: FuzzyKeyword
+                - description: is masking
+                  in: query
+                  name: is_enable_masking
+                  type: boolean
+                  x-go-name: IsEnableMasking
             responses:
                 "200":
                     description: ListDBServiceReply
@@ -8756,7 +9081,7 @@ paths:
                   name: db_service
                   required: true
                   schema:
-                    $ref: '#/definitions/AddDBServiceReq'
+                    $ref: '#/definitions/AddDBServiceReqV2'
             responses:
                 "200":
                     description: AddDBServiceReply
@@ -8832,6 +9157,18 @@ paths:
             consumes:
                 - multipart/form-data
             operationId: ImportDBServicesOfOneProjectCheckV2
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: DBServices file.
+                  in: formData
+                  name: db_services_file
+                  type: file
+                  x-go-name: DBServicesFile
             produces:
                 - application/json
                 - text/csv
