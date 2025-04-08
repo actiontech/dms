@@ -129,6 +129,32 @@ func (d *DMSController) AddDBServiceV2(c echo.Context) error{
 	return NewOkRespWithReply(c, reply)
 }
 
+// swagger:operation POST /v2/dms/projects/import_db_services Project ImportDBServicesOfProjectsV2
+//
+// Import DBServices.
+//
+// ---
+// parameters:
+//   - name: db_services
+//     description: new db services
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/ImportDBServicesOfProjectsReqV2"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (d *DMSController) ImportDBServicesOfProjectsV2(c echo.Context) error {
+	return d.ImportDBServicesOfProjects(c)
+}
+
+
 // swagger:operation POST /v2/dms/projects/{project_uid}/db_services/import DBService ImportDBServicesOfOneProjectV2
 //
 // Import DBServices.
