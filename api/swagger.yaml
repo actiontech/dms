@@ -4115,20 +4115,12 @@ definitions:
     Project:
         description: A Project
         properties:
-            business:
-                description: project business
-                items:
-                    type: string
-                type: array
-                x-go-name: Business
+            business_tag:
+                $ref: '#/definitions/BusinessTag'
             desc:
                 description: project desc
                 type: string
                 x-go-name: Desc
-            is_fixed_business:
-                description: is fixed business
-                type: boolean
-                x-go-name: IsFixedBusiness
             name:
                 description: project name
                 type: string
@@ -4153,7 +4145,7 @@ definitions:
                     unknown ProjectPriorityUnknown
                 x-go-name: ProjectPriority
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     ProjectTips:
         properties:
             business:
