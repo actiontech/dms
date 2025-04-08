@@ -1,6 +1,11 @@
 package service
 
-import "github.com/labstack/echo/v4"
+import (
+	aV2 "github.com/actiontech/dms/api/dms/service/v2"
+	apiError "github.com/actiontech/dms/internal/apiserver/pkg/error"
+	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
+	"github.com/labstack/echo/v4"
+)
 
 // swagger:operation POST /v2/dms/projects Project AddProjectV2
 //
@@ -94,7 +99,7 @@ func (d *DMSController) ListProjectsV2(c echo.Context) error {
 //     in: body
 //     required: true
 //     schema:
-//       "$ref": "#/definitions/AddDBServiceReq"
+//       "$ref": "#/definitions/AddDBServiceReqV2"
 // responses:
 //   '200':
 //     description: AddDBServiceReply
@@ -105,7 +110,23 @@ func (d *DMSController) ListProjectsV2(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) AddDBServiceV2(c echo.Context) error{
-	return d.AddDBService(c)
+	req := new(aV2.AddDBServiceReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, err := d.DMS.AddDBServiceV2(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:operation POST /v2/dms/projects/{project_uid}/db_services/import DBService ImportDBServicesOfOneProjectV2

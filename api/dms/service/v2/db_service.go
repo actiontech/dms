@@ -55,7 +55,6 @@ type ListGlobalDBServicesReq struct {
 	FuzzyKeyword string `query:"fuzzy_keyword" json:"fuzzy_keyword"`
 }
 
-
 // swagger:parameters ImportDBServicesOfOneProjectCheckV2
 type ImportDBServicesOfOneProjectCheckReq struct {
 	// project id
@@ -68,4 +67,56 @@ type ImportDBServicesOfOneProjectCheckReq struct {
 	//
 	// swagger:file
 	DBServicesFile *bytes.Buffer `json:"db_services_file"`
+}
+
+// A db service
+type DBServicev2 struct {
+	// Service name
+	// Required: true
+	Name string `json:"name" validate:"required"`
+	// Service DB type
+	// Required: true
+	DBType string `json:"db_type" validate:"required"`
+	// DB Service Host
+	// Required: true
+	Host string `json:"host" validate:"required,ip_addr|uri|hostname|hostname_rfc1123"`
+	// DB Service port
+	// Required: true
+	Port string `json:"port" validate:"required"`
+	// DB Service admin user
+	// Required: true
+	User string `json:"user" validate:"required"`
+	// DB Service admin password
+	// Required: true
+	Password string `json:"password" validate:"required"`
+	// DB Service environment tag
+	// Required: true
+	EnvironmentTag *dmsCommonV1.EnvironmentTag `json:"environment_tag"`
+	// DB Service maintenance time
+	// empty value means that maintenance time is unlimited
+	// Required: true
+	MaintenanceTimes []*dmsCommonV1.MaintenanceTime `json:"maintenance_times"`
+	// DB Service Custom connection parameters
+	// Required: false
+	AdditionalParams []*dmsCommonV1.AdditionalParam `json:"additional_params"`
+	// Service description
+	Desc string `json:"desc"`
+	// SQLE config
+	SQLEConfig *dmsCommonV1.SQLEConfig `json:"sqle_config"`
+	// data masking switch
+	// Required: false
+	IsEnableMasking bool `json:"is_enable_masking"`
+	// backup switch
+	// Required: false
+	EnableBackup bool `json:"enable_backup"`
+	// backup switch
+	// Required: false
+	BackupMaxRows *uint64 `json:"backup_max_rows,omitempty"`
+}
+
+// swagger:model AddDBServiceReqV2
+type AddDBServiceReq struct {
+	// swagger:ignore
+	ProjectUid string     `param:"project_uid" json:"project_uid" validate:"required"`
+	DBService  *DBServicev2 `json:"db_service" validate:"required"`
 }

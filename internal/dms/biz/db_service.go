@@ -45,19 +45,20 @@ const (
 type DBService struct {
 	Base
 
-	UID               string             `json:"uid"`
-	Name              string             `json:"name"`
-	Desc              string             `json:"desc"`
-	DBType            string             `json:"db_type"`
-	Host              string             `json:"host"`
-	Port              string             `json:"port"`
-	User              string             `json:"user"`
-	Password          string             `json:"password"`
-	Business          string             `json:"business"`
-	AdditionalParams  pkgParams.Params   `json:"additional_params"`
-	ProjectUID        string             `json:"project_uid"`
-	MaintenancePeriod pkgPeriods.Periods `json:"maintenance_period"`
-	Source            string             `json:"source"`
+	UID      string `json:"uid"`
+	Name     string `json:"name"`
+	Desc     string `json:"desc"`
+	DBType   string `json:"db_type"`
+	Host     string `json:"host"`
+	Port     string `json:"port"`
+	User     string `json:"user"`
+	Password string `json:"password"`
+	// Business          string             `json:"business"`
+	EnvironmentTag    *dmsCommonV1.EnvironmentTag `json:"environment_tag"`
+	AdditionalParams  pkgParams.Params            `json:"additional_params"`
+	ProjectUID        string                      `json:"project_uid"`
+	MaintenancePeriod pkgPeriods.Periods          `json:"maintenance_period"`
+	Source            string                      `json:"source"`
 
 	// db service connection
 	LastConnectionStatus   *LastConnectionStatus `json:"last_connection_status"`
@@ -113,17 +114,18 @@ func newDBService(args *BizDBServiceArgs) (*DBService, error) {
 	}
 
 	dbService := &DBService{
-		UID:               uid,
-		Name:              args.Name,
-		Desc:              *args.Desc,
-		DBType:            args.DBType,
-		Host:              args.Host,
-		Port:              args.Port,
-		User:              args.User,
-		Password:          *args.Password,
-		AdditionalParams:  args.AdditionalParams,
-		ProjectUID:        args.ProjectUID,
-		Business:          args.Business,
+		UID:              uid,
+		Name:             args.Name,
+		Desc:             *args.Desc,
+		DBType:           args.DBType,
+		Host:             args.Host,
+		Port:             args.Port,
+		User:             args.User,
+		Password:         *args.Password,
+		AdditionalParams: args.AdditionalParams,
+		ProjectUID:       args.ProjectUID,
+		// Business:          args.Business,
+		EnvironmentTag:    args.EnvironmentTag,
 		Source:            args.Source,
 		MaintenancePeriod: args.MaintenancePeriod,
 		SQLEConfig:        &SQLEConfig{},
@@ -181,14 +183,15 @@ func NewDBServiceUsecase(log utilLog.Logger, repo DBServiceRepo, pluginUsecase *
 }
 
 type BizDBServiceArgs struct {
-	Name              string
-	Desc              *string
-	DBType            string
-	Host              string
-	Port              string
-	User              string
-	Password          *string
-	Business          string
+	Name     string
+	Desc     *string
+	DBType   string
+	Host     string
+	Port     string
+	User     string
+	Password *string
+	// Business          string
+	EnvironmentTag    *dmsCommonV1.EnvironmentTag
 	Source            string
 	AdditionalParams  pkgParams.Params
 	ProjectUID        string
@@ -659,7 +662,7 @@ func (d *DBServiceUsecase) UpdateDBServiceByArgs(ctx context.Context, dbServiceU
 		}
 
 		if updateDBService.Host == "" || updateDBService.Port == "" ||
-			updateDBService.User == "" || updateDBService.Business == "" {
+			updateDBService.User == "" /*|| updateDBService.Business == ""*/ {
 			return fmt.Errorf("db service's host,port,user,business can't be empty")
 		}
 	}
@@ -678,7 +681,7 @@ func (d *DBServiceUsecase) UpdateDBServiceByArgs(ctx context.Context, dbServiceU
 		ds.Host = updateDBService.Host
 		ds.Port = updateDBService.Port
 		ds.User = updateDBService.User
-		ds.Business = updateDBService.Business
+		// ds.Business = updateDBService.Business
 		ds.AdditionalParams = updateDBService.AdditionalParams
 		ds.MaintenancePeriod = updateDBService.MaintenancePeriod
 		ds.IsMaskingSwitch = updateDBService.IsMaskingSwitch
