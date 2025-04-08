@@ -7,12 +7,13 @@ import (
 	"fmt"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
+	dmsV2 "github.com/actiontech/dms/api/dms/service/v2"
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
 
-func (d *DMSService) importProjects(ctx context.Context, uid string, req *dmsV1.ImportProjectsReq) error {
+func (d *DMSService) importProjects(ctx context.Context, uid string, req *dmsV2.ImportProjectsReq) error {
 	projects, err := convertImportReqToBiz(req, uid)
 	if err != nil {
 		return fmt.Errorf("convert req to biz failed: %w", err)
@@ -42,7 +43,7 @@ func (d *DMSService) importProjects(ctx context.Context, uid string, req *dmsV1.
 	return nil
 }
 
-func convertImportReqToBiz(req *dmsV1.ImportProjectsReq, uid string) ([]*biz.Project, error) {
+func convertImportReqToBiz(req *dmsV2.ImportProjectsReq, uid string) ([]*biz.Project, error) {
 	projects := make([]*biz.Project, 0, len(req.Projects))
 	for _, p := range req.Projects {
 		// TODO 批量创建项目目前不支持配置项目优先级，先按照中优先级配置
@@ -69,51 +70,16 @@ func (d *DMSService) getImportProjectsTemplate(ctx context.Context, uid string) 
 	return content, nil
 }
 
-func (d *DMSService) getProjectTips(ctx context.Context, uid string, req *dmsV1.GetProjectTipsReq, err error) (*dmsV1.GetProjectTipsReply, error) {
-	projects, err := d.ProjectUsecase.GetProjectTips(ctx, uid, req.ProjectUid)
-	if err != nil {
-		return nil, fmt.Errorf("get project tips failed: %w", err)
-	}
 
-	resp := make([]*dmsV1.ProjectTips, len(projects))
-	for i, p := range projects {
-		businessList := make([]string, 0)
-		businessMap := make(map[string]struct{}, 0)
-		for _, business := range p.Business {
-			businessList = append(businessList, business.Name)
-			businessMap[business.Name] = struct{}{}
-		}
-
-		dbBusinesses, err := d.DBServiceUsecase.GetBusiness(ctx, req.ProjectUid)
-		if err != nil {
-			d.log.Errorf("get business from db service failed: %v", err)
-			continue
-		}
-		for _, dbBusiness := range dbBusinesses {
-			if _, ok := businessMap[dbBusiness]; !ok {
-				businessList = append(businessList, dbBusiness)
-			}
-		}
-		resp[i] = &dmsV1.ProjectTips{
-			IsFixedBusiness: p.IsFixedBusiness,
-			Business:        businessList,
-		}
-	}
-
-	return &dmsV1.GetProjectTipsReply{
-		Data: resp,
-	}, nil
-}
-
-func (d *DMSService) previewImportProjects(ctx context.Context, uid string, file string, err error) (*dmsV1.PreviewImportProjectsReply, error) {
+func (d *DMSService) previewImportProjects(ctx context.Context, uid string, file string, err error) (*dmsV2.PreviewImportProjectsReply, error) {
 	projects, err := d.ProjectUsecase.PreviewImportProjects(ctx, uid, file)
 	if err != nil {
 		return nil, fmt.Errorf("preview import projects failed: %w", err)
 	}
 
-	resp := make([]*dmsV1.PreviewImportProjects, len(projects))
+	resp := make([]*dmsV2.PreviewImportProjects, len(projects))
 	for i, p := range projects {
-		resp[i] = &dmsV1.PreviewImportProjects{
+		resp[i] = &dmsV2.PreviewImportProjects{
 			Name: p.Name,
 			Desc: p.Desc,
 			BusinessTag: &dmsV1.BusinessTag{
@@ -122,7 +88,7 @@ func (d *DMSService) previewImportProjects(ctx context.Context, uid string, file
 		}
 	}
 
-	return &dmsV1.PreviewImportProjectsReply{
+	return &dmsV2.PreviewImportProjectsReply{
 		Data: resp,
 	}, nil
 }

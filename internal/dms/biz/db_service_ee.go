@@ -45,7 +45,6 @@ func localizeIDBPreCheckErr(ctx context.Context, msg *i18n.Message) ImportDbServ
 type projInfo struct {
 	proj          *Project
 	ruleTemplates map[string]*RuleTemplate // ruleTemplateName -> RuleTemplate
-	business      map[string]struct{}      // businessName ->
 }
 
 // GetRuleTemplates request SQLE to get the project's all rule templates
@@ -96,13 +95,9 @@ func (d *DBServiceUsecase) getActiveProjInfo(ctx context.Context, proj *Project)
 	info := &projInfo{
 		proj:          proj,
 		ruleTemplates: make(map[string]*RuleTemplate, len(templates)),
-		business:      make(map[string]struct{}, len(proj.Business)),
 	}
 	for i := range templates {
 		info.ruleTemplates[templates[i].RuleTemplateName] = &templates[i]
-	}
-	for i := range proj.Business {
-		info.business[proj.Business[i].Name] = struct{}{}
 	}
 	return info, nil
 }
@@ -179,10 +174,6 @@ func (d *DBServiceUsecase) checkImportCsvRow(ctx context.Context, projectInfoMap
 		projectInfoMap[proj.Name] = info
 	} else if !projExist {
 		return fmt.Errorf("%w project name:(%s) is not existent", localizeIDBPreCheckErr(ctx, locale.IDBPCErrProjNotAllowed), row.ProjName)
-	}
-
-	if _, businessExist := projectInfoMap[row.ProjName].business[row.Business]; !businessExist && projectInfoMap[row.ProjName].proj.IsFixedBusiness {
-		return fmt.Errorf("%w business name:(%s) proj:(%s)", localizeIDBPreCheckErr(ctx, locale.IDBPCErrBusinessNonExist), row.Business, row.ProjName)
 	}
 
 	if row.OpsTime != "" {
