@@ -71,7 +71,7 @@ func (d *DMSService) getImportProjectsTemplate(ctx context.Context, uid string) 
 }
 
 
-func (d *DMSService) previewImportProjects(ctx context.Context, uid string, file string, err error) (*dmsV2.PreviewImportProjectsReply, error) {
+func (d *DMSService) previewImportProjects(ctx context.Context, uid string, file string) (*dmsV2.PreviewImportProjectsReply, error) {
 	projects, err := d.ProjectUsecase.PreviewImportProjects(ctx, uid, file)
 	if err != nil {
 		return nil, fmt.Errorf("preview import projects failed: %w", err)
