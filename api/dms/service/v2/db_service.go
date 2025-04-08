@@ -55,6 +55,43 @@ type ListGlobalDBServicesReq struct {
 	FuzzyKeyword string `query:"fuzzy_keyword" json:"fuzzy_keyword"`
 }
 
+// swagger:model ImportDBServicesOfProjectsReqV2
+type ImportDBServicesOfProjectsReq struct {
+	DBServices []ImportDBServiceV2 `json:"db_services" validate:"required"`
+}
+
+type ImportDBServiceV2 struct {
+	// db service name
+	Name string `json:"name"`
+	// db service DB type
+	DBType string `json:"db_type"`
+	// db service host
+	Host string `json:"host"`
+	// db service port
+	Port string `json:"port"`
+	// db service admin user
+	User string `json:"user"`
+	// db service admin encrypted password
+	Password string `json:"password"`
+	// DB Service environment tag
+	// Required: true
+	EnvironmentTag *dmsCommonV1.EnvironmentTag `json:"environment_tag"`
+	// DB Service maintenance time
+	MaintenanceTimes []*dmsCommonV1.MaintenanceTime `json:"maintenance_times"`
+	// DB desc
+	Desc string `json:"desc"`
+	// DB source
+	Source string `json:"source"`
+	// DB project uid
+	ProjectUID string `json:"project_uid"`
+	// sqle config
+	SQLEConfig *dmsCommonV1.SQLEConfig `json:"sqle_config"`
+	// DB Service Custom connection parameters
+	AdditionalParams []*dmsCommonV1.AdditionalParam `json:"additional_params"`
+	// is enable masking
+	IsEnableMasking bool `json:"is_enable_masking"`
+}
+
 // swagger:parameters ImportDBServicesOfOneProjectCheckV2
 type ImportDBServicesOfOneProjectCheckReq struct {
 	// project id
