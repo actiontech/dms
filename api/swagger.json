@@ -3168,13 +3168,6 @@
           },
           {
             "type": "string",
-            "x-go-name": "FilterByEnvironmentTag",
-            "description": "filter db services by environment tag",
-            "name": "filter_by_environment_tag",
-            "in": "query"
-          },
-          {
-            "type": "string",
             "x-go-name": "FuzzyKeyword",
             "description": "the db service fuzzy keyword,include host/port",
             "name": "fuzzy_keyword",
@@ -5281,9 +5274,9 @@
         ],
         "responses": {
           "200": {
-            "description": "ListGlobalDBServicesReply",
+            "description": "ListGlobalDBServicesReplyV2",
             "schema": {
-              "$ref": "#/definitions/ListGlobalDBServicesReply"
+              "$ref": "#/definitions/ListGlobalDBServicesReplyV2"
             }
           },
           "default": {
@@ -5743,9 +5736,9 @@
         ],
         "responses": {
           "200": {
-            "description": "ListDBServiceReply",
+            "description": "ListDBServiceReplyV2",
             "schema": {
-              "$ref": "#/definitions/ListDBServiceReply"
+              "$ref": "#/definitions/ListDBServiceReplyV2"
             }
           },
           "default": {
@@ -5817,7 +5810,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ImportDBServicesOfOneProjectReq"
+              "$ref": "#/definitions/ImportDBServicesOfOneProjectReqV2"
             }
           }
         ],
@@ -5908,7 +5901,7 @@
             "name": "db_service",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/UpdateDBServiceReq"
+              "$ref": "#/definitions/UpdateDBServiceReqV2"
             }
           }
         ],
@@ -5990,7 +5983,7 @@
       "type": "object",
       "properties": {
         "db_service": {
-          "$ref": "#/definitions/DBServicev2"
+          "$ref": "#/definitions/DBServiceV2"
         }
       },
       "x-go-name": "AddDBServiceReq",
@@ -6256,7 +6249,7 @@
       "type": "object",
       "properties": {
         "project": {
-          "$ref": "#/definitions/Project"
+          "$ref": "#/definitions/ProjectV1"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -6265,7 +6258,7 @@
       "type": "object",
       "properties": {
         "project": {
-          "$ref": "#/definitions/Project"
+          "$ref": "#/definitions/ProjectV2"
         }
       },
       "x-go-name": "AddProjectReq",
@@ -7278,91 +7271,7 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
-    "DBServicesConnectionItem": {
-      "type": "object",
-      "properties": {
-        "failed_names": {
-          "description": "Failed DBServices name",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "x-go-name": "FailedNames"
-        },
-        "failed_num": {
-          "description": "Failed connection num",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "FailedNum"
-        },
-        "successful_num": {
-          "description": "Successful connection num",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "SuccessfulNum"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "DBServicesConnectionReply": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "code",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Code"
-        },
-        "data": {
-          "$ref": "#/definitions/DBServicesConnectionItem"
-        },
-        "message": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Message"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "DBServicesConnectionReq": {
-      "type": "object",
-      "properties": {
-        "db_services": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/DbServiceConnections"
-          },
-          "x-go-name": "DBServices"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "DBServicesConnectionReqReply": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "code",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Code"
-        },
-        "data": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/DBServiceIsConnectableReply"
-          },
-          "x-go-name": "Data"
-        },
-        "message": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Message"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "DBServicev2": {
-      "description": "A db service",
+    "DBServiceV2": {
       "type": "object",
       "required": [
         "name",
@@ -7449,7 +7358,91 @@
           "x-go-name": "User"
         }
       },
+      "x-go-name": "DBService",
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
+    "DBServicesConnectionItem": {
+      "type": "object",
+      "properties": {
+        "failed_names": {
+          "description": "Failed DBServices name",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "FailedNames"
+        },
+        "failed_num": {
+          "description": "Failed connection num",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "FailedNum"
+        },
+        "successful_num": {
+          "description": "Successful connection num",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "SuccessfulNum"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DBServicesConnectionReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/DBServicesConnectionItem"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DBServicesConnectionReq": {
+      "type": "object",
+      "properties": {
+        "db_services": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DbServiceConnections"
+          },
+          "x-go-name": "DBServices"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DBServicesConnectionReqReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DBServiceIsConnectableReply"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "DBType": {
       "type": "string",
@@ -8819,6 +8812,7 @@
           "x-go-name": "User"
         }
       },
+      "x-go-name": "ImportDBService",
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "ImportDBServicesCheckReply": {
@@ -8859,6 +8853,20 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "ImportDBServicesOfOneProjectReqV2": {
+      "type": "object",
+      "properties": {
+        "db_services": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImportDBServiceV2"
+          },
+          "x-go-name": "DBServices"
+        }
+      },
+      "x-go-name": "ImportDBServicesOfOneProjectReq",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
     "ImportDBServicesOfProjectsReq": {
       "type": "object",
       "properties": {
@@ -8889,8 +8897,13 @@
     "ImportProjects": {
       "type": "object",
       "properties": {
-        "business_tag": {
-          "$ref": "#/definitions/BusinessTag"
+        "business": {
+          "description": "business",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Business"
         },
         "desc": {
           "description": "Project desc",
@@ -8903,7 +8916,7 @@
           "x-go-name": "Name"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ImportProjectsReq": {
       "type": "object",
@@ -8924,12 +8937,32 @@
         "projects": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/ImportProjects"
+            "$ref": "#/definitions/ImportProjectsV2"
           },
           "x-go-name": "Projects"
         }
       },
       "x-go-name": "ImportProjectsReq",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
+    "ImportProjectsV2": {
+      "type": "object",
+      "properties": {
+        "business_tag": {
+          "$ref": "#/definitions/BusinessTag"
+        },
+        "desc": {
+          "description": "Project desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "name": {
+          "description": "Project name",
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-name": "ImportProjects",
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "LDAPConfiguration": {
@@ -9203,9 +9236,6 @@
           "type": "boolean",
           "x-go-name": "EnableBackup"
         },
-        "environment_tag": {
-          "$ref": "#/definitions/EnvironmentTag"
-        },
         "host": {
           "description": "db service host",
           "type": "string",
@@ -9346,6 +9376,37 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "ListDBServiceReplyV2": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List db service reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListDBServiceV2"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-name": "ListDBServiceReply",
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
     },
     "ListDBServiceSyncTask": {
       "type": "object",
@@ -9508,6 +9569,136 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListDBServiceV2": {
+      "type": "object",
+      "properties": {
+        "additional_params": {
+          "description": "DB Service Custom connection parameters",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdditionalParam"
+          },
+          "x-go-name": "AdditionalParams"
+        },
+        "audit_plan_types": {
+          "description": "audit plan types",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AuditPlanTypes"
+          },
+          "x-go-name": "AuditPlanTypes"
+        },
+        "backup_max_rows": {
+          "description": "backup max rows",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "BackupMaxRows"
+        },
+        "db_type": {
+          "description": "db service DB type",
+          "type": "string",
+          "x-go-name": "DBType"
+        },
+        "desc": {
+          "description": "DB desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "enable_backup": {
+          "description": "backup switch",
+          "type": "boolean",
+          "x-go-name": "EnableBackup"
+        },
+        "environment_tag": {
+          "$ref": "#/definitions/EnvironmentTag"
+        },
+        "host": {
+          "description": "db service host",
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "instance_audit_plan_id": {
+          "description": "instance audit plan id",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "InstanceAuditPlanID"
+        },
+        "is_enable_masking": {
+          "description": "is enable masking",
+          "type": "boolean",
+          "x-go-name": "IsEnableMasking"
+        },
+        "last_connection_test_error_message": {
+          "description": "DB connect test error message",
+          "type": "string",
+          "x-go-name": "LastConnectionTestErrorMessage"
+        },
+        "last_connection_test_status": {
+          "description": "DB connect test status\nconnect_success LastConnectionTestStatusSuccess\nconnect_failed LastConnectionTestStatusFailed",
+          "type": "string",
+          "enum": [
+            "connect_success",
+            "connect_failed"
+          ],
+          "x-go-enum-desc": "connect_success LastConnectionTestStatusSuccess\nconnect_failed LastConnectionTestStatusFailed",
+          "x-go-name": "LastConnectionTestStatus"
+        },
+        "last_connection_test_time": {
+          "description": "DB connection test time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "LastConnectionTestTime"
+        },
+        "maintenance_times": {
+          "description": "DB Service maintenance time",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MaintenanceTime"
+          },
+          "x-go-name": "MaintenanceTimes"
+        },
+        "name": {
+          "description": "db service name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "password": {
+          "description": "db service admin encrypted password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "port": {
+          "description": "db service port",
+          "type": "string",
+          "x-go-name": "Port"
+        },
+        "project_uid": {
+          "description": "DB project uid",
+          "type": "string",
+          "x-go-name": "ProjectUID"
+        },
+        "source": {
+          "description": "DB source",
+          "type": "string",
+          "x-go-name": "Source"
+        },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
+        },
+        "uid": {
+          "description": "db service uid",
+          "type": "string",
+          "x-go-name": "DBServiceUid"
+        },
+        "user": {
+          "description": "db service admin user",
+          "type": "string",
+          "x-go-name": "User"
+        }
+      },
+      "x-go-name": "ListDBService",
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
     },
     "ListDataExportTaskSQL": {
       "type": "object",
@@ -9815,6 +10006,120 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "ListGlobalDBServiceV2": {
+      "type": "object",
+      "required": [
+        "environment_tag"
+      ],
+      "properties": {
+        "backup_max_rows": {
+          "description": "backup switch",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "BackupMaxRows"
+        },
+        "db_type": {
+          "description": "db service DB type",
+          "type": "string",
+          "x-go-name": "DBType"
+        },
+        "desc": {
+          "description": "DB desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "enable_backup": {
+          "description": "backup switch",
+          "type": "boolean",
+          "x-go-name": "EnableBackup"
+        },
+        "environment_tag": {
+          "$ref": "#/definitions/EnvironmentTag"
+        },
+        "host": {
+          "description": "db service host",
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "is_enable_audit": {
+          "description": "is enable audit",
+          "type": "boolean",
+          "x-go-name": "IsEnableAudit"
+        },
+        "is_enable_masking": {
+          "description": "is enable masking",
+          "type": "boolean",
+          "x-go-name": "IsEnableMasking"
+        },
+        "last_connection_test_error_message": {
+          "description": "DB connect test error message",
+          "type": "string",
+          "x-go-name": "LastConnectionTestErrorMessage"
+        },
+        "last_connection_test_status": {
+          "description": "DB connect test status\nconnect_success LastConnectionTestStatusSuccess\nconnect_failed LastConnectionTestStatusFailed",
+          "type": "string",
+          "enum": [
+            "connect_success",
+            "connect_failed"
+          ],
+          "x-go-enum-desc": "connect_success LastConnectionTestStatusSuccess\nconnect_failed LastConnectionTestStatusFailed",
+          "x-go-name": "LastConnectionTestStatus"
+        },
+        "last_connection_test_time": {
+          "description": "DB connection test time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "LastConnectionTestTime"
+        },
+        "maintenance_times": {
+          "description": "DB Service maintenance time",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MaintenanceTime"
+          },
+          "x-go-name": "MaintenanceTimes"
+        },
+        "name": {
+          "description": "db service name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "port": {
+          "description": "db service port",
+          "type": "string",
+          "x-go-name": "Port"
+        },
+        "project_name": {
+          "description": "db service project_name",
+          "type": "string",
+          "x-go-name": "ProjectName"
+        },
+        "project_uid": {
+          "description": "DB project uid",
+          "type": "string",
+          "x-go-name": "ProjectUID"
+        },
+        "source": {
+          "description": "DB source",
+          "type": "string",
+          "x-go-name": "Source"
+        },
+        "uid": {
+          "description": "db service uid",
+          "type": "string",
+          "x-go-name": "DBServiceUid"
+        },
+        "unfinished_workflow_num": {
+          "description": "db service unfinished workflow num",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "UnfinishedWorkflowNum"
+        }
+      },
+      "x-go-name": "ListGlobalDBService",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
     "ListGlobalDBServicesReply": {
       "type": "object",
       "properties": {
@@ -9844,6 +10149,37 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListGlobalDBServicesReplyV2": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List global db service reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListGlobalDBServiceV2"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-name": "ListGlobalDBServicesReply",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "ListGlobalDBServicesTipsReply": {
       "type": "object",
@@ -11146,7 +11482,7 @@
           "description": "list preview import projects",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/PreviewImportProjects"
+            "$ref": "#/definitions/PreviewImportProjectsV2"
           },
           "x-go-name": "Data"
         },
@@ -11159,8 +11495,44 @@
       "x-go-name": "PreviewImportProjectsReply",
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
-    "Project": {
-      "description": "A Project",
+    "PreviewImportProjectsV2": {
+      "type": "object",
+      "properties": {
+        "business_tag": {
+          "$ref": "#/definitions/BusinessTag"
+        },
+        "desc": {
+          "description": "Project desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "name": {
+          "description": "Project name",
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-name": "PreviewImportProjects",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
+    "ProjectTips": {
+      "type": "object",
+      "properties": {
+        "business": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Business"
+        },
+        "is_fixed_business": {
+          "type": "boolean",
+          "x-go-name": "IsFixedBusiness"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ProjectV1": {
       "type": "object",
       "properties": {
         "business": {
@@ -11199,24 +11571,40 @@
           "x-go-name": "ProjectPriority"
         }
       },
+      "x-go-name": "Project",
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
-    "ProjectTips": {
+    "ProjectV2": {
       "type": "object",
       "properties": {
-        "business": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "x-go-name": "Business"
+        "business_tag": {
+          "$ref": "#/definitions/BusinessTag"
         },
-        "is_fixed_business": {
-          "type": "boolean",
-          "x-go-name": "IsFixedBusiness"
+        "desc": {
+          "description": "project desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "name": {
+          "description": "project name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "project_priority": {
+          "description": "project priority\nhigh ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low",
+            "unknown"
+          ],
+          "x-go-enum-desc": "high ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
+          "x-go-name": "ProjectPriority"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-name": "Project",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "RegisterDMSPluginReply": {
       "type": "object",
@@ -11978,6 +12366,16 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "UpdateDBServiceReqV2": {
+      "type": "object",
+      "properties": {
+        "db_service": {
+          "$ref": "#/definitions/UpdateDBServiceV2"
+        }
+      },
+      "x-go-name": "UpdateDBServiceReq",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
     "UpdateDBServiceSyncTaskReq": {
       "type": "object",
       "properties": {
@@ -11986,6 +12384,89 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateDBServiceV2": {
+      "type": "object",
+      "required": [
+        "db_type",
+        "host",
+        "port",
+        "user",
+        "environment_tag",
+        "maintenance_times"
+      ],
+      "properties": {
+        "additional_params": {
+          "description": "DB Service Custom connection parameters",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdditionalParam"
+          },
+          "x-go-name": "AdditionalParams"
+        },
+        "backup_max_rows": {
+          "description": "backup switch",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "BackupMaxRows"
+        },
+        "db_type": {
+          "description": "Service DB type",
+          "type": "string",
+          "x-go-name": "DBType"
+        },
+        "desc": {
+          "description": "Service description",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "enable_backup": {
+          "description": "backup switch",
+          "type": "boolean",
+          "x-go-name": "EnableBackup"
+        },
+        "environment_tag": {
+          "$ref": "#/definitions/EnvironmentTag"
+        },
+        "host": {
+          "description": "DB Service Host",
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "is_enable_masking": {
+          "description": "data masking switch",
+          "type": "boolean",
+          "x-go-name": "IsEnableMasking"
+        },
+        "maintenance_times": {
+          "description": "DB Service maintenance time",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MaintenanceTime"
+          },
+          "x-go-name": "MaintenanceTimes"
+        },
+        "password": {
+          "description": "DB Service admin password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "port": {
+          "description": "DB Service port",
+          "type": "string",
+          "x-go-name": "Port"
+        },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
+        },
+        "user": {
+          "description": "DB Service admin user",
+          "type": "string",
+          "x-go-name": "User"
+        }
+      },
+      "x-go-name": "UpdateDBService",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "UpdateEnvironmentTagReq": {
       "type": "object",
@@ -12157,10 +12638,37 @@
       "type": "object",
       "properties": {
         "project": {
-          "$ref": "#/definitions/UpdateProject"
+          "$ref": "#/definitions/UpdateProjectV2"
         }
       },
       "x-go-name": "UpdateProjectReq",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
+    "UpdateProjectV2": {
+      "type": "object",
+      "properties": {
+        "business_tag": {
+          "$ref": "#/definitions/BusinessTag"
+        },
+        "desc": {
+          "description": "Project desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "project_priority": {
+          "description": "project priority\nhigh ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low",
+            "unknown"
+          ],
+          "x-go-enum-desc": "high ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
+          "x-go-name": "ProjectPriority"
+        }
+      },
+      "x-go-name": "UpdateProject",
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "UpdateRole": {

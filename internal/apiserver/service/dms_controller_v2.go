@@ -285,7 +285,7 @@ func (d *DMSController) ImportDBServicesOfProjectsV2(c echo.Context) error {
 //     in: body
 //     required: true
 //     schema:
-//       "$ref": "#/definitions/ImportDBServicesOfOneProjectReq"
+//       "$ref": "#/definitions/ImportDBServicesOfOneProjectReqV2"
 // responses:
 //   '200':
 //     description: GenericResp
@@ -355,7 +355,7 @@ func (ctl *DMSController) ImportDBServicesOfProjectsCheckV2(c echo.Context) erro
 //     description: Update a DB service
 //     in: body
 //     schema:
-//       "$ref": "#/definitions/UpdateDBServiceReq"
+//       "$ref": "#/definitions/UpdateDBServiceReqV2"
 // responses:
 //   '200':
 //     description: GenericResp
@@ -374,7 +374,7 @@ func (ctl *DMSController) UpdateDBServiceV2(c echo.Context) error{
 // list global DBServices
 //
 //	responses:
-//	  200: body:ListGlobalDBServicesReply
+//	  200: body:ListGlobalDBServicesReplyV2
 //	  default: body:GenericResp
 func (ctl *DMSController) ListGlobalDBServicesV2(c echo.Context) error {
 	return ctl.ListGlobalDBServices(c)
@@ -385,7 +385,7 @@ func (ctl *DMSController) ListGlobalDBServicesV2(c echo.Context) error {
 // List db service.
 //
 //	responses:
-//	  200: body:ListDBServiceReply
+//	  200: body:ListDBServiceReplyV2
 //	  default: body:GenericResp
 func (ctl *DMSController) ListDBServicesV2(c echo.Context) error {
 	return ctl.ListDBServices(c)
