@@ -18,9 +18,6 @@ type ListDBServiceReq struct {
 	// Multiple of ["name"], default is ["name"]
 	// in:query
 	OrderBy v1.DBServiceOrderByField `query:"order_by" json:"order_by"`
-	// the db service business name
-	// in:query
-	FilterByBusiness string `query:"filter_by_business" json:"filter_by_business"`
 	// the db service connection
 	// enum: connect_success,connect_failed
 	// in:query
