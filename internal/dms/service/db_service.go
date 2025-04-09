@@ -733,7 +733,6 @@ func (d *DMSService) ImportDBServicesOfOneProjectCheck(ctx context.Context, user
 	return d.importDBServicesOfOneProjectCheck(ctx, userUid, projectUid, fileContent)
 }
 
-// TODO 实现V2 ImportDBServicesOfOneProject时修改，防止报错临时注掉
-// func (d *DMSService) ImportDBServicesOfOneProject(ctx context.Context, req *dmsV2.ImportDBServicesOfOneProjectReq, uid string) error {
-// 	return d.importDBServicesOfOneProject(ctx, req, uid)
-// }
+func (d *DMSService) ImportDBServicesOfOneProject(ctx context.Context, req *dmsV2.ImportDBServicesOfOneProjectReq, uid string) error {
+	return d.importDBServicesOfOneProject(ctx, req, uid)
+}
