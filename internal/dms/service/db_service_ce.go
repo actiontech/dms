@@ -17,7 +17,7 @@ func (d *DMSService) importDBServicesOfOneProjectCheck(ctx context.Context, user
 	return nil, nil, errNotSupportImportDBServices
 }
 
-func (d *DMSService) importDBServicesOfOneProject(ctx context.Context, req *dmsV1.ImportDBServicesOfOneProjectReq, uid string) error {
+func (d *DMSService) importDBServicesOfOneProject(ctx context.Context, req *dmsV2.ImportDBServicesOfOneProjectReq, uid string) error {
 	return errNotSupportImportDBServices
 }
 
