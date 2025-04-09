@@ -235,11 +235,11 @@ func (d *DMSService) GetImportDBServicesTemplate(ctx context.Context, uid string
 	return d.getImportDBServicesTemplate(ctx, uid)
 }
 
-func (d *DMSService) ImportDBServicesOfProjectsCheck(ctx context.Context, userUid, fileContent string) (*dmsV1.ImportDBServicesCheckReply, []byte, error) {
+func (d *DMSService) ImportDBServicesOfProjectsCheck(ctx context.Context, userUid, fileContent string) (*dmsV2.ImportDBServicesCheckReply, []byte, error) {
 	return d.importDBServicesOfProjectsCheck(ctx, userUid, fileContent)
 }
 
-func (d *DMSService) ImportDBServicesOfProjects(ctx context.Context, req *dmsV1.ImportDBServicesOfProjectsReq, uid string) error {
+func (d *DMSService) ImportDBServicesOfProjects(ctx context.Context, req *dmsV2.ImportDBServicesOfProjectsReq, uid string) error {
 	return d.importDBServicesOfProjects(ctx, req, uid)
 }
 
