@@ -78,12 +78,11 @@ func (a *DMSController) Shutdown() error {
 //     in: path
 //     required: true
 //     type: string
-//   - name: environment_tag
-//     description: environment tag to be created
+//   - name: environment_name
+//     description: the name of environment tag to be created
 //     in: body
 //     required: true
-//     schema:
-//       "$ref": "#/definitions/CreateEnvironmentTagReq"
+//     type: string
 // responses:
 //   '200':
 //     description: GenericResp
@@ -130,12 +129,11 @@ func (d *DMSController) CreateEnvironmentTag(c echo.Context) error {
 //     in: path
 //     required: true
 //     type: string
-//   - name: environment_tag
-//     description: the environment tag to be updated
+//   - name: environment_name
+//     description: the name of environment tag to be updated
 //     required: true
 //     in: body
-//     schema:
-//       "$ref": "#/definitions/UpdateEnvironmentTagReq"
+//     type: string
 // responses:
 //   '200':
 //     description: GenericResp
