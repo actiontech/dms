@@ -2,10 +2,12 @@ package service
 
 import (
 	"fmt"
+	"mime"
+	"net/http"
 
 	dmsApiV2 "github.com/actiontech/dms/api/dms/service/v2"
-	commonApiV2 "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
 	apiError "github.com/actiontech/dms/internal/apiserver/pkg/error"
+	commonApiV2 "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	"github.com/labstack/echo/v4"
 )
@@ -265,7 +267,23 @@ func (d *DMSController) AddDBServiceV2(c echo.Context) error{
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) ImportDBServicesOfProjectsV2(c echo.Context) error {
-	return d.ImportDBServicesOfProjects(c)
+	req := new(dmsApiV2.ImportDBServicesOfProjectsReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	err = d.DMS.ImportDBServicesOfProjects(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkResp(c)
 }
 
 
@@ -331,8 +349,31 @@ func (ctl *DMSController) ImportDBServicesOfOneProjectCheckV2(c echo.Context) er
 //	responses:
 //	  200: ImportDBServicesCheckCsvReply
 //	  default: body:ImportDBServicesCheckReply
-func (ctl *DMSController) ImportDBServicesOfProjectsCheckV2(c echo.Context) error {
-	return ctl.ImportDBServicesOfProjectsCheck(c)
+func (d *DMSController) ImportDBServicesOfProjectsCheckV2(c echo.Context) error {
+	fileContent, exist, err := ReadFileContent(c, DBServicesFileParamKey)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	if !exist {
+		return NewErrResp(c, fmt.Errorf("upload file is not exist"), apiError.APIServerErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, csvCheckResult, err := d.DMS.ImportDBServicesOfProjectsCheck(c.Request().Context(), currentUserUid, fileContent)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	if csvCheckResult != nil {
+		c.Response().Header().Set(echo.HeaderContentDisposition,
+			mime.FormatMediaType("attachment", map[string]string{"filename": "import_db_services_problems.csv"}))
+		return c.Blob(http.StatusOK, "text/csv", csvCheckResult)
+	}
+
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:operation PUT /v2/dms/projects/{project_uid}/db_services/{db_service_uid} DBService UpdateDBServiceV2
