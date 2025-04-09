@@ -140,7 +140,7 @@ type DBService struct {
 	Password string `json:"password" validate:"required"`
 	// DB Service environment tag
 	// Required: true
-	EnvironmentTag *dmsCommonV1.EnvironmentTag `json:"environment_tag"`
+	EnvironmentTagUID string `json:"environment_tag_uid" validate:"required"`
 	// DB Service maintenance time
 	// empty value means that maintenance time is unlimited
 	// Required: true

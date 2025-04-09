@@ -318,7 +318,7 @@ func (d *DMSService) AddDBServiceV2(ctx context.Context, req *dmsV2.AddDBService
 		Port:              req.DBService.Port,
 		User:              req.DBService.User,
 		Password:          &req.DBService.Password,
-		EnvironmentTag:    req.DBService.EnvironmentTag,
+		EnvironmentTagUID: req.DBService.EnvironmentTagUID,
 		MaintenancePeriod: d.convertMaintenanceTimeToPeriod(req.DBService.MaintenanceTimes),
 		ProjectUID:        req.ProjectUid,
 		Source:            string(pkgConst.DBServiceSourceNameSQLE),
