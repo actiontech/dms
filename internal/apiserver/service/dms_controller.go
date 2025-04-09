@@ -2260,36 +2260,7 @@ func (a *DMSController) GetImportDBServicesTemplate(c echo.Context) error {
 //	  default: body:ImportDBServicesCheckReply
 // deprecated: true
 func (a *DMSController) ImportDBServicesOfOneProjectCheck(c echo.Context) error {
-	req := new(aV1.ImportDBServicesOfOneProjectCheckReq)
-	err := bindAndValidateReq(c, req)
-	if nil != err {
-		return NewErrResp(c, err, apiError.BadRequestErr)
-	}
-
-	fileContent, exist, err := ReadFileContent(c, DBServicesFileParamKey)
-	if err != nil {
-		return NewErrResp(c, err, apiError.APIServerErr)
-	}
-	if !exist {
-		return NewErrResp(c, fmt.Errorf("upload file is not exist"), apiError.APIServerErr)
-	}
-
-	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-
-	reply, csvCheckResult, err := a.DMS.ImportDBServicesOfOneProjectCheck(c.Request().Context(), currentUserUid, req.ProjectUid, fileContent)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-	if csvCheckResult != nil {
-		c.Response().Header().Set(echo.HeaderContentDisposition,
-			mime.FormatMediaType("attachment", map[string]string{"filename": "import_db_services_problems.csv"}))
-		return c.Blob(http.StatusOK, "text/csv", csvCheckResult)
-	}
-
-	return NewOkRespWithReply(c, reply)
+	return NewOkRespWithReply(c, nil)
 }
 
 // swagger:operation POST /v1/dms/projects/{project_uid}/db_services/import DBService ImportDBServicesOfOneProject
