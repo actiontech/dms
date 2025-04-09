@@ -8,8 +8,8 @@ import (
 // swagger:model
 type CreateEnvironmentTagReq struct {
 	// swagger:ignore
-	ProjectUID     string          `param:"project_uid" json:"project_uid" validate:"required"`
-	EnvironmentTag *dmsCommonV1.EnvironmentTag `json:"environment_tag" validate:"required"`
+	ProjectUID string `param:"project_uid" json:"project_uid" validate:"required"`
+	Name       string `json:"environment_name" validate:"required,min=1,max=50"`
 }
 
 // swagger:model
@@ -19,7 +19,7 @@ type UpdateEnvironmentTagReq struct {
 	// swagger:ignore
 	ProjectUID string `param:"project_uid" json:"project_uid" validate:"required"`
 
-	EnvironmentTag *dmsCommonV1.EnvironmentTag `json:"environment_tag" validate:"required"`
+	Name string `json:"environment_name" validate:"required,min=1,max=50"`
 }
 
 // swagger:parameters ListEnvironmentTags
@@ -37,7 +37,7 @@ type ListEnvironmentTagReq struct {
 // swagger:model ListEnvironmentTagsReply
 type ListEnvironmentTagsReply struct {
 	Data  []*dmsCommonV1.EnvironmentTag `json:"data"`
-	Total int64             `json:"total_nums"`
+	Total int64                         `json:"total_nums"`
 	base.GenericResp
 }
 
