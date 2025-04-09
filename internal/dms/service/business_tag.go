@@ -6,7 +6,6 @@ import (
 
 	v1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
-	"github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 )
 
@@ -63,8 +62,8 @@ func (d *DMSService) DeleteBusinessTag(ctx context.Context, currentUserUid strin
 	}
 
 	// 业务标签被项目关联时，不允许删除
-	filterBy := []constant.FilterCondition{
-		pkgConst.FilterCondition{
+	filterBy := []pkgConst.FilterCondition{
+		{
 			Field:    string(biz.ProjectFieldBusinessTagUID),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    businessTagUID,
