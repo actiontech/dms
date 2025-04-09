@@ -2320,11 +2320,6 @@ func (a *DMSController) ImportDBServicesOfOneProjectCheck(c echo.Context) error 
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (a *DMSController) ImportDBServicesOfOneProject(c echo.Context) error {
-	req := new(aV1.ImportDBServicesOfOneProjectReq)
-	err := bindAndValidateReq(c, req)
-	if nil != err {
-		return NewErrResp(c, err, apiError.BadRequestErr)
-	}
 	return NewOkResp(c)
 }
 
@@ -2370,11 +2365,6 @@ func (a *DMSController) ImportDBServicesOfProjectsCheck(c echo.Context) error {
 //       "$ref": "#/definitions/GenericResp"
 // deprecated: true
 func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
-	req := new(aV1.ImportDBServicesOfProjectsReq)
-	err := bindAndValidateReq(c, req)
-	if nil != err {
-		return NewErrResp(c, err, apiError.BadRequestErr)
-	}
 	return NewOkResp(c)
 }
 
