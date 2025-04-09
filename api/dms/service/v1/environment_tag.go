@@ -15,7 +15,7 @@ type CreateEnvironmentTagReq struct {
 // swagger:model
 type UpdateEnvironmentTagReq struct {
 	// swagger:ignore
-	EnvironmentTagUID string `json:"environment_tag_uid" validate:"required"`
+	EnvironmentTagUID string `param:"environment_tag_uid" json:"environment_tag_uid" validate:"required"`
 	// swagger:ignore
 	ProjectUID string `param:"project_uid" json:"project_uid" validate:"required"`
 
