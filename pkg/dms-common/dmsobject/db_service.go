@@ -6,10 +6,11 @@ import (
 	"net/url"
 
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+	dmsCommonV2 "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 )
 
-func ListDbServices(ctx context.Context, dmsAddr string, req dmsV1.ListDBServiceReq) ([]*dmsV1.ListDBService, int64, error) {
+func ListDbServices(ctx context.Context, dmsAddr string, req dmsCommonV2.ListDBServiceReq) ([]*dmsV1.ListDBService, int64, error) {
 	header := map[string]string{
 		"Authorization": pkgHttp.DefaultDMSToken,
 	}
@@ -28,8 +29,8 @@ func ListDbServices(ctx context.Context, dmsAddr string, req dmsV1.ListDBService
 	if req.OrderBy != "" {
 		query.Set("order_by", fmt.Sprintf("%v", req.OrderBy))
 	}
-	if req.FilterByBusiness != "" {
-		query.Set("filter_by_business", req.FilterByBusiness)
+	if req.FilterByEnvironmentTag != "" {
+		query.Set("filter_by_environment_tag", req.FilterByEnvironmentTag)
 	}
 	if req.FilterByHost != "" {
 		query.Set("filter_by_host", req.FilterByHost)
