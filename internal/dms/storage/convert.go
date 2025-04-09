@@ -40,7 +40,7 @@ func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
 		User:     ds.User,
 		Password: encrypted,
 		// Business:          ds.Business,
-		EnvironmentTagID:  ds.EnvironmentTag.ID,
+		EnvironmentTagUID: ds.EnvironmentTag.UID,
 		AdditionalParams:  ds.AdditionalParams,
 		Source:            ds.Source,
 		MaintenancePeriod: ds.MaintenancePeriod,
@@ -120,9 +120,9 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 		dbService.LastConnectionErrorMsg = ds.LastConnectionErrorMsg
 	}
 
-	{
+	if ds.EnvironmentTag != nil {
 		dbService.EnvironmentTag = &dmsCommonV1.EnvironmentTag{
-			ID:   ds.EnvironmentTagID,
+			UID:  ds.EnvironmentTagUID,
 			Name: ds.EnvironmentTag.EnvironmentName,
 		}
 	}

@@ -73,7 +73,7 @@ type DBService struct {
 	Password string `json:"password" gorm:"column:db_password; size:255; not null"`
 	Desc     string `json:"desc" gorm:"column:desc" example:"this is a instance"`
 	// Business               string          `json:"business" gorm:"column:business;size:255; not null" example:"this is a business"`
-	EnvironmentTagID       uint            `json:"environment_tag_id" gorm:"column:environment_tag_id; not null"`
+	EnvironmentTagUID      string          `json:"environment_tag_id" gorm:"column:environment_tag_uid; not null"`
 	AdditionalParams       params.Params   `json:"additional_params" gorm:"type:text"`
 	Source                 string          `json:"source" gorm:"size:255;not null"`
 	ProjectUID             string          `json:"project_uid" gorm:"size:32;column:project_uid;index:project_uid_name,unique"`
@@ -91,7 +91,7 @@ type DBService struct {
 type EnvironmentTag struct {
 	Model
 	EnvironmentName string `json:"environment_name" gorm:"not null"`
-	ProjectUID      string `json:"project_uid" gorm:"size:32;column:project_uid;index:project_uid_name,unique"`
+	ProjectUID      string `json:"project_uid" gorm:"size:32;column:project_uid;index:project_uid_name"`
 }
 
 type ExtraParameters struct {
@@ -223,12 +223,12 @@ func (mg *MemberGroupRoleOpRange) AfterSave(tx *gorm.DB) error {
 
 type Project struct {
 	Model
-	Name            string `json:"name" gorm:"size:200;column:name;index:name,unique"`
-	Desc            string `json:"desc" gorm:"column:desc"`
-	BusinessTagUID  string `json:"business_tag_uid" gorm:"size:32;column:business_tag_uid"`
-	CreateUserUID   string `json:"create_user_uid" gorm:"size:32;column:create_user_uid"`
-	Status          string `gorm:"size:64;default:'active'"`
-	Priority        uint8  `json:"priority" gorm:"type:tinyint unsigned;not null;default:20;comment:'优先级：10=低, 20=中, 30=高'"`
+	Name           string `json:"name" gorm:"size:200;column:name;index:name,unique"`
+	Desc           string `json:"desc" gorm:"column:desc"`
+	BusinessTagUID string `json:"business_tag_uid" gorm:"size:32;column:business_tag_uid"`
+	CreateUserUID  string `json:"create_user_uid" gorm:"size:32;column:create_user_uid"`
+	Status         string `gorm:"size:64;default:'active'"`
+	Priority       uint8  `json:"priority" gorm:"type:tinyint unsigned;not null;default:20;comment:'优先级：10=低, 20=中, 30=高'"`
 }
 
 const (
