@@ -130,7 +130,7 @@ func (s *APIServer) initRouter() error {
 		opPermissionV1 := v1.Group("/dms/op_permissions")
 		opPermissionV1.GET("", s.DMSController.ListOpPermissions)
 
-		projectV1 := v1.Group(dmsV1.ProjectRouterGroup)
+		projectV1 := v1.Group(dmsV2.ProjectRouterGroup)
 		projectV1.GET("", s.DeprecatedBy(dmsV1.GroupV2))
 		projectV1.POST("", s.DeprecatedBy(dmsV1.GroupV2))
 		projectV1.DELETE("/:project_uid", s.DMSController.DelProject)
@@ -143,8 +143,8 @@ func (s *APIServer) initRouter() error {
 		projectV1.GET("/export", s.DMSController.ExportProjects)
 		projectV1.GET("/tips", s.DMSController.GetProjectTips)
 		projectV1.GET("/import_db_services_template", s.DMSController.GetImportDBServicesTemplate)
-		projectV1.POST("/import_db_services_check", s.DMSController.ImportDBServicesOfProjectsCheck)
-		projectV1.POST("/import_db_services", s.DMSController.ImportDBServicesOfProjects)
+		projectV1.POST("/import_db_services_check", s.DeprecatedBy(dmsV1.GroupV2))
+		projectV1.POST("/import_db_services", s.DeprecatedBy(dmsV1.GroupV2))
 		projectV1.POST("/db_services_connection", s.DMSController.DBServicesConnection)
 		projectV1.POST("/db_services_connections", s.DMSController.CheckGlobalDBServicesConnections)
 		projectV1.POST("/business_tags", s.DMSController.CreateBusinessTag)
@@ -244,12 +244,14 @@ func (s *APIServer) initRouter() error {
 	}
 
 	{
-		projectV2 := v2.Group(dmsV1.ProjectRouterGroup)
+		projectV2 := v2.Group(dmsV2.ProjectRouterGroup)
 		projectV2.POST("", s.DMSController.AddProjectV2)
 		projectV2.GET("", s.DMSController.ListProjectsV2)
 		projectV2.PUT("/:project_uid", s.DMSController.UpdateProjectV2)
 		projectV2.POST("/import", s.DMSController.ImportProjectsV2)
 		projectV2.POST("/preview_import", s.DMSController.PreviewImportProjectsV2)
+		projectV2.POST("/import_db_services_check", s.DMSController.ImportDBServicesOfProjectsCheckV2)
+		projectV2.POST("/import_db_services", s.DMSController.ImportDBServicesOfProjectsV2)
 	}
 	return nil
 }

@@ -2325,17 +2325,6 @@ func (a *DMSController) ImportDBServicesOfOneProject(c echo.Context) error {
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-
-	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-
-	err = a.DMS.ImportDBServicesOfOneProject(c.Request().Context(), req, currentUserUid)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-
 	return NewOkResp(c)
 }
 
@@ -2355,30 +2344,7 @@ func (a *DMSController) ImportDBServicesOfOneProject(c echo.Context) error {
 //	  default: body:ImportDBServicesCheckReply
 // deprecated: true
 func (a *DMSController) ImportDBServicesOfProjectsCheck(c echo.Context) error {
-	fileContent, exist, err := ReadFileContent(c, DBServicesFileParamKey)
-	if err != nil {
-		return NewErrResp(c, err, apiError.APIServerErr)
-	}
-	if !exist {
-		return NewErrResp(c, fmt.Errorf("upload file is not exist"), apiError.APIServerErr)
-	}
-
-	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-
-	reply, csvCheckResult, err := a.DMS.ImportDBServicesOfProjectsCheck(c.Request().Context(), currentUserUid, fileContent)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-	if csvCheckResult != nil {
-		c.Response().Header().Set(echo.HeaderContentDisposition,
-			mime.FormatMediaType("attachment", map[string]string{"filename": "import_db_services_problems.csv"}))
-		return c.Blob(http.StatusOK, "text/csv", csvCheckResult)
-	}
-
-	return NewOkRespWithReply(c, reply)
+	return NewOkRespWithReply(c, nil)
 }
 
 // swagger:operation POST /v1/dms/projects/import_db_services Project ImportDBServicesOfProjects
@@ -2402,22 +2368,12 @@ func (a *DMSController) ImportDBServicesOfProjectsCheck(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
+// deprecated: true
 func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
 	req := new(aV1.ImportDBServicesOfProjectsReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
-	}
-
-	// get current user id
-	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-
-	err = a.DMS.ImportDBServicesOfProjects(c.Request().Context(), req, currentUserUid)
-	if nil != err {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 	return NewOkResp(c)
 }

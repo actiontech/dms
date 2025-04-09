@@ -2,7 +2,8 @@ package v2
 
 // router
 var (
-	DBServiceRouterGroup          = "/dms/projects/:project_uid/db_services"
+	DBServiceRouterGroup = "/dms/projects/:project_uid/db_services"
+	ProjectRouterGroup   = "/dms/projects"
 )
 
 // api group
