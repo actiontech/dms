@@ -63,10 +63,16 @@ func (s *APIServer) initRouter() error {
 			dbServiceV1.POST("/import", s.DMSController.ImportDBServicesOfOneProject)
 		}
 
-		dbServiceV2 := v2.Group(dmsV1.DBServiceRouterGroup)
+		dbServiceV2 := v2.Group(dmsV2.DBServiceRouterGroup)
 		{
 			dbServiceV2.POST("", s.DMSController.AddDBServiceV2)
 		}
+		environmentTagV1 := v1.Group(dmsV1.DBEnvironmentTagGroup)
+		environmentTagV1.POST("", s.DMSController.CreateEnvironmentTag)
+		environmentTagV1.GET("", s.DMSController.ListEnvironmentTags)
+		environmentTagV1.PUT("/:environment_tag_uid", s.DMSController.UpdateEnvironmentTag)
+		environmentTagV1.DELETE("/:environment_tag_uid", s.DMSController.DeleteEnvironmentTag)
+
 
 		dbServiceSyncTaskV1 := v1.Group("/dms/db_service_sync_tasks")
 		dbServiceSyncTaskV1.GET("/tips", s.DMSController.ListDBServiceSyncTaskTips)
@@ -353,7 +359,7 @@ func (s *APIServer) installMiddleware() error {
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/sms/send_code" /* TODO 使用统一方法skip */) ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/sms/verify_code" /* TODO 使用统一方法skip */) ||
 				!(strings.HasPrefix(c.Request().RequestURI, dmsV1.CurrentGroupVersion) ||
-				strings.HasPrefix(c.Request().RequestURI, dmsV2.CurrentGroupVersion)) {
+					strings.HasPrefix(c.Request().RequestURI, dmsV2.CurrentGroupVersion)) {
 				logger.Debugf("skipper url jwt check: %v", c.Request().RequestURI)
 				return true
 			}
