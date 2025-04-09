@@ -59,13 +59,15 @@ func (s *APIServer) initRouter() error {
 			dbServiceV1.POST("/connection", s.DMSController.CheckDBServiceIsConnectable)
 			dbServiceV1.POST("/:db_service_uid/connection", s.DMSController.CheckDBServiceIsConnectableById)
 			dbServiceV1.POST("/connections", s.DMSController.CheckProjectDBServicesConnections)
-			dbServiceV1.POST("/import_check", s.DMSController.ImportDBServicesOfOneProjectCheck)
-			dbServiceV1.POST("/import", s.DMSController.ImportDBServicesOfOneProject)
+			dbServiceV1.POST("/import_check",  s.DeprecatedBy(dmsV2.GroupV2))
+			dbServiceV1.POST("/import", s.DeprecatedBy(dmsV2.GroupV2))
 		}
 
 		dbServiceV2 := v2.Group(dmsV2.DBServiceRouterGroup)
 		{
 			dbServiceV2.POST("", s.DMSController.AddDBServiceV2)
+			dbServiceV2.POST("/import_check", s.DMSController.ImportDBServicesOfOneProjectCheckV2)
+			dbServiceV2.POST("/import", s.DMSController.ImportDBServicesOfOneProjectV2)
 		}
 		environmentTagV1 := v1.Group(dmsV1.DBEnvironmentTagGroup)
 		environmentTagV1.POST("", s.DMSController.CreateEnvironmentTag)
