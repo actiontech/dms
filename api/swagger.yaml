@@ -2216,71 +2216,6 @@ definitions:
                 x-go-name: User
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v2
-    ImportDBServiceReqV2:
-        properties:
-            additional_params:
-                description: DB Service Custom connection parameters
-                items:
-                    $ref: '#/definitions/AdditionalParam'
-                type: array
-                x-go-name: AdditionalParams
-            db_type:
-                description: db service DB type
-                type: string
-                x-go-name: DBType
-            desc:
-                description: DB desc
-                type: string
-                x-go-name: Desc
-            environment_tag_name:
-                description: DB Service environment tag
-                type: string
-                x-go-name: EnvironmentTagName
-            host:
-                description: db service host
-                type: string
-                x-go-name: Host
-            is_enable_masking:
-                description: is enable masking
-                type: boolean
-                x-go-name: IsEnableMasking
-            maintenance_times:
-                description: DB Service maintenance time
-                items:
-                    $ref: '#/definitions/MaintenanceTime'
-                type: array
-                x-go-name: MaintenanceTimes
-            name:
-                description: db service name
-                type: string
-                x-go-name: Name
-            password:
-                description: db service admin encrypted password
-                type: string
-                x-go-name: Password
-            port:
-                description: db service port
-                type: string
-                x-go-name: Port
-            project_uid:
-                description: DB project uid
-                type: string
-                x-go-name: ProjectUID
-            source:
-                description: DB source
-                type: string
-                x-go-name: Source
-            sqle_config:
-                $ref: '#/definitions/SQLEConfig'
-            user:
-                description: db service admin user
-                type: string
-                x-go-name: User
-        required:
-            - environment_tag_name
-        type: object
-        x-go-name: ImportDBServiceReq
-        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     ImportDBServiceV2:
         properties:
             additional_params:
@@ -2398,7 +2333,7 @@ definitions:
         properties:
             db_services:
                 items:
-                    $ref: '#/definitions/ImportDBServiceReqV2'
+                    $ref: '#/definitions/ImportDBServiceV2'
                 type: array
                 x-go-name: DBServices
         type: object
