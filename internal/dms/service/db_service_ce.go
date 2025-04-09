@@ -5,13 +5,15 @@ package service
 import (
 	"context"
 	"errors"
+
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
+	dmsV2 "github.com/actiontech/dms/api/dms/service/v2"
 )
 
 var errNotSupportImportDBServices = errors.New("ImportDBServices related functions are enterprise version functions")
 var errNotSupportGlobalDBServices = errors.New("GlobalDBServices related functions are enterprise version functions")
 
-func (d *DMSService) importDBServicesOfOneProjectCheck(ctx context.Context, userUid, projectUid, fileContent string) (*dmsV1.ImportDBServicesCheckReply, []byte, error) {
+func (d *DMSService) importDBServicesOfOneProjectCheck(ctx context.Context, userUid, projectUid, fileContent string) (*dmsV2.ImportDBServicesCheckReply, []byte, error) {
 	return nil, nil, errNotSupportImportDBServices
 }
 
