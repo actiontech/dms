@@ -32,11 +32,11 @@ func (d *DMSService) getImportDBServicesTemplate(ctx context.Context, uid string
 	return nil, errNotSupportProject
 }
 
-func (d *DMSService) importDBServicesOfProjectsCheck(ctx context.Context, userUid, fileContent string) (*dmsV1.ImportDBServicesCheckReply, []byte, error) {
+func (d *DMSService) importDBServicesOfProjectsCheck(ctx context.Context, userUid, fileContent string) (*dmsV2.ImportDBServicesCheckReply, []byte, error) {
 	return nil, nil, errNotSupportProject
 }
 
-func (d *DMSService) importDBServicesOfProjects(ctx context.Context, req *dmsV1.ImportDBServicesOfProjectsReq, uid string) error {
+func (d *DMSService) importDBServicesOfProjects(ctx context.Context, req *dmsV2.ImportDBServicesOfProjectsReq, uid string) error {
 	return errNotSupportProject
 }
 
