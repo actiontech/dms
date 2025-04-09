@@ -68,15 +68,15 @@ func (repo *EnvironmentTagRepo) DeleteEnvironmentTag(ctx context.Context, enviro
 	})
 }
 
-func (repo *EnvironmentTagRepo) GetEnvironmentTagByName(ctx context.Context, projetUid, name string) (*biz.EnvironmentTag, error) {
+func (repo *EnvironmentTagRepo) GetEnvironmentTagByName(ctx context.Context, projetUid, name string) (bool, *biz.EnvironmentTag, error) {
 	var environmentTag model.EnvironmentTag
-	if err := repo.db.WithContext(ctx).Where("name = ? AND project_uid = ?", name, projetUid).First(&environmentTag).Error; err != nil {
+	if err := repo.db.WithContext(ctx).Where("environment_name = ? AND project_uid = ?", name, projetUid).First(&environmentTag).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, pkgErr.ErrStorageNoData
+			return false, nil, nil
 		}
-		return nil, fmt.Errorf("failed to get environment tag by name: %w", err)
+		return false, nil, fmt.Errorf("failed to get environment tag by name: %w", err)
 	}
-	return repo.toBiz(&environmentTag), nil
+	return true, repo.toBiz(&environmentTag), nil
 }
 
 func (repo *EnvironmentTagRepo) GetEnvironmentTagByUID(ctx context.Context, uid string) (*biz.EnvironmentTag, error) {

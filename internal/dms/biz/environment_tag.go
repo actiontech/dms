@@ -12,7 +12,7 @@ type EnvironmentTagRepo interface {
 	CreateEnvironmentTag(ctx context.Context, environmentTag *EnvironmentTag) error
 	UpdateEnvironmentTag(ctx context.Context, environmentTagName, environmentTagUID string) error
 	DeleteEnvironmentTag(ctx context.Context, environmentTagUID string) error
-	GetEnvironmentTagByName(ctx context.Context, projectUid, name string) (*EnvironmentTag, error)
+	GetEnvironmentTagByName(ctx context.Context, projectUid, name string) (bool, *EnvironmentTag, error)
 	GetEnvironmentTagByUID(ctx context.Context, uid string) (*EnvironmentTag, error)
 	ListEnvironmentTags(ctx context.Context, options *ListEnvironmentTagsOption) ([]*EnvironmentTag, int64, error)
 }
@@ -65,7 +65,15 @@ func (uc *EnvironmentTagUsecase) CreateEnvironmentTag(ctx context.Context, proje
 	} else if !canOpProject {
 		return fmt.Errorf("user is not project admin or golobal op permission user")
 	}
-
+	// 校验环境标签名称
+	exist, _, err := uc.GetEnvironmentTagByName(ctx, projectUid, tagName)
+	if err != nil {
+		uc.log.Errorf("get environment tag by name failed: %v", err)
+		return err
+	}
+	if exist {
+		return fmt.Errorf("the tag %s already exists in the current project", tagName)
+	}
 	environmentTag, err := uc.newEnvironmentTag(projectUid, tagName)
 	if err != nil {
 		uc.log.Errorf("new environment tag failed: %v", err)
@@ -149,13 +157,13 @@ func (uc *EnvironmentTagUsecase) ListEnvironmentTags(ctx context.Context, option
 	return environmentTags, count, nil
 }
 
-func (uc *EnvironmentTagUsecase) GetEnvironmentTagByName(ctx context.Context, projectUid, tagName string) (*EnvironmentTag, error) {
-	environmentTag, err := uc.environmentTagRepo.GetEnvironmentTagByName(ctx, projectUid, tagName)
+func (uc *EnvironmentTagUsecase) GetEnvironmentTagByName(ctx context.Context, projectUid, tagName string) (bool, *EnvironmentTag, error) {
+	exist, environmentTag, err := uc.environmentTagRepo.GetEnvironmentTagByName(ctx, projectUid, tagName)
 	if err != nil {
 		uc.log.Errorf("get environment tag failed: %v", err)
-		return nil, err
+		return false, nil, err
 	}
-	return environmentTag, nil
+	return exist, environmentTag, nil
 }
 
 func (uc *EnvironmentTagUsecase) GetEnvironmentTagByUID(ctx context.Context, uid string) (*EnvironmentTag, error) {
