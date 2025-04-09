@@ -171,16 +171,19 @@ type DBServiceUsecase struct {
 	pluginUsecase             *PluginUsecase
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	projectUsecase            *ProjectUsecase
+	environmentTagUsecase     *EnvironmentTagUsecase
 	log                       *utilLog.Helper
 }
 
-func NewDBServiceUsecase(log utilLog.Logger, repo DBServiceRepo, pluginUsecase *PluginUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo) *DBServiceUsecase {
+func NewDBServiceUsecase(log utilLog.Logger, repo DBServiceRepo, pluginUsecase *PluginUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, 
+	projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, environmentTagUsecase *EnvironmentTagUsecase) *DBServiceUsecase {
 	return &DBServiceUsecase{
 		repo:                      repo,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 		pluginUsecase:             pluginUsecase,
 		projectUsecase:            projectUsecase,
 		dmsProxyTargetRepo:        proxyTargetRepo,
+		environmentTagUsecase: 	   environmentTagUsecase,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.dbService")),
 	}
 }
