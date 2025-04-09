@@ -313,8 +313,24 @@ func (d *DMSController) ImportDBServicesOfProjectsV2(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (ctl *DMSController) ImportDBServicesOfOneProjectV2(c echo.Context) error {
-	return ctl.ImportDBServicesOfOneProject(c)
+func (d *DMSController) ImportDBServicesOfOneProjectV2(c echo.Context) error {
+	req := new(dmsApiV2.ImportDBServicesOfOneProjectReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	err = d.DMS.ImportDBServicesOfOneProject(c.Request().Context(), req, currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkResp(c)
 }
 
 // swagger:route POST /v2/dms/projects/{project_uid}/db_services/import_check DBService ImportDBServicesOfOneProjectCheckV2
@@ -331,8 +347,37 @@ func (ctl *DMSController) ImportDBServicesOfOneProjectV2(c echo.Context) error {
 //	responses:
 //	  200: ImportDBServicesCheckCsvReply
 //	  default: body:ImportDBServicesCheckReply
-func (ctl *DMSController) ImportDBServicesOfOneProjectCheckV2(c echo.Context) error {
-	return ctl.ImportDBServicesOfOneProjectCheck(c)
+func (d *DMSController) ImportDBServicesOfOneProjectCheckV2(c echo.Context) error {
+	req := new(dmsApiV2.ImportDBServicesOfOneProjectCheckReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	fileContent, exist, err := ReadFileContent(c, DBServicesFileParamKey)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	if !exist {
+		return NewErrResp(c, fmt.Errorf("upload file is not exist"), apiError.APIServerErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, csvCheckResult, err := d.DMS.ImportDBServicesOfOneProjectCheck(c.Request().Context(), currentUserUid, req.ProjectUid, fileContent)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	if csvCheckResult != nil {
+		c.Response().Header().Set(echo.HeaderContentDisposition,
+			mime.FormatMediaType("attachment", map[string]string{"filename": "import_db_services_problems.csv"}))
+		return c.Blob(http.StatusOK, "text/csv", csvCheckResult)
+	}
+
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:route POST /v2/dms/projects/import_db_services_check Project ImportDBServicesOfProjectsCheckV2

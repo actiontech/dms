@@ -206,16 +206,8 @@ type UpdateDBService struct {
 // swagger:model ImportDBServicesOfOneProjectReqV2
 type ImportDBServicesOfOneProjectReq struct {
 	// swagger:ignore
-	ProjectUid string               `param:"project_uid" json:"project_uid" validate:"required"`
-	DBServices []ImportDBServiceReq `json:"db_services" validate:"required"`
-}
-
-// swagger:model ImportDBServiceReqV2
-type ImportDBServiceReq struct {
-	ImportDBServiceCommon
-	// DB Service environment tag
-	// Required: true
-	EnvironmentTagName string `json:"environment_tag_name"`
+	ProjectUid string            `param:"project_uid" json:"project_uid" validate:"required"`
+	DBServices []ImportDBService `json:"db_services" validate:"required"`
 }
 
 // swagger:model ImportDBServiceCommon
