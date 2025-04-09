@@ -3,7 +3,9 @@ package v2
 import (
 	"bytes"
 
+	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+	"github.com/go-openapi/strfmt"
 )
 
 // swagger:parameters ListGlobalDBServicesV2
@@ -116,8 +118,8 @@ type ImportDBServicesOfProjectsCheckReq struct {
 	DBServicesFile *bytes.Buffer `json:"db_services_file"`
 }
 
-// A db service
-type DBServicev2 struct {
+// swagger:model DBServiceV2
+type DBService struct {
 	// Service name
 	// Required: true
 	Name string `json:"name" validate:"required"`
@@ -165,5 +167,148 @@ type DBServicev2 struct {
 type AddDBServiceReq struct {
 	// swagger:ignore
 	ProjectUid string     `param:"project_uid" json:"project_uid" validate:"required"`
-	DBService  *DBServicev2 `json:"db_service" validate:"required"`
+	DBService  *DBService `json:"db_service" validate:"required"`
+}
+
+// swagger:model UpdateDBServiceReqV2
+type UpdateDBServiceReq struct {
+	// swagger:ignore
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	// swagger:ignore
+	DBServiceUid string           `param:"db_service_uid" json:"db_service_uid" validate:"required"`
+	DBService    *UpdateDBService `json:"db_service" validate:"required"`
+}
+
+// swagger:model UpdateDBServiceV2
+type UpdateDBService struct {
+	// Service DB type
+	// Required: true
+	DBType string `json:"db_type" validate:"required"`
+	// DB Service Host
+	// Required: true
+	Host string `json:"host" validate:"required,ip_addr|uri|hostname|hostname_rfc1123"`
+	// DB Service port
+	// Required: true
+	Port string `json:"port" validate:"required"`
+	// DB Service admin user
+	// Required: true
+	User string `json:"user" validate:"required"`
+	// DB Service admin password
+	Password *string `json:"password"`
+	// DB Service environment tag
+	// Required: true
+	EnvironmentTag *dmsCommonV1.EnvironmentTag `json:"environment_tag"`
+	// DB Service maintenance time
+	// Required: true
+	MaintenanceTimes []*dmsCommonV1.MaintenanceTime `json:"maintenance_times"`
+	// DB Service Custom connection parameters
+	// Required: false
+	AdditionalParams []*dmsCommonV1.AdditionalParam `json:"additional_params"`
+	// Service description
+	Desc *string `json:"desc"`
+	// SQLE config
+	SQLEConfig *dmsCommonV1.SQLEConfig `json:"sqle_config"`
+	// data masking switch
+	// Required: false
+	IsEnableMasking bool `json:"is_enable_masking"`
+	// backup switch
+	// Required: false
+	EnableBackup bool `json:"enable_backup"`
+	// backup switch
+	// Required: false
+	BackupMaxRows *uint64 `json:"backup_max_rows,omitempty"`
+}
+
+// swagger:model ImportDBServicesOfOneProjectReqV2
+type ImportDBServicesOfOneProjectReq struct {
+	// swagger:ignore
+	ProjectUid string            `param:"project_uid" json:"project_uid" validate:"required"`
+	DBServices []ImportDBService `json:"db_services" validate:"required"`
+}
+
+// swagger:model ImportDBServiceV2
+type ImportDBService struct {
+	// db service name
+	Name string `json:"name"`
+	// db service DB type
+	DBType string `json:"db_type"`
+	// db service host
+	Host string `json:"host"`
+	// db service port
+	Port string `json:"port"`
+	// db service admin user
+	User string `json:"user"`
+	// db service admin encrypted password
+	Password string `json:"password"`
+	// DB Service environment tag
+	// Required: true
+	EnvironmentTag *dmsCommonV1.EnvironmentTag `json:"environment_tag"`
+	// DB Service maintenance time
+	MaintenanceTimes []*dmsCommonV1.MaintenanceTime `json:"maintenance_times"`
+	// DB desc
+	Desc string `json:"desc"`
+	// DB source
+	Source string `json:"source"`
+	// DB project uid
+	ProjectUID string `json:"project_uid"`
+	// sqle config
+	SQLEConfig *dmsCommonV1.SQLEConfig `json:"sqle_config"`
+	// DB Service Custom connection parameters
+	AdditionalParams []*dmsCommonV1.AdditionalParam `json:"additional_params"`
+	// is enable masking
+	IsEnableMasking bool `json:"is_enable_masking"`
+}
+
+// swagger:model ListGlobalDBServicesReplyV2
+type ListGlobalDBServicesReply struct {
+	// List global db service reply
+	Data  []*ListGlobalDBService `json:"data"`
+	Total int64                  `json:"total_nums"`
+
+	// Generic reply
+	base.GenericResp
+}
+
+// swagger:model ListGlobalDBServiceV2
+type ListGlobalDBService struct {
+	// db service uid
+	DBServiceUid string `json:"uid"`
+	// db service name
+	Name string `json:"name"`
+	// db service DB type
+	DBType string `json:"db_type"`
+	// db service host
+	Host string `json:"host"`
+	// db service port
+	Port string `json:"port"`
+	// DB Service environment tag
+	// Required: true
+	EnvironmentTag *dmsCommonV1.EnvironmentTag `json:"environment_tag"`
+	// DB Service maintenance time
+	MaintenanceTimes []*dmsCommonV1.MaintenanceTime `json:"maintenance_times"`
+	// DB desc
+	Desc string `json:"desc"`
+	// DB source
+	Source string `json:"source"`
+	// DB project uid
+	ProjectUID string `json:"project_uid"`
+	// db service project_name
+	ProjectName string `json:"project_name"`
+	// is enable audit
+	IsEnableAudit bool `json:"is_enable_audit"`
+	// is enable masking
+	IsEnableMasking bool `json:"is_enable_masking"`
+	// db service unfinished workflow num
+	UnfinishedWorkflowNum int64 `json:"unfinished_workflow_num"`
+	// backup switch
+	EnableBackup bool `json:"enable_backup"`
+	// backup switch
+	// Required: false
+	BackupMaxRows uint64 `json:"backup_max_rows"`
+	// DB connection test time
+	LastConnectionTestTime strfmt.DateTime `json:"last_connection_test_time"`
+	// DB connect test status
+	LastConnectionTestStatus dmsCommonV1.LastConnectionTestStatus `json:"last_connection_test_status"`
+	// DB connect test error message
+	LastConnectionTestErrorMessage string `json:"last_connection_test_error_message,omitempty"`
 }
