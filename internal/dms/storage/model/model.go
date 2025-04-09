@@ -90,8 +90,8 @@ type DBService struct {
 
 type EnvironmentTag struct {
 	Model
-	EnvironmentName string `json:"environment_name" gorm:"not null"`
 	ProjectUID      string `json:"project_uid" gorm:"size:32;column:project_uid;index:project_uid_name"`
+	EnvironmentName string `json:"environment_name" gorm:"not null;index:project_uid_name"`
 }
 
 type ExtraParameters struct {
