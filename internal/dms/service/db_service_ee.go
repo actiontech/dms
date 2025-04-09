@@ -27,11 +27,10 @@ func (d *DMSService) importDBServicesOfOneProjectCheck(ctx context.Context, user
 	return &dmsV2.ImportDBServicesCheckReply{Data: ret}, nil, nil
 }
 
-// TODO 临时注释，防止报错
-// func (d *DMSService) importDBServicesOfOneProject(ctx context.Context, req *dmsV2.ImportDBServicesOfOneProjectReq, uid string) error {
-// 	ret := d.convertImportDBService2BizDBService(req.DBServices)
-// 	return d.DBServiceUsecase.ImportDBServicesOfOneProject(ctx, ret, uid, req.ProjectUid)
-// }
+func (d *DMSService) importDBServicesOfOneProject(ctx context.Context, req *dmsV2.ImportDBServicesOfOneProjectReq, uid string) error {
+	ret := d.convertImportDBService2BizDBService(req.DBServices)
+	return d.DBServiceUsecase.ImportDBServicesOfOneProject(ctx, ret, uid, req.ProjectUid)
+}
 
 func (d *DMSService) listGlobalDBServices(ctx context.Context, req *dmsV1.ListGlobalDBServicesReq, currentUserUid string) (reply *dmsV1.ListGlobalDBServicesReply, err error) {
 	var orderBy biz.DBServiceField
