@@ -94,7 +94,24 @@ func (a *DMSController) Shutdown() error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) CreateEnvironmentTag(c echo.Context) error {
-	return nil
+	req := new(aV1.CreateEnvironmentTagReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	err = d.DMS.CreateEnvironmentTag(c.Request().Context(), req.ProjectUID, currentUserUid, req.Name)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkResp(c)
 }
 
 // swagger:operation PUT /v1/dms/projects/{project_uid}/environment_tags/{environment_tag_uid} Project UpdateEnvironmentTag
@@ -129,7 +146,23 @@ func (d *DMSController) CreateEnvironmentTag(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) UpdateEnvironmentTag(c echo.Context) error {
-	return nil
+	req := new(aV1.UpdateEnvironmentTagReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	err = d.DMS.UpdateEnvironmentTag(c.Request().Context(), req.ProjectUID, currentUserUid, req.EnvironmentTagUID, req.Name)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkResp(c)
 }
 
 // swagger:route DELETE /v1/dms/projects/{project_uid}/environment_tags/{environment_tag_uid} Project DeleteEnvironmentTag
@@ -140,7 +173,23 @@ func (d *DMSController) UpdateEnvironmentTag(c echo.Context) error {
 //	  200: body:GenericResp
 //	  default: body:GenericResp
 func (a *DMSController) DeleteEnvironmentTag(c echo.Context) error {
-	return nil
+	req := new(aV1.DeleteEnvironmentTagReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	err = a.DMS.DeleteEnvironmentTag(c.Request().Context(), req.ProjectUID, currentUserUid, req.EnvironmentTagUID)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkResp(c)
 }
 
 // swagger:route GET /v1/dms/projects/{project_uid}/environment_tags Project ListEnvironmentTags
@@ -151,7 +200,16 @@ func (a *DMSController) DeleteEnvironmentTag(c echo.Context) error {
 //	  200: body:ListEnvironmentTagsReply
 //	  default: body:GenericResp
 func (d *DMSController) ListEnvironmentTags(c echo.Context) error{
-	return nil
+	req := new(aV1.ListEnvironmentTagReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	reply, err := d.DMS.ListEnvironmentTags(c.Request().Context(), req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:operation POST /v1/dms/projects/{project_uid}/db_services DBService AddDBService
