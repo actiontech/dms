@@ -475,7 +475,7 @@ func (d *ProjectUsecase) GetImportDBServicesTemplate(ctx context.Context, uid st
 		{
 			DbName:           "mysql_1",
 			ProjName:         "default",
-			Business:         "test",
+			EnvironmentTag:   "dev",
 			Desc:             "mysql_1",
 			DbType:           "MySQL",
 			Host:             "127.0.0.1",
@@ -490,7 +490,7 @@ func (d *ProjectUsecase) GetImportDBServicesTemplate(ctx context.Context, uid st
 		}, {
 			DbName:           "oracle_1",
 			ProjName:         "default",
-			Business:         "test",
+			EnvironmentTag:   "dev",
 			Desc:             "oracle_1",
 			DbType:           "Oracle",
 			Host:             "127.0.0.1",
@@ -505,7 +505,7 @@ func (d *ProjectUsecase) GetImportDBServicesTemplate(ctx context.Context, uid st
 		}, {
 			DbName:           "db2_1",
 			ProjName:         "default",
-			Business:         "test",
+			EnvironmentTag:   "dev",
 			Desc:             "db2_1",
 			DbType:           "DB2",
 			Host:             "127.0.0.1",
@@ -526,7 +526,7 @@ func (d *ProjectUsecase) GetImportDBServicesTemplate(ctx context.Context, uid st
 	err := csvWriter.Write([]string{
 		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceDbName),
 		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceProjName),
-		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceBusiness),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceEnvironmentTag),
 		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceDesc),
 		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceDbType),
 		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceHost),
@@ -546,7 +546,7 @@ func (d *ProjectUsecase) GetImportDBServicesTemplate(ctx context.Context, uid st
 		err = csvWriter.Write([]string{
 			row.DbName,
 			row.ProjName,
-			row.Business,
+			row.EnvironmentTag,
 			row.Desc,
 			row.DbType,
 			row.Host,

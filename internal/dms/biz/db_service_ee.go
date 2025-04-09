@@ -105,7 +105,8 @@ func (d *DBServiceUsecase) getActiveProjInfo(ctx context.Context, proj *Project)
 type ImportDbServicesCsvRow struct {
 	DbName           string `validate:"dbNameFormat"`
 	ProjName         string `validate:"required"`
-	Business         string `validate:"required"`
+	Business         string
+	EnvironmentTag   string `validate:"required"`
 	Desc             string `validate:"required"`
 	DbType           string `validate:"required"`
 	Host             string `validate:"required"`
@@ -127,7 +128,7 @@ type ImportDbServicesCheckResultCsvRow struct {
 var rowFieldToMsg = map[string]*i18n.Message{
 	"DbName":           locale.DBServiceDbName,
 	"ProjName":         locale.DBServiceProjName,
-	"Business":         locale.DBServiceBusiness,
+	"EnvironmentTag":   locale.DBServiceEnvironmentTag,
 	"Desc":             locale.DBServiceDesc,
 	"DbType":           locale.DBServiceDbType,
 	"Host":             locale.DBServiceHost,
@@ -207,6 +208,11 @@ func (d *DBServiceUsecase) checkImportCsvRow(ctx context.Context, projectInfoMap
 		return fmt.Errorf("%w rule template name:(%s) project:(%s)", localizeIDBPreCheckErr(ctx, locale.IDBPCErrRuleTemplateInvalid), row.RuleTemplateName, row.ProjName)
 	}
 
+	exist, _, err := d.environmentTagUsecase.GetEnvironmentTagByName(ctx, projectInfoMap[row.ProjName].proj.UID, row.EnvironmentTag)
+	if err != nil || !exist {
+		return fmt.Errorf("%s, %w err:%v", row.EnvironmentTag, localizeIDBPreCheckErr(ctx, locale.IDBPCErrEnvironmentTagInvalid), err)
+	}
+
 	return nil
 }
 
@@ -245,7 +251,7 @@ func (d *DBServiceUsecase) genImportDbServicesCheckResultCsv(ctx context.Context
 	err := csvWriter.Write([]string{
 		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceDbName),
 		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceProjName),
-		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceBusiness),
+		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceEnvironmentTag),
 		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceDesc),
 		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceDbType),
 		locale.Bundle.LocalizeMsgByCtx(ctx, locale.DBServiceHost),
@@ -266,7 +272,7 @@ func (d *DBServiceUsecase) genImportDbServicesCheckResultCsv(ctx context.Context
 		err = csvWriter.Write([]string{
 			row.DbName,
 			row.ProjName,
-			row.Business,
+			row.EnvironmentTag,
 			row.Desc,
 			row.DbType,
 			row.Host,
@@ -325,7 +331,10 @@ func (d *DBServiceUsecase) genBizDBServiceArgs4Import(ctx context.Context, proje
 			sqlQueryConfig.AuditEnabled = true
 			sqlQueryConfig.AllowQueryWhenLessThanAuditLevel = row.AuditLevel
 		}
-
+		exist, tag, err := d.environmentTagUsecase.GetEnvironmentTagByName(ctx, projectInfoMap[row.ProjName].proj.UID, row.EnvironmentTag)
+		if err != nil || !exist {
+			return nil, fmt.Errorf("%w err:%v", localizeIDBPreCheckErr(ctx, locale.IDBPCErrEnvironmentTagInvalid), err)
+		}
 		pass, desc := row.Password, row.Desc
 		bizDBServiceArgs = append(bizDBServiceArgs, &BizDBServiceArgs{
 			Name:              row.DbName,
@@ -335,7 +344,7 @@ func (d *DBServiceUsecase) genBizDBServiceArgs4Import(ctx context.Context, proje
 			Port:              row.Port,
 			User:              row.User,
 			Password:          &pass,
-			// Business:          row.Business,
+			EnvironmentTagUID: tag.UID,
 			Source:            string(pkgConst.DBServiceSourceNameSQLE),
 			AdditionalParams:  additionalParams,
 			ProjectUID:        projectInfoMap[row.ProjName].proj.UID,
@@ -365,7 +374,7 @@ func (d *DBServiceUsecase) getImportRowsFromCsvContent(s string) ([]*ImportDbSer
 		result = append(result, &ImportDbServicesCsvRow{
 			DbName:           row[0],
 			ProjName:         row[1],
-			Business:         row[2],
+			EnvironmentTag:   row[2],
 			Desc:             row[3],
 			DbType:           row[4],
 			Host:             row[5],
