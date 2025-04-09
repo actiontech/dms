@@ -3641,13 +3641,11 @@
             "required": true
           },
           {
-            "description": "environment tag to be created",
-            "name": "environment_tag",
+            "type": "string",
+            "description": "the name of environment tag to be created",
+            "name": "environment_name",
             "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/CreateEnvironmentTagReq"
-            }
+            "required": true
           }
         ],
         "responses": {
@@ -3689,13 +3687,11 @@
             "required": true
           },
           {
-            "description": "the environment tag to be updated",
-            "name": "environment_tag",
+            "type": "string",
+            "description": "the name of environment tag to be updated",
+            "name": "environment_name",
             "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UpdateEnvironmentTagReq"
-            }
+            "required": true
           }
         ],
         "responses": {
@@ -5642,13 +5638,6 @@
             "in": "query"
           },
           {
-            "type": "string",
-            "x-go-name": "FilterByBusiness",
-            "description": "the db service business name",
-            "name": "filter_by_business",
-            "in": "query"
-          },
-          {
             "enum": [
               "connect_success",
               "connect_failed"
@@ -7056,8 +7045,9 @@
     "CreateEnvironmentTagReq": {
       "type": "object",
       "properties": {
-        "environment_tag": {
-          "$ref": "#/definitions/EnvironmentTag"
+        "environment_name": {
+          "type": "string",
+          "x-go-name": "Name"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -7634,15 +7624,14 @@
     "EnvironmentTag": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "integer",
-          "format": "uint64",
-          "x-go-name": "ID"
-        },
         "name": {
           "description": "环境属性标签至少1个字符，最多50个字符",
           "type": "string",
           "x-go-name": "Name"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "UID"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -12471,8 +12460,9 @@
     "UpdateEnvironmentTagReq": {
       "type": "object",
       "properties": {
-        "environment_tag": {
-          "$ref": "#/definitions/EnvironmentTag"
+        "environment_name": {
+          "type": "string",
+          "x-go-name": "Name"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"

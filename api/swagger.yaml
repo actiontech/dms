@@ -841,8 +841,9 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CreateEnvironmentTagReq:
         properties:
-            environment_tag:
-                $ref: '#/definitions/EnvironmentTag'
+            environment_name:
+                type: string
+                x-go-name: Name
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DBService:
@@ -1295,14 +1296,13 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     EnvironmentTag:
         properties:
-            id:
-                format: uint64
-                type: integer
-                x-go-name: ID
             name:
                 description: 环境属性标签至少1个字符，最多50个字符
                 type: string
                 x-go-name: Name
+            uid:
+                type: string
+                x-go-name: UID
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     FeishuConfigurationResData:
@@ -5187,8 +5187,9 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v2
     UpdateEnvironmentTagReq:
         properties:
-            environment_tag:
-                $ref: '#/definitions/EnvironmentTag'
+            environment_name:
+                type: string
+                x-go-name: Name
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateFeishuConfiguration:
@@ -7989,12 +7990,11 @@ paths:
                   name: project_uid
                   required: true
                   type: string
-                - description: environment tag to be created
+                - description: the name of environment tag to be created
                   in: body
-                  name: environment_tag
+                  name: environment_name
                   required: true
-                  schema:
-                    $ref: '#/definitions/CreateEnvironmentTagReq'
+                  type: string
             responses:
                 "200":
                     description: GenericResp
@@ -8046,12 +8046,11 @@ paths:
                   name: environment_tag_uid
                   required: true
                   type: string
-                - description: the environment tag to be updated
+                - description: the name of environment tag to be updated
                   in: body
-                  name: environment_tag
+                  name: environment_name
                   required: true
-                  schema:
-                    $ref: '#/definitions/UpdateEnvironmentTagReq'
+                  type: string
             responses:
                 "200":
                     description: GenericResp
@@ -9593,11 +9592,6 @@ paths:
                   type: string
                   x-go-enum-desc: name DBServiceOrderByName
                   x-go-name: OrderBy
-                - description: the db service business name
-                  in: query
-                  name: filter_by_business
-                  type: string
-                  x-go-name: FilterByBusiness
                 - description: the db service connection
                   enum:
                     - connect_success
