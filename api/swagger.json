@@ -2030,6 +2030,7 @@
         ],
         "summary": "Import DBServices.",
         "operationId": "ImportDBServicesOfProjects",
+        "deprecated": true,
         "parameters": [
           {
             "description": "new db services",
@@ -7270,7 +7271,7 @@
         "port",
         "user",
         "password",
-        "environment_tag",
+        "environment_tag_uid",
         "maintenance_times"
       ],
       "properties": {
@@ -7303,8 +7304,10 @@
           "type": "boolean",
           "x-go-name": "EnableBackup"
         },
-        "environment_tag": {
-          "$ref": "#/definitions/EnvironmentTag"
+        "environment_tag_uid": {
+          "description": "DB Service environment tag",
+          "type": "string",
+          "x-go-name": "EnvironmentTagUID"
         },
         "host": {
           "description": "DB Service Host",
@@ -8722,10 +8725,85 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
-    "ImportDBServiceV2": {
+    "ImportDBServiceCommon": {
+      "type": "object",
+      "properties": {
+        "additional_params": {
+          "description": "DB Service Custom connection parameters",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdditionalParam"
+          },
+          "x-go-name": "AdditionalParams"
+        },
+        "db_type": {
+          "description": "db service DB type",
+          "type": "string",
+          "x-go-name": "DBType"
+        },
+        "desc": {
+          "description": "DB desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "host": {
+          "description": "db service host",
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "is_enable_masking": {
+          "description": "is enable masking",
+          "type": "boolean",
+          "x-go-name": "IsEnableMasking"
+        },
+        "maintenance_times": {
+          "description": "DB Service maintenance time",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MaintenanceTime"
+          },
+          "x-go-name": "MaintenanceTimes"
+        },
+        "name": {
+          "description": "db service name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "password": {
+          "description": "db service admin encrypted password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "port": {
+          "description": "db service port",
+          "type": "string",
+          "x-go-name": "Port"
+        },
+        "project_uid": {
+          "description": "DB project uid",
+          "type": "string",
+          "x-go-name": "ProjectUID"
+        },
+        "source": {
+          "description": "DB source",
+          "type": "string",
+          "x-go-name": "Source"
+        },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
+        },
+        "user": {
+          "description": "db service admin user",
+          "type": "string",
+          "x-go-name": "User"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
+    "ImportDBServiceReqV2": {
       "type": "object",
       "required": [
-        "environment_tag"
+        "environment_tag_name"
       ],
       "properties": {
         "additional_params": {
@@ -8746,8 +8824,94 @@
           "type": "string",
           "x-go-name": "Desc"
         },
-        "environment_tag": {
-          "$ref": "#/definitions/EnvironmentTag"
+        "environment_tag_name": {
+          "description": "DB Service environment tag",
+          "type": "string",
+          "x-go-name": "EnvironmentTagName"
+        },
+        "host": {
+          "description": "db service host",
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "is_enable_masking": {
+          "description": "is enable masking",
+          "type": "boolean",
+          "x-go-name": "IsEnableMasking"
+        },
+        "maintenance_times": {
+          "description": "DB Service maintenance time",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MaintenanceTime"
+          },
+          "x-go-name": "MaintenanceTimes"
+        },
+        "name": {
+          "description": "db service name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "password": {
+          "description": "db service admin encrypted password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "port": {
+          "description": "db service port",
+          "type": "string",
+          "x-go-name": "Port"
+        },
+        "project_uid": {
+          "description": "DB project uid",
+          "type": "string",
+          "x-go-name": "ProjectUID"
+        },
+        "source": {
+          "description": "DB source",
+          "type": "string",
+          "x-go-name": "Source"
+        },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
+        },
+        "user": {
+          "description": "db service admin user",
+          "type": "string",
+          "x-go-name": "User"
+        }
+      },
+      "x-go-name": "ImportDBServiceReq",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
+    "ImportDBServiceV2": {
+      "type": "object",
+      "required": [
+        "environment_tag_uid"
+      ],
+      "properties": {
+        "additional_params": {
+          "description": "DB Service Custom connection parameters",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdditionalParam"
+          },
+          "x-go-name": "AdditionalParams"
+        },
+        "db_type": {
+          "description": "db service DB type",
+          "type": "string",
+          "x-go-name": "DBType"
+        },
+        "desc": {
+          "description": "DB desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "environment_tag_uid": {
+          "description": "DB Service environment tag uid",
+          "type": "string",
+          "x-go-name": "EnvironmentTagUID"
         },
         "host": {
           "description": "db service host",
@@ -8829,6 +8993,32 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "ImportDBServicesCheckReplyV2": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "db services",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImportDBServiceV2"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-name": "ImportDBServicesCheckReply",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
     "ImportDBServicesOfOneProjectReq": {
       "type": "object",
       "properties": {
@@ -8848,7 +9038,7 @@
         "db_services": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/ImportDBServiceV2"
+            "$ref": "#/definitions/ImportDBServiceReqV2"
           },
           "x-go-name": "DBServices"
         }
