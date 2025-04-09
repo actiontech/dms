@@ -168,7 +168,7 @@ type ListDBService struct {
 
 // swagger:model
 type EnvironmentTag struct {
-	ID uint `json:"id,omitempty"`
+	UID string `json:"uid,omitempty"`
 	// 环境属性标签至少1个字符，最多50个字符
 	Name string `json:"name" validate:"min=1,max=50"`
 }
