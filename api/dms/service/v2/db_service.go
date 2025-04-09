@@ -59,39 +59,7 @@ type ListGlobalDBServicesReq struct {
 
 // swagger:model ImportDBServicesOfProjectsReqV2
 type ImportDBServicesOfProjectsReq struct {
-	DBServices []ImportDBServiceV2 `json:"db_services" validate:"required"`
-}
-
-type ImportDBServiceV2 struct {
-	// db service name
-	Name string `json:"name"`
-	// db service DB type
-	DBType string `json:"db_type"`
-	// db service host
-	Host string `json:"host"`
-	// db service port
-	Port string `json:"port"`
-	// db service admin user
-	User string `json:"user"`
-	// db service admin encrypted password
-	Password string `json:"password"`
-	// DB Service environment tag
-	// Required: true
-	EnvironmentTag *dmsCommonV1.EnvironmentTag `json:"environment_tag"`
-	// DB Service maintenance time
-	MaintenanceTimes []*dmsCommonV1.MaintenanceTime `json:"maintenance_times"`
-	// DB desc
-	Desc string `json:"desc"`
-	// DB source
-	Source string `json:"source"`
-	// DB project uid
-	ProjectUID string `json:"project_uid"`
-	// sqle config
-	SQLEConfig *dmsCommonV1.SQLEConfig `json:"sqle_config"`
-	// DB Service Custom connection parameters
-	AdditionalParams []*dmsCommonV1.AdditionalParam `json:"additional_params"`
-	// is enable masking
-	IsEnableMasking bool `json:"is_enable_masking"`
+	DBServices []ImportDBService `json:"db_services" validate:"required"`
 }
 
 // swagger:parameters ImportDBServicesOfOneProjectCheckV2
@@ -106,6 +74,22 @@ type ImportDBServicesOfOneProjectCheckReq struct {
 	//
 	// swagger:file
 	DBServicesFile *bytes.Buffer `json:"db_services_file"`
+}
+
+// swagger:model ImportDBServicesCheckReplyV2
+type ImportDBServicesCheckReply struct {
+	// db services
+	Data []*ImportDBService `json:"data"`
+	// Generic reply
+	base.GenericResp
+}
+
+// swagger:model ImportDBServiceV2
+type ImportDBService struct {
+	ImportDBServiceCommon
+	// DB Service environment tag uid
+	// Required: true
+	EnvironmentTagUID string `json:"environment_tag_uid"`
 }
 
 // swagger:parameters ImportDBServicesOfProjectsCheckV2
@@ -140,7 +124,7 @@ type DBService struct {
 	Password string `json:"password" validate:"required"`
 	// DB Service environment tag
 	// Required: true
-	EnvironmentTag *dmsCommonV1.EnvironmentTag `json:"environment_tag"`
+	EnvironmentTagUID string `json:"environment_tag_uid" validate:"required"`
 	// DB Service maintenance time
 	// empty value means that maintenance time is unlimited
 	// Required: true
@@ -222,12 +206,20 @@ type UpdateDBService struct {
 // swagger:model ImportDBServicesOfOneProjectReqV2
 type ImportDBServicesOfOneProjectReq struct {
 	// swagger:ignore
-	ProjectUid string            `param:"project_uid" json:"project_uid" validate:"required"`
-	DBServices []ImportDBService `json:"db_services" validate:"required"`
+	ProjectUid string               `param:"project_uid" json:"project_uid" validate:"required"`
+	DBServices []ImportDBServiceReq `json:"db_services" validate:"required"`
 }
 
-// swagger:model ImportDBServiceV2
-type ImportDBService struct {
+// swagger:model ImportDBServiceReqV2
+type ImportDBServiceReq struct {
+	ImportDBServiceCommon
+	// DB Service environment tag
+	// Required: true
+	EnvironmentTagName string `json:"environment_tag_name"`
+}
+
+// swagger:model ImportDBServiceCommon
+type ImportDBServiceCommon struct {
 	// db service name
 	Name string `json:"name"`
 	// db service DB type
@@ -240,9 +232,6 @@ type ImportDBService struct {
 	User string `json:"user"`
 	// db service admin encrypted password
 	Password string `json:"password"`
-	// DB Service environment tag
-	// Required: true
-	EnvironmentTag *dmsCommonV1.EnvironmentTag `json:"environment_tag"`
 	// DB Service maintenance time
 	MaintenanceTimes []*dmsCommonV1.MaintenanceTime `json:"maintenance_times"`
 	// DB desc

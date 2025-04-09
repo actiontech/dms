@@ -318,7 +318,7 @@ func (d *DMSService) AddDBServiceV2(ctx context.Context, req *dmsV2.AddDBService
 		Port:              req.DBService.Port,
 		User:              req.DBService.User,
 		Password:          &req.DBService.Password,
-		EnvironmentTag:    req.DBService.EnvironmentTag,
+		EnvironmentTagUID: req.DBService.EnvironmentTagUID,
 		MaintenancePeriod: d.convertMaintenanceTimeToPeriod(req.DBService.MaintenanceTimes),
 		ProjectUID:        req.ProjectUid,
 		Source:            string(pkgConst.DBServiceSourceNameSQLE),
@@ -387,28 +387,30 @@ func (d *DMSService) convertPeriodToMaintenanceTime(p periods.Periods) []*dmsCom
 	return periods
 }
 
-func (d *DMSService) convertBizDBServiceArgs2ImportDBService(dbs []*biz.BizDBServiceArgs) []*dmsV1.ImportDBService {
-	ret := make([]*dmsV1.ImportDBService, len(dbs))
+func (d *DMSService) convertBizDBServiceArgs2ImportDBService(dbs []*biz.BizDBServiceArgs) []*dmsV2.ImportDBService {
+	ret := make([]*dmsV2.ImportDBService, len(dbs))
 	for i, u := range dbs {
-		ret[i] = &dmsV1.ImportDBService{
-			Name:     u.Name,
-			DBType:   u.DBType,
-			Host:     u.Host,
-			Port:     u.Port,
-			User:     u.User,
-			Password: *u.Password,
-			// Business:         u.Business,
-			MaintenanceTimes: d.convertPeriodToMaintenanceTime(u.MaintenancePeriod),
-			Desc:             *u.Desc,
-			Source:           u.Source,
-			ProjectUID:       u.ProjectUID,
-			SQLEConfig: &dmsCommonV1.SQLEConfig{
-				RuleTemplateName: u.RuleTemplateName,
-				RuleTemplateID:   u.RuleTemplateID,
-				SQLQueryConfig:   nil,
+		ret[i] = &dmsV2.ImportDBService{
+			ImportDBServiceCommon: dmsV2.ImportDBServiceCommon{
+				Name:             u.Name,
+				DBType:           u.DBType,
+				Host:             u.Host,
+				Port:             u.Port,
+				User:             u.User,
+				Password:         *u.Password,
+				MaintenanceTimes: d.convertPeriodToMaintenanceTime(u.MaintenancePeriod),
+				Desc:             *u.Desc,
+				Source:           u.Source,
+				ProjectUID:       u.ProjectUID,
+				SQLEConfig: &dmsCommonV1.SQLEConfig{
+					RuleTemplateName: u.RuleTemplateName,
+					RuleTemplateID:   u.RuleTemplateID,
+					SQLQueryConfig:   nil,
+				},
+				AdditionalParams: nil,
+				IsEnableMasking:  false,
 			},
-			AdditionalParams: nil,
-			IsEnableMasking:  false,
+			EnvironmentTagUID: u.EnvironmentTagUID,
 		}
 
 		if u.AdditionalParams != nil {
@@ -437,28 +439,29 @@ func (d *DMSService) convertBizDBServiceArgs2ImportDBService(dbs []*biz.BizDBSer
 	return ret
 }
 
-func (d *DMSService) convertImportDBService2BizDBService(importDbs []dmsV1.ImportDBService) []*biz.DBService {
+func (d *DMSService) convertImportDBService2BizDBService(importDbs []dmsV2.ImportDBService) []*biz.DBService {
 	ret := make([]*biz.DBService, len(importDbs))
 	for i, u := range importDbs {
 		ret[i] = &biz.DBService{
-			UID:      "",
-			Name:     u.Name,
-			Desc:     u.Desc,
-			DBType:   u.DBType,
-			Host:     u.Host,
-			Port:     u.Port,
-			User:     u.User,
-			Password: u.Password,
-			// Business:         u.Business,
+			UID:               "",
+			Name:              u.ImportDBServiceCommon.Name,
+			Desc:              u.ImportDBServiceCommon.Desc,
+			DBType:            u.ImportDBServiceCommon.DBType,
+			Host:              u.ImportDBServiceCommon.Host,
+			Port:              u.ImportDBServiceCommon.Port,
+			User:              u.ImportDBServiceCommon.User,
+			Password:          u.ImportDBServiceCommon.Password,
 			AdditionalParams:  nil,
-			ProjectUID:        u.ProjectUID,
-			MaintenancePeriod: d.convertMaintenanceTimeToPeriod(u.MaintenanceTimes),
-			Source:            u.Source,
+			ProjectUID:        u.ImportDBServiceCommon.ProjectUID,
+			MaintenancePeriod: d.convertMaintenanceTimeToPeriod(u.ImportDBServiceCommon.MaintenanceTimes),
+			Source:            u.ImportDBServiceCommon.Source,
 			SQLEConfig:        nil,
-			IsMaskingSwitch:   u.IsEnableMasking,
+			IsMaskingSwitch:   u.ImportDBServiceCommon.IsEnableMasking,
 			AccountPurpose:    "",
 		}
-
+		ret[i].EnvironmentTag = &dmsCommonV1.EnvironmentTag{
+			UID: u.EnvironmentTagUID,
+		}
 		if u.AdditionalParams != nil {
 			additionalParams := make([]*params.Param, 0, len(u.AdditionalParams))
 			for _, item := range u.AdditionalParams {
@@ -726,10 +729,11 @@ func (d *DMSService) ListGlobalDBServicesTips(ctx context.Context, currentUserUi
 	return d.listGlobalDBServicesTips(ctx, currentUserUid)
 }
 
-func (d *DMSService) ImportDBServicesOfOneProjectCheck(ctx context.Context, userUid, projectUid, fileContent string) (*dmsV1.ImportDBServicesCheckReply, []byte, error) {
+func (d *DMSService) ImportDBServicesOfOneProjectCheck(ctx context.Context, userUid, projectUid, fileContent string) (*dmsV2.ImportDBServicesCheckReply, []byte, error) {
 	return d.importDBServicesOfOneProjectCheck(ctx, userUid, projectUid, fileContent)
 }
 
-func (d *DMSService) ImportDBServicesOfOneProject(ctx context.Context, req *dmsV1.ImportDBServicesOfOneProjectReq, uid string) error {
-	return d.importDBServicesOfOneProject(ctx, req, uid)
-}
+// TODO 实现V2 ImportDBServicesOfOneProject时修改，防止报错临时注掉
+// func (d *DMSService) ImportDBServicesOfOneProject(ctx context.Context, req *dmsV2.ImportDBServicesOfOneProjectReq, uid string) error {
+// 	return d.importDBServicesOfOneProject(ctx, req, uid)
+// }

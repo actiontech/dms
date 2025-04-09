@@ -114,18 +114,16 @@ func newDBService(args *BizDBServiceArgs) (*DBService, error) {
 	}
 
 	dbService := &DBService{
-		UID:              uid,
-		Name:             args.Name,
-		Desc:             *args.Desc,
-		DBType:           args.DBType,
-		Host:             args.Host,
-		Port:             args.Port,
-		User:             args.User,
-		Password:         *args.Password,
-		AdditionalParams: args.AdditionalParams,
-		ProjectUID:       args.ProjectUID,
-		// Business:          args.Business,
-		EnvironmentTag:    args.EnvironmentTag,
+		UID:               uid,
+		Name:              args.Name,
+		Desc:              *args.Desc,
+		DBType:            args.DBType,
+		Host:              args.Host,
+		Port:              args.Port,
+		User:              args.User,
+		Password:          *args.Password,
+		AdditionalParams:  args.AdditionalParams,
+		ProjectUID:        args.ProjectUID,
 		Source:            args.Source,
 		MaintenancePeriod: args.MaintenancePeriod,
 		SQLEConfig:        &SQLEConfig{},
@@ -137,6 +135,11 @@ func newDBService(args *BizDBServiceArgs) (*DBService, error) {
 	if args.RuleTemplateName != "" {
 		dbService.SQLEConfig.RuleTemplateID = args.RuleTemplateID
 		dbService.SQLEConfig.RuleTemplateName = args.RuleTemplateName
+	}
+	if args.EnvironmentTagUID != "" {
+		dbService.EnvironmentTag = &dmsCommonV1.EnvironmentTag{
+			UID: args.EnvironmentTagUID,
+		}
 	}
 
 	if args.SQLQueryConfig != nil {
@@ -168,16 +171,19 @@ type DBServiceUsecase struct {
 	pluginUsecase             *PluginUsecase
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	projectUsecase            *ProjectUsecase
+	environmentTagUsecase     *EnvironmentTagUsecase
 	log                       *utilLog.Helper
 }
 
-func NewDBServiceUsecase(log utilLog.Logger, repo DBServiceRepo, pluginUsecase *PluginUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo) *DBServiceUsecase {
+func NewDBServiceUsecase(log utilLog.Logger, repo DBServiceRepo, pluginUsecase *PluginUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, 
+	projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, environmentTagUsecase *EnvironmentTagUsecase) *DBServiceUsecase {
 	return &DBServiceUsecase{
 		repo:                      repo,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 		pluginUsecase:             pluginUsecase,
 		projectUsecase:            projectUsecase,
 		dmsProxyTargetRepo:        proxyTargetRepo,
+		environmentTagUsecase: 	   environmentTagUsecase,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.dbService")),
 	}
 }
@@ -191,7 +197,7 @@ type BizDBServiceArgs struct {
 	User     string
 	Password *string
 	// Business          string
-	EnvironmentTag    *dmsCommonV1.EnvironmentTag
+	EnvironmentTagUID string
 	Source            string
 	AdditionalParams  pkgParams.Params
 	ProjectUID        string
