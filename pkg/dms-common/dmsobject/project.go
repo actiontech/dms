@@ -16,7 +16,7 @@ func ListProjects(ctx context.Context, dmsAddr string, req dmsV1.ListProjectReq)
 
 	reply := &dmsV1.ListProjectReply{}
 
-	baseURL, err := url.Parse(fmt.Sprintf("%v%v", dmsAddr, dmsV1.GetProjectsRouter()))
+	baseURL, err := url.Parse(fmt.Sprintf("%v%v", dmsAddr, dmsV1.GroupV2+dmsV1.ProjectRouterGroup))
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to parse base URL: %v", err)
 	}
