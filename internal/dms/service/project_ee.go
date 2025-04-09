@@ -70,7 +70,6 @@ func (d *DMSService) getImportProjectsTemplate(ctx context.Context, uid string) 
 	return content, nil
 }
 
-
 func (d *DMSService) previewImportProjects(ctx context.Context, uid string, file string) (*dmsV2.PreviewImportProjectsReply, error) {
 	projects, err := d.ProjectUsecase.PreviewImportProjects(ctx, uid, file)
 	if err != nil {
@@ -136,7 +135,7 @@ func (d *DMSService) getImportDBServicesTemplate(ctx context.Context, uid string
 	return content, nil
 }
 
-func (d *DMSService) importDBServicesOfProjectsCheck(ctx context.Context, userUid, fileContent string) (*dmsV1.ImportDBServicesCheckReply, []byte, error) {
+func (d *DMSService) importDBServicesOfProjectsCheck(ctx context.Context, userUid, fileContent string) (*dmsV2.ImportDBServicesCheckReply, []byte, error) {
 	dbs, resultContent, err := d.DBServiceUsecase.ImportDBServicesOfProjectsCheck(ctx, userUid, fileContent)
 	if err != nil {
 		return nil, nil, err
@@ -147,10 +146,10 @@ func (d *DMSService) importDBServicesOfProjectsCheck(ctx context.Context, userUi
 
 	ret := d.convertBizDBServiceArgs2ImportDBService(dbs)
 
-	return &dmsV1.ImportDBServicesCheckReply{Data: ret}, nil, nil
+	return &dmsV2.ImportDBServicesCheckReply{Data: ret}, nil, nil
 }
 
-func (d *DMSService) importDBServicesOfProjects(ctx context.Context, req *dmsV1.ImportDBServicesOfProjectsReq, uid string) error {
+func (d *DMSService) importDBServicesOfProjects(ctx context.Context, req *dmsV2.ImportDBServicesOfProjectsReq, uid string) error {
 	ret := d.convertImportDBService2BizDBService(req.DBServices)
 	return d.DBServiceUsecase.ImportDBServicesOfProjects(ctx, ret, uid)
 }

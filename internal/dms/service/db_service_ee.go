@@ -6,13 +6,14 @@ import (
 	"context"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
+	dmsV2 "github.com/actiontech/dms/api/dms/service/v2"
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	"github.com/go-openapi/strfmt"
 )
 
-func (d *DMSService) importDBServicesOfOneProjectCheck(ctx context.Context, userUid, projectUid, fileContent string) (*dmsV1.ImportDBServicesCheckReply, []byte, error) {
+func (d *DMSService) importDBServicesOfOneProjectCheck(ctx context.Context, userUid, projectUid, fileContent string) (*dmsV2.ImportDBServicesCheckReply, []byte, error) {
 	dbs, resultContent, err := d.DBServiceUsecase.ImportDBServicesOfOneProjectCheck(ctx, userUid, projectUid, fileContent)
 	if err != nil {
 		return nil, nil, err
@@ -23,13 +24,14 @@ func (d *DMSService) importDBServicesOfOneProjectCheck(ctx context.Context, user
 
 	ret := d.convertBizDBServiceArgs2ImportDBService(dbs)
 
-	return &dmsV1.ImportDBServicesCheckReply{Data: ret}, nil, nil
+	return &dmsV2.ImportDBServicesCheckReply{Data: ret}, nil, nil
 }
 
-func (d *DMSService) importDBServicesOfOneProject(ctx context.Context, req *dmsV1.ImportDBServicesOfOneProjectReq, uid string) error {
-	ret := d.convertImportDBService2BizDBService(req.DBServices)
-	return d.DBServiceUsecase.ImportDBServicesOfOneProject(ctx, ret, uid, req.ProjectUid)
-}
+// TODO 临时注释，防止报错
+// func (d *DMSService) importDBServicesOfOneProject(ctx context.Context, req *dmsV2.ImportDBServicesOfOneProjectReq, uid string) error {
+// 	ret := d.convertImportDBService2BizDBService(req.DBServices)
+// 	return d.DBServiceUsecase.ImportDBServicesOfOneProject(ctx, ret, uid, req.ProjectUid)
+// }
 
 func (d *DMSService) listGlobalDBServices(ctx context.Context, req *dmsV1.ListGlobalDBServicesReq, currentUserUid string) (reply *dmsV1.ListGlobalDBServicesReply, err error) {
 	var orderBy biz.DBServiceField
@@ -153,7 +155,6 @@ func (d *DMSService) listGlobalDBServices(ctx context.Context, req *dmsV1.ListGl
 			DBType:                u.DBType,
 			Host:                  u.Host,
 			Port:                  u.Port,
-			// Business:              u.Business,
 			MaintenanceTimes:      d.convertPeriodToMaintenanceTime(u.MaintenancePeriod),
 			Desc:                  u.Desc,
 			Source:                u.Source,
