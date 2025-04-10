@@ -16,7 +16,7 @@ func ListDbServices(ctx context.Context, dmsAddr string, req dmsCommonV2.ListDBS
 	}
 
 	// 构建基础 URL
-	baseURL, err := url.Parse(fmt.Sprintf("%s%s", dmsAddr, dmsV1.GetDBServiceRouter(req.ProjectUid)))
+	baseURL, err := url.Parse(fmt.Sprintf("%s%s", dmsAddr, dmsCommonV2.GetDBServiceRouter(req.ProjectUid)))
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to parse base URL: %v", err)
 	}

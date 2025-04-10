@@ -15,7 +15,7 @@ var (
 	SessionRouterGroup            = "/dms/sessions"
 	UserRouterGroup               = "/dms/users"
 	DBServiceRouterGroup          = "/dms/projects/:project_uid/db_services"
-	DBEnvironmentTagGroup          = "/dms/projects/:project_uid/environment_tags"
+	DBEnvironmentTagGroup         = "/dms/projects/:project_uid/environment_tags"
 	ProxyRouterGroup              = "/dms/proxys"
 	PluginRouterGroup             = "/dms/plugins"
 	MemberRouterGroup             = "/dms/projects/:project_uid/members"
@@ -31,7 +31,6 @@ var (
 var (
 	GroupV1             = "/v1"
 	CurrentGroupVersion = GroupV1
-	GroupV2             = "/v2"
 )
 
 func ResetJWTSigningKey(val string) {

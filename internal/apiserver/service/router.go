@@ -23,11 +23,6 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-const (
-	apiV1 = "v1"
-	apiV2 = "v2"
-)
-
 func (s *APIServer) initRouter() error {
 	s.echo.GET("/swagger/*", s.DMSController.SwaggerHandler, SwaggerMiddleWare)
 
@@ -56,7 +51,7 @@ func (s *APIServer) initRouter() error {
 
 		dbServiceV1 := v1.Group(dmsV1.DBServiceRouterGroup)
 		{
-			dbServiceV1.POST("", s.DeprecatedBy(apiV2))
+			dbServiceV1.POST("", s.DeprecatedBy(dmsV2.GroupV2))
 			dbServiceV1.GET("", s.DeprecatedBy(dmsV2.GroupV2))
 			dbServiceV1.GET("/tips", s.DMSController.ListDBServiceTips)
 			dbServiceV1.DELETE("/:db_service_uid", s.DMSController.DelDBService)
@@ -139,20 +134,20 @@ func (s *APIServer) initRouter() error {
 		opPermissionV1.GET("", s.DMSController.ListOpPermissions)
 
 		projectV1 := v1.Group(dmsV2.ProjectRouterGroup)
-		projectV1.GET("", s.DeprecatedBy(dmsV1.GroupV2))
-		projectV1.POST("", s.DeprecatedBy(dmsV1.GroupV2))
+		projectV1.GET("", s.DeprecatedBy(dmsV2.GroupV2))
+		projectV1.POST("", s.DeprecatedBy(dmsV2.GroupV2))
 		projectV1.DELETE("/:project_uid", s.DMSController.DelProject)
-		projectV1.PUT("/:project_uid", s.DeprecatedBy(dmsV1.GroupV2))
+		projectV1.PUT("/:project_uid", s.DeprecatedBy(dmsV2.GroupV2))
 		projectV1.PUT("/:project_uid/archive", s.DMSController.ArchiveProject)
 		projectV1.PUT("/:project_uid/unarchive", s.DMSController.UnarchiveProject)
-		projectV1.POST("/import", s.DeprecatedBy(dmsV1.GroupV2))
+		projectV1.POST("/import", s.DeprecatedBy(dmsV2.GroupV2))
 		projectV1.GET("/import_template", s.DMSController.GetImportProjectsTemplate)
-		projectV1.POST("/preview_import", s.DeprecatedBy(dmsV1.GroupV2))
+		projectV1.POST("/preview_import", s.DeprecatedBy(dmsV2.GroupV2))
 		projectV1.GET("/export", s.DMSController.ExportProjects)
 		projectV1.GET("/tips", s.DMSController.GetProjectTips)
 		projectV1.GET("/import_db_services_template", s.DMSController.GetImportDBServicesTemplate)
-		projectV1.POST("/import_db_services_check", s.DeprecatedBy(dmsV1.GroupV2))
-		projectV1.POST("/import_db_services", s.DeprecatedBy(dmsV1.GroupV2))
+		projectV1.POST("/import_db_services_check", s.DeprecatedBy(dmsV2.GroupV2))
+		projectV1.POST("/import_db_services", s.DeprecatedBy(dmsV2.GroupV2))
 		projectV1.POST("/db_services_connection", s.DMSController.DBServicesConnection)
 		projectV1.POST("/db_services_connections", s.DMSController.CheckGlobalDBServicesConnections)
 		projectV1.POST("/business_tags", s.DMSController.CreateBusinessTag)
