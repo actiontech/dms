@@ -29,8 +29,8 @@ func ListDbServices(ctx context.Context, dmsAddr string, req dmsCommonV2.ListDBS
 	if req.OrderBy != "" {
 		query.Set("order_by", fmt.Sprintf("%v", req.OrderBy))
 	}
-	if req.FilterByEnvironmentTag != "" {
-		query.Set("filter_by_environment_tag", req.FilterByEnvironmentTag)
+	if req.FilterByEnvironmentTagUID != "" {
+		query.Set("filter_by_environment_tag_uid", req.FilterByEnvironmentTagUID)
 	}
 	if req.FilterByHost != "" {
 		query.Set("filter_by_host", req.FilterByHost)
