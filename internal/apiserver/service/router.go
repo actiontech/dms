@@ -36,12 +36,17 @@ func (s *APIServer) initRouter() error {
 	v2.Use(dmsMiddleware.JWTTokenAdapter())
 	// DMS RESTful resource
 	{
-		v1.GET("/dms/basic_info", s.DMSController.GetBasicInfo)
-		v1.GET(biz.PersonalizationUrl, s.DMSController.GetStaticLogo)
-		v1.POST("/dms/personalization", s.DMSController.Personalization)
-		v1.GET("/dms/db_services/driver_options", s.DMSController.ListDBServiceDriverOption)
-		v1.GET("/dms/db_services", s.DMSController.ListGlobalDBServices)
-		v1.GET("/dms/db_services/tips", s.DMSController.ListGlobalDBServicesTips)
+		{
+			v1.GET("/dms/basic_info", s.DMSController.GetBasicInfo)
+			v1.GET(biz.PersonalizationUrl, s.DMSController.GetStaticLogo)
+			v1.POST("/dms/personalization", s.DMSController.Personalization)
+			v1.GET("/dms/db_services/driver_options", s.DMSController.ListDBServiceDriverOption)
+			v1.GET("/dms/db_services", s.DeprecatedBy(dmsV2.GroupV2))
+			v1.GET("/dms/db_services/tips", s.DMSController.ListGlobalDBServicesTips)
+		}
+		{
+			v2.GET("/dms/db_services", s.DMSController.ListGlobalDBServicesV2)
+		}
 
 		dmsProxyV1 := v1.Group(dmsV1.ProxyRouterGroup)
 		dmsProxyV1.POST("", s.DMSController.RegisterDMSProxyTarget)
