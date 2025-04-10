@@ -175,7 +175,7 @@ type DBServiceUsecase struct {
 	log                       *utilLog.Helper
 }
 
-func NewDBServiceUsecase(log utilLog.Logger, repo DBServiceRepo, pluginUsecase *PluginUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, 
+func NewDBServiceUsecase(log utilLog.Logger, repo DBServiceRepo, pluginUsecase *PluginUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase,
 	projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, environmentTagUsecase *EnvironmentTagUsecase) *DBServiceUsecase {
 	return &DBServiceUsecase{
 		repo:                      repo,
@@ -183,7 +183,7 @@ func NewDBServiceUsecase(log utilLog.Logger, repo DBServiceRepo, pluginUsecase *
 		pluginUsecase:             pluginUsecase,
 		projectUsecase:            projectUsecase,
 		dmsProxyTargetRepo:        proxyTargetRepo,
-		environmentTagUsecase: 	   environmentTagUsecase,
+		environmentTagUsecase:     environmentTagUsecase,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.dbService")),
 	}
 }
@@ -668,8 +668,12 @@ func (d *DBServiceUsecase) UpdateDBServiceByArgs(ctx context.Context, dbServiceU
 		}
 
 		if updateDBService.Host == "" || updateDBService.Port == "" ||
-			updateDBService.User == "" /*|| updateDBService.Business == ""*/ {
-			return fmt.Errorf("db service's host,port,user,business can't be empty")
+			updateDBService.User == "" || updateDBService.EnvironmentTagUID == "" {
+			return fmt.Errorf("db service's host,port,user,environment can't be empty")
+		}
+		_, err := d.environmentTagUsecase.GetEnvironmentTagByUID(ctx, updateDBService.EnvironmentTagUID)
+		if err != nil {
+			return fmt.Errorf("check get environment tag by uid failed: %v", err)
 		}
 	}
 	// update
@@ -687,7 +691,6 @@ func (d *DBServiceUsecase) UpdateDBServiceByArgs(ctx context.Context, dbServiceU
 		ds.Host = updateDBService.Host
 		ds.Port = updateDBService.Port
 		ds.User = updateDBService.User
-		// ds.Business = updateDBService.Business
 		ds.AdditionalParams = updateDBService.AdditionalParams
 		ds.MaintenancePeriod = updateDBService.MaintenancePeriod
 		ds.IsMaskingSwitch = updateDBService.IsMaskingSwitch
@@ -698,6 +701,9 @@ func (d *DBServiceUsecase) UpdateDBServiceByArgs(ctx context.Context, dbServiceU
 		if updateDBService.RuleTemplateName != "" {
 			ds.SQLEConfig.RuleTemplateID = updateDBService.RuleTemplateID
 			ds.SQLEConfig.RuleTemplateName = updateDBService.RuleTemplateName
+		}
+		ds.EnvironmentTag = &dmsCommonV1.EnvironmentTag{
+			UID: updateDBService.EnvironmentTagUID,
 		}
 
 		if updateDBService.SQLQueryConfig != nil {
