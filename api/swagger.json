@@ -5200,16 +5200,9 @@
           },
           {
             "type": "string",
-            "x-go-name": "FilterByBusiness",
-            "description": "TODO This parameter is deprecated and will be removed soon.\nthe db service business name",
-            "name": "filter_by_business",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "x-go-name": "FilterByEnvironmentTag",
+            "x-go-name": "FilterByEnvironmentTagUID",
             "description": "filter db services by environment tag",
-            "name": "filter_by_environment_tag",
+            "name": "filter_by_environment_tag_uid",
             "in": "query"
           },
           {
@@ -5704,9 +5697,9 @@
           },
           {
             "type": "string",
-            "x-go-name": "FilterByEnvironmentTag",
+            "x-go-name": "FilterByEnvironmentTagUID",
             "description": "filter db services by environment tag",
-            "name": "filter_by_environment_tag",
+            "name": "filter_by_environment_tag_uid",
             "in": "query"
           },
           {
