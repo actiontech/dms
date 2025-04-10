@@ -451,8 +451,22 @@ func (d *DMSController) ImportDBServicesOfProjectsCheckV2(c echo.Context) error 
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (ctl *DMSController) UpdateDBServiceV2(c echo.Context) error{
-	return ctl.UpdateDBService(c) 
+func (d *DMSController) UpdateDBServiceV2(c echo.Context) error{
+		req := &dmsApiV2.UpdateDBServiceReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	err = d.DMS.UpdateDBService(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkResp(c)
 }
 
 // swagger:route GET /v2/dms/db_services DBService ListGlobalDBServicesV2
