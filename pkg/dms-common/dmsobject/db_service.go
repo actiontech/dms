@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"net/url"
 
-	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	dmsCommonV2 "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 )
 
-func ListDbServices(ctx context.Context, dmsAddr string, req dmsCommonV2.ListDBServiceReq) ([]*dmsV1.ListDBService, int64, error) {
+func ListDbServices(ctx context.Context, dmsAddr string, req dmsCommonV2.ListDBServiceReq) ([]*dmsCommonV2.ListDBService, int64, error) {
 	header := map[string]string{
 		"Authorization": pkgHttp.DefaultDMSToken,
 	}
@@ -62,7 +61,7 @@ func ListDbServices(ctx context.Context, dmsAddr string, req dmsCommonV2.ListDBS
 	baseURL.RawQuery = query.Encode()
 
 	// 调用 HTTP GET 请求
-	reply := &dmsV1.ListDBServiceReply{}
+	reply := &dmsCommonV2.ListDBServiceReply{}
 	if err := pkgHttp.Get(ctx, baseURL.String(), header, nil, reply); err != nil {
 		return nil, 0, err
 	}
