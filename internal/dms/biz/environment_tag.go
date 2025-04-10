@@ -24,11 +24,14 @@ type EnvironmentTagUsecase struct {
 	log                       *utilLog.Helper
 }
 
-func NewEnvironmentTagUsecase(environmentTagRepo EnvironmentTagRepo, logger utilLog.Logger, rojectUsecase *ProjectUsecase) *EnvironmentTagUsecase {
+func NewEnvironmentTagUsecase(environmentTagRepo EnvironmentTagRepo, logger utilLog.Logger,
+	projectUsecase *ProjectUsecase,
+	opPermissionVerifyUsecase *OpPermissionVerifyUsecase) *EnvironmentTagUsecase {
 	return &EnvironmentTagUsecase{
-		environmentTagRepo: environmentTagRepo,
-		projectUsecase:     rojectUsecase,
-		log:                utilLog.NewHelper(logger, utilLog.WithMessageKey("biz.environment_tag")),
+		environmentTagRepo:        environmentTagRepo,
+		projectUsecase:            projectUsecase,
+		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
+		log:                       utilLog.NewHelper(logger, utilLog.WithMessageKey("biz.environment_tag")),
 	}
 }
 
@@ -51,6 +54,24 @@ func (uc *EnvironmentTagUsecase) newEnvironmentTag(projectUid, tagName string) (
 		Name:       tagName,
 		ProjectUID: projectUid,
 	}, nil
+}
+
+func (uc *EnvironmentTagUsecase) InitDefaultEnvironmentTags(ctx context.Context, projectUid, currentUserUid string) (err error) {
+	defaultEnvironmentTags := []string{
+		"DEV",
+		"TEST",
+		"UAT",
+		"PROD",
+	}
+
+	for _, environmentTag := range defaultEnvironmentTags {
+		err = uc.CreateEnvironmentTag(ctx, projectUid, currentUserUid, environmentTag)
+		if err != nil {
+			uc.log.Errorf("create environment tag failed: %v", err)
+			return fmt.Errorf("create environment tag failed: %w", err)
+		}
+	}
+	return nil
 }
 
 func (uc *EnvironmentTagUsecase) CreateEnvironmentTag(ctx context.Context, projectUid, currentUserUid, tagName string) error {
