@@ -722,7 +722,7 @@ func (d *DMSService) ListDBServiceDriverOption(ctx context.Context) (reply *dmsV
 	}, nil
 }
 
-func (d *DMSService) ListGlobalDBServices(ctx context.Context, req *dmsV1.ListGlobalDBServicesReq, currentUserUid string) (reply *dmsV1.ListGlobalDBServicesReply, err error) {
+func (d *DMSService) ListGlobalDBServices(ctx context.Context, req *dmsV2.ListGlobalDBServicesReq, currentUserUid string) (reply *dmsV2.ListGlobalDBServicesReply, err error) {
 	return d.listGlobalDBServices(ctx, req, currentUserUid)
 }
 
