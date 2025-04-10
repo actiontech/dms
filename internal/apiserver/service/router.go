@@ -55,11 +55,11 @@ func (s *APIServer) initRouter() error {
 			dbServiceV1.GET("", s.DMSController.ListDBServices)
 			dbServiceV1.GET("/tips", s.DMSController.ListDBServiceTips)
 			dbServiceV1.DELETE("/:db_service_uid", s.DMSController.DelDBService)
-			dbServiceV1.PUT("/:db_service_uid", s.DMSController.UpdateDBService)
+			dbServiceV1.PUT("/:db_service_uid", s.DeprecatedBy(dmsV2.GroupV2))
 			dbServiceV1.POST("/connection", s.DMSController.CheckDBServiceIsConnectable)
 			dbServiceV1.POST("/:db_service_uid/connection", s.DMSController.CheckDBServiceIsConnectableById)
 			dbServiceV1.POST("/connections", s.DMSController.CheckProjectDBServicesConnections)
-			dbServiceV1.POST("/import_check",  s.DeprecatedBy(dmsV2.GroupV2))
+			dbServiceV1.POST("/import_check", s.DeprecatedBy(dmsV2.GroupV2))
 			dbServiceV1.POST("/import", s.DeprecatedBy(dmsV2.GroupV2))
 		}
 
@@ -68,13 +68,13 @@ func (s *APIServer) initRouter() error {
 			dbServiceV2.POST("", s.DMSController.AddDBServiceV2)
 			dbServiceV2.POST("/import_check", s.DMSController.ImportDBServicesOfOneProjectCheckV2)
 			dbServiceV2.POST("/import", s.DMSController.ImportDBServicesOfOneProjectV2)
+			dbServiceV2.PUT("/:db_service_uid", s.DMSController.UpdateDBServiceV2)
 		}
 		environmentTagV1 := v1.Group(dmsV1.DBEnvironmentTagGroup)
 		environmentTagV1.POST("", s.DMSController.CreateEnvironmentTag)
 		environmentTagV1.GET("", s.DMSController.ListEnvironmentTags)
 		environmentTagV1.PUT("/:environment_tag_uid", s.DMSController.UpdateEnvironmentTag)
 		environmentTagV1.DELETE("/:environment_tag_uid", s.DMSController.DeleteEnvironmentTag)
-
 
 		dbServiceSyncTaskV1 := v1.Group("/dms/db_service_sync_tasks")
 		dbServiceSyncTaskV1.GET("/tips", s.DMSController.ListDBServiceSyncTaskTips)
