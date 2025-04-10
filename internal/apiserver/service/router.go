@@ -28,7 +28,6 @@ func (s *APIServer) initRouter() error {
 
 	v1 := s.echo.Group(dmsV1.CurrentGroupVersion)
 	v2 := s.echo.Group(dmsV2.CurrentGroupVersion)
-	v2.Use(dmsMiddleware.JWTTokenAdapter())
 	// DMS RESTful resource
 	{
 		{
