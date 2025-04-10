@@ -65,14 +65,13 @@ type Model struct {
 
 type DBService struct {
 	Model
-	Name     string `json:"name" gorm:"size:200;not null;index:project_uid_name,unique" example:""`
-	DBType   string `json:"db_type" gorm:"size:255;column:db_type; not null" example:"mysql"`
-	Host     string `json:"host" gorm:"column:db_host;size:255; not null" example:"10.10.10.10"`
-	Port     string `json:"port" gorm:"column:db_port;size:255; not null" example:"3306"`
-	User     string `json:"user" gorm:"column:db_user;size:255; not null" example:"root"`
-	Password string `json:"password" gorm:"column:db_password; size:255; not null"`
-	Desc     string `json:"desc" gorm:"column:desc" example:"this is a instance"`
-	// Business               string          `json:"business" gorm:"column:business;size:255; not null" example:"this is a business"`
+	Name                   string          `json:"name" gorm:"size:200;not null;index:project_uid_name,unique" example:""`
+	DBType                 string          `json:"db_type" gorm:"size:255;column:db_type; not null" example:"mysql"`
+	Host                   string          `json:"host" gorm:"column:db_host;size:255; not null" example:"10.10.10.10"`
+	Port                   string          `json:"port" gorm:"column:db_port;size:255; not null" example:"3306"`
+	User                   string          `json:"user" gorm:"column:db_user;size:255; not null" example:"root"`
+	Password               string          `json:"password" gorm:"column:db_password; size:255; not null"`
+	Desc                   string          `json:"desc" gorm:"column:desc" example:"this is a instance"`
 	EnvironmentTagUID      string          `json:"environment_tag_id" gorm:"column:environment_tag_uid; not null"`
 	AdditionalParams       params.Params   `json:"additional_params" gorm:"type:text"`
 	Source                 string          `json:"source" gorm:"size:255;not null"`
