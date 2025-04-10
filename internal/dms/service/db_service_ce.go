@@ -21,7 +21,7 @@ func (d *DMSService) importDBServicesOfOneProject(ctx context.Context, req *dmsV
 	return errNotSupportImportDBServices
 }
 
-func (d *DMSService) listGlobalDBServices(ctx context.Context, req *dmsV1.ListGlobalDBServicesReq, currentUserUid string) (reply *dmsV1.ListGlobalDBServicesReply, err error) {
+func (d *DMSService) listGlobalDBServices(ctx context.Context, req *dmsV2.ListGlobalDBServicesReq, currentUserUid string) (reply *dmsV2.ListGlobalDBServicesReply, err error) {
 	return nil, errNotSupportGlobalDBServices
 }
 
