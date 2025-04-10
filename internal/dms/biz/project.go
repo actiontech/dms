@@ -24,14 +24,14 @@ const (
 type Project struct {
 	Base
 
-	UID             string
-	Name            string
-	Desc            string
-	Priority        dmsCommonV1.ProjectPriority
-	BusinessTag     BusinessTag
-	CreateUserUID   string
-	CreateTime      time.Time
-	Status          ProjectStatus
+	UID           string
+	Name          string
+	Desc          string
+	Priority      dmsCommonV1.ProjectPriority
+	BusinessTag   BusinessTag
+	CreateUserUID string
+	CreateTime    time.Time
+	Status        ProjectStatus
 }
 
 type Business struct {
@@ -90,13 +90,18 @@ type ProjectUsecase struct {
 	repo                      ProjectRepo
 	memberUsecase             *MemberUsecase
 	businessTagUsecase        *BusinessTagUsecase
+	environmentTagUsecase     *EnvironmentTagUsecase
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	pluginUsecase             *PluginUsecase
 	log                       *utilLog.Helper
 }
 
-func NewProjectUsecase(log utilLog.Logger, tx TransactionGenerator, repo ProjectRepo, memberUsecase *MemberUsecase,
-	opPermissionVerifyUsecase *OpPermissionVerifyUsecase, pluginUsecase *PluginUsecase, businessTagUsecase *BusinessTagUsecase) *ProjectUsecase {
+func NewProjectUsecase(log utilLog.Logger, tx TransactionGenerator, repo ProjectRepo, 
+	memberUsecase *MemberUsecase,
+	opPermissionVerifyUsecase *OpPermissionVerifyUsecase, 
+	pluginUsecase *PluginUsecase, 
+	businessTagUsecase *BusinessTagUsecase,
+	environmentTagUsecase *EnvironmentTagUsecase) *ProjectUsecase {
 	return &ProjectUsecase{
 		tx:                        tx,
 		repo:                      repo,
@@ -104,6 +109,7 @@ func NewProjectUsecase(log utilLog.Logger, tx TransactionGenerator, repo Project
 		memberUsecase:             memberUsecase,
 		pluginUsecase:             pluginUsecase,
 		businessTagUsecase:        businessTagUsecase,
+		environmentTagUsecase:     environmentTagUsecase,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 	}
 }
