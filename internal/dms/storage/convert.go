@@ -102,13 +102,12 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 		User:              ds.User,
 		Password:          decrypted,
 		MaintenancePeriod: ds.MaintenancePeriod,
-		// Business:          ds.Business,
-		AdditionalParams: ds.AdditionalParams,
-		Source:           ds.Source,
-		ProjectUID:       ds.ProjectUID,
-		IsMaskingSwitch:  ds.IsEnableMasking,
-		EnableBackup:     ds.EnableBackup,
-		BackupMaxRows:    ds.BackupMaxRows,
+		AdditionalParams:  ds.AdditionalParams,
+		Source:            ds.Source,
+		ProjectUID:        ds.ProjectUID,
+		IsMaskingSwitch:   ds.IsEnableMasking,
+		EnableBackup:      ds.EnableBackup,
+		BackupMaxRows:     ds.BackupMaxRows,
 	}
 
 	if ds.LastConnectionStatus != nil {
