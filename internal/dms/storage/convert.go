@@ -39,7 +39,6 @@ func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
 		Port:              ds.Port,
 		User:              ds.User,
 		Password:          encrypted,
-		EnvironmentTagUID: ds.EnvironmentTag.UID,
 		AdditionalParams:  ds.AdditionalParams,
 		Source:            ds.Source,
 		MaintenancePeriod: ds.MaintenancePeriod,
@@ -47,6 +46,9 @@ func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
 		IsEnableMasking:   ds.IsMaskingSwitch,
 		EnableBackup:      ds.EnableBackup,
 		BackupMaxRows:     ds.BackupMaxRows,
+	}
+	if ds.EnvironmentTag != nil {
+		dbService.EnvironmentTagUID = ds.EnvironmentTag.UID
 	}
 	if ds.LastConnectionStatus != nil {
 		dbService.LastConnectionStatus = (*string)(ds.LastConnectionStatus)
