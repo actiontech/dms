@@ -423,20 +423,7 @@ func (a *DMSController) DelDBService(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (a *DMSController) UpdateDBService(c echo.Context) error {
-	req := &aV1.UpdateDBServiceReq{}
-	err := bindAndValidateReq(c, req)
-	if nil != err {
-		return NewErrResp(c, err, apiError.BadRequestErr)
-	}
-	// get current user id
-	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-	err = a.DMS.UpdateDBService(c.Request().Context(), req, currentUserUid)
-	if nil != err {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
+	
 	return NewOkResp(c)
 }
 
