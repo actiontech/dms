@@ -62,6 +62,7 @@ func (uc *EnvironmentTagUsecase) InitDefaultEnvironmentTags(ctx context.Context,
 		"TEST",
 		"UAT",
 		"PROD",
+		"OUTSIDE",
 	}
 
 	for _, environmentTag := range defaultEnvironmentTags {
