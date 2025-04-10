@@ -45,7 +45,7 @@ type ListEnvironmentTagsReply struct {
 type DeleteEnvironmentTagReq struct {
 	// in:path
 	// Required: true
-	EnvironmentTagUID string `json:"environment_tag_uid" validate:"required"`
+	EnvironmentTagUID string `param:"environment_tag_uid" json:"environment_tag_uid" validate:"required"`
 	// in:path
 	// Required: true
 	ProjectUID string `param:"project_uid" json:"project_uid" validate:"required"`
