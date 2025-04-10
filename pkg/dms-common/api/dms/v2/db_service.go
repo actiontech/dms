@@ -45,7 +45,7 @@ type ListDBServiceReq struct {
 	FilterByDBServiceIds []string `query:"filter_by_db_service_ids" json:"filter_by_db_service_ids"`
 	// filter db services by environment tag
 	// in:query
-	FilterByEnvironmentTag string `query:"filter_by_environment_tag" json:"filter_by_environment_tag"`
+	FilterByEnvironmentTagUID string `query:"filter_by_environment_tag_uid" json:"filter_by_environment_tag_uid"`
 	// the db service fuzzy keyword,include host/port
 	// in:query
 	FuzzyKeyword string `query:"fuzzy_keyword" json:"fuzzy_keyword"`

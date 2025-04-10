@@ -505,11 +505,11 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV2.ListDB
 
 	filterBy := make([]pkgConst.FilterCondition, 0)
 
-	if req.FilterByEnvironmentTag != "" {
+	if req.FilterByEnvironmentTagUID != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldEnvironmentTagUID),
 			Operator: pkgConst.FilterOperatorEqual,
-			Value:    req.FilterByEnvironmentTag,
+			Value:    req.FilterByEnvironmentTagUID,
 		})
 	}
 
