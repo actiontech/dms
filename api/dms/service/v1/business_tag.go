@@ -2,7 +2,7 @@ package v1
 
 import base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 
-// swagger:model
+// swagger:model BusinessTag
 type BusinessTag struct {
 	UID string `json:"uid,omitempty"`
 	// 业务标签最多50个字符

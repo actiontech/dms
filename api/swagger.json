@@ -6673,6 +6673,22 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "BusinessTagCommon": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "业务标签最多50个字符",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "UID"
+        }
+      },
+      "x-go-name": "BusinessTag",
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
+    },
     "CBOperationLog": {
       "type": "object",
       "properties": {
@@ -7628,7 +7644,7 @@
       "type": "object",
       "properties": {
         "name": {
-          "description": "环境属性标签至少1个字符，最多50个字符",
+          "description": "环境属性标签最多50个字符",
           "type": "string",
           "x-go-name": "Name"
         },
@@ -10782,7 +10798,7 @@
           "x-go-name": "Archived"
         },
         "business_tag": {
-          "$ref": "#/definitions/BusinessTag"
+          "$ref": "#/definitions/BusinessTagCommon"
         },
         "create_time": {
           "description": "create time",

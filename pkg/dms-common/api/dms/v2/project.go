@@ -57,7 +57,7 @@ type ListProject struct {
 	ProjectPriority v1.ProjectPriority `json:"project_priority" enums:"high,medium,low"`
 }
 
-// swagger:model
+// swagger:model BusinessTagCommon
 type BusinessTag struct {
 	UID string `json:"uid,omitempty"`
 	// 业务标签最多50个字符
