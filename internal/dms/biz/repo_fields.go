@@ -138,7 +138,7 @@ const (
 	DBServiceFieldExtraParameters      DBServiceField = "extraparameters"
 	DBServiceFieldIsEnableMasking      DBServiceField = "is_enable_masking"
 	DBServiceFieldLastConnectionStatus DBServiceField = "last_connection_status"
-	DBServiceFieldEnvironmentTagUID   ProjectField = "environment_tag_uid"
+	DBServiceFieldEnvironmentTagUID    DBServiceField = "environment_tag_uid"
 )
 
 const (
