@@ -266,20 +266,7 @@ func (d *DMSController) AddDBService(c echo.Context) error {
 //	  default: body:GenericResp
 // deprecated: true
 func (d *DMSController) ListDBServices(c echo.Context) error {
-	req := new(dmsV1.ListDBServiceReq)
-	err := bindAndValidateReq(c, req)
-	if nil != err {
-		return NewErrResp(c, err, apiError.BadRequestErr)
-	}
-	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-	reply, err := d.DMS.ListDBServices(c.Request().Context(), req, currentUserUid)
-	if nil != err {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-	return NewOkRespWithReply(c, reply)
+	return NewOkRespWithReply(c, nil)
 }
 
 // swagger:route GET /v1/dms/projects/{project_uid}/db_services/tips DBService ListDBServiceTips

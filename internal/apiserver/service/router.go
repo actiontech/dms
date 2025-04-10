@@ -52,7 +52,7 @@ func (s *APIServer) initRouter() error {
 		dbServiceV1 := v1.Group(dmsV1.DBServiceRouterGroup)
 		{
 			dbServiceV1.POST("", s.DeprecatedBy(apiV2))
-			dbServiceV1.GET("", s.DMSController.ListDBServices)
+			dbServiceV1.GET("", s.DeprecatedBy(dmsV2.GroupV2))
 			dbServiceV1.GET("/tips", s.DMSController.ListDBServiceTips)
 			dbServiceV1.DELETE("/:db_service_uid", s.DMSController.DelDBService)
 			dbServiceV1.PUT("/:db_service_uid", s.DeprecatedBy(dmsV2.GroupV2))
@@ -69,6 +69,7 @@ func (s *APIServer) initRouter() error {
 			dbServiceV2.POST("/import_check", s.DMSController.ImportDBServicesOfOneProjectCheckV2)
 			dbServiceV2.POST("/import", s.DMSController.ImportDBServicesOfOneProjectV2)
 			dbServiceV2.PUT("/:db_service_uid", s.DMSController.UpdateDBServiceV2)
+			dbServiceV2.GET("", s.DMSController.ListDBServicesV2)
 		}
 		environmentTagV1 := v1.Group(dmsV1.DBEnvironmentTagGroup)
 		environmentTagV1.POST("", s.DMSController.CreateEnvironmentTag)
