@@ -476,8 +476,21 @@ func (d *DMSController) UpdateDBServiceV2(c echo.Context) error{
 //	responses:
 //	  200: body:ListGlobalDBServicesReplyV2
 //	  default: body:GenericResp
-func (ctl *DMSController) ListGlobalDBServicesV2(c echo.Context) error {
-	return ctl.ListGlobalDBServices(c)
+func (d *DMSController) ListGlobalDBServicesV2(c echo.Context) error {
+	req := new(dmsApiV2.ListGlobalDBServicesReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	reply, err := d.DMS.ListGlobalDBServices(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:route GET /v2/dms/projects/{project_uid}/db_services DBService ListDBServicesV2
