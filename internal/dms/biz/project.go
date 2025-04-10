@@ -96,10 +96,10 @@ type ProjectUsecase struct {
 	log                       *utilLog.Helper
 }
 
-func NewProjectUsecase(log utilLog.Logger, tx TransactionGenerator, repo ProjectRepo, 
+func NewProjectUsecase(log utilLog.Logger, tx TransactionGenerator, repo ProjectRepo,
 	memberUsecase *MemberUsecase,
-	opPermissionVerifyUsecase *OpPermissionVerifyUsecase, 
-	pluginUsecase *PluginUsecase, 
+	opPermissionVerifyUsecase *OpPermissionVerifyUsecase,
+	pluginUsecase *PluginUsecase,
 	businessTagUsecase *BusinessTagUsecase,
 	environmentTagUsecase *EnvironmentTagUsecase) *ProjectUsecase {
 	return &ProjectUsecase{
@@ -180,6 +180,16 @@ func (d *ProjectUsecase) InitProjects(ctx context.Context) (err error) {
 		_, err = d.memberUsecase.AddUserToProjectAdminMember(ctx, pkgConst.UIDOfUserAdmin, n.UID)
 		if err != nil {
 			return fmt.Errorf("add admin to projects failed: %v", err)
+		}
+		// 初始化环境标签
+		err = d.environmentTagUsecase.InitDefaultEnvironmentTags(ctx, n.UID, n.CreateUserUID)
+		if err != nil {
+			d.log.Error("init default environment tags failed",
+				"error", err,
+				"project_uid", n.UID,
+				"create_user_uid", n.CreateUserUID,
+			)
+			return fmt.Errorf("init default environment tags failed: %v", err)
 		}
 	}
 	d.log.Debug("init project success")
