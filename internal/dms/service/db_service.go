@@ -30,7 +30,7 @@ func (d *DMSService) DelDBService(ctx context.Context, req *dmsV1.DelDBServiceRe
 	return nil
 }
 
-func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV1.UpdateDBServiceReq, currentUserUid string) (err error) {
+func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV2.UpdateDBServiceReq, currentUserUid string) (err error) {
 	d.log.Infof("UpdateDBService.req=%v", req)
 	defer func() {
 		d.log.Infof("UpdateDBService.req=%v;error=%v", req, err)
@@ -48,13 +48,13 @@ func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV1.UpdateDBSer
 	}
 
 	args := &biz.BizDBServiceArgs{
-		DBType:   req.DBService.DBType,
-		Desc:     req.DBService.Desc,
-		Host:     req.DBService.Host,
-		Port:     req.DBService.Port,
-		User:     req.DBService.User,
-		Password: req.DBService.Password,
-		// Business:          req.DBService.Business,
+		DBType:            req.DBService.DBType,
+		Desc:              req.DBService.Desc,
+		Host:              req.DBService.Host,
+		Port:              req.DBService.Port,
+		User:              req.DBService.User,
+		Password:          req.DBService.Password,
+		EnvironmentTagUID: req.DBService.EnvironmentTagUID,
 		EnableBackup:      req.DBService.EnableBackup,
 		BackupMaxRows:     autoChooseBackupMaxRows(req.DBService.EnableBackup, req.DBService.BackupMaxRows),
 		MaintenancePeriod: d.convertMaintenanceTimeToPeriod(req.DBService.MaintenanceTimes),
