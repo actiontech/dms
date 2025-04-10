@@ -45,15 +45,14 @@ const (
 type DBService struct {
 	Base
 
-	UID      string `json:"uid"`
-	Name     string `json:"name"`
-	Desc     string `json:"desc"`
-	DBType   string `json:"db_type"`
-	Host     string `json:"host"`
-	Port     string `json:"port"`
-	User     string `json:"user"`
-	Password string `json:"password"`
-	// Business          string             `json:"business"`
+	UID               string                      `json:"uid"`
+	Name              string                      `json:"name"`
+	Desc              string                      `json:"desc"`
+	DBType            string                      `json:"db_type"`
+	Host              string                      `json:"host"`
+	Port              string                      `json:"port"`
+	User              string                      `json:"user"`
+	Password          string                      `json:"password"`
 	EnvironmentTag    *dmsCommonV1.EnvironmentTag `json:"environment_tag"`
 	AdditionalParams  pkgParams.Params            `json:"additional_params"`
 	ProjectUID        string                      `json:"project_uid"`
