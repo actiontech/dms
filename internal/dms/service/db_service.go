@@ -11,6 +11,7 @@ import (
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+	dmsCommonV2 "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
 	pkgAes "github.com/actiontech/dms/pkg/dms-common/pkg/aes"
 	"github.com/actiontech/dms/pkg/params"
 	"github.com/actiontech/dms/pkg/periods"
@@ -493,7 +494,7 @@ func (d *DMSService) convertImportDBService2BizDBService(importDbs []dmsV2.Impor
 	return ret
 }
 
-func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDBServiceReq, currentUserUid string) (reply *dmsCommonV1.ListDBServiceReply, err error) {
+func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV2.ListDBServiceReq, currentUserUid string) (reply *dmsCommonV2.ListDBServiceReply, err error) {
 	var orderBy biz.DBServiceField
 	switch req.OrderBy {
 	case dmsCommonV1.DBServiceOrderByName:
@@ -504,11 +505,11 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 
 	filterBy := make([]pkgConst.FilterCondition, 0)
 
-	if req.FilterByBusiness != "" {
+	if req.FilterByEnvironmentTag != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
-			Field:    string(biz.DBServiceFieldBusiness),
+			Field:    string(biz.DBServiceFieldEnvironmentTagUID),
 			Operator: pkgConst.FilterOperatorEqual,
-			Value:    req.FilterByBusiness,
+			Value:    req.FilterByEnvironmentTag,
 		})
 	}
 
@@ -608,21 +609,21 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 		return nil, err
 	}
 
-	ret := make([]*dmsCommonV1.ListDBService, len(service))
+	ret := make([]*dmsCommonV2.ListDBService, len(service))
 	for i, u := range service {
 		password, err := pkgAes.AesEncrypt(u.Password)
 		if err != nil {
 			return nil, fmt.Errorf("failed to encrypt password: %w", err)
 		}
-		ret[i] = &dmsCommonV1.ListDBService{
-			DBServiceUid: u.GetUID(),
-			Name:         u.Name,
-			DBType:       u.DBType,
-			Host:         u.Host,
-			Port:         u.Port,
-			User:         u.User,
-			Password:     password,
-			// Business:         u.Business,
+		ret[i] = &dmsCommonV2.ListDBService{
+			DBServiceUid:        u.GetUID(),
+			Name:                u.Name,
+			DBType:              u.DBType,
+			Host:                u.Host,
+			Port:                u.Port,
+			User:                u.User,
+			Password:            password,
+			EnvironmentTag:      u.EnvironmentTag,
 			MaintenanceTimes:    d.convertPeriodToMaintenanceTime(u.MaintenancePeriod),
 			Desc:                u.Desc,
 			Source:              u.Source,
@@ -673,7 +674,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 		}
 	}
 
-	return &dmsCommonV1.ListDBServiceReply{
+	return &dmsCommonV2.ListDBServiceReply{
 		Data:  ret,
 		Total: total,
 	}, nil
