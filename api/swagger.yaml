@@ -9465,18 +9465,11 @@ paths:
                   name: filter_last_connection_test_status
                   type: string
                   x-go-name: FilterLastConnectionTestStatus
-                - description: |-
-                    TODO This parameter is deprecated and will be removed soon.
-                    the db service business name
-                  in: query
-                  name: filter_by_business
-                  type: string
-                  x-go-name: FilterByBusiness
                 - description: filter db services by environment tag
                   in: query
-                  name: filter_by_environment_tag
+                  name: filter_by_environment_tag_uid
                   type: string
-                  x-go-name: FilterByEnvironmentTag
+                  x-go-name: FilterByEnvironmentTagUID
                 - description: the db service host
                   in: query
                   name: filter_by_host
@@ -9737,9 +9730,9 @@ paths:
                   x-go-name: FilterByDBServiceIds
                 - description: filter db services by environment tag
                   in: query
-                  name: filter_by_environment_tag
+                  name: filter_by_environment_tag_uid
                   type: string
-                  x-go-name: FilterByEnvironmentTag
+                  x-go-name: FilterByEnvironmentTagUID
                 - description: the db service fuzzy keyword,include host/port
                   in: query
                   name: fuzzy_keyword
