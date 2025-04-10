@@ -181,7 +181,7 @@ type UpdateDBService struct {
 	Password *string `json:"password"`
 	// DB Service environment tag
 	// Required: true
-	EnvironmentTag *dmsCommonV1.EnvironmentTag `json:"environment_tag"`
+	EnvironmentTagUID string `json:"environment_tag_uid" validate:"required"`
 	// DB Service maintenance time
 	// Required: true
 	MaintenanceTimes []*dmsCommonV1.MaintenanceTime `json:"maintenance_times"`
