@@ -5239,8 +5239,10 @@ definitions:
                 description: backup switch
                 type: boolean
                 x-go-name: EnableBackup
-            environment_tag:
-                $ref: '#/definitions/EnvironmentTag'
+            environment_tag_uid:
+                description: DB Service environment tag
+                type: string
+                x-go-name: EnvironmentTagUID
             host:
                 description: DB Service Host
                 type: string
@@ -5274,7 +5276,7 @@ definitions:
             - host
             - port
             - user
-            - environment_tag
+            - environment_tag_uid
             - maintenance_times
         type: object
         x-go-name: UpdateDBService
