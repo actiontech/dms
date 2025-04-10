@@ -487,6 +487,19 @@ func (ctl *DMSController) ListGlobalDBServicesV2(c echo.Context) error {
 //	responses:
 //	  200: body:ListDBServiceReplyV2
 //	  default: body:GenericResp
-func (ctl *DMSController) ListDBServicesV2(c echo.Context) error {
-	return ctl.ListDBServices(c)
+func (d *DMSController) ListDBServicesV2(c echo.Context) error {
+	req := new(commonApiV2.ListDBServiceReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	reply, err := d.DMS.ListDBServices(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
 }

@@ -58,7 +58,7 @@ func (d *DBServiceRepo) ListDBServices(ctx context.Context, opt *biz.ListDBServi
 		{
 			db := tx.WithContext(ctx).Order(string(opt.OrderBy))
 			db = gormWheres(ctx, db, opt.FilterBy)
-			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber))))).Find(&models)
+			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber))))).Preload("EnvironmentTag").Find(&models)
 			if err := db.Error; err != nil {
 				return fmt.Errorf("failed to list db service: %v", err)
 			}
