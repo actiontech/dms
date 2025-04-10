@@ -32,7 +32,7 @@ func (d *DMSService) importDBServicesOfOneProject(ctx context.Context, req *dmsV
 	return d.DBServiceUsecase.ImportDBServicesOfOneProject(ctx, ret, uid, req.ProjectUid)
 }
 
-func (d *DMSService) listGlobalDBServices(ctx context.Context, req *dmsV1.ListGlobalDBServicesReq, currentUserUid string) (reply *dmsV1.ListGlobalDBServicesReply, err error) {
+func (d *DMSService) listGlobalDBServices(ctx context.Context, req *dmsV2.ListGlobalDBServicesReq, currentUserUid string) (reply *dmsV2.ListGlobalDBServicesReply, err error) {
 	var orderBy biz.DBServiceField
 	switch req.OrderBy {
 	case dmsCommonV1.DBServiceOrderByName:
@@ -42,11 +42,11 @@ func (d *DMSService) listGlobalDBServices(ctx context.Context, req *dmsV1.ListGl
 	}
 
 	filterBy := make([]pkgConst.FilterCondition, 0)
-	if req.FilterByBusiness != "" {
+	if req.FilterByEnvironmentTagUID != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
-			Field:    string(biz.DBServiceFieldBusiness),
+			Field:    string(biz.DBServiceFieldEnvironmentTagUID),
 			Operator: pkgConst.FilterOperatorEqual,
-			Value:    req.FilterByBusiness,
+			Value:    req.FilterByEnvironmentTagUID,
 		})
 	}
 
@@ -146,14 +146,15 @@ func (d *DMSService) listGlobalDBServices(ctx context.Context, req *dmsV1.ListGl
 		return nil, err
 	}
 
-	ret := make([]*dmsV1.ListGlobalDBService, len(service))
+	ret := make([]*dmsV2.ListGlobalDBService, len(service))
 	for i, u := range service {
-		ret[i] = &dmsV1.ListGlobalDBService{
+		ret[i] = &dmsV2.ListGlobalDBService{
 			DBServiceUid:          u.GetUID(),
 			Name:                  u.Name,
 			DBType:                u.DBType,
 			Host:                  u.Host,
 			Port:                  u.Port,
+			EnvironmentTag:        u.EnvironmentTag,
 			MaintenanceTimes:      d.convertPeriodToMaintenanceTime(u.MaintenancePeriod),
 			Desc:                  u.Desc,
 			Source:                u.Source,
@@ -181,7 +182,7 @@ func (d *DMSService) listGlobalDBServices(ctx context.Context, req *dmsV1.ListGl
 		}
 	}
 
-	return &dmsV1.ListGlobalDBServicesReply{
+	return &dmsV2.ListGlobalDBServicesReply{
 		Data:  ret,
 		Total: total,
 	}, nil
