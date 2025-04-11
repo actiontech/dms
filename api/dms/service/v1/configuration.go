@@ -145,12 +145,12 @@ type UpdateLDAPConfigurationReq struct {
 type LDAPConfiguration struct {
 	EnableLdap          *bool   `json:"enable_ldap"`
 	EnableSSL           *bool   `json:"enable_ssl"`
-	LdapServerHost      *string `json:"ldap_server_host"`
-	LdapServerPort      *string `json:"ldap_server_port"`
-	LdapConnectDn       *string `json:"ldap_connect_dn"`
-	LdapConnectPwd      *string `json:"ldap_connect_pwd"`
-	LdapSearchBaseDn    *string `json:"ldap_search_base_dn"`
-	LdapUserNameRdnKey  *string `json:"ldap_user_name_rdn_key"`
+	LdapServerHost      *string `json:"ldap_server_host" validate:"omitempty,min=1"`
+	LdapServerPort      *string `json:"ldap_server_port" validate:"omitempty,min=1"`
+	LdapConnectDn       *string `json:"ldap_connect_dn" validate:"omitempty,min=1"`
+	LdapConnectPwd      *string `json:"ldap_connect_pwd" validate:"omitempty,min=1"`
+	LdapSearchBaseDn    *string `json:"ldap_search_base_dn" validate:"omitempty,min=1"`
+	LdapUserNameRdnKey  *string `json:"ldap_user_name_rdn_key" validate:"omitempty,min=1"`
 	LdapUserEmailRdnKey *string `json:"ldap_user_email_rdn_key"`
 }
 
