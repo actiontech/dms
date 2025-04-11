@@ -171,17 +171,17 @@ func (d *ProjectUsecase) InitProjects(ctx context.Context) (err error) {
 			return fmt.Errorf("failed to get project: %v", err)
 		}
 
-		err = d.businessTagUsecase.CreateBusinessTag(ctx, n.Name)
+		business, err := d.businessTagUsecase.newBusinessTag(n.Name)
 		if err != nil {
 			d.log.Error("create business tag for default project failed")
 			return fmt.Errorf("create business tag for default project failed: %v", err)
 		}
-		businessTag, err := d.businessTagUsecase.GetBusinessTagByName(ctx, n.Name)
+		err = d.businessTagUsecase.businessTagRepo.CreateBusinessTag(ctx, business)
 		if err != nil {
 			d.log.Error("get business tag for default project failed")
 			return fmt.Errorf("get business tag for default project failed: %v", err)
 		}
-		n.BusinessTag = *businessTag
+		n.BusinessTag = *business
 		
 		// not exist, then create it.
 		err = d.repo.SaveProject(ctx, n)
