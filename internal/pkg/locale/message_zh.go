@@ -93,7 +93,7 @@ var (
 var (
 	DBServiceDbName           = &i18n.Message{ID: "DBServiceDbName", Other: "数据源名称"}
 	DBServiceProjName         = &i18n.Message{ID: "DBServiceProjName", Other: "所属项目(平台已有的项目名称)"}
-	DBServiceEnvironmentTag   = &i18n.Message{ID: "DBServiceEnvironmentTag", Other: "所属环境(项目已有的环境名称)"}
+	DBServiceEnvironmentTag   = &i18n.Message{ID: "DBServiceEnvironmentTag", Other: "所属环境"}
 	DBServiceDesc             = &i18n.Message{ID: "DBServiceDesc", Other: "数据源描述"}
 	DBServiceDbType           = &i18n.Message{ID: "DBServiceDbType", Other: "数据源类型"}
 	DBServiceHost             = &i18n.Message{ID: "DBServiceHost", Other: "数据源地址"}
