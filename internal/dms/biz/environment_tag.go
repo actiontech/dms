@@ -196,3 +196,25 @@ func (uc *EnvironmentTagUsecase) GetEnvironmentTagByUID(ctx context.Context, uid
 	}
 	return environmentTag, nil
 }
+
+func (uc *EnvironmentTagUsecase) GetOrCreateEnvironmentTag(ctx context.Context, projectUid, tagName string) (*EnvironmentTag, error) {
+	exist, environmentTag, err := uc.environmentTagRepo.GetEnvironmentTagByName(ctx, projectUid, tagName)
+	if err != nil {
+		uc.log.Errorf("get environment tag failed: %v", err)
+		return nil, err
+	}
+	if exist {
+		return environmentTag, nil
+	}
+	newTag, err := uc.newEnvironmentTag(projectUid, tagName)
+	if err != nil {
+		uc.log.Errorf("new environment tag failed: %v", err)
+		return nil, err
+	}
+	err = uc.environmentTagRepo.CreateEnvironmentTag(ctx, newTag)
+	if err != nil {
+		uc.log.Errorf("create environment tag failed: %v", err)
+		return nil, err
+	}
+	return newTag, nil
+}

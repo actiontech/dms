@@ -80,14 +80,6 @@ type ImportDBServicesCheckReply struct {
 	base.GenericResp
 }
 
-// swagger:model ImportDBServiceV2
-type ImportDBService struct {
-	ImportDBServiceCommon
-	// DB Service environment tag uid
-	// Required: true
-	EnvironmentTagUID string `json:"environment_tag_uid"`
-}
-
 // swagger:parameters ImportDBServicesOfProjectsCheckV2
 type ImportDBServicesOfProjectsCheckReq struct {
 	// DBServices file.
@@ -206,8 +198,8 @@ type ImportDBServicesOfOneProjectReq struct {
 	DBServices []ImportDBService `json:"db_services" validate:"required"`
 }
 
-// swagger:model ImportDBServiceCommon
-type ImportDBServiceCommon struct {
+// swagger:model ImportDBServiceV2
+type ImportDBService struct {
 	// db service name
 	Name string `json:"name"`
 	// db service DB type
@@ -220,6 +212,9 @@ type ImportDBServiceCommon struct {
 	User string `json:"user"`
 	// db service admin encrypted password
 	Password string `json:"password"`
+	// DB Service environment tag uid
+	// Required: true
+	EnvironmentTagName string `json:"environment_tag_name"`
 	// DB Service maintenance time
 	MaintenanceTimes []*dmsCommonV1.MaintenanceTime `json:"maintenance_times"`
 	// DB desc
