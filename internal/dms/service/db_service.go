@@ -392,26 +392,24 @@ func (d *DMSService) convertBizDBServiceArgs2ImportDBService(dbs []*biz.BizDBSer
 	ret := make([]*dmsV2.ImportDBService, len(dbs))
 	for i, u := range dbs {
 		ret[i] = &dmsV2.ImportDBService{
-			ImportDBServiceCommon: dmsV2.ImportDBServiceCommon{
-				Name:             u.Name,
-				DBType:           u.DBType,
-				Host:             u.Host,
-				Port:             u.Port,
-				User:             u.User,
-				Password:         *u.Password,
-				MaintenanceTimes: d.convertPeriodToMaintenanceTime(u.MaintenancePeriod),
-				Desc:             *u.Desc,
-				Source:           u.Source,
-				ProjectUID:       u.ProjectUID,
-				SQLEConfig: &dmsCommonV1.SQLEConfig{
-					RuleTemplateName: u.RuleTemplateName,
-					RuleTemplateID:   u.RuleTemplateID,
-					SQLQueryConfig:   nil,
-				},
-				AdditionalParams: nil,
-				IsEnableMasking:  false,
+			Name:             u.Name,
+			DBType:           u.DBType,
+			Host:             u.Host,
+			Port:             u.Port,
+			User:             u.User,
+			Password:         *u.Password,
+			MaintenanceTimes: d.convertPeriodToMaintenanceTime(u.MaintenancePeriod),
+			Desc:             *u.Desc,
+			Source:           u.Source,
+			ProjectUID:       u.ProjectUID,
+			SQLEConfig: &dmsCommonV1.SQLEConfig{
+				RuleTemplateName: u.RuleTemplateName,
+				RuleTemplateID:   u.RuleTemplateID,
+				SQLQueryConfig:   nil,
 			},
-			EnvironmentTagUID: u.EnvironmentTagUID,
+			AdditionalParams:   nil,
+			IsEnableMasking:    false,
+			EnvironmentTagName: u.EnvironmentTagName,
 		}
 
 		if u.AdditionalParams != nil {
@@ -440,28 +438,32 @@ func (d *DMSService) convertBizDBServiceArgs2ImportDBService(dbs []*biz.BizDBSer
 	return ret
 }
 
-func (d *DMSService) convertImportDBService2BizDBService(importDbs []dmsV2.ImportDBService) []*biz.DBService {
+func (d *DMSService) convertImportDBService2BizDBService(ctx context.Context, importDbs []dmsV2.ImportDBService, currentUserUid string) ([]*biz.DBService, error) {
 	ret := make([]*biz.DBService, len(importDbs))
 	for i, u := range importDbs {
 		ret[i] = &biz.DBService{
 			UID:               "",
-			Name:              u.ImportDBServiceCommon.Name,
-			Desc:              u.ImportDBServiceCommon.Desc,
-			DBType:            u.ImportDBServiceCommon.DBType,
-			Host:              u.ImportDBServiceCommon.Host,
-			Port:              u.ImportDBServiceCommon.Port,
-			User:              u.ImportDBServiceCommon.User,
-			Password:          u.ImportDBServiceCommon.Password,
+			Name:              u.Name,
+			Desc:              u.Desc,
+			DBType:            u.DBType,
+			Host:              u.Host,
+			Port:              u.Port,
+			User:              u.User,
+			Password:          u.Password,
 			AdditionalParams:  nil,
-			ProjectUID:        u.ImportDBServiceCommon.ProjectUID,
-			MaintenancePeriod: d.convertMaintenanceTimeToPeriod(u.ImportDBServiceCommon.MaintenanceTimes),
-			Source:            u.ImportDBServiceCommon.Source,
+			ProjectUID:        u.ProjectUID,
+			MaintenancePeriod: d.convertMaintenanceTimeToPeriod(u.MaintenanceTimes),
+			Source:            u.Source,
 			SQLEConfig:        nil,
-			IsMaskingSwitch:   u.ImportDBServiceCommon.IsEnableMasking,
+			IsMaskingSwitch:   u.IsEnableMasking,
 			AccountPurpose:    "",
 		}
+		tag, err := d.EnvironmentTagUsecase.GetOrCreateEnvironmentTag(ctx, u.ProjectUID, u.EnvironmentTagName)
+		if err != nil {
+			return nil, fmt.Errorf("get or create environment tag failed: %v", err)
+		}
 		ret[i].EnvironmentTag = &dmsCommonV1.EnvironmentTag{
-			UID: u.EnvironmentTagUID,
+			UID: tag.UID,
 		}
 		if u.AdditionalParams != nil {
 			additionalParams := make([]*params.Param, 0, len(u.AdditionalParams))
@@ -491,7 +493,7 @@ func (d *DMSService) convertImportDBService2BizDBService(importDbs []dmsV2.Impor
 			ret[i].SQLEConfig = sqlConfig
 		}
 	}
-	return ret
+	return ret, nil
 }
 
 func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV2.ListDBServiceReq, currentUserUid string) (reply *dmsCommonV2.ListDBServiceReply, err error) {
