@@ -129,12 +129,13 @@ func (p *PluginUsecase) DelProjectAfterHandle(ctx context.Context, projectUid st
 
 func (p *PluginUsecase) AddDBServicePreCheck(ctx context.Context, ds *DBService) error {
 	dbService := &dmsV1.IPluginDBService{
-		Name:             ds.Name,
-		DBType:           ds.DBType,
-		Host:             ds.Host,
-		Port:             ds.Port,
-		User:             ds.User,
-		Business:         ds.Business,
+		Name:   ds.Name,
+		DBType: ds.DBType,
+		Host:   ds.Host,
+		Port:   ds.Port,
+		User:   ds.User,
+		// Business:         ds.Business,
+		EnvironmentTag:   ds.EnvironmentTag,
 		AdditionalParams: ds.AdditionalParams,
 	}
 	if ds.SQLEConfig != nil {

@@ -1677,13 +1677,6 @@
           },
           {
             "type": "string",
-            "x-go-name": "FilterByBusinessTag",
-            "description": "filter project by business tag",
-            "name": "filter_by_business_tag",
-            "in": "query"
-          },
-          {
-            "type": "string",
             "x-go-name": "FilterByDesc",
             "description": "filter the Project By Project description",
             "name": "filter_by_desc",
@@ -2037,6 +2030,7 @@
         ],
         "summary": "Import DBServices.",
         "operationId": "ImportDBServicesOfProjects",
+        "deprecated": true,
         "parameters": [
           {
             "description": "new db services",
@@ -2179,12 +2173,12 @@
     },
     "/v1/dms/projects/tips": {
       "get": {
-        "description": "Get project tips.",
         "tags": [
           "Project"
         ],
-        "summary": "TODO This API is deprecated and will be removed soon.",
+        "summary": "Get project tips.",
         "operationId": "GetProjectTips",
+        "deprecated": true,
         "parameters": [
           {
             "type": "string",
@@ -3175,13 +3169,6 @@
           },
           {
             "type": "string",
-            "x-go-name": "FilterByEnvironmentTag",
-            "description": "filter db services by environment tag",
-            "name": "filter_by_environment_tag",
-            "in": "query"
-          },
-          {
-            "type": "string",
             "x-go-name": "FuzzyKeyword",
             "description": "the db service fuzzy keyword,include host/port",
             "name": "fuzzy_keyword",
@@ -3655,13 +3642,11 @@
             "required": true
           },
           {
-            "description": "environment tag to be created",
-            "name": "environment_tag",
+            "type": "string",
+            "description": "the name of environment tag to be created",
+            "name": "environment_name",
             "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/CreateEnvironmentTagReq"
-            }
+            "required": true
           }
         ],
         "responses": {
@@ -3703,13 +3688,11 @@
             "required": true
           },
           {
-            "description": "the environment tag to be updated",
-            "name": "environment_tag",
+            "type": "string",
+            "description": "the name of environment tag to be updated",
+            "name": "environment_name",
             "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UpdateEnvironmentTagReq"
-            }
+            "required": true
           }
         ],
         "responses": {
@@ -5217,16 +5200,9 @@
           },
           {
             "type": "string",
-            "x-go-name": "FilterByBusiness",
-            "description": "TODO This parameter is deprecated and will be removed soon.\nthe db service business name",
-            "name": "filter_by_business",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "x-go-name": "FilterByEnvironmentTag",
+            "x-go-name": "FilterByEnvironmentTagUID",
             "description": "filter db services by environment tag",
-            "name": "filter_by_environment_tag",
+            "name": "filter_by_environment_tag_uid",
             "in": "query"
           },
           {
@@ -5288,9 +5264,9 @@
         ],
         "responses": {
           "200": {
-            "description": "ListGlobalDBServicesReply",
+            "description": "ListGlobalDBServicesReplyV2",
             "schema": {
-              "$ref": "#/definitions/ListGlobalDBServicesReply"
+              "$ref": "#/definitions/ListGlobalDBServicesReplyV2"
             }
           },
           "default": {
@@ -5393,9 +5369,9 @@
         ],
         "responses": {
           "200": {
-            "description": "ListProjectReply",
+            "description": "ListProjectReplyV2",
             "schema": {
-              "$ref": "#/definitions/ListProjectReply"
+              "$ref": "#/definitions/ListProjectReplyV2"
             }
           },
           "default": {
@@ -5419,15 +5395,15 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/AddProjectReq"
+              "$ref": "#/definitions/AddProjectReqV2"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "AddProjectReply",
+            "description": "AddProjectReplyV2",
             "schema": {
-              "$ref": "#/definitions/AddProjectReply"
+              "$ref": "#/definitions/AddProjectReplyV2"
             }
           },
           "default": {
@@ -5453,7 +5429,41 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ImportProjectsReq"
+              "$ref": "#/definitions/ImportProjectsReqV2"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v2/dms/projects/import_db_services": {
+      "post": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Import DBServices.",
+        "operationId": "ImportDBServicesOfProjectsV2",
+        "parameters": [
+          {
+            "description": "new db services",
+            "name": "db_services",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ImportDBServicesOfProjectsReqV2"
             }
           }
         ],
@@ -5487,6 +5497,15 @@
         ],
         "summary": "Import DBServices.",
         "operationId": "ImportDBServicesOfProjectsCheckV2",
+        "parameters": [
+          {
+            "type": "file",
+            "x-go-name": "DBServicesFile",
+            "description": "DBServices file.",
+            "name": "db_services_file",
+            "in": "formData"
+          }
+        ],
         "responses": {
           "200": {
             "$ref": "#/responses/ImportDBServicesCheckCsvReply"
@@ -5510,11 +5529,20 @@
         ],
         "summary": "Preview import projects.",
         "operationId": "PreviewImportProjectsV2",
+        "parameters": [
+          {
+            "type": "file",
+            "x-go-name": "ProjectsFile",
+            "description": "projects file.",
+            "name": "projects_file",
+            "in": "formData"
+          }
+        ],
         "responses": {
           "200": {
-            "description": "PreviewImportProjectsReply",
+            "description": "PreviewImportProjectsReplyV2",
             "schema": {
-              "$ref": "#/definitions/PreviewImportProjectsReply"
+              "$ref": "#/definitions/PreviewImportProjectsReplyV2"
             }
           },
           "default": {
@@ -5547,7 +5575,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateProjectReq"
+              "$ref": "#/definitions/UpdateProjectReqV2"
             }
           }
         ],
@@ -5601,13 +5629,6 @@
             "x-go-name": "OrderBy",
             "description": "Multiple of [\"name\"], default is [\"name\"]\nname DBServiceOrderByName",
             "name": "order_by",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "x-go-name": "FilterByBusiness",
-            "description": "the db service business name",
-            "name": "filter_by_business",
             "in": "query"
           },
           {
@@ -5676,9 +5697,9 @@
           },
           {
             "type": "string",
-            "x-go-name": "FilterByEnvironmentTag",
+            "x-go-name": "FilterByEnvironmentTagUID",
             "description": "filter db services by environment tag",
-            "name": "filter_by_environment_tag",
+            "name": "filter_by_environment_tag_uid",
             "in": "query"
           },
           {
@@ -5698,9 +5719,9 @@
         ],
         "responses": {
           "200": {
-            "description": "ListDBServiceReply",
+            "description": "ListDBServiceReplyV2",
             "schema": {
-              "$ref": "#/definitions/ListDBServiceReply"
+              "$ref": "#/definitions/ListDBServiceReplyV2"
             }
           },
           "default": {
@@ -5731,7 +5752,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/AddDBServiceReq"
+              "$ref": "#/definitions/AddDBServiceReqV2"
             }
           }
         ],
@@ -5772,7 +5793,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ImportDBServicesOfOneProjectReq"
+              "$ref": "#/definitions/ImportDBServicesOfOneProjectReqV2"
             }
           }
         ],
@@ -5863,7 +5884,7 @@
             "name": "db_service",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/UpdateDBServiceReq"
+              "$ref": "#/definitions/UpdateDBServiceReqV2"
             }
           }
         ],
@@ -5940,6 +5961,16 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddDBServiceReqV2": {
+      "type": "object",
+      "properties": {
+        "db_service": {
+          "$ref": "#/definitions/DBServiceV2"
+        }
+      },
+      "x-go-name": "AddDBServiceReq",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "AddDBServiceSyncTaskReply": {
       "type": "object",
@@ -6167,14 +6198,54 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "AddProjectReplyV2": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "Add Project reply",
+          "type": "object",
+          "properties": {
+            "uid": {
+              "description": "Project UID",
+              "type": "string",
+              "x-go-name": "Uid"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-name": "AddProjectReply",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
     "AddProjectReq": {
       "type": "object",
       "properties": {
         "project": {
-          "$ref": "#/definitions/Project"
+          "$ref": "#/definitions/ProjectV1"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddProjectReqV2": {
+      "type": "object",
+      "properties": {
+        "project": {
+          "$ref": "#/definitions/ProjectV2"
+        }
+      },
+      "x-go-name": "AddProjectReq",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "AddRoleReply": {
       "type": "object",
@@ -6583,18 +6654,33 @@
     "BusinessTag": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "integer",
-          "format": "uint64",
-          "x-go-name": "ID"
-        },
         "name": {
-          "description": "业务标签至少1个字符，最多50个字符",
+          "description": "业务标签最多50个字符",
           "type": "string",
           "x-go-name": "Name"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "UID"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "BusinessTagCommon": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "业务标签最多50个字符",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "UID"
+        }
+      },
+      "x-go-name": "BusinessTag",
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
     },
     "CBOperationLog": {
       "type": "object",
@@ -6969,8 +7055,9 @@
     "CreateEnvironmentTagReq": {
       "type": "object",
       "properties": {
-        "environment_tag": {
-          "$ref": "#/definitions/EnvironmentTag"
+        "environment_name": {
+          "type": "string",
+          "x-go-name": "Name"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -6986,7 +7073,6 @@
         "user",
         "password",
         "business",
-        "environment_tag",
         "maintenance_times"
       ],
       "properties": {
@@ -7005,7 +7091,7 @@
           "x-go-name": "BackupMaxRows"
         },
         "business": {
-          "description": "TODO This parameter is deprecated and will be removed soon.\nDB Service business name",
+          "description": "DB Service business name",
           "type": "string",
           "x-go-name": "Business"
         },
@@ -7023,9 +7109,6 @@
           "description": "backup switch",
           "type": "boolean",
           "x-go-name": "EnableBackup"
-        },
-        "environment_tag": {
-          "$ref": "#/definitions/EnvironmentTag"
         },
         "host": {
           "description": "DB Service Host",
@@ -7187,6 +7270,98 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DBServiceV2": {
+      "type": "object",
+      "required": [
+        "name",
+        "db_type",
+        "host",
+        "port",
+        "user",
+        "password",
+        "environment_tag_uid",
+        "maintenance_times"
+      ],
+      "properties": {
+        "additional_params": {
+          "description": "DB Service Custom connection parameters",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdditionalParam"
+          },
+          "x-go-name": "AdditionalParams"
+        },
+        "backup_max_rows": {
+          "description": "backup switch",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "BackupMaxRows"
+        },
+        "db_type": {
+          "description": "Service DB type",
+          "type": "string",
+          "x-go-name": "DBType"
+        },
+        "desc": {
+          "description": "Service description",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "enable_backup": {
+          "description": "backup switch",
+          "type": "boolean",
+          "x-go-name": "EnableBackup"
+        },
+        "environment_tag_uid": {
+          "description": "DB Service environment tag",
+          "type": "string",
+          "x-go-name": "EnvironmentTagUID"
+        },
+        "host": {
+          "description": "DB Service Host",
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "is_enable_masking": {
+          "description": "data masking switch",
+          "type": "boolean",
+          "x-go-name": "IsEnableMasking"
+        },
+        "maintenance_times": {
+          "description": "DB Service maintenance time\nempty value means that maintenance time is unlimited",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MaintenanceTime"
+          },
+          "x-go-name": "MaintenanceTimes"
+        },
+        "name": {
+          "description": "Service name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "password": {
+          "description": "DB Service admin password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "port": {
+          "description": "DB Service port",
+          "type": "string",
+          "x-go-name": "Port"
+        },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
+        },
+        "user": {
+          "description": "DB Service admin user",
+          "type": "string",
+          "x-go-name": "User"
+        }
+      },
+      "x-go-name": "DBService",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "DBServicesConnectionItem": {
       "type": "object",
@@ -7461,15 +7636,14 @@
     "EnvironmentTag": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "integer",
-          "format": "uint64",
-          "x-go-name": "ID"
-        },
         "name": {
-          "description": "环境属性标签至少1个字符，最多50个字符",
+          "description": "环境属性标签最多50个字符",
           "type": "string",
           "x-go-name": "Name"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "UID"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -8482,9 +8656,6 @@
     },
     "ImportDBService": {
       "type": "object",
-      "required": [
-        "environment_tag"
-      ],
       "properties": {
         "additional_params": {
           "description": "DB Service Custom connection parameters",
@@ -8495,7 +8666,7 @@
           "x-go-name": "AdditionalParams"
         },
         "business": {
-          "description": "TODO This parameter is deprecated and will be removed soon.\nthe db service business name",
+          "description": "the db service business name\nDeprecated: the business field is replaced with the environmentTag of the v2 interface.",
           "type": "string",
           "x-go-name": "Business"
         },
@@ -8508,9 +8679,6 @@
           "description": "DB desc",
           "type": "string",
           "x-go-name": "Desc"
-        },
-        "environment_tag": {
-          "$ref": "#/definitions/EnvironmentTag"
         },
         "host": {
           "description": "db service host",
@@ -8566,6 +8734,90 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "ImportDBServiceV2": {
+      "type": "object",
+      "required": [
+        "environment_tag_name"
+      ],
+      "properties": {
+        "additional_params": {
+          "description": "DB Service Custom connection parameters",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdditionalParam"
+          },
+          "x-go-name": "AdditionalParams"
+        },
+        "db_type": {
+          "description": "db service DB type",
+          "type": "string",
+          "x-go-name": "DBType"
+        },
+        "desc": {
+          "description": "DB desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "environment_tag_name": {
+          "description": "DB Service environment tag uid",
+          "type": "string",
+          "x-go-name": "EnvironmentTagName"
+        },
+        "host": {
+          "description": "db service host",
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "is_enable_masking": {
+          "description": "is enable masking",
+          "type": "boolean",
+          "x-go-name": "IsEnableMasking"
+        },
+        "maintenance_times": {
+          "description": "DB Service maintenance time",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MaintenanceTime"
+          },
+          "x-go-name": "MaintenanceTimes"
+        },
+        "name": {
+          "description": "db service name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "password": {
+          "description": "db service admin encrypted password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "port": {
+          "description": "db service port",
+          "type": "string",
+          "x-go-name": "Port"
+        },
+        "project_uid": {
+          "description": "DB project uid",
+          "type": "string",
+          "x-go-name": "ProjectUID"
+        },
+        "source": {
+          "description": "DB source",
+          "type": "string",
+          "x-go-name": "Source"
+        },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
+        },
+        "user": {
+          "description": "db service admin user",
+          "type": "string",
+          "x-go-name": "User"
+        }
+      },
+      "x-go-name": "ImportDBService",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
     "ImportDBServicesCheckReply": {
       "type": "object",
       "properties": {
@@ -8591,6 +8843,32 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "ImportDBServicesCheckReplyV2": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "db services",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImportDBServiceV2"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-name": "ImportDBServicesCheckReply",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
     "ImportDBServicesOfOneProjectReq": {
       "type": "object",
       "properties": {
@@ -8603,6 +8881,20 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ImportDBServicesOfOneProjectReqV2": {
+      "type": "object",
+      "properties": {
+        "db_services": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImportDBServiceV2"
+          },
+          "x-go-name": "DBServices"
+        }
+      },
+      "x-go-name": "ImportDBServicesOfOneProjectReq",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "ImportDBServicesOfProjectsReq": {
       "type": "object",
@@ -8617,19 +8909,30 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "ImportDBServicesOfProjectsReqV2": {
+      "type": "object",
+      "properties": {
+        "db_services": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImportDBServiceV2"
+          },
+          "x-go-name": "DBServices"
+        }
+      },
+      "x-go-name": "ImportDBServicesOfProjectsReq",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
     "ImportProjects": {
       "type": "object",
       "properties": {
         "business": {
-          "description": "TODO This parameter is deprecated and will be removed soon.\nbusiness",
+          "description": "business",
           "type": "array",
           "items": {
             "type": "string"
           },
           "x-go-name": "Business"
-        },
-        "business_tag": {
-          "$ref": "#/definitions/BusinessTag"
         },
         "desc": {
           "description": "Project desc",
@@ -8656,6 +8959,40 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ImportProjectsReqV2": {
+      "type": "object",
+      "properties": {
+        "projects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImportProjectsV2"
+          },
+          "x-go-name": "Projects"
+        }
+      },
+      "x-go-name": "ImportProjectsReq",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
+    "ImportProjectsV2": {
+      "type": "object",
+      "properties": {
+        "business_tag": {
+          "$ref": "#/definitions/BusinessTag"
+        },
+        "desc": {
+          "description": "Project desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "name": {
+          "description": "Project name",
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-name": "ImportProjects",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "LDAPConfiguration": {
       "type": "object",
@@ -8928,9 +9265,6 @@
           "type": "boolean",
           "x-go-name": "EnableBackup"
         },
-        "environment_tag": {
-          "$ref": "#/definitions/EnvironmentTag"
-        },
         "host": {
           "description": "db service host",
           "type": "string",
@@ -9071,6 +9405,37 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "ListDBServiceReplyV2": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List db service reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListDBServiceV2"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-name": "ListDBServiceReply",
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
     },
     "ListDBServiceSyncTask": {
       "type": "object",
@@ -9233,6 +9598,136 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListDBServiceV2": {
+      "type": "object",
+      "properties": {
+        "additional_params": {
+          "description": "DB Service Custom connection parameters",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdditionalParam"
+          },
+          "x-go-name": "AdditionalParams"
+        },
+        "audit_plan_types": {
+          "description": "audit plan types",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AuditPlanTypes"
+          },
+          "x-go-name": "AuditPlanTypes"
+        },
+        "backup_max_rows": {
+          "description": "backup max rows",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "BackupMaxRows"
+        },
+        "db_type": {
+          "description": "db service DB type",
+          "type": "string",
+          "x-go-name": "DBType"
+        },
+        "desc": {
+          "description": "DB desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "enable_backup": {
+          "description": "backup switch",
+          "type": "boolean",
+          "x-go-name": "EnableBackup"
+        },
+        "environment_tag": {
+          "$ref": "#/definitions/EnvironmentTag"
+        },
+        "host": {
+          "description": "db service host",
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "instance_audit_plan_id": {
+          "description": "instance audit plan id",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "InstanceAuditPlanID"
+        },
+        "is_enable_masking": {
+          "description": "is enable masking",
+          "type": "boolean",
+          "x-go-name": "IsEnableMasking"
+        },
+        "last_connection_test_error_message": {
+          "description": "DB connect test error message",
+          "type": "string",
+          "x-go-name": "LastConnectionTestErrorMessage"
+        },
+        "last_connection_test_status": {
+          "description": "DB connect test status\nconnect_success LastConnectionTestStatusSuccess\nconnect_failed LastConnectionTestStatusFailed",
+          "type": "string",
+          "enum": [
+            "connect_success",
+            "connect_failed"
+          ],
+          "x-go-enum-desc": "connect_success LastConnectionTestStatusSuccess\nconnect_failed LastConnectionTestStatusFailed",
+          "x-go-name": "LastConnectionTestStatus"
+        },
+        "last_connection_test_time": {
+          "description": "DB connection test time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "LastConnectionTestTime"
+        },
+        "maintenance_times": {
+          "description": "DB Service maintenance time",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MaintenanceTime"
+          },
+          "x-go-name": "MaintenanceTimes"
+        },
+        "name": {
+          "description": "db service name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "password": {
+          "description": "db service admin encrypted password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "port": {
+          "description": "db service port",
+          "type": "string",
+          "x-go-name": "Port"
+        },
+        "project_uid": {
+          "description": "DB project uid",
+          "type": "string",
+          "x-go-name": "ProjectUID"
+        },
+        "source": {
+          "description": "DB source",
+          "type": "string",
+          "x-go-name": "Source"
+        },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
+        },
+        "uid": {
+          "description": "db service uid",
+          "type": "string",
+          "x-go-name": "DBServiceUid"
+        },
+        "user": {
+          "description": "db service admin user",
+          "type": "string",
+          "x-go-name": "User"
+        }
+      },
+      "x-go-name": "ListDBService",
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
     },
     "ListDataExportTaskSQL": {
       "type": "object",
@@ -9425,9 +9920,132 @@
           "x-go-name": "BackupMaxRows"
         },
         "business": {
-          "description": "TODO This parameter is deprecated and will be removed soon.\nthe db service business name",
+          "description": "TODO This parameter is deprecated and will be removed soon.\nthe db service business name\nDeprecated: the business field is replaced with the environmentTag of the v2 interface.",
           "type": "string",
           "x-go-name": "Business"
+        },
+        "db_type": {
+          "description": "db service DB type",
+          "type": "string",
+          "x-go-name": "DBType"
+        },
+        "desc": {
+          "description": "DB desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "enable_backup": {
+          "description": "backup switch",
+          "type": "boolean",
+          "x-go-name": "EnableBackup"
+        },
+        "host": {
+          "description": "db service host",
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "is_enable_audit": {
+          "description": "is enable audit",
+          "type": "boolean",
+          "x-go-name": "IsEnableAudit"
+        },
+        "is_enable_masking": {
+          "description": "is enable masking",
+          "type": "boolean",
+          "x-go-name": "IsEnableMasking"
+        },
+        "last_connection_test_error_message": {
+          "description": "DB connect test error message",
+          "type": "string",
+          "x-go-name": "LastConnectionTestErrorMessage"
+        },
+        "last_connection_test_status": {
+          "description": "DB connect test status\nconnect_success LastConnectionTestStatusSuccess\nconnect_failed LastConnectionTestStatusFailed",
+          "type": "string",
+          "enum": [
+            "connect_success",
+            "connect_failed"
+          ],
+          "x-go-enum-desc": "connect_success LastConnectionTestStatusSuccess\nconnect_failed LastConnectionTestStatusFailed",
+          "x-go-name": "LastConnectionTestStatus"
+        },
+        "last_connection_test_time": {
+          "description": "DB connection test time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "LastConnectionTestTime"
+        },
+        "maintenance_times": {
+          "description": "DB Service maintenance time",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MaintenanceTime"
+          },
+          "x-go-name": "MaintenanceTimes"
+        },
+        "name": {
+          "description": "db service name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "port": {
+          "description": "db service port",
+          "type": "string",
+          "x-go-name": "Port"
+        },
+        "project_name": {
+          "description": "db service project_name",
+          "type": "string",
+          "x-go-name": "ProjectName"
+        },
+        "project_uid": {
+          "description": "DB project uid",
+          "type": "string",
+          "x-go-name": "ProjectUID"
+        },
+        "source": {
+          "description": "DB source",
+          "type": "string",
+          "x-go-name": "Source"
+        },
+        "uid": {
+          "description": "db service uid",
+          "type": "string",
+          "x-go-name": "DBServiceUid"
+        },
+        "unfinished_workflow_num": {
+          "description": "db service unfinished workflow num",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "UnfinishedWorkflowNum"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListGlobalDBServiceTips": {
+      "type": "object",
+      "properties": {
+        "db_type": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "DBType"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListGlobalDBServiceV2": {
+      "type": "object",
+      "required": [
+        "environment_tag"
+      ],
+      "properties": {
+        "backup_max_rows": {
+          "description": "backup switch",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "BackupMaxRows"
         },
         "db_type": {
           "description": "db service DB type",
@@ -9528,20 +10146,8 @@
           "x-go-name": "UnfinishedWorkflowNum"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "ListGlobalDBServiceTips": {
-      "type": "object",
-      "properties": {
-        "db_type": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "x-go-name": "DBType"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-name": "ListGlobalDBService",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "ListGlobalDBServicesReply": {
       "type": "object",
@@ -9572,6 +10178,37 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListGlobalDBServicesReplyV2": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List global db service reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListGlobalDBServiceV2"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-name": "ListGlobalDBServicesReply",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "ListGlobalDBServicesTipsReply": {
       "type": "object",
@@ -9948,8 +10585,68 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
-    "ListProject": {
-      "description": "A dms Project",
+    "ListProjectReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List project reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListProjectV1"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "ListProjectReplyV2": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List project reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListProjectV2"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-name": "ListProjectReply",
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
+    },
+    "ListProjectV1": {
       "type": "object",
       "properties": {
         "archived": {
@@ -9958,15 +10655,12 @@
           "x-go-name": "Archived"
         },
         "business": {
-          "description": "TODO This parameter is deprecated and will be removed soon.\nProject business",
+          "description": "Project business",
           "type": "array",
           "items": {
             "$ref": "#/definitions/Business"
           },
           "x-go-name": "Business"
-        },
-        "business_tag": {
-          "$ref": "#/definitions/BusinessTag"
         },
         "create_time": {
           "description": "create time",
@@ -10010,37 +10704,59 @@
           "x-go-name": "ProjectUid"
         }
       },
+      "x-go-name": "ListProject",
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
-    "ListProjectReply": {
+    "ListProjectV2": {
       "type": "object",
       "properties": {
-        "code": {
-          "description": "code",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Code"
+        "archived": {
+          "description": "Project is archived",
+          "type": "boolean",
+          "x-go-name": "Archived"
         },
-        "data": {
-          "description": "List project reply",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ListProject"
-          },
-          "x-go-name": "Data"
+        "business_tag": {
+          "$ref": "#/definitions/BusinessTagCommon"
         },
-        "message": {
-          "description": "message",
+        "create_time": {
+          "description": "create time",
           "type": "string",
-          "x-go-name": "Message"
+          "format": "date-time",
+          "x-go-name": "CreateTime"
         },
-        "total_nums": {
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Total"
+        "create_user": {
+          "$ref": "#/definitions/UidWithName"
+        },
+        "desc": {
+          "description": "Project desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "name": {
+          "description": "Project name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "project_priority": {
+          "description": "project priority\nhigh ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low",
+            "unknown"
+          ],
+          "x-go-enum-desc": "high ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
+          "x-go-name": "ProjectPriority"
+        },
+        "uid": {
+          "description": "Project uid",
+          "type": "string",
+          "x-go-name": "ProjectUid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-name": "ListProject",
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
     },
     "ListRole": {
       "description": "A dms role",
@@ -10737,15 +11453,12 @@
       "type": "object",
       "properties": {
         "business": {
-          "description": "TODO This parameter is deprecated and will be removed soon.\nbusiness",
+          "description": "business",
           "type": "array",
           "items": {
             "type": "string"
           },
           "x-go-name": "Business"
-        },
-        "business_tag": {
-          "$ref": "#/definitions/BusinessTag"
         },
         "desc": {
           "description": "Project desc",
@@ -10785,20 +11498,79 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
-    "Project": {
-      "description": "A Project",
+    "PreviewImportProjectsReplyV2": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "list preview import projects",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PreviewImportProjectsV2"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-name": "PreviewImportProjectsReply",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
+    "PreviewImportProjectsV2": {
+      "type": "object",
+      "properties": {
+        "business_tag": {
+          "$ref": "#/definitions/BusinessTag"
+        },
+        "desc": {
+          "description": "Project desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "name": {
+          "description": "Project name",
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-name": "PreviewImportProjects",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
+    "ProjectTips": {
       "type": "object",
       "properties": {
         "business": {
-          "description": "TODO This parameter is deprecated and will be removed soon.\nproject business",
           "type": "array",
           "items": {
             "type": "string"
           },
           "x-go-name": "Business"
         },
-        "business_tag": {
-          "$ref": "#/definitions/BusinessTag"
+        "is_fixed_business": {
+          "type": "boolean",
+          "x-go-name": "IsFixedBusiness"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ProjectV1": {
+      "type": "object",
+      "properties": {
+        "business": {
+          "description": "project business",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Business"
         },
         "desc": {
           "description": "project desc",
@@ -10806,7 +11578,7 @@
           "x-go-name": "Desc"
         },
         "is_fixed_business": {
-          "description": "TODO This parameter is deprecated and will be removed soon.\nis fixed business",
+          "description": "is fixed business",
           "type": "boolean",
           "x-go-name": "IsFixedBusiness"
         },
@@ -10828,25 +11600,40 @@
           "x-go-name": "ProjectPriority"
         }
       },
+      "x-go-name": "Project",
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
-    "ProjectTips": {
+    "ProjectV2": {
       "type": "object",
-      "title": "TODO This model will be removed due to it's related API is deprecated and will be removed soon.",
       "properties": {
-        "business": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "x-go-name": "Business"
+        "business_tag": {
+          "$ref": "#/definitions/BusinessTag"
         },
-        "is_fixed_business": {
-          "type": "boolean",
-          "x-go-name": "IsFixedBusiness"
+        "desc": {
+          "description": "project desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "name": {
+          "description": "project name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "project_priority": {
+          "description": "project priority\nhigh ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low",
+            "unknown"
+          ],
+          "x-go-enum-desc": "high ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
+          "x-go-name": "ProjectPriority"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-name": "Project",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "RegisterDMSPluginReply": {
       "type": "object",
@@ -11494,7 +12281,6 @@
         "port",
         "user",
         "business",
-        "environment_tag",
         "maintenance_times"
       ],
       "properties": {
@@ -11513,7 +12299,7 @@
           "x-go-name": "BackupMaxRows"
         },
         "business": {
-          "description": "TODO This parameter is deprecated and will be removed soon.\nDB Service business name",
+          "description": "DB Service business name",
           "type": "string",
           "x-go-name": "Business"
         },
@@ -11531,9 +12317,6 @@
           "description": "backup switch",
           "type": "boolean",
           "x-go-name": "EnableBackup"
-        },
-        "environment_tag": {
-          "$ref": "#/definitions/EnvironmentTag"
         },
         "host": {
           "description": "DB Service Host",
@@ -11612,6 +12395,16 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "UpdateDBServiceReqV2": {
+      "type": "object",
+      "properties": {
+        "db_service": {
+          "$ref": "#/definitions/UpdateDBServiceV2"
+        }
+      },
+      "x-go-name": "UpdateDBServiceReq",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
     "UpdateDBServiceSyncTaskReq": {
       "type": "object",
       "properties": {
@@ -11621,11 +12414,97 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "UpdateDBServiceV2": {
+      "type": "object",
+      "required": [
+        "db_type",
+        "host",
+        "port",
+        "user",
+        "environment_tag_uid",
+        "maintenance_times"
+      ],
+      "properties": {
+        "additional_params": {
+          "description": "DB Service Custom connection parameters",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdditionalParam"
+          },
+          "x-go-name": "AdditionalParams"
+        },
+        "backup_max_rows": {
+          "description": "backup switch",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "BackupMaxRows"
+        },
+        "db_type": {
+          "description": "Service DB type",
+          "type": "string",
+          "x-go-name": "DBType"
+        },
+        "desc": {
+          "description": "Service description",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "enable_backup": {
+          "description": "backup switch",
+          "type": "boolean",
+          "x-go-name": "EnableBackup"
+        },
+        "environment_tag_uid": {
+          "description": "DB Service environment tag",
+          "type": "string",
+          "x-go-name": "EnvironmentTagUID"
+        },
+        "host": {
+          "description": "DB Service Host",
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "is_enable_masking": {
+          "description": "data masking switch",
+          "type": "boolean",
+          "x-go-name": "IsEnableMasking"
+        },
+        "maintenance_times": {
+          "description": "DB Service maintenance time",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MaintenanceTime"
+          },
+          "x-go-name": "MaintenanceTimes"
+        },
+        "password": {
+          "description": "DB Service admin password",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "port": {
+          "description": "DB Service port",
+          "type": "string",
+          "x-go-name": "Port"
+        },
+        "sqle_config": {
+          "$ref": "#/definitions/SQLEConfig"
+        },
+        "user": {
+          "description": "DB Service admin user",
+          "type": "string",
+          "x-go-name": "User"
+        }
+      },
+      "x-go-name": "UpdateDBService",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
     "UpdateEnvironmentTagReq": {
       "type": "object",
       "properties": {
-        "environment_tag": {
-          "$ref": "#/definitions/EnvironmentTag"
+        "environment_name": {
+          "type": "string",
+          "x-go-name": "Name"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -11753,16 +12632,13 @@
           },
           "x-go-name": "Business"
         },
-        "business_tag": {
-          "$ref": "#/definitions/BusinessTag"
-        },
         "desc": {
           "description": "Project desc",
           "type": "string",
           "x-go-name": "Desc"
         },
         "is_fixed_business": {
-          "description": "is fixed business\nTODO This parameter is deprecated and will be removed soon.",
+          "description": "is fixed business",
           "type": "boolean",
           "x-go-name": "IsFixedBusiness"
         },
@@ -11789,6 +12665,43 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateProjectReqV2": {
+      "type": "object",
+      "properties": {
+        "project": {
+          "$ref": "#/definitions/UpdateProjectV2"
+        }
+      },
+      "x-go-name": "UpdateProjectReq",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
+    "UpdateProjectV2": {
+      "type": "object",
+      "properties": {
+        "business_tag": {
+          "$ref": "#/definitions/BusinessTag"
+        },
+        "desc": {
+          "description": "Project desc",
+          "type": "string",
+          "x-go-name": "Desc"
+        },
+        "project_priority": {
+          "description": "project priority\nhigh ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low",
+            "unknown"
+          ],
+          "x-go-enum-desc": "high ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
+          "x-go-name": "ProjectPriority"
+        }
+      },
+      "x-go-name": "UpdateProject",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
     "UpdateRole": {
       "type": "object",

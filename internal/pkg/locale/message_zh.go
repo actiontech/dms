@@ -93,7 +93,7 @@ var (
 var (
 	DBServiceDbName           = &i18n.Message{ID: "DBServiceDbName", Other: "数据源名称"}
 	DBServiceProjName         = &i18n.Message{ID: "DBServiceProjName", Other: "所属项目(平台已有的项目名称)"}
-	DBServiceBusiness         = &i18n.Message{ID: "DBServiceBusiness", Other: "所属业务(项目已有的业务名称)"}
+	DBServiceEnvironmentTag   = &i18n.Message{ID: "DBServiceEnvironmentTag", Other: "所属环境"}
 	DBServiceDesc             = &i18n.Message{ID: "DBServiceDesc", Other: "数据源描述"}
 	DBServiceDbType           = &i18n.Message{ID: "DBServiceDbType", Other: "数据源类型"}
 	DBServiceHost             = &i18n.Message{ID: "DBServiceHost", Other: "数据源地址"}
@@ -113,12 +113,12 @@ var (
 	IDBPCErrProjNonExist             = &i18n.Message{ID: "IDBPCErrProjNonExist", Other: "所属项目不存在"}
 	IDBPCErrProjNotActive            = &i18n.Message{ID: "IDBPCErrProjNotActive", Other: "所属项目状态异常"}
 	IDBPCErrProjNotAllowed           = &i18n.Message{ID: "IDBPCErrProjNotAllowed", Other: "所属项目不是操作中的项目"}
-	IDBPCErrBusinessNonExist         = &i18n.Message{ID: "IDBPCErrBusinessNonExist", Other: "项目业务固定且所属业务不存在"}
 	IDBPCErrOptTimeInvalid           = &i18n.Message{ID: "IDBPCErrOptTimeInvalid", Other: "运维时间不规范"}
 	IDBPCErrDbTypeInvalid            = &i18n.Message{ID: "IDBPCErrDbTypeInvalid", Other: "数据源类型不规范或对应插件未安装"}
 	IDBPCErrOracleServiceNameInvalid = &i18n.Message{ID: "IDBPCErrOracleServiceNameInvalid", Other: "Oracle服务名错误"}
 	IDBPCErrDB2DbNameInvalid         = &i18n.Message{ID: "IDBPCErrDB2DbNameInvalid", Other: "DB2数据库名错误"}
 	IDBPCErrRuleTemplateInvalid      = &i18n.Message{ID: "IDBPCErrRuleTemplateInvalid", Other: "审核规则模板不存在或数据源类型不匹配"}
+	IDBPCErrEnvironmentTagInvalid    = &i18n.Message{ID: "IDBPCErrEnvironmentTagInvalid", Other: "项目环境标签检查错误或不存在"}
 )
 
 // project
@@ -126,7 +126,7 @@ var (
 	ProjectName         = &i18n.Message{ID: "ProjectName", Other: "项目名称"}
 	ProjectDesc         = &i18n.Message{ID: "ProjectDesc", Other: "项目描述"}
 	ProjectStatus       = &i18n.Message{ID: "ProjectStatus", Other: "项目状态"}
-	ProjectBusiness     = &i18n.Message{ID: "ProjectBusiness", Other: "可用业务"}
+	ProjectBusiness     = &i18n.Message{ID: "ProjectBusiness", Other: "所属业务"}
 	ProjectCreateTime   = &i18n.Message{ID: "ProjectCreateTime", Other: "创建时间"}
 	ProjectAvailable    = &i18n.Message{ID: "ProjectAvailable", Other: "可用"}
 	ProjectNotAvailable = &i18n.Message{ID: "ProjectNotAvailable", Other: "不可用"}

@@ -39,7 +39,6 @@ func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
 		Port:              ds.Port,
 		User:              ds.User,
 		Password:          encrypted,
-		Business:          ds.Business,
 		AdditionalParams:  ds.AdditionalParams,
 		Source:            ds.Source,
 		MaintenancePeriod: ds.MaintenancePeriod,
@@ -47,6 +46,9 @@ func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
 		IsEnableMasking:   ds.IsMaskingSwitch,
 		EnableBackup:      ds.EnableBackup,
 		BackupMaxRows:     ds.BackupMaxRows,
+	}
+	if ds.EnvironmentTag != nil {
+		dbService.EnvironmentTagUID = ds.EnvironmentTag.UID
 	}
 	if ds.LastConnectionStatus != nil {
 		dbService.LastConnectionStatus = (*string)(ds.LastConnectionStatus)
@@ -100,7 +102,6 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 		User:              ds.User,
 		Password:          decrypted,
 		MaintenancePeriod: ds.MaintenancePeriod,
-		Business:          ds.Business,
 		AdditionalParams:  ds.AdditionalParams,
 		Source:            ds.Source,
 		ProjectUID:        ds.ProjectUID,
@@ -117,6 +118,13 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 	}
 	if ds.LastConnectionErrorMsg != nil {
 		dbService.LastConnectionErrorMsg = ds.LastConnectionErrorMsg
+	}
+
+	if ds.EnvironmentTag != nil {
+		dbService.EnvironmentTag = &dmsCommonV1.EnvironmentTag{
+			UID:  ds.EnvironmentTagUID,
+			Name: ds.EnvironmentTag.EnvironmentName,
+		}
 	}
 
 	{
@@ -483,49 +491,31 @@ func convertModelRangeUIDs(uids string) []string {
 	return strings.Split(uids, ",")
 }
 
-func convertBizProject(m *biz.Project) (*model.Project, error) {
-	busList := make([]model.Business, 0)
-	for _, business := range m.Business {
-		busList = append(busList, model.Business{
-			Uid:  business.Uid,
-			Name: business.Name,
-		})
-	}
-
+func convertBizProject(m *biz.Project) *model.Project {
 	return &model.Project{
 		Model: model.Model{
 			UID: m.UID,
 		},
-		Name:            m.Name,
-		Desc:            m.Desc,
-		Business:        busList,
-		Status:          string(m.Status),
-		IsFixedBusiness: m.IsFixedBusiness,
-		CreateUserUID:   m.CreateUserUID,
-		Priority:        dmsCommonV1.ToPriorityNum(m.Priority),
-	}, nil
+		Name:           m.Name,
+		Desc:           m.Desc,
+		BusinessTagUID: m.BusinessTag.UID,
+		Status:         string(m.Status),
+		CreateUserUID:  m.CreateUserUID,
+		Priority:       dmsCommonV1.ToPriorityNum(m.Priority),
+	}
 }
 
 func convertModelProject(m *model.Project) (*biz.Project, error) {
-	businessList := make([]biz.Business, 0)
-	for _, business := range m.Business {
-		businessList = append(businessList, biz.Business{
-			Uid:  business.Uid,
-			Name: business.Name,
-		})
-	}
-
 	return &biz.Project{
-		Base:            convertBase(m.Model),
-		UID:             m.UID,
-		Name:            m.Name,
-		Desc:            m.Desc,
-		IsFixedBusiness: m.IsFixedBusiness,
-		Business:        businessList,
-		Status:          convertModelProjectStatus(m.Status),
-		CreateUserUID:   m.CreateUserUID,
-		CreateTime:      m.CreatedAt,
-		Priority:        dmsCommonV1.ToPriority(m.Priority),
+		Base:          convertBase(m.Model),
+		UID:           m.UID,
+		Name:          m.Name,
+		Desc:          m.Desc,
+		BusinessTag:   biz.BusinessTag{UID: m.BusinessTagUID},
+		Status:        convertModelProjectStatus(m.Status),
+		CreateUserUID: m.CreateUserUID,
+		CreateTime:    m.CreatedAt,
+		Priority:      dmsCommonV1.ToPriority(m.Priority),
 	}, nil
 }
 

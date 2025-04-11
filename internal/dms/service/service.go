@@ -18,6 +18,7 @@ type DMSService struct {
 	PluginUsecase               *biz.PluginUsecase
 	DBServiceUsecase            *biz.DBServiceUsecase
 	DBServiceSyncTaskUsecase    *biz.DBServiceSyncTaskUsecase
+	EnvironmentTagUsecase       *biz.EnvironmentTagUsecase
 	LoginConfigurationUsecase   *biz.LoginConfigurationUsecase
 	UserUsecase                 *biz.UserUsecase
 	UserGroupUsecase            *biz.UserGroupUsecase
@@ -71,12 +72,14 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	}
 	// 预定义解决usecase循环依赖问题
 	memberUsecase := biz.MemberUsecase{}
-
+	environmentTagUsecase := biz.EnvironmentTagUsecase{}
+	businessTagUsecase := biz.NewBusinessTagUsecase(storage.NewBusinessTagRepo(logger, st), logger)
 	projectRepo := storage.NewProjectRepo(logger, st)
-	projectUsecase := biz.NewProjectUsecase(logger, tx, projectRepo, &memberUsecase, opPermissionVerifyUsecase, pluginUseCase)
+	projectUsecase := biz.NewProjectUsecase(logger, tx, projectRepo, &memberUsecase, opPermissionVerifyUsecase, pluginUseCase, businessTagUsecase, &environmentTagUsecase)
 	dbServiceRepo := storage.NewDBServiceRepo(logger, st)
+	environmentTagUsecase = *biz.NewEnvironmentTagUsecase(storage.NewEnvironmentTagRepo(logger, st), logger, projectUsecase, opPermissionVerifyUsecase)
 	dmsProxyTargetRepo := storage.NewProxyTargetRepo(logger, st)
-	dbServiceUseCase := biz.NewDBServiceUsecase(logger, dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo)
+	dbServiceUseCase := biz.NewDBServiceUsecase(logger, dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, &environmentTagUsecase)
 	dbServiceTaskRepo := storage.NewDBServiceSyncTaskRepo(logger, st)
 	dbServiceTaskUsecase := biz.NewDBServiceSyncTaskUsecase(logger, dbServiceTaskRepo, opPermissionVerifyUsecase, projectUsecase, dbServiceUseCase)
 	ldapConfigurationRepo := storage.NewLDAPConfigurationRepo(logger, st)
@@ -145,11 +148,10 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		return nil, fmt.Errorf("failed to new cron task: %v", err)
 	}
 
-	businessTagUsecase := biz.NewBusinessTagUsecase(storage.NewBusinessTagRepo(logger, st), logger)
-
 	s := &DMSService{
 		BasicUsecase:                basicUsecase,
 		BusinessTagUsecase:          businessTagUsecase,
+		EnvironmentTagUsecase:       &environmentTagUsecase,
 		PluginUsecase:               pluginUseCase,
 		DBServiceUsecase:            dbServiceUseCase,
 		DBServiceSyncTaskUsecase:    dbServiceTaskUsecase,

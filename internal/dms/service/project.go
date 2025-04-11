@@ -6,14 +6,16 @@ import (
 	"fmt"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
+	dmsV2 "github.com/actiontech/dms/api/dms/service/v2"
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+	dmsCommonV2 "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
 	"github.com/go-openapi/strfmt"
 )
 
-func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV1.ListProjectReq, currentUserUid string) (reply *dmsCommonV1.ListProjectReply, err error) {
+func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV2.ListProjectReq, currentUserUid string) (reply *dmsCommonV2.ListProjectReply, err error) {
 	var orderBy biz.ProjectField
 	switch req.OrderBy {
 	case dmsCommonV1.ProjectOrderByName:
@@ -51,12 +53,25 @@ func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV1.ListProj
 			Operator: pkgConst.FilterOperatorIn,
 			Value:    req.FilterByProjectUids,
 		})
-	}	
+	}
 	if req.FilterByDesc != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.ProjectFieldDesc),
 			Operator: pkgConst.FilterOperatorContains,
 			Value:    req.FilterByDesc,
+		})
+	}
+
+	if req.FilterByBusinessTag != "" {
+		businessTag, err := d.BusinessTagUsecase.GetBusinessTagByName(ctx, req.FilterByBusinessTag)
+		if err != nil {
+			d.log.Errorf("get business tag failed: %v", err)
+			return nil, err
+		}
+		filterBy = append(filterBy, pkgConst.FilterCondition{
+			Field:    string(biz.ProjectFieldBusinessTagUID),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    businessTag.UID,
 		})
 	}
 
@@ -72,15 +87,22 @@ func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV1.ListProj
 		return nil, err
 	}
 
-	ret := make([]*dmsCommonV1.ListProject, len(projects))
+	err = d.BusinessTagUsecase.LoadBusinessTagForProjects(ctx, projects)
+	if err != nil {
+		return nil, err
+	}
+	ret := make([]*dmsCommonV2.ListProject, len(projects))
 	for i, n := range projects {
-		ret[i] = &dmsCommonV1.ListProject{
-			ProjectUid:      n.UID,
-			Name:            n.Name,
-			Archived:        (n.Status == biz.ProjectStatusArchived),
-			Desc:            n.Desc,
-			IsFixedBusiness: n.IsFixedBusiness,
-			CreateTime:      strfmt.DateTime(n.CreateTime),
+		ret[i] = &dmsCommonV2.ListProject{
+			ProjectUid: n.UID,
+			Name:       n.Name,
+			Archived:   (n.Status == biz.ProjectStatusArchived),
+			Desc:       n.Desc,
+			CreateTime: strfmt.DateTime(n.CreateTime),
+			BusinessTag: &dmsCommonV2.BusinessTag{
+				UID:  n.BusinessTag.UID,
+				Name: n.BusinessTag.Name,
+			},
 			ProjectPriority: n.Priority,
 		}
 		user, err := d.UserUsecase.GetUser(ctx, n.CreateUserUID)
@@ -92,24 +114,9 @@ func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV1.ListProj
 			Uid:  n.UID,
 			Name: user.Name,
 		}
-
-		business, err := d.DBServiceUsecase.GetBusiness(ctx, n.UID)
-		if err != nil {
-			d.log.Errorf("get business error: %v", err)
-			continue
-		}
-
-		for _, b := range n.Business {
-			isBusinessInUse := isStrInSlice(b.Name, business)
-			ret[i].Business = append(ret[i].Business, dmsCommonV1.Business{
-				Id:     b.Uid,
-				Name:   b.Name,
-				IsUsed: isBusinessInUse,
-			})
-		}
 	}
 
-	return &dmsCommonV1.ListProjectReply{
+	return &dmsCommonV2.ListProjectReply{
 		Data: ret, Total: total,
 	}, nil
 }
@@ -123,7 +130,7 @@ func isStrInSlice(str string, slice []string) bool {
 	return false
 }
 
-func (d *DMSService) AddProject(ctx context.Context, currentUserUid string, req *dmsV1.AddProjectReq) (reply *dmsV1.AddProjectReply, err error) {
+func (d *DMSService) AddProject(ctx context.Context, currentUserUid string, req *dmsV2.AddProjectReq) (reply *dmsV2.AddProjectReply, err error) {
 	// check
 	{
 		// check current user has enough permission
@@ -141,9 +148,13 @@ func (d *DMSService) AddProject(ctx context.Context, currentUserUid string, req 
 		if !errors.Is(err, pkgErr.ErrStorageNoData) {
 			return nil, fmt.Errorf("failed to get project by name: %w", err)
 		}
+		// check business tag is exist
+		if req.Project.BusinessTag == nil || req.Project.BusinessTag.UID == "" {
+			return nil, fmt.Errorf("business tag is empty")
+		}
 	}
 
-	project, err := biz.NewProject(currentUserUid, req.Project.Name, req.Project.Desc, req.Project.ProjectPriority, req.Project.IsFixedBusiness, req.Project.Business)
+	project, err := biz.NewProject(currentUserUid, req.Project.Name, req.Project.Desc, req.Project.ProjectPriority, req.Project.BusinessTag.UID)
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +163,7 @@ func (d *DMSService) AddProject(ctx context.Context, currentUserUid string, req 
 		return nil, fmt.Errorf("create  project failed: %w", err)
 	}
 
-	return &dmsV1.AddProjectReply{
+	return &dmsV2.AddProjectReply{
 		Data: struct {
 			//  project UID
 			Uid string `json:"uid"`
@@ -178,8 +189,8 @@ func (d *DMSService) UpdateProjectDesc(ctx context.Context, currentUserUid strin
 	return nil
 }
 
-func (d *DMSService) UpdateProject(ctx context.Context, currentUserUid string, req *dmsV1.UpdateProjectReq) (err error) {
-	err = d.ProjectUsecase.UpdateProject(ctx, currentUserUid, req.ProjectUid, req.Project.Desc, req.Project.ProjectPriority, req.Project.IsFixedBusiness, req.Project.Business)
+func (d *DMSService) UpdateProject(ctx context.Context, currentUserUid string, req *dmsV2.UpdateProjectReq) (err error) {
+	err = d.ProjectUsecase.UpdateProject(ctx, currentUserUid, req.ProjectUid, req.Project.Desc, req.Project.ProjectPriority, req.Project.BusinessTag.UID)
 	if err != nil {
 		return fmt.Errorf("update project failed: %w", err)
 	}
@@ -205,7 +216,7 @@ func (d *DMSService) UnarchiveProject(ctx context.Context, currentUserUid string
 	return nil
 }
 
-func (d *DMSService) ImportProjects(ctx context.Context, uid string, req *dmsV1.ImportProjectsReq) error {
+func (d *DMSService) ImportProjects(ctx context.Context, uid string, req *dmsV2.ImportProjectsReq) error {
 	return d.importProjects(ctx, uid, req)
 }
 
@@ -213,12 +224,8 @@ func (d *DMSService) GetImportProjectsTemplate(ctx context.Context, uid string) 
 	return d.getImportProjectsTemplate(ctx, uid)
 }
 
-func (d *DMSService) GetProjectTips(ctx context.Context, uid string, req *dmsV1.GetProjectTipsReq) (reply *dmsV1.GetProjectTipsReply, err error) {
-	return d.getProjectTips(ctx, uid, req, err)
-}
-
-func (d *DMSService) PreviewImportProjects(ctx context.Context, uid string, file string) (reply *dmsV1.PreviewImportProjectsReply, err error) {
-	return d.previewImportProjects(ctx, uid, file, err)
+func (d *DMSService) PreviewImportProjects(ctx context.Context, uid string, file string) (reply *dmsV2.PreviewImportProjectsReply, err error) {
+	return d.previewImportProjects(ctx, uid, file)
 }
 
 func (d *DMSService) ExportProjects(ctx context.Context, uid string, req *dmsV1.ExportProjectsReq) ([]byte, error) {
@@ -228,11 +235,11 @@ func (d *DMSService) GetImportDBServicesTemplate(ctx context.Context, uid string
 	return d.getImportDBServicesTemplate(ctx, uid)
 }
 
-func (d *DMSService) ImportDBServicesOfProjectsCheck(ctx context.Context, userUid, fileContent string) (*dmsV1.ImportDBServicesCheckReply, []byte, error) {
+func (d *DMSService) ImportDBServicesOfProjectsCheck(ctx context.Context, userUid, fileContent string) (*dmsV2.ImportDBServicesCheckReply, []byte, error) {
 	return d.importDBServicesOfProjectsCheck(ctx, userUid, fileContent)
 }
 
-func (d *DMSService) ImportDBServicesOfProjects(ctx context.Context, req *dmsV1.ImportDBServicesOfProjectsReq, uid string) error {
+func (d *DMSService) ImportDBServicesOfProjects(ctx context.Context, req *dmsV2.ImportDBServicesOfProjectsReq, uid string) error {
 	return d.importDBServicesOfProjects(ctx, req, uid)
 }
 

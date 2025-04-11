@@ -45,19 +45,19 @@ const (
 type DBService struct {
 	Base
 
-	UID               string             `json:"uid"`
-	Name              string             `json:"name"`
-	Desc              string             `json:"desc"`
-	DBType            string             `json:"db_type"`
-	Host              string             `json:"host"`
-	Port              string             `json:"port"`
-	User              string             `json:"user"`
-	Password          string             `json:"password"`
-	Business          string             `json:"business"`
-	AdditionalParams  pkgParams.Params   `json:"additional_params"`
-	ProjectUID        string             `json:"project_uid"`
-	MaintenancePeriod pkgPeriods.Periods `json:"maintenance_period"`
-	Source            string             `json:"source"`
+	UID               string                      `json:"uid"`
+	Name              string                      `json:"name"`
+	Desc              string                      `json:"desc"`
+	DBType            string                      `json:"db_type"`
+	Host              string                      `json:"host"`
+	Port              string                      `json:"port"`
+	User              string                      `json:"user"`
+	Password          string                      `json:"password"`
+	EnvironmentTag    *dmsCommonV1.EnvironmentTag `json:"environment_tag"`
+	AdditionalParams  pkgParams.Params            `json:"additional_params"`
+	ProjectUID        string                      `json:"project_uid"`
+	MaintenancePeriod pkgPeriods.Periods          `json:"maintenance_period"`
+	Source            string                      `json:"source"`
 
 	// db service connection
 	LastConnectionStatus   *LastConnectionStatus `json:"last_connection_status"`
@@ -123,7 +123,6 @@ func newDBService(args *BizDBServiceArgs) (*DBService, error) {
 		Password:          *args.Password,
 		AdditionalParams:  args.AdditionalParams,
 		ProjectUID:        args.ProjectUID,
-		Business:          args.Business,
 		Source:            args.Source,
 		MaintenancePeriod: args.MaintenancePeriod,
 		SQLEConfig:        &SQLEConfig{},
@@ -135,6 +134,11 @@ func newDBService(args *BizDBServiceArgs) (*DBService, error) {
 	if args.RuleTemplateName != "" {
 		dbService.SQLEConfig.RuleTemplateID = args.RuleTemplateID
 		dbService.SQLEConfig.RuleTemplateName = args.RuleTemplateName
+	}
+	if args.EnvironmentTagUID != "" {
+		dbService.EnvironmentTag = &dmsCommonV1.EnvironmentTag{
+			UID: args.EnvironmentTagUID,
+		}
 	}
 
 	if args.SQLQueryConfig != nil {
@@ -166,33 +170,37 @@ type DBServiceUsecase struct {
 	pluginUsecase             *PluginUsecase
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	projectUsecase            *ProjectUsecase
+	environmentTagUsecase     *EnvironmentTagUsecase
 	log                       *utilLog.Helper
 }
 
-func NewDBServiceUsecase(log utilLog.Logger, repo DBServiceRepo, pluginUsecase *PluginUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo) *DBServiceUsecase {
+func NewDBServiceUsecase(log utilLog.Logger, repo DBServiceRepo, pluginUsecase *PluginUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase,
+	projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, environmentTagUsecase *EnvironmentTagUsecase) *DBServiceUsecase {
 	return &DBServiceUsecase{
 		repo:                      repo,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 		pluginUsecase:             pluginUsecase,
 		projectUsecase:            projectUsecase,
 		dmsProxyTargetRepo:        proxyTargetRepo,
+		environmentTagUsecase:     environmentTagUsecase,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.dbService")),
 	}
 }
 
 type BizDBServiceArgs struct {
-	Name              string
-	Desc              *string
-	DBType            string
-	Host              string
-	Port              string
-	User              string
-	Password          *string
-	Business          string
-	Source            string
-	AdditionalParams  pkgParams.Params
-	ProjectUID        string
-	MaintenancePeriod pkgPeriods.Periods
+	Name               string
+	Desc               *string
+	DBType             string
+	Host               string
+	Port               string
+	User               string
+	Password           *string
+	EnvironmentTagUID  string
+	EnvironmentTagName string
+	Source             string
+	AdditionalParams   pkgParams.Params
+	ProjectUID         string
+	MaintenancePeriod  pkgPeriods.Periods
 	// sqle config
 	RuleTemplateName string
 	RuleTemplateID   string
@@ -367,7 +375,7 @@ func (d *DBServiceUsecase) AddInstanceAuditPlanForDBServiceFromSqle(ctx context.
 	if err != nil {
 		return fmt.Errorf("get proxy target by name failed: %v", err)
 	}
-	sqleAddr := fmt.Sprintf("%s/v1/projects/%s/instance_audit_plans", target.URL.String(), project.Name)
+	sqleAddr := fmt.Sprintf("%s/v2/projects/%s/instance_audit_plans", target.URL.String(), project.Name)
 	header := map[string]string{
 		"Authorization":           pkgHttp.DefaultDMSToken,
 		i18nPkg.AcceptLanguageKey: locale.Bundle.GetLangTagFromCtx(ctx).String(),
@@ -659,8 +667,12 @@ func (d *DBServiceUsecase) UpdateDBServiceByArgs(ctx context.Context, dbServiceU
 		}
 
 		if updateDBService.Host == "" || updateDBService.Port == "" ||
-			updateDBService.User == "" || updateDBService.Business == "" {
-			return fmt.Errorf("db service's host,port,user,business can't be empty")
+			updateDBService.User == "" || updateDBService.EnvironmentTagUID == "" {
+			return fmt.Errorf("db service's host,port,user,environment can't be empty")
+		}
+		_, err := d.environmentTagUsecase.GetEnvironmentTagByUID(ctx, updateDBService.EnvironmentTagUID)
+		if err != nil {
+			return fmt.Errorf("check get environment tag by uid failed: %v", err)
 		}
 	}
 	// update
@@ -678,7 +690,6 @@ func (d *DBServiceUsecase) UpdateDBServiceByArgs(ctx context.Context, dbServiceU
 		ds.Host = updateDBService.Host
 		ds.Port = updateDBService.Port
 		ds.User = updateDBService.User
-		ds.Business = updateDBService.Business
 		ds.AdditionalParams = updateDBService.AdditionalParams
 		ds.MaintenancePeriod = updateDBService.MaintenancePeriod
 		ds.IsMaskingSwitch = updateDBService.IsMaskingSwitch
@@ -689,6 +700,9 @@ func (d *DBServiceUsecase) UpdateDBServiceByArgs(ctx context.Context, dbServiceU
 		if updateDBService.RuleTemplateName != "" {
 			ds.SQLEConfig.RuleTemplateID = updateDBService.RuleTemplateID
 			ds.SQLEConfig.RuleTemplateName = updateDBService.RuleTemplateName
+		}
+		ds.EnvironmentTag = &dmsCommonV1.EnvironmentTag{
+			UID: updateDBService.EnvironmentTagUID,
 		}
 
 		if updateDBService.SQLQueryConfig != nil {

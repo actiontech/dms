@@ -8,20 +8,16 @@ import (
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
 
-// A Project
+// swagger:model ProjectV1
 type Project struct {
 	// project name
 	Name string `json:"name"`
 	// project desc
 	Desc string `json:"desc"`
-	// TODO This parameter is deprecated and will be removed soon.
 	// is fixed business
 	IsFixedBusiness bool `json:"is_fixed_business"`
-	// TODO This parameter is deprecated and will be removed soon.
 	// project business
 	Business []string `json:"business"`
-	// project business tag
-	BusinessTag *BusinessTag `json:"business_tag"`
 	// project priority
 	ProjectPriority dmsCommonV1.ProjectPriority `json:"project_priority"  enums:"high,medium,low"`
 }
@@ -71,16 +67,14 @@ func (u *DelProjectReq) String() string {
 	return fmt.Sprintf("DelProjectReq{Uid:%s}", u.ProjectUid)
 }
 
+// swagger:model UpdateProject
 type UpdateProject struct {
 	// Project desc
 	Desc *string `json:"desc"`
 	// is fixed business
-	// TODO This parameter is deprecated and will be removed soon.
 	IsFixedBusiness *bool `json:"is_fixed_business"`
 	// Project business
 	Business []BusinessForUpdate `json:"business"`
-	// project business tag
-	BusinessTag *BusinessTag `json:"business_tag"`
 	// project priority
 	ProjectPriority *dmsCommonV1.ProjectPriority `json:"project_priority"  enums:"high,medium,low"`
 }
@@ -133,11 +127,8 @@ type ImportProjects struct {
 	Name string `json:"name" validate:"required"`
 	// Project desc
 	Desc string `json:"desc"`
-	// TODO This parameter is deprecated and will be removed soon.
 	// business
 	Business []string `json:"business" validate:"required"`
-	// project business tag
-	BusinessTag *BusinessTag `json:"business_tag"`
 }
 
 // swagger:parameters PreviewImportProjects
@@ -163,11 +154,8 @@ type PreviewImportProjects struct {
 	Name string `json:"name"`
 	// Project desc
 	Desc string `json:"desc"`
-	// TODO This parameter is deprecated and will be removed soon.
 	// business
 	Business []string `json:"business"`
-	// project business tag
-	BusinessTag *BusinessTag `json:"business_tag"`
 }
 
 // swagger:parameters ExportProjects
@@ -210,7 +198,6 @@ type GetProjectTipsReply struct {
 	Data []*ProjectTips `json:"data"`
 }
 
-// TODO This model will be removed due to it's related API is deprecated and will be removed soon.
 type ProjectTips struct {
 	IsFixedBusiness bool     `json:"is_fixed_business"`
 	Business        []string `json:"business"`

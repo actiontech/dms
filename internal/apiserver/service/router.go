@@ -5,12 +5,14 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
+	"net/http"
 	"strings"
 
 	dmsMiddleware "github.com/actiontech/dms/internal/apiserver/middleware"
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/internal/pkg/locale"
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+	dmsV2 "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	"github.com/actiontech/dms/pkg/dms-common/i18nPkg"
 	commonLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
@@ -25,15 +27,20 @@ func (s *APIServer) initRouter() error {
 	s.echo.GET("/swagger/*", s.DMSController.SwaggerHandler, SwaggerMiddleWare)
 
 	v1 := s.echo.Group(dmsV1.CurrentGroupVersion)
-
+	v2 := s.echo.Group(dmsV2.CurrentGroupVersion)
 	// DMS RESTful resource
 	{
-		v1.GET("/dms/basic_info", s.DMSController.GetBasicInfo)
-		v1.GET(biz.PersonalizationUrl, s.DMSController.GetStaticLogo)
-		v1.POST("/dms/personalization", s.DMSController.Personalization)
-		v1.GET("/dms/db_services/driver_options", s.DMSController.ListDBServiceDriverOption)
-		v1.GET("/dms/db_services", s.DMSController.ListGlobalDBServices)
-		v1.GET("/dms/db_services/tips", s.DMSController.ListGlobalDBServicesTips)
+		{
+			v1.GET("/dms/basic_info", s.DMSController.GetBasicInfo)
+			v1.GET(biz.PersonalizationUrl, s.DMSController.GetStaticLogo)
+			v1.POST("/dms/personalization", s.DMSController.Personalization)
+			v1.GET("/dms/db_services/driver_options", s.DMSController.ListDBServiceDriverOption)
+			v1.GET("/dms/db_services", s.DeprecatedBy(dmsV2.GroupV2))
+			v1.GET("/dms/db_services/tips", s.DMSController.ListGlobalDBServicesTips)
+		}
+		{
+			v2.GET("/dms/db_services", s.DMSController.ListGlobalDBServicesV2)
+		}
 
 		dmsProxyV1 := v1.Group(dmsV1.ProxyRouterGroup)
 		dmsProxyV1.POST("", s.DMSController.RegisterDMSProxyTarget)
@@ -42,16 +49,32 @@ func (s *APIServer) initRouter() error {
 		dmsPluginV1.POST("", s.DMSController.RegisterDMSPlugin)
 
 		dbServiceV1 := v1.Group(dmsV1.DBServiceRouterGroup)
-		dbServiceV1.POST("", s.DMSController.AddDBService)
-		dbServiceV1.GET("", s.DMSController.ListDBServices)
-		dbServiceV1.GET("/tips", s.DMSController.ListDBServiceTips)
-		dbServiceV1.DELETE("/:db_service_uid", s.DMSController.DelDBService)
-		dbServiceV1.PUT("/:db_service_uid", s.DMSController.UpdateDBService)
-		dbServiceV1.POST("/connection", s.DMSController.CheckDBServiceIsConnectable)
-		dbServiceV1.POST("/:db_service_uid/connection", s.DMSController.CheckDBServiceIsConnectableById)
-		dbServiceV1.POST("/connections", s.DMSController.CheckProjectDBServicesConnections)
-		dbServiceV1.POST("/import_check", s.DMSController.ImportDBServicesOfOneProjectCheck)
-		dbServiceV1.POST("/import", s.DMSController.ImportDBServicesOfOneProject)
+		{
+			dbServiceV1.POST("", s.DeprecatedBy(dmsV2.GroupV2))
+			dbServiceV1.GET("", s.DeprecatedBy(dmsV2.GroupV2))
+			dbServiceV1.GET("/tips", s.DMSController.ListDBServiceTips)
+			dbServiceV1.DELETE("/:db_service_uid", s.DMSController.DelDBService)
+			dbServiceV1.PUT("/:db_service_uid", s.DeprecatedBy(dmsV2.GroupV2))
+			dbServiceV1.POST("/connection", s.DMSController.CheckDBServiceIsConnectable)
+			dbServiceV1.POST("/:db_service_uid/connection", s.DMSController.CheckDBServiceIsConnectableById)
+			dbServiceV1.POST("/connections", s.DMSController.CheckProjectDBServicesConnections)
+			dbServiceV1.POST("/import_check", s.DeprecatedBy(dmsV2.GroupV2))
+			dbServiceV1.POST("/import", s.DeprecatedBy(dmsV2.GroupV2))
+		}
+
+		dbServiceV2 := v2.Group(dmsV2.DBServiceRouterGroup)
+		{
+			dbServiceV2.POST("", s.DMSController.AddDBServiceV2)
+			dbServiceV2.POST("/import_check", s.DMSController.ImportDBServicesOfOneProjectCheckV2)
+			dbServiceV2.POST("/import", s.DMSController.ImportDBServicesOfOneProjectV2)
+			dbServiceV2.PUT("/:db_service_uid", s.DMSController.UpdateDBServiceV2)
+			dbServiceV2.GET("", s.DMSController.ListDBServicesV2)
+		}
+		environmentTagV1 := v1.Group(dmsV1.DBEnvironmentTagGroup)
+		environmentTagV1.POST("", s.DMSController.CreateEnvironmentTag)
+		environmentTagV1.GET("", s.DMSController.ListEnvironmentTags)
+		environmentTagV1.PUT("/:environment_tag_uid", s.DMSController.UpdateEnvironmentTag)
+		environmentTagV1.DELETE("/:environment_tag_uid", s.DMSController.DeleteEnvironmentTag)
 
 		dbServiceSyncTaskV1 := v1.Group("/dms/db_service_sync_tasks")
 		dbServiceSyncTaskV1.GET("/tips", s.DMSController.ListDBServiceSyncTaskTips)
@@ -109,24 +132,27 @@ func (s *APIServer) initRouter() error {
 		opPermissionV1 := v1.Group("/dms/op_permissions")
 		opPermissionV1.GET("", s.DMSController.ListOpPermissions)
 
-		projectV1 := v1.Group(dmsV1.ProjectRouterGroup)
-		projectV1.GET("", s.DMSController.ListProjects)
-		projectV1.POST("", s.DMSController.AddProject)
+		projectV1 := v1.Group(dmsV2.ProjectRouterGroup)
+		projectV1.GET("", s.DeprecatedBy(dmsV2.GroupV2))
+		projectV1.POST("", s.DeprecatedBy(dmsV2.GroupV2))
 		projectV1.DELETE("/:project_uid", s.DMSController.DelProject)
-		projectV1.PUT("/:project_uid", s.DMSController.UpdateProject)
+		projectV1.PUT("/:project_uid", s.DeprecatedBy(dmsV2.GroupV2))
 		projectV1.PUT("/:project_uid/archive", s.DMSController.ArchiveProject)
 		projectV1.PUT("/:project_uid/unarchive", s.DMSController.UnarchiveProject)
-		projectV1.POST("/import", s.DMSController.ImportProjects)
+		projectV1.POST("/import", s.DeprecatedBy(dmsV2.GroupV2))
 		projectV1.GET("/import_template", s.DMSController.GetImportProjectsTemplate)
-		projectV1.POST("/preview_import", s.DMSController.PreviewImportProjects)
+		projectV1.POST("/preview_import", s.DeprecatedBy(dmsV2.GroupV2))
 		projectV1.GET("/export", s.DMSController.ExportProjects)
 		projectV1.GET("/tips", s.DMSController.GetProjectTips)
 		projectV1.GET("/import_db_services_template", s.DMSController.GetImportDBServicesTemplate)
-		projectV1.POST("/import_db_services_check", s.DMSController.ImportDBServicesOfProjectsCheck)
-		projectV1.POST("/import_db_services", s.DMSController.ImportDBServicesOfProjects)
+		projectV1.POST("/import_db_services_check", s.DeprecatedBy(dmsV2.GroupV2))
+		projectV1.POST("/import_db_services", s.DeprecatedBy(dmsV2.GroupV2))
 		projectV1.POST("/db_services_connection", s.DMSController.DBServicesConnection)
 		projectV1.POST("/db_services_connections", s.DMSController.CheckGlobalDBServicesConnections)
 		projectV1.POST("/business_tags", s.DMSController.CreateBusinessTag)
+		projectV1.GET("/business_tags", s.DMSController.ListBusinessTags)
+		projectV1.PUT("/business_tags/:business_tag_uid", s.DMSController.UpdateBusinessTag)
+		projectV1.DELETE("/business_tags/:business_tag_uid", s.DMSController.DeleteBusinessTag)
 
 		// oauth2 interface does not require login authentication
 		oauth2V1 := v1.Group("/dms/oauth2")
@@ -217,6 +243,17 @@ func (s *APIServer) initRouter() error {
 				Balancer: middleware.NewRandomBalancer(targets),
 			}))
 		}
+	}
+
+	{
+		projectV2 := v2.Group(dmsV2.ProjectRouterGroup)
+		projectV2.POST("", s.DMSController.AddProjectV2)
+		projectV2.GET("", s.DMSController.ListProjectsV2)
+		projectV2.PUT("/:project_uid", s.DMSController.UpdateProjectV2)
+		projectV2.POST("/import", s.DMSController.ImportProjectsV2)
+		projectV2.POST("/preview_import", s.DMSController.PreviewImportProjectsV2)
+		projectV2.POST("/import_db_services_check", s.DMSController.ImportDBServicesOfProjectsCheckV2)
+		projectV2.POST("/import_db_services", s.DMSController.ImportDBServicesOfProjectsV2)
 	}
 	return nil
 }
@@ -325,7 +362,8 @@ func (s *APIServer) installMiddleware() error {
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/users/verify_user_login" /* TODO 使用统一方法skip */) ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/sms/send_code" /* TODO 使用统一方法skip */) ||
 				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/sms/verify_code" /* TODO 使用统一方法skip */) ||
-				!strings.HasPrefix(c.Request().RequestURI, dmsV1.CurrentGroupVersion) {
+				!(strings.HasPrefix(c.Request().RequestURI, dmsV1.CurrentGroupVersion) ||
+					strings.HasPrefix(c.Request().RequestURI, dmsV2.CurrentGroupVersion)) {
 				logger.Debugf("skipper url jwt check: %v", c.Request().RequestURI)
 				return true
 			}
@@ -382,4 +420,12 @@ func (s *APIServer) Shutdown() error {
 		return fmt.Errorf("failed to shutdown dmsController: %v", err)
 	}
 	return nil
+}
+
+// DeprecatedBy is a controller used to mark deprecated and used to replace the original controller.
+func (s *APIServer) DeprecatedBy(version string) func(echo.Context) error {
+	return func(ctx echo.Context) error {
+		return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf(
+			"the API has been deprecated, please using the %s version", version))
+	}
 }

@@ -54,3 +54,10 @@ func (d *DMSService) Personalization(ctx context.Context, req *v1.Personalizatio
 
 	return d.BasicUsecase.Personalization(ctx, params)
 }
+
+func (d *DMSService) GetLimitAndOffset(pageIndex, pageSize uint32) (limit, offset int) {
+	if pageIndex >= 1 {
+		offset = int((pageIndex - 1) * pageSize)
+	}
+	return int(pageSize), offset
+}

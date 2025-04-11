@@ -30,13 +30,10 @@ type DBService struct {
 	// DB Service admin password
 	// Required: true
 	Password string `json:"password" validate:"required"`
-	// TODO This parameter is deprecated and will be removed soon.
 	// DB Service business name
 	// Required: true
+	// Deprecated: the business field is replaced with the environmentTag of the v2 interface.
 	Business string `json:"business" validate:"required"`
-	// DB Service environment tag
-	// TODO mark as required --> Required: true
-	EnvironmentTag *EnvironmentTag `json:"environment_tag"`
 	// DB Service maintenance time
 	// empty value means that maintenance time is unlimited
 	// Required: true
@@ -191,13 +188,10 @@ type UpdateDBService struct {
 	User string `json:"user" validate:"required"`
 	// DB Service admin password
 	Password *string `json:"password"`
-	// TODO This parameter is deprecated and will be removed soon.
 	// DB Service business name
 	// Required: true
+	// Deprecated: the business field is replaced with the environmentTag of the v2 interface.
 	Business string `json:"business" validate:"required"`
-	// DB Service environment tag
-	// TODO mark as required --> Required: true
-	EnvironmentTag *EnvironmentTag `json:"environment_tag"`
 	// DB Service maintenance time
 	// Required: true
 	MaintenanceTimes []*dmsCommonV1.MaintenanceTime `json:"maintenance_times"`
@@ -319,12 +313,9 @@ type ImportDBService struct {
 	User string `json:"user"`
 	// db service admin encrypted password
 	Password string `json:"password"`
-	// TODO This parameter is deprecated and will be removed soon.
 	// the db service business name
+	// Deprecated: the business field is replaced with the environmentTag of the v2 interface.
 	Business string `json:"business"`
-	// DB Service environment tag
-	// TODO mark as required --> Required: true
-	EnvironmentTag *EnvironmentTag `json:"environment_tag"`
 	// DB Service maintenance time
 	MaintenanceTimes []*dmsCommonV1.MaintenanceTime `json:"maintenance_times"`
 	// DB desc
@@ -428,9 +419,8 @@ type ListGlobalDBService struct {
 	Port string `json:"port"`
 	// TODO This parameter is deprecated and will be removed soon.
 	// the db service business name
+	// Deprecated: the business field is replaced with the environmentTag of the v2 interface.
 	Business       string          `json:"business"`
-	// DB Service environment tag
-	EnvironmentTag *EnvironmentTag `json:"environment_tag"`
 	// DB Service maintenance time
 	MaintenanceTimes []*dmsCommonV1.MaintenanceTime `json:"maintenance_times"`
 	// DB desc

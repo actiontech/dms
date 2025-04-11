@@ -25,13 +25,8 @@ func NewProjectRepo(log utilLog.Logger, s *Storage) *ProjectRepo {
 }
 
 func (d *ProjectRepo) SaveProject(ctx context.Context, u *biz.Project) error {
-	model, err := convertBizProject(u)
-	if err != nil {
-		return pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert biz project: %v", err))
-	}
-
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
-		if err := tx.WithContext(ctx).Create(model).Error; err != nil {
+		if err := tx.WithContext(ctx).Create(convertBizProject(u)).Error; err != nil {
 			return fmt.Errorf("failed to save project: %v", err)
 		}
 		return nil
@@ -45,11 +40,7 @@ func (d *ProjectRepo) SaveProject(ctx context.Context, u *biz.Project) error {
 func (d *ProjectRepo) BatchSaveProjects(ctx context.Context, projects []*biz.Project) error {
 	models := make([]*model.Project, 0)
 	for _, project := range projects {
-		p, err := convertBizProject(project)
-		if err != nil {
-			return pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert biz project: %v", err))
-		}
-		models = append(models, p)
+		models = append(models, convertBizProject(project))
 	}
 
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
@@ -153,13 +144,8 @@ func (d *ProjectRepo) UpdateProject(ctx context.Context, u *biz.Project) error {
 		return err
 	}
 
-	project, err := convertBizProject(u)
-	if err != nil {
-		return pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert biz project: %v", err))
-	}
-
 	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
-		if err := tx.WithContext(ctx).Model(&model.Project{}).Where("uid = ?", u.UID).Omit("created_at").Save(project).Error; err != nil {
+		if err := tx.WithContext(ctx).Model(&model.Project{}).Where("uid = ?", u.UID).Omit("created_at").Save(convertBizProject(u)).Error; err != nil {
 			return fmt.Errorf("failed to update project: %v", err)
 		}
 		return nil

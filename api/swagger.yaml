@@ -43,6 +43,13 @@ definitions:
                 $ref: '#/definitions/DBService'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddDBServiceReqV2:
+        properties:
+            db_service:
+                $ref: '#/definitions/DBServiceV2'
+        type: object
+        x-go-name: AddDBServiceReq
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     AddDBServiceSyncTaskReply:
         properties:
             code:
@@ -210,12 +217,42 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddProjectReplyV2:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: Add Project reply
+                properties:
+                    uid:
+                        description: Project UID
+                        type: string
+                        x-go-name: Uid
+                type: object
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-name: AddProjectReply
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     AddProjectReq:
         properties:
             project:
-                $ref: '#/definitions/Project'
+                $ref: '#/definitions/ProjectV1'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddProjectReqV2:
+        properties:
+            project:
+                $ref: '#/definitions/ProjectV2'
+        type: object
+        x-go-name: AddProjectReq
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     AddRoleReply:
         properties:
             code:
@@ -516,16 +553,27 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     BusinessTag:
         properties:
-            id:
-                format: uint64
-                type: integer
-                x-go-name: ID
             name:
-                description: 业务标签至少1个字符，最多50个字符
+                description: 业务标签最多50个字符
                 type: string
                 x-go-name: Name
+            uid:
+                type: string
+                x-go-name: UID
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    BusinessTagCommon:
+        properties:
+            name:
+                description: 业务标签最多50个字符
+                type: string
+                x-go-name: Name
+            uid:
+                type: string
+                x-go-name: UID
+        type: object
+        x-go-name: BusinessTag
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v2
     CBOperationLog:
         properties:
             audit_result:
@@ -805,8 +853,9 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CreateEnvironmentTagReq:
         properties:
-            environment_tag:
-                $ref: '#/definitions/EnvironmentTag'
+            environment_name:
+                type: string
+                x-go-name: Name
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DBService:
@@ -824,9 +873,7 @@ definitions:
                 type: integer
                 x-go-name: BackupMaxRows
             business:
-                description: |-
-                    TODO This parameter is deprecated and will be removed soon.
-                    DB Service business name
+                description: DB Service business name
                 type: string
                 x-go-name: Business
             db_type:
@@ -841,8 +888,6 @@ definitions:
                 description: backup switch
                 type: boolean
                 x-go-name: EnableBackup
-            environment_tag:
-                $ref: '#/definitions/EnvironmentTag'
             host:
                 description: DB Service Host
                 type: string
@@ -885,7 +930,6 @@ definitions:
             - user
             - password
             - business
-            - environment_tag
             - maintenance_times
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
@@ -979,6 +1023,81 @@ definitions:
                 $ref: '#/definitions/DBServiceSourceName'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DBServiceV2:
+        properties:
+            additional_params:
+                description: DB Service Custom connection parameters
+                items:
+                    $ref: '#/definitions/AdditionalParam'
+                type: array
+                x-go-name: AdditionalParams
+            backup_max_rows:
+                description: backup switch
+                format: uint64
+                type: integer
+                x-go-name: BackupMaxRows
+            db_type:
+                description: Service DB type
+                type: string
+                x-go-name: DBType
+            desc:
+                description: Service description
+                type: string
+                x-go-name: Desc
+            enable_backup:
+                description: backup switch
+                type: boolean
+                x-go-name: EnableBackup
+            environment_tag_uid:
+                description: DB Service environment tag
+                type: string
+                x-go-name: EnvironmentTagUID
+            host:
+                description: DB Service Host
+                type: string
+                x-go-name: Host
+            is_enable_masking:
+                description: data masking switch
+                type: boolean
+                x-go-name: IsEnableMasking
+            maintenance_times:
+                description: |-
+                    DB Service maintenance time
+                    empty value means that maintenance time is unlimited
+                items:
+                    $ref: '#/definitions/MaintenanceTime'
+                type: array
+                x-go-name: MaintenanceTimes
+            name:
+                description: Service name
+                type: string
+                x-go-name: Name
+            password:
+                description: DB Service admin password
+                type: string
+                x-go-name: Password
+            port:
+                description: DB Service port
+                type: string
+                x-go-name: Port
+            sqle_config:
+                $ref: '#/definitions/SQLEConfig'
+            user:
+                description: DB Service admin user
+                type: string
+                x-go-name: User
+        required:
+            - name
+            - db_type
+            - host
+            - port
+            - user
+            - password
+            - environment_tag_uid
+            - maintenance_times
+        type: object
+        x-go-name: DBService
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     DBServicesConnectionItem:
         properties:
             failed_names:
@@ -1191,14 +1310,13 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     EnvironmentTag:
         properties:
-            id:
-                format: uint64
-                type: integer
-                x-go-name: ID
             name:
-                description: 环境属性标签至少1个字符，最多50个字符
+                description: 环境属性标签最多50个字符
                 type: string
                 x-go-name: Name
+            uid:
+                type: string
+                x-go-name: UID
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     FeishuConfigurationResData:
@@ -1998,8 +2116,8 @@ definitions:
                 x-go-name: AdditionalParams
             business:
                 description: |-
-                    TODO This parameter is deprecated and will be removed soon.
                     the db service business name
+                    Deprecated: the business field is replaced with the environmentTag of the v2 interface.
                 type: string
                 x-go-name: Business
             db_type:
@@ -2010,8 +2128,68 @@ definitions:
                 description: DB desc
                 type: string
                 x-go-name: Desc
-            environment_tag:
-                $ref: '#/definitions/EnvironmentTag'
+            host:
+                description: db service host
+                type: string
+                x-go-name: Host
+            is_enable_masking:
+                description: is enable masking
+                type: boolean
+                x-go-name: IsEnableMasking
+            maintenance_times:
+                description: DB Service maintenance time
+                items:
+                    $ref: '#/definitions/MaintenanceTime'
+                type: array
+                x-go-name: MaintenanceTimes
+            name:
+                description: db service name
+                type: string
+                x-go-name: Name
+            password:
+                description: db service admin encrypted password
+                type: string
+                x-go-name: Password
+            port:
+                description: db service port
+                type: string
+                x-go-name: Port
+            project_uid:
+                description: DB project uid
+                type: string
+                x-go-name: ProjectUID
+            source:
+                description: DB source
+                type: string
+                x-go-name: Source
+            sqle_config:
+                $ref: '#/definitions/SQLEConfig'
+            user:
+                description: db service admin user
+                type: string
+                x-go-name: User
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ImportDBServiceV2:
+        properties:
+            additional_params:
+                description: DB Service Custom connection parameters
+                items:
+                    $ref: '#/definitions/AdditionalParam'
+                type: array
+                x-go-name: AdditionalParams
+            db_type:
+                description: db service DB type
+                type: string
+                x-go-name: DBType
+            desc:
+                description: DB desc
+                type: string
+                x-go-name: Desc
+            environment_tag_name:
+                description: DB Service environment tag uid
+                type: string
+                x-go-name: EnvironmentTagName
             host:
                 description: db service host
                 type: string
@@ -2053,9 +2231,10 @@ definitions:
                 type: string
                 x-go-name: User
         required:
-            - environment_tag
+            - environment_tag_name
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-name: ImportDBService
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     ImportDBServicesCheckReply:
         properties:
             code:
@@ -2075,6 +2254,26 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ImportDBServicesCheckReplyV2:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: db services
+                items:
+                    $ref: '#/definitions/ImportDBServiceV2'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-name: ImportDBServicesCheckReply
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     ImportDBServicesOfOneProjectReq:
         properties:
             db_services:
@@ -2084,6 +2283,16 @@ definitions:
                 x-go-name: DBServices
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ImportDBServicesOfOneProjectReqV2:
+        properties:
+            db_services:
+                items:
+                    $ref: '#/definitions/ImportDBServiceV2'
+                type: array
+                x-go-name: DBServices
+        type: object
+        x-go-name: ImportDBServicesOfOneProjectReq
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     ImportDBServicesOfProjectsReq:
         properties:
             db_services:
@@ -2093,18 +2302,24 @@ definitions:
                 x-go-name: DBServices
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ImportDBServicesOfProjectsReqV2:
+        properties:
+            db_services:
+                items:
+                    $ref: '#/definitions/ImportDBServiceV2'
+                type: array
+                x-go-name: DBServices
+        type: object
+        x-go-name: ImportDBServicesOfProjectsReq
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     ImportProjects:
         properties:
             business:
-                description: |-
-                    TODO This parameter is deprecated and will be removed soon.
-                    business
+                description: business
                 items:
                     type: string
                 type: array
                 x-go-name: Business
-            business_tag:
-                $ref: '#/definitions/BusinessTag'
             desc:
                 description: Project desc
                 type: string
@@ -2124,6 +2339,31 @@ definitions:
                 x-go-name: Projects
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ImportProjectsReqV2:
+        properties:
+            projects:
+                items:
+                    $ref: '#/definitions/ImportProjectsV2'
+                type: array
+                x-go-name: Projects
+        type: object
+        x-go-name: ImportProjectsReq
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
+    ImportProjectsV2:
+        properties:
+            business_tag:
+                $ref: '#/definitions/BusinessTag'
+            desc:
+                description: Project desc
+                type: string
+                x-go-name: Desc
+            name:
+                description: Project name
+                type: string
+                x-go-name: Name
+        type: object
+        x-go-name: ImportProjects
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     LDAPConfiguration:
         properties:
             enable_ldap:
@@ -2331,8 +2571,6 @@ definitions:
                 description: backup switch
                 type: boolean
                 x-go-name: EnableBackup
-            environment_tag:
-                $ref: '#/definitions/EnvironmentTag'
             host:
                 description: db service host
                 type: string
@@ -2448,6 +2686,30 @@ definitions:
                 x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    ListDBServiceReplyV2:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: List db service reply
+                items:
+                    $ref: '#/definitions/ListDBServiceV2'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-name: ListDBServiceReply
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v2
     ListDBServiceSyncTask:
         properties:
             additional_params:
@@ -2572,6 +2834,113 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListDBServiceV2:
+        properties:
+            additional_params:
+                description: DB Service Custom connection parameters
+                items:
+                    $ref: '#/definitions/AdditionalParam'
+                type: array
+                x-go-name: AdditionalParams
+            audit_plan_types:
+                description: audit plan types
+                items:
+                    $ref: '#/definitions/AuditPlanTypes'
+                type: array
+                x-go-name: AuditPlanTypes
+            backup_max_rows:
+                description: backup max rows
+                format: uint64
+                type: integer
+                x-go-name: BackupMaxRows
+            db_type:
+                description: db service DB type
+                type: string
+                x-go-name: DBType
+            desc:
+                description: DB desc
+                type: string
+                x-go-name: Desc
+            enable_backup:
+                description: backup switch
+                type: boolean
+                x-go-name: EnableBackup
+            environment_tag:
+                $ref: '#/definitions/EnvironmentTag'
+            host:
+                description: db service host
+                type: string
+                x-go-name: Host
+            instance_audit_plan_id:
+                description: instance audit plan id
+                format: uint64
+                type: integer
+                x-go-name: InstanceAuditPlanID
+            is_enable_masking:
+                description: is enable masking
+                type: boolean
+                x-go-name: IsEnableMasking
+            last_connection_test_error_message:
+                description: DB connect test error message
+                type: string
+                x-go-name: LastConnectionTestErrorMessage
+            last_connection_test_status:
+                description: |-
+                    DB connect test status
+                    connect_success LastConnectionTestStatusSuccess
+                    connect_failed LastConnectionTestStatusFailed
+                enum:
+                    - connect_success
+                    - connect_failed
+                type: string
+                x-go-enum-desc: |-
+                    connect_success LastConnectionTestStatusSuccess
+                    connect_failed LastConnectionTestStatusFailed
+                x-go-name: LastConnectionTestStatus
+            last_connection_test_time:
+                description: DB connection test time
+                format: date-time
+                type: string
+                x-go-name: LastConnectionTestTime
+            maintenance_times:
+                description: DB Service maintenance time
+                items:
+                    $ref: '#/definitions/MaintenanceTime'
+                type: array
+                x-go-name: MaintenanceTimes
+            name:
+                description: db service name
+                type: string
+                x-go-name: Name
+            password:
+                description: db service admin encrypted password
+                type: string
+                x-go-name: Password
+            port:
+                description: db service port
+                type: string
+                x-go-name: Port
+            project_uid:
+                description: DB project uid
+                type: string
+                x-go-name: ProjectUID
+            source:
+                description: DB source
+                type: string
+                x-go-name: Source
+            sqle_config:
+                $ref: '#/definitions/SQLEConfig'
+            uid:
+                description: db service uid
+                type: string
+                x-go-name: DBServiceUid
+            user:
+                description: db service admin user
+                type: string
+                x-go-name: User
+        type: object
+        x-go-name: ListDBService
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v2
     ListDataExportTaskSQL:
         properties:
             audit_level:
@@ -2727,8 +3096,108 @@ definitions:
                 description: |-
                     TODO This parameter is deprecated and will be removed soon.
                     the db service business name
+                    Deprecated: the business field is replaced with the environmentTag of the v2 interface.
                 type: string
                 x-go-name: Business
+            db_type:
+                description: db service DB type
+                type: string
+                x-go-name: DBType
+            desc:
+                description: DB desc
+                type: string
+                x-go-name: Desc
+            enable_backup:
+                description: backup switch
+                type: boolean
+                x-go-name: EnableBackup
+            host:
+                description: db service host
+                type: string
+                x-go-name: Host
+            is_enable_audit:
+                description: is enable audit
+                type: boolean
+                x-go-name: IsEnableAudit
+            is_enable_masking:
+                description: is enable masking
+                type: boolean
+                x-go-name: IsEnableMasking
+            last_connection_test_error_message:
+                description: DB connect test error message
+                type: string
+                x-go-name: LastConnectionTestErrorMessage
+            last_connection_test_status:
+                description: |-
+                    DB connect test status
+                    connect_success LastConnectionTestStatusSuccess
+                    connect_failed LastConnectionTestStatusFailed
+                enum:
+                    - connect_success
+                    - connect_failed
+                type: string
+                x-go-enum-desc: |-
+                    connect_success LastConnectionTestStatusSuccess
+                    connect_failed LastConnectionTestStatusFailed
+                x-go-name: LastConnectionTestStatus
+            last_connection_test_time:
+                description: DB connection test time
+                format: date-time
+                type: string
+                x-go-name: LastConnectionTestTime
+            maintenance_times:
+                description: DB Service maintenance time
+                items:
+                    $ref: '#/definitions/MaintenanceTime'
+                type: array
+                x-go-name: MaintenanceTimes
+            name:
+                description: db service name
+                type: string
+                x-go-name: Name
+            port:
+                description: db service port
+                type: string
+                x-go-name: Port
+            project_name:
+                description: db service project_name
+                type: string
+                x-go-name: ProjectName
+            project_uid:
+                description: DB project uid
+                type: string
+                x-go-name: ProjectUID
+            source:
+                description: DB source
+                type: string
+                x-go-name: Source
+            uid:
+                description: db service uid
+                type: string
+                x-go-name: DBServiceUid
+            unfinished_workflow_num:
+                description: db service unfinished workflow num
+                format: int64
+                type: integer
+                x-go-name: UnfinishedWorkflowNum
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListGlobalDBServiceTips:
+        properties:
+            db_type:
+                items:
+                    type: string
+                type: array
+                x-go-name: DBType
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListGlobalDBServiceV2:
+        properties:
+            backup_max_rows:
+                description: backup switch
+                format: uint64
+                type: integer
+                x-go-name: BackupMaxRows
             db_type:
                 description: db service DB type
                 type: string
@@ -2812,17 +3281,11 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: UnfinishedWorkflowNum
+        required:
+            - environment_tag
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    ListGlobalDBServiceTips:
-        properties:
-            db_type:
-                items:
-                    type: string
-                type: array
-                x-go-name: DBType
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-name: ListGlobalDBService
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     ListGlobalDBServicesReply:
         properties:
             code:
@@ -2846,6 +3309,30 @@ definitions:
                 x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListGlobalDBServicesReplyV2:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: List global db service reply
+                items:
+                    $ref: '#/definitions/ListGlobalDBServiceV2'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-name: ListGlobalDBServicesReply
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     ListGlobalDBServicesTipsReply:
         properties:
             code:
@@ -3142,23 +3629,65 @@ definitions:
                 x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    ListProject:
-        description: A dms Project
+    ListProjectReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: List project reply
+                items:
+                    $ref: '#/definitions/ListProjectV1'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    ListProjectReplyV2:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: List project reply
+                items:
+                    $ref: '#/definitions/ListProjectV2'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-name: ListProjectReply
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v2
+    ListProjectV1:
         properties:
             archived:
                 description: Project is archived
                 type: boolean
                 x-go-name: Archived
             business:
-                description: |-
-                    TODO This parameter is deprecated and will be removed soon.
-                    Project business
+                description: Project business
                 items:
                     $ref: '#/definitions/Business'
                 type: array
                 x-go-name: Business
-            business_tag:
-                $ref: '#/definitions/BusinessTag'
             create_time:
                 description: create time
                 format: date-time
@@ -3202,30 +3731,57 @@ definitions:
                 type: string
                 x-go-name: ProjectUid
         type: object
+        x-go-name: ListProject
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
-    ListProjectReply:
+    ListProjectV2:
         properties:
-            code:
-                description: code
-                format: int64
-                type: integer
-                x-go-name: Code
-            data:
-                description: List project reply
-                items:
-                    $ref: '#/definitions/ListProject'
-                type: array
-                x-go-name: Data
-            message:
-                description: message
+            archived:
+                description: Project is archived
+                type: boolean
+                x-go-name: Archived
+            business_tag:
+                $ref: '#/definitions/BusinessTagCommon'
+            create_time:
+                description: create time
+                format: date-time
                 type: string
-                x-go-name: Message
-            total_nums:
-                format: int64
-                type: integer
-                x-go-name: Total
+                x-go-name: CreateTime
+            create_user:
+                $ref: '#/definitions/UidWithName'
+            desc:
+                description: Project desc
+                type: string
+                x-go-name: Desc
+            name:
+                description: Project name
+                type: string
+                x-go-name: Name
+            project_priority:
+                description: |-
+                    project priority
+                    high ProjectPriorityHigh
+                    medium ProjectPriorityMedium
+                    low ProjectPriorityLow
+                    unknown ProjectPriorityUnknown
+                enum:
+                    - high
+                    - medium
+                    - low
+                    - unknown
+                type: string
+                x-go-enum-desc: |-
+                    high ProjectPriorityHigh
+                    medium ProjectPriorityMedium
+                    low ProjectPriorityLow
+                    unknown ProjectPriorityUnknown
+                x-go-name: ProjectPriority
+            uid:
+                description: Project uid
+                type: string
+                x-go-name: ProjectUid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-name: ListProject
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v2
     ListRole:
         description: A dms role
         properties:
@@ -3865,15 +4421,11 @@ definitions:
     PreviewImportProjects:
         properties:
             business:
-                description: |-
-                    TODO This parameter is deprecated and will be removed soon.
-                    business
+                description: business
                 items:
                     type: string
                 type: array
                 x-go-name: Business
-            business_tag:
-                $ref: '#/definitions/BusinessTag'
             desc:
                 description: Project desc
                 type: string
@@ -3903,27 +4455,67 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    Project:
-        description: A Project
+    PreviewImportProjectsReplyV2:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: list preview import projects
+                items:
+                    $ref: '#/definitions/PreviewImportProjectsV2'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-name: PreviewImportProjectsReply
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
+    PreviewImportProjectsV2:
+        properties:
+            business_tag:
+                $ref: '#/definitions/BusinessTag'
+            desc:
+                description: Project desc
+                type: string
+                x-go-name: Desc
+            name:
+                description: Project name
+                type: string
+                x-go-name: Name
+        type: object
+        x-go-name: PreviewImportProjects
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
+    ProjectTips:
         properties:
             business:
-                description: |-
-                    TODO This parameter is deprecated and will be removed soon.
-                    project business
                 items:
                     type: string
                 type: array
                 x-go-name: Business
-            business_tag:
-                $ref: '#/definitions/BusinessTag'
+            is_fixed_business:
+                type: boolean
+                x-go-name: IsFixedBusiness
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ProjectV1:
+        properties:
+            business:
+                description: project business
+                items:
+                    type: string
+                type: array
+                x-go-name: Business
             desc:
                 description: project desc
                 type: string
                 x-go-name: Desc
             is_fixed_business:
-                description: |-
-                    TODO This parameter is deprecated and will be removed soon.
-                    is fixed business
+                description: is fixed business
                 type: boolean
                 x-go-name: IsFixedBusiness
             name:
@@ -3950,20 +4542,42 @@ definitions:
                     unknown ProjectPriorityUnknown
                 x-go-name: ProjectPriority
         type: object
+        x-go-name: Project
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    ProjectTips:
+    ProjectV2:
         properties:
-            business:
-                items:
-                    type: string
-                type: array
-                x-go-name: Business
-            is_fixed_business:
-                type: boolean
-                x-go-name: IsFixedBusiness
-        title: TODO This model will be removed due to it's related API is deprecated and will be removed soon.
+            business_tag:
+                $ref: '#/definitions/BusinessTag'
+            desc:
+                description: project desc
+                type: string
+                x-go-name: Desc
+            name:
+                description: project name
+                type: string
+                x-go-name: Name
+            project_priority:
+                description: |-
+                    project priority
+                    high ProjectPriorityHigh
+                    medium ProjectPriorityMedium
+                    low ProjectPriorityLow
+                    unknown ProjectPriorityUnknown
+                enum:
+                    - high
+                    - medium
+                    - low
+                    - unknown
+                type: string
+                x-go-enum-desc: |-
+                    high ProjectPriorityHigh
+                    medium ProjectPriorityMedium
+                    low ProjectPriorityLow
+                    unknown ProjectPriorityUnknown
+                x-go-name: ProjectPriority
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-name: Project
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     RegisterDMSPluginReply:
         properties:
             code:
@@ -4449,9 +5063,7 @@ definitions:
                 type: integer
                 x-go-name: BackupMaxRows
             business:
-                description: |-
-                    TODO This parameter is deprecated and will be removed soon.
-                    DB Service business name
+                description: DB Service business name
                 type: string
                 x-go-name: Business
             db_type:
@@ -4466,8 +5078,6 @@ definitions:
                 description: backup switch
                 type: boolean
                 x-go-name: EnableBackup
-            environment_tag:
-                $ref: '#/definitions/EnvironmentTag'
             host:
                 description: DB Service Host
                 type: string
@@ -4502,7 +5112,6 @@ definitions:
             - port
             - user
             - business
-            - environment_tag
             - maintenance_times
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
@@ -4534,16 +5143,91 @@ definitions:
                 $ref: '#/definitions/UpdateDBService'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateDBServiceReqV2:
+        properties:
+            db_service:
+                $ref: '#/definitions/UpdateDBServiceV2'
+        type: object
+        x-go-name: UpdateDBServiceReq
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     UpdateDBServiceSyncTaskReq:
         properties:
             db_service_sync_task:
                 $ref: '#/definitions/DBServiceSyncTask'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateDBServiceV2:
+        properties:
+            additional_params:
+                description: DB Service Custom connection parameters
+                items:
+                    $ref: '#/definitions/AdditionalParam'
+                type: array
+                x-go-name: AdditionalParams
+            backup_max_rows:
+                description: backup switch
+                format: uint64
+                type: integer
+                x-go-name: BackupMaxRows
+            db_type:
+                description: Service DB type
+                type: string
+                x-go-name: DBType
+            desc:
+                description: Service description
+                type: string
+                x-go-name: Desc
+            enable_backup:
+                description: backup switch
+                type: boolean
+                x-go-name: EnableBackup
+            environment_tag_uid:
+                description: DB Service environment tag
+                type: string
+                x-go-name: EnvironmentTagUID
+            host:
+                description: DB Service Host
+                type: string
+                x-go-name: Host
+            is_enable_masking:
+                description: data masking switch
+                type: boolean
+                x-go-name: IsEnableMasking
+            maintenance_times:
+                description: DB Service maintenance time
+                items:
+                    $ref: '#/definitions/MaintenanceTime'
+                type: array
+                x-go-name: MaintenanceTimes
+            password:
+                description: DB Service admin password
+                type: string
+                x-go-name: Password
+            port:
+                description: DB Service port
+                type: string
+                x-go-name: Port
+            sqle_config:
+                $ref: '#/definitions/SQLEConfig'
+            user:
+                description: DB Service admin user
+                type: string
+                x-go-name: User
+        required:
+            - db_type
+            - host
+            - port
+            - user
+            - environment_tag_uid
+            - maintenance_times
+        type: object
+        x-go-name: UpdateDBService
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     UpdateEnvironmentTagReq:
         properties:
-            environment_tag:
-                $ref: '#/definitions/EnvironmentTag'
+            environment_name:
+                type: string
+                x-go-name: Name
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateFeishuConfiguration:
@@ -4633,16 +5317,12 @@ definitions:
                     $ref: '#/definitions/BusinessForUpdate'
                 type: array
                 x-go-name: Business
-            business_tag:
-                $ref: '#/definitions/BusinessTag'
             desc:
                 description: Project desc
                 type: string
                 x-go-name: Desc
             is_fixed_business:
-                description: |-
-                    is fixed business
-                    TODO This parameter is deprecated and will be removed soon.
+                description: is fixed business
                 type: boolean
                 x-go-name: IsFixedBusiness
             project_priority:
@@ -4672,6 +5352,43 @@ definitions:
                 $ref: '#/definitions/UpdateProject'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateProjectReqV2:
+        properties:
+            project:
+                $ref: '#/definitions/UpdateProjectV2'
+        type: object
+        x-go-name: UpdateProjectReq
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
+    UpdateProjectV2:
+        properties:
+            business_tag:
+                $ref: '#/definitions/BusinessTag'
+            desc:
+                description: Project desc
+                type: string
+                x-go-name: Desc
+            project_priority:
+                description: |-
+                    project priority
+                    high ProjectPriorityHigh
+                    medium ProjectPriorityMedium
+                    low ProjectPriorityLow
+                    unknown ProjectPriorityUnknown
+                enum:
+                    - high
+                    - medium
+                    - low
+                    - unknown
+                type: string
+                x-go-enum-desc: |-
+                    high ProjectPriorityHigh
+                    medium ProjectPriorityMedium
+                    low ProjectPriorityLow
+                    unknown ProjectPriorityUnknown
+                x-go-name: ProjectPriority
+        type: object
+        x-go-name: UpdateProject
+        x-go-package: github.com/actiontech/dms/api/dms/service/v2
     UpdateRole:
         properties:
             desc:
@@ -6278,11 +6995,6 @@ paths:
                     low ProjectPriorityLow
                     unknown ProjectPriorityUnknown
                   x-go-name: FilterByProjectPriority
-                - description: filter project by business tag
-                  in: query
-                  name: filter_by_business_tag
-                  type: string
-                  x-go-name: FilterByBusinessTag
                 - description: filter the Project By Project description
                   in: query
                   name: filter_by_desc
@@ -6997,11 +7709,6 @@ paths:
                   name: filter_by_db_service_ids
                   type: array
                   x-go-name: FilterByDBServiceIds
-                - description: filter db services by environment tag
-                  in: query
-                  name: filter_by_environment_tag
-                  type: string
-                  x-go-name: FilterByEnvironmentTag
                 - description: the db service fuzzy keyword,include host/port
                   in: query
                   name: fuzzy_keyword
@@ -7321,12 +8028,11 @@ paths:
                   name: project_uid
                   required: true
                   type: string
-                - description: environment tag to be created
+                - description: the name of environment tag to be created
                   in: body
-                  name: environment_tag
+                  name: environment_name
                   required: true
-                  schema:
-                    $ref: '#/definitions/CreateEnvironmentTagReq'
+                  type: string
             responses:
                 "200":
                     description: GenericResp
@@ -7378,12 +8084,11 @@ paths:
                   name: environment_tag_uid
                   required: true
                   type: string
-                - description: the environment tag to be updated
+                - description: the name of environment tag to be updated
                   in: body
-                  name: environment_tag
+                  name: environment_name
                   required: true
-                  schema:
-                    $ref: '#/definitions/UpdateEnvironmentTagReq'
+                  type: string
             responses:
                 "200":
                     description: GenericResp
@@ -7968,6 +8673,7 @@ paths:
                 - Project
     /v1/dms/projects/import_db_services:
         post:
+            deprecated: true
             operationId: ImportDBServicesOfProjects
             parameters:
                 - description: new db services
@@ -8065,7 +8771,7 @@ paths:
                 - Project
     /v1/dms/projects/tips:
         get:
-            description: Get project tips.
+            deprecated: true
             operationId: GetProjectTips
             parameters:
                 - description: Project uid
@@ -8082,7 +8788,7 @@ paths:
                     description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: TODO This API is deprecated and will be removed soon.
+            summary: Get project tips.
             tags:
                 - Project
     /v1/dms/proxys:
@@ -8669,11 +9375,88 @@ paths:
         get:
             description: list global DBServices
             operationId: ListGlobalDBServicesV2
+            parameters:
+                - description: the maximum count of db service to be returned
+                  format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of users to be returned, default is 0
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - description: |-
+                    Multiple of ["name"], default is ["name"]
+                    name DBServiceOrderByName
+                  enum:
+                    - name
+                  in: query
+                  name: order_by
+                  type: string
+                  x-go-enum-desc: name DBServiceOrderByName
+                  x-go-name: OrderBy
+                - description: the db service connection
+                  enum:
+                    - connect_success
+                    - connect_failed
+                  in: query
+                  name: filter_last_connection_test_status
+                  type: string
+                  x-go-name: FilterLastConnectionTestStatus
+                - description: filter db services by environment tag
+                  in: query
+                  name: filter_by_environment_tag_uid
+                  type: string
+                  x-go-name: FilterByEnvironmentTagUID
+                - description: the db service host
+                  in: query
+                  name: filter_by_host
+                  type: string
+                  x-go-name: FilterByHost
+                - description: the db service uid
+                  in: query
+                  name: filter_by_uid
+                  type: string
+                  x-go-name: FilterByUID
+                - description: the db service name
+                  in: query
+                  name: filter_by_name
+                  type: string
+                  x-go-name: FilterByName
+                - description: the db service port
+                  in: query
+                  name: filter_by_port
+                  type: string
+                  x-go-name: FilterByPort
+                - description: the db service db type
+                  in: query
+                  name: filter_by_db_type
+                  type: string
+                  x-go-name: FilterByDBType
+                - description: the db service project id
+                  in: query
+                  name: filter_by_project_uid
+                  type: string
+                  x-go-name: FilterByProjectUid
+                - description: is masking
+                  in: query
+                  name: filter_by_is_enable_masking
+                  type: boolean
+                  x-go-name: FilterByIsEnableMasking
+                - description: the db service fuzzy keyword
+                  in: query
+                  name: fuzzy_keyword
+                  type: string
+                  x-go-name: FuzzyKeyword
             responses:
                 "200":
-                    description: ListGlobalDBServicesReply
+                    description: ListGlobalDBServicesReplyV2
                     schema:
-                        $ref: '#/definitions/ListGlobalDBServicesReply'
+                        $ref: '#/definitions/ListGlobalDBServicesReplyV2'
                 default:
                     description: GenericResp
                     schema:
@@ -8683,11 +9466,82 @@ paths:
     /v2/dms/projects:
         get:
             operationId: ListProjectsV2
+            parameters:
+                - description: the maximum count of Project to be returned
+                  format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of Projects to be returned, default is 0
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - description: |-
+                    Multiple of ["name"], default is ["name"]
+                    name ProjectOrderByName
+                  enum:
+                    - name
+                  in: query
+                  name: order_by
+                  type: string
+                  x-go-enum-desc: name ProjectOrderByName
+                  x-go-name: OrderBy
+                - description: filter the Project name
+                  in: query
+                  name: filter_by_name
+                  type: string
+                  x-go-name: FilterByName
+                - description: filter the Project UID
+                  in: query
+                  name: filter_by_uid
+                  type: string
+                  x-go-name: FilterByUID
+                - description: filter project by project id list, using in condition
+                  in: query
+                  items:
+                    type: string
+                  name: filter_by_project_uids
+                  type: array
+                  x-go-name: FilterByProjectUids
+                - description: |-
+                    filter project by project priority
+                    high ProjectPriorityHigh
+                    medium ProjectPriorityMedium
+                    low ProjectPriorityLow
+                    unknown ProjectPriorityUnknown
+                  enum:
+                    - high
+                    - medium
+                    - low
+                    - unknown
+                  in: query
+                  name: filter_by_project_priority
+                  type: string
+                  x-go-enum-desc: |-
+                    high ProjectPriorityHigh
+                    medium ProjectPriorityMedium
+                    low ProjectPriorityLow
+                    unknown ProjectPriorityUnknown
+                  x-go-name: FilterByProjectPriority
+                - description: filter project by business tag
+                  in: query
+                  name: filter_by_business_tag
+                  type: string
+                  x-go-name: FilterByBusinessTag
+                - description: filter the Project By Project description
+                  in: query
+                  name: filter_by_desc
+                  type: string
+                  x-go-name: FilterByDesc
             responses:
                 "200":
-                    description: ListProjectReply
+                    description: ListProjectReplyV2
                     schema:
-                        $ref: '#/definitions/ListProjectReply'
+                        $ref: '#/definitions/ListProjectReplyV2'
                 default:
                     description: GenericResp
                     schema:
@@ -8703,12 +9557,12 @@ paths:
                   name: project
                   required: true
                   schema:
-                    $ref: '#/definitions/AddProjectReq'
+                    $ref: '#/definitions/AddProjectReqV2'
             responses:
                 "200":
-                    description: AddProjectReply
+                    description: AddProjectReplyV2
                     schema:
-                        $ref: '#/definitions/AddProjectReply'
+                        $ref: '#/definitions/AddProjectReplyV2'
                 default:
                     description: GenericResp
                     schema:
@@ -8730,7 +9584,7 @@ paths:
                   name: project
                   required: true
                   schema:
-                    $ref: '#/definitions/UpdateProjectReq'
+                    $ref: '#/definitions/UpdateProjectReqV2'
             responses:
                 "200":
                     description: GenericResp
@@ -8746,11 +9600,96 @@ paths:
     /v2/dms/projects/{project_uid}/db_services:
         get:
             operationId: ListDBServicesV2
+            parameters:
+                - description: the maximum count of db service to be returned
+                  format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of users to be returned, default is 0
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - description: |-
+                    Multiple of ["name"], default is ["name"]
+                    name DBServiceOrderByName
+                  enum:
+                    - name
+                  in: query
+                  name: order_by
+                  type: string
+                  x-go-enum-desc: name DBServiceOrderByName
+                  x-go-name: OrderBy
+                - description: the db service connection
+                  enum:
+                    - connect_success
+                    - connect_failed
+                  in: query
+                  name: filter_last_connection_test_status
+                  type: string
+                  x-go-name: FilterLastConnectionTestStatus
+                - description: the db service host
+                  in: query
+                  name: filter_by_host
+                  type: string
+                  x-go-name: FilterByHost
+                - description: the db service uid
+                  in: query
+                  name: filter_by_uid
+                  type: string
+                  x-go-name: FilterByUID
+                - description: the db service name
+                  in: query
+                  name: filter_by_name
+                  type: string
+                  x-go-name: FilterByName
+                - description: the db service port
+                  in: query
+                  name: filter_by_port
+                  type: string
+                  x-go-name: FilterByPort
+                - description: the db service db type
+                  in: query
+                  name: filter_by_db_type
+                  type: string
+                  x-go-name: FilterByDBType
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: filter db services by db service id list using in condition
+                  in: query
+                  items:
+                    type: string
+                  name: filter_by_db_service_ids
+                  type: array
+                  x-go-name: FilterByDBServiceIds
+                - description: filter db services by environment tag
+                  in: query
+                  name: filter_by_environment_tag_uid
+                  type: string
+                  x-go-name: FilterByEnvironmentTagUID
+                - description: the db service fuzzy keyword,include host/port
+                  in: query
+                  name: fuzzy_keyword
+                  type: string
+                  x-go-name: FuzzyKeyword
+                - description: is masking
+                  in: query
+                  name: is_enable_masking
+                  type: boolean
+                  x-go-name: IsEnableMasking
             responses:
                 "200":
-                    description: ListDBServiceReply
+                    description: ListDBServiceReplyV2
                     schema:
-                        $ref: '#/definitions/ListDBServiceReply'
+                        $ref: '#/definitions/ListDBServiceReplyV2'
                 default:
                     description: GenericResp
                     schema:
@@ -8771,7 +9710,7 @@ paths:
                   name: db_service
                   required: true
                   schema:
-                    $ref: '#/definitions/AddDBServiceReq'
+                    $ref: '#/definitions/AddDBServiceReqV2'
             responses:
                 "200":
                     description: AddDBServiceReply
@@ -8802,7 +9741,7 @@ paths:
                   in: body
                   name: db_service
                   schema:
-                    $ref: '#/definitions/UpdateDBServiceReq'
+                    $ref: '#/definitions/UpdateDBServiceReqV2'
             responses:
                 "200":
                     description: GenericResp
@@ -8829,7 +9768,7 @@ paths:
                   name: db_services
                   required: true
                   schema:
-                    $ref: '#/definitions/ImportDBServicesOfOneProjectReq'
+                    $ref: '#/definitions/ImportDBServicesOfOneProjectReqV2'
             responses:
                 "200":
                     description: GenericResp
@@ -8847,6 +9786,18 @@ paths:
             consumes:
                 - multipart/form-data
             operationId: ImportDBServicesOfOneProjectCheckV2
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: DBServices file.
+                  in: formData
+                  name: db_services_file
+                  type: file
+                  x-go-name: DBServicesFile
             produces:
                 - application/json
                 - text/csv
@@ -8869,7 +9820,7 @@ paths:
                   name: projects
                   required: true
                   schema:
-                    $ref: '#/definitions/ImportProjectsReq'
+                    $ref: '#/definitions/ImportProjectsReqV2'
             responses:
                 "200":
                     description: GenericResp
@@ -8882,11 +9833,39 @@ paths:
             summary: Import projects.
             tags:
                 - Project
+    /v2/dms/projects/import_db_services:
+        post:
+            operationId: ImportDBServicesOfProjectsV2
+            parameters:
+                - description: new db services
+                  in: body
+                  name: db_services
+                  required: true
+                  schema:
+                    $ref: '#/definitions/ImportDBServicesOfProjectsReqV2'
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Import DBServices.
+            tags:
+                - Project
     /v2/dms/projects/import_db_services_check:
         post:
             consumes:
                 - multipart/form-data
             operationId: ImportDBServicesOfProjectsCheckV2
+            parameters:
+                - description: DBServices file.
+                  in: formData
+                  name: db_services_file
+                  type: file
+                  x-go-name: DBServicesFile
             produces:
                 - application/json
                 - text/csv
@@ -8905,11 +9884,17 @@ paths:
             consumes:
                 - multipart/form-data
             operationId: PreviewImportProjectsV2
+            parameters:
+                - description: projects file.
+                  in: formData
+                  name: projects_file
+                  type: file
+                  x-go-name: ProjectsFile
             responses:
                 "200":
-                    description: PreviewImportProjectsReply
+                    description: PreviewImportProjectsReplyV2
                     schema:
-                        $ref: '#/definitions/PreviewImportProjectsReply'
+                        $ref: '#/definitions/PreviewImportProjectsReplyV2'
                 default:
                     description: GenericResp
                     schema:

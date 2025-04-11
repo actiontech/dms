@@ -24,15 +24,14 @@ const (
 type Project struct {
 	Base
 
-	UID             string
-	Name            string
-	Desc            string
-	Priority        dmsCommonV1.ProjectPriority
-	IsFixedBusiness bool
-	Business        []Business
-	CreateUserUID   string
-	CreateTime      time.Time
-	Status          ProjectStatus
+	UID           string
+	Name          string
+	Desc          string
+	Priority      dmsCommonV1.ProjectPriority
+	BusinessTag   BusinessTag
+	CreateUserUID string
+	CreateTime    time.Time
+	Status        ProjectStatus
 }
 
 type Business struct {
@@ -41,39 +40,24 @@ type Business struct {
 }
 
 type PreviewProject struct {
-	Name     string
-	Desc     string
-	Business []string
+	Name            string
+	Desc            string
+	BusinessTagName string
 }
 
-func NewProject(createUserUID, name, desc string, priority dmsCommonV1.ProjectPriority, isFixedBusiness bool, business []string) (*Project, error) {
+func NewProject(createUserUID, name, desc string, priority dmsCommonV1.ProjectPriority, businessTagUID string) (*Project, error) {
 	uid, err := pkgRand.GenStrUid()
 	if err != nil {
 		return nil, err
 	}
-
-	businessList := make([]Business, 0)
-	for _, b := range business {
-		uid, err = pkgRand.GenStrUid()
-		if err != nil {
-			return nil, err
-		}
-
-		businessList = append(businessList, Business{
-			Uid:  uid,
-			Name: b,
-		})
-	}
-
 	return &Project{
-		UID:             uid,
-		Name:            name,
-		Desc:            desc,
-		Business:        businessList,
-		Status:          ProjectStatusActive,
-		IsFixedBusiness: isFixedBusiness,
-		CreateUserUID:   createUserUID,
-		Priority:        priority,
+		UID:           uid,
+		Name:          name,
+		Desc:          desc,
+		Status:        ProjectStatusActive,
+		CreateUserUID: createUserUID,
+		BusinessTag:   BusinessTag{UID: businessTagUID},
+		Priority:      priority,
 	}, nil
 }
 
@@ -105,19 +89,27 @@ type ProjectUsecase struct {
 	tx                        TransactionGenerator
 	repo                      ProjectRepo
 	memberUsecase             *MemberUsecase
+	businessTagUsecase        *BusinessTagUsecase
+	environmentTagUsecase     *EnvironmentTagUsecase
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	pluginUsecase             *PluginUsecase
 	log                       *utilLog.Helper
 }
 
-func NewProjectUsecase(log utilLog.Logger, tx TransactionGenerator, repo ProjectRepo, memberUsecase *MemberUsecase,
-	opPermissionVerifyUsecase *OpPermissionVerifyUsecase, pluginUsecase *PluginUsecase) *ProjectUsecase {
+func NewProjectUsecase(log utilLog.Logger, tx TransactionGenerator, repo ProjectRepo,
+	memberUsecase *MemberUsecase,
+	opPermissionVerifyUsecase *OpPermissionVerifyUsecase,
+	pluginUsecase *PluginUsecase,
+	businessTagUsecase *BusinessTagUsecase,
+	environmentTagUsecase *EnvironmentTagUsecase) *ProjectUsecase {
 	return &ProjectUsecase{
 		tx:                        tx,
 		repo:                      repo,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.project")),
 		memberUsecase:             memberUsecase,
 		pluginUsecase:             pluginUsecase,
+		businessTagUsecase:        businessTagUsecase,
+		environmentTagUsecase:     environmentTagUsecase,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 	}
 }
@@ -135,7 +127,7 @@ func (d *ProjectUsecase) ListProject(ctx context.Context, option *ListProjectsOp
 		return nil, 0, err
 	}
 
-	// filter visible namespce space in advance
+	// filter visible namespace space in advance
 	// user can only view his belonging project,sys user can view all project
 	if currentUserUid != pkgConst.UIDOfUserSys && !canViewGlobal {
 		projects, err := d.opPermissionVerifyUsecase.GetUserProject(ctx, currentUserUid)
@@ -179,6 +171,18 @@ func (d *ProjectUsecase) InitProjects(ctx context.Context) (err error) {
 			return fmt.Errorf("failed to get project: %v", err)
 		}
 
+		err = d.businessTagUsecase.CreateBusinessTag(ctx, n.Name)
+		if err != nil {
+			d.log.Error("create business tag for default project failed")
+			return fmt.Errorf("create business tag for default project failed: %v", err)
+		}
+		businessTag, err := d.businessTagUsecase.GetBusinessTagByName(ctx, n.Name)
+		if err != nil {
+			d.log.Error("get business tag for default project failed")
+			return fmt.Errorf("get business tag for default project failed: %v", err)
+		}
+		n.BusinessTag = *businessTag
+		
 		// not exist, then create it.
 		err = d.repo.SaveProject(ctx, n)
 		if err != nil {
@@ -188,6 +192,16 @@ func (d *ProjectUsecase) InitProjects(ctx context.Context) (err error) {
 		_, err = d.memberUsecase.AddUserToProjectAdminMember(ctx, pkgConst.UIDOfUserAdmin, n.UID)
 		if err != nil {
 			return fmt.Errorf("add admin to projects failed: %v", err)
+		}
+		// 初始化环境标签
+		err = d.environmentTagUsecase.InitDefaultEnvironmentTags(ctx, n.UID, n.CreateUserUID)
+		if err != nil {
+			d.log.Error("init default environment tags failed",
+				"error", err,
+				"project_uid", n.UID,
+				"create_user_uid", n.CreateUserUID,
+			)
+			return fmt.Errorf("init default environment tags failed: %v", err)
 		}
 	}
 	d.log.Debug("init project success")
@@ -206,9 +220,9 @@ func (d *ProjectUsecase) UpdateDBServiceBusiness(ctx context.Context, currentUse
 
 	// 检查当前用户有项目管理员权限
 	if canOpProject, err := d.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, projectUid); err != nil {
-		return fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
+		return fmt.Errorf("check user is project admin or global op permission failed: %v", err)
 	} else if !canOpProject {
-		return fmt.Errorf("user is not project admin or golobal op permission user")
+		return fmt.Errorf("user is not project admin or global op permission user")
 	}
 
 	err := d.repo.UpdateDBServiceBusiness(ctx, projectUid, originBusiness, descBusiness)
