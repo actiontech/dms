@@ -188,19 +188,19 @@ func NewDBServiceUsecase(log utilLog.Logger, repo DBServiceRepo, pluginUsecase *
 }
 
 type BizDBServiceArgs struct {
-	Name     string
-	Desc     *string
-	DBType   string
-	Host     string
-	Port     string
-	User     string
-	Password *string
-	// Business          string
-	EnvironmentTagUID string
-	Source            string
-	AdditionalParams  pkgParams.Params
-	ProjectUID        string
-	MaintenancePeriod pkgPeriods.Periods
+	Name               string
+	Desc               *string
+	DBType             string
+	Host               string
+	Port               string
+	User               string
+	Password           *string
+	EnvironmentTagUID  string
+	EnvironmentTagName string
+	Source             string
+	AdditionalParams   pkgParams.Params
+	ProjectUID         string
+	MaintenancePeriod  pkgPeriods.Periods
 	// sqle config
 	RuleTemplateName string
 	RuleTemplateID   string
