@@ -28,9 +28,6 @@ type ListProjectReq struct {
 	// filter project by project priority
 	// in:query
 	FilterByProjectPriority ProjectPriority `query:"filter_by_project_priority" json:"filter_by_project_priority"`
-	// filter project by business tag
-	// in:query
-	FilterByBusinessTag string `query:"filter_by_business_tag" json:"filter_by_business_tag"`
 	// filter the Project By Project description
 	FilterByDesc string `query:"filter_by_desc" json:"filter_by_desc"`
 }
@@ -78,7 +75,7 @@ func ToPriority(priority uint8) ProjectPriority {
 	}
 }
 
-// A dms Project
+// swagger:model ListProjectV1
 type ListProject struct {
 	// Project uid
 	ProjectUid string `json:"uid"`
@@ -90,24 +87,14 @@ type ListProject struct {
 	Desc string `json:"desc"`
 	// is fixed business
 	IsFixedBusiness bool `json:"is_fixed_business"`
-	// TODO This parameter is deprecated and will be removed soon.
 	// Project business
 	Business []Business `json:"business"`
-	// project business tag
-	BusinessTag *BusinessTag `json:"business_tag"`
 	// create user
 	CreateUser UidWithName `json:"create_user"`
 	// create time
 	CreateTime strfmt.DateTime `json:"create_time"`
 	// project priority
 	ProjectPriority ProjectPriority `json:"project_priority" enums:"high,medium,low"`
-}
-
-// swagger:model
-type BusinessTag struct {
-	ID uint `json:"id,omitempty"`
-	// 业务标签至少1个字符，最多50个字符
-	Name string `json:"name" validate:"min=1,max=50"`
 }
 
 type Business struct {

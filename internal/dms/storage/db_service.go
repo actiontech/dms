@@ -58,7 +58,7 @@ func (d *DBServiceRepo) ListDBServices(ctx context.Context, opt *biz.ListDBServi
 		{
 			db := tx.WithContext(ctx).Order(string(opt.OrderBy))
 			db = gormWheres(ctx, db, opt.FilterBy)
-			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber))))).Find(&models)
+			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber))))).Preload("EnvironmentTag").Find(&models)
 			if err := db.Error; err != nil {
 				return fmt.Errorf("failed to list db service: %v", err)
 			}
@@ -92,7 +92,7 @@ func (d *DBServiceRepo) GetDBServicesByIds(ctx context.Context, dbServiceIds []s
 	var items []*model.DBService
 	if err = transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		// find models
-		db := tx.WithContext(ctx).Find(&items, dbServiceIds)
+		db := tx.WithContext(ctx).Preload("EnvironmentTag").Find(&items, dbServiceIds)
 
 		if err = db.Error; err != nil {
 			return fmt.Errorf("failed to list db service: %v", err)
@@ -174,7 +174,7 @@ func (d *DBServiceRepo) GetDBServices(ctx context.Context, conditions []pkgConst
 			for _, f := range conditions {
 				db = gormWhere(db, f)
 			}
-			db = db.Find(&models)
+			db = db.Preload("EnvironmentTag").Find(&models)
 			if err := db.Error; err != nil {
 				return fmt.Errorf("failed to list db service: %v", err)
 			}
@@ -199,7 +199,7 @@ func (d *DBServiceRepo) GetDBServices(ctx context.Context, conditions []pkgConst
 func (d *DBServiceRepo) GetDBService(ctx context.Context, dbServiceUid string) (*biz.DBService, error) {
 	var dbService *model.DBService
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
-		if err := tx.First(&dbService, "uid = ?", dbServiceUid).Error; err != nil {
+		if err := tx.Preload("EnvironmentTag").First(&dbService, "uid = ?", dbServiceUid).Error; err != nil {
 			return fmt.Errorf("failed to get db service: %v", err)
 		}
 		return nil

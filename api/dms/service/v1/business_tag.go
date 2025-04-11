@@ -2,11 +2,11 @@ package v1
 
 import base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 
-// swagger:model
+// swagger:model BusinessTag
 type BusinessTag struct {
 	UID string `json:"uid,omitempty"`
-	// 业务标签至少1个字符，最多50个字符
-	Name string `json:"name" validate:"min=1,max=50"`
+	// 业务标签最多50个字符
+	Name string `json:"name" validate:"max=50"`
 }
 
 // swagger:model
@@ -17,7 +17,7 @@ type CreateBusinessTagReq struct {
 // swagger:model
 type UpdateBusinessTagReq struct {
 	// swagger:ignore
-	BusinessTagUID string       `json:"business_tag_uid" validate:"required"`
+	BusinessTagUID string       `param:"business_tag_uid" json:"business_tag_uid"`
 	BusinessTag    *BusinessTag `json:"business_tag" validate:"required"`
 }
 

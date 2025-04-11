@@ -4,15 +4,18 @@ import (
 	"context"
 	"fmt"
 
+	"time"
+
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
+	dmsV2 "github.com/actiontech/dms/api/dms/service/v2"
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+	dmsCommonV2 "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
 	pkgAes "github.com/actiontech/dms/pkg/dms-common/pkg/aes"
 	"github.com/actiontech/dms/pkg/params"
 	"github.com/actiontech/dms/pkg/periods"
 	"github.com/go-openapi/strfmt"
-	"time"
 )
 
 func (d *DMSService) DelDBService(ctx context.Context, req *dmsV1.DelDBServiceReq, currentUserUid string) (err error) {
@@ -28,7 +31,7 @@ func (d *DMSService) DelDBService(ctx context.Context, req *dmsV1.DelDBServiceRe
 	return nil
 }
 
-func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV1.UpdateDBServiceReq, currentUserUid string) (err error) {
+func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV2.UpdateDBServiceReq, currentUserUid string) (err error) {
 	d.log.Infof("UpdateDBService.req=%v", req)
 	defer func() {
 		d.log.Infof("UpdateDBService.req=%v;error=%v", req, err)
@@ -52,7 +55,7 @@ func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV1.UpdateDBSer
 		Port:              req.DBService.Port,
 		User:              req.DBService.User,
 		Password:          req.DBService.Password,
-		Business:          req.DBService.Business,
+		EnvironmentTagUID: req.DBService.EnvironmentTagUID,
 		EnableBackup:      req.DBService.EnableBackup,
 		BackupMaxRows:     autoChooseBackupMaxRows(req.DBService.EnableBackup, req.DBService.BackupMaxRows),
 		MaintenancePeriod: d.convertMaintenanceTimeToPeriod(req.DBService.MaintenanceTimes),
@@ -232,7 +235,69 @@ func autoChooseBackupMaxRows(enableBackup bool, backupMaxRows *uint64) uint64 {
 	return DefaultBackupMaxRows
 }
 
+// Deprecated
 func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceReq, currentUserUid string) (reply *dmsV1.AddDBServiceReply, err error) {
+	d.log.Infof("AddDBServices.req=%v", req)
+	defer func() {
+		d.log.Infof("AddDBServices.req=%v;reply=%v;error=%v", req, reply, err)
+	}()
+
+	additionalParams, err := d.DBServiceUsecase.GetDriverParamsByDBType(ctx, req.DBService.DBType)
+	for _, additionalParam := range req.DBService.AdditionalParams {
+		err = additionalParams.SetParamValue(additionalParam.Name, additionalParam.Value)
+		if err != nil {
+			return nil, fmt.Errorf("set param value failed,invalid db type: %s", req.DBService.DBType)
+		}
+	}
+
+	args := &biz.BizDBServiceArgs{
+		Name:     req.DBService.Name,
+		Desc:     &req.DBService.Desc,
+		DBType:   req.DBService.DBType,
+		Host:     req.DBService.Host,
+		Port:     req.DBService.Port,
+		User:     req.DBService.User,
+		Password: &req.DBService.Password,
+		// Business:          req.DBService.Business,
+		MaintenancePeriod: d.convertMaintenanceTimeToPeriod(req.DBService.MaintenanceTimes),
+		ProjectUID:        req.ProjectUid,
+		Source:            string(pkgConst.DBServiceSourceNameSQLE),
+		AdditionalParams:  additionalParams,
+		EnableBackup:      req.DBService.EnableBackup,
+		BackupMaxRows:     autoChooseBackupMaxRows(req.DBService.EnableBackup, req.DBService.BackupMaxRows),
+	}
+
+	if biz.IsDMS() {
+		args.IsMaskingSwitch = req.DBService.IsEnableMasking
+	}
+
+	sqleConfig := req.DBService.SQLEConfig
+	if sqleConfig != nil {
+		args.RuleTemplateName = sqleConfig.RuleTemplateName
+		args.RuleTemplateID = sqleConfig.RuleTemplateID
+		if sqleConfig.SQLQueryConfig != nil {
+			args.SQLQueryConfig = &biz.SQLQueryConfig{
+				MaxPreQueryRows:                  sqleConfig.SQLQueryConfig.MaxPreQueryRows,
+				QueryTimeoutSecond:               sqleConfig.SQLQueryConfig.QueryTimeoutSecond,
+				AuditEnabled:                     sqleConfig.SQLQueryConfig.AuditEnabled,
+				AllowQueryWhenLessThanAuditLevel: string(sqleConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel),
+			}
+		}
+	}
+	uid, err := d.DBServiceUsecase.CreateDBService(ctx, args, currentUserUid)
+	if err != nil {
+		return nil, fmt.Errorf("create db service failed: %w", err)
+	}
+
+	return &dmsV1.AddDBServiceReply{
+		Data: struct {
+			// db service UID
+			Uid string `json:"uid"`
+		}{Uid: uid},
+	}, nil
+}
+
+func (d *DMSService) AddDBServiceV2(ctx context.Context, req *dmsV2.AddDBServiceReq, currentUserUid string) (reply *dmsV1.AddDBServiceReply, err error) {
 	d.log.Infof("AddDBServices.req=%v", req)
 	defer func() {
 		d.log.Infof("AddDBServices.req=%v;reply=%v;error=%v", req, reply, err)
@@ -254,7 +319,7 @@ func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceRe
 		Port:              req.DBService.Port,
 		User:              req.DBService.User,
 		Password:          &req.DBService.Password,
-		Business:          req.DBService.Business,
+		EnvironmentTagUID: req.DBService.EnvironmentTagUID,
 		MaintenancePeriod: d.convertMaintenanceTimeToPeriod(req.DBService.MaintenanceTimes),
 		ProjectUID:        req.ProjectUid,
 		Source:            string(pkgConst.DBServiceSourceNameSQLE),
@@ -323,17 +388,16 @@ func (d *DMSService) convertPeriodToMaintenanceTime(p periods.Periods) []*dmsCom
 	return periods
 }
 
-func (d *DMSService) convertBizDBServiceArgs2ImportDBService(dbs []*biz.BizDBServiceArgs) []*dmsV1.ImportDBService {
-	ret := make([]*dmsV1.ImportDBService, len(dbs))
+func (d *DMSService) convertBizDBServiceArgs2ImportDBService(dbs []*biz.BizDBServiceArgs) []*dmsV2.ImportDBService {
+	ret := make([]*dmsV2.ImportDBService, len(dbs))
 	for i, u := range dbs {
-		ret[i] = &dmsV1.ImportDBService{
+		ret[i] = &dmsV2.ImportDBService{
 			Name:             u.Name,
 			DBType:           u.DBType,
 			Host:             u.Host,
 			Port:             u.Port,
 			User:             u.User,
 			Password:         *u.Password,
-			Business:         u.Business,
 			MaintenanceTimes: d.convertPeriodToMaintenanceTime(u.MaintenancePeriod),
 			Desc:             *u.Desc,
 			Source:           u.Source,
@@ -343,8 +407,9 @@ func (d *DMSService) convertBizDBServiceArgs2ImportDBService(dbs []*biz.BizDBSer
 				RuleTemplateID:   u.RuleTemplateID,
 				SQLQueryConfig:   nil,
 			},
-			AdditionalParams: nil,
-			IsEnableMasking:  false,
+			AdditionalParams:   nil,
+			IsEnableMasking:    false,
+			EnvironmentTagName: u.EnvironmentTagName,
 		}
 
 		if u.AdditionalParams != nil {
@@ -373,7 +438,7 @@ func (d *DMSService) convertBizDBServiceArgs2ImportDBService(dbs []*biz.BizDBSer
 	return ret
 }
 
-func (d *DMSService) convertImportDBService2BizDBService(importDbs []dmsV1.ImportDBService) []*biz.DBService {
+func (d *DMSService) convertImportDBService2BizDBService(ctx context.Context, importDbs []dmsV2.ImportDBService, currentUserUid string) ([]*biz.DBService, error) {
 	ret := make([]*biz.DBService, len(importDbs))
 	for i, u := range importDbs {
 		ret[i] = &biz.DBService{
@@ -385,7 +450,6 @@ func (d *DMSService) convertImportDBService2BizDBService(importDbs []dmsV1.Impor
 			Port:              u.Port,
 			User:              u.User,
 			Password:          u.Password,
-			Business:          u.Business,
 			AdditionalParams:  nil,
 			ProjectUID:        u.ProjectUID,
 			MaintenancePeriod: d.convertMaintenanceTimeToPeriod(u.MaintenanceTimes),
@@ -394,7 +458,13 @@ func (d *DMSService) convertImportDBService2BizDBService(importDbs []dmsV1.Impor
 			IsMaskingSwitch:   u.IsEnableMasking,
 			AccountPurpose:    "",
 		}
-
+		tag, err := d.EnvironmentTagUsecase.GetOrCreateEnvironmentTag(ctx, u.ProjectUID, u.EnvironmentTagName)
+		if err != nil {
+			return nil, fmt.Errorf("get or create environment tag failed: %v", err)
+		}
+		ret[i].EnvironmentTag = &dmsCommonV1.EnvironmentTag{
+			UID: tag.UID,
+		}
 		if u.AdditionalParams != nil {
 			additionalParams := make([]*params.Param, 0, len(u.AdditionalParams))
 			for _, item := range u.AdditionalParams {
@@ -423,10 +493,10 @@ func (d *DMSService) convertImportDBService2BizDBService(importDbs []dmsV1.Impor
 			ret[i].SQLEConfig = sqlConfig
 		}
 	}
-	return ret
+	return ret, nil
 }
 
-func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDBServiceReq, currentUserUid string) (reply *dmsCommonV1.ListDBServiceReply, err error) {
+func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV2.ListDBServiceReq, currentUserUid string) (reply *dmsCommonV2.ListDBServiceReply, err error) {
 	var orderBy biz.DBServiceField
 	switch req.OrderBy {
 	case dmsCommonV1.DBServiceOrderByName:
@@ -437,11 +507,11 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 
 	filterBy := make([]pkgConst.FilterCondition, 0)
 
-	if req.FilterByBusiness != "" {
+	if req.FilterByEnvironmentTagUID != "" {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
-			Field:    string(biz.DBServiceFieldBusiness),
+			Field:    string(biz.DBServiceFieldEnvironmentTagUID),
 			Operator: pkgConst.FilterOperatorEqual,
-			Value:    req.FilterByBusiness,
+			Value:    req.FilterByEnvironmentTagUID,
 		})
 	}
 
@@ -541,13 +611,13 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 		return nil, err
 	}
 
-	ret := make([]*dmsCommonV1.ListDBService, len(service))
+	ret := make([]*dmsCommonV2.ListDBService, len(service))
 	for i, u := range service {
 		password, err := pkgAes.AesEncrypt(u.Password)
 		if err != nil {
 			return nil, fmt.Errorf("failed to encrypt password: %w", err)
 		}
-		ret[i] = &dmsCommonV1.ListDBService{
+		ret[i] = &dmsCommonV2.ListDBService{
 			DBServiceUid:        u.GetUID(),
 			Name:                u.Name,
 			DBType:              u.DBType,
@@ -555,7 +625,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 			Port:                u.Port,
 			User:                u.User,
 			Password:            password,
-			Business:            u.Business,
+			EnvironmentTag:      u.EnvironmentTag,
 			MaintenanceTimes:    d.convertPeriodToMaintenanceTime(u.MaintenancePeriod),
 			Desc:                u.Desc,
 			Source:              u.Source,
@@ -606,7 +676,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV1.ListDB
 		}
 	}
 
-	return &dmsCommonV1.ListDBServiceReply{
+	return &dmsCommonV2.ListDBServiceReply{
 		Data:  ret,
 		Total: total,
 	}, nil
@@ -654,7 +724,7 @@ func (d *DMSService) ListDBServiceDriverOption(ctx context.Context) (reply *dmsV
 	}, nil
 }
 
-func (d *DMSService) ListGlobalDBServices(ctx context.Context, req *dmsV1.ListGlobalDBServicesReq, currentUserUid string) (reply *dmsV1.ListGlobalDBServicesReply, err error) {
+func (d *DMSService) ListGlobalDBServices(ctx context.Context, req *dmsV2.ListGlobalDBServicesReq, currentUserUid string) (reply *dmsV2.ListGlobalDBServicesReply, err error) {
 	return d.listGlobalDBServices(ctx, req, currentUserUid)
 }
 
@@ -662,10 +732,10 @@ func (d *DMSService) ListGlobalDBServicesTips(ctx context.Context, currentUserUi
 	return d.listGlobalDBServicesTips(ctx, currentUserUid)
 }
 
-func (d *DMSService) ImportDBServicesOfOneProjectCheck(ctx context.Context, userUid, projectUid, fileContent string) (*dmsV1.ImportDBServicesCheckReply, []byte, error) {
+func (d *DMSService) ImportDBServicesOfOneProjectCheck(ctx context.Context, userUid, projectUid, fileContent string) (*dmsV2.ImportDBServicesCheckReply, []byte, error) {
 	return d.importDBServicesOfOneProjectCheck(ctx, userUid, projectUid, fileContent)
 }
 
-func (d *DMSService) ImportDBServicesOfOneProject(ctx context.Context, req *dmsV1.ImportDBServicesOfOneProjectReq, uid string) error {
+func (d *DMSService) ImportDBServicesOfOneProject(ctx context.Context, req *dmsV2.ImportDBServicesOfOneProjectReq, uid string) error {
 	return d.importDBServicesOfOneProject(ctx, req, uid)
 }

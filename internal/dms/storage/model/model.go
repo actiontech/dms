@@ -54,6 +54,7 @@ var AutoMigrateList = []interface{}{
 	DataExportTaskRecord{},
 	UserAccessToken{},
 	CbOperationLog{},
+	EnvironmentTag{},
 }
 
 type Model struct {
@@ -71,7 +72,7 @@ type DBService struct {
 	User                   string          `json:"user" gorm:"column:db_user;size:255; not null" example:"root"`
 	Password               string          `json:"password" gorm:"column:db_password; size:255; not null"`
 	Desc                   string          `json:"desc" gorm:"column:desc" example:"this is a instance"`
-	Business               string          `json:"business" gorm:"column:business;size:255; not null" example:"this is a business"`
+	EnvironmentTagUID      string          `json:"environment_tag_id" gorm:"column:environment_tag_uid; not null"`
 	AdditionalParams       params.Params   `json:"additional_params" gorm:"type:text"`
 	Source                 string          `json:"source" gorm:"size:255;not null"`
 	ProjectUID             string          `json:"project_uid" gorm:"size:32;column:project_uid;index:project_uid_name,unique"`
@@ -83,6 +84,13 @@ type DBService struct {
 	LastConnectionErrorMsg *string         `json:"last_connection_error_msg"`
 	EnableBackup           bool            `json:"enable_backup" gorm:"column:enable_backup;type:bool"`
 	BackupMaxRows          uint64          `json:"backup_max_rows" gorm:"column:backup_max_rows;not null;default:1000"`
+	EnvironmentTag         *EnvironmentTag
+}
+
+type EnvironmentTag struct {
+	Model
+	ProjectUID      string `json:"project_uid" gorm:"size:32;column:project_uid;index:project_uid_name"`
+	EnvironmentName string `json:"environment_name" gorm:"not null;index:project_uid_name"`
 }
 
 type ExtraParameters struct {
@@ -214,13 +222,12 @@ func (mg *MemberGroupRoleOpRange) AfterSave(tx *gorm.DB) error {
 
 type Project struct {
 	Model
-	Name            string `json:"name" gorm:"size:200;column:name;index:name,unique"`
-	Desc            string `json:"desc" gorm:"column:desc"`
-	Business        Bus    `json:"business" gorm:"type:json"`
-	IsFixedBusiness bool   `json:"is_fixed_business" gorm:"not null"`
-	CreateUserUID   string `json:"create_user_uid" gorm:"size:32;column:create_user_uid"`
-	Status          string `gorm:"size:64;default:'active'"`
-	Priority        uint8  `json:"priority" gorm:"type:tinyint unsigned;not null;default:20;comment:'优先级：10=低, 20=中, 30=高'"`
+	Name           string `json:"name" gorm:"size:200;column:name;index:name,unique"`
+	Desc           string `json:"desc" gorm:"column:desc"`
+	BusinessTagUID string `json:"business_tag_uid" gorm:"size:32;column:business_tag_uid"`
+	CreateUserUID  string `json:"create_user_uid" gorm:"size:32;column:create_user_uid"`
+	Status         string `gorm:"size:64;default:'active'"`
+	Priority       uint8  `json:"priority" gorm:"type:tinyint unsigned;not null;default:20;comment:'优先级：10=低, 20=中, 30=高'"`
 }
 
 const (
@@ -645,5 +652,5 @@ type DBServiceSyncTask struct {
 
 type BusinessTag struct {
 	Model
-	Name string `gorm:"type:varchar(100);unique;column:business_name"`
+	Name string `gorm:"type:varchar(100);unique;column:name"`
 }
