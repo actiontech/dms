@@ -2716,7 +2716,7 @@ func (d *DMSController) BackChannelLogout(c echo.Context) error {
 
 	// todo Verifier logoutToken by provider
 
-	err := d.DMS.BackChannelLogout(logoutToken)
+	err := d.DMS.BackChannelLogout(c.Request().Context(), logoutToken)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
