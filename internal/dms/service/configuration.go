@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"time"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
@@ -156,18 +155,14 @@ func (d *DMSService) RefreshOauth2Token(ctx context.Context, userUid, sub, sid s
 	return d.Oauth2ConfigurationUsecase.RefreshOauth2Token(ctx, userUid, sub, sid)
 }
 
-func (d *DMSService) BackChannelLogout(logoutToken string) error {
+func (d *DMSService) BackChannelLogout(ctx context.Context, logoutToken string) error {
 	d.log.Infof("BackChannelLogout")
 
-	// 异步处理避免响应超时
-	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-		defer cancel()
-		err := d.Oauth2ConfigurationUsecase.BackChannelLogout(ctx, logoutToken)
-		if err != nil {
-			d.log.Errorf("BackChannelLogout logout token:%s err:%v", logoutToken, err)
-		}
-	}()
+	err := d.Oauth2ConfigurationUsecase.BackChannelLogout(ctx, logoutToken)
+	if err != nil {
+		d.log.Errorf("BackChannelLogout logout token:%s err:%v", logoutToken, err)
+		return err
+	}
 
 	return nil
 }
