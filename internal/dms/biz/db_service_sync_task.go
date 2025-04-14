@@ -26,17 +26,20 @@ type DBServiceSyncTaskUsecase struct {
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	dbServiceUsecase          *DBServiceUsecase
 	projectUsecase            *ProjectUsecase
+	environmentTagUsecase     *EnvironmentTagUsecase
 	cron                      *cron.Cron
 	lastSyncTime              time.Time
 }
 
-func NewDBServiceSyncTaskUsecase(log utilLog.Logger, repo DBServiceSyncTaskRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, dbServiceUsecase *DBServiceUsecase) *DBServiceSyncTaskUsecase {
+func NewDBServiceSyncTaskUsecase(log utilLog.Logger, repo DBServiceSyncTaskRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase,
+	projectUsecase *ProjectUsecase, dbServiceUsecase *DBServiceUsecase, environmentTagUsecase *EnvironmentTagUsecase) *DBServiceSyncTaskUsecase {
 	return &DBServiceSyncTaskUsecase{
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.db_service_sync_task")),
 		repo:                      repo,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 		projectUsecase:            projectUsecase,
 		dbServiceUsecase:          dbServiceUsecase,
+		environmentTagUsecase:     environmentTagUsecase,
 	}
 }
 
