@@ -4631,6 +4631,190 @@ definitions:
                 $ref: '#/definitions/RejectDataExportWorkflowPayload'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ResourceBusiness:
+        properties:
+            business_tag:
+                $ref: '#/definitions/BusinessTag'
+            project:
+                items:
+                    $ref: '#/definitions/ResourceProject'
+                type: array
+                x-go-name: Project
+        type: object
+        x-go-name: Business
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ResourceDBService:
+        properties:
+            db_service_name:
+                type: string
+                x-go-name: DBServiceName
+            db_service_uid:
+                type: string
+                x-go-name: DBServiceUID
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ResourceListData:
+        properties:
+            audit_score:
+                description: 审核评分
+                format: int64
+                type: integer
+                x-go-name: AuditScore
+            business_tag:
+                $ref: '#/definitions/BusinessTag'
+            high_priority_sql_count:
+                description: 高优先级SQL数
+                format: int64
+                type: integer
+                x-go-name: HighPrioritySQLCount
+            pending_workflow_count:
+                description: 待处理工单数
+                format: int64
+                type: integer
+                x-go-name: PendingWorkflowCount
+            project:
+                $ref: '#/definitions/ResourceProject'
+            resource_name:
+                description: 资源名称
+                type: string
+                x-go-name: ResourceName
+            resource_type:
+                description: 资源类型
+                type: string
+                x-go-name: ResourceType
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ResourceOverviewResourceListResV1:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/ResourceListData'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-name: ResourceOverviewResourceListRes
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ResourceOverviewResourceTypeDistributionResV1:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/ResourceTypeDistributionData'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-name: ResourceOverviewResourceTypeDistributionRes
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ResourceOverviewStatisticsResV1:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                properties:
+                    business_total_number:
+                        description: 业务总数
+                        format: int64
+                        type: integer
+                        x-go-name: BusinessTotalNumber
+                    db_service_total_number:
+                        description: 数据源总数
+                        format: int64
+                        type: integer
+                        x-go-name: DBServiceTotalNumber
+                    project_total_number:
+                        description: 项目总数
+                        format: int64
+                        type: integer
+                        x-go-name: ProjectTotalNumber
+                type: object
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-name: ResourceOverviewStatisticsRes
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ResourceOverviewTopologyResV1:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: business:project = 1:n project:db_service = 1:n
+                items:
+                    $ref: '#/definitions/ResourceBusiness'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-name: ResourceOverviewTopologyRes
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ResourceProject:
+        properties:
+            db_service:
+                items:
+                    $ref: '#/definitions/ResourceDBService'
+                type: array
+                x-go-name: DBService
+            project_name:
+                type: string
+                x-go-name: ProjectName
+            project_uid:
+                type: string
+                x-go-name: ProjectUID
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ResourceTypeDistributionData:
+        properties:
+            count:
+                description: 数量
+                format: int64
+                type: integer
+                x-go-name: Count
+            resource_type:
+                description: 资源类型
+                type: string
+                x-go-name: ResourceType
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     Role:
         description: A role
         properties:
@@ -8813,6 +8997,128 @@ paths:
             summary: Register dms proxy target.
             tags:
                 - DMSProxy
+    /v1/dms/resource_overview/resource_list:
+        get:
+            operationId: GetResourceOverviewResourceListV1
+            parameters:
+                - description: 根据数据源类型筛选
+                  in: query
+                  name: db_type
+                  type: string
+                  x-go-name: DBType
+                - description: 根据所属业务标签筛选
+                  in: query
+                  name: business_tag_uid
+                  type: string
+                  x-go-name: BusinessTagUID
+                - description: 根据环境属性标签筛选
+                  in: query
+                  name: environment_tag_uid
+                  type: string
+                  x-go-name: EnvironmentTagUID
+                - description: 根据所属项目筛选
+                  in: query
+                  name: project_uid
+                  type: string
+                  x-go-name: ProjectUID
+                - description: 根据某列排序 enums:"audit_score,pending_workflow_count,high_priority_sql_count"
+                  in: query
+                  name: sort_by_field
+                  type: string
+                  x-go-name: SortByField
+                - description: 是否正序排序
+                  in: query
+                  name: sort_asc
+                  type: boolean
+                  x-go-name: SortAsc
+            responses:
+                "200":
+                    description: resource overview resource list response body
+                    schema:
+                        $ref: '#/definitions/ResourceOverviewResourceListResV1'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get resource overview resource list.
+            tags:
+                - ResourceOverview
+    /v1/dms/resource_overview/resource_type_distribution:
+        get:
+            operationId: GetResourceOverviewResourceTypeDistributionV1
+            responses:
+                "200":
+                    description: resource overview resource type distribution response body
+                    schema:
+                        $ref: '#/definitions/ResourceOverviewResourceTypeDistributionResV1'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get resource overview resource type distribution.
+            tags:
+                - ResourceOverview
+    /v1/dms/resource_overview/statistics:
+        get:
+            operationId: GetResourceOverviewStatisticsV1
+            responses:
+                "200":
+                    description: resource overview statistics response body
+                    schema:
+                        $ref: '#/definitions/ResourceOverviewStatisticsResV1'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get resource overview statistics.
+            tags:
+                - ResourceOverview
+    /v1/dms/resource_overview/topology:
+        get:
+            operationId: GetResourceOverviewTopologyV1
+            parameters:
+                - description: 根据数据源类型筛选
+                  in: query
+                  name: db_type
+                  type: string
+                  x-go-name: DBType
+                - description: 根据所属业务标签筛选
+                  in: query
+                  name: business_tag_uid
+                  type: string
+                  x-go-name: BusinessTagUID
+                - description: 根据环境属性标签筛选
+                  in: query
+                  name: environment_tag_uid
+                  type: string
+                  x-go-name: EnvironmentTagUID
+                - description: 根据所属项目筛选
+                  in: query
+                  name: project_uid
+                  type: string
+                  x-go-name: ProjectUID
+                - description: 根据某列排序 enums:"audit_score,pending_workflow_count,high_priority_sql_count"
+                  in: query
+                  name: sort_by_field
+                  type: string
+                  x-go-name: SortByField
+                - description: 是否正序排序
+                  in: query
+                  name: sort_asc
+                  type: boolean
+                  x-go-name: SortAsc
+            responses:
+                "200":
+                    description: resource overview topology response body
+                    schema:
+                        $ref: '#/definitions/ResourceOverviewTopologyResV1'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get resource overview topology.
+            tags:
+                - ResourceOverview
     /v1/dms/roles:
         get:
             operationId: ListRoles
