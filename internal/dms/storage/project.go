@@ -55,6 +55,7 @@ func (d *ProjectRepo) BatchSaveProjects(ctx context.Context, projects []*biz.Pro
 	return nil
 }
 
+// TODO currentUserUid 未生效
 func (d *ProjectRepo) ListProjects(ctx context.Context, opt *biz.ListProjectsOption, currentUserUid string) (projects []*biz.Project, total int64, err error) {
 	var models []*model.Project
 
