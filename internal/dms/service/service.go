@@ -14,6 +14,7 @@ import (
 
 type DMSService struct {
 	BasicUsecase                *biz.BasicUsecase
+	ResourceOverviewUsecase     *biz.ResourceOverviewUsecase
 	BusinessTagUsecase          *biz.BusinessTagUsecase
 	PluginUsecase               *biz.PluginUsecase
 	DBServiceUsecase            *biz.DBServiceUsecase
@@ -77,6 +78,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	projectRepo := storage.NewProjectRepo(logger, st)
 	projectUsecase := biz.NewProjectUsecase(logger, tx, projectRepo, &memberUsecase, opPermissionVerifyUsecase, pluginUseCase, businessTagUsecase, &environmentTagUsecase)
 	dbServiceRepo := storage.NewDBServiceRepo(logger, st)
+	resourceOverviewUsecase := biz.NewResourceOverviewUsecase(logger, projectRepo, dbServiceRepo,*opPermissionVerifyUsecase)
 	environmentTagUsecase = *biz.NewEnvironmentTagUsecase(storage.NewEnvironmentTagRepo(logger, st), logger, projectUsecase, opPermissionVerifyUsecase)
 	dmsProxyTargetRepo := storage.NewProxyTargetRepo(logger, st)
 	dbServiceUseCase := biz.NewDBServiceUsecase(logger, dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, &environmentTagUsecase)
@@ -150,6 +152,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 
 	s := &DMSService{
 		BasicUsecase:                basicUsecase,
+		ResourceOverviewUsecase:     resourceOverviewUsecase,
 		BusinessTagUsecase:          businessTagUsecase,
 		EnvironmentTagUsecase:       &environmentTagUsecase,
 		PluginUsecase:               pluginUseCase,
