@@ -4284,3 +4284,75 @@ func (d *DMSController) SyncDBServices(c echo.Context) error {
 
 	return NewOkResp(c)
 }
+
+// swagger:operation GET /v1/dms/resource_overview/statistics ResourceOverview GetResourceOverviewStatisticsV1
+//
+// Get resource overview statistics.
+//
+// ---
+// responses:
+//   '200':
+//     description: resource overview statistics response body
+//     schema:
+//       "$ref": "#/definitions/ResourceOverviewStatisticsResV1"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (d *DMSController) GetResourceOverviewStatistics(c echo.Context) error {
+	return nil
+}
+
+// swagger:operation GET /v1/dms/resource_overview/resource_type_distribution ResourceOverview GetResourceOverviewResourceTypeDistributionV1
+//
+// Get resource overview resource type distribution.
+//
+// ---
+// responses:
+//   '200':
+//     description: resource overview resource type distribution response body
+//     schema:
+//       "$ref": "#/definitions/ResourceOverviewResourceTypeDistributionResV1"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (d *DMSController) GetResourceOverviewResourceTypeDistribution(c echo.Context) error {
+	return nil
+}
+
+// swagger:operation GET /v1/dms/resource_overview/topology ResourceOverview GetResourceOverviewTopologyV1
+//
+// Get resource overview topology.
+//
+// ---
+// responses:
+//   '200':
+//     description: resource overview topology response body
+//     schema:
+//       "$ref": "#/definitions/ResourceOverviewTopologyResV1"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (d *DMSController) GetResourceOverviewTopology(c echo.Context) error {
+	return nil
+}
+
+// swagger:operation GET /v1/dms/resource_overview/resource_list ResourceOverview GetResourceOverviewResourceListV1
+//
+// Get resource overview resource list.
+//
+// ---
+// responses:
+//   '200':
+//     description: resource overview resource list response body
+//     schema:
+//       "$ref": "#/definitions/ResourceOverviewResourceListResV1"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (d *DMSController) GetResourceOverviewResourceList(c echo.Context) error {
+	return nil
+}
