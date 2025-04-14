@@ -154,6 +154,9 @@ func (s *APIServer) initRouter() error {
 		projectV1.PUT("/business_tags/:business_tag_uid", s.DMSController.UpdateBusinessTag)
 		projectV1.DELETE("/business_tags/:business_tag_uid", s.DMSController.DeleteBusinessTag)
 
+		resourceOverviewV1 := v1.Group("/dms/resource_overview")
+		resourceOverviewV1.GET("/statistics", s.DMSController.GetResourceOverviewStatistics)
+
 		// oauth2 interface does not require login authentication
 		oauth2V1 := v1.Group("/dms/oauth2")
 		oauth2V1.GET("/tips", s.DMSController.GetOauth2Tips)

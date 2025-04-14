@@ -4300,7 +4300,19 @@ func (d *DMSController) SyncDBServices(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) GetResourceOverviewStatistics(c echo.Context) error {
-	return nil
+	// 获取当前用户ID
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	// 直接获取并返回统计信息
+	reply, err := d.DMS.GetResourceOverviewStatistics(c.Request().Context(), currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:operation GET /v1/dms/resource_overview/resource_type_distribution ResourceOverview GetResourceOverviewResourceTypeDistributionV1
