@@ -156,6 +156,7 @@ func (s *APIServer) initRouter() error {
 
 		resourceOverviewV1 := v1.Group("/dms/resource_overview")
 		resourceOverviewV1.GET("/statistics", s.DMSController.GetResourceOverviewStatistics)
+		resourceOverviewV1.GET("/resource_type_distribution", s.DMSController.GetResourceOverviewResourceTypeDistribution)
 
 		// oauth2 interface does not require login authentication
 		oauth2V1 := v1.Group("/dms/oauth2")
