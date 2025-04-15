@@ -2,6 +2,7 @@ package v1
 
 import (
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
 
 // 资源概览接口组 API Model
@@ -54,35 +55,31 @@ type ResourceTypeDistributionData struct {
 
 // swagger:parameters GetResourceOverviewTopologyV1
 type ResourceOverviewTopologyReq struct {
-	ResourceOverviewResourceListFilter
+	ResourceOverviewFilter
 }
 
 // swagger:parameters
-type ResourceOverviewResourceListFilter struct {
+type ResourceOverviewFilter struct {
 	// 根据数据源类型筛选
 	// in:query
 	// type:string
-	DBType string `param:"db_type" json:"db_type"`
+	FilterByDBType string `query:"filter_by_db_type" param:"filter_by_db_type" json:"filter_by_db_type"`
 	// 根据所属业务标签筛选
 	// in:query
 	// type:string
-	BusinessTagUID string `param:"business_tag_uid" json:"business_tag_uid"`
+	FilterByBusinessTagUID string `query:"filter_by_business_tag_uid" param:"filter_by_business_tag_uid" json:"filter_by_business_tag_uid"`
 	// 根据环境属性标签筛选
 	// in:query
 	// type:string
-	EnvironmentTagUID string `param:"environment_tag_uid" json:"environment_tag_uid"`
+	FilterByEnvironmentTagUID string `query:"filter_by_environment_tag_uid" param:"filter_by_environment_tag_uid" json:"filter_by_environment_tag_uid"`
 	// 根据所属项目筛选
 	// in:query
 	// type:string
-	ProjectUID string `param:"project_uid" json:"project_uid"`
-	// 根据某列排序 enums:"audit_score,pending_workflow_count,high_priority_sql_count"
+	FilterByProjectUID string `query:"filter_by_project_uid" param:"filter_by_project_uid" json:"filter_by_project_uid"`
+	// 根据项目或数据源名称模糊搜索
 	// in:query
 	// type:string
-	SortByField string `query:"sort_by_field" json:"sort_by_field" enums:"audit_score,pending_workflow_count,high_priority_sql_count"`
-	// 是否正序排序
-	// in:query
-	// type:bool
-	SortAsc bool `query:"sort_asc" json:"sort_asc"`
+	FuzzySearchResourceName string `query:"fuzzy_search_resource_name" param:"fuzzy_search_resource_name" json:"fuzzy_search_resource_name"`
 }
 
 // swagger:enum ResourceListSortByField
@@ -130,7 +127,26 @@ type ResourceDBService struct {
 
 // swagger:parameters GetResourceOverviewResourceListV1
 type ResourceOverviewResourceListReq struct {
-	ResourceOverviewResourceListFilter
+	ResourceOverviewFilter
+	ResourceOverviewListOptions
+}
+
+// swagger:parameters
+type ResourceOverviewListOptions struct {
+	// 根据某列排序 enums:"audit_score,pending_workflow_count,high_priority_sql_count"
+	// in:query
+	// type:string
+	SortByField string `query:"sort_by_field" param:"sort_by_field" json:"sort_by_field" enums:"audit_score,pending_workflow_count,high_priority_sql_count"`
+	// 是否正序排序
+	// in:query
+	// type:bool
+	SortAsc bool `query:"sort_asc" param:"sort_asc" json:"sort_asc"`
+	// in:query
+	// type:uint32
+	PageIndex uint32 `query:"page_index" param:"page_index" json:"page_index"`
+	// in:query
+	// type:uint32
+	PageSize uint32 `query:"page_size" param:"page_size" json:"page_size"`
 }
 
 // swagger:model ResourceOverviewResourceListResV1
@@ -142,6 +158,8 @@ type ResourceOverviewResourceListRes struct {
 
 // swagger:model ResourceListData
 type ResourceListData struct {
+	// 资源UID
+	ResourceUID string `json:"resource_uid"`
 	// 资源类型
 	ResourceType string `json:"resource_type"`
 	// 资源名称
@@ -150,6 +168,8 @@ type ResourceListData struct {
 	BusinessTag *BusinessTag `json:"business_tag"`
 	// 所属项目
 	Project *ResourceProject `json:"project"`
+	// 环境属性
+	EnvironmentTag *dmsCommonV1.EnvironmentTag `json:"environment_tag"`
 	// 审核评分
 	AuditScore int64 `json:"audit_score"`
 	// 待处理工单数

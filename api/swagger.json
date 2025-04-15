@@ -4335,30 +4335,37 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "DBType",
+            "x-go-name": "FilterByDBType",
             "description": "根据数据源类型筛选",
-            "name": "db_type",
+            "name": "filter_by_db_type",
             "in": "query"
           },
           {
             "type": "string",
-            "x-go-name": "BusinessTagUID",
+            "x-go-name": "FilterByBusinessTagUID",
             "description": "根据所属业务标签筛选",
-            "name": "business_tag_uid",
+            "name": "filter_by_business_tag_uid",
             "in": "query"
           },
           {
             "type": "string",
-            "x-go-name": "EnvironmentTagUID",
+            "x-go-name": "FilterByEnvironmentTagUID",
             "description": "根据环境属性标签筛选",
-            "name": "environment_tag_uid",
+            "name": "filter_by_environment_tag_uid",
             "in": "query"
           },
           {
             "type": "string",
-            "x-go-name": "ProjectUID",
+            "x-go-name": "FilterByProjectUID",
             "description": "根据所属项目筛选",
-            "name": "project_uid",
+            "name": "filter_by_project_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FuzzySearchResourceName",
+            "description": "根据项目或数据源名称模糊搜索",
+            "name": "fuzzy_search_resource_name",
             "in": "query"
           },
           {
@@ -4373,6 +4380,20 @@
             "x-go-name": "SortAsc",
             "description": "是否正序排序",
             "name": "sort_asc",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "name": "page_size",
             "in": "query"
           }
         ],
@@ -4448,44 +4469,37 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "DBType",
+            "x-go-name": "FilterByDBType",
             "description": "根据数据源类型筛选",
-            "name": "db_type",
+            "name": "filter_by_db_type",
             "in": "query"
           },
           {
             "type": "string",
-            "x-go-name": "BusinessTagUID",
+            "x-go-name": "FilterByBusinessTagUID",
             "description": "根据所属业务标签筛选",
-            "name": "business_tag_uid",
+            "name": "filter_by_business_tag_uid",
             "in": "query"
           },
           {
             "type": "string",
-            "x-go-name": "EnvironmentTagUID",
+            "x-go-name": "FilterByEnvironmentTagUID",
             "description": "根据环境属性标签筛选",
-            "name": "environment_tag_uid",
+            "name": "filter_by_environment_tag_uid",
             "in": "query"
           },
           {
             "type": "string",
-            "x-go-name": "ProjectUID",
+            "x-go-name": "FilterByProjectUID",
             "description": "根据所属项目筛选",
-            "name": "project_uid",
+            "name": "filter_by_project_uid",
             "in": "query"
           },
           {
             "type": "string",
-            "x-go-name": "SortByField",
-            "description": "根据某列排序 enums:\"audit_score,pending_workflow_count,high_priority_sql_count\"",
-            "name": "sort_by_field",
-            "in": "query"
-          },
-          {
-            "type": "boolean",
-            "x-go-name": "SortAsc",
-            "description": "是否正序排序",
-            "name": "sort_asc",
+            "x-go-name": "FuzzySearchResourceName",
+            "description": "根据项目或数据源名称模糊搜索",
+            "name": "fuzzy_search_resource_name",
             "in": "query"
           }
         ],
@@ -11932,6 +11946,9 @@
         "business_tag": {
           "$ref": "#/definitions/BusinessTag"
         },
+        "environment_tag": {
+          "$ref": "#/definitions/EnvironmentTag"
+        },
         "high_priority_sql_count": {
           "description": "高优先级SQL数",
           "type": "integer",
@@ -11956,6 +11973,11 @@
           "description": "资源类型",
           "type": "string",
           "x-go-name": "ResourceType"
+        },
+        "resource_uid": {
+          "description": "资源UID",
+          "type": "string",
+          "x-go-name": "ResourceUID"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
