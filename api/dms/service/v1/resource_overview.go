@@ -158,6 +158,8 @@ type ResourceOverviewResourceListRes struct {
 
 // swagger:model ResourceListData
 type ResourceListData struct {
+	// 资源UID
+	ResourceUID string `json:"resource_uid"`
 	// 资源类型
 	ResourceType string `json:"resource_type"`
 	// 资源名称
