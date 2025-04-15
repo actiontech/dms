@@ -4662,6 +4662,8 @@ definitions:
                 x-go-name: AuditScore
             business_tag:
                 $ref: '#/definitions/BusinessTag'
+            environment_tag:
+                $ref: '#/definitions/EnvironmentTag'
             high_priority_sql_count:
                 description: 高优先级SQL数
                 format: int64
@@ -9003,24 +9005,29 @@ paths:
             parameters:
                 - description: 根据数据源类型筛选
                   in: query
-                  name: db_type
+                  name: filter_by_db_type
                   type: string
-                  x-go-name: DBType
+                  x-go-name: FilterByDBType
                 - description: 根据所属业务标签筛选
                   in: query
-                  name: business_tag_uid
+                  name: filter_by_business_tag_uid
                   type: string
-                  x-go-name: BusinessTagUID
+                  x-go-name: FilterByBusinessTagUID
                 - description: 根据环境属性标签筛选
                   in: query
-                  name: environment_tag_uid
+                  name: filter_by_environment_tag_uid
                   type: string
-                  x-go-name: EnvironmentTagUID
+                  x-go-name: FilterByEnvironmentTagUID
                 - description: 根据所属项目筛选
                   in: query
-                  name: project_uid
+                  name: filter_by_project_uid
                   type: string
-                  x-go-name: ProjectUID
+                  x-go-name: FilterByProjectUID
+                - description: 根据项目或数据源名称模糊搜索
+                  in: query
+                  name: fuzzy_search_resource_name
+                  type: string
+                  x-go-name: FuzzySearchResourceName
                 - description: 根据某列排序 enums:"audit_score,pending_workflow_count,high_priority_sql_count"
                   in: query
                   name: sort_by_field
@@ -9031,6 +9038,16 @@ paths:
                   name: sort_asc
                   type: boolean
                   x-go-name: SortAsc
+                - format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - format: uint32
+                  in: query
+                  name: page_size
+                  type: integer
+                  x-go-name: PageSize
             responses:
                 "200":
                     description: resource overview resource list response body
@@ -9079,34 +9096,29 @@ paths:
             parameters:
                 - description: 根据数据源类型筛选
                   in: query
-                  name: db_type
+                  name: filter_by_db_type
                   type: string
-                  x-go-name: DBType
+                  x-go-name: FilterByDBType
                 - description: 根据所属业务标签筛选
                   in: query
-                  name: business_tag_uid
+                  name: filter_by_business_tag_uid
                   type: string
-                  x-go-name: BusinessTagUID
+                  x-go-name: FilterByBusinessTagUID
                 - description: 根据环境属性标签筛选
                   in: query
-                  name: environment_tag_uid
+                  name: filter_by_environment_tag_uid
                   type: string
-                  x-go-name: EnvironmentTagUID
+                  x-go-name: FilterByEnvironmentTagUID
                 - description: 根据所属项目筛选
                   in: query
-                  name: project_uid
+                  name: filter_by_project_uid
                   type: string
-                  x-go-name: ProjectUID
-                - description: 根据某列排序 enums:"audit_score,pending_workflow_count,high_priority_sql_count"
+                  x-go-name: FilterByProjectUID
+                - description: 根据项目或数据源名称模糊搜索
                   in: query
-                  name: sort_by_field
+                  name: fuzzy_search_resource_name
                   type: string
-                  x-go-name: SortByField
-                - description: 是否正序排序
-                  in: query
-                  name: sort_asc
-                  type: boolean
-                  x-go-name: SortAsc
+                  x-go-name: FuzzySearchResourceName
             responses:
                 "200":
                     description: resource overview topology response body
