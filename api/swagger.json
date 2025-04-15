@@ -11973,6 +11973,11 @@
           "description": "资源类型",
           "type": "string",
           "x-go-name": "ResourceType"
+        },
+        "resource_uid": {
+          "description": "资源UID",
+          "type": "string",
+          "x-go-name": "ResourceUID"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
