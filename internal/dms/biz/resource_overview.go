@@ -6,8 +6,10 @@ import (
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 )
 
+type ResourceOverviewVisibility string
+
 type ResourceOverviewRepo interface {
-	GetResourceOverviewTopology(ctx context.Context, listOptions ListResourceOverviewOption) (*ResourceTopology, error)
+	GetResourceList(ctx context.Context, listOptions ListResourceOverviewOption) ([]*ResourceRow, error)
 }
 
 type ResourceTopology struct {
@@ -27,7 +29,6 @@ type ResourceProject struct {
 type ListResourceOverviewOption struct {
 	ListOptions *ResourceOverviewListOptions
 	Filters     *ResourceOverviewFilter
-
 }
 
 type ResourceOverviewListOptions struct {
@@ -38,12 +39,24 @@ type ResourceOverviewListOptions struct {
 }
 
 type ResourceOverviewFilter struct {
-	FilterByDBType            string `json:"filter_by_db_type"`
-	FilterByBusinessTagUID    string `json:"filter_by_business_tag_uid"`
-	FilterByEnvironmentTagUID string `json:"filter_by_environment_tag_uid"`
-	FilterByProjectUID        string `json:"filter_by_project_uid"`
-	FilterByProjectUIDs        []string `json:"filter_by_project_uids"`
-	FuzzySearchResourceName   string `json:"fuzzy_search_resource_name"`
+	FilterByDBType            string   `json:"filter_by_db_type"`
+	FilterByBusinessTagUID    string   `json:"filter_by_business_tag_uid"`
+	FilterByEnvironmentTagUID string   `json:"filter_by_environment_tag_uid"`
+	FilterByProjectUID        string   `json:"filter_by_project_uid"`
+	FilterByProjectUIDs       []string `json:"filter_by_project_uids"`
+	FuzzySearchResourceName   string   `json:"fuzzy_search_resource_name"`
+}
+
+type ResourceRow struct {
+	ProjectName        string `json:"project_name"`
+	ProjectUID         string `json:"project_uid"`
+	EnvironmentTagUID  string `json:"environment_tag_uid"`
+	EnvironmentTagName string `json:"environment_tag_name"`
+	BusinessTagName    string `json:"business_tag_name"`
+	BusinessTagUID     string `json:"business_tag_uid"`
+	DBServiceName      string `json:"db_service_name"`
+	DBServiceUID       string `json:"db_service_uid"`
+	DBType             string `json:"db_type"`
 }
 
 type ResourceOverviewUsecase struct {
@@ -69,5 +82,3 @@ func NewResourceOverviewUsecase(
 		resourceOverviewRepo:      resourceOverviewRepo,
 	}
 }
-
-type ResourceOverviewVisibility string

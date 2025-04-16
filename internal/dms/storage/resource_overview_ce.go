@@ -7,6 +7,6 @@ import (
 	"github.com/actiontech/dms/internal/dms/biz"
 )
 
-func (repo *ResourceOverviewRepo) GetResourceOverviewTopology(ctx context.Context, listOptions biz.ListResourceOverviewOption) (*biz.ResourceTopology, error) {
+func (repo *ResourceOverviewRepo) GetResourceList(ctx context.Context, listOptions ListResourceOverviewOption) ([]*biz.ResourceRow, error) {
 	return nil, nil
 }
