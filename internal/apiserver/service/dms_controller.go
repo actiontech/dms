@@ -4359,7 +4359,23 @@ func (d *DMSController) GetResourceOverviewResourceTypeDistribution(c echo.Conte
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) GetResourceOverviewTopology(c echo.Context) error {
-	return nil
+	req := &aV1.ResourceOverviewTopologyReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	// 获取资源概览拓扑图
+	reply, err := d.DMS.GetResourceOverviewTopology(c.Request().Context(), currentUserUid, req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:operation GET /v1/dms/resource_overview/resource_list ResourceOverview GetResourceOverviewResourceListV1
