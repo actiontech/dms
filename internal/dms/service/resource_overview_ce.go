@@ -22,3 +22,7 @@ func (svc *DMSService) GetResourceOverviewResourceTypeDistribution(ctx context.C
 func (svc *DMSService) GetResourceOverviewTopology(ctx context.Context, currentUserUid string, req *dmsV1.ResourceOverviewTopologyReq) (resp *dmsV1.ResourceOverviewTopologyRes, err error)  {
 	return nil, ErrNotSupportResourceOverview
 }
+
+func (svc *DMSService) GetResourceOverviewList(ctx context.Context, currentUserUid string, req *dmsV1.ResourceOverviewResourceListReq) (resp *dmsV1.ResourceOverviewResourceListRes, err error) {
+	return nil, ErrNotSupportResourceOverview
+}
