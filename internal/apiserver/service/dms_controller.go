@@ -4393,5 +4393,21 @@ func (d *DMSController) GetResourceOverviewTopology(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (d *DMSController) GetResourceOverviewResourceList(c echo.Context) error {
-	return nil
+	req := &aV1.ResourceOverviewResourceListReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	// 获取资源概详情列表
+	reply, err := d.DMS.GetResourceOverviewList(c.Request().Context(), currentUserUid, req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkRespWithReply(c, reply)
 }
