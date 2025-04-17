@@ -78,7 +78,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	projectRepo := storage.NewProjectRepo(logger, st)
 	projectUsecase := biz.NewProjectUsecase(logger, tx, projectRepo, &memberUsecase, opPermissionVerifyUsecase, pluginUseCase, businessTagUsecase, &environmentTagUsecase)
 	dbServiceRepo := storage.NewDBServiceRepo(logger, st)
-	resourceOverviewUsecase := biz.NewResourceOverviewUsecase(logger, projectRepo, dbServiceRepo,*opPermissionVerifyUsecase)
+	resourceOverviewUsecase := biz.NewResourceOverviewUsecase(logger, projectRepo, dbServiceRepo,*opPermissionVerifyUsecase,storage.NewResourceOverviewRepo(logger, st))
 	environmentTagUsecase = *biz.NewEnvironmentTagUsecase(storage.NewEnvironmentTagRepo(logger, st), logger, projectUsecase, opPermissionVerifyUsecase)
 	dmsProxyTargetRepo := storage.NewProxyTargetRepo(logger, st)
 	dbServiceUseCase := biz.NewDBServiceUsecase(logger, dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, &environmentTagUsecase)
