@@ -9003,6 +9003,45 @@ paths:
             summary: Register dms proxy target.
             tags:
                 - DMSProxy
+    /v1/dms/resource_overview/download:
+        get:
+            operationId: DownloadResourceOverviewList
+            parameters:
+                - description: 根据数据源类型筛选
+                  in: query
+                  name: filter_by_db_type
+                  type: string
+                  x-go-name: FilterByDBType
+                - description: 根据所属业务标签筛选
+                  in: query
+                  name: filter_by_business_tag_uid
+                  type: string
+                  x-go-name: FilterByBusinessTagUID
+                - description: 根据环境属性标签筛选
+                  in: query
+                  name: filter_by_environment_tag_uid
+                  type: string
+                  x-go-name: FilterByEnvironmentTagUID
+                - description: 根据所属项目筛选
+                  in: query
+                  name: filter_by_project_uid
+                  type: string
+                  x-go-name: FilterByProjectUID
+                - description: 根据项目或数据源名称模糊搜索
+                  in: query
+                  name: fuzzy_search_resource_name
+                  type: string
+                  x-go-name: FuzzySearchResourceName
+            responses:
+                "200":
+                    $ref: '#/responses/DownloadResourceOverviewListRes'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: download resource overview list csv file.
+            tags:
+                - ResourceOverview
     /v1/dms/resource_overview/resource_list:
         get:
             operationId: GetResourceOverviewResourceListV1
@@ -10222,6 +10261,10 @@ responses:
         schema:
             type: file
     DownloadDataExportTaskSQLsReply:
+        description: ""
+        schema:
+            type: file
+    DownloadResourceOverviewListRes:
         description: ""
         schema:
             type: file
