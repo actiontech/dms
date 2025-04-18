@@ -4369,20 +4369,6 @@
             "in": "query"
           },
           {
-            "type": "string",
-            "x-go-name": "SortByField",
-            "description": "根据某列排序 enums:\"audit_score,pending_workflow_count,high_priority_sql_count\"",
-            "name": "sort_by_field",
-            "in": "query"
-          },
-          {
-            "type": "boolean",
-            "x-go-name": "SortAsc",
-            "description": "是否正序排序",
-            "name": "sort_asc",
-            "in": "query"
-          },
-          {
             "type": "integer",
             "format": "uint32",
             "x-go-name": "PageIndex",
@@ -11939,8 +11925,8 @@
       "properties": {
         "audit_score": {
           "description": "审核评分",
-          "type": "integer",
-          "format": "int64",
+          "type": "number",
+          "format": "float",
           "x-go-name": "AuditScore"
         },
         "business_tag": {
@@ -11952,13 +11938,13 @@
         "high_priority_sql_count": {
           "description": "高优先级SQL数",
           "type": "integer",
-          "format": "int64",
+          "format": "int32",
           "x-go-name": "HighPrioritySQLCount"
         },
         "pending_workflow_count": {
           "description": "待处理工单数",
           "type": "integer",
-          "format": "int64",
+          "format": "int32",
           "x-go-name": "PendingWorkflowCount"
         },
         "project": {

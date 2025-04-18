@@ -133,14 +133,6 @@ type ResourceOverviewResourceListReq struct {
 
 // swagger:parameters
 type ResourceOverviewListOptions struct {
-	// 根据某列排序 enums:"audit_score,pending_workflow_count,high_priority_sql_count"
-	// in:query
-	// type:string
-	SortByField string `query:"sort_by_field" param:"sort_by_field" json:"sort_by_field" enums:"audit_score,pending_workflow_count,high_priority_sql_count"`
-	// 是否正序排序
-	// in:query
-	// type:bool
-	SortAsc bool `query:"sort_asc" param:"sort_asc" json:"sort_asc"`
 	// in:query
 	// type:uint32
 	PageIndex uint32 `query:"page_index" param:"page_index" json:"page_index"`
@@ -171,9 +163,9 @@ type ResourceListData struct {
 	// 环境属性
 	EnvironmentTag *dmsCommonV1.EnvironmentTag `json:"environment_tag"`
 	// 审核评分
-	AuditScore int64 `json:"audit_score"`
+	AuditScore float32 `json:"audit_score"`
 	// 待处理工单数
-	PendingWorkflowCount int64 `json:"pending_workflow_count"`
+	PendingWorkflowCount int32 `json:"pending_workflow_count"`
 	// 高优先级SQL数
-	HighPrioritySQLCount int64 `json:"high_priority_sql_count"`
+	HighPrioritySQLCount int32 `json:"high_priority_sql_count"`
 }
