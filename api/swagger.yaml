@@ -4657,8 +4657,8 @@ definitions:
         properties:
             audit_score:
                 description: 审核评分
-                format: int64
-                type: integer
+                format: float
+                type: number
                 x-go-name: AuditScore
             business_tag:
                 $ref: '#/definitions/BusinessTag'
@@ -4666,12 +4666,12 @@ definitions:
                 $ref: '#/definitions/EnvironmentTag'
             high_priority_sql_count:
                 description: 高优先级SQL数
-                format: int64
+                format: int32
                 type: integer
                 x-go-name: HighPrioritySQLCount
             pending_workflow_count:
                 description: 待处理工单数
-                format: int64
+                format: int32
                 type: integer
                 x-go-name: PendingWorkflowCount
             project:
@@ -9032,16 +9032,6 @@ paths:
                   name: fuzzy_search_resource_name
                   type: string
                   x-go-name: FuzzySearchResourceName
-                - description: 根据某列排序 enums:"audit_score,pending_workflow_count,high_priority_sql_count"
-                  in: query
-                  name: sort_by_field
-                  type: string
-                  x-go-name: SortByField
-                - description: 是否正序排序
-                  in: query
-                  name: sort_asc
-                  type: boolean
-                  x-go-name: SortAsc
                 - format: uint32
                   in: query
                   name: page_index

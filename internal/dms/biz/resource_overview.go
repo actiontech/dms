@@ -9,7 +9,7 @@ import (
 type ResourceOverviewVisibility string
 
 type ResourceOverviewRepo interface {
-	GetResourceList(ctx context.Context, listOptions ListResourceOverviewOption) ([]*ResourceRow, error)
+	GetResourceList(ctx context.Context, listOptions ListResourceOverviewOption) ([]*ResourceRow, int64, error)
 }
 
 type ResourceTopology struct {
@@ -32,10 +32,8 @@ type ListResourceOverviewOption struct {
 }
 
 type ResourceOverviewListOptions struct {
-	SortByField string `json:"sort_by_field"`
-	SortAsc     bool   `json:"sort_asc"`
-	PageIndex   uint32 `json:"page_index"`
-	PageSize    uint32 `json:"page_size"`
+	PageIndex            uint32   `json:"page_index"`
+	PageSize             uint32   `json:"page_size"`
 }
 
 type ResourceOverviewFilter struct {
@@ -45,6 +43,17 @@ type ResourceOverviewFilter struct {
 	FilterByProjectUID        string   `json:"filter_by_project_uid"`
 	FilterByProjectUIDs       []string `json:"filter_by_project_uids"`
 	FuzzySearchResourceName   string   `json:"fuzzy_search_resource_name"`
+	FilterDBServiceNotNull    bool     `json:"filter_db_service_not_null"`
+}
+
+type ResourceDetail struct {
+	ResourceRow
+	// 审核评分
+	AuditScore float32 `json:"audit_score"`
+	// 待处理工单数
+	PendingWorkflowCount int32 `json:"pending_workflow_count"`
+	// 高优先级SQL数
+	HighPrioritySQLCount int32 `json:"high_priority_sql_count"`
 }
 
 type ResourceRow struct {
@@ -65,6 +74,7 @@ type ResourceOverviewUsecase struct {
 	dbServiceRepo             DBServiceRepo
 	resourceOverviewRepo      ResourceOverviewRepo
 	opPermissionVerifyUsecase OpPermissionVerifyUsecase
+	dmsProxyTargetRepo        ProxyTargetRepo
 }
 
 func NewResourceOverviewUsecase(
@@ -73,6 +83,7 @@ func NewResourceOverviewUsecase(
 	dbServiceRepo DBServiceRepo,
 	opPermissionVerifyUsecase OpPermissionVerifyUsecase,
 	resourceOverviewRepo ResourceOverviewRepo,
+	dmsProxyTargetRepo ProxyTargetRepo,
 ) *ResourceOverviewUsecase {
 	return &ResourceOverviewUsecase{
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.ResourceOverview")),
@@ -80,5 +91,6 @@ func NewResourceOverviewUsecase(
 		dbServiceRepo:             dbServiceRepo,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 		resourceOverviewRepo:      resourceOverviewRepo,
+		dmsProxyTargetRepo:        dmsProxyTargetRepo,
 	}
 }
