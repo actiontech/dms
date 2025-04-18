@@ -26,3 +26,7 @@ func (svc *DMSService) GetResourceOverviewTopology(ctx context.Context, currentU
 func (svc *DMSService) GetResourceOverviewList(ctx context.Context, currentUserUid string, req *dmsV1.ResourceOverviewResourceListReq) (resp *dmsV1.ResourceOverviewResourceListRes, err error) {
 	return nil, ErrNotSupportResourceOverview
 }
+
+func (svc *DMSService) DownloadResourceOverviewList(ctx context.Context, currentUserUid string, req *dmsV1.DownloadResourceOverviewListReq) ([]byte, error) {
+	return nil, ErrNotSupportResourceOverview
+}
