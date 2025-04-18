@@ -169,3 +169,15 @@ type ResourceListData struct {
 	// 高优先级SQL数
 	HighPrioritySQLCount int32 `json:"high_priority_sql_count"`
 }
+
+// swagger:parameters DownloadResourceOverviewList
+type DownloadResourceOverviewListReq struct {
+	ResourceOverviewFilter
+}
+
+// swagger:response DownloadResourceOverviewListRes
+type DownloadResourceOverviewListRes struct {
+	// swagger:file
+	// in:  body
+	File []byte
+}

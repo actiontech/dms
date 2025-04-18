@@ -4325,6 +4325,63 @@
         }
       }
     },
+    "/v1/dms/resource_overview/download": {
+      "get": {
+        "tags": [
+          "ResourceOverview"
+        ],
+        "summary": "download resource overview list csv file.",
+        "operationId": "DownloadResourceOverviewList",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "FilterByDBType",
+            "description": "根据数据源类型筛选",
+            "name": "filter_by_db_type",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByBusinessTagUID",
+            "description": "根据所属业务标签筛选",
+            "name": "filter_by_business_tag_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByEnvironmentTagUID",
+            "description": "根据环境属性标签筛选",
+            "name": "filter_by_environment_tag_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByProjectUID",
+            "description": "根据所属项目筛选",
+            "name": "filter_by_project_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FuzzySearchResourceName",
+            "description": "根据项目或数据源名称模糊搜索",
+            "name": "fuzzy_search_resource_name",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/DownloadResourceOverviewListRes"
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/resource_overview/resource_list": {
       "get": {
         "tags": [
@@ -13776,6 +13833,12 @@
       }
     },
     "DownloadDataExportTaskSQLsReply": {
+      "description": "",
+      "schema": {
+        "type": "file"
+      }
+    },
+    "DownloadResourceOverviewListRes": {
       "description": "",
       "schema": {
         "type": "file"

@@ -4411,3 +4411,34 @@ func (d *DMSController) GetResourceOverviewResourceList(c echo.Context) error {
 
 	return NewOkRespWithReply(c, reply)
 }
+
+// swagger:route GET /v1/dms/resource_overview/download ResourceOverview DownloadResourceOverviewList
+//
+// download resource overview list csv file.
+//
+//	responses:
+//	  200: DownloadResourceOverviewListRes
+//	  default: body:GenericResp
+func (d *DMSController) DownloadResourceOverviewList(c echo.Context) error {
+	req := &aV1.DownloadResourceOverviewListReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	content, err := d.DMS.DownloadResourceOverviewList(c.Request().Context(), currentUserUid, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	// TODO 后续需要增加国际化时，需要修改文件名以及CSV文件中的字段
+	fileName := fmt.Sprintf("资源全景视图_%s.csv", time.Now().Format("20060102150405"))
+	c.Response().Header().Set(echo.HeaderContentDisposition,
+		mime.FormatMediaType("attachment", map[string]string{"filename": fileName}))
+
+	return c.Blob(http.StatusOK, "text/csv", content)
+}
