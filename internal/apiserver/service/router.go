@@ -51,7 +51,7 @@ func (s *APIServer) initRouter() error {
 		dbServiceV1 := v1.Group(dmsV1.DBServiceRouterGroup)
 		{
 			dbServiceV1.POST("", s.DeprecatedBy(dmsV2.GroupV2))
-			dbServiceV1.GET("", s.DeprecatedBy(dmsV2.GroupV2))
+			dbServiceV1.GET("", s.DMSController.ListDBServicesV2) // 兼容jet brain插件，临时开放v1接口
 			dbServiceV1.GET("/tips", s.DMSController.ListDBServiceTips)
 			dbServiceV1.DELETE("/:db_service_uid", s.DMSController.DelDBService)
 			dbServiceV1.PUT("/:db_service_uid", s.DeprecatedBy(dmsV2.GroupV2))
@@ -133,7 +133,7 @@ func (s *APIServer) initRouter() error {
 		opPermissionV1.GET("", s.DMSController.ListOpPermissions)
 
 		projectV1 := v1.Group(dmsV2.ProjectRouterGroup)
-		projectV1.GET("", s.DeprecatedBy(dmsV2.GroupV2))
+		projectV1.GET("", s.DMSController.ListProjectsV2) // 兼容jet brain插件，临时开放v1接口
 		projectV1.POST("", s.DeprecatedBy(dmsV2.GroupV2))
 		projectV1.DELETE("/:project_uid", s.DMSController.DelProject)
 		projectV1.PUT("/:project_uid", s.DeprecatedBy(dmsV2.GroupV2))
