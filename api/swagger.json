@@ -6106,7 +6106,7 @@
           "User"
         ],
         "summary": "Update a user.",
-        "operationId": "UpdateUser",
+        "operationId": "UpdateUserV2",
         "parameters": [
           {
             "type": "string",

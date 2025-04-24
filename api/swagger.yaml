@@ -10187,7 +10187,7 @@ paths:
             tags:
                 - User
         put:
-            operationId: UpdateUser
+            operationId: UpdateUserV2
             parameters:
                 - description: User name
                   in: path
