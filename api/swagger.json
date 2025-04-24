@@ -1323,7 +1323,7 @@
         "tags": [
           "ListGateways"
         ],
-        "summary": "Get gateways.",
+        "summary": "List gateways.",
         "operationId": "ListGateways"
       },
       "put": {
@@ -6239,6 +6239,36 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "AddGatewayReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddGatewayReq": {
+      "type": "object",
+      "properties": {
+        "add_gateway": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Gateway"
+          },
+          "x-go-name": "AddGateway"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "AddMemberGroupReply": {
       "type": "object",
       "properties": {
@@ -7779,6 +7809,36 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "DeleteGatewayReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DeleteGatewayReq": {
+      "type": "object",
+      "properties": {
+        "delete_gateway": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "DeleteGateway"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "EnvironmentTag": {
       "type": "object",
       "properties": {
@@ -7824,6 +7884,32 @@
         }
       },
       "x-go-package": "mime/multipart"
+    },
+    "Gateway": {
+      "type": "object",
+      "properties": {
+        "gateway_address": {
+          "type": "string",
+          "x-go-name": "GatewayAddress"
+        },
+        "gateway_desc": {
+          "type": "string",
+          "x-go-name": "GatewayDesc"
+        },
+        "gateway_id": {
+          "type": "string",
+          "x-go-name": "GatewayID"
+        },
+        "gateway_name": {
+          "type": "string",
+          "x-go-name": "GatewayName"
+        },
+        "gateway_status": {
+          "type": "string",
+          "x-go-name": "GatewayStatus"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GenAccessToken": {
       "type": "object",
@@ -8123,6 +8209,54 @@
         },
         "data": {
           "$ref": "#/definitions/FeishuConfigurationResData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetGatewayReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Gateway"
+          },
+          "x-go-name": "Gateways"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetGatewayTipsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "GatewayTips"
         },
         "message": {
           "description": "message",
@@ -10052,6 +10186,51 @@
           "type": "integer",
           "format": "int64",
           "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListGatewaysReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Gateway"
+          },
+          "x-go-name": "Gateways"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListGatewaysReq": {
+      "type": "object",
+      "properties": {
+        "page_num": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "PageNum"
+        },
+        "page_size": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "PageSize"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -12678,6 +12857,32 @@
       "properties": {
         "update_feishu_configuration": {
           "$ref": "#/definitions/UpdateFeishuConfiguration"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateGatewayReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateGatewayReq": {
+      "type": "object",
+      "properties": {
+        "update_gateway": {
+          "$ref": "#/definitions/Gateway"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"

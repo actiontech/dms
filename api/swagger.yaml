@@ -139,6 +139,28 @@ definitions:
                 $ref: '#/definitions/DataExportWorkflow'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddGatewayReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddGatewayReq:
+        properties:
+            add_gateway:
+                items:
+                    $ref: '#/definitions/Gateway'
+                type: array
+                x-go-name: AddGateway
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddMemberGroupReply:
         properties:
             code:
@@ -1308,6 +1330,28 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DeleteGatewayReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DeleteGatewayReq:
+        properties:
+            delete_gateway:
+                items:
+                    type: string
+                type: array
+                x-go-name: DeleteGateway
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     EnvironmentTag:
         properties:
             name:
@@ -1341,6 +1385,25 @@ definitions:
         title: A FileHeader describes a file part of a multipart request.
         type: object
         x-go-package: mime/multipart
+    Gateway:
+        properties:
+            gateway_address:
+                type: string
+                x-go-name: GatewayAddress
+            gateway_desc:
+                type: string
+                x-go-name: GatewayDesc
+            gateway_id:
+                type: string
+                x-go-name: GatewayID
+            gateway_name:
+                type: string
+                x-go-name: GatewayName
+            gateway_status:
+                type: string
+                x-go-name: GatewayStatus
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GenAccessToken:
         properties:
             expiration_days:
@@ -1572,6 +1635,42 @@ definitions:
                 x-go-name: Code
             data:
                 $ref: '#/definitions/FeishuConfigurationResData'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetGatewayReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/Gateway'
+                type: array
+                x-go-name: Gateways
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetGatewayTipsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    type: string
+                type: array
+                x-go-name: GatewayTips
             message:
                 description: message
                 type: string
@@ -3083,6 +3182,40 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Total
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListGatewaysReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/Gateway'
+                type: array
+                x-go-name: Gateways
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListGatewaysReq:
+        properties:
+            page_num:
+                format: int64
+                type: integer
+                x-go-name: PageNum
+            page_size:
+                format: int64
+                type: integer
+                x-go-name: PageSize
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListGlobalDBService:
@@ -5249,6 +5382,25 @@ definitions:
                 $ref: '#/definitions/UpdateFeishuConfiguration'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateGatewayReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateGatewayReq:
+        properties:
+            update_gateway:
+                $ref: '#/definitions/Gateway'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateLDAPConfigurationReq:
         properties:
             ldap:
@@ -6744,7 +6896,7 @@ paths:
     /v1/dms/gateways:
         get:
             operationId: ListGateways
-            summary: Get gateways.
+            summary: List gateways.
             tags:
                 - ListGateways
         post:
