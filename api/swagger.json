@@ -1321,26 +1321,41 @@
     "/v1/dms/gateways": {
       "get": {
         "tags": [
-          "ListGateways"
-        ],
-        "summary": "List gateways.",
-        "operationId": "ListGateways"
-      },
-      "put": {
-        "tags": [
           "Gateway"
         ],
-        "summary": "update gateways.",
-        "operationId": "UpdateGateways",
+        "summary": "List gateways.",
+        "operationId": "ListGateways",
         "parameters": [
           {
-            "$ref": "#/definitions/UpdateGatewayReq",
-            "description": "update gateway",
-            "name": "update_gateway",
-            "in": "body",
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "name": "page_size",
+            "in": "query",
             "required": true
           }
-        ]
+        ],
+        "responses": {
+          "200": {
+            "description": "ListGatewaysReply",
+            "schema": {
+              "$ref": "#/definitions/ListGatewaysReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
       },
       "post": {
         "tags": [
@@ -1356,7 +1371,21 @@
             "in": "body",
             "required": true
           }
-        ]
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
       }
     },
     "/v1/dms/gateways/tips": {
@@ -1365,7 +1394,21 @@
           "Gateway"
         ],
         "summary": "Get gateway tips.",
-        "operationId": "GetGatewayTips"
+        "operationId": "GetGatewayTips",
+        "responses": {
+          "200": {
+            "description": "GetGatewayTipsReply",
+            "schema": {
+              "$ref": "#/definitions/GetGatewayTipsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
       }
     },
     "/v1/dms/gateways/{gateway_id}": {
@@ -1374,7 +1417,51 @@
           "Gateway"
         ],
         "summary": "Get gateways.",
-        "operationId": "GetGateway"
+        "operationId": "GetGateway",
+        "responses": {
+          "200": {
+            "description": "GetGatewayReply",
+            "schema": {
+              "$ref": "#/definitions/GetGatewayReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Gateway"
+        ],
+        "summary": "update gateways.",
+        "operationId": "UpdateGateway",
+        "parameters": [
+          {
+            "$ref": "#/definitions/UpdateGatewayReq",
+            "description": "update gateway",
+            "name": "update_gateway",
+            "in": "body",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
       },
       "delete": {
         "tags": [
@@ -1384,13 +1471,27 @@
         "operationId": "DeleteGateway",
         "parameters": [
           {
-            "$ref": "#/definitions/DeleteGatewayReq",
-            "description": "delete gateway",
-            "name": "delete_gateway",
-            "in": "body",
+            "type": "string",
+            "x-go-name": "DeleteGatewayID",
+            "name": "gateway_id",
+            "in": "path",
             "required": true
           }
-        ]
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
       }
     },
     "/v1/dms/masking/rules": {
@@ -7826,19 +7927,6 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
-    "DeleteGatewayReq": {
-      "type": "object",
-      "properties": {
-        "delete_gateway": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "x-go-name": "DeleteGateway"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
     "EnvironmentTag": {
       "type": "object",
       "properties": {
@@ -10215,22 +10303,6 @@
           "type": "integer",
           "format": "int64",
           "x-go-name": "Total"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "ListGatewaysReq": {
-      "type": "object",
-      "properties": {
-        "page_num": {
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "PageNum"
-        },
-        "page_size": {
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "PageSize"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"

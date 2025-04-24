@@ -1343,15 +1343,6 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    DeleteGatewayReq:
-        properties:
-            delete_gateway:
-                items:
-                    type: string
-                type: array
-                x-go-name: DeleteGateway
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     EnvironmentTag:
         properties:
             name:
@@ -3204,18 +3195,6 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Total
-        type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    ListGatewaysReq:
-        properties:
-            page_num:
-                format: int64
-                type: integer
-                x-go-name: PageNum
-            page_size:
-                format: int64
-                type: integer
-                x-go-name: PageSize
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListGlobalDBService:
@@ -6896,9 +6875,30 @@ paths:
     /v1/dms/gateways:
         get:
             operationId: ListGateways
+            parameters:
+                - format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+            responses:
+                "200":
+                    description: ListGatewaysReply
+                    schema:
+                        $ref: '#/definitions/ListGatewaysReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
             summary: List gateways.
             tags:
-                - ListGateways
+                - Gateway
         post:
             operationId: AddGateway
             parameters:
@@ -6907,40 +6907,85 @@ paths:
                   in: body
                   name: add_gateway
                   required: true
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
             summary: Add gateways.
-            tags:
-                - Gateway
-        put:
-            operationId: UpdateGateways
-            parameters:
-                - $ref: '#/definitions/UpdateGatewayReq'
-                  description: update gateway
-                  in: body
-                  name: update_gateway
-                  required: true
-            summary: update gateways.
             tags:
                 - Gateway
     /v1/dms/gateways/{gateway_id}:
         delete:
             operationId: DeleteGateway
             parameters:
-                - $ref: '#/definitions/DeleteGatewayReq'
-                  description: delete gateway
-                  in: body
-                  name: delete_gateway
+                - in: path
+                  name: gateway_id
                   required: true
+                  type: string
+                  x-go-name: DeleteGatewayID
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
             summary: Delete gateways.
             tags:
                 - Gateway
         get:
             operationId: GetGateway
+            responses:
+                "200":
+                    description: GetGatewayReply
+                    schema:
+                        $ref: '#/definitions/GetGatewayReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
             summary: Get gateways.
+            tags:
+                - Gateway
+        put:
+            operationId: UpdateGateway
+            parameters:
+                - $ref: '#/definitions/UpdateGatewayReq'
+                  description: update gateway
+                  in: body
+                  name: update_gateway
+                  required: true
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: update gateways.
             tags:
                 - Gateway
     /v1/dms/gateways/tips:
         get:
             operationId: GetGatewayTips
+            responses:
+                "200":
+                    description: GetGatewayTipsReply
+                    schema:
+                        $ref: '#/definitions/GetGatewayTipsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
             summary: Get gateway tips.
             tags:
                 - Gateway
