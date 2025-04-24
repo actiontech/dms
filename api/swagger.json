@@ -1318,6 +1318,81 @@
         }
       }
     },
+    "/v1/dms/gateways": {
+      "get": {
+        "tags": [
+          "ListGateways"
+        ],
+        "summary": "Get gateways.",
+        "operationId": "ListGateways"
+      },
+      "put": {
+        "tags": [
+          "Gateway"
+        ],
+        "summary": "update gateways.",
+        "operationId": "UpdateGateways",
+        "parameters": [
+          {
+            "$ref": "#/definitions/UpdateGatewayReq",
+            "description": "update gateway",
+            "name": "update_gateway",
+            "in": "body",
+            "required": true
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Gateway"
+        ],
+        "summary": "Add gateways.",
+        "operationId": "AddGateway",
+        "parameters": [
+          {
+            "$ref": "#/definitions/AddGatewayReq",
+            "description": "add gateway",
+            "name": "add_gateway",
+            "in": "body",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/v1/dms/gateways/tips": {
+      "get": {
+        "tags": [
+          "Gateway"
+        ],
+        "summary": "Get gateway tips.",
+        "operationId": "GetGatewayTips"
+      }
+    },
+    "/v1/dms/gateways/{gateway_id}": {
+      "get": {
+        "tags": [
+          "Gateway"
+        ],
+        "summary": "Get gateways.",
+        "operationId": "GetGateway"
+      },
+      "delete": {
+        "tags": [
+          "Gateway"
+        ],
+        "summary": "Delete gateways.",
+        "operationId": "DeleteGateway",
+        "parameters": [
+          {
+            "$ref": "#/definitions/DeleteGatewayReq",
+            "description": "delete gateway",
+            "name": "delete_gateway",
+            "in": "body",
+            "required": true
+          }
+        ]
+      }
+    },
     "/v1/dms/masking/rules": {
       "get": {
         "tags": [
@@ -4325,243 +4400,6 @@
         }
       }
     },
-    "/v1/dms/resource_overview/download": {
-      "get": {
-        "tags": [
-          "ResourceOverview"
-        ],
-        "summary": "download resource overview list csv file.",
-        "operationId": "DownloadResourceOverviewList",
-        "parameters": [
-          {
-            "type": "string",
-            "x-go-name": "FilterByDBType",
-            "description": "根据数据源类型筛选",
-            "name": "filter_by_db_type",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "x-go-name": "FilterByBusinessTagUID",
-            "description": "根据所属业务标签筛选",
-            "name": "filter_by_business_tag_uid",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "x-go-name": "FilterByEnvironmentTagUID",
-            "description": "根据环境属性标签筛选",
-            "name": "filter_by_environment_tag_uid",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "x-go-name": "FilterByProjectUID",
-            "description": "根据所属项目筛选",
-            "name": "filter_by_project_uid",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "x-go-name": "FuzzySearchResourceName",
-            "description": "根据项目或数据源名称模糊搜索",
-            "name": "fuzzy_search_resource_name",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/responses/DownloadResourceOverviewListRes"
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      }
-    },
-    "/v1/dms/resource_overview/resource_list": {
-      "get": {
-        "tags": [
-          "ResourceOverview"
-        ],
-        "summary": "Get resource overview resource list.",
-        "operationId": "GetResourceOverviewResourceListV1",
-        "parameters": [
-          {
-            "type": "string",
-            "x-go-name": "FilterByDBType",
-            "description": "根据数据源类型筛选",
-            "name": "filter_by_db_type",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "x-go-name": "FilterByBusinessTagUID",
-            "description": "根据所属业务标签筛选",
-            "name": "filter_by_business_tag_uid",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "x-go-name": "FilterByEnvironmentTagUID",
-            "description": "根据环境属性标签筛选",
-            "name": "filter_by_environment_tag_uid",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "x-go-name": "FilterByProjectUID",
-            "description": "根据所属项目筛选",
-            "name": "filter_by_project_uid",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "x-go-name": "FuzzySearchResourceName",
-            "description": "根据项目或数据源名称模糊搜索",
-            "name": "fuzzy_search_resource_name",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "format": "uint32",
-            "x-go-name": "PageIndex",
-            "name": "page_index",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "format": "uint32",
-            "x-go-name": "PageSize",
-            "name": "page_size",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "resource overview resource list response body",
-            "schema": {
-              "$ref": "#/definitions/ResourceOverviewResourceListResV1"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      }
-    },
-    "/v1/dms/resource_overview/resource_type_distribution": {
-      "get": {
-        "tags": [
-          "ResourceOverview"
-        ],
-        "summary": "Get resource overview resource type distribution.",
-        "operationId": "GetResourceOverviewResourceTypeDistributionV1",
-        "responses": {
-          "200": {
-            "description": "resource overview resource type distribution response body",
-            "schema": {
-              "$ref": "#/definitions/ResourceOverviewResourceTypeDistributionResV1"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      }
-    },
-    "/v1/dms/resource_overview/statistics": {
-      "get": {
-        "tags": [
-          "ResourceOverview"
-        ],
-        "summary": "Get resource overview statistics.",
-        "operationId": "GetResourceOverviewStatisticsV1",
-        "responses": {
-          "200": {
-            "description": "resource overview statistics response body",
-            "schema": {
-              "$ref": "#/definitions/ResourceOverviewStatisticsResV1"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      }
-    },
-    "/v1/dms/resource_overview/topology": {
-      "get": {
-        "tags": [
-          "ResourceOverview"
-        ],
-        "summary": "Get resource overview topology.",
-        "operationId": "GetResourceOverviewTopologyV1",
-        "parameters": [
-          {
-            "type": "string",
-            "x-go-name": "FilterByDBType",
-            "description": "根据数据源类型筛选",
-            "name": "filter_by_db_type",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "x-go-name": "FilterByBusinessTagUID",
-            "description": "根据所属业务标签筛选",
-            "name": "filter_by_business_tag_uid",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "x-go-name": "FilterByEnvironmentTagUID",
-            "description": "根据环境属性标签筛选",
-            "name": "filter_by_environment_tag_uid",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "x-go-name": "FilterByProjectUID",
-            "description": "根据所属项目筛选",
-            "name": "filter_by_project_uid",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "x-go-name": "FuzzySearchResourceName",
-            "description": "根据项目或数据源名称模糊搜索",
-            "name": "fuzzy_search_resource_name",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "resource overview topology response body",
-            "schema": {
-              "$ref": "#/definitions/ResourceOverviewTopologyResV1"
-            }
-          },
-          "default": {
-            "description": "GenericResp",
-            "schema": {
-              "$ref": "#/definitions/GenericResp"
-            }
-          }
-        }
-      }
-    },
     "/v1/dms/roles": {
       "get": {
         "tags": [
@@ -6123,6 +5961,77 @@
             "schema": {
               "$ref": "#/definitions/UpdateDBServiceReqV2"
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v2/dms/users/{user_name}": {
+      "put": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Update a user.",
+        "operationId": "UpdateUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "User name",
+            "name": "user_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Update a user",
+            "name": "user",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateUserReqV2"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Delete a user.",
+        "operationId": "DelUserV2",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Username",
+            "description": "user name",
+            "name": "user_name",
+            "in": "path",
+            "required": true
           }
         ],
         "responses": {
@@ -11946,256 +11855,6 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
-    "ResourceBusiness": {
-      "type": "object",
-      "properties": {
-        "business_tag": {
-          "$ref": "#/definitions/BusinessTag"
-        },
-        "project": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ResourceProject"
-          },
-          "x-go-name": "Project"
-        }
-      },
-      "x-go-name": "Business",
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "ResourceDBService": {
-      "type": "object",
-      "properties": {
-        "db_service_name": {
-          "type": "string",
-          "x-go-name": "DBServiceName"
-        },
-        "db_service_uid": {
-          "type": "string",
-          "x-go-name": "DBServiceUID"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "ResourceListData": {
-      "type": "object",
-      "properties": {
-        "audit_score": {
-          "description": "审核评分",
-          "type": "number",
-          "format": "float",
-          "x-go-name": "AuditScore"
-        },
-        "business_tag": {
-          "$ref": "#/definitions/BusinessTag"
-        },
-        "environment_tag": {
-          "$ref": "#/definitions/EnvironmentTag"
-        },
-        "high_priority_sql_count": {
-          "description": "高优先级SQL数",
-          "type": "integer",
-          "format": "int32",
-          "x-go-name": "HighPrioritySQLCount"
-        },
-        "pending_workflow_count": {
-          "description": "待处理工单数",
-          "type": "integer",
-          "format": "int32",
-          "x-go-name": "PendingWorkflowCount"
-        },
-        "project": {
-          "$ref": "#/definitions/ResourceProject"
-        },
-        "resource_name": {
-          "description": "资源名称",
-          "type": "string",
-          "x-go-name": "ResourceName"
-        },
-        "resource_type": {
-          "description": "资源类型",
-          "type": "string",
-          "x-go-name": "ResourceType"
-        },
-        "resource_uid": {
-          "description": "资源UID",
-          "type": "string",
-          "x-go-name": "ResourceUID"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "ResourceOverviewResourceListResV1": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "code",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Code"
-        },
-        "data": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ResourceListData"
-          },
-          "x-go-name": "Data"
-        },
-        "message": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Message"
-        },
-        "total_nums": {
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Total"
-        }
-      },
-      "x-go-name": "ResourceOverviewResourceListRes",
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "ResourceOverviewResourceTypeDistributionResV1": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "code",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Code"
-        },
-        "data": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ResourceTypeDistributionData"
-          },
-          "x-go-name": "Data"
-        },
-        "message": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Message"
-        },
-        "total_nums": {
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Total"
-        }
-      },
-      "x-go-name": "ResourceOverviewResourceTypeDistributionRes",
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "ResourceOverviewStatisticsResV1": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "code",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Code"
-        },
-        "data": {
-          "type": "object",
-          "properties": {
-            "business_total_number": {
-              "description": "业务总数",
-              "type": "integer",
-              "format": "int64",
-              "x-go-name": "BusinessTotalNumber"
-            },
-            "db_service_total_number": {
-              "description": "数据源总数",
-              "type": "integer",
-              "format": "int64",
-              "x-go-name": "DBServiceTotalNumber"
-            },
-            "project_total_number": {
-              "description": "项目总数",
-              "type": "integer",
-              "format": "int64",
-              "x-go-name": "ProjectTotalNumber"
-            }
-          },
-          "x-go-name": "Data"
-        },
-        "message": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Message"
-        }
-      },
-      "x-go-name": "ResourceOverviewStatisticsRes",
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "ResourceOverviewTopologyResV1": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "description": "code",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Code"
-        },
-        "data": {
-          "description": "business:project = 1:n project:db_service = 1:n",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ResourceBusiness"
-          },
-          "x-go-name": "Data"
-        },
-        "message": {
-          "description": "message",
-          "type": "string",
-          "x-go-name": "Message"
-        },
-        "total_nums": {
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Total"
-        }
-      },
-      "x-go-name": "ResourceOverviewTopologyRes",
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "ResourceProject": {
-      "type": "object",
-      "properties": {
-        "db_service": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ResourceDBService"
-          },
-          "x-go-name": "DBService"
-        },
-        "project_name": {
-          "type": "string",
-          "x-go-name": "ProjectName"
-        },
-        "project_uid": {
-          "type": "string",
-          "x-go-name": "ProjectUID"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
-    "ResourceTypeDistributionData": {
-      "type": "object",
-      "properties": {
-        "count": {
-          "description": "数量",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Count"
-        },
-        "resource_type": {
-          "description": "资源类型",
-          "type": "string",
-          "x-go-name": "ResourceType"
-        }
-      },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
-    },
     "Role": {
       "description": "A role",
       "type": "object",
@@ -13390,6 +13049,16 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "UpdateUserReqV2": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/UpdateUser"
+        }
+      },
+      "x-go-name": "UpdateUserReq",
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
     "UpdateWeChatConfiguration": {
       "type": "object",
       "properties": {
@@ -13833,12 +13502,6 @@
       }
     },
     "DownloadDataExportTaskSQLsReply": {
-      "description": "",
-      "schema": {
-        "type": "file"
-      }
-    },
-    "DownloadResourceOverviewListRes": {
       "description": "",
       "schema": {
         "type": "file"
