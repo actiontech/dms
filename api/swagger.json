@@ -1420,6 +1420,15 @@
         ],
         "summary": "Get gateways.",
         "operationId": "GetGateway",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "GetGatewayID",
+            "name": "gateway_id",
+            "in": "path",
+            "required": true
+          }
+        ],
         "responses": {
           "200": {
             "description": "GetGatewayReply",
@@ -1442,6 +1451,13 @@
         "summary": "update gateways.",
         "operationId": "UpdateGateway",
         "parameters": [
+          {
+            "type": "string",
+            "description": "gateway id",
+            "name": "gateway_id",
+            "in": "path",
+            "required": true
+          },
           {
             "description": "update gateway",
             "name": "update_gateway",
@@ -6365,11 +6381,7 @@
       "type": "object",
       "properties": {
         "add_gateway": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Gateway"
-          },
-          "x-go-name": "AddGateway"
+          "$ref": "#/definitions/Gateway"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -8320,11 +8332,7 @@
           "x-go-name": "Code"
         },
         "data": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Gateway"
-          },
-          "x-go-name": "Gateways"
+          "$ref": "#/definitions/Gateway"
         },
         "message": {
           "description": "message",

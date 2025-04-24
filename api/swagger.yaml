@@ -155,10 +155,7 @@ definitions:
     AddGatewayReq:
         properties:
             add_gateway:
-                items:
-                    $ref: '#/definitions/Gateway'
-                type: array
-                x-go-name: AddGateway
+                $ref: '#/definitions/Gateway'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddMemberGroupReply:
@@ -1640,10 +1637,7 @@ definitions:
                 type: integer
                 x-go-name: Code
             data:
-                items:
-                    $ref: '#/definitions/Gateway'
-                type: array
-                x-go-name: Gateways
+                $ref: '#/definitions/Gateway'
             message:
                 description: message
                 type: string
@@ -6943,6 +6937,12 @@ paths:
                 - Gateway
         get:
             operationId: GetGateway
+            parameters:
+                - in: path
+                  name: gateway_id
+                  required: true
+                  type: string
+                  x-go-name: GetGatewayID
             responses:
                 "200":
                     description: GetGatewayReply
@@ -6958,6 +6958,11 @@ paths:
         put:
             operationId: UpdateGateway
             parameters:
+                - description: gateway id
+                  in: path
+                  name: gateway_id
+                  required: true
+                  type: string
                 - description: update gateway
                   in: body
                   name: update_gateway
