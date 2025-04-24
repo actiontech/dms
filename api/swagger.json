@@ -1365,11 +1365,13 @@
         "operationId": "AddGateway",
         "parameters": [
           {
-            "$ref": "#/definitions/AddGatewayReq",
             "description": "add gateway",
             "name": "add_gateway",
             "in": "body",
-            "required": true
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddGatewayReq"
+            }
           }
         ],
         "responses": {
@@ -1441,11 +1443,13 @@
         "operationId": "UpdateGateway",
         "parameters": [
           {
-            "$ref": "#/definitions/UpdateGatewayReq",
             "description": "update gateway",
             "name": "update_gateway",
             "in": "body",
-            "required": true
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateGatewayReq"
+            }
           }
         ],
         "responses": {

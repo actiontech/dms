@@ -6902,11 +6902,12 @@ paths:
         post:
             operationId: AddGateway
             parameters:
-                - $ref: '#/definitions/AddGatewayReq'
-                  description: add gateway
+                - description: add gateway
                   in: body
                   name: add_gateway
                   required: true
+                  schema:
+                    $ref: '#/definitions/AddGatewayReq'
             responses:
                 "200":
                     description: GenericResp
@@ -6957,11 +6958,12 @@ paths:
         put:
             operationId: UpdateGateway
             parameters:
-                - $ref: '#/definitions/UpdateGatewayReq'
-                  description: update gateway
+                - description: update gateway
                   in: body
                   name: update_gateway
                   required: true
+                  schema:
+                    $ref: '#/definitions/UpdateGatewayReq'
             responses:
                 "200":
                     description: GenericResp
