@@ -470,7 +470,6 @@ func filterExportSupportedDb(dbServices []*DBService, opPermissionType dmsCommon
 		if item.DBType == pkgConst.DBTypeMySQL.String() ||
 			item.DBType == pkgConst.DBTypePostgreSQL.String() ||
 			item.DBType == pkgConst.DBTypeOracle.String() ||
-			item.DBType == pkgConst.DBTypePostgreSQL.String() ||
 			item.DBType == pkgConst.DBTypeSQLServer.String() {
 			ret = append(ret, item)
 		}
