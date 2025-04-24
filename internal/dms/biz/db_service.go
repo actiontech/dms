@@ -431,7 +431,7 @@ func (d *DBServiceUsecase) ListDBServiceTips(ctx context.Context, req *dmsV1.Lis
 	if req.FunctionalModule == "" {
 		return dbServices, nil
 	}
-
+	dbServices = filterExportSupportedDb(dbServices, dmsCommonV1.OpPermissionType(req.FunctionalModule))
 	isAdmin, err := d.opPermissionVerifyUsecase.CanViewProject(ctx, userId, req.ProjectUid)
 	if err != nil {
 		return nil, fmt.Errorf("check user is project admin or golobal view permission failed: %v", err)
@@ -459,6 +459,23 @@ func (d *DBServiceUsecase) ListDBServiceTips(ctx context.Context, req *dmsV1.Lis
 	}
 
 	return ret, nil
+}
+
+func filterExportSupportedDb(dbServices []*DBService, opPermissionType dmsCommonV1.OpPermissionType) []*DBService{
+	if opPermissionType != dmsCommonV1.OpPermissionTypeExportCreate {
+		return dbServices
+	}
+	ret := make([]*DBService, 0)
+	for _, item := range dbServices {
+		if item.DBType == pkgConst.DBTypeMySQL.String() ||
+			item.DBType == pkgConst.DBTypePostgreSQL.String() ||
+			item.DBType == pkgConst.DBTypeOracle.String() ||
+			item.DBType == pkgConst.DBTypePostgreSQL.String() ||
+			item.DBType == pkgConst.DBTypeSQLServer.String() {
+			ret = append(ret, item)
+		}
+	}
+	return ret
 }
 
 func (d *DBServiceUsecase) ListDBServiceDriverOption(ctx context.Context) ([]*dmsV1.DatabaseDriverOption, error) {
