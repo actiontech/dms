@@ -162,6 +162,13 @@ const (
 	DBTypeTBase          DBType = "TBase"
 )
 
+var SupportedDataExportDBTypes = map[DBType]struct{}{
+	DBTypeMySQL:      {},
+	DBTypePostgreSQL: {},
+	DBTypeOracle:     {},
+	DBTypeSQLServer:  {},
+}
+
 type FilterCondition struct {
 	// Filter For Preload Table
 	Table         string
