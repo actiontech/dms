@@ -171,11 +171,12 @@ type DBServiceUsecase struct {
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	projectUsecase            *ProjectUsecase
 	environmentTagUsecase     *EnvironmentTagUsecase
+	dataExportWorkflowUsecase *DataExportWorkflowUsecase
 	log                       *utilLog.Helper
 }
 
 func NewDBServiceUsecase(log utilLog.Logger, repo DBServiceRepo, pluginUsecase *PluginUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase,
-	projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, environmentTagUsecase *EnvironmentTagUsecase) *DBServiceUsecase {
+	projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, environmentTagUsecase *EnvironmentTagUsecase, dataExportWorkflowUsecase *DataExportWorkflowUsecase) *DBServiceUsecase {
 	return &DBServiceUsecase{
 		repo:                      repo,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
@@ -183,6 +184,7 @@ func NewDBServiceUsecase(log utilLog.Logger, repo DBServiceRepo, pluginUsecase *
 		projectUsecase:            projectUsecase,
 		dmsProxyTargetRepo:        proxyTargetRepo,
 		environmentTagUsecase:     environmentTagUsecase,
+		dataExportWorkflowUsecase: dataExportWorkflowUsecase,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.dbService")),
 	}
 }
@@ -431,7 +433,7 @@ func (d *DBServiceUsecase) ListDBServiceTips(ctx context.Context, req *dmsV1.Lis
 	if req.FunctionalModule == "" {
 		return dbServices, nil
 	}
-	dbServices = filterExportSupportedDb(dbServices, dmsCommonV1.OpPermissionType(req.FunctionalModule))
+	dbServices = filterExportSupportedDb(dbServices, dmsCommonV1.OpPermissionType(req.FunctionalModule), d.dataExportWorkflowUsecase)
 	isAdmin, err := d.opPermissionVerifyUsecase.CanViewProject(ctx, userId, req.ProjectUid)
 	if err != nil {
 		return nil, fmt.Errorf("check user is project admin or golobal view permission failed: %v", err)
@@ -461,16 +463,13 @@ func (d *DBServiceUsecase) ListDBServiceTips(ctx context.Context, req *dmsV1.Lis
 	return ret, nil
 }
 
-func filterExportSupportedDb(dbServices []*DBService, opPermissionType dmsCommonV1.OpPermissionType) []*DBService{
+func filterExportSupportedDb(dbServices []*DBService, opPermissionType dmsCommonV1.OpPermissionType, usecase *DataExportWorkflowUsecase) []*DBService{
 	if opPermissionType != dmsCommonV1.OpPermissionTypeExportCreate {
 		return dbServices
 	}
 	ret := make([]*DBService, 0)
 	for _, item := range dbServices {
-		if item.DBType == pkgConst.DBTypeMySQL.String() ||
-			item.DBType == pkgConst.DBTypePostgreSQL.String() ||
-			item.DBType == pkgConst.DBTypeOracle.String() ||
-			item.DBType == pkgConst.DBTypeSQLServer.String() {
+		if usecase.IsSupportDataExportWorkflowDbType(pkgConst.DBType(item.DBType)) {
 			ret = append(ret, item)
 		}
 	}
