@@ -5,12 +5,17 @@ package biz
 import (
 	"context"
 	"errors"
+	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 )
 
 var errNotDataExportWorkflow = errors.New("data export workflow related functions are enterprise version functions")
 var errNotDataExportTask = errors.New("data export task related functions are enterprise version functions")
+
+func (d *DataExportWorkflowUsecase) IsSupportDataExportWorkflowDbType(dbType pkgConst.DBType) bool {
+	return false
+}
 
 func (d *DataExportWorkflowUsecase) AddDataExportWorkflow(ctx context.Context, currentUserId string, params *Workflow) (string, error) {
 	return "", errNotDataExportWorkflow
