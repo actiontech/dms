@@ -20,6 +20,13 @@ const (
 	DataExportWorkflowStatusFinish           DataExportWorkflowStatus = "finish"
 )
 
+var SupportedDataExportDBTypes = map[pkgConst.DBType]struct{}{
+	pkgConst.DBTypeMySQL:      {},
+	pkgConst.DBTypePostgreSQL: {},
+	pkgConst.DBTypeOracle:     {},
+	pkgConst.DBTypeSQLServer:  {},
+}
+
 func (dews DataExportWorkflowStatus) String() string {
 	return string(dews)
 }
