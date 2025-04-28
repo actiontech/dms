@@ -62,7 +62,7 @@ func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) 
 	cloudbeaverRepo := storage.NewCloudbeaverRepo(logger, st)
 	loginConfigurationRepo := storage.NewLoginConfigurationRepo(logger, st)
 	loginConfigurationUsecase := biz.NewLoginConfigurationUsecase(logger, tx, loginConfigurationRepo)
-	userUsecase := biz.NewUserUsecase(logger, tx, userRepo, userGroupRepo, pluginUseCase, opPermissionUsecase, opPermissionVerifyUsecase, loginConfigurationUsecase, ldapConfigurationUsecase, cloudbeaverRepo)
+	userUsecase := biz.NewUserUsecase(logger, tx, userRepo, userGroupRepo, pluginUseCase, opPermissionUsecase, opPermissionVerifyUsecase, loginConfigurationUsecase, ldapConfigurationUsecase, cloudbeaverRepo, nil)
 	dataMasking, err := maskingBiz.NewDataMaskingUseCase(logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to new data masking use case: %v", err)
