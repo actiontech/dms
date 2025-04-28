@@ -12,6 +12,7 @@ import (
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/pkg/locale"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+
 	jwtPkg "github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -29,17 +30,17 @@ func (d *DMSService) VerifyUserLogin(ctx context.Context, req *dmsV1.VerifyUserL
 	}
 	// TODO: 这里应该只根据twoFactorEnabled判断是否执行验证码校验
 	// 目前这个VerifyUserLogin方法被controller层的VerifyUserLogin调用，前侧不传递验证码的时候只校验用户名密码
-	if twoFactorEnabled && req.VerifyCode != nil{
+	if twoFactorEnabled && req.VerifyCode != nil {
 		// 如果启用了双因子认证，则需要验证短信验证码
 		verifyCodeReply := d.VerifySmsCode(&dmsV1.VerifySmsCodeReq{
-			Code: *req.VerifyCode,
+			Code:     *req.VerifyCode,
 			Username: req.UserName,
 		})
 		if !verifyCodeReply.Data.IsVerifyNormally {
 			return &dmsV1.VerifyUserLoginReply{
 				Data: struct {
 					// If verify Successful, return empty string, otherwise return error message
-					VerifyFailedMsg  string `json:"verify_failed_msg"`
+					VerifyFailedMsg string `json:"verify_failed_msg"`
 					// If verify Successful, return user uid
 					UserUid          string `json:"user_uid"`
 					Phone            string `json:"phone"`
@@ -54,9 +55,9 @@ func (d *DMSService) VerifyUserLogin(ctx context.Context, req *dmsV1.VerifyUserL
 			// If verify Successful, return empty string, otherwise return error message
 			VerifyFailedMsg string `json:"verify_failed_msg"`
 			// If verify Successful, return user uid
-			UserUid string `json:"user_uid"`
-			Phone   string `json:"phone"`
-			TwoFactorEnabled bool `json:"two_factor_enabled"`
+			UserUid          string `json:"user_uid"`
+			Phone            string `json:"phone"`
+			TwoFactorEnabled bool   `json:"two_factor_enabled"`
 		}{UserUid: uid, VerifyFailedMsg: verifyFailedMsg, Phone: phone, TwoFactorEnabled: twoFactorEnabled},
 	}, nil
 }
@@ -75,7 +76,6 @@ func (d *DMSService) AfterUserLogin(ctx context.Context, req *dmsV1.AfterUserLog
 }
 
 func (d *DMSService) GetCurrentUser(ctx context.Context, req *dmsV1.GetUserBySessionReq) (reply *dmsV1.GetUserBySessionReply, err error) {
-
 	user, err := d.UserUsecase.GetUser(ctx, req.UserUid)
 	if nil != err {
 		return nil, err
@@ -98,18 +98,22 @@ func (d *DMSService) AddUser(ctx context.Context, currentUserUid string, req *dm
 	}()
 
 	args := &biz.CreateUserArgs{
-		Name:             req.User.Name,
-		Desc:             req.User.Desc,
-		Password:         req.User.Password,
-		Email:            req.User.Email,
-		Phone:            req.User.Phone,
-		WxID:             req.User.WxID,
-		IsDisabled:       false,
-		UserGroupUIDs:    req.User.UserGroupUids,
-		OpPermissionUIDs: req.User.OpPermissionUids,
+		UID:                    req.User.UID,
+		Name:                   req.User.Name,
+		Desc:                   req.User.Desc,
+		Password:               req.User.Password,
+		Email:                  req.User.Email,
+		Phone:                  req.User.Phone,
+		WxID:                   req.User.WxID,
+		IsDisabled:             false,
+		UserGroupUIDs:          req.User.UserGroupUids,
+		OpPermissionUIDs:       req.User.OpPermissionUids,
+		ThirdPartyUserID:       req.User.ThirdPartyUserID,
+		ThirdPartyUserInfo:     req.User.ThirdPartyUserInfo,
+		UserAuthenticationType: biz.UserAuthenticationType(req.User.UserAuthenticationType),
 	}
 
-	uid, err := d.UserUsecase.CreateUser(ctx, currentUserUid, args)
+	uid, err := d.UserUsecase.AddUser(ctx, currentUserUid, args)
 	if err != nil {
 		return nil, fmt.Errorf("create user failed: %w", err)
 	}
@@ -128,8 +132,17 @@ func (d *DMSService) UpdateUser(ctx context.Context, req *dmsV1.UpdateUserReq, c
 		req.User.UserGroupUids = &[]string{}
 	}
 
-	if err = d.UserUsecase.UpdateUser(ctx, currentUserUid, req.UserUid, *req.User.IsDisabled,
-		req.User.Password, req.User.Email, req.User.Phone, req.User.WxID, req.User.Language, *req.User.UserGroupUids, *req.User.OpPermissionUids); nil != err {
+	if err = d.UserUsecase.UpdateUser(ctx, currentUserUid, &biz.UpdateUserArgs{
+		UserUID:          req.UserUid,
+		IsDisabled:       *req.User.IsDisabled,
+		Password:         req.User.Password,
+		Email:            req.User.Email,
+		Phone:            req.User.Phone,
+		WxID:             req.User.WxID,
+		Language:         req.User.Language,
+		UserGroupUIDs:    *req.User.UserGroupUids,
+		OpPermissionUIDs: *req.User.OpPermissionUids,
+	}); nil != err {
 		return fmt.Errorf("update user failed: %v", err)
 	}
 
