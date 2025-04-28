@@ -311,8 +311,36 @@ func decodeGzip(data []byte) string {
 }
 
 func (s *APIServer) installMiddleware() error {
-	// Middleware
+	s.echo.Use(dmsMiddleware.JWTTokenAdapter(), echojwt.WithConfig(echojwt.Config{
+		Skipper: middleware.Skipper(func(c echo.Context) bool {
+			logger := log.NewHelper(log.With(pkgLog.NewKLogWrapper(s.logger), "middleware", "jwt"))
+			if strings.HasSuffix(c.Request().RequestURI, dmsV1.SessionRouterGroup) ||
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/sessions/refresh" /* TODO 使用统一方法skip */) ||
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/oauth2" /* TODO 使用统一方法skip */) ||
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/login/tips" /* TODO 使用统一方法skip */) ||
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/personalization/logo") ||
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/license" /* TODO 使用统一方法skip */) ||
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/users/verify_user_login" /* TODO 使用统一方法skip */) ||
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/sms/send_code" /* TODO 使用统一方法skip */) ||
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/sms/verify_code" /* TODO 使用统一方法skip */) ||
+				!(strings.HasPrefix(c.Request().RequestURI, dmsV1.CurrentGroupVersion) ||
+					strings.HasPrefix(c.Request().RequestURI, dmsV2.CurrentGroupVersion)) {
+				logger.Debugf("skipper url jwt check: %v", c.Request().RequestURI)
+				return true
+			}
+			return false
+		}),
+		SigningKey:  dmsV1.JwtSigningKey,
+		TokenLookup: "cookie:dms-token,header:Authorization:Bearer ", // tell the middleware where to get token: from cookie and header,
+	}))
+	s.echo.Use(s.DMSController.DMS.Oauth2ConfigurationUsecase.CheckBackChannelLogoutEvent())
+	// middleware gateway
+	s.echo.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
+		Skipper:  s.DMSController.DMS.GatewayUsecase.Skipper,
+		Balancer: s.DMSController.DMS.GatewayUsecase,
+	}))
 
+	// Middleware
 	s.echo.Use(middleware.BodyDumpWithConfig(middleware.BodyDumpConfig{
 		Skipper: func(c echo.Context) bool {
 			return !strings.HasPrefix(c.Request().RequestURI, dmsV1.GroupV1)
@@ -365,36 +393,9 @@ func (s *APIServer) installMiddleware() error {
 	s.echo.Any("", echo.NotFoundHandler)
 	s.echo.Any("/*", echo.NotFoundHandler)
 
-	s.echo.Use(dmsMiddleware.JWTTokenAdapter())
-
-	s.echo.Use(echojwt.WithConfig(echojwt.Config{
-		Skipper: middleware.Skipper(func(c echo.Context) bool {
-			logger := log.NewHelper(log.With(pkgLog.NewKLogWrapper(s.logger), "middleware", "jwt"))
-			if strings.HasSuffix(c.Request().RequestURI, dmsV1.SessionRouterGroup) ||
-				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/sessions/refresh" /* TODO 使用统一方法skip */) ||
-				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/oauth2" /* TODO 使用统一方法skip */) ||
-				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/login/tips" /* TODO 使用统一方法skip */) ||
-				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/personalization/logo") ||
-				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/license" /* TODO 使用统一方法skip */) ||
-				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/users/verify_user_login" /* TODO 使用统一方法skip */) ||
-				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/sms/send_code" /* TODO 使用统一方法skip */) ||
-				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/sms/verify_code" /* TODO 使用统一方法skip */) ||
-				!(strings.HasPrefix(c.Request().RequestURI, dmsV1.CurrentGroupVersion) ||
-					strings.HasPrefix(c.Request().RequestURI, dmsV2.CurrentGroupVersion)) {
-				logger.Debugf("skipper url jwt check: %v", c.Request().RequestURI)
-				return true
-			}
-			return false
-		}),
-		SigningKey:  dmsV1.JwtSigningKey,
-		TokenLookup: "cookie:dms-token,header:Authorization:Bearer ", // tell the middleware where to get token: from cookie and header,
-	}))
-
 	s.echo.Use(dmsMiddleware.LicenseAdapter(s.DMSController.DMS.LicenseUsecase))
 
 	s.echo.Use(s.DMSController.DMS.AuthAccessTokenUseCase.CheckLatestAccessToken())
-
-	s.echo.Use(s.DMSController.DMS.Oauth2ConfigurationUsecase.CheckBackChannelLogoutEvent())
 
 	s.echo.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
 		Skipper:  s.DMSController.DMS.DmsProxyUsecase.GetEchoProxySkipper(),
