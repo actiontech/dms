@@ -86,13 +86,13 @@ func (s *APIServer) initRouter() error {
 		dbServiceSyncTaskV1.POST("/:db_service_sync_task_uid/sync", s.DMSController.SyncDBServices)
 
 		userV1 := v1.Group(dmsV1.UserRouterGroup)
-		userV1.POST("", s.DMSController.AddUser)
+		userV1.POST("", s.DMSController.AddUser, s.DMSController.DMS.GatewayUsecase.Broadcast())
 		userV1.GET("", s.DMSController.ListUsers)
 		userV1.GET("/:user_uid", s.DMSController.GetUser)
-		userV1.DELETE("/:user_uid", s.DMSController.DelUser)
-		userV1.PUT("/:user_uid", s.DMSController.UpdateUser)
+		userV1.DELETE("/:user_uid", s.DMSController.DelUser, s.DMSController.DMS.GatewayUsecase.Broadcast())
+		userV1.PUT("/:user_uid", s.DMSController.UpdateUser, s.DMSController.DMS.GatewayUsecase.Broadcast())
 		userV1.GET(dmsV1.GetUserOpPermissionRouterWithoutPrefix(":user_uid"), s.DMSController.GetUserOpPermission)
-		userV1.PUT("", s.DMSController.UpdateCurrentUser)
+		userV1.PUT("", s.DMSController.UpdateCurrentUser, s.DMSController.DMS.GatewayUsecase.Broadcast())
 		userV1.POST("/gen_token", s.DMSController.GenAccessToken)
 		userV1.POST("/verify_user_login", s.DMSController.VerifyUserLogin)
 
