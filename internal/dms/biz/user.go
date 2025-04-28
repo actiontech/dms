@@ -118,7 +118,7 @@ func initUsers() []*User {
 	}
 }
 
-func newUser(args *CreateUserArgs) (*User, error) {
+func newUser(args *CreateUserArgs) (user *User, err error) {
 	if args.Name == "" {
 		return nil, fmt.Errorf("name is empty")
 	}
@@ -127,15 +127,17 @@ func newUser(args *CreateUserArgs) (*User, error) {
 			return nil, fmt.Errorf("password is empty")
 		}
 	}
-	uid, err := pkgRand.GenStrUid()
-	if err != nil {
-		return nil, err
+	if args.UID == "" {
+		args.UID, err = pkgRand.GenStrUid()
+		if err != nil {
+			return nil, err
+		}
 	}
 	if args.UserAuthenticationType == "" {
 		args.UserAuthenticationType = UserAuthenticationTypeDMS
 	}
 	return &User{
-		UID:                    uid,
+		UID:                    args.UID,
 		Name:                   args.Name,
 		Password:               args.Password,
 		Email:                  args.Email,
@@ -190,11 +192,13 @@ type UserUsecase struct {
 	loginConfigurationUsecase *LoginConfigurationUsecase
 	ldapConfigurationUsecase  *LDAPConfigurationUsecase
 	cloudBeaverRepo           CloudbeaverRepo
+	gatewayUsecase            *GatewayUsecase
 	log                       *utilLog.Helper
 }
 
 func NewUserUsecase(log utilLog.Logger, tx TransactionGenerator, repo UserRepo, userGroupRepo UserGroupRepo, pluginUsecase *PluginUsecase, opPermissionUsecase *OpPermissionUsecase,
-	OpPermissionVerifyUsecase *OpPermissionVerifyUsecase, loginConfigurationUsecase *LoginConfigurationUsecase, ldapConfigurationUsecase *LDAPConfigurationUsecase, cloudBeaverRepo CloudbeaverRepo) *UserUsecase {
+	OpPermissionVerifyUsecase *OpPermissionVerifyUsecase, loginConfigurationUsecase *LoginConfigurationUsecase, ldapConfigurationUsecase *LDAPConfigurationUsecase, cloudBeaverRepo CloudbeaverRepo, gatewayUsecase *GatewayUsecase,
+) *UserUsecase {
 	return &UserUsecase{
 		tx:                        tx,
 		repo:                      repo,
@@ -257,7 +261,6 @@ func (d *UserUsecase) GetUserLoginVerifier(ctx context.Context, name string) (Us
 
 	var userLoginVerifier UserLoginVerifier
 	{
-
 		switch loginVerifierType {
 		case loginVerifierTypeLDAP:
 			userLoginVerifier = &LoginLdap{
@@ -278,7 +281,6 @@ func (d *UserUsecase) GetUserLoginVerifier(ctx context.Context, name string) (Us
 		default:
 			return nil, towFactorEnabled, phone, fmt.Errorf("the user does not exist or the password is wrong")
 		}
-
 	}
 	return userLoginVerifier, towFactorEnabled, phone, nil
 }
@@ -293,7 +295,6 @@ const (
 
 // determine whether the login conditions are met according to the order of login priority
 func (d *UserUsecase) getLoginVerifierType(user *User, ldapC *LDAPConfiguration) (verifyType verifierType, userExist bool) {
-
 	// ldap login condition
 	if ldapC != nil && ldapC.Enable {
 		if user != nil && user.UserAuthenticationType == UserAuthenticationTypeLDAP {
@@ -346,7 +347,6 @@ var errLdapLoginFailed = errors.New("ldap login failed, username and password do
 const ldapServerErrorFormat = "search user on ldap server failed: %v"
 
 func (l *LoginLdap) Verify(ctx context.Context, userName, password string) (userUID string, err error) {
-
 	ldapC := l.config
 	var conn *ldap.Conn
 	if l.config.EnableSSL {
@@ -439,6 +439,7 @@ func (d *UserUsecase) AfterUserLogin(ctx context.Context, uid string) (err error
 }
 
 type CreateUserArgs struct {
+	UID                    string
 	Name                   string
 	Password               string
 	ThirdPartyUserID       string
@@ -453,7 +454,7 @@ type CreateUserArgs struct {
 	UserAuthenticationType UserAuthenticationType
 }
 
-func (d *UserUsecase) CreateUser(ctx context.Context, currentUserUid string, args *CreateUserArgs) (uid string, err error) {
+func (d *UserUsecase) AddUser(ctx context.Context, currentUserUid string, args *CreateUserArgs) (uid string, err error) {
 	// check
 	{
 		isUserDMSAdmin, err := d.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, currentUserUid)
@@ -514,8 +515,18 @@ func (d *UserUsecase) CreateUser(ctx context.Context, currentUserUid string, arg
 	if err := tx.Commit(d.log); err != nil {
 		return "", fmt.Errorf("commit tx failed: %v", err)
 	}
-
 	return u.UID, nil
+}
+
+func (d *UserUsecase) CreateUser(ctx context.Context, currentUserUid string, args *CreateUserArgs) (uid string, err error) {
+	uid, err = d.AddUser(ctx, currentUserUid, args)
+	if err != nil {
+		return "", err
+	}
+	if err := d.gatewayUsecase.BroadcastAddUser(ctx, args); err != nil {
+		return "", err
+	}
+	return uid, nil
 }
 
 func (d *UserUsecase) InitUsers(ctx context.Context) (err error) {
@@ -574,7 +585,6 @@ func (d *UserUsecase) InsureOpPermissionsInUser(ctx context.Context, opPermissio
 		} else if !isGlobal {
 			return fmt.Errorf("op permissions must be global")
 		}
-
 	}
 
 	if err := d.repo.ReplaceOpPermissionsInUser(ctx, userUid, opPermissionUids); err != nil {
@@ -683,8 +693,22 @@ func (d *UserUsecase) GetUser(ctx context.Context, userUid string) (*User, error
 	return d.repo.GetUser(ctx, userUid)
 }
 
-func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid, updateUserUid string, isDisabled bool,
-	password, email, phone, wxId, language *string, userGroupUids []string, opPermissionUids []string) error {
+type UpdateUserArgs struct {
+	UserUID                string
+	IsDisabled             bool
+	Password               *string
+	Email                  *string
+	Phone                  *string
+	WxID                   *string
+	Language               *string
+	UserGroupUIDs          []string
+	OpPermissionUIDs       []string
+	UserAuthenticationType *UserAuthenticationType
+	ThirdPartyUserInfo     *string
+	ThirdPartyUserID       *string
+}
+
+func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid string, args *UpdateUserArgs) (err error) {
 	// checks
 	{
 		isAdmin, err := d.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, currentUserUid)
@@ -692,7 +716,7 @@ func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid, updateUser
 			return err
 		}
 
-		updateUserIsAdmin, err := d.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, updateUserUid)
+		updateUserIsAdmin, err := d.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, args.UserUID)
 		if err != nil {
 			return err
 		}
@@ -701,25 +725,25 @@ func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid, updateUser
 			return fmt.Errorf("only admin can update admin user")
 		}
 
-		if isDisabled {
-			if currentUserUid == updateUserUid {
+		if args.IsDisabled {
+			if currentUserUid == args.UserUID {
 				return fmt.Errorf("can not disable current user")
 			}
-			if pkgConst.UIDOfUserAdmin == updateUserUid {
+			if pkgConst.UIDOfUserAdmin == args.UserUID {
 				return fmt.Errorf("can not disable admin user")
 			}
-			if pkgConst.UIDOfUserSys == updateUserUid {
+			if pkgConst.UIDOfUserSys == args.UserUID {
 				return fmt.Errorf("can not disable sys user")
 			}
 		}
 
-		hasGlobalManagementOrViewPermission, err := d.OpPermissionVerifyUsecase.HasGlobalManagementOrViewPermission(ctx, updateUserUid)
+		hasGlobalManagementOrViewPermission, err := d.OpPermissionVerifyUsecase.HasGlobalManagementOrViewPermission(ctx, args.UserUID)
 		if err != nil {
 			return err
 		}
 
 		var updateGlobalViewOrManagementPermission bool
-		for _, permission := range opPermissionUids {
+		for _, permission := range args.OpPermissionUIDs {
 			if permission == pkgConst.UIDOfOpPermissionGlobalView || permission == pkgConst.UIDOfOpPermissionGlobalManagement {
 				updateGlobalViewOrManagementPermission = true
 			}
@@ -738,33 +762,44 @@ func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid, updateUser
 		}
 	}
 
-	user, err := d.GetUser(ctx, updateUserUid)
+	user, err := d.GetUser(ctx, args.UserUID)
 	if err != nil {
 		return fmt.Errorf("get user failed: %v", err)
 	}
 
-	if isDisabled {
+	if args.IsDisabled {
 		user.Stat = UserStatDisable
 	} else {
 		user.Stat = UserStatOK
 	}
 
-	if password != nil {
-		user.Password = *password
+	if args.Password != nil {
+		user.Password = *args.Password
 	}
-	if email != nil {
-		user.Email = *email
+	if args.Email != nil {
+		user.Email = *args.Email
 	}
-	if phone != nil {
-		user.Phone = *phone
+	if args.Phone != nil {
+		user.Phone = *args.Phone
 	}
-	if wxId != nil {
-		user.WxID = *wxId
+	if args.WxID != nil {
+		user.WxID = *args.WxID
 	}
-	if language != nil {
-		user.Language = *language
+	if args.Language != nil {
+		user.Language = *args.Language
 	}
 
+	if user.GetUID() == pkgConst.UIDOfUserSys {
+		if args.ThirdPartyUserID != nil {
+			user.ThirdPartyUserID = *args.ThirdPartyUserID
+		}
+		if args.ThirdPartyUserInfo != nil {
+			user.ThirdPartyUserInfo = *args.ThirdPartyUserInfo
+		}
+		if args.UserAuthenticationType != nil {
+			user.UserAuthenticationType = *args.UserAuthenticationType
+		}
+	}
 	if user.Stat == UserStatOK && user.Password == "" {
 		return fmt.Errorf("password is needed when user is enabled")
 	}
@@ -776,11 +811,11 @@ func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid, updateUser
 		}
 	}()
 
-	if err := d.InsureUserToUserGroups(tx, userGroupUids, user.GetUID()); err != nil {
+	if err := d.InsureUserToUserGroups(tx, args.UserGroupUIDs, user.GetUID()); err != nil {
 		return fmt.Errorf("insure user to user groups failed: %v", err)
 	}
 
-	if err := d.InsureOpPermissionsInUser(tx, opPermissionUids, user.GetUID()); err != nil {
+	if err := d.InsureOpPermissionsInUser(tx, args.OpPermissionUIDs, user.GetUID()); err != nil {
 		return fmt.Errorf("insure op permissions in user failed: %v", err)
 	}
 
@@ -857,7 +892,13 @@ func (d *UserUsecase) GetUserByName(ctx context.Context, userName string) (*User
 }
 
 func (d *UserUsecase) SaveUser(ctx context.Context, user *User) error {
-	return d.repo.UpdateUser(ctx, user)
+	if err := d.repo.UpdateUser(ctx, user); err != nil {
+		return err
+	}
+	if err := d.gatewayUsecase.BroadcastUpdateUser(ctx, user); err != nil {
+		d.log.Errorf("broadcast update user failed: %v", err)
+	}
+	return nil
 }
 
 func (d *UserUsecase) GetBizUserWithNameByUids(ctx context.Context, uids []string) []UIdWithName {
