@@ -59,9 +59,9 @@ func NewDMSController(logger utilLog.Logger, opts *conf.DMSOptions, cbService *s
 	}, nil
 }
 
-func (a *DMSController) Shutdown() error {
-	if nil != a.shutdownCallback {
-		return a.shutdownCallback()
+func (ctl *DMSController) Shutdown() error {
+	if nil != ctl.shutdownCallback {
+		return ctl.shutdownCallback()
 	}
 	return nil
 }
@@ -92,7 +92,7 @@ func (a *DMSController) Shutdown() error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) CreateEnvironmentTag(c echo.Context) error {
+func (ctl *DMSController) CreateEnvironmentTag(c echo.Context) error {
 	req := new(aV1.CreateEnvironmentTagReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -105,7 +105,7 @@ func (d *DMSController) CreateEnvironmentTag(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = d.DMS.CreateEnvironmentTag(c.Request().Context(), req.ProjectUID, currentUserUid, req.Name)
+	err = ctl.DMS.CreateEnvironmentTag(c.Request().Context(), req.ProjectUID, currentUserUid, req.Name)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -143,7 +143,7 @@ func (d *DMSController) CreateEnvironmentTag(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) UpdateEnvironmentTag(c echo.Context) error {
+func (ctl *DMSController) UpdateEnvironmentTag(c echo.Context) error {
 	req := new(aV1.UpdateEnvironmentTagReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -156,7 +156,7 @@ func (d *DMSController) UpdateEnvironmentTag(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = d.DMS.UpdateEnvironmentTag(c.Request().Context(), req.ProjectUID, currentUserUid, req.EnvironmentTagUID, req.Name)
+	err = ctl.DMS.UpdateEnvironmentTag(c.Request().Context(), req.ProjectUID, currentUserUid, req.EnvironmentTagUID, req.Name)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -170,7 +170,7 @@ func (d *DMSController) UpdateEnvironmentTag(c echo.Context) error {
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (a *DMSController) DeleteEnvironmentTag(c echo.Context) error {
+func (ctl *DMSController) DeleteEnvironmentTag(c echo.Context) error {
 	req := new(aV1.DeleteEnvironmentTagReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -183,7 +183,7 @@ func (a *DMSController) DeleteEnvironmentTag(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = a.DMS.DeleteEnvironmentTag(c.Request().Context(), req.ProjectUID, currentUserUid, req.EnvironmentTagUID)
+	err = ctl.DMS.DeleteEnvironmentTag(c.Request().Context(), req.ProjectUID, currentUserUid, req.EnvironmentTagUID)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -197,13 +197,13 @@ func (a *DMSController) DeleteEnvironmentTag(c echo.Context) error {
 //	responses:
 //	  200: body:ListEnvironmentTagsReply
 //	  default: body:GenericResp
-func (d *DMSController) ListEnvironmentTags(c echo.Context) error{
+func (ctl *DMSController) ListEnvironmentTags(c echo.Context) error{
 	req := new(aV1.ListEnvironmentTagReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	reply, err := d.DMS.ListEnvironmentTags(c.Request().Context(), req)
+	reply, err := ctl.DMS.ListEnvironmentTags(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -237,7 +237,7 @@ func (d *DMSController) ListEnvironmentTags(c echo.Context) error{
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) AddDBService(c echo.Context) error {
+func (ctl *DMSController) AddDBService(c echo.Context) error {
 	req := new(aV1.AddDBServiceReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -250,7 +250,7 @@ func (d *DMSController) AddDBService(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	reply, err := d.DMS.AddDBService(c.Request().Context(), req, currentUserUid)
+	reply, err := ctl.DMS.AddDBService(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -265,7 +265,7 @@ func (d *DMSController) AddDBService(c echo.Context) error {
 //	  200: body:ListDBServiceReply
 //	  default: body:GenericResp
 // deprecated: true
-func (d *DMSController) ListDBServices(c echo.Context) error {
+func (ctl *DMSController) ListDBServices(c echo.Context) error {
 	return NewOkRespWithReply(c, nil)
 }
 
@@ -276,7 +276,7 @@ func (d *DMSController) ListDBServices(c echo.Context) error {
 //	responses:
 //	  200: body:ListDBServiceTipsReply
 //	  default: body:GenericResp
-func (d *DMSController) ListDBServiceTips(c echo.Context) error {
+func (ctl *DMSController) ListDBServiceTips(c echo.Context) error {
 	req := new(aV1.ListDBServiceTipsReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -287,7 +287,7 @@ func (d *DMSController) ListDBServiceTips(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	reply, err := d.DMS.ListDBServiceTips(c.Request().Context(), req, currentUserUid)
+	reply, err := ctl.DMS.ListDBServiceTips(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -301,8 +301,8 @@ func (d *DMSController) ListDBServiceTips(c echo.Context) error {
 //	responses:
 //	  200: body:ListDBServiceDriverOptionReply
 //	  default: body:GenericResp
-func (d *DMSController) ListDBServiceDriverOption(c echo.Context) error {
-	reply, err := d.DMS.ListDBServiceDriverOption(c.Request().Context())
+func (ctl *DMSController) ListDBServiceDriverOption(c echo.Context) error {
+	reply, err := ctl.DMS.ListDBServiceDriverOption(c.Request().Context())
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -317,7 +317,7 @@ func (d *DMSController) ListDBServiceDriverOption(c echo.Context) error {
 //	  200: body:ListGlobalDBServicesReply
 //	  default: body:GenericResp
 // deprecated: true
-func (d *DMSController) ListGlobalDBServices(c echo.Context) error {
+func (ctl *DMSController) ListGlobalDBServices(c echo.Context) error {
 	return NewOkRespWithReply(c, nil)
 }
 
@@ -328,12 +328,12 @@ func (d *DMSController) ListGlobalDBServices(c echo.Context) error {
 //	responses:
 //	  200: body:ListGlobalDBServicesTipsReply
 //	  default: body:GenericResp
-func (d *DMSController) ListGlobalDBServicesTips(c echo.Context) error {
+func (ctl *DMSController) ListGlobalDBServicesTips(c echo.Context) error {
 	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	reply, err := d.DMS.ListGlobalDBServicesTips(c.Request().Context(), currentUserUid)
+	reply, err := ctl.DMS.ListGlobalDBServicesTips(c.Request().Context(), currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -347,7 +347,7 @@ func (d *DMSController) ListGlobalDBServicesTips(c echo.Context) error {
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (a *DMSController) DelDBService(c echo.Context) error {
+func (ctl *DMSController) DelDBService(c echo.Context) error {
 	req := &aV1.DelDBServiceReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -358,7 +358,7 @@ func (a *DMSController) DelDBService(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	err = a.DMS.DelDBService(c.Request().Context(), req, currentUserUid)
+	err = ctl.DMS.DelDBService(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -396,7 +396,7 @@ func (a *DMSController) DelDBService(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (a *DMSController) UpdateDBService(c echo.Context) error {
+func (ctl *DMSController) UpdateDBService(c echo.Context) error {
 	
 	return NewOkResp(c)
 }
@@ -426,14 +426,14 @@ func (a *DMSController) UpdateDBService(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) CheckDBServiceIsConnectable(c echo.Context) error {
+func (ctl *DMSController) CheckDBServiceIsConnectable(c echo.Context) error {
 	var req aV1.CheckDBServiceIsConnectableReq
 	err := bindAndValidateReq(c, &req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	reply, err := d.DMS.CheckDBServiceIsConnectable(c.Request().Context(), &req)
+	reply, err := ctl.DMS.CheckDBServiceIsConnectable(c.Request().Context(), &req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -465,14 +465,14 @@ func (d *DMSController) CheckDBServiceIsConnectable(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) CheckDBServiceIsConnectableById(c echo.Context) error {
+func (ctl *DMSController) CheckDBServiceIsConnectableById(c echo.Context) error {
 	var req aV1.CheckDBServiceIsConnectableByIdReq
 	err := bindAndValidateReq(c, &req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	reply, err := d.DMS.CheckDBServiceIsConnectableById(c.Request().Context(), &req)
+	reply, err := ctl.DMS.CheckDBServiceIsConnectableById(c.Request().Context(), &req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -504,7 +504,7 @@ func (d *DMSController) CheckDBServiceIsConnectableById(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) CheckProjectDBServicesConnections(c echo.Context) error {
+func (ctl *DMSController) CheckProjectDBServicesConnections(c echo.Context) error {
 	var req aV1.CheckDBServicesIsConnectableReq
 	err := bindAndValidateReq(c, &req)
 	if nil != err {
@@ -516,7 +516,7 @@ func (d *DMSController) CheckProjectDBServicesConnections(c echo.Context) error 
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	reply, err := d.DMS.CheckDBServiceIsConnectableByIds(c.Request().Context(), req.ProjectUid,currentUserUid,req.DBServices)
+	reply, err := ctl.DMS.CheckDBServiceIsConnectableByIds(c.Request().Context(), req.ProjectUid,currentUserUid,req.DBServices)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -532,8 +532,8 @@ func (d *DMSController) CheckProjectDBServicesConnections(c echo.Context) error 
 //	responses:
 //	  200: body:GetBasicInfoReply
 //	  default: body:GenericResp
-func (d *DMSController) GetBasicInfo(c echo.Context) error {
-	reply, err := d.DMS.GetBasicInfo(c.Request().Context())
+func (ctl *DMSController) GetBasicInfo(c echo.Context) error {
+	reply, err := ctl.DMS.GetBasicInfo(c.Request().Context())
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -550,8 +550,8 @@ func (d *DMSController) GetBasicInfo(c echo.Context) error {
 //	responses:
 //	  200: GetStaticLogoReply
 //	  default: body:GenericResp
-func (d *DMSController) GetStaticLogo(c echo.Context) error {
-	reply, contentType, err := d.DMS.GetStaticLogo(c.Request().Context())
+func (ctl *DMSController) GetStaticLogo(c echo.Context) error {
+	reply, contentType, err := ctl.DMS.GetStaticLogo(c.Request().Context())
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -584,7 +584,7 @@ func (d *DMSController) GetStaticLogo(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) Personalization(c echo.Context) error {
+func (ctl *DMSController) Personalization(c echo.Context) error {
 	req := &aV1.PersonalizationReq{}
 
 	fileHeader, err := c.FormFile("file")
@@ -599,7 +599,7 @@ func (d *DMSController) Personalization(c echo.Context) error {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	err = d.DMS.Personalization(c.Request().Context(), req)
+	err = ctl.DMS.Personalization(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -628,13 +628,13 @@ func (d *DMSController) Personalization(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (a *DMSController) VerifyUserLogin(c echo.Context) error {
+func (ctl *DMSController) VerifyUserLogin(c echo.Context) error {
 	req := new(aV1.AddSessionReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	reply, err := a.DMS.VerifyUserLogin(c.Request().Context(), &aV1.VerifyUserLoginReq{
+	reply, err := ctl.DMS.VerifyUserLogin(c.Request().Context(), &aV1.VerifyUserLoginReq{
 		UserName: req.Session.UserName,
 		Password: req.Session.Password,
 	})
@@ -665,13 +665,13 @@ func (a *DMSController) VerifyUserLogin(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (a *DMSController) AddSession(c echo.Context) error {
+func (ctl *DMSController) AddSession(c echo.Context) error {
 	req := new(aV1.AddSessionReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	reply, err := a.DMS.VerifyUserLogin(c.Request().Context(), &aV1.VerifyUserLoginReq{
+	reply, err := ctl.DMS.VerifyUserLogin(c.Request().Context(), &aV1.VerifyUserLoginReq{
 		UserName: req.Session.UserName,
 		Password: req.Session.Password,
 		VerifyCode: req.Session.VerifyCode,
@@ -693,7 +693,7 @@ func (a *DMSController) AddSession(c echo.Context) error {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
 
-	err = a.DMS.AfterUserLogin(c.Request().Context(), &aV1.AfterUserLoginReq{
+	err = ctl.DMS.AfterUserLogin(c.Request().Context(), &aV1.AfterUserLoginReq{
 		UserUid: reply.Data.UserUid,
 	})
 	if nil != err {
@@ -732,19 +732,19 @@ func (a *DMSController) AddSession(c echo.Context) error {
 //	responses:
 //	  200: body:DelSessionReply
 //	  default: body:GenericResp
-func (a *DMSController) DelSession(c echo.Context) error {
+func (ctl *DMSController) DelSession(c echo.Context) error {
 	var redirectUri string
 
 	refreshToken, err := c.Cookie(constant.DMSRefreshToken)
 	if err != nil {
-		a.log.Warnf("DelSession get refresh token cookie failed: %v, will not logout third-party platform session", err)
+		ctl.log.Warnf("DelSession get refresh token cookie failed: %v, will not logout third-party platform session", err)
 	} else {
-		_, sub, sid, _, err := jwt.ParseRefreshToken(refreshToken.Value)
+		_,sub, sid, _, err := jwt.ParseRefreshToken(refreshToken.Value)
 		if err != nil {
-			a.log.Errorf("DelSession parse refresh token failed: %v, will not logout third-party platform session", err)
+			ctl.log.Errorf("DelSession parse refresh token failed: %v, will not logout third-party platform session", err)
 		} else {
 			// 包含第三方会话信息，同步注销第三方平台会话
-			redirectUri, err = a.DMS.Oauth2ConfigurationUsecase.Logout(c.Request().Context(), sub, sid)
+			redirectUri, err = ctl.DMS.Oauth2ConfigurationUsecase.Logout(c.Request().Context(), sub, sid)
 			if err != nil {
 				return NewErrResp(c, err, apiError.DMSServiceErr)
 			}
@@ -753,13 +753,13 @@ func (a *DMSController) DelSession(c echo.Context) error {
 
 	cookie, err := c.Cookie(constant.DMSToken)
 	if err != nil {
-		a.log.Warnf("DelSession get dms token cookie failed: %v", err)
+		ctl.log.Warnf("DelSession get dms token cookie failed: %v", err)
 	} else {
 		// cookie 未过期
 		cookie.MaxAge = -1 // MaxAge<0 means delete cookie now
 		cookie.Path = "/"
 		c.SetCookie(cookie)
-		a.CloudbeaverService.Logout(cookie.Value)
+		ctl.CloudbeaverService.Logout(cookie.Value)
 	}
 
 	reply := &aV1.DelSessionReply{Data: struct {
@@ -789,7 +789,7 @@ func (a *DMSController) DelSession(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (a *DMSController) RefreshSession(c echo.Context) error {
+func (ctl *DMSController) RefreshSession(c echo.Context) error {
 	refreshToken, err := c.Cookie(constant.DMSRefreshToken)
 	if err != nil {
 		return c.String(http.StatusUnauthorized, "refresh token not found")
@@ -801,9 +801,9 @@ func (a *DMSController) RefreshSession(c echo.Context) error {
 	}
 	if expired {
 		// 刷新token过期时，且包含第三方平台会话信息，注销第三方平台会话
-		err = a.DMS.Oauth2ConfigurationUsecase.BackendLogout(c.Request().Context(), sub, sid)
+		err = ctl.DMS.Oauth2ConfigurationUsecase.BackendLogout(c.Request().Context(), sub, sid)
 		if err != nil {
-			a.log.Errorf("expired refresh token, call BackendLogout err: %v", err)
+			ctl.log.Errorf("expired refresh token, call BackendLogout err: %v", err)
 			return NewErrResp(c, err, apiError.APIServerErr)
 		}
 		return c.String(http.StatusUnauthorized, "refresh token is expired")
@@ -811,7 +811,7 @@ func (a *DMSController) RefreshSession(c echo.Context) error {
 
 	// 签发的token包含第三方平台信息，需要同步刷新第三方平台token
 	if sub != "" || sid != "" {
-		claims, err := a.DMS.RefreshOauth2Token(c.Request().Context(), uid, sub, sid)
+		claims, err := ctl.DMS.RefreshOauth2Token(c.Request().Context(), uid, sub, sid)
 		if err != nil {
 			return c.String(http.StatusUnauthorized, err.Error())
 		}
@@ -880,12 +880,12 @@ func (a *DMSController) RefreshSession(c echo.Context) error {
 //	responses:
 //	  200: body:GetUserBySessionReply
 //	  default: body:GenericResp
-func (a *DMSController) GetUserBySession(c echo.Context) error {
+func (ctl *DMSController) GetUserBySession(c echo.Context) error {
 	uid, err := jwt.GetUserUidStrFromContext(c)
 	if err != nil {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	reply, err := a.DMS.GetCurrentUser(c.Request().Context(), &aV1.GetUserBySessionReq{UserUid: uid})
+	reply, err := ctl.DMS.GetCurrentUser(c.Request().Context(), &aV1.GetUserBySessionReq{UserUid: uid})
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -913,7 +913,7 @@ func (a *DMSController) GetUserBySession(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) AddUser(c echo.Context) error {
+func (ctl *DMSController) AddUser(c echo.Context) error {
 	req := new(aV1.AddUserReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -926,7 +926,7 @@ func (d *DMSController) AddUser(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	reply, err := d.DMS.AddUser(c.Request().Context(), currentUserUid, req)
+	reply, err := ctl.DMS.AddUser(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -958,7 +958,7 @@ func (d *DMSController) AddUser(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) UpdateUser(c echo.Context) error {
+func (ctl *DMSController) UpdateUser(c echo.Context) error {
 	req := new(aV1.UpdateUserReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -971,7 +971,7 @@ func (d *DMSController) UpdateUser(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = d.DMS.UpdateUser(c.Request().Context(), req, currentUid)
+	err = ctl.DMS.UpdateUser(c.Request().Context(), req, currentUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -999,7 +999,7 @@ func (d *DMSController) UpdateUser(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) UpdateCurrentUser(c echo.Context) error {
+func (ctl *DMSController) UpdateCurrentUser(c echo.Context) error {
 	req := new(aV1.UpdateCurrentUserReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -1012,7 +1012,7 @@ func (d *DMSController) UpdateCurrentUser(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = d.DMS.UpdateCurrentUser(c.Request().Context(), req, currentUid)
+	err = ctl.DMS.UpdateCurrentUser(c.Request().Context(), req, currentUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1026,7 +1026,7 @@ func (d *DMSController) UpdateCurrentUser(c echo.Context) error {
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (a *DMSController) DelUser(c echo.Context) error {
+func (ctl *DMSController) DelUser(c echo.Context) error {
 	req := &aV1.DelUserReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -1039,12 +1039,13 @@ func (a *DMSController) DelUser(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = a.DMS.DelUser(c.Request().Context(), currentUserUid, req)
+	err = ctl.DMS.DelUser(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 	return NewOkResp(c)
 }
+
 
 // swagger:route GET /v1/dms/users User ListUsers
 //
@@ -1053,14 +1054,14 @@ func (a *DMSController) DelUser(c echo.Context) error {
 //	responses:
 //	  200: body:ListUserReply
 //	  default: body:GenericResp
-func (d *DMSController) ListUsers(c echo.Context) error {
+func (ctl *DMSController) ListUsers(c echo.Context) error {
 	req := new(dmsV1.ListUserReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	reply, err := d.DMS.ListUsers(c.Request().Context(), req)
+	reply, err := ctl.DMS.ListUsers(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1074,13 +1075,13 @@ func (d *DMSController) ListUsers(c echo.Context) error {
 //	responses:
 //	  200: body:GetUserOpPermissionReply
 //	  default: body:GenericResp
-func (a *DMSController) GetUserOpPermission(c echo.Context) error {
+func (ctl *DMSController) GetUserOpPermission(c echo.Context) error {
 	req := new(dmsV1.GetUserOpPermissionReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	reply, err := a.DMS.GetUserOpPermission(c.Request().Context(), req)
+	reply, err := ctl.DMS.GetUserOpPermission(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1094,13 +1095,13 @@ func (a *DMSController) GetUserOpPermission(c echo.Context) error {
 //	responses:
 //	  200: body:GetUserReply
 //	  default: body:GenericResp
-func (a *DMSController) GetUser(c echo.Context) error {
+func (ctl *DMSController) GetUser(c echo.Context) error {
 	req := new(dmsV1.GetUserReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	reply, err := a.DMS.GetUser(c.Request().Context(), req)
+	reply, err := ctl.DMS.GetUser(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1127,7 +1128,7 @@ func (a *DMSController) GetUser(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (a *DMSController) GenAccessToken(c echo.Context) error {
+func (ctl *DMSController) GenAccessToken(c echo.Context) error {
 	req := new(dmsV1.GenAccessToken)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -1140,7 +1141,7 @@ func (a *DMSController) GenAccessToken(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	reply, err := a.DMS.GenAccessToken(c.Request().Context(), currentUid, req)
+	reply, err := ctl.DMS.GenAccessToken(c.Request().Context(), currentUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1168,7 +1169,7 @@ func (a *DMSController) GenAccessToken(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) AddUserGroup(c echo.Context) error {
+func (ctl *DMSController) AddUserGroup(c echo.Context) error {
 	req := new(aV1.AddUserGroupReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -1181,7 +1182,7 @@ func (d *DMSController) AddUserGroup(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	reply, err := d.DMS.AddUserGroup(c.Request().Context(), currentUserUid, req)
+	reply, err := ctl.DMS.AddUserGroup(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1214,7 +1215,7 @@ func (d *DMSController) AddUserGroup(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) UpdateUserGroup(c echo.Context) error {
+func (ctl *DMSController) UpdateUserGroup(c echo.Context) error {
 	req := new(aV1.UpdateUserGroupReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -1227,7 +1228,7 @@ func (d *DMSController) UpdateUserGroup(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = d.DMS.UpdateUserGroup(c.Request().Context(), currentUserUid, req)
+	err = ctl.DMS.UpdateUserGroup(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1241,7 +1242,7 @@ func (d *DMSController) UpdateUserGroup(c echo.Context) error {
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (a *DMSController) DelUserGroup(c echo.Context) error {
+func (ctl *DMSController) DelUserGroup(c echo.Context) error {
 	req := &aV1.DelUserGroupReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -1254,7 +1255,7 @@ func (a *DMSController) DelUserGroup(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = a.DMS.DelUserGroup(c.Request().Context(), currentUserUid, req)
+	err = ctl.DMS.DelUserGroup(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1268,14 +1269,14 @@ func (a *DMSController) DelUserGroup(c echo.Context) error {
 //	responses:
 //	  200: body:ListUserGroupReply
 //	  default: body:GenericResp
-func (d *DMSController) ListUserGroups(c echo.Context) error {
+func (ctl *DMSController) ListUserGroups(c echo.Context) error {
 	req := new(aV1.ListUserGroupReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	reply, err := d.DMS.ListUserGroups(c.Request().Context(), req)
+	reply, err := ctl.DMS.ListUserGroups(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1303,7 +1304,7 @@ func (d *DMSController) ListUserGroups(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) AddRole(c echo.Context) error {
+func (ctl *DMSController) AddRole(c echo.Context) error {
 	req := new(aV1.AddRoleReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -1316,7 +1317,7 @@ func (d *DMSController) AddRole(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	reply, err := d.DMS.AddRole(c.Request().Context(), currentUserUid, req)
+	reply, err := ctl.DMS.AddRole(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1349,7 +1350,7 @@ func (d *DMSController) AddRole(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) UpdateRole(c echo.Context) error {
+func (ctl *DMSController) UpdateRole(c echo.Context) error {
 	req := new(aV1.UpdateRoleReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -1362,7 +1363,7 @@ func (d *DMSController) UpdateRole(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = d.DMS.UpdateRole(c.Request().Context(), currentUserUid, req)
+	err = ctl.DMS.UpdateRole(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1376,7 +1377,7 @@ func (d *DMSController) UpdateRole(c echo.Context) error {
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (a *DMSController) DelRole(c echo.Context) error {
+func (ctl *DMSController) DelRole(c echo.Context) error {
 	req := &aV1.DelRoleReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -1389,7 +1390,7 @@ func (a *DMSController) DelRole(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = a.DMS.DelRole(c.Request().Context(), currentUserUid, req)
+	err = ctl.DMS.DelRole(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1403,14 +1404,14 @@ func (a *DMSController) DelRole(c echo.Context) error {
 //	responses:
 //	  200: body:ListRoleReply
 //	  default: body:GenericResp
-func (d *DMSController) ListRoles(c echo.Context) error {
+func (ctl *DMSController) ListRoles(c echo.Context) error {
 	req := new(aV1.ListRoleReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	reply, err := d.DMS.ListRoles(c.Request().Context(), req)
+	reply, err := ctl.DMS.ListRoles(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1443,7 +1444,7 @@ func (d *DMSController) ListRoles(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) AddMember(c echo.Context) error {
+func (ctl *DMSController) AddMember(c echo.Context) error {
 	req := new(aV1.AddMemberReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -1456,7 +1457,7 @@ func (d *DMSController) AddMember(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	reply, err := d.DMS.AddMember(c.Request().Context(), currentUserUid, req)
+	reply, err := ctl.DMS.AddMember(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1470,14 +1471,14 @@ func (d *DMSController) AddMember(c echo.Context) error {
 //	responses:
 //	  200: body:ListMemberTipsReply
 //	  default: body:GenericResp
-func (d *DMSController) ListMemberTips(c echo.Context) error {
+func (ctl *DMSController) ListMemberTips(c echo.Context) error {
 	req := new(aV1.ListMemberTipsReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	reply, err := d.DMS.ListMemberTips(c.Request().Context(), req.ProjectUid)
+	reply, err := ctl.DMS.ListMemberTips(c.Request().Context(), req.ProjectUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1491,14 +1492,14 @@ func (d *DMSController) ListMemberTips(c echo.Context) error {
 //	responses:
 //	  200: body:ListMemberReply
 //	  default: body:GenericResp
-func (d *DMSController) ListMembers(c echo.Context) error {
+func (ctl *DMSController) ListMembers(c echo.Context) error {
 	req := new(aV1.ListMemberReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	reply, err := d.DMS.ListMembers(c.Request().Context(), req)
+	reply, err := ctl.DMS.ListMembers(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1512,14 +1513,14 @@ func (d *DMSController) ListMembers(c echo.Context) error {
 //	responses:
 //	  200: body:ListMembersForInternalReply
 //	  default: body:GenericResp
-func (d *DMSController) ListMembersForInternal(c echo.Context) error {
+func (ctl *DMSController) ListMembersForInternal(c echo.Context) error {
 	req := new(dmsV1.ListMembersForInternalReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	reply, err := d.DMS.ListMembersForInternal(c.Request().Context(), req)
+	reply, err := ctl.DMS.ListMembersForInternal(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1557,7 +1558,7 @@ func (d *DMSController) ListMembersForInternal(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) UpdateMember(c echo.Context) error {
+func (ctl *DMSController) UpdateMember(c echo.Context) error {
 	req := new(aV1.UpdateMemberReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -1570,7 +1571,7 @@ func (d *DMSController) UpdateMember(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = d.DMS.UpdateMember(c.Request().Context(), currentUserUid, req)
+	err = ctl.DMS.UpdateMember(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1584,7 +1585,7 @@ func (d *DMSController) UpdateMember(c echo.Context) error {
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (a *DMSController) DelMember(c echo.Context) error {
+func (ctl *DMSController) DelMember(c echo.Context) error {
 	req := &aV1.DelMemberReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -1597,7 +1598,7 @@ func (a *DMSController) DelMember(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = a.DMS.DelMember(c.Request().Context(), currentUserUid, req)
+	err = ctl.DMS.DelMember(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1611,14 +1612,14 @@ func (a *DMSController) DelMember(c echo.Context) error {
 //	responses:
 //	  200: body:ListMemberGroupsReply
 //	  default: body:GenericResp
-func (d *DMSController) ListMemberGroups(c echo.Context) error {
+func (ctl *DMSController) ListMemberGroups(c echo.Context) error {
 	req := new(aV1.ListMemberGroupsReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	reply, err := d.DMS.ListMemberGroups(c.Request().Context(), req)
+	reply, err := ctl.DMS.ListMemberGroups(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1632,13 +1633,13 @@ func (d *DMSController) ListMemberGroups(c echo.Context) error {
 //	responses:
 //	  200: body:GetMemberGroupReply
 //	  default: body:GenericResp
-func (d *DMSController) GetMemberGroup(c echo.Context) error {
+func (ctl *DMSController) GetMemberGroup(c echo.Context) error {
 	req := new(aV1.GetMemberGroupReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	reply, err := d.DMS.GetMemberGroup(c.Request().Context(), req)
+	reply, err := ctl.DMS.GetMemberGroup(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1671,7 +1672,7 @@ func (d *DMSController) GetMemberGroup(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) AddMemberGroup(c echo.Context) error {
+func (ctl *DMSController) AddMemberGroup(c echo.Context) error {
 	req := new(aV1.AddMemberGroupReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -1684,7 +1685,7 @@ func (d *DMSController) AddMemberGroup(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	reply, err := d.DMS.AddMemberGroup(c.Request().Context(), currentUserUid, req)
+	reply, err := ctl.DMS.AddMemberGroup(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1722,7 +1723,7 @@ func (d *DMSController) AddMemberGroup(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) UpdateMemberGroup(c echo.Context) error {
+func (ctl *DMSController) UpdateMemberGroup(c echo.Context) error {
 	req := new(aV1.UpdateMemberGroupReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -1735,7 +1736,7 @@ func (d *DMSController) UpdateMemberGroup(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = d.DMS.UpdateMemberGroup(c.Request().Context(), currentUserUid, req)
+	err = ctl.DMS.UpdateMemberGroup(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1750,7 +1751,7 @@ func (d *DMSController) UpdateMemberGroup(c echo.Context) error {
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (d *DMSController) DeleteMemberGroup(c echo.Context) error {
+func (ctl *DMSController) DeleteMemberGroup(c echo.Context) error {
 	req := new(aV1.DeleteMemberGroupReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -1763,7 +1764,7 @@ func (d *DMSController) DeleteMemberGroup(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = d.DMS.DeleteMemberGroup(c.Request().Context(), currentUserUid, req)
+	err = ctl.DMS.DeleteMemberGroup(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1778,14 +1779,14 @@ func (d *DMSController) DeleteMemberGroup(c echo.Context) error {
 //	responses:
 //	  200: body:ListOpPermissionReply
 //	  default: body:GenericResp
-func (d *DMSController) ListOpPermissions(c echo.Context) error {
+func (ctl *DMSController) ListOpPermissions(c echo.Context) error {
 	req := new(aV1.ListOpPermissionReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	reply, err := d.DMS.ListOpPermissions(c.Request().Context(), req)
+	reply, err := ctl.DMS.ListOpPermissions(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1800,7 +1801,7 @@ func (d *DMSController) ListOpPermissions(c echo.Context) error {
 //	  200: body:ListProjectReply
 //	  default: body:GenericResp
 // deprecated: true
-func (d *DMSController) ListProjects(c echo.Context) error {
+func (ctl *DMSController) ListProjects(c echo.Context) error {
 	return nil
 }
 
@@ -1825,7 +1826,7 @@ func (d *DMSController) ListProjects(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) CreateBusinessTag(c echo.Context) error {
+func (ctl *DMSController) CreateBusinessTag(c echo.Context) error {
 	req := new(aV1.CreateBusinessTagReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -1838,7 +1839,7 @@ func (d *DMSController) CreateBusinessTag(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = d.DMS.CreateBusinessTag(c.Request().Context(), currentUserUid, req.BusinessTag)
+	err = ctl.DMS.CreateBusinessTag(c.Request().Context(), currentUserUid, req.BusinessTag)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1872,7 +1873,7 @@ func (d *DMSController) CreateBusinessTag(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) UpdateBusinessTag(c echo.Context) error {
+func (ctl *DMSController) UpdateBusinessTag(c echo.Context) error {
 	req := new(aV1.UpdateBusinessTagReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -1885,7 +1886,7 @@ func (d *DMSController) UpdateBusinessTag(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = d.DMS.UpdateBusinessTag(c.Request().Context(), currentUserUid, req.BusinessTagUID, req.BusinessTag)
+	err = ctl.DMS.UpdateBusinessTag(c.Request().Context(), currentUserUid, req.BusinessTagUID, req.BusinessTag)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1899,7 +1900,7 @@ func (d *DMSController) UpdateBusinessTag(c echo.Context) error {
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (d *DMSController) DeleteBusinessTag(c echo.Context) error {
+func (ctl *DMSController) DeleteBusinessTag(c echo.Context) error {
 	req := new(aV1.DeleteBusinessTagReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -1912,7 +1913,7 @@ func (d *DMSController) DeleteBusinessTag(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = d.DMS.DeleteBusinessTag(c.Request().Context(), currentUserUid, req.BusinessTagUID)
+	err = ctl.DMS.DeleteBusinessTag(c.Request().Context(), currentUserUid, req.BusinessTagUID)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1926,13 +1927,13 @@ func (d *DMSController) DeleteBusinessTag(c echo.Context) error {
 //	responses:
 //	  200: body:ListBusinessTagsReply
 //	  default: body:GenericResp
-func (d *DMSController) ListBusinessTags(c echo.Context) error{
+func (ctl *DMSController) ListBusinessTags(c echo.Context) error{
 	req := new(aV1.ListBusinessTagReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	reply, err := d.DMS.ListBusinessTags(c.Request().Context(), req)
+	reply, err := ctl.DMS.ListBusinessTags(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1961,7 +1962,7 @@ func (d *DMSController) ListBusinessTags(c echo.Context) error{
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) AddProject(c echo.Context) error {
+func (ctl *DMSController) AddProject(c echo.Context) error {
 	return nil
 }
 
@@ -1972,7 +1973,7 @@ func (d *DMSController) AddProject(c echo.Context) error {
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (a *DMSController) DelProject(c echo.Context) error {
+func (ctl *DMSController) DelProject(c echo.Context) error {
 	req := &aV1.DelProjectReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -1983,7 +1984,7 @@ func (a *DMSController) DelProject(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	err = a.DMS.DeleteProject(c.Request().Context(), currentUserUid, req)
+	err = ctl.DMS.DeleteProject(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -2017,7 +2018,7 @@ func (a *DMSController) DelProject(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (a *DMSController) UpdateProject(c echo.Context) error {
+func (ctl *DMSController) UpdateProject(c echo.Context) error {
 	return nil
 }
 
@@ -2028,7 +2029,7 @@ func (a *DMSController) UpdateProject(c echo.Context) error {
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (a *DMSController) ArchiveProject(c echo.Context) error {
+func (ctl *DMSController) ArchiveProject(c echo.Context) error {
 	req := &aV1.ArchiveProjectReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -2040,7 +2041,7 @@ func (a *DMSController) ArchiveProject(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = a.DMS.ArchivedProject(c.Request().Context(), currentUserUid, req)
+	err = ctl.DMS.ArchivedProject(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -2054,7 +2055,7 @@ func (a *DMSController) ArchiveProject(c echo.Context) error {
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (a *DMSController) UnarchiveProject(c echo.Context) error {
+func (ctl *DMSController) UnarchiveProject(c echo.Context) error {
 	req := &aV1.UnarchiveProjectReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -2066,7 +2067,7 @@ func (a *DMSController) UnarchiveProject(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = a.DMS.UnarchiveProject(c.Request().Context(), currentUserUid, req)
+	err = ctl.DMS.UnarchiveProject(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -2095,7 +2096,7 @@ func (a *DMSController) UnarchiveProject(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (a *DMSController) ImportProjects(c echo.Context) error {
+func (ctl *DMSController) ImportProjects(c echo.Context) error {
 	return nil 
 }
 
@@ -2110,7 +2111,7 @@ func (a *DMSController) ImportProjects(c echo.Context) error {
 //	  200: PreviewImportProjectsReply
 //	  default: body:GenericResp
 // deprecated: true
-func (a *DMSController) PreviewImportProjects(c echo.Context) error {
+func (ctl *DMSController) PreviewImportProjects(c echo.Context) error {
 	return nil
 }
 
@@ -2121,13 +2122,13 @@ func (a *DMSController) PreviewImportProjects(c echo.Context) error {
 //	responses:
 //	  200: GetImportProjectsTemplateReply
 //	  default: body:GenericResp
-func (a *DMSController) GetImportProjectsTemplate(c echo.Context) error {
+func (ctl *DMSController) GetImportProjectsTemplate(c echo.Context) error {
 	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	content, err := a.DMS.GetImportProjectsTemplate(c.Request().Context(), currentUserUid)
+	content, err := ctl.DMS.GetImportProjectsTemplate(c.Request().Context(), currentUserUid)
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -2145,7 +2146,7 @@ func (a *DMSController) GetImportProjectsTemplate(c echo.Context) error {
 //	responses:
 //	  200: ExportProjectsReply
 //	  default: body:GenericResp
-func (a *DMSController) ExportProjects(c echo.Context) error {
+func (ctl *DMSController) ExportProjects(c echo.Context) error {
 	req := new(aV1.ExportProjectsReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -2157,7 +2158,7 @@ func (a *DMSController) ExportProjects(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	content, err := a.DMS.ExportProjects(c.Request().Context(), currentUserUid, req)
+	content, err := ctl.DMS.ExportProjects(c.Request().Context(), currentUserUid, req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -2177,7 +2178,7 @@ func (a *DMSController) ExportProjects(c echo.Context) error {
 //	  200: body:GetProjectTipsReply
 //	  default: body:GenericResp
 // deprecated: true
-func (a *DMSController) GetProjectTips(c echo.Context) error {
+func (ctl *DMSController) GetProjectTips(c echo.Context) error {
 	return nil
 }
 
@@ -2188,13 +2189,13 @@ func (a *DMSController) GetProjectTips(c echo.Context) error {
 //	responses:
 //	  200: GetImportDBServicesTemplateReply
 //	  default: body:GenericResp
-func (a *DMSController) GetImportDBServicesTemplate(c echo.Context) error {
+func (ctl *DMSController) GetImportDBServicesTemplate(c echo.Context) error {
 	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	importDBServicesTemplate, err := a.DMS.GetImportDBServicesTemplate(c.Request().Context(), currentUserUid)
+	importDBServicesTemplate, err := ctl.DMS.GetImportDBServicesTemplate(c.Request().Context(), currentUserUid)
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -2220,7 +2221,7 @@ func (a *DMSController) GetImportDBServicesTemplate(c echo.Context) error {
 //	  200: ImportDBServicesCheckCsvReply
 //	  default: body:ImportDBServicesCheckReply
 // deprecated: true
-func (a *DMSController) ImportDBServicesOfOneProjectCheck(c echo.Context) error {
+func (ctl *DMSController) ImportDBServicesOfOneProjectCheck(c echo.Context) error {
 	return NewOkRespWithReply(c, nil)
 }
 
@@ -2251,7 +2252,7 @@ func (a *DMSController) ImportDBServicesOfOneProjectCheck(c echo.Context) error 
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (a *DMSController) ImportDBServicesOfOneProject(c echo.Context) error {
+func (ctl *DMSController) ImportDBServicesOfOneProject(c echo.Context) error {
 	return NewOkResp(c)
 }
 
@@ -2270,7 +2271,7 @@ func (a *DMSController) ImportDBServicesOfOneProject(c echo.Context) error {
 //	  200: ImportDBServicesCheckCsvReply
 //	  default: body:ImportDBServicesCheckReply
 // deprecated: true
-func (a *DMSController) ImportDBServicesOfProjectsCheck(c echo.Context) error {
+func (ctl *DMSController) ImportDBServicesOfProjectsCheck(c echo.Context) error {
 	return NewOkRespWithReply(c, nil)
 }
 
@@ -2296,7 +2297,7 @@ func (a *DMSController) ImportDBServicesOfProjectsCheck(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 // deprecated: true
-func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
+func (ctl *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
 	return NewOkResp(c)
 }
 
@@ -2321,7 +2322,7 @@ func (a *DMSController) ImportDBServicesOfProjects(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (a *DMSController) DBServicesConnection(c echo.Context) error {
+func (ctl *DMSController) DBServicesConnection(c echo.Context) error {
 	req := new(aV1.DBServiceConnectionReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -2334,7 +2335,7 @@ func (a *DMSController) DBServicesConnection(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	reply, err := a.DMS.DBServicesConnection(c.Request().Context(), req, currentUserUid)
+	reply, err := ctl.DMS.DBServicesConnection(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -2361,7 +2362,7 @@ func (a *DMSController) DBServicesConnection(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (a *DMSController) CheckGlobalDBServicesConnections(c echo.Context) error {
+func (ctl *DMSController) CheckGlobalDBServicesConnections(c echo.Context) error {
 	var req aV1.DBServicesConnectionReq
 	err := bindAndValidateReq(c, &req)
 	if nil != err {
@@ -2373,7 +2374,7 @@ func (a *DMSController) CheckGlobalDBServicesConnections(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	reply, err := a.DMS.CheckDBServiceIsConnectableByIds(c.Request().Context(),"", currentUserUid,req.DBServices)
+	reply, err := ctl.DMS.CheckDBServiceIsConnectableByIds(c.Request().Context(),"", currentUserUid,req.DBServices)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -2403,7 +2404,7 @@ func (a *DMSController) CheckGlobalDBServicesConnections(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) RegisterDMSProxyTarget(c echo.Context) error {
+func (ctl *DMSController) RegisterDMSProxyTarget(c echo.Context) error {
 	req := new(dmsV1.RegisterDMSProxyTargetReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -2415,7 +2416,7 @@ func (d *DMSController) RegisterDMSProxyTarget(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = d.DMS.RegisterDMSProxyTarget(c.Request().Context(), currentUserUid, req)
+	err = ctl.DMS.RegisterDMSProxyTarget(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -2444,7 +2445,7 @@ func (d *DMSController) RegisterDMSProxyTarget(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) RegisterDMSPlugin(c echo.Context) error {
+func (ctl *DMSController) RegisterDMSPlugin(c echo.Context) error {
 	req := new(dmsV1.RegisterDMSPluginReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -2456,7 +2457,7 @@ func (d *DMSController) RegisterDMSPlugin(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = d.DMS.RegisterDMSPlugin(c.Request().Context(), currentUserUid, req)
+	err = ctl.DMS.RegisterDMSPlugin(c.Request().Context(), currentUserUid, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -2471,8 +2472,8 @@ func (d *DMSController) RegisterDMSPlugin(c echo.Context) error {
 //	responses:
 //	  200: body:GetLoginTipsReply
 //	  default: body:GenericResp
-func (d *DMSController) GetLoginTips(c echo.Context) error {
-	reply, err := d.DMS.GetLoginTips(c.Request().Context())
+func (ctl *DMSController) GetLoginTips(c echo.Context) error {
+	reply, err := ctl.DMS.GetLoginTips(c.Request().Context())
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -2500,7 +2501,7 @@ func (d *DMSController) GetLoginTips(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) UpdateLoginConfiguration(c echo.Context) error {
+func (ctl *DMSController) UpdateLoginConfiguration(c echo.Context) error {
 	req := new(aV1.UpdateLoginConfigurationReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -2512,7 +2513,7 @@ func (d *DMSController) UpdateLoginConfiguration(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = d.DMS.UpdateLoginConfiguration(c.Request().Context(), currentUserUid, req)
+	err = ctl.DMS.UpdateLoginConfiguration(c.Request().Context(), currentUserUid, req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -2526,8 +2527,8 @@ func (d *DMSController) UpdateLoginConfiguration(c echo.Context) error {
 //	responses:
 //	  200: body:GetOauth2ConfigurationResDataReply
 //	  default: body:GenericResp
-func (d *DMSController) GetOauth2Configuration(c echo.Context) error {
-	reply, err := d.DMS.GetOauth2Configuration(c.Request().Context())
+func (ctl *DMSController) GetOauth2Configuration(c echo.Context) error {
+	reply, err := ctl.DMS.GetOauth2Configuration(c.Request().Context())
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -2555,13 +2556,13 @@ func (d *DMSController) GetOauth2Configuration(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) UpdateOauth2Configuration(c echo.Context) error {
+func (ctl *DMSController) UpdateOauth2Configuration(c echo.Context) error {
 	req := new(aV1.Oauth2ConfigurationReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	err = d.DMS.UpdateOauth2Configuration(c.Request().Context(), req)
+	err = ctl.DMS.UpdateOauth2Configuration(c.Request().Context(), req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -2575,8 +2576,8 @@ func (d *DMSController) UpdateOauth2Configuration(c echo.Context) error {
 //	responses:
 //	  200: body:GetOauth2TipsReply
 //	  default: body:GenericResp
-func (d *DMSController) GetOauth2Tips(c echo.Context) error {
-	reply, err := d.DMS.GetOauth2ConfigurationTip(c.Request().Context())
+func (ctl *DMSController) GetOauth2Tips(c echo.Context) error {
+	reply, err := ctl.DMS.GetOauth2ConfigurationTip(c.Request().Context())
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -2586,8 +2587,8 @@ func (d *DMSController) GetOauth2Tips(c echo.Context) error {
 // swagger:route GET /v1/dms/oauth2/link OAuth2 Oauth2Link
 //
 // Oauth2 Link.
-func (d *DMSController) Oauth2Link(c echo.Context) error {
-	uri, err := d.DMS.Oauth2Link(c.Request().Context())
+func (ctl *DMSController) Oauth2Link(c echo.Context) error {
+	uri, err := ctl.DMS.Oauth2Link(c.Request().Context())
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -2595,14 +2596,14 @@ func (d *DMSController) Oauth2Link(c echo.Context) error {
 }
 
 // Oauth2Callback is a hidden interface for third-party platform callbacks for oauth2 verification
-func (d *DMSController) Oauth2Callback(c echo.Context) error {
+func (ctl *DMSController) Oauth2Callback(c echo.Context) error {
 	req := new(aV1.Oauth2CallbackReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	callbackData, claims, err := d.DMS.Oauth2Callback(c.Request().Context(), req)
+	callbackData, claims, err := ctl.DMS.Oauth2Callback(c.Request().Context(), req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -2659,13 +2660,13 @@ func (d *DMSController) Oauth2Callback(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) BindOauth2User(c echo.Context) error {
+func (ctl *DMSController) BindOauth2User(c echo.Context) error {
 	req := new(aV1.BindOauth2UserReq)
 	err := bindAndValidateReq(c, req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
-	claims, err := d.DMS.BindOauth2User(c.Request().Context(), req)
+	claims, err := ctl.DMS.BindOauth2User(c.Request().Context(), req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -2701,7 +2702,7 @@ func (d *DMSController) BindOauth2User(c echo.Context) error {
 
 // BackChannelLogout is a hidden interface for third-party platform callbacks for logout event
 // https://openid.net/specs/openid-connect-backchannel-1_0.html#BCRequest
-func (d *DMSController) BackChannelLogout(c echo.Context) error {
+func (ctl *DMSController) BackChannelLogout(c echo.Context) error {
 	// no-store 指令告诉浏览器和任何中间缓存（例如代理服务器）不要存储响应的任何副本。
 	// 这意味着每次请求该资源时，都必须从服务器重新获取
 	c.Response().Header().Set(echo.HeaderCacheControl, "no-store")
@@ -2716,7 +2717,7 @@ func (d *DMSController) BackChannelLogout(c echo.Context) error {
 
 	// todo Verifier logoutToken by provider
 
-	err := d.DMS.BackChannelLogout(c.Request().Context(), logoutToken)
+	err := ctl.DMS.BackChannelLogout(c.Request().Context(), logoutToken)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -2745,13 +2746,13 @@ func (d *DMSController) BackChannelLogout(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) UpdateLDAPConfiguration(c echo.Context) error {
+func (ctl *DMSController) UpdateLDAPConfiguration(c echo.Context) error {
 	req := new(aV1.UpdateLDAPConfigurationReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	err = d.DMS.UpdateLDAPConfiguration(c.Request().Context(), req)
+	err = ctl.DMS.UpdateLDAPConfiguration(c.Request().Context(), req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -2765,8 +2766,8 @@ func (d *DMSController) UpdateLDAPConfiguration(c echo.Context) error {
 //	responses:
 //	  200: body:GetLDAPConfigurationResDataReply
 //	  default: body:GenericResp
-func (d *DMSController) GetLDAPConfiguration(c echo.Context) error {
-	reply, err := d.DMS.GetLDAPConfiguration(c.Request().Context())
+func (ctl *DMSController) GetLDAPConfiguration(c echo.Context) error {
+	reply, err := ctl.DMS.GetLDAPConfiguration(c.Request().Context())
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -2780,8 +2781,8 @@ func (d *DMSController) GetLDAPConfiguration(c echo.Context) error {
 //	responses:
 //	  200: body:GetSMTPConfigurationReply
 //	  default: body:GenericResp
-func (d *DMSController) GetSMTPConfiguration(c echo.Context) error {
-	reply, err := d.DMS.GetSMTPConfiguration(c.Request().Context())
+func (ctl *DMSController) GetSMTPConfiguration(c echo.Context) error {
+	reply, err := ctl.DMS.GetSMTPConfiguration(c.Request().Context())
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -2809,13 +2810,13 @@ func (d *DMSController) GetSMTPConfiguration(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) UpdateSMTPConfiguration(c echo.Context) error {
+func (ctl *DMSController) UpdateSMTPConfiguration(c echo.Context) error {
 	req := new(aV1.UpdateSMTPConfigurationReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	err = d.DMS.UpdateSMTPConfiguration(c.Request().Context(), req)
+	err = ctl.DMS.UpdateSMTPConfiguration(c.Request().Context(), req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -2843,13 +2844,13 @@ func (d *DMSController) UpdateSMTPConfiguration(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) TestSMTPConfiguration(c echo.Context) error {
+func (ctl *DMSController) TestSMTPConfiguration(c echo.Context) error {
 	req := new(aV1.TestSMTPConfigurationReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	reply, err := d.DMS.TestSMTPConfiguration(c.Request().Context(), req)
+	reply, err := ctl.DMS.TestSMTPConfiguration(c.Request().Context(), req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -2863,8 +2864,8 @@ func (d *DMSController) TestSMTPConfiguration(c echo.Context) error {
 //	responses:
 //	  200: body:GetWeChatConfigurationReply
 //	  default: body:GenericResp
-func (d *DMSController) GetWeChatConfiguration(c echo.Context) error {
-	reply, err := d.DMS.GetWeChatConfiguration(c.Request().Context())
+func (ctl *DMSController) GetWeChatConfiguration(c echo.Context) error {
+	reply, err := ctl.DMS.GetWeChatConfiguration(c.Request().Context())
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -2891,13 +2892,13 @@ func (d *DMSController) GetWeChatConfiguration(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) UpdateWeChatConfiguration(c echo.Context) error {
+func (ctl *DMSController) UpdateWeChatConfiguration(c echo.Context) error {
 	req := new(aV1.UpdateWeChatConfigurationReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	err = d.DMS.UpdateWeChatConfiguration(c.Request().Context(), req)
+	err = ctl.DMS.UpdateWeChatConfiguration(c.Request().Context(), req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -2924,13 +2925,13 @@ func (d *DMSController) UpdateWeChatConfiguration(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) TestWeChatConfiguration(c echo.Context) error {
+func (ctl *DMSController) TestWeChatConfiguration(c echo.Context) error {
 	req := new(aV1.TestWeChatConfigurationReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	reply, err := d.DMS.TestWeChatConfiguration(c.Request().Context(), req)
+	reply, err := ctl.DMS.TestWeChatConfiguration(c.Request().Context(), req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -2944,8 +2945,8 @@ func (d *DMSController) TestWeChatConfiguration(c echo.Context) error {
 //	responses:
 //	  200: body:GetFeishuConfigurationReply
 //	  default: body:GenericResp
-func (d *DMSController) GetFeishuConfiguration(c echo.Context) error {
-	reply, err := d.DMS.GetFeishuConfiguration(c.Request().Context())
+func (ctl *DMSController) GetFeishuConfiguration(c echo.Context) error {
+	reply, err := ctl.DMS.GetFeishuConfiguration(c.Request().Context())
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -2972,13 +2973,13 @@ func (d *DMSController) GetFeishuConfiguration(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) UpdateFeishuConfiguration(c echo.Context) error {
+func (ctl *DMSController) UpdateFeishuConfiguration(c echo.Context) error {
 	req := new(aV1.UpdateFeishuConfigurationReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	err = d.DMS.UpdateFeishuConfiguration(c.Request().Context(), req)
+	err = ctl.DMS.UpdateFeishuConfiguration(c.Request().Context(), req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -3006,13 +3007,13 @@ func (d *DMSController) UpdateFeishuConfiguration(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) TestFeishuConfig(c echo.Context) error {
+func (ctl *DMSController) TestFeishuConfig(c echo.Context) error {
 	req := new(aV1.TestFeishuConfigurationReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	reply, err := d.DMS.TestFeishuConfiguration(c.Request().Context(), req)
+	reply, err := ctl.DMS.TestFeishuConfiguration(c.Request().Context(), req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -3026,8 +3027,8 @@ func (d *DMSController) TestFeishuConfig(c echo.Context) error {
 //	responses:
 //	  200: body:GetWebHookConfigurationReply
 //	  default: body:GenericResp
-func (d *DMSController) GetWebHookConfiguration(c echo.Context) error {
-	reply, err := d.DMS.GetWebHookConfiguration(c.Request().Context())
+func (ctl *DMSController) GetWebHookConfiguration(c echo.Context) error {
+	reply, err := ctl.DMS.GetWebHookConfiguration(c.Request().Context())
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -3054,13 +3055,13 @@ func (d *DMSController) GetWebHookConfiguration(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) UpdateWebHookConfiguration(c echo.Context) error {
+func (ctl *DMSController) UpdateWebHookConfiguration(c echo.Context) error {
 	req := new(aV1.UpdateWebHookConfigurationReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	err = d.DMS.UpdateWebHookConfiguration(c.Request().Context(), req)
+	err = ctl.DMS.UpdateWebHookConfiguration(c.Request().Context(), req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -3074,9 +3075,9 @@ func (d *DMSController) UpdateWebHookConfiguration(c echo.Context) error {
 //	responses:
 //	  200: body:TestWebHookConfigurationReply
 //	  default: body:GenericResp
-func (d *DMSController) TestWebHookConfiguration(c echo.Context) error {
+func (ctl *DMSController) TestWebHookConfiguration(c echo.Context) error {
 
-	reply, err := d.DMS.TestWebHookConfiguration(c.Request().Context())
+	reply, err := ctl.DMS.TestWebHookConfiguration(c.Request().Context())
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -3104,13 +3105,13 @@ func (d *DMSController) TestWebHookConfiguration(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) UpdateSmsConfiguration(context echo.Context) error {
+func (ctl *DMSController) UpdateSmsConfiguration(context echo.Context) error {
 	req := new(aV1.UpdateSmsConfigurationReq)
 	err := bindAndValidateReq(context, req)
 	if nil != err {
 		return NewErrResp(context, err, apiError.BadRequestErr)
 	}
-	err = d.DMS.UpdateSmsConfiguration(context.Request().Context(), req)
+	err = ctl.DMS.UpdateSmsConfiguration(context.Request().Context(), req)
 	if err != nil {
 		return NewErrResp(context, err, apiError.APIServerErr)
 	}
@@ -3138,13 +3139,13 @@ func (d *DMSController) UpdateSmsConfiguration(context echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) TestSmsConfiguration(context echo.Context) error {
+func (ctl *DMSController) TestSmsConfiguration(context echo.Context) error {
 	req := new(aV1.TestSmsConfigurationReq)
 	err := bindAndValidateReq(context, req)
 	if nil != err {
 		return NewErrResp(context, err, apiError.BadRequestErr)
 	}
-	reply, err := d.DMS.TestSmsConfiguration(context.Request().Context(), req)
+	reply, err := ctl.DMS.TestSmsConfiguration(context.Request().Context(), req)
 	if err != nil {
 		return NewErrResp(context, err, apiError.APIServerErr)
 	}
@@ -3159,8 +3160,8 @@ func (d *DMSController) TestSmsConfiguration(context echo.Context) error {
 //	responses:
 //	  200: body:GetSmsConfigurationReply
 //	  default: body:GenericResp
-func (d *DMSController) GetSmsConfiguration(c echo.Context) error {
-	reply, err := d.DMS.GetSmsConfiguration(c.Request().Context())
+func (ctl *DMSController) GetSmsConfiguration(c echo.Context) error {
+	reply, err := ctl.DMS.GetSmsConfiguration(c.Request().Context())
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -3188,10 +3189,10 @@ func (d *DMSController) GetSmsConfiguration(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) SendSmsCode(context echo.Context) error {
+func (ctl *DMSController) SendSmsCode(context echo.Context) error {
 	req := new(aV1.SendSmsCodeReq)
 	err := bindAndValidateReq(context, req)
-	reply, err := d.DMS.SendSmsCode(context.Request().Context(), req.Username)
+	reply, err := ctl.DMS.SendSmsCode(context.Request().Context(), req.Username)
 	if err != nil {
 		return NewErrResp(context, err, apiError.APIServerErr)
 	}
@@ -3225,13 +3226,13 @@ func (d *DMSController) SendSmsCode(context echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) VerifySmsCode(context echo.Context) error {
+func (ctl *DMSController) VerifySmsCode(context echo.Context) error {
 	req := new(aV1.VerifySmsCodeReq)
 	err := bindAndValidateReq(context, req)
 	if nil != err {
 		return NewErrResp(context, err, apiError.BadRequestErr)
 	}
-	reply :=d.DMS.VerifySmsCode(req)
+	reply :=ctl.DMS.VerifySmsCode(req)
 	return NewOkRespWithReply(context, reply)
 }
 
@@ -3242,13 +3243,13 @@ func (d *DMSController) VerifySmsCode(context echo.Context) error {
 //	responses:
 //	  200: body:NotificationReply
 //	  default: body:GenericResp
-func (d *DMSController) Notify(c echo.Context) error {
+func (ctl *DMSController) Notify(c echo.Context) error {
 	req := new(dmsV1.NotificationReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	err = d.DMS.NotifyMessage(c.Request().Context(), req)
+	err = ctl.DMS.NotifyMessage(c.Request().Context(), req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -3276,13 +3277,13 @@ func (d *DMSController) Notify(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) WebHookSendMessage(c echo.Context) error {
+func (ctl *DMSController) WebHookSendMessage(c echo.Context) error {
 	req := new(dmsV1.WebHookSendMessageReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	err = d.DMS.WebHookSendMessage(c.Request().Context(), req)
+	err = ctl.DMS.WebHookSendMessage(c.Request().Context(), req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -3296,13 +3297,13 @@ func (d *DMSController) WebHookSendMessage(c echo.Context) error {
 //	responses:
 //	  200: body:GetCompanyNoticeReply
 //	  default: body:GenericResp
-func (d *DMSController) GetCompanyNotice(c echo.Context) error {
+func (ctl *DMSController) GetCompanyNotice(c echo.Context) error {
 	// get current user id
 	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	reply, err := d.DMS.GetCompanyNotice(c.Request().Context(), currentUserUid)
+	reply, err := ctl.DMS.GetCompanyNotice(c.Request().Context(), currentUserUid)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -3330,13 +3331,13 @@ func (d *DMSController) GetCompanyNotice(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) UpdateCompanyNotice(c echo.Context) error {
+func (ctl *DMSController) UpdateCompanyNotice(c echo.Context) error {
 	req := new(aV1.UpdateCompanyNoticeReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	err = d.DMS.UpdateCompanyNotice(c.Request().Context(), req)
+	err = ctl.DMS.UpdateCompanyNotice(c.Request().Context(), req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -3350,8 +3351,8 @@ func (d *DMSController) UpdateCompanyNotice(c echo.Context) error {
 //	responses:
 //	  200: body:GetLicenseReply
 //	  default: body:GenericResp
-func (d *DMSController) GetLicense(c echo.Context) error {
-	reply, err := d.DMS.GetLicense(c.Request().Context())
+func (ctl *DMSController) GetLicense(c echo.Context) error {
+	reply, err := ctl.DMS.GetLicense(c.Request().Context())
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -3372,8 +3373,8 @@ const (
 //	responses:
 //	  200: GetLicenseInfoReply
 //	  default: body:GenericResp
-func (d *DMSController) GetLicenseInfo(c echo.Context) error {
-	data, err := d.DMS.GetLicenseInfo(c.Request().Context())
+func (ctl *DMSController) GetLicenseInfo(c echo.Context) error {
+	data, err := ctl.DMS.GetLicenseInfo(c.Request().Context())
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -3390,8 +3391,8 @@ func (d *DMSController) GetLicenseInfo(c echo.Context) error {
 //	responses:
 //	  200: body:GetLicenseUsageReply
 //	  default: body:GenericResp
-func (d *DMSController) GetLicenseUsage(c echo.Context) error {
-	usage, err := d.DMS.GetLicenseUsage(c.Request().Context())
+func (ctl *DMSController) GetLicenseUsage(c echo.Context) error {
+	usage, err := ctl.DMS.GetLicenseUsage(c.Request().Context())
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -3409,7 +3410,7 @@ func (d *DMSController) GetLicenseUsage(c echo.Context) error {
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (d *DMSController) SetLicense(c echo.Context) error {
+func (ctl *DMSController) SetLicense(c echo.Context) error {
 	file, exist, err := ReadFileContent(c, LicenseFileParamKey)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
@@ -3417,7 +3418,7 @@ func (d *DMSController) SetLicense(c echo.Context) error {
 	if !exist {
 		return NewErrResp(c, fmt.Errorf("upload file is not exist"), apiError.APIServerErr)
 	}
-	err = d.DMS.SetLicense(c.Request().Context(), file)
+	err = ctl.DMS.SetLicense(c.Request().Context(), file)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -3434,7 +3435,7 @@ func (d *DMSController) SetLicense(c echo.Context) error {
 //	responses:
 //	  200: body:CheckLicenseReply
 //	  default: body:GenericResp
-func (d *DMSController) CheckLicense(c echo.Context) error {
+func (ctl *DMSController) CheckLicense(c echo.Context) error {
 	file, exist, err := ReadFileContent(c, LicenseFileParamKey)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
@@ -3443,7 +3444,7 @@ func (d *DMSController) CheckLicense(c echo.Context) error {
 		return NewErrResp(c, fmt.Errorf("upload file is not exist"), apiError.APIServerErr)
 	}
 
-	reply, err := d.DMS.CheckLicense(c.Request().Context(), file)
+	reply, err := ctl.DMS.CheckLicense(c.Request().Context(), file)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -3498,7 +3499,7 @@ func ReadFileContent(c echo.Context, name string) (content string, fileExist boo
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) AddDataExportWorkflow(c echo.Context) error {
+func (ctl *DMSController) AddDataExportWorkflow(c echo.Context) error {
 	req := new(aV1.AddDataExportWorkflowReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -3511,7 +3512,7 @@ func (d *DMSController) AddDataExportWorkflow(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	reply, err := d.DMS.AddDataExportWorkflow(c.Request().Context(), req, currentUserUid)
+	reply, err := ctl.DMS.AddDataExportWorkflow(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -3525,7 +3526,7 @@ func (d *DMSController) AddDataExportWorkflow(c echo.Context) error {
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (d *DMSController) ApproveDataExportWorkflow(c echo.Context) error {
+func (ctl *DMSController) ApproveDataExportWorkflow(c echo.Context) error {
 	req := &aV1.ApproveDataExportWorkflowReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -3537,7 +3538,7 @@ func (d *DMSController) ApproveDataExportWorkflow(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	if err = d.DMS.ApproveDataExportWorkflow(c.Request().Context(), req, currentUserUid); err != nil {
+	if err = ctl.DMS.ApproveDataExportWorkflow(c.Request().Context(), req, currentUserUid); err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
@@ -3573,7 +3574,7 @@ func (d *DMSController) ApproveDataExportWorkflow(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) RejectDataExportWorkflow(c echo.Context) error {
+func (ctl *DMSController) RejectDataExportWorkflow(c echo.Context) error {
 	req := &aV1.RejectDataExportWorkflowReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -3585,7 +3586,7 @@ func (d *DMSController) RejectDataExportWorkflow(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	if err = d.DMS.RejectDataExportWorkflow(c.Request().Context(), req, currentUserUid); err != nil {
+	if err = ctl.DMS.RejectDataExportWorkflow(c.Request().Context(), req, currentUserUid); err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
@@ -3599,7 +3600,7 @@ func (d *DMSController) RejectDataExportWorkflow(c echo.Context) error {
 //	responses:
 //	  200: body:ListDataExportWorkflowsReply
 //	  default: body:GenericResp
-func (d *DMSController) ListDataExportWorkflows(c echo.Context) error {
+func (ctl *DMSController) ListDataExportWorkflows(c echo.Context) error {
 	req := new(aV1.ListDataExportWorkflowsReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -3610,7 +3611,7 @@ func (d *DMSController) ListDataExportWorkflows(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	reply, err := d.DMS.ListDataExportWorkflow(c.Request().Context(), req, currentUserUid)
+	reply, err := ctl.DMS.ListDataExportWorkflow(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -3624,7 +3625,7 @@ func (d *DMSController) ListDataExportWorkflows(c echo.Context) error {
 //	responses:
 //	  200: body:GetDataExportWorkflowReply
 //	  default: body:GenericResp
-func (d *DMSController) GetDataExportWorkflow(c echo.Context) error {
+func (ctl *DMSController) GetDataExportWorkflow(c echo.Context) error {
 	req := new(aV1.GetDataExportWorkflowReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -3635,7 +3636,7 @@ func (d *DMSController) GetDataExportWorkflow(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	reply, err := d.DMS.GetDataExportWorkflow(c.Request().Context(), req, currentUserUid)
+	reply, err := ctl.DMS.GetDataExportWorkflow(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -3667,7 +3668,7 @@ func (d *DMSController) GetDataExportWorkflow(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) CancelDataExportWorkflow(c echo.Context) error {
+func (ctl *DMSController) CancelDataExportWorkflow(c echo.Context) error {
 	req := &aV1.CancelDataExportWorkflowReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -3679,7 +3680,7 @@ func (d *DMSController) CancelDataExportWorkflow(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	if err = d.DMS.CancelDataExportWorkflow(c.Request().Context(), req, currentUserUid); err != nil {
+	if err = ctl.DMS.CancelDataExportWorkflow(c.Request().Context(), req, currentUserUid); err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
@@ -3693,7 +3694,7 @@ func (d *DMSController) CancelDataExportWorkflow(c echo.Context) error {
 //	responses:
 //	  200: body:GenericResp
 //	  default: body:GenericResp
-func (d *DMSController) ExportDataExportWorkflow(c echo.Context) error {
+func (ctl *DMSController) ExportDataExportWorkflow(c echo.Context) error {
 	req := &aV1.ExportDataExportWorkflowReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -3704,7 +3705,7 @@ func (d *DMSController) ExportDataExportWorkflow(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	err = d.DMS.ExportDataExportWorkflow(c.Request().Context(), req, currentUserUid)
+	err = ctl.DMS.ExportDataExportWorkflow(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -3737,7 +3738,7 @@ func (d *DMSController) ExportDataExportWorkflow(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) AddDataExportTask(c echo.Context) error {
+func (ctl *DMSController) AddDataExportTask(c echo.Context) error {
 	req := new(aV1.AddDataExportTaskReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -3750,7 +3751,7 @@ func (d *DMSController) AddDataExportTask(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	reply, err := d.DMS.AddDataExportTask(c.Request().Context(), req, currentUserUid)
+	reply, err := ctl.DMS.AddDataExportTask(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -3765,7 +3766,7 @@ func (d *DMSController) AddDataExportTask(c echo.Context) error {
 //	responses:
 //	  200: body:BatchGetDataExportTaskReply
 //	  default: body:GenericResp
-func (d *DMSController) BatchGetDataExportTask(c echo.Context) error {
+func (ctl *DMSController) BatchGetDataExportTask(c echo.Context) error {
 	req := new(aV1.BatchGetDataExportTaskReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -3776,7 +3777,7 @@ func (d *DMSController) BatchGetDataExportTask(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	reply, err := d.DMS.BatchGetDataExportTask(c.Request().Context(), req, currentUserUid)
+	reply, err := ctl.DMS.BatchGetDataExportTask(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -3790,7 +3791,7 @@ func (d *DMSController) BatchGetDataExportTask(c echo.Context) error {
 //	responses:
 //	  200: body:ListDataExportTaskSQLsReply
 //	  default: body:GenericResp
-func (d *DMSController) ListDataExportTaskSQLs(c echo.Context) error {
+func (ctl *DMSController) ListDataExportTaskSQLs(c echo.Context) error {
 	req := new(aV1.ListDataExportTaskSQLsReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -3801,7 +3802,7 @@ func (d *DMSController) ListDataExportTaskSQLs(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	reply, err := d.DMS.ListDataExportTaskSQLs(c.Request().Context(), req, currentUserUid)
+	reply, err := ctl.DMS.ListDataExportTaskSQLs(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -3815,7 +3816,7 @@ func (d *DMSController) ListDataExportTaskSQLs(c echo.Context) error {
 //	responses:
 //	  200: DownloadDataExportTaskSQLsReply
 //	  default: body:GenericResp
-func (d *DMSController) DownloadDataExportTaskSQLs(c echo.Context) error {
+func (ctl *DMSController) DownloadDataExportTaskSQLs(c echo.Context) error {
 	req := new(aV1.DownloadDataExportTaskSQLsReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -3826,7 +3827,7 @@ func (d *DMSController) DownloadDataExportTaskSQLs(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	fileName, content, err := d.DMS.DownloadDataExportTaskSQLs(c.Request().Context(), req, currentUserUid)
+	fileName, content, err := ctl.DMS.DownloadDataExportTaskSQLs(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -3843,7 +3844,7 @@ func (d *DMSController) DownloadDataExportTaskSQLs(c echo.Context) error {
 //	responses:
 //	  200: DownloadDataExportTaskReply
 //	  default: body:GenericResp
-func (d *DMSController) DownloadDataExportTask(c echo.Context) error {
+func (ctl *DMSController) DownloadDataExportTask(c echo.Context) error {
 	req := &aV1.DownloadDataExportTaskReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -3855,13 +3856,13 @@ func (d *DMSController) DownloadDataExportTask(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	isProxy, filePath, err := d.DMS.DownloadDataExportTask(c.Request().Context(), req, currentUserUid)
+	isProxy, filePath, err := ctl.DMS.DownloadDataExportTask(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
 	if isProxy {
-		return d.proxyDownloadDataExportTask(c, filePath)
+		return ctl.proxyDownloadDataExportTask(c, filePath)
 	}
 
 	fileName := filepath.Base(filePath)
@@ -3871,7 +3872,7 @@ func (d *DMSController) DownloadDataExportTask(c echo.Context) error {
 	return c.File(filePath)
 }
 
-func (d *DMSController) proxyDownloadDataExportTask(c echo.Context, reportHost string) (err error) {
+func (ctl *DMSController) proxyDownloadDataExportTask(c echo.Context, reportHost string) (err error) {
 	protocol := strings.ToLower(strings.Split(c.Request().Proto, "/")[0])
 
 	// reference from echo framework proxy middleware
@@ -3910,14 +3911,14 @@ func (d *DMSController) proxyDownloadDataExportTask(c echo.Context, reportHost s
 //	responses:
 //	  200: body:ListMaskingRulesReply
 //	  default: body:GenericResp
-func (d *DMSController) ListMaskingRules(c echo.Context) error {
+func (ctl *DMSController) ListMaskingRules(c echo.Context) error {
 	req := &aV1.ListMaskingRulesReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	reply, err := d.DMS.ListMaskingRules(c.Request().Context())
+	reply, err := ctl.DMS.ListMaskingRules(c.Request().Context())
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -3931,7 +3932,7 @@ func (d *DMSController) ListMaskingRules(c echo.Context) error {
 //	responses:
 //	  200: body:ListCBOperationLogsReply
 //	  default: body:GenericResp
-func (d *DMSController) ListCBOperationLogs(c echo.Context) error {
+func (ctl *DMSController) ListCBOperationLogs(c echo.Context) error {
 	req := &aV1.ListCBOperationLogsReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -3943,7 +3944,7 @@ func (d *DMSController) ListCBOperationLogs(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	reply, err := d.DMS.ListCBOperationLogs(c.Request().Context(), req, currentUserUid)
+	reply, err := ctl.DMS.ListCBOperationLogs(c.Request().Context(), req, currentUserUid)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -3958,7 +3959,7 @@ func (d *DMSController) ListCBOperationLogs(c echo.Context) error {
 //	responses:
 //	  200: ExportCBOperationLogsReply
 //	  default: body:GenericResp
-func (d *DMSController) ExportCBOperationLogs(c echo.Context) error {
+func (ctl *DMSController) ExportCBOperationLogs(c echo.Context) error {
 	req := &aV1.ExportCBOperationLogsReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -3970,7 +3971,7 @@ func (d *DMSController) ExportCBOperationLogs(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	content, err := d.DMS.ExportCBOperationLogs(c.Request().Context(), req, currentUserUid)
+	content, err := ctl.DMS.ExportCBOperationLogs(c.Request().Context(), req, currentUserUid)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -3990,7 +3991,7 @@ func (d *DMSController) ExportCBOperationLogs(c echo.Context) error {
 //	responses:
 //	  200: GetCBOperationLogTipsReply
 //	  default: body:GenericResp
-func (a *DMSController) GetCBOperationLogTips(c echo.Context) error {
+func (ctl *DMSController) GetCBOperationLogTips(c echo.Context) error {
 	req := &aV1.GetCBOperationLogTipsReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -4002,7 +4003,7 @@ func (a *DMSController) GetCBOperationLogTips(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	reply, err := a.DMS.GetCBOperationLogTips(c.Request().Context(), req, currentUserUid)
+	reply, err := ctl.DMS.GetCBOperationLogTips(c.Request().Context(), req, currentUserUid)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -4010,8 +4011,8 @@ func (a *DMSController) GetCBOperationLogTips(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-func (d *DMSController) SwaggerHandler(c echo.Context) error {
-	err := d.DMS.RegisterSwagger(c)
+func (ctl *DMSController) SwaggerHandler(c echo.Context) error {
+	err := ctl.DMS.RegisterSwagger(c)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -4051,12 +4052,12 @@ func (d *DMSController) SwaggerHandler(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) ListDBServiceSyncTasks(c echo.Context) error {
+func (ctl *DMSController) ListDBServiceSyncTasks(c echo.Context) error {
 	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	reply, err := d.DMS.ListDBServiceSyncTask(c.Request().Context(), currentUserUid)
+	reply, err := ctl.DMS.ListDBServiceSyncTask(c.Request().Context(), currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -4083,7 +4084,7 @@ func (d *DMSController) ListDBServiceSyncTasks(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) GetDBServiceSyncTask(c echo.Context) error {
+func (ctl *DMSController) GetDBServiceSyncTask(c echo.Context) error {
 	req := new(aV1.GetDBServiceSyncTaskReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -4094,7 +4095,7 @@ func (d *DMSController) GetDBServiceSyncTask(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	reply, err := d.DMS.GetDBServiceSyncTask(c.Request().Context(), req, currentUserUid)
+	reply, err := ctl.DMS.GetDBServiceSyncTask(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -4122,7 +4123,7 @@ func (d *DMSController) GetDBServiceSyncTask(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) AddDBServiceSyncTask(c echo.Context) error {
+func (ctl *DMSController) AddDBServiceSyncTask(c echo.Context) error {
 	req := new(aV1.AddDBServiceSyncTaskReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -4135,7 +4136,7 @@ func (d *DMSController) AddDBServiceSyncTask(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	reply, err := d.DMS.AddDBServiceSyncTask(c.Request().Context(), req, currentUserUid)
+	reply, err := ctl.DMS.AddDBServiceSyncTask(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -4168,7 +4169,7 @@ func (d *DMSController) AddDBServiceSyncTask(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) UpdateDBServiceSyncTask(c echo.Context) error {
+func (ctl *DMSController) UpdateDBServiceSyncTask(c echo.Context) error {
 	req := &aV1.UpdateDBServiceSyncTaskReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -4179,7 +4180,7 @@ func (d *DMSController) UpdateDBServiceSyncTask(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	err = d.DMS.UpdateDBServiceSyncTask(c.Request().Context(), req, currentUserUid)
+	err = ctl.DMS.UpdateDBServiceSyncTask(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -4206,7 +4207,7 @@ func (d *DMSController) UpdateDBServiceSyncTask(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) DeleteDBServiceSyncTask(c echo.Context) error {
+func (ctl *DMSController) DeleteDBServiceSyncTask(c echo.Context) error {
 	req := &aV1.DeleteDBServiceSyncTaskReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -4217,7 +4218,7 @@ func (d *DMSController) DeleteDBServiceSyncTask(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	err = d.DMS.DeleteDBServiceSyncTask(c.Request().Context(), req, currentUserUid)
+	err = ctl.DMS.DeleteDBServiceSyncTask(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -4238,8 +4239,8 @@ func (d *DMSController) DeleteDBServiceSyncTask(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) ListDBServiceSyncTaskTips(c echo.Context) error {
-	reply, err := d.DMS.ListDBServiceSyncTaskTips(c.Request().Context())
+func (ctl *DMSController) ListDBServiceSyncTaskTips(c echo.Context) error {
+	reply, err := ctl.DMS.ListDBServiceSyncTaskTips(c.Request().Context())
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -4266,7 +4267,7 @@ func (d *DMSController) ListDBServiceSyncTaskTips(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) SyncDBServices(c echo.Context) error {
+func (ctl *DMSController) SyncDBServices(c echo.Context) error {
 	req := &aV1.SyncDBServicesReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -4277,7 +4278,7 @@ func (d *DMSController) SyncDBServices(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	err = d.DMS.SyncDBServices(c.Request().Context(), req, currentUserUid)
+	err = ctl.DMS.SyncDBServices(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -4445,6 +4446,7 @@ func (d *DMSController) DownloadResourceOverviewList(c echo.Context) error {
 
 
 
+
 // swagger:operation PUT /v1/dms/gateways/{gateway_id} Gateway UpdateGateway
 //
 // update gateways.
@@ -4605,3 +4607,17 @@ func (ctl *DMSController)AddGateway(c echo.Context) error {
 	}
 	return NewOkResp(c)
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
