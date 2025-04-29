@@ -4442,3 +4442,166 @@ func (d *DMSController) DownloadResourceOverviewList(c echo.Context) error {
 
 	return c.Blob(http.StatusOK, "text/csv", content)
 }
+
+
+
+// swagger:operation PUT /v1/dms/gateways/{gateway_id} Gateway UpdateGateway
+//
+// update gateways.
+//
+// ---
+// parameters:
+//   - name: gateway_id
+//     description: gateway id
+//     in: path
+//     required: true
+//     type: string
+//   - name: update_gateway
+//     description: update gateway
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/UpdateGatewayReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) UpdateGateways(c echo.Context) error {
+	req := &aV1.UpdateGatewayReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	err = ctl.DMS.UpdateGateway(c.Request().Context(), req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkResp(c)
+}
+
+func (ctl *DMSController) SyncGateways(c echo.Context) error {
+	req := &aV1.SyncGatewayReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	err = ctl.DMS.SyncGateways(c.Request().Context(), req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkResp(c)
+}
+
+// swagger:route GET /v1/dms/gateways Gateway ListGateways
+//
+// List gateways.
+//
+//	responses:
+//	  200: body:ListGatewaysReply
+//	  default: body:GenericResp
+func (ctl *DMSController) ListGateways(c echo.Context) error {
+	req := &aV1.ListGatewaysReq{}
+	err := bindAndValidateReq(c, req)
+	if nil!= err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	reply, err := ctl.DMS.ListGateways(c.Request().Context(),req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route GET /v1/dms/gateways/{gateway_id} Gateway GetGateway
+//
+// Get gateways.
+//
+//	responses:
+//	  200: body:GetGatewayReply
+//	  default: body:GenericResp
+func (ctl *DMSController)GetGateway(c echo.Context) error {
+	req := &aV1.GetGatewayReq{}
+	err := bindAndValidateReq(c, req)
+	if nil!= err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	reply, err := ctl.DMS.GetGateway(c.Request().Context(), req)
+	if nil!= err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route GET /v1/dms/gateways/tips Gateway GetGatewayTips
+//
+// Get gateway tips.
+//
+//	responses:
+//	  200: body:GetGatewayTipsReply
+//	  default: body:GenericResp
+func (ctl *DMSController)GetGatewayTips(c echo.Context) error {
+	reply,err := ctl.DMS.GetGatewayTips(c.Request().Context())
+	if nil!= err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route DELETE /v1/dms/gateways/{gateway_id} Gateway DeleteGateway
+//
+// Delete gateways.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (ctl *DMSController)DeleteGateway(c echo.Context) error {
+	req := &aV1.DeleteGatewayReq{}
+	err := bindAndValidateReq(c, req)
+	if nil!= err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	err = ctl.DMS.DeleteGateway(c.Request().Context(), req)
+	if nil!= err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkResp(c)
+}
+
+// swagger:operation POST /v1/dms/gateways Gateway AddGateway
+//
+// Add gateways.
+//
+// ---
+// parameters:
+//   - name: add_gateway
+//     description: add gateway
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/AddGatewayReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController)AddGateway(c echo.Context) error {
+	req := &aV1.AddGatewayReq{}
+	err := bindAndValidateReq(c, req)
+	if nil!= err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	err = ctl.DMS.AddGateway(c.Request().Context(), req.AddGateway)
+	if nil!= err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkResp(c)
+}
