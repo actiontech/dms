@@ -55,6 +55,7 @@ var AutoMigrateList = []interface{}{
 	UserAccessToken{},
 	CbOperationLog{},
 	EnvironmentTag{},
+	Gateway{},
 }
 
 type Model struct {
@@ -653,4 +654,11 @@ type DBServiceSyncTask struct {
 type BusinessTag struct {
 	Model
 	Name string `gorm:"type:varchar(100);unique;column:name"`
+}
+
+type Gateway struct {
+	Model
+	Name        string `gorm:"type:varchar(100);unique;column:name"`
+	Description string `gorm:"type:varchar(255);column:description"`
+	Address     string `gorm:"type:varchar(255);column:address"`
 }

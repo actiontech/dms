@@ -225,7 +225,7 @@ func (ctl *DMSController) UpdateProjectV2(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) AddDBServiceV2(c echo.Context) error{
+func (ctl *DMSController) AddDBServiceV2(c echo.Context) error{
 	req := new(dmsApiV2.AddDBServiceReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -238,7 +238,7 @@ func (d *DMSController) AddDBServiceV2(c echo.Context) error{
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	reply, err := d.DMS.AddDBServiceV2(c.Request().Context(), req, currentUserUid)
+	reply, err := ctl.DMS.AddDBServiceV2(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -266,7 +266,7 @@ func (d *DMSController) AddDBServiceV2(c echo.Context) error{
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) ImportDBServicesOfProjectsV2(c echo.Context) error {
+func (ctl *DMSController) ImportDBServicesOfProjectsV2(c echo.Context) error {
 	req := new(dmsApiV2.ImportDBServicesOfProjectsReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -279,7 +279,7 @@ func (d *DMSController) ImportDBServicesOfProjectsV2(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = d.DMS.ImportDBServicesOfProjects(c.Request().Context(), req, currentUserUid)
+	err = ctl.DMS.ImportDBServicesOfProjects(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -313,7 +313,7 @@ func (d *DMSController) ImportDBServicesOfProjectsV2(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) ImportDBServicesOfOneProjectV2(c echo.Context) error {
+func (ctl *DMSController) ImportDBServicesOfOneProjectV2(c echo.Context) error {
 	req := new(dmsApiV2.ImportDBServicesOfOneProjectReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -325,7 +325,7 @@ func (d *DMSController) ImportDBServicesOfOneProjectV2(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = d.DMS.ImportDBServicesOfOneProject(c.Request().Context(), req, currentUserUid)
+	err = ctl.DMS.ImportDBServicesOfOneProject(c.Request().Context(), req, currentUserUid)
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -347,7 +347,7 @@ func (d *DMSController) ImportDBServicesOfOneProjectV2(c echo.Context) error {
 //	responses:
 //	  200: ImportDBServicesCheckCsvReply
 //	  default: body:ImportDBServicesCheckReply
-func (d *DMSController) ImportDBServicesOfOneProjectCheckV2(c echo.Context) error {
+func (ctl *DMSController) ImportDBServicesOfOneProjectCheckV2(c echo.Context) error {
 	req := new(dmsApiV2.ImportDBServicesOfOneProjectCheckReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -367,7 +367,7 @@ func (d *DMSController) ImportDBServicesOfOneProjectCheckV2(c echo.Context) erro
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	reply, csvCheckResult, err := d.DMS.ImportDBServicesOfOneProjectCheck(c.Request().Context(), currentUserUid, req.ProjectUid, fileContent)
+	reply, csvCheckResult, err := ctl.DMS.ImportDBServicesOfOneProjectCheck(c.Request().Context(), currentUserUid, req.ProjectUid, fileContent)
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -394,7 +394,7 @@ func (d *DMSController) ImportDBServicesOfOneProjectCheckV2(c echo.Context) erro
 //	responses:
 //	  200: ImportDBServicesCheckCsvReply
 //	  default: body:ImportDBServicesCheckReply
-func (d *DMSController) ImportDBServicesOfProjectsCheckV2(c echo.Context) error {
+func (ctl *DMSController) ImportDBServicesOfProjectsCheckV2(c echo.Context) error {
 	fileContent, exist, err := ReadFileContent(c, DBServicesFileParamKey)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
@@ -408,7 +408,7 @@ func (d *DMSController) ImportDBServicesOfProjectsCheckV2(c echo.Context) error 
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	reply, csvCheckResult, err := d.DMS.ImportDBServicesOfProjectsCheck(c.Request().Context(), currentUserUid, fileContent)
+	reply, csvCheckResult, err := ctl.DMS.ImportDBServicesOfProjectsCheck(c.Request().Context(), currentUserUid, fileContent)
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -451,7 +451,7 @@ func (d *DMSController) ImportDBServicesOfProjectsCheckV2(c echo.Context) error 
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (d *DMSController) UpdateDBServiceV2(c echo.Context) error{
+func (ctl *DMSController) UpdateDBServiceV2(c echo.Context) error{
 		req := &dmsApiV2.UpdateDBServiceReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -462,7 +462,7 @@ func (d *DMSController) UpdateDBServiceV2(c echo.Context) error{
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	err = d.DMS.UpdateDBService(c.Request().Context(), req, currentUserUid)
+	err = ctl.DMS.UpdateDBService(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -476,7 +476,7 @@ func (d *DMSController) UpdateDBServiceV2(c echo.Context) error{
 //	responses:
 //	  200: body:ListGlobalDBServicesReplyV2
 //	  default: body:GenericResp
-func (d *DMSController) ListGlobalDBServicesV2(c echo.Context) error {
+func (ctl *DMSController) ListGlobalDBServicesV2(c echo.Context) error {
 	req := new(dmsApiV2.ListGlobalDBServicesReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -486,7 +486,7 @@ func (d *DMSController) ListGlobalDBServicesV2(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	reply, err := d.DMS.ListGlobalDBServices(c.Request().Context(), req, currentUserUid)
+	reply, err := ctl.DMS.ListGlobalDBServices(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -500,7 +500,7 @@ func (d *DMSController) ListGlobalDBServicesV2(c echo.Context) error {
 //	responses:
 //	  200: body:ListDBServiceReplyV2
 //	  default: body:GenericResp
-func (d *DMSController) ListDBServicesV2(c echo.Context) error {
+func (ctl *DMSController) ListDBServicesV2(c echo.Context) error {
 	req := new(commonApiV2.ListDBServiceReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -510,7 +510,7 @@ func (d *DMSController) ListDBServicesV2(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	reply, err := d.DMS.ListDBServices(c.Request().Context(), req, currentUserUid)
+	reply, err := ctl.DMS.ListDBServices(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}

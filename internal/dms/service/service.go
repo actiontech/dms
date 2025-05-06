@@ -46,6 +46,7 @@ type DMSService struct {
 	DataMaskingUsecase          *biz.DataMaskingUsecase
 	AuthAccessTokenUseCase      *biz.AuthAccessTokenUsecase
 	SwaggerUseCase              *biz.SwaggerUseCase
+	GatewayUsecase              *biz.GatewayUsecase
 	log                         *utilLog.Helper
 	shutdownCallback            func() error
 }
@@ -93,7 +94,13 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	cloudbeaverRepo := storage.NewCloudbeaverRepo(logger, st)
 	loginConfigurationRepo := storage.NewLoginConfigurationRepo(logger, st)
 	loginConfigurationUsecase := biz.NewLoginConfigurationUsecase(logger, tx, loginConfigurationRepo)
-	userUsecase := biz.NewUserUsecase(logger, tx, userRepo, userGroupRepo, pluginUseCase, opPermissionUsecase, opPermissionVerifyUsecase, loginConfigurationUsecase, ldapConfigurationUsecase, cloudbeaverRepo)
+
+	gatewayUsecase, err := biz.NewDmsGatewayUsecase(logger, storage.NewGatewayRepo(logger, st))
+	if err != nil {
+		return nil, fmt.Errorf("failed to new dms gateway use case: %v", err)
+	}
+
+	userUsecase := biz.NewUserUsecase(logger, tx, userRepo, userGroupRepo, pluginUseCase, opPermissionUsecase, opPermissionVerifyUsecase, loginConfigurationUsecase, ldapConfigurationUsecase, cloudbeaverRepo, gatewayUsecase)
 	userGroupUsecase := biz.NewUserGroupUsecase(logger, tx, userGroupRepo, userRepo, pluginUseCase, opPermissionVerifyUsecase)
 	roleRepo := storage.NewRoleRepo(logger, st)
 	memberRepo := storage.NewMemberRepo(logger, st)
@@ -184,6 +191,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		DataMaskingUsecase:          dataMaskingUsecase,
 		AuthAccessTokenUseCase:      authAccessTokenUsecase,
 		SwaggerUseCase:              swaggerUseCase,
+		GatewayUsecase:              gatewayUsecase,
 		log:                         utilLog.NewHelper(logger, utilLog.WithMessageKey("dms.service")),
 		shutdownCallback: func() error {
 			if err := st.Close(); nil != err {
