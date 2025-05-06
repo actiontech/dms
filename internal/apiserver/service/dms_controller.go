@@ -4473,7 +4473,7 @@ func (d *DMSController) DownloadResourceOverviewList(c echo.Context) error {
 //     description: GenericResp
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
-func (ctl *DMSController) UpdateGateways(c echo.Context) error {
+func (ctl *DMSController) UpdateGateway(c echo.Context) error {
 	req := &aV1.UpdateGatewayReq{}
 	err := bindAndValidateReq(c, req)
 	if nil != err {
@@ -4607,6 +4607,7 @@ func (ctl *DMSController)AddGateway(c echo.Context) error {
 	}
 	return NewOkResp(c)
 }
+
 
 
 
