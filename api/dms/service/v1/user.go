@@ -8,6 +8,7 @@ import (
 
 // A user
 type User struct {
+	UID string `json:"uid"`
 	// user name
 	// Required: true
 	Name string `json:"name" validate:"required"`
@@ -25,6 +26,10 @@ type User struct {
 	UserGroupUids []string `json:"user_group_uids"`
 	// user op permission uid
 	OpPermissionUids []string `json:"op_permission_uids"`
+	// 对接登录的参数
+	ThirdPartyUserID       string `json:"third_party_user_id"`
+	ThirdPartyUserInfo     string `json:"third_party_user_info"`
+	UserAuthenticationType string `json:"user_authentication_type"`
 }
 
 // swagger:model
@@ -89,6 +94,10 @@ type UpdateUser struct {
 	UserGroupUids *[]string `json:"user_group_uids"`
 	// User operation permission uids
 	OpPermissionUids *[]string `json:"op_permission_uids" validate:"required"`
+	// 对接登录的参数
+	ThirdPartyUserID       *string `json:"third_party_user_id"`
+	ThirdPartyUserInfo     *string `json:"third_party_user_info"`
+	UserAuthenticationType *string `json:"user_authentication_type"`
 }
 
 // swagger:model
@@ -163,9 +172,9 @@ type VerifyUserLoginReply struct {
 		// If verify Successful, return empty string, otherwise return error message
 		VerifyFailedMsg string `json:"verify_failed_msg"`
 		// If verify Successful, return user uid
-		UserUid string `json:"user_uid"`
-		Phone string  `json:"phone"`
-		TwoFactorEnabled bool `json:"two_factor_enabled"`
+		UserUid          string `json:"user_uid"`
+		Phone            string `json:"phone"`
+		TwoFactorEnabled bool   `json:"two_factor_enabled"`
 	} `json:"data"`
 }
 
