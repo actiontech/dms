@@ -236,6 +236,16 @@ func (s *APIServer) initRouter() error {
 		maskingV1 := v1.Group("/dms/masking")
 		maskingV1.GET("/rules", s.DMSController.ListMaskingRules)
 
+		gatewayV1 := v1.Group("/dms/gateways")
+
+		gatewayV1.POST("", s.DMSController.AddGateway)
+		gatewayV1.DELETE("/:gateway_id", s.DMSController.DeleteGateway)
+		gatewayV1.PUT("/:gateway_id", s.DMSController.UpdateGateway)
+		gatewayV1.GET("/:gateway_id", s.DMSController.GetGateway)
+		gatewayV1.GET("", s.DMSController.ListGateways)
+		gatewayV1.GET("/tips", s.DMSController.GetGatewayTips)
+		gatewayV1.PUT("/", s.DMSController.SyncGateways, s.DMSController.DMS.GatewayUsecase.Broadcast())
+
 		if s.CloudbeaverController.CloudbeaverService.CloudbeaverUsecase.IsCloudbeaverConfigured() {
 			cloudbeaverV1 := s.echo.Group(s.CloudbeaverController.CloudbeaverService.CloudbeaverUsecase.GetRootUri())
 			targets, err := s.CloudbeaverController.CloudbeaverService.ProxyUsecase.GetCloudbeaverProxyTarget()
