@@ -240,7 +240,7 @@ func (s *APIServer) initRouter() error {
 
 		getwayV1.POST("", s.DMSController.AddGateway)
 		getwayV1.DELETE("/:gateway_id", s.DMSController.DeleteGateway)
-		getwayV1.PUT("/:gateway_id", s.DMSController.UpdateGateways)
+		getwayV1.PUT("/:gateway_id", s.DMSController.UpdateGateway)
 		getwayV1.GET("/:gateway_id", s.DMSController.GetGateway)
 		getwayV1.GET("", s.DMSController.ListGateways)
 		getwayV1.GET("/tips", s.DMSController.GetGatewayTips)
