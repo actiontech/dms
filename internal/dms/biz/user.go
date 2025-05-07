@@ -209,6 +209,7 @@ func NewUserUsecase(log utilLog.Logger, tx TransactionGenerator, repo UserRepo, 
 		loginConfigurationUsecase: loginConfigurationUsecase,
 		ldapConfigurationUsecase:  ldapConfigurationUsecase,
 		cloudBeaverRepo:           cloudBeaverRepo,
+		gatewayUsecase:            gatewayUsecase,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.user")),
 	}
 }
