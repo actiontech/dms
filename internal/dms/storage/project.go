@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	"github.com/actiontech/dms/internal/dms/storage/model"
@@ -134,6 +133,28 @@ func (d *ProjectRepo) GetProjectByName(ctx context.Context, projectName string) 
 		return nil, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert model project: %v", err))
 	}
 	return ret, nil
+}
+
+func (d *ProjectRepo) GetProjectByNames(ctx context.Context, projectNames []string) ([]*biz.Project, error) {
+	var projects []*model.Project
+	bizProjects := make([]*biz.Project, 0)
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.Where("name IN (?)", projectNames).Find(&projects).Error; err != nil {
+			return fmt.Errorf("failed to get project by name: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	for _, project := range projects {
+		bizProject, err := convertModelProject(project)
+		if err != nil {
+			continue
+		}
+		bizProjects = append(bizProjects, bizProject)
+	}
+	return bizProjects, nil
 }
 
 func (d *ProjectRepo) UpdateProject(ctx context.Context, u *biz.Project) error {
