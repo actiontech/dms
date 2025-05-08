@@ -62,6 +62,7 @@ type MemberUsecase struct {
 	dbServiceUsecase          *DBServiceUsecase
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	projectUsecase            *ProjectUsecase
+	pluginUsecase             *PluginUsecase
 	log                       *utilLog.Helper
 }
 
@@ -70,7 +71,8 @@ func NewMemberUsecase(log utilLog.Logger, tx TransactionGenerator, repo MemberRe
 	roleUsecase *RoleUsecase,
 	dbServiceUsecase *DBServiceUsecase,
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase,
-	projectUsecase *ProjectUsecase) *MemberUsecase {
+	projectUsecase *ProjectUsecase,
+	pluginUsecase *PluginUsecase) *MemberUsecase {
 	return &MemberUsecase{
 		tx:                        tx,
 		repo:                      repo,
@@ -79,6 +81,7 @@ func NewMemberUsecase(log utilLog.Logger, tx TransactionGenerator, repo MemberRe
 		dbServiceUsecase:          dbServiceUsecase,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 		projectUsecase:            projectUsecase,
+		pluginUsecase:             pluginUsecase,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.member")),
 	}
 }

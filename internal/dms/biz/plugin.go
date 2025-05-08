@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -190,7 +191,36 @@ func (p *PluginUsecase) DelUserPreCheck(ctx context.Context, userUid string) err
 	return nil
 }
 
+func (p *PluginUsecase) DelUserAfterHandle(ctx context.Context, userUid string) error {
+	if err := p.OperateDataResourceHandle(ctx, userUid, nil, dmsV1.DataResourceTypeUser, dmsV1.OperationTypeDelete, dmsV1.OperationTimingTypeAfter); err != nil {
+		return fmt.Errorf("del user after handle failed: %v", err)
+	}
+	return nil
+}
+
 func (p *PluginUsecase) DelUserGroupPreCheck(ctx context.Context, groupUid string) error {
+	return nil
+}
+
+func (p *PluginUsecase) DelMemberGroupAfterHandle(ctx context.Context, memberGroupUid string) error {
+	if err := p.OperateDataResourceHandle(ctx, memberGroupUid, nil, dmsV1.DataResourceTypeMemberGroup, dmsV1.OperationTypeDelete, dmsV1.OperationTimingTypeAfter); err != nil {
+		return fmt.Errorf("del member group after handle failed: %v", err)
+	}
+	return nil
+}
+func (p *PluginUsecase) UpdateMemberGroupAfterHandle(ctx context.Context, memberGroupUid string, userUids []string) error {
+	userUidsInts := make([]int64, len(userUids))
+	for i, userUid := range userUids {
+		userUidsInt, err := strconv.ParseInt(userUid, 10, 64)
+		if err != nil {
+			return fmt.Errorf("convert user uid to int failed: %v", err)
+		}
+		userUidsInts[i] = userUidsInt
+	}
+
+	if err := p.OperateDataResourceHandle(ctx, memberGroupUid, userUidsInts, dmsV1.DataResourceTypeMemberGroup, dmsV1.OperationTypeUpdate, dmsV1.OperationTimingTypeAfter); err != nil {
+		return fmt.Errorf("update member group after handle failed: %v", err)
+	}
 	return nil
 }
 

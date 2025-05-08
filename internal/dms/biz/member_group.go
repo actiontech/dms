@@ -38,6 +38,7 @@ type MemberGroupUsecase struct {
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	projectUsecase            *ProjectUsecase
 	memberUsecase             *MemberUsecase
+	pluginUsecase             *PluginUsecase
 	log                       *utilLog.Helper
 }
 
@@ -47,7 +48,8 @@ func NewMemberGroupUsecase(log utilLog.Logger, tx TransactionGenerator, repo Mem
 	dbServiceUsecase *DBServiceUsecase,
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase,
 	projectUsecase *ProjectUsecase,
-	memberUsecase *MemberUsecase) *MemberGroupUsecase {
+	memberUsecase *MemberUsecase,
+	pluginUsecase *PluginUsecase) *MemberGroupUsecase {
 	return &MemberGroupUsecase{
 		tx:                        tx,
 		repo:                      repo,
@@ -56,6 +58,7 @@ func NewMemberGroupUsecase(log utilLog.Logger, tx TransactionGenerator, repo Mem
 		dbServiceUsecase:          dbServiceUsecase,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 		projectUsecase:            projectUsecase,
+		pluginUsecase:             pluginUsecase,
 		memberUsecase:             memberUsecase,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.member_group")),
 	}
@@ -173,11 +176,23 @@ func (m *MemberGroupUsecase) UpdateMemberGroup(ctx context.Context, currentUserU
 	mg.UID = memberGroup.UID
 	mg.Name = memberGroup.Name
 	mg.CreatedAt = memberGroup.CreatedAt
-
-	if err = m.repo.UpdateMemberGroup(ctx, mg); err != nil {
+	tx := m.tx.BeginTX(ctx)
+	defer func() {
+		if err != nil {
+			err = tx.RollbackWithError(m.log, err)
+		}
+	}()
+	if err = m.repo.UpdateMemberGroup(tx, mg); err != nil {
 		return fmt.Errorf("update member group failed: %v", err)
 	}
+	// 调用其他服务对成员组进行更新后处理
+	if err := m.pluginUsecase.UpdateMemberGroupAfterHandle(tx, mg.UID, mg.UserUids); err != nil {
+		return err
+	}
 
+	if err := tx.Commit(m.log); err != nil {
+		return fmt.Errorf("commit tx failed: %v", err)
+	}
 	return nil
 }
 
@@ -195,6 +210,13 @@ func (m *MemberGroupUsecase) DeleteMemberGroup(ctx context.Context, currentUserU
 			return fmt.Errorf("user is not project admin or golobal op permission user")
 		}
 	}
-
-	return m.repo.DeleteMemberGroup(ctx, memberGroupUid)
+	err = m.repo.DeleteMemberGroup(ctx, memberGroupUid)
+	if err != nil {
+		return err
+	}
+	// 调用其他服务对成员组进行删除后处理
+	if err := m.pluginUsecase.DelMemberGroupAfterHandle(ctx, memberGroupUid); err != nil {
+		return err
+	}
+	return nil
 }
