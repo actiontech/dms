@@ -666,6 +666,11 @@ func (d *UserUsecase) DelUser(ctx context.Context, currentUserUid, UserUid strin
 		return fmt.Errorf("delete user error: %v", err)
 	}
 
+	// 调用其他服务对成员进行删除后处理
+	if err := d.pluginUsecase.DelUserAfterHandle(ctx, UserUid); err != nil {
+		return err
+	}
+
 	if err := tx.Commit(d.log); err != nil {
 		return fmt.Errorf("commit tx failed: %v", err)
 	}
