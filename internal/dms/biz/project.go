@@ -80,6 +80,7 @@ type ProjectRepo interface {
 	ListProjects(ctx context.Context, opt *ListProjectsOption, currentUserUID string) (projects []*Project, total int64, err error)
 	GetProject(ctx context.Context, projectUid string) (*Project, error)
 	GetProjectByName(ctx context.Context, projectName string) (*Project, error)
+	GetProjectByNames(ctx context.Context, projectNames []string) ([]*Project, error)
 	UpdateProject(ctx context.Context, u *Project) error
 	DelProject(ctx context.Context, projectUid string) error
 	UpdateDBServiceBusiness(ctx context.Context, projectUid string, originBusiness string, descBusiness string) error
