@@ -311,6 +311,23 @@ func decodeGzip(data []byte) string {
 }
 
 func (s *APIServer) installMiddleware() error {
+	allowedMethods := []string{"GET", "POST", "PUT", "DELETE", "PATCH"}
+	s.echo.Use(func(allowedMethods []string) echo.MiddlewareFunc {
+		methodSet := make(map[string]struct{})
+		for _, m := range allowedMethods {
+			methodSet[strings.ToUpper(m)] = struct{}{}
+		}
+
+		return func(next echo.HandlerFunc) echo.HandlerFunc {
+			return func(c echo.Context) error {
+				if _, ok := methodSet[strings.ToUpper(c.Request().Method)]; !ok {
+					return echo.NewHTTPError(http.StatusMethodNotAllowed, "Method not allowed")
+				}
+				return next(c)
+			}
+		}
+	}(allowedMethods))
+
 	s.echo.Use(dmsMiddleware.JWTTokenAdapter(), echojwt.WithConfig(echojwt.Config{
 		Skipper: middleware.Skipper(func(c echo.Context) bool {
 			logger := log.NewHelper(log.With(pkgLog.NewKLogWrapper(s.logger), "middleware", "jwt"))
@@ -390,8 +407,8 @@ func (s *APIServer) installMiddleware() error {
 		HTML5:  true,
 		Browse: false,
 	}))
-	s.echo.Any("", echo.NotFoundHandler)
-	s.echo.Any("/*", echo.NotFoundHandler)
+	s.echo.Match(allowedMethods, "", echo.NotFoundHandler)
+	s.echo.Match(allowedMethods, "/*", echo.NotFoundHandler)
 
 	s.echo.Use(dmsMiddleware.LicenseAdapter(s.DMSController.DMS.LicenseUsecase))
 
