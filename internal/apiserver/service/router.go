@@ -320,7 +320,7 @@ func (s *APIServer) installMiddleware() error {
 
 		return func(next echo.HandlerFunc) echo.HandlerFunc {
 			return func(c echo.Context) error {
-				if _, ok := methodSet[c.Request().Method]; !ok {
+				if _, ok := methodSet[strings.ToUpper(c.Request().Method)]; !ok {
 					return echo.NewHTTPError(http.StatusMethodNotAllowed, "Method not allowed")
 				}
 				return next(c)
