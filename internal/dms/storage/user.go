@@ -163,7 +163,7 @@ func (d *UserRepo) ListUsers(ctx context.Context, opt *biz.ListUsersOption) (use
 			for _, f := range opt.FilterBy {
 				db = gormWhere(db, f)
 			}
-			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber)))))
+			db = db.Preload("Members.Project").Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber)))))
 			if err := db.Find(&models).Error; err != nil {
 				return fmt.Errorf("failed to list users: %v", err)
 			}

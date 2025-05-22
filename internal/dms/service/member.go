@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/actiontech/dms/internal/pkg/locale"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
@@ -116,6 +117,7 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) 
 			MemberUid:        m.GetUID(),
 			User:             dmsV1.UidWithName{Uid: user.GetUID(), Name: user.Name},
 			RoleWithOpRanges: roleWithOpRanges,
+			Projects: 		  m.Projects,
 		}
 
 		for _, r := range m.RoleWithOpRanges {
@@ -123,6 +125,19 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) 
 				ret[i].IsProjectAdmin = true
 			}
 		}
+
+		// 获取用户的权限
+		ops, err := d.UserUsecase.GetUserOpPermissions(ctx, m.UserUID)
+		if err != nil {
+			return nil, err
+		}
+		platformRoles := make([]string, 0)
+		for _, op := range ops {
+			if op.RangeType == biz.OpRangeTypeGlobal {
+				platformRoles = append(platformRoles, locale.Bundle.LocalizeMsgByCtx(ctx, OpPermissionNameByUID[op.GetUID()]))
+			}
+		}
+		ret[i].PlatformRoles = platformRoles
 	}
 
 	return &dmsV1.ListMemberReply{

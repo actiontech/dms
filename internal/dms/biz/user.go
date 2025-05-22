@@ -81,6 +81,7 @@ type User struct {
 	WxID                   string
 	Language               string
 	Desc                   string
+	Projects               []string
 	TwoFactorEnabled       bool
 	UserAuthenticationType UserAuthenticationType
 	Stat                   UserStat

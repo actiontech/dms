@@ -228,6 +228,7 @@ func (d *DMSService) ListUsers(ctx context.Context, req *dmsCommonV1.ListUserReq
 			WxID:               u.WxID,
 			IsDeleted:          u.Deleted,
 			ThirdPartyUserInfo: u.ThirdPartyUserInfo,
+			Projects:           u.Projects,
 		}
 		// 已删除用户只有基础信息
 		if u.Deleted {
@@ -269,13 +270,17 @@ func (d *DMSService) ListUsers(ctx context.Context, req *dmsCommonV1.ListUserReq
 		if err != nil {
 			return nil, err
 		}
+		platformRoles := make([]string, 0)
 		for _, op := range ops {
 			ret[i].OpPermissions = append(ret[i].OpPermissions, dmsCommonV1.UidWithName{
 				Uid:  op.GetUID(),
 				Name: locale.Bundle.LocalizeMsgByCtx(ctx, OpPermissionNameByUID[op.GetUID()]),
 			})
+			if op.RangeType == biz.OpRangeTypeGlobal {
+				platformRoles = append(platformRoles, locale.Bundle.LocalizeMsgByCtx(ctx, OpPermissionNameByUID[op.GetUID()]))
+			}
 		}
-
+		ret[i].PlatformRoles = platformRoles
 	}
 
 	return &dmsCommonV1.ListUserReply{
@@ -684,6 +689,8 @@ func convertBizOpPermission(opPermissionUid string) (apiOpPermissionTyp dmsCommo
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeViewOthersOptimization
 	case pkgConst.UIDOfOpPermissionCreatePipeline:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeCreatePipeline
+	case pkgConst.UIDOfOrdinaryUser:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeNone
 	default:
 		return dmsCommonV1.OpPermissionTypeUnknown, fmt.Errorf("get user op permission type error: invalid op permission uid: %v", opPermissionUid)
 

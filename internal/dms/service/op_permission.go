@@ -31,6 +31,7 @@ var OpPermissionNameByUID = map[string]*i18n.Message{
 	pkgConst.UIDOfOpPermissionGlobalManagement:       locale.NameOpPermissionGlobalManagement,
 	pkgConst.UIDOfOpPermissionGlobalView:             locale.NameOpPermissionGlobalView,
 	pkgConst.UIDOfOpPermissionCreatePipeline:         locale.NameOpPermissionCreatePipeline,
+	pkgConst.UIDOfOrdinaryUser:                       locale.NameOpPermissionOrdinaryUser,
 }
 
 var OpPermissionDescByUID = map[string]*i18n.Message{
@@ -51,6 +52,7 @@ var OpPermissionDescByUID = map[string]*i18n.Message{
 	pkgConst.UIDOfOpPermissionGlobalManagement:       locale.DescOpPermissionGlobalManagement,
 	pkgConst.UIDOfOpPermissionGlobalView:             locale.DescOpPermissionGlobalView,
 	pkgConst.UIDOfOpPermissionCreatePipeline:         locale.DescOpPermissionCreatePipeline,
+	pkgConst.UIDOfOrdinaryUser:						  locale.DescOpPermissionOrdinaryUser,
 }
 
 func (d *DMSService) ListOpPermissions(ctx context.Context, req *dmsV1.ListOpPermissionReq) (reply *dmsV1.ListOpPermissionReply, err error) {
@@ -88,6 +90,12 @@ func (d *DMSService) ListOpPermissions(ctx context.Context, req *dmsV1.ListOpPer
 	var total int64
 	switch req.FilterByTarget {
 	case dmsV1.OpPermissionTargetAll:
+		listOption.FilterBy = append(listOption.FilterBy,
+			pkgConst.FilterCondition{
+				Field:    string(biz.OpPermissionFieldRangeType),
+				Operator: pkgConst.FilterOperatorNotEqual,
+				Value:    biz.OpRangeTypeGlobal,
+			})
 		ops, total, err = d.OpPermissionUsecase.ListOpPermissions(ctx, listOption)
 		if nil != err {
 			return nil, err
