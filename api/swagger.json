@@ -10535,7 +10535,7 @@
           "description": "member platform roles",
           "type": "array",
           "items": {
-            "type": "string"
+            "$ref": "#/definitions/UidWithName"
           },
           "x-go-name": "PlatformRoles"
         },
@@ -11558,7 +11558,7 @@
       "type": "object",
       "properties": {
         "op_permission_type": {
-          "description": "op permission type\nunknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nglobal_view OpPermissionTypeGlobalView  项目管理；拥有该权限的用户可以管理项目下的所有资源\nglobal_management OpPermissionTypeGlobalManagement  全局浏览；拥有该权限的用户可以浏览全局的资源\nproject_admin OpPermissionTypeProjectAdmin  全局管理；拥有该权限的用户可以浏览和管理全局的资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单\ncreate_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优\nview_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优\ncreate_pipeline OpPermissionTypeCreatePipeline  配置流水线",
+          "description": "op permission type\nunknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nglobal_view OpPermissionTypeGlobalView  项目管理；拥有该权限的用户可以管理项目下的所有资源\nglobal_management OpPermissionTypeGlobalManagement  全局浏览；拥有该权限的用户可以浏览全局的资源\nproject_admin OpPermissionTypeProjectAdmin  全局管理；拥有该权限的用户可以浏览和管理全局的资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单\ncreate_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优\nview_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优\ncreate_pipeline OpPermissionTypeCreatePipeline  配置流水线\nnone OpPermissionTypeNone  无任何权限",
           "type": "string",
           "enum": [
             "unknown",
@@ -11578,9 +11578,10 @@
             "audit_export_workflow",
             "create_optimization",
             "view_others_optimization",
-            "create_pipeline"
+            "create_pipeline",
+            "none"
           ],
-          "x-go-enum-desc": "unknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nglobal_view OpPermissionTypeGlobalView  项目管理；拥有该权限的用户可以管理项目下的所有资源\nglobal_management OpPermissionTypeGlobalManagement  全局浏览；拥有该权限的用户可以浏览全局的资源\nproject_admin OpPermissionTypeProjectAdmin  全局管理；拥有该权限的用户可以浏览和管理全局的资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单\ncreate_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优\nview_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优\ncreate_pipeline OpPermissionTypeCreatePipeline  配置流水线",
+          "x-go-enum-desc": "unknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nglobal_view OpPermissionTypeGlobalView  项目管理；拥有该权限的用户可以管理项目下的所有资源\nglobal_management OpPermissionTypeGlobalManagement  全局浏览；拥有该权限的用户可以浏览全局的资源\nproject_admin OpPermissionTypeProjectAdmin  全局管理；拥有该权限的用户可以浏览和管理全局的资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单\ncreate_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优\nview_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优\ncreate_pipeline OpPermissionTypeCreatePipeline  配置流水线\nnone OpPermissionTypeNone  无任何权限",
           "x-go-name": "OpPermissionType"
         },
         "range_type": {

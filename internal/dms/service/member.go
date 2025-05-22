@@ -131,15 +131,15 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) 
 		if err != nil {
 			return nil, err
 		}
-		platformRoles := make([]string, 0)
 		for _, op := range ops {
 			if op.RangeType == biz.OpRangeTypeGlobal {
-				platformRoles = append(platformRoles, locale.Bundle.LocalizeMsgByCtx(ctx, OpPermissionNameByUID[op.GetUID()]))
+				ret[i].PlatformRoles = append(ret[i].PlatformRoles, dmsV1.UidWithName{
+					Uid:  op.GetUID(),
+					Name: locale.Bundle.LocalizeMsgByCtx(ctx, OpPermissionNameByUID[op.GetUID()]),
+				})
 			}
 		}
-		ret[i].PlatformRoles = platformRoles
 	}
-
 	return &dmsV1.ListMemberReply{
 			Data:  ret,
 			Total: total,
