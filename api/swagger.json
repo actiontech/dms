@@ -10531,6 +10531,22 @@
           "type": "boolean",
           "x-go-name": "IsProjectAdmin"
         },
+        "platform_roles": {
+          "description": "member platform roles",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "PlatformRoles"
+        },
+        "projects": {
+          "description": "member projects",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Projects"
+        },
         "role_with_op_ranges": {
           "description": "member op permission",
           "type": "array",
@@ -11112,6 +11128,22 @@
           "description": "user phone",
           "type": "string",
           "x-go-name": "Phone"
+        },
+        "platform_roles": {
+          "description": "platform roles",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "PlatformRoles"
+        },
+        "projects": {
+          "description": "projects",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Projects"
         },
         "stat": {
           "description": "user stat\n正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown\nNormal StatOKEn\nDisabled StatDisableEn\nUnknown StatUnknownEn",
