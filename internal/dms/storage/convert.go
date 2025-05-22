@@ -239,7 +239,9 @@ func convertModelUser(u *model.User) (*biz.User, error) {
 
 	projects := make([]string, 0)
 	for _, member := range u.Members {
-		projects = append(projects, member.Project.Name)
+		if member.Project != nil {
+			projects = append(projects, member.Project.Name)
+		}
 	}
 
 	return &biz.User{
