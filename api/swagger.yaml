@@ -139,6 +139,25 @@ definitions:
                 $ref: '#/definitions/DataExportWorkflow'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddGatewayReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddGatewayReq:
+        properties:
+            add_gateway:
+                $ref: '#/definitions/Gateway'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddMemberGroupReply:
         properties:
             code:
@@ -1308,6 +1327,19 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DeleteGatewayReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     EnvironmentTag:
         properties:
             name:
@@ -1341,6 +1373,22 @@ definitions:
         title: A FileHeader describes a file part of a multipart request.
         type: object
         x-go-package: mime/multipart
+    Gateway:
+        properties:
+            gateway_address:
+                type: string
+                x-go-name: GatewayAddress
+            gateway_desc:
+                type: string
+                x-go-name: GatewayDesc
+            gateway_id:
+                type: string
+                x-go-name: GatewayID
+            gateway_name:
+                type: string
+                x-go-name: GatewayName
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GenAccessToken:
         properties:
             expiration_days:
@@ -1578,6 +1626,39 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetGatewayReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/Gateway'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetGatewayTipsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: GatewayTips
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetLDAPConfigurationResDataReply:
         properties:
             code:
@@ -1671,7 +1752,7 @@ definitions:
                 type: array
                 x-go-name: Users
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GetMemberGroupReply:
         properties:
             code:
@@ -3080,6 +3161,28 @@ definitions:
                 type: string
                 x-go-name: Message
             total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListGatewaysReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/Gateway'
+                type: array
+                x-go-name: Gateways
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total:
                 format: int64
                 type: integer
                 x-go-name: Total
@@ -4935,6 +5038,15 @@ definitions:
                 x-go-name: Username
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    SyncGatewayReq:
+        properties:
+            gateways:
+                items:
+                    $ref: '#/definitions/Gateway'
+                type: array
+                x-go-name: Gateways
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     Task:
         properties:
             task_uid:
@@ -5178,7 +5290,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateBusinessTagReq:
         properties:
             business_tag:
@@ -5439,6 +5551,38 @@ definitions:
                 $ref: '#/definitions/UpdateFeishuConfiguration'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateGateway:
+        properties:
+            gateway_address:
+                type: string
+                x-go-name: GatewayAddress
+            gateway_desc:
+                type: string
+                x-go-name: GatewayDesc
+            gateway_name:
+                type: string
+                x-go-name: GatewayName
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateGatewayReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateGatewayReq:
+        properties:
+            update_gateway:
+                $ref: '#/definitions/UpdateGateway'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateLDAPConfigurationReq:
         properties:
             ldap:
@@ -5683,6 +5827,16 @@ definitions:
                 description: User phone
                 type: string
                 x-go-name: Phone
+            third_party_user_id:
+                description: 对接登录的参数
+                type: string
+                x-go-name: ThirdPartyUserID
+            third_party_user_info:
+                type: string
+                x-go-name: ThirdPartyUserInfo
+            user_authentication_type:
+                type: string
+                x-go-name: UserAuthenticationType
             user_group_uids:
                 description: User group uids
                 items:
@@ -5789,6 +5943,19 @@ definitions:
                 description: user phone
                 type: string
                 x-go-name: Phone
+            third_party_user_id:
+                description: 对接登录的参数
+                type: string
+                x-go-name: ThirdPartyUserID
+            third_party_user_info:
+                type: string
+                x-go-name: ThirdPartyUserInfo
+            uid:
+                type: string
+                x-go-name: UID
+            user_authentication_type:
+                type: string
+                x-go-name: UserAuthenticationType
             user_group_uids:
                 description: user group uid
                 items:
@@ -6924,6 +7091,136 @@ paths:
                         $ref: '#/definitions/GenericResp'
             tags:
                 - DBService
+    /v1/dms/gateways:
+        get:
+            operationId: ListGateways
+            parameters:
+                - format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+            responses:
+                "200":
+                    description: ListGatewaysReply
+                    schema:
+                        $ref: '#/definitions/ListGatewaysReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List gateways.
+            tags:
+                - Gateway
+        post:
+            operationId: AddGateway
+            parameters:
+                - description: add gateway
+                  in: body
+                  name: add_gateway
+                  required: true
+                  schema:
+                    $ref: '#/definitions/AddGatewayReq'
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Add gateways.
+            tags:
+                - Gateway
+    /v1/dms/gateways/{gateway_id}:
+        delete:
+            operationId: DeleteGateway
+            parameters:
+                - in: path
+                  name: gateway_id
+                  required: true
+                  type: string
+                  x-go-name: DeleteGatewayID
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Delete gateways.
+            tags:
+                - Gateway
+        get:
+            operationId: GetGateway
+            parameters:
+                - in: path
+                  name: gateway_id
+                  required: true
+                  type: string
+                  x-go-name: GetGatewayID
+            responses:
+                "200":
+                    description: GetGatewayReply
+                    schema:
+                        $ref: '#/definitions/GetGatewayReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get gateways.
+            tags:
+                - Gateway
+        put:
+            operationId: UpdateGateway
+            parameters:
+                - description: gateway id
+                  in: path
+                  name: gateway_id
+                  required: true
+                  type: string
+                - description: update gateway
+                  in: body
+                  name: update_gateway
+                  required: true
+                  schema:
+                    $ref: '#/definitions/UpdateGatewayReq'
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: update gateways.
+            tags:
+                - Gateway
+    /v1/dms/gateways/tips:
+        get:
+            operationId: GetGatewayTips
+            responses:
+                "200":
+                    description: GetGatewayTipsReply
+                    schema:
+                        $ref: '#/definitions/GetGatewayTipsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get gateway tips.
+            tags:
+                - Gateway
     /v1/dms/masking/rules:
         get:
             operationId: ListMaskingRules

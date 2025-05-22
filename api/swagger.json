@@ -1318,6 +1318,202 @@
         }
       }
     },
+    "/v1/dms/gateways": {
+      "get": {
+        "tags": [
+          "Gateway"
+        ],
+        "summary": "List gateways.",
+        "operationId": "ListGateways",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListGatewaysReply",
+            "schema": {
+              "$ref": "#/definitions/ListGatewaysReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Gateway"
+        ],
+        "summary": "Add gateways.",
+        "operationId": "AddGateway",
+        "parameters": [
+          {
+            "description": "add gateway",
+            "name": "add_gateway",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddGatewayReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/gateways/tips": {
+      "get": {
+        "tags": [
+          "Gateway"
+        ],
+        "summary": "Get gateway tips.",
+        "operationId": "GetGatewayTips",
+        "responses": {
+          "200": {
+            "description": "GetGatewayTipsReply",
+            "schema": {
+              "$ref": "#/definitions/GetGatewayTipsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/gateways/{gateway_id}": {
+      "get": {
+        "tags": [
+          "Gateway"
+        ],
+        "summary": "Get gateways.",
+        "operationId": "GetGateway",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "GetGatewayID",
+            "name": "gateway_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GetGatewayReply",
+            "schema": {
+              "$ref": "#/definitions/GetGatewayReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Gateway"
+        ],
+        "summary": "update gateways.",
+        "operationId": "UpdateGateway",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "gateway id",
+            "name": "gateway_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "update gateway",
+            "name": "update_gateway",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateGatewayReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Gateway"
+        ],
+        "summary": "Delete gateways.",
+        "operationId": "DeleteGateway",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "DeleteGatewayID",
+            "name": "gateway_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/masking/rules": {
       "get": {
         "tags": [
@@ -6330,6 +6526,32 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "AddGatewayReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddGatewayReq": {
+      "type": "object",
+      "properties": {
+        "add_gateway": {
+          "$ref": "#/definitions/Gateway"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "AddMemberGroupReply": {
       "type": "object",
       "properties": {
@@ -7870,6 +8092,23 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "DeleteGatewayReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "EnvironmentTag": {
       "type": "object",
       "properties": {
@@ -7915,6 +8154,28 @@
         }
       },
       "x-go-package": "mime/multipart"
+    },
+    "Gateway": {
+      "type": "object",
+      "properties": {
+        "gateway_address": {
+          "type": "string",
+          "x-go-name": "GatewayAddress"
+        },
+        "gateway_desc": {
+          "type": "string",
+          "x-go-name": "GatewayDesc"
+        },
+        "gateway_id": {
+          "type": "string",
+          "x-go-name": "GatewayID"
+        },
+        "gateway_name": {
+          "type": "string",
+          "x-go-name": "GatewayName"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GenAccessToken": {
       "type": "object",
@@ -8223,6 +8484,50 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "GetGatewayReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/Gateway"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetGatewayTipsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "GatewayTips"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "GetLDAPConfigurationResDataReply": {
       "type": "object",
       "properties": {
@@ -8346,7 +8651,7 @@
           "x-go-name": "Users"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "GetMemberGroupReply": {
       "type": "object",
@@ -10140,6 +10445,35 @@
           "x-go-name": "Message"
         },
         "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListGatewaysReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Gateway"
+          },
+          "x-go-name": "Gateways"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "Total"
@@ -12344,6 +12678,19 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "SyncGatewayReq": {
+      "type": "object",
+      "properties": {
+        "gateways": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Gateway"
+          },
+          "x-go-name": "Gateways"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "Task": {
       "type": "object",
       "properties": {
@@ -12677,7 +13024,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateBusinessTagReq": {
       "type": "object",
@@ -13023,6 +13370,50 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "UpdateGateway": {
+      "type": "object",
+      "properties": {
+        "gateway_address": {
+          "type": "string",
+          "x-go-name": "GatewayAddress"
+        },
+        "gateway_desc": {
+          "type": "string",
+          "x-go-name": "GatewayDesc"
+        },
+        "gateway_name": {
+          "type": "string",
+          "x-go-name": "GatewayName"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateGatewayReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateGatewayReq": {
+      "type": "object",
+      "properties": {
+        "update_gateway": {
+          "$ref": "#/definitions/UpdateGateway"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "UpdateLDAPConfigurationReq": {
       "type": "object",
       "properties": {
@@ -13332,6 +13723,19 @@
           "type": "string",
           "x-go-name": "Phone"
         },
+        "third_party_user_id": {
+          "description": "对接登录的参数",
+          "type": "string",
+          "x-go-name": "ThirdPartyUserID"
+        },
+        "third_party_user_info": {
+          "type": "string",
+          "x-go-name": "ThirdPartyUserInfo"
+        },
+        "user_authentication_type": {
+          "type": "string",
+          "x-go-name": "UserAuthenticationType"
+        },
         "user_group_uids": {
           "description": "User group uids",
           "type": "array",
@@ -13478,6 +13882,23 @@
           "description": "user phone",
           "type": "string",
           "x-go-name": "Phone"
+        },
+        "third_party_user_id": {
+          "description": "对接登录的参数",
+          "type": "string",
+          "x-go-name": "ThirdPartyUserID"
+        },
+        "third_party_user_info": {
+          "type": "string",
+          "x-go-name": "ThirdPartyUserInfo"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "UID"
+        },
+        "user_authentication_type": {
+          "type": "string",
+          "x-go-name": "UserAuthenticationType"
         },
         "user_group_uids": {
           "description": "user group uid",
