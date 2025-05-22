@@ -3396,6 +3396,18 @@ definitions:
                 description: Whether the member has project admin permission
                 type: boolean
                 x-go-name: IsProjectAdmin
+            platform_roles:
+                description: member platform roles
+                items:
+                    type: string
+                type: array
+                x-go-name: PlatformRoles
+            projects:
+                description: member projects
+                items:
+                    type: string
+                type: array
+                x-go-name: Projects
             role_with_op_ranges:
                 description: member op permission
                 items:
@@ -3897,6 +3909,18 @@ definitions:
                 description: user phone
                 type: string
                 x-go-name: Phone
+            platform_roles:
+                description: platform roles
+                items:
+                    type: string
+                type: array
+                x-go-name: PlatformRoles
+            projects:
+                description: projects
+                items:
+                    type: string
+                type: array
+                x-go-name: Projects
             stat:
                 description: |-
                     user stat
