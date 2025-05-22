@@ -200,6 +200,8 @@ const (
 	OpPermissionTypeViewOthersOptimization OpPermissionType = "view_others_optimization"
 	// 配置流水线
 	OpPermissionTypeCreatePipeline OpPermissionType = "create_pipeline"
+	// 无任何权限
+	OpPermissionTypeNone OpPermissionType = "none"
 )
 
 func ParseOpPermissionType(typ string) (OpPermissionType, error) {
@@ -238,6 +240,7 @@ func ParseOpPermissionType(typ string) (OpPermissionType, error) {
 		return OpPermissionTypeViewOthersOptimization, nil
 	case string(OpPermissionTypeCreatePipeline):
 		return OpPermissionTypeCreatePipeline, nil
+	case string(OpPermissionTypeNone): return OpPermissionTypeNone, nil
 	default:
 		return "", fmt.Errorf("invalid op permission type: %s", typ)
 	}
@@ -328,6 +331,10 @@ type ListUser struct {
 	UserGroups []UidWithName `json:"user_groups"`
 	// user operation permissions
 	OpPermissions []UidWithName `json:"op_permissions"`
+	// platform roles
+	PlatformRoles []string `json:"platform_roles"`
+	// projects
+	Projects []string `json:"projects"`
 	// user is deleted
 	IsDeleted bool `json:"is_deleted"`
 	// third party user info

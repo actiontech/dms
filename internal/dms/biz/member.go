@@ -16,6 +16,8 @@ type Member struct {
 	UID              string
 	ProjectUID       string
 	UserUID          string
+	Projects         []string
+	PlatformRoles    []string
 	RoleWithOpRanges []MemberRoleWithOpRange
 }
 

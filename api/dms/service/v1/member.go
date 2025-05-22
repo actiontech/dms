@@ -106,6 +106,10 @@ type ListMember struct {
 	IsProjectAdmin bool `json:"is_project_admin"`
 	// member op permission
 	RoleWithOpRanges []ListMemberRoleWithOpRange `json:"role_with_op_ranges"`
+	// member platform roles
+	PlatformRoles []string `json:"platform_roles"`
+	// member projects
+	Projects []string `json:"projects"`
 }
 
 // swagger:model ListMemberReply
