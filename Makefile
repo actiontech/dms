@@ -80,6 +80,7 @@ override FTP_PATH = ftp://$(RELEASE_FTPD_HOST)/actiontech-$(PROJECT_NAME)/$(EDIT
 
 ############################### compiler ##################################
 dlv_install:
+	@echo $(LDFLAGS)
 	GOOS=linux GOARCH=amd64 GOPROXY=https://goproxy.io,direct go build -gcflags "all=-N -l" $(GO_BUILD_FLAGS) ${LDFLAGS} -tags $(GO_BUILD_TAGS) -o ./bin/dms ./internal/apiserver/cmd/server/main.go
 
 install:
