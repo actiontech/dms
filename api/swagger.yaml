@@ -3909,12 +3909,6 @@ definitions:
                 description: user phone
                 type: string
                 x-go-name: Phone
-            platform_roles:
-                description: platform roles
-                items:
-                    type: string
-                type: array
-                x-go-name: PlatformRoles
             projects:
                 description: projects
                 items:
