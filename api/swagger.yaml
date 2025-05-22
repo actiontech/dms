@@ -3399,7 +3399,7 @@ definitions:
             platform_roles:
                 description: member platform roles
                 items:
-                    type: string
+                    $ref: '#/definitions/UidWithName'
                 type: array
                 x-go-name: PlatformRoles
             projects:
@@ -4289,6 +4289,7 @@ definitions:
                     create_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优
                     view_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优
                     create_pipeline OpPermissionTypeCreatePipeline  配置流水线
+                    none OpPermissionTypeNone  无任何权限
                 enum:
                     - unknown
                     - create_project
@@ -4308,6 +4309,7 @@ definitions:
                     - create_optimization
                     - view_others_optimization
                     - create_pipeline
+                    - none
                 type: string
                 x-go-enum-desc: |-
                     unknown OpPermissionTypeUnknown
@@ -4328,6 +4330,7 @@ definitions:
                     create_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优
                     view_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优
                     create_pipeline OpPermissionTypeCreatePipeline  配置流水线
+                    none OpPermissionTypeNone  无任何权限
                 x-go-name: OpPermissionType
             range_type:
                 description: |-
