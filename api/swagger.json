@@ -11129,14 +11129,6 @@
           "type": "string",
           "x-go-name": "Phone"
         },
-        "platform_roles": {
-          "description": "platform roles",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "x-go-name": "PlatformRoles"
-        },
         "projects": {
           "description": "projects",
           "type": "array",

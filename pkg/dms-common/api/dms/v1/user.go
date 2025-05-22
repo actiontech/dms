@@ -331,8 +331,6 @@ type ListUser struct {
 	UserGroups []UidWithName `json:"user_groups"`
 	// user operation permissions
 	OpPermissions []UidWithName `json:"op_permissions"`
-	// platform roles
-	PlatformRoles []string `json:"platform_roles"`
 	// projects
 	Projects []string `json:"projects"`
 	// user is deleted
