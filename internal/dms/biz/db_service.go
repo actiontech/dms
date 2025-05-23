@@ -461,7 +461,7 @@ func (d *DBServiceUsecase) ListDBServiceTips(ctx context.Context, req *dmsV1.Lis
 	return ret, nil
 }
 
-func filterExportSupportedDb(dbServices []*DBService, opPermissionType dmsCommonV1.OpPermissionType) []*DBService{
+func filterExportSupportedDb(dbServices []*DBService, opPermissionType dmsCommonV1.OpPermissionType) []*DBService {
 	if opPermissionType != dmsCommonV1.OpPermissionTypeExportCreate {
 		return dbServices
 	}
@@ -827,4 +827,58 @@ func (d *DBServiceUsecase) GetBusiness(ctx context.Context, projectUid string) (
 	}
 
 	return business, nil
+}
+
+type CheckDBServicePrivileges struct {
+	ComponentPrivilegesResult []*IsConnectableReply
+}
+
+func (d *DBServiceUsecase) CheckDBServiceHasEnoughPrivileges(ctx context.Context, params []dmsCommonV1.CheckDbConnectable) ([]*CheckDBServicePrivileges, error) {
+	type resultItem struct {
+		index  int
+		result *CheckDBServicePrivileges
+		err    error
+	}
+
+	ret := make([]*CheckDBServicePrivileges, len(params))
+	resultCh := make(chan resultItem, len(params))
+	var wg sync.WaitGroup
+
+	maxConcurrency := 8
+	semaphore := make(chan struct{}, maxConcurrency)
+
+	for i, v := range params {
+		wg.Add(1)
+		go func(i int, param dmsCommonV1.CheckDbConnectable) {
+			defer wg.Done()
+
+			semaphore <- struct{}{}        // acquire slot
+			defer func() { <-semaphore }() // release slot
+
+			r, err := d.IsConnectable(ctx, param)
+			if err != nil {
+				resultCh <- resultItem{index: i, err: fmt.Errorf("check db service privileges failed: %v", err)}
+				return
+			}
+
+			resultCh <- resultItem{
+				index: i,
+				result: &CheckDBServicePrivileges{
+					ComponentPrivilegesResult: r,
+				},
+			}
+		}(i, v)
+	}
+
+	wg.Wait()
+	close(resultCh)
+
+	for item := range resultCh {
+		if item.err != nil {
+			return nil, item.err
+		}
+		ret[item.index] = item.result
+	}
+
+	return ret, nil
 }
