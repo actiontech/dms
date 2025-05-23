@@ -298,3 +298,18 @@ type DBServicesConnectionReply struct {
 	// connection result
 	Data *DBServicesConnectionItem `json:"data"`
 }
+
+// swagger:model
+type CheckDBServicesPrivilegesReq struct {
+	DBServices []dmsCommonV1.CheckDbConnectable `json:"db_services"`
+}
+
+// swagger:model CheckDBServicesPrivilegesReply
+type CheckDBServicesPrivilegesReply struct {
+	base.GenericResp
+	Data []CheckDBServicesPrivilegesItem `json:"data"`
+}
+
+type CheckDBServicesPrivilegesItem struct {
+	CheckDBServicesPrivileges []CheckDBServiceIsConnectableReplyItem
+}

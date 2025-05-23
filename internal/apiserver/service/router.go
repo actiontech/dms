@@ -147,7 +147,8 @@ func (s *APIServer) initRouter() error {
 		projectV1.GET("/import_db_services_template", s.DMSController.GetImportDBServicesTemplate)
 		projectV1.POST("/import_db_services_check", s.DeprecatedBy(dmsV2.GroupV2))
 		projectV1.POST("/import_db_services", s.DeprecatedBy(dmsV2.GroupV2))
-		projectV1.POST("/db_services_connection", s.DMSController.DBServicesConnection)
+		projectV1.POST("/db_services_connection", s.DeprecatedBy(dmsV2.GroupV2))
+		projectV1.POST("/check_db_services_privileges", s.DMSController.CheckDBServicesPrivileges)
 		projectV1.POST("/db_services_connections", s.DMSController.CheckGlobalDBServicesConnections)
 		projectV1.POST("/business_tags", s.DMSController.CreateBusinessTag)
 		projectV1.GET("/business_tags", s.DMSController.ListBusinessTags)
@@ -429,7 +430,6 @@ func (s *APIServer) installMiddleware() error {
 }
 
 func (s *APIServer) installController() error {
-
 	cloudbeaverController, err := NewCloudbeaverController(s.logger, s.opts)
 	if nil != err {
 		return fmt.Errorf("failed to create CloudbeaverController: %v", err)

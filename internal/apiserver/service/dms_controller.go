@@ -2383,6 +2383,41 @@ func (ctl *DMSController) CheckGlobalDBServicesConnections(c echo.Context) error
 }
 
 
+// swagger:operation POST /v1/dms/projects/check_db_services_privileges Project CheckDBServicesPrivileges
+//
+// check if the db_services hava enough privileges.
+//
+// ---
+// parameters:
+//   - name: db_services
+//     in: body
+//     description: check db_services have enough privileges
+//     schema:
+//       "$ref": "#/definitions/CheckDBServicesPrivilegesReq"
+// responses:
+//   '200':
+//     description: CheckDBServicesPrivilegesReply
+//     schema:
+//       "$ref": "#/definitions/CheckDBServicesPrivilegesReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) CheckDBServicesPrivileges(c echo.Context) error {
+	var req aV1.CheckDBServicesPrivilegesReq
+	err := bindAndValidateReq(c, &req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	reply, err := ctl.DMS.CheckDBServiceHasEnoughPrivileges(c.Request().Context(), req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+
 // swagger:operation POST /v1/dms/proxys DMSProxy RegisterDMSProxyTarget
 //
 // Register dms proxy target.
@@ -4607,6 +4642,9 @@ func (ctl *DMSController)AddGateway(c echo.Context) error {
 	}
 	return NewOkResp(c)
 }
+
+
+
 
 
 
