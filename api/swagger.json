@@ -2071,6 +2071,39 @@
         }
       }
     },
+    "/v1/dms/projects/check_db_services_privileges": {
+      "post": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "check if the db_services hava enough privileges.",
+        "operationId": "CheckDBServicesPrivileges",
+        "parameters": [
+          {
+            "description": "check db_services have enough privileges",
+            "name": "db_services",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CheckDBServicesPrivilegesReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CheckDBServicesPrivilegesReply",
+            "schema": {
+              "$ref": "#/definitions/CheckDBServicesPrivilegesReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/projects/db_services_connection": {
       "post": {
         "tags": [
@@ -7334,6 +7367,55 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "CheckDBServicesPrivilegesItem": {
+      "type": "object",
+      "properties": {
+        "CheckDBServicesPrivileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CheckDBServiceIsConnectableReplyItem"
+          }
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "CheckDBServicesPrivilegesReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CheckDBServicesPrivilegesItem"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "CheckDBServicesPrivilegesReq": {
+      "type": "object",
+      "properties": {
+        "db_services": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CheckDbConnectable"
+          },
+          "x-go-name": "DBServices"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "CheckDbConnectable": {
       "type": "object",
       "required": [
@@ -8651,7 +8733,7 @@
           "x-go-name": "Users"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetMemberGroupReply": {
       "type": "object",
@@ -11023,7 +11105,7 @@
           "$ref": "#/definitions/UidWithName"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "ListMemberTipsItem": {
       "type": "object",

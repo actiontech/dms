@@ -732,6 +732,41 @@ definitions:
                 x-go-name: DBServices
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CheckDBServicesPrivilegesItem:
+        properties:
+            CheckDBServicesPrivileges:
+                items:
+                    $ref: '#/definitions/CheckDBServiceIsConnectableReplyItem'
+                type: array
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CheckDBServicesPrivilegesReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/CheckDBServicesPrivilegesItem'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CheckDBServicesPrivilegesReq:
+        properties:
+            db_services:
+                items:
+                    $ref: '#/definitions/CheckDbConnectable'
+                type: array
+                x-go-name: DBServices
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CheckDbConnectable:
         properties:
             additional_params:
@@ -1752,7 +1787,7 @@ definitions:
                 type: array
                 x-go-name: Users
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetMemberGroupReply:
         properties:
             code:
@@ -3628,7 +3663,7 @@ definitions:
             role_uid:
                 $ref: '#/definitions/UidWithName'
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ListMemberTipsItem:
         properties:
             user_id:
@@ -9078,6 +9113,27 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: Update an existing business tag.
+            tags:
+                - Project
+    /v1/dms/projects/check_db_services_privileges:
+        post:
+            operationId: CheckDBServicesPrivileges
+            parameters:
+                - description: check db_services have enough privileges
+                  in: body
+                  name: db_services
+                  schema:
+                    $ref: '#/definitions/CheckDBServicesPrivilegesReq'
+            responses:
+                "200":
+                    description: CheckDBServicesPrivilegesReply
+                    schema:
+                        $ref: '#/definitions/CheckDBServicesPrivilegesReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: check if the db_services hava enough privileges.
             tags:
                 - Project
     /v1/dms/projects/db_services_connection:
