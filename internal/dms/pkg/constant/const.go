@@ -28,6 +28,7 @@ const (
 	// UIDOfOpPermissionGlobalManagement 可以操作和查看全局资源,但是权限级别低于admin,admin可以修改全局资源权限,全局资源权限不能修改admin
 	// 拥有全局资源权限用户不能同级权限用户
 	UIDOfOpPermissionGlobalManagement = "700017"
+	UIDOfOrdinaryUser                 = "700018"
 
 	UIDOfDMSConfig = "700100"
 
@@ -70,6 +71,8 @@ func ConvertPermissionIdToType(opPermissionUid string) (apiOpPermissionTyp dmsCo
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeExportCreate
 	case UIDOfOpPermissionCreatePipeline:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeCreatePipeline
+	case UIDOfOrdinaryUser:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeNone
 	default:
 		return dmsCommonV1.OpPermissionTypeUnknown, fmt.Errorf("get user op permission type error: invalid op permission uid: %v", opPermissionUid)
 
@@ -109,6 +112,8 @@ func ConvertPermissionTypeToId(opPermissionType dmsCommonV1.OpPermissionType) (p
 		permissionId = UIDOfOpPermissionExportCreate
 	case dmsCommonV1.OpPermissionTypeCreatePipeline:
 		permissionId = UIDOfOpPermissionCreatePipeline
+	case dmsCommonV1.OpPermissionTypeNone:
+		permissionId = UIDOfOrdinaryUser
 	default:
 		return "", fmt.Errorf("get user op permission id error: invalid op permission type: %v", opPermissionType)
 	}

@@ -237,6 +237,13 @@ func convertModelUser(u *model.User) (*biz.User, error) {
 		lastLoginAt = *u.LastLoginAt
 	}
 
+	projects := make([]string, 0)
+	for _, member := range u.Members {
+		if member.Project != nil {
+			projects = append(projects, member.Project.Name)
+		}
+	}
+
 	return &biz.User{
 		Base:                   convertBase(u.Model),
 		UID:                    u.UID,
@@ -247,6 +254,7 @@ func convertModelUser(u *model.User) (*biz.User, error) {
 		Phone:                  u.Phone,
 		WxID:                   u.WeChatID,
 		Language:               u.Language,
+		Projects:               projects,
 		UserAuthenticationType: typ,
 		Stat:                   stat,
 		TwoFactorEnabled:       u.TwoFactorEnabled,
@@ -474,10 +482,15 @@ func convertModelMember(m *model.Member) (*biz.Member, error) {
 			RangeUIDs:   convertModelRangeUIDs(p.RangeUIDs),
 		})
 	}
+	projects := make([]string, 0)
+	for _, projectMember := range m.User.Members {
+		projects = append(projects, projectMember.Project.Name)
+	}
 	return &biz.Member{
 		Base:             convertBase(m.Model),
 		UID:              m.UID,
 		ProjectUID:       m.ProjectUID,
+		Projects: 		  projects,
 		UserUID:          m.UserUID,
 		RoleWithOpRanges: roles,
 	}, nil

@@ -137,6 +137,7 @@ type User struct {
 	LastLoginAt            *time.Time     `json:"last_login_at" gorm:"column:last_login_at"`
 	DeletedAt              gorm.DeletedAt `json:"delete_at" gorm:"column:delete_at" sql:"index"`
 
+	Members       []*Member       `gorm:"foreignKey:UserUID"`
 	UserGroups    []*UserGroup    `gorm:"many2many:user_group_users"`
 	OpPermissions []*OpPermission `gorm:"many2many:user_op_permissions"`
 }
@@ -188,6 +189,8 @@ type Member struct {
 	Model
 	UserUID          string              `json:"user_uid" gorm:"size:32;column:user_uid;index:project_user_id,unique"`
 	ProjectUID       string              `json:"project_uid" gorm:"size:32;column:project_uid;index:project_user_id,unique"`
+	Project	         *Project            `json:"project" gorm:"foreignKey:ProjectUID"`
+	User             *User               `json:"user" gorm:"foreignkey:UserUID"`
 	RoleWithOpRanges []MemberRoleOpRange `json:"role_with_op_ranges" gorm:"foreignKey:MemberUID;references:UID"`
 }
 
