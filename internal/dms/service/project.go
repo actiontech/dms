@@ -231,6 +231,7 @@ func (d *DMSService) PreviewImportProjects(ctx context.Context, uid string, file
 func (d *DMSService) ExportProjects(ctx context.Context, uid string, req *dmsV1.ExportProjectsReq) ([]byte, error) {
 	return d.exportProjects(ctx, uid, req)
 }
+
 func (d *DMSService) GetImportDBServicesTemplate(ctx context.Context, uid string) ([]byte, error) {
 	return d.getImportDBServicesTemplate(ctx, uid)
 }
@@ -245,4 +246,30 @@ func (d *DMSService) ImportDBServicesOfProjects(ctx context.Context, req *dmsV2.
 
 func (d *DMSService) DBServicesConnection(ctx context.Context, req *dmsV1.DBServiceConnectionReq, uid string) (*dmsV1.DBServicesConnectionReply, error) {
 	return d.dbServicesConnection(ctx, req, uid)
+}
+
+func (d *DMSService) CheckDBServiceHasEnoughPrivileges(ctx context.Context, req dmsV1.CheckDBServicesPrivilegesReq) (*dmsV1.CheckDBServicesPrivilegesReply, error) {
+	checkdbServicePrivilegesResults, err := d.DBServiceUsecase.CheckDBServiceHasEnoughPrivileges(ctx, req.DBServices)
+	if err != nil {
+		return nil, err
+	}
+	checkDBServicesPrivileges := make([]dmsV1.CheckDBServicesPrivilegesItem, len(req.DBServices))
+	for i, checkDBServicePrivilegesResult := range checkdbServicePrivilegesResults {
+		items := make([]dmsV1.CheckDBServiceIsConnectableReplyItem, 0)
+		for _, item := range checkDBServicePrivilegesResult.ComponentPrivilegesResult {
+			items = append(items, dmsV1.CheckDBServiceIsConnectableReplyItem{
+				IsConnectable:       item.IsConnectable,
+				Component:           item.Component,
+				ConnectErrorMessage: item.ConnectErrorMessage,
+			})
+		}
+		checkDBServicesPrivileges[i] = dmsV1.CheckDBServicesPrivilegesItem{
+			CheckDBServicesPrivileges: items,
+		}
+
+	}
+
+	return &dmsV1.CheckDBServicesPrivilegesReply{
+		Data: checkDBServicesPrivileges,
+	}, nil
 }
