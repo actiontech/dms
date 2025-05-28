@@ -53,21 +53,27 @@ func initOpPermission() []*OpPermission {
 	return []*OpPermission{
 		{
 			UID:       pkgConst.UIDOfOpPermissionGlobalView,
-			Name:      "全局浏览",
+			Name:      "审计管理员",
 			RangeType: OpRangeTypeGlobal,
-			Desc:      "拥有该权限的用户可以查看全局信息",
+			Desc:      "负责系统操作审计、数据合规检查等工作",
 		},
 		{
 			UID:       pkgConst.UIDOfOpPermissionGlobalManagement,
-			Name:      "全局管理",
+			Name:      "系统管理员",
 			RangeType: OpRangeTypeGlobal,
-			Desc:      "拥有该权限的用户可以管理平台的所有资源",
+			Desc:      "具备系统最高权限，可进行系统配置、用户管理等操作",
 		},
 		{
 			UID:       pkgConst.UIDOfOpPermissionCreateProject,
-			Name:      "创建项目", // todo i18n 返回时会根据uid国际化，name、desc已弃用；数据库name字段是唯一键，故暂时保留
+			Name:      "项目总监", // todo i18n 返回时会根据uid国际化，name、desc已弃用；数据库name字段是唯一键，故暂时保留
 			RangeType: OpRangeTypeGlobal,
-			Desc:      "创建项目；创建项目的用户自动拥有该项目管理权限",
+			Desc:      "创建项目、配置项目资源",
+		},
+		{
+			UID:       pkgConst.UIDOfOrdinaryUser,
+			Name:      "普通用户", // todo i18n 返回时会根据uid国际化，name、desc已弃用；数据库name字段是唯一键，故暂时保留
+			RangeType: OpRangeTypeGlobal,
+			Desc:      "基础功能操作权限，可进行日常业务操作",
 		},
 		{
 			UID:       pkgConst.UIDOfOpPermissionProjectAdmin,
