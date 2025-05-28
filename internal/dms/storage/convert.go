@@ -485,7 +485,7 @@ func convertModelMember(m *model.Member) (*biz.Member, error) {
 		})
 	}
 	projects := make([]string, 0)
-	if m.User != nil && m.User.Members != nil {
+	if m.User != nil && len(m.User.Members) > 0 {
 		projects = append(projects, m.User.Members[0].Project.Name)
 	}
 	return &biz.Member{
