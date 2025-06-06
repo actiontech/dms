@@ -1506,7 +1506,7 @@ func (ctl *DMSController) ListMembers(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v2/dms/projects/{project_uid}/members Member ListMembers
+// swagger:route GET /v2/dms/projects/{project_uid}/members Member ListMembersV2
 //
 // List member, for front page.
 //

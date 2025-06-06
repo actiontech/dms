@@ -42,6 +42,8 @@ type ListMemberGroup struct {
 	Users []UidWithName `json:"users"`
 	// member op permission
 	RoleWithOpRanges []ListMemberRoleWithOpRange `json:"role_with_op_ranges"`
+	// member project manage permissions
+	CurrentProjectManagePermissions []UidWithName `json:"current_project_manage_permissions"`
 }
 
 // swagger:model ListMemberGroupsReply
@@ -98,6 +100,8 @@ type MemberGroup struct {
 	IsProjectAdmin bool `json:"is_project_admin"`
 	// member role with op ranges
 	RoleWithOpRanges []MemberRoleWithOpRange `json:"role_with_op_ranges"`
+	// member project manage permissions
+	ProjectManagePermissions []string `json:"project_manage_permissions"`
 }
 
 // swagger:model
@@ -127,6 +131,8 @@ type UpdateMemberGroup struct {
 	IsProjectAdmin bool `json:"is_project_admin"`
 	// member role with op ranges
 	RoleWithOpRanges []MemberRoleWithOpRange `json:"role_with_op_ranges"`
+	// member project manage permissions
+	ProjectManagePermissions []string `json:"project_manage_permissions"`
 }
 
 // swagger:model
