@@ -1676,12 +1676,13 @@
             "enum": [
               "all",
               "user",
-              "member"
+              "member",
+              "project"
             ],
             "type": "string",
-            "x-go-enum-desc": "all OpPermissionTargetAll\nuser OpPermissionTargetUser\nmember OpPermissionTargetMember",
+            "x-go-enum-desc": "all OpPermissionTargetAll\nuser OpPermissionTargetUser\nmember OpPermissionTargetMember\nproject OpPermissionTargetProject",
             "x-go-name": "FilterByTarget",
-            "description": "filter by op permission target\nall OpPermissionTargetAll\nuser OpPermissionTargetUser\nmember OpPermissionTargetMember",
+            "description": "filter by op permission target\nall OpPermissionTargetAll\nuser OpPermissionTargetUser\nmember OpPermissionTargetMember\nproject OpPermissionTargetProject",
             "name": "filter_by_target",
             "in": "query"
           }
@@ -4833,6 +4834,13 @@
             "description": "filter the role name",
             "name": "filter_by_name",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FuzzyKeyword",
+            "description": "the db service fuzzy keyword,include op_permission",
+            "name": "fuzzy_keyword",
+            "in": "query"
           }
         ],
         "responses": {
@@ -6359,6 +6367,74 @@
             "description": "GenericResp",
             "schema": {
               "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v2/dms/projects/{project_uid}/members": {
+      "get": {
+        "tags": [
+          "Member"
+        ],
+        "summary": "List member, for front page.",
+        "operationId": "ListMembers",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of member to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of members to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "user_uid"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "user_uid MemberOrderByUserUid",
+            "x-go-name": "OrderBy",
+            "description": "Multiple of [\"name\"], default is [\"name\"]\nuser_uid MemberOrderByUserUid",
+            "name": "order_by",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByUserUid",
+            "description": "filter the member user uid",
+            "name": "filter_by_user_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListMemberReplyV2",
+            "schema": {
+              "$ref": "#/definitions/ListMemberReplyV2"
             }
           },
           "default": {
@@ -11078,6 +11154,36 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "ListMemberReplyV2": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List member reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListMemberV2"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "ListMemberRoleWithOpRange": {
       "type": "object",
       "properties": {
@@ -11146,6 +11252,58 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "ListMemberV2": {
+      "description": "A dms member v2",
+      "type": "object",
+      "properties": {
+        "current_project_manage_permissions": {
+          "description": "current project manage permissions",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "CurrentProjectManagePermissions"
+        },
+        "current_project_op_permissions": {
+          "description": "current project permission",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProjectOpPermission"
+          },
+          "x-go-name": "CurrentProjectOpPermissions"
+        },
+        "is_project_admin": {
+          "description": "Whether the member has project admin permission",
+          "type": "boolean",
+          "x-go-name": "IsProjectAdmin"
+        },
+        "platform_roles": {
+          "description": "member platform roles",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "PlatformRoles"
+        },
+        "projects": {
+          "description": "member projects",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Projects"
+        },
+        "uid": {
+          "description": "member uid",
+          "type": "string",
+          "x-go-name": "MemberUid"
+        },
+        "user": {
+          "$ref": "#/definitions/UidWithName"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "ListMembersForInternalItem": {
       "description": "A dms member for internal",
       "type": "object",
@@ -11206,6 +11364,10 @@
         "description": {
           "type": "string",
           "x-go-name": "Description"
+        },
+        "module": {
+          "type": "string",
+          "x-go-name": "Module"
         },
         "op_permission": {
           "$ref": "#/definitions/UidWithName"
@@ -12221,6 +12383,75 @@
       },
       "x-go-name": "PreviewImportProjects",
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
+    "ProjectMemberGroup": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "op_permissions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "OpPermissions"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "Uid"
+        },
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "Users"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ProjectOpPermission": {
+      "type": "object",
+      "properties": {
+        "data_source": {
+          "type": "string",
+          "x-go-name": "DataSource"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProjectRole"
+          },
+          "x-go-name": "Roles"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ProjectRole": {
+      "type": "object",
+      "properties": {
+        "member_group": {
+          "$ref": "#/definitions/ProjectMemberGroup"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "op_permissions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "OpPermissions"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "Uid"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ProjectTips": {
       "type": "object",

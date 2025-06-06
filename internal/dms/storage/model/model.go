@@ -163,6 +163,7 @@ type Role struct {
 type OpPermission struct {
 	Model
 	Name      string `json:"name" gorm:"size:200;uniqueIndex"`
+	Module    string `json:"module" gorm:"size:255;column:module"`
 	Desc      string `json:"desc" gorm:"column:description"`
 	RangeType string `json:"range_type" gorm:"size:255;column:range_type"`
 }

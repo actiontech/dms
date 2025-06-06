@@ -3633,6 +3633,29 @@ definitions:
                 x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListMemberReplyV2:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: List member reply
+                items:
+                    $ref: '#/definitions/ListMemberV2'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberRoleWithOpRange:
         properties:
             op_range_type:
@@ -3693,6 +3716,45 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListMemberV2:
+        description: A dms member v2
+        properties:
+            current_project_manage_permissions:
+                description: current project manage permissions
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: CurrentProjectManagePermissions
+            current_project_op_permissions:
+                description: current project permission
+                items:
+                    $ref: '#/definitions/ProjectOpPermission'
+                type: array
+                x-go-name: CurrentProjectOpPermissions
+            is_project_admin:
+                description: Whether the member has project admin permission
+                type: boolean
+                x-go-name: IsProjectAdmin
+            platform_roles:
+                description: member platform roles
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: PlatformRoles
+            projects:
+                description: member projects
+                items:
+                    type: string
+                type: array
+                x-go-name: Projects
+            uid:
+                description: member uid
+                type: string
+                x-go-name: MemberUid
+            user:
+                $ref: '#/definitions/UidWithName'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMembersForInternalItem:
         description: A dms member for internal
         properties:
@@ -3739,6 +3801,9 @@ definitions:
             description:
                 type: string
                 x-go-name: Description
+            module:
+                type: string
+                x-go-name: Module
             op_permission:
                 $ref: '#/definitions/UidWithName'
             range_type:
@@ -4649,6 +4714,55 @@ definitions:
         type: object
         x-go-name: PreviewImportProjects
         x-go-package: github.com/actiontech/dms/api/dms/service/v2
+    ProjectMemberGroup:
+        properties:
+            name:
+                type: string
+                x-go-name: Name
+            op_permissions:
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: OpPermissions
+            uid:
+                type: string
+                x-go-name: Uid
+            users:
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: Users
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ProjectOpPermission:
+        properties:
+            data_source:
+                type: string
+                x-go-name: DataSource
+            roles:
+                items:
+                    $ref: '#/definitions/ProjectRole'
+                type: array
+                x-go-name: Roles
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ProjectRole:
+        properties:
+            member_group:
+                $ref: '#/definitions/ProjectMemberGroup'
+            name:
+                type: string
+                x-go-name: Name
+            op_permissions:
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: OpPermissions
+            uid:
+                type: string
+                x-go-name: Uid
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ProjectTips:
         properties:
             business:
@@ -7388,10 +7502,12 @@ paths:
                     all OpPermissionTargetAll
                     user OpPermissionTargetUser
                     member OpPermissionTargetMember
+                    project OpPermissionTargetProject
                   enum:
                     - all
                     - user
                     - member
+                    - project
                   in: query
                   name: filter_by_target
                   type: string
@@ -7399,6 +7515,7 @@ paths:
                     all OpPermissionTargetAll
                     user OpPermissionTargetUser
                     member OpPermissionTargetMember
+                    project OpPermissionTargetProject
                   x-go-name: FilterByTarget
             responses:
                 "200":
@@ -9570,6 +9687,11 @@ paths:
                   name: filter_by_name
                   type: string
                   x-go-name: FilterByName
+                - description: the db service fuzzy keyword,include op_permission
+                  in: query
+                  name: fuzzy_keyword
+                  type: string
+                  x-go-name: FuzzyKeyword
             responses:
                 "200":
                     description: ListRoleReply
@@ -10536,6 +10658,56 @@ paths:
             summary: Import DBServices.
             tags:
                 - DBService
+    /v2/dms/projects/{project_uid}/members:
+        get:
+            operationId: ListMembers
+            parameters:
+                - description: the maximum count of member to be returned
+                  format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of members to be returned, default is 0
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - description: |-
+                    Multiple of ["name"], default is ["name"]
+                    user_uid MemberOrderByUserUid
+                  enum:
+                    - user_uid
+                  in: query
+                  name: order_by
+                  type: string
+                  x-go-enum-desc: user_uid MemberOrderByUserUid
+                  x-go-name: OrderBy
+                - description: filter the member user uid
+                  in: query
+                  name: filter_by_user_uid
+                  type: string
+                  x-go-name: FilterByUserUid
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: ListMemberReplyV2
+                    schema:
+                        $ref: '#/definitions/ListMemberReplyV2'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List member, for front page.
+            tags:
+                - Member
     /v2/dms/projects/import:
         post:
             operationId: ImportProjectsV2

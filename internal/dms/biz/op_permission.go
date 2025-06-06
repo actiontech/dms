@@ -16,6 +16,7 @@ type OpPermission struct {
 
 	UID       string
 	Name      string
+	Module    string
 	RangeType OpRangeType
 	Desc      string
 }

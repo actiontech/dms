@@ -56,6 +56,7 @@ const (
 	OpPermissionTargetAll    OpPermissionTarget = "all"
 	OpPermissionTargetUser   OpPermissionTarget = "user"
 	OpPermissionTargetMember OpPermissionTarget = "member"
+	OpPermissionTargetProject OpPermissionTarget = "project"
 )
 
 // swagger:enum OpPermissionOrderByField
@@ -69,6 +70,7 @@ const (
 type ListOpPermission struct {
 	// op permission
 	OpPermission UidWithName `json:"op_permission"`
+	Module       string		 `json:"module"`
 	Description  string      `json:"description"`
 	RangeType    OpRangeType `json:"range_type"`
 }
