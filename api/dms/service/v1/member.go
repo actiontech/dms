@@ -112,12 +112,58 @@ type ListMember struct {
 	Projects []string `json:"projects"`
 }
 
+// A dms member v2
+type ListMemberV2 struct {
+	// member uid
+	MemberUid string `json:"uid"`
+	// member user
+	User UidWithName `json:"user"`
+	// Whether the member has project admin permission
+	IsProjectAdmin bool `json:"is_project_admin"`
+	// current project permission
+	CurrentProjectOpPermissions []ProjectOpPermission `json:"current_project_op_permissions"`
+	// current project manage permissions
+	CurrentProjectManagePermissions []UidWithName `json:"current_project_manage_permissions"`
+	// member platform roles
+	PlatformRoles []UidWithName `json:"platform_roles"`
+	// member projects
+	Projects []string `json:"projects"`
+}
+
+type ProjectOpPermission struct {
+	DataSource string `json:"data_source"`
+	Roles []ProjectRole `json:"roles"`
+}
+
+type ProjectRole struct {
+	Uid string `json:"uid"`
+	Name string `json:"name"`
+	OpPermissions []UidWithName `json:"op_permissions"`
+	MemberGroup *ProjectMemberGroup `json:"member_group"`
+}
+
+type ProjectMemberGroup  struct {
+	Uid string `json:"uid"`
+	Name string `json:"name"`
+	Users []UidWithName `json:"users"`
+	OpPermissions []UidWithName `json:"op_permissions"`
+}
+
 // swagger:model ListMemberReply
 type ListMemberReply struct {
 	// List member reply
 	Data  []*ListMember `json:"data"`
 	Total int64         `json:"total_nums"`
 
+	// Generic reply
+	base.GenericResp
+}
+
+// swagger:model ListMemberReplyV2
+type ListMemberReplyV2 struct {
+	// List member reply
+	Data  []*ListMemberV2 `json:"data"`
+	Total int64         `json:"total_nums"`
 	// Generic reply
 	base.GenericResp
 }

@@ -78,6 +78,9 @@ type ListRoleReq struct {
 	// filter the role name
 	// in:query
 	FilterByName string `query:"filter_by_name" json:"filter_by_name"`
+	// the db service fuzzy keyword,include op_permission
+	// in:query
+	FuzzyKeyword string `query:"fuzzy_keyword" json:"fuzzy_keyword"`
 }
 
 // swagger:enum RoleOrderByField
