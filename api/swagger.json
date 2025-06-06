@@ -6384,7 +6384,7 @@
           "Member"
         ],
         "summary": "List member, for front page.",
-        "operationId": "ListMembers",
+        "operationId": "ListMembersV2",
         "parameters": [
           {
             "type": "integer",
@@ -11061,6 +11061,14 @@
     "ListMemberGroup": {
       "type": "object",
       "properties": {
+        "current_project_manage_permissions": {
+          "description": "member project manage permissions",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "CurrentProjectManagePermissions"
+        },
         "is_project_admin": {
           "description": "Whether the member has project admin permission",
           "type": "boolean",
@@ -11922,6 +11930,14 @@
           "type": "boolean",
           "x-go-name": "IsProjectAdmin"
         },
+        "project_manage_permissions": {
+          "description": "member project manage permissions",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "ProjectManagePermissions"
+        },
         "role_with_op_ranges": {
           "description": "member role with op ranges",
           "type": "array",
@@ -11954,6 +11970,14 @@
           "description": "member group name",
           "type": "string",
           "x-go-name": "Name"
+        },
+        "project_manage_permissions": {
+          "description": "member project manage permissions",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "ProjectManagePermissions"
         },
         "role_with_op_ranges": {
           "description": "member role with op ranges",
@@ -13778,6 +13802,14 @@
           "type": "boolean",
           "x-go-name": "IsProjectAdmin"
         },
+        "project_manage_permissions": {
+          "description": "member project manage permissions",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "ProjectManagePermissions"
+        },
         "role_with_op_ranges": {
           "description": "member role with op ranges",
           "type": "array",
@@ -13799,6 +13831,14 @@
           "description": "Whether the member has project admin permission",
           "type": "boolean",
           "x-go-name": "IsProjectAdmin"
+        },
+        "project_manage_permissions": {
+          "description": "member project manage permissions",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "ProjectManagePermissions"
         },
         "role_with_op_ranges": {
           "description": "member role with op ranges",
