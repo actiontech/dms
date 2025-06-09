@@ -141,6 +141,8 @@ type ListMemberV2 struct {
 	MemberUid string `json:"uid"`
 	// member user
 	User UidWithName `json:"user"`
+	// Whether the member is a group member
+	IsGroupMember  bool `json:"is_group_member"`
 	// Whether the member has project admin permission
 	IsProjectAdmin bool `json:"is_project_admin"`
 	// current project permission

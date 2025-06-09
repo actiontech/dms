@@ -3737,6 +3737,10 @@ definitions:
                     $ref: '#/definitions/ProjectOpPermission'
                 type: array
                 x-go-name: CurrentProjectOpPermissions
+            is_group_member:
+                description: Whether the member is a group member
+                type: boolean
+                x-go-name: IsGroupMember
             is_project_admin:
                 description: Whether the member has project admin permission
                 type: boolean
