@@ -11069,6 +11069,14 @@
           },
           "x-go-name": "CurrentProjectManagePermissions"
         },
+        "current_project_op_permissions": {
+          "description": "current project permission",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProjectOpPermission"
+          },
+          "x-go-name": "CurrentProjectOpPermissions"
+        },
         "is_project_admin": {
           "description": "Whether the member has project admin permission",
           "type": "boolean",

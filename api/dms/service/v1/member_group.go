@@ -42,6 +42,8 @@ type ListMemberGroup struct {
 	Users []UidWithName `json:"users"`
 	// member op permission
 	RoleWithOpRanges []ListMemberRoleWithOpRange `json:"role_with_op_ranges"`
+	// current project permission
+	CurrentProjectOpPermissions []ProjectOpPermission `json:"current_project_op_permissions"`
 	// member project manage permissions
 	CurrentProjectManagePermissions []UidWithName `json:"current_project_manage_permissions"`
 }
