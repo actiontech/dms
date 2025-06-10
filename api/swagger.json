@@ -11306,6 +11306,14 @@
           },
           "x-go-name": "Projects"
         },
+        "role_with_op_ranges": {
+          "description": "member op permission",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListMemberRoleWithOpRange"
+          },
+          "x-go-name": "RoleWithOpRanges"
+        },
         "uid": {
           "description": "member uid",
           "type": "string",

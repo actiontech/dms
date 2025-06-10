@@ -145,6 +145,8 @@ type ListMemberV2 struct {
 	IsGroupMember  bool `json:"is_group_member"`
 	// Whether the member has project admin permission
 	IsProjectAdmin bool `json:"is_project_admin"`
+	// member op permission
+	RoleWithOpRanges []ListMemberRoleWithOpRange `json:"role_with_op_ranges"`
 	// current project permission
 	CurrentProjectOpPermissions []ProjectOpPermission `json:"current_project_op_permissions"`
 	// current project manage permissions
