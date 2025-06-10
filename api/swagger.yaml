@@ -3568,6 +3568,12 @@ definitions:
                     $ref: '#/definitions/UidWithName'
                 type: array
                 x-go-name: CurrentProjectManagePermissions
+            current_project_op_permissions:
+                description: current project permission
+                items:
+                    $ref: '#/definitions/ProjectOpPermission'
+                type: array
+                x-go-name: CurrentProjectOpPermissions
             is_project_admin:
                 description: Whether the member has project admin permission
                 type: boolean
