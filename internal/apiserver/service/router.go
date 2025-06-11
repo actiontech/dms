@@ -165,8 +165,8 @@ func (s *APIServer) initRouter() error {
 		// oauth2 interface does not require login authentication
 		oauth2V1 := v1.Group("/dms/oauth2")
 		oauth2V1.GET("/tips", s.DMSController.GetOauth2Tips)
-		oauth2V1.GET("/link", s.DMSController.Oauth2Link)
-		oauth2V1.GET("/callback", s.DMSController.Oauth2Callback)
+		oauth2V1.GET("/link", s.DMSController.Oauth2LinkOrCallback)
+		oauth2V1.GET("/callback", s.DMSController.Oauth2LinkOrCallback)
 		oauth2V1.POST("/user/bind", s.DMSController.BindOauth2User)
 		oauth2V1.POST(biz.BackChannelLogoutUri, s.DMSController.BackChannelLogout)
 
