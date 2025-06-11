@@ -97,6 +97,15 @@ func (d *DMSService) ListRoles(ctx context.Context, req *dmsV1.ListRoleReq) (rep
 		})
 	}
 
+	if req.FuzzyKeyword != "" {
+		filterBy = append(filterBy, pkgConst.FilterCondition{
+			Field:         string(biz.RoleFieldOpPermission),
+			Operator:      pkgConst.FilterOperatorContains,
+			Value:         req.FuzzyKeyword,
+			KeywordSearch: true,
+		})
+	}
+
 	listOption := &biz.ListRolesOption{
 		PageNumber:   req.PageIndex,
 		LimitPerPage: req.PageSize,
