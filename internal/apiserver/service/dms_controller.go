@@ -2619,10 +2619,18 @@ func (ctl *DMSController) GetOauth2Tips(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/oauth2/link OAuth2 Oauth2Link
+// swagger:route GET /v1/dms/oauth2/link OAuth2 Oauth2LinkOrCallback
 //
-// Oauth2 Link.
-func (ctl *DMSController) Oauth2Link(c echo.Context) error {
+// Oauth2 Link or Callback.
+func (ctl *DMSController) Oauth2LinkOrCallback(c echo.Context) error {
+	// 如果是OAuth2 callback请求，QueryParam中会有code这个参数
+	if c.QueryParam("code") == "" {
+		return ctl.oauth2Link(c)
+	}
+	return ctl.oauth2Callback(c)
+}
+
+func (ctl *DMSController) oauth2Link(c echo.Context) error {
 	uri, err := ctl.DMS.Oauth2Link(c.Request().Context())
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
@@ -2630,8 +2638,8 @@ func (ctl *DMSController) Oauth2Link(c echo.Context) error {
 	return c.Redirect(http.StatusFound, uri)
 }
 
-// Oauth2Callback is a hidden interface for third-party platform callbacks for oauth2 verification
-func (ctl *DMSController) Oauth2Callback(c echo.Context) error {
+// oauth2Callback is a hidden interface for third-party platform callbacks for oauth2 verification
+func (ctl *DMSController) oauth2Callback(c echo.Context) error {
 	req := new(aV1.Oauth2CallbackReq)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
