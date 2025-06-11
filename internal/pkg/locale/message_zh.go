@@ -42,6 +42,23 @@ var (
 	NameOpPermissionViewOthersOptimization = &i18n.Message{ID: "NameOpPermissionViewOthersOptimization", Other: "查看他人创建的智能调优"}
 	NameOpPermissionCreatePipeline         = &i18n.Message{ID: "NameOpPermissionCreatePipeline", Other: "配置流水线"}
 	NameOpPermissionOrdinaryUser             = &i18n.Message{ID: "NameOpPermissionOrdinaryUser", Other: "普通用户"}
+	NameOpPermissionViewOperationRecord  = &i18n.Message{ID: "NameOpPermissionViewOperationRecord", Other: "查看所有操作记录"}
+	NameOpPermissionViewExportTask = &i18n.Message{ID: "NameOpPermissionViewExportTask", Other: "查看所有导出任务"}
+	NamePermissionViewQuickAuditRecord = &i18n.Message{ID: "NamePermissionViewQuickAuditRecord", Other: "查看所有快捷审核记录"}
+	NameOpPermissionViewIDEAuditRecord = &i18n.Message{ID: "NameOpPermissionViewIDEAuditRecord", Other: "查看所有IDE审核记录"}
+	NameOpPermissionViewOptimizationRecord = &i18n.Message{ID: "NameOpPermissionViewOptimizationRecord", Other: "查看所有优化记录"}
+	NameOpPermissionVersionManage = &i18n.Message{ID: "NameOpPermissionVersionManage", Other: "版本管理"}
+	NameOpPermissionViewPipeline  = &i18n.Message{ID: "NameOpPermissionViewPipeline", Other: "查看所有流水线"}
+	NameOpPermissionViewPendingSQLManage = &i18n.Message{ID: "NameOpPermissionViewPendingSQLManage", Other: "查看所有待审核SQL"}
+	NameOpPermissionManageProjectDataSource  = &i18n.Message{ID: "NameOpPermissionManageProjectDataSource", Other: "管理项目数据源"}
+	NameOpPermissionManageAuditRuleTemplate = &i18n.Message{ID: "NameOpPermissionManageAuditRuleTemplate", Other: "管理审核规则模版"}
+	NameOpPermissionManageApprovalTemplate  = &i18n.Message{ID: "NameOpPermissionManageApprovalTemplate", Other: "管理审批流程模版'"}
+	NameOpPermissionManageMember = &i18n.Message{ID: "NameOpPermissionManageMember", Other: "管理成员与权限"}
+	NameOpPermissionPushRule = &i18n.Message{ID: "NameOpPermissionPushRule", Other: "管理推送规则"}
+	NameOpPermissionMangeAuditSQLWhiteList = &i18n.Message{ID: "NameOpPermissionMangeAuditSQLWhiteList", Other: "审核SQL例外"}
+	NameOpPermissionManageSQLMangeWhiteList = &i18n.Message{ID: "NameOpPermissionManageSQLMangeWhiteList", Other: "管控SQL例外"}
+	NameOpPermissionManageRoleMange  = &i18n.Message{ID: "NameOpPermissionManageRoleMange", Other: "角色管理权限"}
+	NameOpPermissionDesensitization = &i18n.Message{ID: "NameOpPermissionDesensitization", Other: "脱敏规则配置权限"}
 
 	DescOpPermissionGlobalManagement       = &i18n.Message{ID: "DescOpPermissionGlobalManagement", Other: "具备系统最高权限，可进行系统配置、用户管理等操作"}
 	DescOpPermissionGlobalView             = &i18n.Message{ID: "DescOpPermissionGlobalView", Other: "负责系统操作审计、数据合规检查等工作"}

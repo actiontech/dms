@@ -32,6 +32,23 @@ var OpPermissionNameByUID = map[string]*i18n.Message{
 	pkgConst.UIDOfOpPermissionGlobalView:             locale.NameOpPermissionGlobalView,
 	pkgConst.UIDOfOpPermissionCreatePipeline:         locale.NameOpPermissionCreatePipeline,
 	pkgConst.UIDOfOrdinaryUser:                       locale.NameOpPermissionOrdinaryUser,
+	pkgConst.UIDOfOpPermissionViewOperationRecord:    locale.NameOpPermissionViewOperationRecord,
+	pkgConst.UIDOfOpPermissionViewExportTask:		  locale.NameOpPermissionViewExportTask,
+	pkgConst.UIDOfPermissionViewQuickAuditRecord:     locale.NamePermissionViewQuickAuditRecord,
+	pkgConst.UIDOfOpPermissionViewIDEAuditRecord:     locale.NameOpPermissionViewIDEAuditRecord,
+	pkgConst.UIDOfOpPermissionViewOptimizationRecord: locale.NameOpPermissionViewOptimizationRecord,
+	pkgConst.UIDOfOpPermissionVersionManage:          locale.NameOpPermissionVersionManage,
+	pkgConst.UIdOfOpPermissionViewPipeline:			  locale.NameOpPermissionViewPipeline,
+	pkgConst.UIdOfOpPermissionViewPendingSQLManage:   locale.NameOpPermissionViewPendingSQLManage,
+	pkgConst.UIdOfOpPermissionManageProjectDataSource:locale.NameOpPermissionManageProjectDataSource,
+	pkgConst.UIdOfOpPermissionManageAuditRuleTemplate:locale.NameOpPermissionManageAuditRuleTemplate,
+	pkgConst.UIdOfOpPermissionManageApprovalTemplate: locale.NameOpPermissionManageApprovalTemplate,
+	pkgConst.UIdOfOpPermissionManageMember:           locale.NameOpPermissionManageMember,
+	pkgConst.UIdOfOpPermissionPushRule:				  locale.NameOpPermissionPushRule,
+	pkgConst.UIdOfOpPermissionMangeAuditSQLWhiteList: locale.NameOpPermissionMangeAuditSQLWhiteList,
+	pkgConst.UIdOfOpPermissionManageSQLMangeWhiteList:locale.NameOpPermissionManageSQLMangeWhiteList,
+	pkgConst.UIdOfOpPermissionManageRoleMange:		  locale.NameOpPermissionManageRoleMange,
+	pkgConst.UIdOfOpPermissionDesensitization:		  locale.NameOpPermissionDesensitization,
 }
 
 var OpPermissionDescByUID = map[string]*i18n.Message{
@@ -110,6 +127,11 @@ func (d *DMSService) ListOpPermissions(ctx context.Context, req *dmsV1.ListOpPer
 		if nil != err {
 			return nil, err
 		}
+	case dmsV1.OpPermissionTargetProject:
+		ops, total, err = d.OpPermissionUsecase.ListProjectOpPermissions(ctx, listOption)
+		if nil != err {
+			return nil, err
+		}
 	default:
 		return nil, fmt.Errorf("invalid filter by target: %v", req.FilterByTarget)
 	}
@@ -127,6 +149,7 @@ func (d *DMSService) ListOpPermissions(ctx context.Context, req *dmsV1.ListOpPer
 			},
 			Description: locale.Bundle.LocalizeMsgByCtx(ctx, OpPermissionDescByUID[o.GetUID()]),
 			RangeType:   opRangeTyp,
+			Module: string(o.Module),
 		}
 	}
 

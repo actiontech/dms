@@ -29,6 +29,23 @@ const (
 	// 拥有全局资源权限用户不能同级权限用户
 	UIDOfOpPermissionGlobalManagement = "700017"
 	UIDOfOrdinaryUser                 = "700018"
+	UIDOfOpPermissionViewOperationRecord  = "700019"
+	UIDOfOpPermissionViewExportTask = "700020"
+	UIDOfPermissionViewQuickAuditRecord = "700021"
+	UIDOfOpPermissionViewIDEAuditRecord = "700022"
+	UIDOfOpPermissionViewOptimizationRecord = "700023"
+	UIDOfOpPermissionVersionManage = "700025"
+	UIdOfOpPermissionViewPipeline  = "700026"
+	UIdOfOpPermissionViewPendingSQLManage = "700027"
+	UIdOfOpPermissionManageProjectDataSource  = "700028"
+	UIdOfOpPermissionManageAuditRuleTemplate = "700029"
+	UIdOfOpPermissionManageApprovalTemplate  = "700030"
+	UIdOfOpPermissionManageMember = "700031"
+	UIdOfOpPermissionPushRule = "700032"
+	UIdOfOpPermissionMangeAuditSQLWhiteList = "700033"
+	UIdOfOpPermissionManageSQLMangeWhiteList = "700034"
+	UIdOfOpPermissionManageRoleMange  = "700035"
+	UIdOfOpPermissionDesensitization = "700036"
 
 	UIDOfDMSConfig = "700100"
 
