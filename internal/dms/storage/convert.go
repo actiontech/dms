@@ -484,7 +484,11 @@ func convertModelMember(m *model.Member) (*biz.Member, error) {
 	}
 	projects := make([]string, 0)
 	if m.User != nil && len(m.User.Members) > 0 {
-		projects = append(projects, m.User.Members[0].Project.Name)
+		for _, member := range m.User.Members {
+			if member.Project != nil {
+				projects = append(projects, member.Project.Name)
+			}
+		}
 	}
 	return &biz.Member{
 		Base:             convertBase(m.Model),
