@@ -3841,6 +3841,15 @@ definitions:
                     project OpRangeTypeProject  项目权限: 该权限只能被成员使用
                     db_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用
                 x-go-name: RangeType
+            service:
+                enum:
+                    - dms
+                    - sqle
+                type: string
+                x-go-enum-desc: |-
+                    dms ServiceDMS
+                    sqle ServiceSQLE
+                x-go-name: Service
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListOpPermissionReply:
@@ -4526,6 +4535,23 @@ definitions:
                     create_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优
                     view_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优
                     create_pipeline OpPermissionTypeCreatePipeline  配置流水线
+                    view_operation_record OpPermissionViewOperationRecord  SQL工作台;查看所有操作记录
+                    view_export_task OpPermissionViewExportTask  数据导出;查看所有导出任务
+                    view_quick_audit_record OpPermissionViewQuickAuditRecord  快捷审核;查看所有快捷审核记录
+                    view_ide_audit_record OpPermissionViewIDEAuditRecord  IDE审核;查看所有IDE审核记录
+                    view_optimization_record OpPermissionViewOptimizationRecord  SQL优化;查看所有优化记录
+                    version_manage OpPermissionVersionManage  版本管理;版本管理
+                    view_pipeline OpPermissionViewPipeline  CI/CD集成;查看所有流水线
+                    view_pending_sql_manage OpPermissionViewPendingSQLManage  SQL管控;查看待处理的SQL管控
+                    manage_project_data_source OpPermissionManageProjectDataSource  数据源管理;管理项目数据源管理
+                    manage_audit_rule_template OpPermissionManageAuditRuleTemplate  审核规则模版;管理审核规则模版
+                    manage_approval_template OpPermissionManageApprovalTemplate  审批流程模版;管理审批流程模版
+                    manage_member OpPermissionManageMember  成员与权限;管理成员与权限
+                    manage_push_rule OpPermissionPushRule  推送规则;管理推送规则
+                    manage_audit_sql_white_list OpPermissionMangeAuditSQLWhiteList  审核SQL例外;管理审核SQL例外
+                    manage_sql_mange_white_list OpPermissionManageSQLMangeWhiteList  管控SQL例外;管理管控SQL例外
+                    manage_role_mange OpPermissionManageRoleMange  角色管理;角色管理权限
+                    desensitization OpPermissionDesensitization  脱敏规则;脱敏规则配置权限
                     none OpPermissionTypeNone  无任何权限
                 enum:
                     - unknown
@@ -4546,6 +4572,23 @@ definitions:
                     - create_optimization
                     - view_others_optimization
                     - create_pipeline
+                    - view_operation_record
+                    - view_export_task
+                    - view_quick_audit_record
+                    - view_ide_audit_record
+                    - view_optimization_record
+                    - version_manage
+                    - view_pipeline
+                    - view_pending_sql_manage
+                    - manage_project_data_source
+                    - manage_audit_rule_template
+                    - manage_approval_template
+                    - manage_member
+                    - manage_push_rule
+                    - manage_audit_sql_white_list
+                    - manage_sql_mange_white_list
+                    - manage_role_mange
+                    - desensitization
                     - none
                 type: string
                 x-go-enum-desc: |-
@@ -4567,6 +4610,23 @@ definitions:
                     create_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优
                     view_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优
                     create_pipeline OpPermissionTypeCreatePipeline  配置流水线
+                    view_operation_record OpPermissionViewOperationRecord  SQL工作台;查看所有操作记录
+                    view_export_task OpPermissionViewExportTask  数据导出;查看所有导出任务
+                    view_quick_audit_record OpPermissionViewQuickAuditRecord  快捷审核;查看所有快捷审核记录
+                    view_ide_audit_record OpPermissionViewIDEAuditRecord  IDE审核;查看所有IDE审核记录
+                    view_optimization_record OpPermissionViewOptimizationRecord  SQL优化;查看所有优化记录
+                    version_manage OpPermissionVersionManage  版本管理;版本管理
+                    view_pipeline OpPermissionViewPipeline  CI/CD集成;查看所有流水线
+                    view_pending_sql_manage OpPermissionViewPendingSQLManage  SQL管控;查看待处理的SQL管控
+                    manage_project_data_source OpPermissionManageProjectDataSource  数据源管理;管理项目数据源管理
+                    manage_audit_rule_template OpPermissionManageAuditRuleTemplate  审核规则模版;管理审核规则模版
+                    manage_approval_template OpPermissionManageApprovalTemplate  审批流程模版;管理审批流程模版
+                    manage_member OpPermissionManageMember  成员与权限;管理成员与权限
+                    manage_push_rule OpPermissionPushRule  推送规则;管理推送规则
+                    manage_audit_sql_white_list OpPermissionMangeAuditSQLWhiteList  审核SQL例外;管理审核SQL例外
+                    manage_sql_mange_white_list OpPermissionManageSQLMangeWhiteList  管控SQL例外;管理管控SQL例外
+                    manage_role_mange OpPermissionManageRoleMange  角色管理;角色管理权限
+                    desensitization OpPermissionDesensitization  脱敏规则;脱敏规则配置权限
                     none OpPermissionTypeNone  无任何权限
                 x-go-name: OpPermissionType
             range_type:
@@ -7563,6 +7623,20 @@ paths:
                     member OpPermissionTargetMember
                     project OpPermissionTargetProject
                   x-go-name: FilterByTarget
+                - description: |-
+                    filter by service
+                    dms ServiceDMS
+                    sqle ServiceSQLE
+                  enum:
+                    - dms
+                    - sqle
+                  in: query
+                  name: service
+                  type: string
+                  x-go-enum-desc: |-
+                    dms ServiceDMS
+                    sqle ServiceSQLE
+                  x-go-name: Service
             responses:
                 "200":
                     description: ListOpPermissionReply

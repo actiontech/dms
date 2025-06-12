@@ -259,7 +259,7 @@ func initOpPermission() []*OpPermission {
 			UID: pkgConst.UIdOfOpPermissionManageMember,
 			Name: "管理成员与权限",
 			RangeType: OpRangeTypeProject,
-			 Module: MemberMange,
+			Module: MemberMange,
 		},
 		{
 			UID: pkgConst.UIdOfOpPermissionPushRule,
