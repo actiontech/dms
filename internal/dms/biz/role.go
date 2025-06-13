@@ -39,6 +39,7 @@ type Role struct {
 	Name string
 	Desc string
 	Stat RoleStat
+	OpPermissions []*OpPermission
 }
 
 func newRole(name, desc string) (*Role, error) {
