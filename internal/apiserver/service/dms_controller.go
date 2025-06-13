@@ -1506,18 +1506,6 @@ func (ctl *DMSController) ListMembers(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v2/dms/projects/{project_uid}/members Member ListMembersV2
-//
-// List member, for front page.
-//
-//	responses:
-//	  200: body:ListMemberReplyV2
-//	  default: body:GenericResp
-func (ctl *DMSController) ListMembersV2(c echo.Context) error {
-	// TODO: not implemented
-	return nil
-}
-
 // swagger:route GET /v1/dms/projects/{project_uid}/members/internal Member ListMembersForInternal
 //
 // List members, for internal backend service.
