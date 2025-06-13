@@ -269,7 +269,7 @@ const (
 	OpPermissionFieldName      OpPermissionField = "name"
 	OpPermissionFieldDesc      OpPermissionField = "description"
 	OpPermissionFieldRangeType OpPermissionField = "range_type"
-	OpPermissionFieldService OpPermissionField = "service"
+	OpPermissionFieldService   OpPermissionField = "service"
 )
 
 const (
