@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/actiontech/dms/internal/dms/biz"
@@ -29,7 +30,7 @@ func (d *MemberGroupRepo) ListMemberGroups(ctx context.Context, opt *biz.ListMem
 	if err = transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		// find models
 		{
-			db := tx.WithContext(ctx).Preload("RoleWithOpRanges").Preload("Users").Order(opt.OrderBy)
+			db := tx.WithContext(ctx).Preload("RoleWithOpRanges").Preload("Users").Preload("OpPermissions").Order(opt.OrderBy)
 			for _, f := range opt.FilterBy {
 				db = gormWhere(db, f)
 			}
@@ -135,6 +136,62 @@ func (d *MemberGroupRepo) DeleteMemberGroup(ctx context.Context, memberGroupUid 
 			return fmt.Errorf("failed to delete member group: %v", err)
 		}
 
+		return nil
+	})
+}
+
+func (d *MemberGroupRepo) GetMemberGroupsByUserIDAndProjectID(ctx context.Context, userID, projectID string) ([]*biz.MemberGroup, error) {
+	var memberGroups []*model.MemberGroup
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		// 查询关联的用户组
+		if err := tx.WithContext(ctx).Preload("RoleWithOpRanges").Preload("Users").Preload("OpPermissions").
+			Joins("JOIN member_group_users ON member_groups.uid = member_group_users.member_group_uid").
+			Where("member_group_users.user_uid = ? AND member_groups.project_uid = ?", userID, projectID).
+			Find(&memberGroups).Error; err != nil {
+			return fmt.Errorf("failed to get member groups by user id and project id: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	bizGroups := make([]*biz.MemberGroup, 0, len(memberGroups))
+	for _, modelGroup := range memberGroups {
+		bizGroup, err := convertModelMemberGroup(modelGroup)
+		if err != nil {
+			return nil, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert model member group: %v", err))
+		}
+		bizGroups = append(bizGroups, bizGroup)
+	}
+
+	return bizGroups, nil
+}
+
+func (d *MemberGroupRepo) ReplaceOpPermissionsInMemberGroup(ctx context.Context, memberGroupUid string, opPermissionUids []string) error {
+	if len(opPermissionUids) == 0 {
+		return nil
+	}
+	var ops []*model.OpPermission
+	for _, u := range opPermissionUids {
+		ops = append(ops, &model.OpPermission{
+			Model: model.Model{
+				UID: u,
+			},
+		})
+	}
+	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		memberGroup := &model.MemberGroup{Model: model.Model{UID: memberGroupUid}}
+		if err := tx.WithContext(ctx).Where("uid = ?", memberGroupUid).First(memberGroup).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return fmt.Errorf("member not found: %v", err)
+			}
+			return fmt.Errorf("failed to query member existence: %v", err)
+		}
+
+		err := tx.WithContext(ctx).Model(memberGroup).Association("OpPermissions").Replace(ops)
+		if err != nil {
+			return fmt.Errorf("failed to replace op permissions")
+		}
 		return nil
 	})
 }
