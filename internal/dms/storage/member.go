@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/actiontech/dms/internal/dms/biz"
@@ -47,7 +48,7 @@ func (d *MemberRepo) ListMembers(ctx context.Context, opt *biz.ListMembersOption
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		// find models
 		{
-			db := tx.WithContext(ctx).Preload("RoleWithOpRanges").Order(opt.OrderBy)
+			db := tx.WithContext(ctx).Preload("RoleWithOpRanges").Preload("OpPermissions").Order(opt.OrderBy)
 			for _, f := range opt.FilterBy {
 				db = gormWhere(db, f)
 			}
@@ -161,6 +162,35 @@ func (d *MemberRepo) DelRoleFromAllMembers(ctx context.Context, roleUid string) 
 	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Where("role_uid = ?", roleUid).Delete(&model.MemberRoleOpRange{}).Error; err != nil {
 			return fmt.Errorf("failed to delete role from all members: %v", err)
+		}
+		return nil
+	})
+}
+
+func (d *MemberRepo) ReplaceOpPermissionsInMember(ctx context.Context, memberUid string, opPermissionUids []string) error {
+	if len(opPermissionUids) == 0 {
+		return nil
+	}
+	var ops []*model.OpPermission
+	for _, u := range opPermissionUids {
+		ops = append(ops, &model.OpPermission{
+			Model: model.Model{
+				UID: u,
+			},
+		})
+	}
+	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		member := &model.Member{Model: model.Model{UID: memberUid}}
+		if err := tx.WithContext(ctx).Where("uid = ?", memberUid).First(member).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return fmt.Errorf("member not found: %v", err)
+			}
+			return fmt.Errorf("failed to query member existence: %v", err)
+		}
+
+		err := tx.WithContext(ctx).Model(member).Association("OpPermissions").Replace(ops)
+		if err != nil {
+			return fmt.Errorf("failed to replace op permissions")
 		}
 		return nil
 	})

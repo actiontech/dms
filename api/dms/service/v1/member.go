@@ -96,6 +96,10 @@ type ListMemberRoleWithOpRange struct {
 	OpRangeType OpRangeType `json:"op_range_type" validate:"required"`
 	// op range uids
 	RangeUIDs []UidWithName `json:"range_uids" validate:"required"`
+	// member op permissions
+	OpPermissions []UidWithName  `json:"op_permissions"`
+	// member group
+	MemberGroup *ProjectMemberGroup `json:"member_group"`
 }
 
 // A dms member
@@ -104,10 +108,10 @@ type ListMember struct {
 	MemberUid string `json:"uid"`
 	// member user
 	User UidWithName `json:"user"`
+	// Whether the member is a group member
+	IsGroupMember  bool `json:"is_group_member"`
 	// Whether the member has project admin permission
 	IsProjectAdmin bool `json:"is_project_admin"`
-	// Whether the member is group member
-	IsGroupMember  bool `json:"is_group_member"`
 	// member op permission
 	RoleWithOpRanges []ListMemberRoleWithOpRange `json:"role_with_op_ranges"`
 	// current project permission
