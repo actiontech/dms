@@ -103,6 +103,15 @@ func (d *DMSService) ListOpPermissions(ctx context.Context, req *dmsV1.ListOpPer
 			})
 	}
 
+	if req.Service != nil {
+		listOption.FilterBy = append(listOption.FilterBy,
+			pkgConst.FilterCondition{
+				Field:    string(biz.OpPermissionFieldService),
+				Operator: pkgConst.FilterOperatorEqual,
+				Value:    *req.Service,
+			})
+	}
+
 	var ops []*biz.OpPermission
 	var total int64
 	switch req.FilterByTarget {
@@ -150,6 +159,7 @@ func (d *DMSService) ListOpPermissions(ctx context.Context, req *dmsV1.ListOpPer
 			Description: locale.Bundle.LocalizeMsgByCtx(ctx, OpPermissionDescByUID[o.GetUID()]),
 			RangeType:   opRangeTyp,
 			Module: string(o.Module),
+			Service: o.Service,
 		}
 	}
 
