@@ -197,7 +197,7 @@ func (d *RoleRepo) DelRole(ctx context.Context, roleUid string) error {
 func (d *RoleRepo) GetRole(ctx context.Context, roleUid string) (*biz.Role, error) {
 	var role *model.Role
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
-		if err := tx.First(&role, "uid = ?", roleUid).Error; err != nil {
+		if err := tx.Preload("OpPermissions").First(&role, "uid = ?", roleUid).Error; err != nil {
 			return fmt.Errorf("failed to get role: %v", err)
 		}
 		return nil
