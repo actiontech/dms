@@ -129,24 +129,6 @@ type ListMember struct {
 	IsProjectAdmin bool `json:"is_project_admin"`
 	// member op permission
 	RoleWithOpRanges []ListMemberRoleWithOpRange `json:"role_with_op_ranges"`
-	// member platform roles
-	PlatformRoles []UidWithName `json:"platform_roles"`
-	// member projects
-	Projects []string `json:"projects"`
-}
-
-// A dms member v2
-type ListMemberV2 struct {
-	// member uid
-	MemberUid string `json:"uid"`
-	// member user
-	User UidWithName `json:"user"`
-	// Whether the member is a group member
-	IsGroupMember  bool `json:"is_group_member"`
-	// Whether the member has project admin permission
-	IsProjectAdmin bool `json:"is_project_admin"`
-	// member op permission
-	RoleWithOpRanges []ListMemberRoleWithOpRange `json:"role_with_op_ranges"`
 	// current project permission
 	CurrentProjectOpPermissions []ProjectOpPermission `json:"current_project_op_permissions"`
 	// current project manage permissions
@@ -182,15 +164,6 @@ type ListMemberReply struct {
 	Data  []*ListMember `json:"data"`
 	Total int64         `json:"total_nums"`
 
-	// Generic reply
-	base.GenericResp
-}
-
-// swagger:model ListMemberReplyV2
-type ListMemberReplyV2 struct {
-	// List member reply
-	Data  []*ListMemberV2 `json:"data"`
-	Total int64         `json:"total_nums"`
 	// Generic reply
 	base.GenericResp
 }
