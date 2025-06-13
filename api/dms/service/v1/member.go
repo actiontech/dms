@@ -127,6 +127,8 @@ type ListMember struct {
 	User UidWithName `json:"user"`
 	// Whether the member has project admin permission
 	IsProjectAdmin bool `json:"is_project_admin"`
+	// Whether the member is group member
+	IsGroupMember  bool `json:"is_group_member"`
 	// member op permission
 	RoleWithOpRanges []ListMemberRoleWithOpRange `json:"role_with_op_ranges"`
 	// current project permission
