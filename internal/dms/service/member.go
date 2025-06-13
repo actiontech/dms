@@ -31,7 +31,7 @@ func (d *DMSService) AddMember(ctx context.Context, currentUserUid string, req *
 		})
 	}
 
-	uid, err := d.MemberUsecase.CreateMember(ctx, currentUserUid, req.Member.UserUid, req.ProjectUid, req.Member.IsProjectAdmin, roles)
+	uid, err := d.MemberUsecase.CreateMember(ctx, currentUserUid, req.Member.UserUid, req.ProjectUid, req.Member.IsProjectAdmin, roles, req.Member.ProjectManagePermissions)
 	if err != nil {
 		return nil, fmt.Errorf("create member failed: %w", err)
 	}
@@ -107,17 +107,45 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) 
 		if err != nil {
 			return nil, fmt.Errorf("get user failed: %v", err)
 		}
+		isGroupMember := false
+		memberGroups, err := d.MemberGroupUsecase.GetMemberGroupsByUserIDAndProjectID(ctx, m.UserUID, req.ProjectUid)
+		if err != nil {
+			return nil, fmt.Errorf("get member groups failed: %v", err)
+		}
+		if len(memberGroups) > 0 {
+			isGroupMember = true
+		}
 
-		roleWithOpRanges, err := d.buildRoleWithOpRanges(ctx, m.RoleWithOpRanges)
+		roleWithOpRanges, err := d.buildRoleWithOpRanges(ctx, m.RoleWithOpRanges, nil)
 		if err != nil {
 			return nil, err
 		}
+		memberGroupRoleWithOpRanges := make([]dmsV1.ListMemberRoleWithOpRange, 0)
+		// 转换所有用户组的RoleWithOpRanges
+		for _, memberGroup := range memberGroups {
+			memberRoleWithOpRanges, err := d.buildRoleWithOpRanges(ctx, memberGroup.RoleWithOpRanges, memberGroup)
+			if err != nil {
+				return nil, err
+			}
+			memberGroupRoleWithOpRanges = append(memberGroupRoleWithOpRanges, memberRoleWithOpRanges...)
+		}
 
+		projectOpPermissions := d.aggregateRoleByDataSource(roleWithOpRanges, memberGroupRoleWithOpRanges)
+		projectManagePermissions := make([]dmsV1.UidWithName, 0,len(m.OpPermissions))
+		for _, permission := range m.OpPermissions {
+			projectManagePermissions = append(projectManagePermissions, dmsV1.UidWithName{
+				Uid:  permission.GetUID(),
+				Name: locale.Bundle.LocalizeMsgByCtx(ctx, OpPermissionNameByUID[permission.GetUID()]),
+			})
+		}
 		ret[i] = &dmsV1.ListMember{
 			MemberUid:        m.GetUID(),
 			User:             dmsV1.UidWithName{Uid: user.GetUID(), Name: user.Name},
 			RoleWithOpRanges: roleWithOpRanges,
 			Projects: 		  m.Projects,
+			IsGroupMember:    isGroupMember,
+			CurrentProjectOpPermissions: projectOpPermissions,
+			CurrentProjectManagePermissions: projectManagePermissions,
 		}
 
 		for _, r := range m.RoleWithOpRanges {
@@ -147,6 +175,61 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) 
 		nil
 }
 
+func (d *DMSService) aggregateRoleByDataSource(roleWithOpRanges []dmsV1.ListMemberRoleWithOpRange, memberGroupRoleWithOpRanges []dmsV1.ListMemberRoleWithOpRange) []dmsV1.ProjectOpPermission {
+	dataSourceRolesMap := make(map[string][]dmsV1.ProjectRole)
+	for _, role := range roleWithOpRanges {
+		for _, dataSource := range role.RangeUIDs {
+			projectRole := dmsV1.ProjectRole{
+				Uid: role.RoleUID.Uid,
+				Name: role.RoleUID.Name,
+				OpPermissions: role.OpPermissions,
+			}
+			if _, exists := dataSourceRolesMap[dataSource.Name]; exists {
+				dataSourceRolesMap[dataSource.Name] = append(dataSourceRolesMap[dataSource.Name], projectRole)
+			} else {
+				dataSourceRolesMap[dataSource.Name] = []dmsV1.ProjectRole{projectRole}
+			}
+		}
+	}
+
+	for _, groupRole := range memberGroupRoleWithOpRanges {
+		projectRole := dmsV1.ProjectRole{
+			Uid: groupRole.RoleUID.Uid,
+			Name: groupRole.RoleUID.Name,
+			OpPermissions: groupRole.OpPermissions,
+			MemberGroup: groupRole.MemberGroup,
+		}
+		for _, dataSource := range groupRole.RangeUIDs {
+			if _, exists := dataSourceRolesMap[dataSource.Name]; exists {
+				dataSourceRolesMap[dataSource.Name] = append(dataSourceRolesMap[dataSource.Name], projectRole)
+			} else {
+				dataSourceRolesMap[dataSource.Name] = []dmsV1.ProjectRole{projectRole}
+			}
+		}
+	}
+	projectOpPermissions := make([]dmsV1.ProjectOpPermission, 0, len(dataSourceRolesMap))
+	for dataSource, roles := range dataSourceRolesMap {
+		projectOpPermissions = append(projectOpPermissions, dmsV1.ProjectOpPermission{DataSource: dataSource, Roles: roles})
+	}
+	return projectOpPermissions
+}
+
+func convert2ProjectMemberGroup(memberGroup *biz.MemberGroup, memberGroupOpPermissions []dmsV1.UidWithName) *dmsV1.ProjectMemberGroup {
+	if memberGroup == nil {
+		return nil
+	}
+	users := make([]dmsV1.UidWithName, 0, len(memberGroup.Users))
+	for _, user := range memberGroup.Users {
+		users = append(users, dmsV1.UidWithName{Uid: user.Uid, Name: user.Name})
+	}
+	return &dmsV1.ProjectMemberGroup{
+		Uid: memberGroup.UID,
+		Name: memberGroup.Name,
+		Users: users,
+		OpPermissions: memberGroupOpPermissions,
+	}
+}
+
 func (d *DMSService) UpdateMember(ctx context.Context, currentUserUid string, req *dmsV1.UpdateMemberReq) (err error) {
 	d.log.Infof("UpdateMember.req=%v", req)
 	defer func() {
@@ -168,7 +251,7 @@ func (d *DMSService) UpdateMember(ctx context.Context, currentUserUid string, re
 	}
 
 	if err = d.MemberUsecase.UpdateMember(ctx, currentUserUid, req.MemberUid, pkgConst.UIDOfProjectDefault, /*暂时只支持默认project*/
-		req.Member.IsProjectAdmin, roles); nil != err {
+		req.Member.IsProjectAdmin, roles, req.Member.ProjectManagePermissions); nil != err {
 		return fmt.Errorf("update member failed: %v", err)
 	}
 

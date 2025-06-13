@@ -47,6 +47,9 @@ type ListOpPermissionReq struct {
 	// filter by op permission target
 	// in:query
 	FilterByTarget OpPermissionTarget `query:"filter_by_target" json:"filter_by_target"  validate:"required"`
+	// filter by service
+	// in:query
+	Service *Service `query:"service" json:"service"`
 }
 
 // swagger:enum OpPermissionTarget
@@ -56,6 +59,15 @@ const (
 	OpPermissionTargetAll    OpPermissionTarget = "all"
 	OpPermissionTargetUser   OpPermissionTarget = "user"
 	OpPermissionTargetMember OpPermissionTarget = "member"
+	OpPermissionTargetProject OpPermissionTarget = "project"
+)
+
+// swagger:enum Service
+type Service string
+
+const (
+	ServiceDMS Service = "dms"
+	ServiceSQLE  Service = "sqle"
 )
 
 // swagger:enum OpPermissionOrderByField
@@ -69,8 +81,10 @@ const (
 type ListOpPermission struct {
 	// op permission
 	OpPermission UidWithName `json:"op_permission"`
+	Module       string		 `json:"module"`
 	Description  string      `json:"description"`
 	RangeType    OpRangeType `json:"range_type"`
+	Service      Service     `json:"service"`
 }
 
 // swagger:model ListOpPermissionReply

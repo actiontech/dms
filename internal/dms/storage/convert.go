@@ -381,6 +381,7 @@ func convertBizOpPermission(u *biz.OpPermission) (*model.OpPermission, error) {
 		Name:      u.Name,
 		Desc:      u.Desc,
 		RangeType: u.RangeType.String(),
+		Module: string(u.Module),
 	}, nil
 }
 
@@ -391,6 +392,7 @@ func convertModelOpPermission(u *model.OpPermission) (*biz.OpPermission, error) 
 		Name:      u.Name,
 		Desc:      u.Desc,
 		RangeType: biz.OpRangeType(u.RangeType),
+		Module: biz.Module(u.Module),
 	}, nil
 }
 

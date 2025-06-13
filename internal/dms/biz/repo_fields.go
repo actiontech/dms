@@ -269,6 +269,7 @@ const (
 	OpPermissionFieldName      OpPermissionField = "name"
 	OpPermissionFieldDesc      OpPermissionField = "description"
 	OpPermissionFieldRangeType OpPermissionField = "range_type"
+	OpPermissionFieldService   OpPermissionField = "service"
 )
 
 const (
@@ -299,10 +300,11 @@ const (
 )
 
 const (
-	RoleFieldUID           RoleField = "uid"
+	RoleFieldUID           RoleField = "roles.uid"
 	RoleFieldName          RoleField = "name"
 	RoleFieldDesc          RoleField = "description"
 	RoleFieldStat          RoleField = "stat"
+	RoleFieldOpPermission  RoleField = "op_permission"
 	RoleFieldOpPermissions RoleField = "oppermissions"
 )
 
