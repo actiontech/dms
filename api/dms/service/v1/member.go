@@ -82,27 +82,6 @@ type ListMemberReq struct {
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 }
 
-// swagger:parameters ListMembersV2
-type ListMemberReqV2 struct {
-	// the maximum count of member to be returned
-	// in:query
-	// Required: true
-	PageSize uint32 `query:"page_size" json:"page_size" validate:"required"`
-	// the offset of members to be returned, default is 0
-	// in:query
-	PageIndex uint32 `query:"page_index" json:"page_index"`
-	// Multiple of ["name"], default is ["name"]
-	// in:query
-	OrderBy MemberOrderByField `query:"order_by" json:"order_by"`
-	// filter the member user uid
-	// in:query
-	FilterByUserUid string `query:"filter_by_user_uid" json:"filter_by_user_uid"`
-	// project id
-	// Required: true
-	// in:path
-	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
-}
-
 // swagger:enum MemberOrderByField
 type MemberOrderByField string
 
