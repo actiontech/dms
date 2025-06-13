@@ -166,6 +166,7 @@ type OpPermission struct {
 	Module    string `json:"module" gorm:"size:255;column:module"`
 	Desc      string `json:"desc" gorm:"column:description"`
 	RangeType string `json:"range_type" gorm:"size:255;column:range_type"`
+	Service   string `json:"service" gorm:"size:255;column:service"`
 }
 
 type UserAccessToken struct {
@@ -193,6 +194,7 @@ type Member struct {
 	Project	         *Project            `json:"project" gorm:"foreignKey:ProjectUID"`
 	User             *User               `json:"user" gorm:"foreignkey:UserUID"`
 	RoleWithOpRanges []MemberRoleOpRange `json:"role_with_op_ranges" gorm:"foreignKey:MemberUID;references:UID"`
+	OpPermissions    []*OpPermission     `json:"op_permissions" gorm:"many2many:member_op_permissions"`
 }
 
 type MemberRoleOpRange struct {
@@ -212,6 +214,7 @@ type MemberGroup struct {
 	ProjectUID       string                   `json:"project_uid" gorm:"size:32;column:project_uid;index:project_uid_name,unique"`
 	Users            []*User                  `gorm:"many2many:member_group_users"`
 	RoleWithOpRanges []MemberGroupRoleOpRange `json:"role_with_op_ranges" gorm:"foreignKey:MemberGroupUID;references:UID"`
+	OpPermissions    []OpPermission           `json:"op_permissions" gorm:"many2many:member_group_op_permissions"`
 }
 
 type MemberGroupRoleOpRange struct {
