@@ -1576,8 +1576,8 @@
         "tags": [
           "OAuth2"
         ],
-        "summary": "Oauth2 Link.",
-        "operationId": "Oauth2Link"
+        "summary": "Oauth2 Link or Callback.",
+        "operationId": "Oauth2LinkOrCallback"
       }
     },
     "/v1/dms/oauth2/tips": {
@@ -8790,7 +8790,7 @@
           "x-go-name": "Message"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "GetOauth2ConfigurationResData": {
       "type": "object",
@@ -8798,6 +8798,10 @@
         "access_token_tag": {
           "type": "string",
           "x-go-name": "AccessTokenTag"
+        },
+        "auto_bind_same_name_user": {
+          "type": "boolean",
+          "x-go-name": "AutoBindSameNameUser"
         },
         "auto_create_user": {
           "type": "boolean",
@@ -8814,6 +8818,10 @@
         "client_id": {
           "type": "string",
           "x-go-name": "ClientID"
+        },
+        "enable_manually_bind": {
+          "type": "boolean",
+          "x-go-name": "EnableManuallyBind"
         },
         "enable_oauth2": {
           "type": "boolean",
@@ -11182,7 +11190,7 @@
           "$ref": "#/definitions/UidWithName"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ListMemberTipsItem": {
       "type": "object",
@@ -12010,6 +12018,10 @@
           "type": "string",
           "x-go-name": "AccessTokenTag"
         },
+        "auto_bind_same_name_user": {
+          "type": "boolean",
+          "x-go-name": "AutoBindSameNameUser"
+        },
         "auto_create_user": {
           "type": "boolean",
           "x-go-name": "AutoCreateUser"
@@ -12029,6 +12041,10 @@
         "client_key": {
           "type": "string",
           "x-go-name": "ClientKey"
+        },
+        "enable_manually_bind": {
+          "type": "boolean",
+          "x-go-name": "EnableManuallyBind"
         },
         "enable_oauth2": {
           "type": "boolean",
@@ -13358,7 +13374,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateBusinessTagReq": {
       "type": "object",
