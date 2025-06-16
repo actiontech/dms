@@ -115,11 +115,9 @@ func (s *APIServer) initRouter() error {
 		roleV1.PUT("/:role_uid", s.DMSController.UpdateRole)
 
 		memberV1 := v1.Group(dmsV1.MemberRouterGroup)
-		memberV2 := v2.Group(dmsV2.MemberRouterGroup)
 		memberV1.POST("", s.DMSController.AddMember)
 		memberV1.GET("/tips", s.DMSController.ListMemberTips)
 		memberV1.GET("", s.DMSController.ListMembers)
-		memberV2.GET("", s.DMSController.ListMembersV2)
 		memberV1.GET(dmsV1.MemberForInternalRouterSuffix, s.DMSController.ListMembersForInternal)
 		memberV1.DELETE("/:member_uid", s.DMSController.DelMember)
 		memberV1.PUT("/:member_uid", s.DMSController.UpdateMember)
