@@ -10722,56 +10722,6 @@ paths:
             summary: Import DBServices.
             tags:
                 - DBService
-    /v2/dms/projects/{project_uid}/members:
-        get:
-            operationId: ListMembersV2
-            parameters:
-                - description: the maximum count of member to be returned
-                  format: uint32
-                  in: query
-                  name: page_size
-                  required: true
-                  type: integer
-                  x-go-name: PageSize
-                - description: the offset of members to be returned, default is 0
-                  format: uint32
-                  in: query
-                  name: page_index
-                  type: integer
-                  x-go-name: PageIndex
-                - description: |-
-                    Multiple of ["name"], default is ["name"]
-                    user_uid MemberOrderByUserUid
-                  enum:
-                    - user_uid
-                  in: query
-                  name: order_by
-                  type: string
-                  x-go-enum-desc: user_uid MemberOrderByUserUid
-                  x-go-name: OrderBy
-                - description: filter the member user uid
-                  in: query
-                  name: filter_by_user_uid
-                  type: string
-                  x-go-name: FilterByUserUid
-                - description: project id
-                  in: path
-                  name: project_uid
-                  required: true
-                  type: string
-                  x-go-name: ProjectUid
-            responses:
-                "200":
-                    description: ListMemberReplyV2
-                    schema:
-                        $ref: '#/definitions/ListMemberReplyV2'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: List member, for front page.
-            tags:
-                - Member
     /v2/dms/projects/import:
         post:
             operationId: ImportProjectsV2
