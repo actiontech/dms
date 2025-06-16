@@ -7623,6 +7623,23 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "CurrentProjectAdmin": {
+      "type": "object",
+      "properties": {
+        "is_admin": {
+          "type": "boolean",
+          "x-go-name": "IsAdmin"
+        },
+        "member_groups": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "MemberGroups"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "DBService": {
       "description": "A db service",
       "type": "object",
@@ -12324,6 +12341,24 @@
       },
       "x-go-name": "PreviewImportProjects",
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
+    "ProjectManagePermission": {
+      "type": "object",
+      "properties": {
+        "member_group": {
+          "type": "string",
+          "x-go-name": "MemberGroup"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "Uid"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ProjectMemberGroup": {
       "type": "object",
