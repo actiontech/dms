@@ -145,7 +145,7 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) 
 			Projects: 		  m.Projects,
 			IsGroupMember:    isGroupMember,
 			CurrentProjectOpPermissions: projectOpPermissions,
-			CurrentProjectManagePermissions: projectManagePermissions,
+			// TODO: 项目管理权限的赋值
 		}
 
 		for _, r := range m.RoleWithOpRanges {

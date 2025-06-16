@@ -10979,11 +10979,14 @@
       "description": "A dms member",
       "type": "object",
       "properties": {
+        "current_project_admin": {
+          "$ref": "#/definitions/CurrentProjectAdmin"
+        },
         "current_project_manage_permissions": {
           "description": "current project manage permissions",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/UidWithName"
+            "$ref": "#/definitions/ProjectManagePermission"
           },
           "x-go-name": "CurrentProjectManagePermissions"
         },
@@ -10996,7 +10999,7 @@
           "x-go-name": "CurrentProjectOpPermissions"
         },
         "is_group_member": {
-          "description": "Whether the member is group member",
+          "description": "Whether the member is a group member",
           "type": "boolean",
           "x-go-name": "IsGroupMember"
         },

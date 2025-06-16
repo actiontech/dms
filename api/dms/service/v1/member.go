@@ -134,7 +134,7 @@ type CurrentProjectAdmin struct {
 type ProjectManagePermission struct {
 	Uid string `json:"uid"`
 	Name string `json:"name"`
-	MemberGroup string `json:"member_group"`
+	MemberGroup *string `json:"member_group"`
 }
 
 type ProjectOpPermission struct {
