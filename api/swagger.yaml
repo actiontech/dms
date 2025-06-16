@@ -912,6 +912,18 @@ definitions:
                 x-go-name: Name
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CurrentProjectAdmin:
+        properties:
+            is_admin:
+                type: boolean
+                x-go-name: IsAdmin
+            member_groups:
+                items:
+                    type: string
+                type: array
+                x-go-name: MemberGroups
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DBService:
         description: A db service
         properties:
@@ -3530,10 +3542,12 @@ definitions:
     ListMember:
         description: A dms member
         properties:
+            current_project_admin:
+                $ref: '#/definitions/CurrentProjectAdmin'
             current_project_manage_permissions:
                 description: current project manage permissions
                 items:
-                    $ref: '#/definitions/UidWithName'
+                    $ref: '#/definitions/ProjectManagePermission'
                 type: array
                 x-go-name: CurrentProjectManagePermissions
             current_project_op_permissions:
@@ -3543,7 +3557,7 @@ definitions:
                 type: array
                 x-go-name: CurrentProjectOpPermissions
             is_group_member:
-                description: Whether the member is group member
+                description: Whether the member is a group member
                 type: boolean
                 x-go-name: IsGroupMember
             is_project_admin:
@@ -4752,6 +4766,19 @@ definitions:
         type: object
         x-go-name: PreviewImportProjects
         x-go-package: github.com/actiontech/dms/api/dms/service/v2
+    ProjectManagePermission:
+        properties:
+            member_group:
+                type: string
+                x-go-name: MemberGroup
+            name:
+                type: string
+                x-go-name: Name
+            uid:
+                type: string
+                x-go-name: Uid
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ProjectMemberGroup:
         properties:
             name:

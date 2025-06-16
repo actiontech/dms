@@ -112,16 +112,29 @@ type ListMember struct {
 	IsGroupMember  bool `json:"is_group_member"`
 	// Whether the member has project admin permission
 	IsProjectAdmin bool `json:"is_project_admin"`
+	// current project admin info
+	CurrentProjectAdmin CurrentProjectAdmin `json:"current_project_admin"`
 	// member op permission
 	RoleWithOpRanges []ListMemberRoleWithOpRange `json:"role_with_op_ranges"`
 	// current project permission
 	CurrentProjectOpPermissions []ProjectOpPermission `json:"current_project_op_permissions"`
 	// current project manage permissions
-	CurrentProjectManagePermissions []UidWithName `json:"current_project_manage_permissions"`
+	CurrentProjectManagePermissions []ProjectManagePermission `json:"current_project_manage_permissions"`
 	// member platform roles
 	PlatformRoles []UidWithName `json:"platform_roles"`
 	// member projects
 	Projects []string `json:"projects"`
+}
+
+type CurrentProjectAdmin struct {
+	IsAdmin bool `json:"is_admin"`
+	MemberGroups []string `json:"member_groups"`
+}
+
+type ProjectManagePermission struct {
+	Uid string `json:"uid"`
+	Name string `json:"name"`
+	MemberGroup string `json:"member_group"`
 }
 
 type ProjectOpPermission struct {
