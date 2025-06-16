@@ -3,6 +3,7 @@ package storage
 import (
 	"database/sql"
 	"fmt"
+	v1 "github.com/actiontech/dms/api/dms/service/v1"
 	"net/url"
 	"strings"
 	"time"
@@ -336,6 +337,15 @@ func convertModelMemberGroup(mg *model.MemberGroup) (*biz.MemberGroup, error) {
 		})
 	}
 
+	opPermissions := make([]biz.OpPermission, 0)
+	for _, permission := range mg.OpPermissions {
+		bizPermission, err:= convertModelOpPermission(&permission)
+		if err != nil {
+			return nil, err
+		}
+		opPermissions = append(opPermissions, *bizPermission)
+	}
+
 	return &biz.MemberGroup{
 		Base:             convertBase(mg.Model),
 		UID:              mg.UID,
@@ -343,6 +353,7 @@ func convertModelMemberGroup(mg *model.MemberGroup) (*biz.MemberGroup, error) {
 		Name:             mg.Name,
 		Users:            users,
 		RoleWithOpRanges: roles,
+		OpPermissions: opPermissions,
 	}, nil
 }
 
@@ -363,12 +374,22 @@ func convertModelRole(u *model.Role) (*biz.Role, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse user stat: %v", err)
 	}
+	opPermissions := make([]*biz.OpPermission, 0, len(u.OpPermissions))
+	for _, permission := range u.OpPermissions {
+		bizPermission, err := convertModelOpPermission(permission)
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert model op permission: %v", err)
+		}
+		opPermissions = append(opPermissions, bizPermission)
+	}
+
 	return &biz.Role{
 		Base: convertBase(u.Model),
 		UID:  u.UID,
 		Name: u.Name,
 		Desc: u.Desc,
 		Stat: stat,
+		OpPermissions: opPermissions,
 	}, nil
 }
 
@@ -382,6 +403,7 @@ func convertBizOpPermission(u *biz.OpPermission) (*model.OpPermission, error) {
 		Desc:      u.Desc,
 		RangeType: u.RangeType.String(),
 		Module: string(u.Module),
+		Service: string(u.Service),
 	}, nil
 }
 
@@ -393,6 +415,7 @@ func convertModelOpPermission(u *model.OpPermission) (*biz.OpPermission, error) 
 		Desc:      u.Desc,
 		RangeType: biz.OpRangeType(u.RangeType),
 		Module: biz.Module(u.Module),
+		Service: v1.Service(u.Service),
 	}, nil
 }
 
@@ -458,6 +481,10 @@ func convertBizMemberGroup(m *biz.MemberGroup) *model.MemberGroup {
 	for _, uid := range m.UserUids {
 		users = append(users, &model.User{Model: model.Model{UID: uid}})
 	}
+	var opPermissions []model.OpPermission
+	for _, permissionUid := range m.ProjectManagePermissions {
+		opPermissions = append(opPermissions, model.OpPermission{Model: model.Model{UID: permissionUid}})
+	}
 
 	return &model.MemberGroup{
 		Model: model.Model{
@@ -468,6 +495,7 @@ func convertBizMemberGroup(m *biz.MemberGroup) *model.MemberGroup {
 		ProjectUID:       m.ProjectUID,
 		RoleWithOpRanges: roles,
 		Users:            users,
+		OpPermissions:    opPermissions,
 	}
 }
 
@@ -488,6 +516,14 @@ func convertModelMember(m *model.Member) (*biz.Member, error) {
 	if m.User != nil && len(m.User.Members) > 0 {
 		projects = append(projects, m.User.Members[0].Project.Name)
 	}
+	opPermissions := make([]biz.OpPermission, 0)
+	for _, permission := range m.OpPermissions {
+		bizPermission, err:= convertModelOpPermission(permission)
+		if err != nil {
+			return nil, err
+		}
+		opPermissions = append(opPermissions, *bizPermission)
+	}
 	return &biz.Member{
 		Base:             convertBase(m.Model),
 		UID:              m.UID,
@@ -495,6 +531,7 @@ func convertModelMember(m *model.Member) (*biz.Member, error) {
 		Projects: 		  projects,
 		UserUID:          m.UserUID,
 		RoleWithOpRanges: roles,
+		OpPermissions:    opPermissions,
 	}, nil
 }
 
