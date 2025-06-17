@@ -120,6 +120,7 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) 
 		if err != nil {
 			return nil, err
 		}
+		projectManagePermissions := make([]dmsV1.ProjectManagePermission, 0,len(m.OpPermissions))
 		memberGroupRoleWithOpRanges := make([]dmsV1.ListMemberRoleWithOpRange, 0)
 		// 转换所有用户组的RoleWithOpRanges
 		for _, memberGroup := range memberGroups {
@@ -128,12 +129,18 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) 
 				return nil, err
 			}
 			memberGroupRoleWithOpRanges = append(memberGroupRoleWithOpRanges, memberRoleWithOpRanges...)
+			for _, permission := range memberGroup.OpPermissions {
+				projectManagePermissions = append(projectManagePermissions, dmsV1.ProjectManagePermission{
+					Uid:  permission.GetUID(),
+					Name: locale.Bundle.LocalizeMsgByCtx(ctx, OpPermissionNameByUID[permission.GetUID()]),
+					MemberGroup: memberGroup.Name,
+				})
+			}
 		}
 
 		projectOpPermissions := d.aggregateRoleByDataSource(roleWithOpRanges, memberGroupRoleWithOpRanges)
-		projectManagePermissions := make([]dmsV1.UidWithName, 0,len(m.OpPermissions))
 		for _, permission := range m.OpPermissions {
-			projectManagePermissions = append(projectManagePermissions, dmsV1.UidWithName{
+			projectManagePermissions = append(projectManagePermissions, dmsV1.ProjectManagePermission{
 				Uid:  permission.GetUID(),
 				Name: locale.Bundle.LocalizeMsgByCtx(ctx, OpPermissionNameByUID[permission.GetUID()]),
 			})
@@ -145,7 +152,8 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) 
 			Projects: 		  m.Projects,
 			IsGroupMember:    isGroupMember,
 			CurrentProjectOpPermissions: projectOpPermissions,
-			// TODO: 项目管理权限的赋值
+			CurrentProjectAdmin: d.buildMemberCurrentProjectAdmin(m, memberGroups),
+			CurrentProjectManagePermissions: projectManagePermissions,
 		}
 
 		for _, r := range m.RoleWithOpRanges {
@@ -173,6 +181,28 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) 
 			Total: total,
 		},
 		nil
+}
+
+func (d *DMSService) buildMemberCurrentProjectAdmin(member *biz.Member, memberGroups []*biz.MemberGroup) dmsV1.CurrentProjectAdmin {
+	isProjectAdmin := false
+	for _, r := range member.RoleWithOpRanges {
+		if r.RoleUID == pkgConst.UIDOfRoleProjectAdmin {
+			isProjectAdmin = true
+		}
+	}
+	memberGroupNames := make([]string, 0, len(memberGroups))
+	for _, group := range memberGroups {
+		memberGroupNames = append(memberGroupNames, group.Name)
+		for _, r := range group.RoleWithOpRanges {
+			if r.RoleUID == pkgConst.UIDOfRoleProjectAdmin {
+				isProjectAdmin = true
+			}
+		}
+	}
+	return dmsV1.CurrentProjectAdmin{
+		IsAdmin: isProjectAdmin,
+		MemberGroups: memberGroupNames,
+	}
 }
 
 func (d *DMSService) aggregateRoleByDataSource(roleWithOpRanges []dmsV1.ListMemberRoleWithOpRange, memberGroupRoleWithOpRanges []dmsV1.ListMemberRoleWithOpRange) []dmsV1.ProjectOpPermission {

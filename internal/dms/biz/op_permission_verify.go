@@ -15,7 +15,9 @@ import (
 type OpPermissionVerifyRepo interface {
 	IsUserHasOpPermissionInProject(ctx context.Context, userUid, projectUid, opPermissionUid string) (has bool, err error)
 	GetUserOpPermissionInProject(ctx context.Context, userUid, projectUid string) (opPermissionWithOpRanges []OpPermissionWithOpRange, err error)
+	GetUserProjectOpPermissionInProject(ctx context.Context, userUid, projectUid string) (opPermissionWithOpRanges []OpPermissionWithOpRange, err error)
 	GetUserOpPermission(ctx context.Context, userUid string) (opPermissionWithOpRanges []OpPermissionWithOpRange, err error)
+	GetUserProjectOpPermission(ctx context.Context, userUid string) (opPermissionWithOpRanges []OpPermissionWithOpRange, err error)
 	GetUserGlobalOpPermission(ctx context.Context, userUid string) (opPermissions []*OpPermission, err error)
 	GetUserProjectWithOpPermissions(ctx context.Context, userUid string) (projectWithPermission []ProjectOpPermissionWithOpRange, err error)
 	ListUsersOpPermissionInProject(ctx context.Context, projectUid string, opt *ListMembersOpPermissionOption) (items []ListMembersOpPermissionItem, total int64, err error)
@@ -185,6 +187,11 @@ func (o *OpPermissionVerifyUsecase) GetUserOpPermissionInProject(ctx context.Con
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user op permission in project: %v", err)
 	}
+	opProjectPermissionWithOpRanges, err := o.repo.GetUserProjectOpPermissionInProject(ctx, userUid, projectUid)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user project op permission: %v", err)
+	}
+	opPermissionWithOpRanges = append(opPermissionWithOpRanges, opProjectPermissionWithOpRanges...)
 
 	return opPermissionWithOpRanges, nil
 }
@@ -194,7 +201,11 @@ func (o *OpPermissionVerifyUsecase) GetUserOpPermission(ctx context.Context, use
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user op permission in project: %v", err)
 	}
-
+	opProjectPermissionWithOpRanges, err := o.repo.GetUserProjectOpPermission(ctx, userUid)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user project op permission: %v", err)
+	}
+	opPermissionWithOpRanges = append(opPermissionWithOpRanges, opProjectPermissionWithOpRanges...)
 	return opPermissionWithOpRanges, nil
 }
 
