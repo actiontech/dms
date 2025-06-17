@@ -155,6 +155,50 @@ func (o *OpPermissionVerifyRepo) GetUserOpPermissionInProject(ctx context.Contex
 	return opPermissionWithOpRanges, nil
 }
 
+func (o *OpPermissionVerifyRepo) GetUserProjectOpPermissionInProject(ctx context.Context, userUid, projectUid string) (opPermissionWithOpRanges []biz.OpPermissionWithOpRange, err error) {
+	type result struct {
+		OpPermissionUid string
+		OpRangeType     string
+		RangeUids       string
+	}
+	var results []result
+	if err := transaction(o.log, ctx, o.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Raw(`
+		SELECT 
+		    mop.op_permission_uid, 'project', m.project_uid 
+		FROM members AS m 
+		JOIN member_op_permissions AS mop ON m.uid=mop.member_uid AND m.user_uid=? AND m.project_uid=? 
+		UNION 
+		SELECT
+			DISTINCT mgop.op_permission_uid, 'project', mg.project_uid 
+		FROM member_groups mg
+		JOIN member_group_users mgu ON mg.uid = mgu.member_group_uid
+		JOIN member_group_op_permissions AS mgop ON mg.uid = mgop.member_group_uid
+		WHERE mg.project_uid = ? and mgu.user_uid = ?`, userUid, projectUid, projectUid, userUid).Scan(&results).Error; err != nil {
+			return fmt.Errorf("failed to get user op permission in project: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	opPermissionWithOpRanges = make([]biz.OpPermissionWithOpRange, 0, len(results))
+	for _, r := range results {
+		typ, err := biz.ParseOpRangeType(r.OpRangeType)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse op range type: %v", err)
+		}
+
+		opPermissionWithOpRanges = append(opPermissionWithOpRanges, biz.OpPermissionWithOpRange{
+			OpPermissionUID: r.OpPermissionUid,
+			OpRangeType:     typ,
+			RangeUIDs:       convertModelRangeUIDs(r.RangeUids),
+		})
+	}
+
+	return opPermissionWithOpRanges, nil
+}
+
 func (o *OpPermissionVerifyRepo) GetUserOpPermission(ctx context.Context, userUid string) (opPermissionWithOpRanges []biz.OpPermissionWithOpRange, err error) {
 	type result struct {
 		OpPermissionUid string
@@ -176,6 +220,50 @@ func (o *OpPermissionVerifyRepo) GetUserOpPermission(ctx context.Context, userUi
 		join member_group_role_op_ranges mgror on mgu.member_group_uid = mgror.member_group_uid
 		join role_op_permissions rop on mgror.role_uid = rop.role_uid
 		where mgu.user_uid = ?`, userUid, userUid).Scan(&results).Error; err != nil {
+			return fmt.Errorf("failed to get user op permission: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	opPermissionWithOpRanges = make([]biz.OpPermissionWithOpRange, 0, len(results))
+	for _, r := range results {
+		typ, err := biz.ParseOpRangeType(r.OpRangeType)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse op range type: %v", err)
+		}
+
+		opPermissionWithOpRanges = append(opPermissionWithOpRanges, biz.OpPermissionWithOpRange{
+			OpPermissionUID: r.OpPermissionUid,
+			OpRangeType:     typ,
+			RangeUIDs:       convertModelRangeUIDs(r.RangeUids),
+		})
+	}
+
+	return opPermissionWithOpRanges, nil
+}
+
+func (o *OpPermissionVerifyRepo) GetUserProjectOpPermission(ctx context.Context, userUid string) (opPermissionWithOpRanges []biz.OpPermissionWithOpRange, err error) {
+	type result struct {
+		OpPermissionUid string
+		OpRangeType     string
+		RangeUids       string
+	}
+	var results []result
+	if err := transaction(o.log, ctx, o.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Raw(`
+		SELECT 
+		    mop.op_permission_uid, 'project', m.project_uid 
+		FROM members AS m 
+		JOIN member_op_permissions AS mop ON m.uid=mop.member_uid AND m.user_uid=?
+		UNION 
+		SELECT
+			DISTINCT mgop.op_permission_uid, 'project', mg.project_uid 
+		FROM member_groups mg
+		JOIN member_group_users mgu ON mg.uid = mgu.member_group_uid
+		JOIN member_group_op_permissions AS mgop ON mg.uid = mgop.member_group_uid
+		WHERE mgu.user_uid = ?`, userUid, userUid).Scan(&results).Error; err != nil {
 			return fmt.Errorf("failed to get user op permission: %v", err)
 		}
 		return nil
