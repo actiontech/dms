@@ -274,6 +274,23 @@ func ParseOpPermissionType(typ string) (OpPermissionType, error) {
 		return OpPermissionTypeViewOthersOptimization, nil
 	case string(OpPermissionTypeCreatePipeline):
 		return OpPermissionTypeCreatePipeline, nil
+	case string(OpPermissionViewOperationRecord): return OpPermissionViewOperationRecord, nil
+	case string(OpPermissionViewExportTask): return OpPermissionViewExportTask, nil
+	case string(OpPermissionViewQuickAuditRecord): return OpPermissionViewQuickAuditRecord, nil
+	case string(OpPermissionViewIDEAuditRecord): return OpPermissionViewIDEAuditRecord, nil
+	case string(OpPermissionViewOptimizationRecord): return OpPermissionViewOptimizationRecord, nil
+	case string(OpPermissionVersionManage): return OpPermissionVersionManage, nil
+	case string(OpPermissionViewPipeline): return OpPermissionViewPipeline, nil
+	case string(OpPermissionViewPendingSQLManage): return OpPermissionViewPendingSQLManage, nil
+	case string(OpPermissionManageProjectDataSource): return OpPermissionManageProjectDataSource, nil
+	case string(OpPermissionManageAuditRuleTemplate): return OpPermissionManageAuditRuleTemplate, nil
+	case string(OpPermissionManageApprovalTemplate): return OpPermissionManageApprovalTemplate, nil
+	case string(OpPermissionManageMember): return OpPermissionManageMember, nil
+	case string(OpPermissionPushRule): return OpPermissionPushRule, nil
+	case string(OpPermissionMangeAuditSQLWhiteList): return OpPermissionMangeAuditSQLWhiteList, nil
+	case string(OpPermissionManageSQLMangeWhiteList): return OpPermissionManageSQLMangeWhiteList, nil
+	case string(OpPermissionManageRoleMange): return OpPermissionManageRoleMange, nil
+	case string(OpPermissionDesensitization): return OpPermissionDesensitization, nil
 	case string(OpPermissionTypeNone): return OpPermissionTypeNone, nil
 	default:
 		return "", fmt.Errorf("invalid op permission type: %s", typ)

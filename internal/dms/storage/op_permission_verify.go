@@ -165,12 +165,12 @@ func (o *OpPermissionVerifyRepo) GetUserProjectOpPermissionInProject(ctx context
 	if err := transaction(o.log, ctx, o.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Raw(`
 		SELECT 
-		    mop.op_permission_uid, 'project', m.project_uid 
+		    mop.op_permission_uid, 'project' as op_range_type, m.project_uid as range_uids
 		FROM members AS m 
 		JOIN member_op_permissions AS mop ON m.uid=mop.member_uid AND m.user_uid=? AND m.project_uid=? 
 		UNION 
 		SELECT
-			DISTINCT mgop.op_permission_uid, 'project', mg.project_uid 
+			DISTINCT mgop.op_permission_uid, 'project' as op_range_type, mg.project_uid as range_uids
 		FROM member_groups mg
 		JOIN member_group_users mgu ON mg.uid = mgu.member_group_uid
 		JOIN member_group_op_permissions AS mgop ON mg.uid = mgop.member_group_uid
@@ -254,12 +254,12 @@ func (o *OpPermissionVerifyRepo) GetUserProjectOpPermission(ctx context.Context,
 	if err := transaction(o.log, ctx, o.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Raw(`
 		SELECT 
-		    mop.op_permission_uid, 'project', m.project_uid 
+		    mop.op_permission_uid, 'project' as op_range_type, m.project_uid as range_uids 
 		FROM members AS m 
 		JOIN member_op_permissions AS mop ON m.uid=mop.member_uid AND m.user_uid=?
 		UNION 
 		SELECT
-			DISTINCT mgop.op_permission_uid, 'project', mg.project_uid 
+			DISTINCT mgop.op_permission_uid, 'project' as op_range_type, mg.project_uid as range_uids
 		FROM member_groups mg
 		JOIN member_group_users mgu ON mg.uid = mgu.member_group_uid
 		JOIN member_group_op_permissions AS mgop ON mg.uid = mgop.member_group_uid

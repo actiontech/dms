@@ -684,6 +684,40 @@ func convertBizOpPermission(opPermissionUid string) (apiOpPermissionTyp dmsCommo
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeViewOthersOptimization
 	case pkgConst.UIDOfOpPermissionCreatePipeline:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeCreatePipeline
+	case pkgConst.UIDOfOpPermissionViewOperationRecord:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionViewOperationRecord
+	case pkgConst.UIDOfOpPermissionViewExportTask:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionViewExportTask
+	case pkgConst.UIDOfPermissionViewQuickAuditRecord:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionViewQuickAuditRecord
+	case pkgConst.UIDOfOpPermissionViewIDEAuditRecord:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionViewIDEAuditRecord
+	case pkgConst.UIDOfOpPermissionViewOptimizationRecord:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionViewOptimizationRecord
+	case pkgConst.UIDOfOpPermissionVersionManage:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionVersionManage
+	case pkgConst.UIdOfOpPermissionViewPipeline:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionViewPipeline
+	case pkgConst.UIdOfOpPermissionViewPendingSQLManage:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionViewPendingSQLManage
+	case pkgConst.UIdOfOpPermissionManageProjectDataSource:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionManageProjectDataSource
+	case pkgConst.UIdOfOpPermissionManageAuditRuleTemplate:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionManageAuditRuleTemplate
+	case pkgConst.UIdOfOpPermissionManageApprovalTemplate:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionManageApprovalTemplate
+	case pkgConst.UIdOfOpPermissionManageMember:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionManageMember
+	case pkgConst.UIdOfOpPermissionPushRule:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionPushRule
+	case pkgConst.UIdOfOpPermissionMangeAuditSQLWhiteList:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionMangeAuditSQLWhiteList
+	case pkgConst.UIdOfOpPermissionManageSQLMangeWhiteList:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionManageSQLMangeWhiteList
+	case pkgConst.UIdOfOpPermissionManageRoleMange:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionManageRoleMange
+	case pkgConst.UIdOfOpPermissionDesensitization:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionDesensitization
 	case pkgConst.UIDOfOrdinaryUser:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeNone
 	default:
