@@ -2657,8 +2657,10 @@ func (ctl *DMSController) oauth2Callback(c echo.Context) error {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
 
-	// 只有在用户存在才签发tokens，不存在时后续会重定向到用户绑定页，绑定成功后再签发tokens
-	if callbackData.UserExist {
+	// 1. callbackData.Error 有错误时，前端会回到登录页并展示错误信息
+	// 2. callbackData.UserExist 为false时，前端会进入手动绑定页面，绑定时调用绑定接口签发tokens
+	// 3. 没错误且用户存在时，签发tokens登录成功
+	if  callbackData.Error == "" && callbackData.UserExist {
 		dmsToken, dmsCookieExp, err := claims.DmsToken()
 		if err != nil {
 			return NewErrResp(c, err, apiError.APIServerErr)

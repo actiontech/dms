@@ -23,6 +23,8 @@ type Oauth2Configuration struct {
 	UID                  string
 	EnableOauth2         bool
 	SkipCheckState       bool
+	EnableManuallyBind   bool
+	AutoBindSameNameUser bool
 	AutoCreateUser       bool
 	AutoCreateUserPWD    string
 	AutoCreateUserSecret string
