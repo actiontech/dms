@@ -141,11 +141,15 @@ func (o *OpPermissionVerifyUsecase) HasViewPermission(ctx context.Context, userI
 	if err != nil {
 		return false, err
 	}
+	isUserProjectAdmin, err := o.IsUserProjectAdmin(ctx, userId, projectUid)
+	if err != nil {
+		return false, err
+	}
 	canViewProject, err := o.CanViewProject(ctx, userId, projectUid, uIdOfPermission)
 	if err != nil {
 		return false, err
 	}
-	if canViewOperationRecord || canViewProject {
+	if canViewOperationRecord || canViewProject || isUserProjectAdmin {
 		return true, nil
 	}
 	return false, nil
@@ -156,11 +160,15 @@ func (o *OpPermissionVerifyUsecase) HasManagePermission(ctx context.Context, use
 	if err != nil {
 		return false, err
 	}
+	isUserProjectAdmin, err := o.IsUserProjectAdmin(ctx, userId, projectUid)
+	if err != nil {
+		return false, err
+	}
 	canOpProject, err := o.CanOpProject(ctx, userId, projectUid)
 	if err != nil {
 		return false, err
 	}
-	if canViewOperationRecord || canOpProject {
+	if canViewOperationRecord || canOpProject || isUserProjectAdmin {
 		return true, nil
 	}
 	return false, nil

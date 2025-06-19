@@ -549,8 +549,7 @@ func (d *DBServiceUsecase) DelDBService(ctx context.Context, dbServiceUid, curre
 	if err := d.projectUsecase.isProjectActive(ctx, ds.ProjectUID); err != nil {
 		return fmt.Errorf("delete db service error: %v", err)
 	}
-	// 检查当前用户有项目管理员权限
-	if canOpProject, err := d.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, ds.ProjectUID); err != nil {
+	if canOpProject, err := d.opPermissionVerifyUsecase.HasManagePermission(ctx, currentUserUid, ds.ProjectUID, pkgConst.UIdOfOpPermissionManageProjectDataSource); err != nil {
 		return fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
 	} else if !canOpProject {
 		return fmt.Errorf("user is not project admin or golobal op permission user")
@@ -641,25 +640,10 @@ func (d *DBServiceUsecase) UpdateDBService(ctx context.Context, ds *DBService, c
 		return fmt.Errorf("update db service error: %v", err)
 	}
 
-	// 检查当前用户有项目管理员权限或者数据源管理权限
-	manageDataSource, err := d.opPermissionVerifyUsecase.HasOpPermissionInProject(ctx, currentUserUid, ds.ProjectUID, pkgConst.UIdOfOpPermissionManageProjectDataSource)
-	if err != nil {
-		return fmt.Errorf("check user has permission manageDataSource: %v", err)
-	}
-	canOpProject, err := d.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, ds.ProjectUID)
-	if err != nil {
-		return fmt.Errorf("check user is admin or global management permission : %v", err)
-	}
-
-	if !(canOpProject || manageDataSource) {
-		return fmt.Errorf("user is not admin or data source management permission")
-	}
-
-	// 检查当前用户有项目管理员权限
-	if canOpProject, err := d.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, ds.ProjectUID); err != nil {
-		return fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
+	if canOpProject, err := d.opPermissionVerifyUsecase.HasManagePermission(ctx, currentUserUid, ds.ProjectUID, pkgConst.UIdOfOpPermissionManageProjectDataSource); err != nil {
+		return fmt.Errorf("check user has update data source op permission failed: %v", err)
 	} else if !canOpProject {
-		return fmt.Errorf("user is not project admin or golobal op permission user")
+		return fmt.Errorf("user has no update data source permission")
 	}
 
 	if err := d.repo.UpdateDBService(ctx, ds); nil != err {
