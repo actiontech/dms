@@ -465,11 +465,16 @@ func (d *OpPermissionUsecase) ListMemberOpPermissions(ctx context.Context, opt *
 }
 
 func (d *OpPermissionUsecase) ListProjectOpPermissions(ctx context.Context, opt *ListOpPermissionsOption) (ops []*OpPermission, total int64, err error) {
-	// 用户只能被赋予全局权限
 	opt.FilterBy = append(opt.FilterBy, pkgConst.FilterCondition{
 		Field:    string(OpPermissionFieldRangeType),
 		Operator: pkgConst.FilterOperatorEqual,
 		Value:    OpRangeTypeProject,
+	})
+
+	opt.FilterBy = append(opt.FilterBy, pkgConst.FilterCondition{
+		Field:    string(OpPermissionFieldUID),
+		Operator: pkgConst.FilterOperatorNotEqual,
+		Value: pkgConst.UIDOfOpPermissionProjectAdmin,
 	})
 
 	ops, total, err = d.repo.ListOpPermissions(ctx, opt)

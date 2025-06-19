@@ -4000,7 +4000,7 @@ definitions:
             op_permissions:
                 description: op permissions
                 items:
-                    $ref: '#/definitions/UidWithName'
+                    $ref: '#/definitions/ListRoleOpPermission'
                 type: array
                 x-go-name: OpPermissions
             stat:
@@ -4032,6 +4032,19 @@ definitions:
                 description: role uid
                 type: string
                 x-go-name: RoleUid
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListRoleOpPermission:
+        properties:
+            module:
+                type: string
+                x-go-name: Module
+            name:
+                type: string
+                x-go-name: Name
+            uid:
+                type: string
+                x-go-name: Uid
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListRoleReply:
@@ -4500,7 +4513,6 @@ definitions:
                     view_optimization_record OpPermissionViewOptimizationRecord  SQL优化;查看所有优化记录
                     version_manage OpPermissionVersionManage  版本管理;版本管理
                     view_pipeline OpPermissionViewPipeline  CI/CD集成;查看所有流水线
-                    view_pending_sql_manage OpPermissionViewPendingSQLManage  SQL管控;查看待处理的SQL管控
                     manage_project_data_source OpPermissionManageProjectDataSource  数据源管理;管理项目数据源管理
                     manage_audit_rule_template OpPermissionManageAuditRuleTemplate  审核规则模版;管理审核规则模版
                     manage_approval_template OpPermissionManageApprovalTemplate  审批流程模版;管理审批流程模版
@@ -4537,7 +4549,6 @@ definitions:
                     - view_optimization_record
                     - version_manage
                     - view_pipeline
-                    - view_pending_sql_manage
                     - manage_project_data_source
                     - manage_audit_rule_template
                     - manage_approval_template
@@ -4575,7 +4586,6 @@ definitions:
                     view_optimization_record OpPermissionViewOptimizationRecord  SQL优化;查看所有优化记录
                     version_manage OpPermissionVersionManage  版本管理;版本管理
                     view_pipeline OpPermissionViewPipeline  CI/CD集成;查看所有流水线
-                    view_pending_sql_manage OpPermissionViewPendingSQLManage  SQL管控;查看待处理的SQL管控
                     manage_project_data_source OpPermissionManageProjectDataSource  数据源管理;管理项目数据源管理
                     manage_audit_rule_template OpPermissionManageAuditRuleTemplate  审核规则模版;管理审核规则模版
                     manage_approval_template OpPermissionManageApprovalTemplate  审批流程模版;管理审批流程模版
