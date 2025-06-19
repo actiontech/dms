@@ -248,8 +248,11 @@ func (d *UserUsecase) GetUserLoginVerifier(ctx context.Context, name string) (Us
 	if nil != err && !errors.Is(err, pkgErr.ErrStorageNoData) {
 		return nil, false, "", fmt.Errorf("get user by name error: %v", err)
 	}
-	towFactorEnabled := user.TwoFactorEnabled
-	phone := user.Phone
+	towFactorEnabled, phone := false, ""
+	if user != nil {
+		towFactorEnabled = user.TwoFactorEnabled
+		phone = user.Phone
+	}
 
 	ldapC, _, err := d.ldapConfigurationUsecase.GetLDAPConfiguration(ctx)
 	if err != nil {
@@ -257,9 +260,6 @@ func (d *UserUsecase) GetUserLoginVerifier(ctx context.Context, name string) (Us
 	}
 
 	loginVerifierType, exist := d.getLoginVerifierType(user, ldapC)
-	if err != nil {
-		return nil, towFactorEnabled, phone, fmt.Errorf("get login verifier type failed: %v", err)
-	}
 
 	var userLoginVerifier UserLoginVerifier
 	{
