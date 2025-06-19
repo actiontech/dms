@@ -95,6 +95,7 @@ type RoleRepo interface {
 	SaveRole(ctx context.Context, role *Role) error
 	UpdateRole(ctx context.Context, u *Role) error
 	CheckRoleExist(ctx context.Context, roleUids []string) (exists bool, err error)
+	CheckRoleExistByRoleName(ctx context.Context, roleName string) (exists bool, err error)
 	ListRoles(ctx context.Context, opt *ListRolesOption) (roles []*Role, total int64, err error)
 	DelRole(ctx context.Context, roleUid string) error
 	GetRole(ctx context.Context, roleUid string) (*Role, error)
@@ -236,6 +237,13 @@ func (d *RoleUsecase) CreateRole(ctx context.Context, currentUserUid, name, desc
 			err = tx.RollbackWithError(d.log, err)
 		}
 	}()
+	existed, err := d.repo.CheckRoleExistByRoleName(ctx, name)
+	if err != nil {
+		return "", fmt.Errorf("check role exist failed: %v", err)
+	}
+	if existed {
+		return "", fmt.Errorf("role name already existed")
+	}
 
 	if err := d.repo.SaveRole(tx, u); err != nil {
 		return "", fmt.Errorf("save role failed: %v", err)

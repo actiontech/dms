@@ -59,6 +59,23 @@ func (d *RoleRepo) CheckRoleExist(ctx context.Context, roleUids []string) (exist
 	return true, nil
 }
 
+func (d *RoleRepo) CheckRoleExistByRoleName(ctx context.Context, name string) (exists bool, err error) {
+	var count int64
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Model(&model.Role{}).Where("name = ?", name).Count(&count).Error; err != nil {
+			return fmt.Errorf("failed to check role exist: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return false, err
+	}
+
+	if count > 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
 func (d *RoleRepo) UpdateRole(ctx context.Context, u *biz.Role) error {
 	exist, err := d.CheckRoleExist(ctx, []string{u.UID})
 	if err != nil {

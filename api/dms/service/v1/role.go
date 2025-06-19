@@ -101,7 +101,13 @@ type ListRole struct {
 	// role desc
 	Desc string `json:"desc"`
 	// op permissions
-	OpPermissions []UidWithName `json:"op_permissions"`
+	OpPermissions []ListRoleOpPermission `json:"op_permissions"`
+}
+
+type ListRoleOpPermission struct {
+	Uid  string `json:"uid"`
+	Name string `json:"name"`
+	Module string `json:"module"`
 }
 
 // swagger:model ListRoleReply
