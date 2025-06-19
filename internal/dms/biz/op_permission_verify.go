@@ -118,7 +118,7 @@ func (o *OpPermissionVerifyUsecase) CanOpProject(ctx context.Context, userUid, p
 	return has, nil
 }
 
-func (o *OpPermissionVerifyUsecase) CanViewProject(ctx context.Context, userUid, projectUid string) (bool, error) {
+func (o *OpPermissionVerifyUsecase) CanViewProject(ctx context.Context, userUid, projectUid string, uIdOfPermission string) (bool, error) {
 	canViewGlobal, err := o.CanViewGlobal(ctx, userUid)
 	if err != nil {
 		return false, err
@@ -126,12 +126,52 @@ func (o *OpPermissionVerifyUsecase) CanViewProject(ctx context.Context, userUid,
 	if canViewGlobal {
 		return true, nil
 	}
-
-	has, err := o.repo.IsUserHasOpPermissionInProject(ctx, userUid, projectUid, pkgConst.UIDOfOpPermissionProjectAdmin)
-	if err != nil {
-		return false, fmt.Errorf("failed to check user is project admin: %v", err)
+	hasPermission := false
+	if uIdOfPermission != "" {
+		hasPermission, err = o.repo.IsUserHasOpPermissionInProject(ctx, userUid, projectUid, uIdOfPermission)
+		if err != nil {
+			return false, fmt.Errorf("failed to check user is project admin: %v", err)
+		}
 	}
+	return hasPermission, nil
+}
 
+func (o *OpPermissionVerifyUsecase) HasViewPermission(ctx context.Context, userId, projectUid string, uIdOfPermission string) (bool, error) {
+	canViewOperationRecord, err := o.HasOpPermissionInProject(ctx, userId, projectUid, uIdOfPermission)
+	if err != nil {
+		return false, err
+	}
+	canViewProject, err := o.CanViewProject(ctx, userId, projectUid, uIdOfPermission)
+	if err != nil {
+		return false, err
+	}
+	if canViewOperationRecord || canViewProject {
+		return true, nil
+	}
+	return false, nil
+}
+
+func (o *OpPermissionVerifyUsecase) HasManagePermission(ctx context.Context, userId, projectUid string, uIdOfPermission string) (bool, error) {
+	canViewOperationRecord, err := o.HasOpPermissionInProject(ctx, userId, projectUid, uIdOfPermission)
+	if err != nil {
+		return false, err
+	}
+	canOpProject, err := o.CanOpProject(ctx, userId, projectUid)
+	if err != nil {
+		return false, err
+	}
+	if canViewOperationRecord || canOpProject {
+		return true, nil
+	}
+	return false, nil
+}
+
+// HasOpPermissionInProject 查看某用户在某项目下是否有某种权限
+func (o *OpPermissionVerifyUsecase) HasOpPermissionInProject(ctx context.Context, userUid, projectUid string, permissionUid string) (bool, error) {
+	has, err := o.repo.IsUserHasOpPermissionInProject(ctx, userUid, projectUid, permissionUid)
+	if err != nil {
+		return false, fmt.Errorf("failed to check user op permission in project: %v", err)
+	}
 	return has, nil
 }
 

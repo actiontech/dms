@@ -10,7 +10,15 @@ import (
 	"github.com/actiontech/dms/internal/pkg/locale"
 )
 
-func (d *DMSService) ListMemberGroups(ctx context.Context, req *dmsV1.ListMemberGroupsReq) (reply *dmsV1.ListMemberGroupsReply, err error) {
+func (d *DMSService) ListMemberGroups(ctx context.Context, req *dmsV1.ListMemberGroupsReq, currentUserId string) (reply *dmsV1.ListMemberGroupsReply, err error) {
+	hasPermission, err := d.OpPermissionVerifyUsecase.HasViewPermission(ctx, currentUserId, req.ProjectUid, pkgConst.UIdOfOpPermissionManageMember)
+	if err != nil {
+		return nil, fmt.Errorf("check user has permission manage member: %v", err)
+	}
+
+	if !hasPermission {
+		return nil, fmt.Errorf("user is not admin or manage member permission")
+	}
 	var orderBy biz.MemberGroupField
 	switch req.OrderBy {
 	case dmsV1.MemberGroupOrderByName:
@@ -218,6 +226,14 @@ func (d *DMSService) GetMemberGroup(ctx context.Context, req *dmsV1.GetMemberGro
 }
 
 func (d *DMSService) AddMemberGroup(ctx context.Context, currentUserUid string, req *dmsV1.AddMemberGroupReq) (reply *dmsV1.AddMemberReply, err error) {
+	hasPermission, err := d.OpPermissionVerifyUsecase.HasViewPermission(ctx, currentUserUid, req.ProjectUid, pkgConst.UIdOfOpPermissionManageMember)
+	if err != nil {
+		return nil, fmt.Errorf("check user has permission manage member: %v", err)
+	}
+
+	if !hasPermission {
+		return nil, fmt.Errorf("user is not admin or manage member permission")
+	}
 	roles := make([]biz.MemberRoleWithOpRange, 0, len(req.MemberGroup.RoleWithOpRanges))
 	for _, p := range req.MemberGroup.RoleWithOpRanges {
 		typ, err := biz.ParseOpRangeType(string(p.OpRangeType))
@@ -254,6 +270,14 @@ func (d *DMSService) AddMemberGroup(ctx context.Context, currentUserUid string, 
 }
 
 func (d *DMSService) UpdateMemberGroup(ctx context.Context, currentUserUid string, req *dmsV1.UpdateMemberGroupReq) (err error) {
+	hasPermission, err := d.OpPermissionVerifyUsecase.HasViewPermission(ctx, currentUserUid, req.ProjectUid, pkgConst.UIdOfOpPermissionManageMember)
+	if err != nil {
+		return fmt.Errorf("check user has permission manage member: %v", err)
+	}
+
+	if !hasPermission {
+		return fmt.Errorf("user is not admin or manage member permission")
+	}
 	roles := make([]biz.MemberRoleWithOpRange, 0, len(req.MemberGroup.RoleWithOpRanges))
 	for _, r := range req.MemberGroup.RoleWithOpRanges {
 
@@ -286,6 +310,14 @@ func (d *DMSService) UpdateMemberGroup(ctx context.Context, currentUserUid strin
 }
 
 func (d *DMSService) DeleteMemberGroup(ctx context.Context, currentUserUid string, req *dmsV1.DeleteMemberGroupReq) (err error) {
+	hasPermission, err := d.OpPermissionVerifyUsecase.HasViewPermission(ctx, currentUserUid, req.ProjectUid, pkgConst.UIdOfOpPermissionManageMember)
+	if err != nil {
+		return fmt.Errorf("check user has permission manage member: %v", err)
+	}
+
+	if !hasPermission {
+		return fmt.Errorf("user is not admin or manage member permission")
+	}
 	if err = d.MemberGroupUsecase.DeleteMemberGroup(ctx, currentUserUid, req.MemberGroupUid, req.ProjectUid); err != nil {
 		return fmt.Errorf("delete member group failed: %v", err)
 	}
