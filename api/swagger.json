@@ -1676,13 +1676,26 @@
             "enum": [
               "all",
               "user",
-              "member"
+              "member",
+              "project"
             ],
             "type": "string",
-            "x-go-enum-desc": "all OpPermissionTargetAll\nuser OpPermissionTargetUser\nmember OpPermissionTargetMember",
+            "x-go-enum-desc": "all OpPermissionTargetAll\nuser OpPermissionTargetUser\nmember OpPermissionTargetMember\nproject OpPermissionTargetProject",
             "x-go-name": "FilterByTarget",
-            "description": "filter by op permission target\nall OpPermissionTargetAll\nuser OpPermissionTargetUser\nmember OpPermissionTargetMember",
+            "description": "filter by op permission target\nall OpPermissionTargetAll\nuser OpPermissionTargetUser\nmember OpPermissionTargetMember\nproject OpPermissionTargetProject",
             "name": "filter_by_target",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "dms",
+              "sqle"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "dms ServiceDMS\nsqle ServiceSQLE",
+            "x-go-name": "Service",
+            "description": "filter by service\ndms ServiceDMS\nsqle ServiceSQLE",
+            "name": "service",
             "in": "query"
           }
         ],
@@ -4833,6 +4846,13 @@
             "description": "filter the role name",
             "name": "filter_by_name",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FuzzyKeyword",
+            "description": "the db service fuzzy keyword,include op_permission",
+            "name": "fuzzy_keyword",
+            "in": "query"
           }
         ],
         "responses": {
@@ -7599,6 +7619,23 @@
         "environment_name": {
           "type": "string",
           "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "CurrentProjectAdmin": {
+      "type": "object",
+      "properties": {
+        "is_admin": {
+          "type": "boolean",
+          "x-go-name": "IsAdmin"
+        },
+        "member_groups": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "MemberGroups"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -10942,6 +10979,30 @@
       "description": "A dms member",
       "type": "object",
       "properties": {
+        "current_project_admin": {
+          "$ref": "#/definitions/CurrentProjectAdmin"
+        },
+        "current_project_manage_permissions": {
+          "description": "current project manage permissions",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProjectManagePermission"
+          },
+          "x-go-name": "CurrentProjectManagePermissions"
+        },
+        "current_project_op_permissions": {
+          "description": "current project permission",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProjectOpPermission"
+          },
+          "x-go-name": "CurrentProjectOpPermissions"
+        },
+        "is_group_member": {
+          "description": "Whether the member is a group member",
+          "type": "boolean",
+          "x-go-name": "IsGroupMember"
+        },
         "is_project_admin": {
           "description": "Whether the member has project admin permission",
           "type": "boolean",
@@ -10985,6 +11046,22 @@
     "ListMemberGroup": {
       "type": "object",
       "properties": {
+        "current_project_manage_permissions": {
+          "description": "member project manage permissions",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "CurrentProjectManagePermissions"
+        },
+        "current_project_op_permissions": {
+          "description": "current project permission",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProjectOpPermission"
+          },
+          "x-go-name": "CurrentProjectOpPermissions"
+        },
         "is_project_admin": {
           "description": "Whether the member has project admin permission",
           "type": "boolean",
@@ -11207,6 +11284,10 @@
           "type": "string",
           "x-go-name": "Description"
         },
+        "module": {
+          "type": "string",
+          "x-go-name": "Module"
+        },
         "op_permission": {
           "$ref": "#/definitions/UidWithName"
         },
@@ -11220,6 +11301,15 @@
           ],
           "x-go-enum-desc": "unknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "x-go-name": "RangeType"
+        },
+        "service": {
+          "type": "string",
+          "enum": [
+            "dms",
+            "sqle"
+          ],
+          "x-go-enum-desc": "dms ServiceDMS\nsqle ServiceSQLE",
+          "x-go-name": "Service"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -11445,7 +11535,7 @@
           "description": "op permissions",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/UidWithName"
+            "$ref": "#/definitions/ListRoleOpPermission"
           },
           "x-go-name": "OpPermissions"
         },
@@ -11467,6 +11557,24 @@
           "description": "role uid",
           "type": "string",
           "x-go-name": "RoleUid"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListRoleOpPermission": {
+      "type": "object",
+      "properties": {
+        "module": {
+          "type": "string",
+          "x-go-name": "Module"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "Uid"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -11760,6 +11868,14 @@
           "type": "boolean",
           "x-go-name": "IsProjectAdmin"
         },
+        "project_manage_permissions": {
+          "description": "member project manage permissions",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "ProjectManagePermissions"
+        },
         "role_with_op_ranges": {
           "description": "member role with op ranges",
           "type": "array",
@@ -11792,6 +11908,14 @@
           "description": "member group name",
           "type": "string",
           "x-go-name": "Name"
+        },
+        "project_manage_permissions": {
+          "description": "member project manage permissions",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "ProjectManagePermissions"
         },
         "role_with_op_ranges": {
           "description": "member role with op ranges",
@@ -11974,7 +12098,7 @@
       "type": "object",
       "properties": {
         "op_permission_type": {
-          "description": "op permission type\nunknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nglobal_view OpPermissionTypeGlobalView  项目管理；拥有该权限的用户可以管理项目下的所有资源\nglobal_management OpPermissionTypeGlobalManagement  全局浏览；拥有该权限的用户可以浏览全局的资源\nproject_admin OpPermissionTypeProjectAdmin  全局管理；拥有该权限的用户可以浏览和管理全局的资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单\ncreate_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优\nview_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优\ncreate_pipeline OpPermissionTypeCreatePipeline  配置流水线\nnone OpPermissionTypeNone  无任何权限",
+          "description": "op permission type\nunknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nglobal_view OpPermissionTypeGlobalView  项目管理；拥有该权限的用户可以管理项目下的所有资源\nglobal_management OpPermissionTypeGlobalManagement  全局浏览；拥有该权限的用户可以浏览全局的资源\nproject_admin OpPermissionTypeProjectAdmin  全局管理；拥有该权限的用户可以浏览和管理全局的资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单\ncreate_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优\nview_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优\ncreate_pipeline OpPermissionTypeCreatePipeline  配置流水线\nview_operation_record OpPermissionViewOperationRecord  SQL工作台;查看所有操作记录\nview_export_task OpPermissionViewExportTask  数据导出;查看所有导出任务\nview_quick_audit_record OpPermissionViewQuickAuditRecord  快捷审核;查看所有快捷审核记录\nview_ide_audit_record OpPermissionViewIDEAuditRecord  IDE审核;查看所有IDE审核记录\nview_optimization_record OpPermissionViewOptimizationRecord  SQL优化;查看所有优化记录\nversion_manage OpPermissionVersionManage  版本管理;版本管理\nview_pipeline OpPermissionViewPipeline  CI/CD集成;查看所有流水线\nmanage_project_data_source OpPermissionManageProjectDataSource  数据源管理;管理项目数据源管理\nmanage_audit_rule_template OpPermissionManageAuditRuleTemplate  审核规则模版;管理审核规则模版\nmanage_approval_template OpPermissionManageApprovalTemplate  审批流程模版;管理审批流程模版\nmanage_member OpPermissionManageMember  成员与权限;管理成员与权限\nmanage_push_rule OpPermissionPushRule  推送规则;管理推送规则\nmanage_audit_sql_white_list OpPermissionMangeAuditSQLWhiteList  审核SQL例外;管理审核SQL例外\nmanage_sql_mange_white_list OpPermissionManageSQLMangeWhiteList  管控SQL例外;管理管控SQL例外\nmanage_role_mange OpPermissionManageRoleMange  角色管理;角色管理权限\ndesensitization OpPermissionDesensitization  脱敏规则;脱敏规则配置权限\nnone OpPermissionTypeNone  无任何权限",
           "type": "string",
           "enum": [
             "unknown",
@@ -11995,9 +12119,25 @@
             "create_optimization",
             "view_others_optimization",
             "create_pipeline",
+            "view_operation_record",
+            "view_export_task",
+            "view_quick_audit_record",
+            "view_ide_audit_record",
+            "view_optimization_record",
+            "version_manage",
+            "view_pipeline",
+            "manage_project_data_source",
+            "manage_audit_rule_template",
+            "manage_approval_template",
+            "manage_member",
+            "manage_push_rule",
+            "manage_audit_sql_white_list",
+            "manage_sql_mange_white_list",
+            "manage_role_mange",
+            "desensitization",
             "none"
           ],
-          "x-go-enum-desc": "unknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nglobal_view OpPermissionTypeGlobalView  项目管理；拥有该权限的用户可以管理项目下的所有资源\nglobal_management OpPermissionTypeGlobalManagement  全局浏览；拥有该权限的用户可以浏览全局的资源\nproject_admin OpPermissionTypeProjectAdmin  全局管理；拥有该权限的用户可以浏览和管理全局的资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单\ncreate_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优\nview_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优\ncreate_pipeline OpPermissionTypeCreatePipeline  配置流水线\nnone OpPermissionTypeNone  无任何权限",
+          "x-go-enum-desc": "unknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nglobal_view OpPermissionTypeGlobalView  项目管理；拥有该权限的用户可以管理项目下的所有资源\nglobal_management OpPermissionTypeGlobalManagement  全局浏览；拥有该权限的用户可以浏览全局的资源\nproject_admin OpPermissionTypeProjectAdmin  全局管理；拥有该权限的用户可以浏览和管理全局的资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单\ncreate_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优\nview_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优\ncreate_pipeline OpPermissionTypeCreatePipeline  配置流水线\nview_operation_record OpPermissionViewOperationRecord  SQL工作台;查看所有操作记录\nview_export_task OpPermissionViewExportTask  数据导出;查看所有导出任务\nview_quick_audit_record OpPermissionViewQuickAuditRecord  快捷审核;查看所有快捷审核记录\nview_ide_audit_record OpPermissionViewIDEAuditRecord  IDE审核;查看所有IDE审核记录\nview_optimization_record OpPermissionViewOptimizationRecord  SQL优化;查看所有优化记录\nversion_manage OpPermissionVersionManage  版本管理;版本管理\nview_pipeline OpPermissionViewPipeline  CI/CD集成;查看所有流水线\nmanage_project_data_source OpPermissionManageProjectDataSource  数据源管理;管理项目数据源管理\nmanage_audit_rule_template OpPermissionManageAuditRuleTemplate  审核规则模版;管理审核规则模版\nmanage_approval_template OpPermissionManageApprovalTemplate  审批流程模版;管理审批流程模版\nmanage_member OpPermissionManageMember  成员与权限;管理成员与权限\nmanage_push_rule OpPermissionPushRule  推送规则;管理推送规则\nmanage_audit_sql_white_list OpPermissionMangeAuditSQLWhiteList  审核SQL例外;管理审核SQL例外\nmanage_sql_mange_white_list OpPermissionManageSQLMangeWhiteList  管控SQL例外;管理管控SQL例外\nmanage_role_mange OpPermissionManageRoleMange  角色管理;角色管理权限\ndesensitization OpPermissionDesensitization  脱敏规则;脱敏规则配置权限\nnone OpPermissionTypeNone  无任何权限",
           "x-go-name": "OpPermissionType"
         },
         "range_type": {
@@ -12221,6 +12361,93 @@
       },
       "x-go-name": "PreviewImportProjects",
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
+    "ProjectManagePermission": {
+      "type": "object",
+      "properties": {
+        "member_group": {
+          "type": "string",
+          "x-go-name": "MemberGroup"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "Uid"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ProjectMemberGroup": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "op_permissions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "OpPermissions"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "Uid"
+        },
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "Users"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ProjectOpPermission": {
+      "type": "object",
+      "properties": {
+        "data_source": {
+          "type": "string",
+          "x-go-name": "DataSource"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProjectRole"
+          },
+          "x-go-name": "Roles"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ProjectRole": {
+      "type": "object",
+      "properties": {
+        "member_group": {
+          "$ref": "#/definitions/ProjectMemberGroup"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "op_permissions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "OpPermissions"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "Uid"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ProjectTips": {
       "type": "object",
@@ -13547,6 +13774,14 @@
           "type": "boolean",
           "x-go-name": "IsProjectAdmin"
         },
+        "project_manage_permissions": {
+          "description": "member project manage permissions",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "ProjectManagePermissions"
+        },
         "role_with_op_ranges": {
           "description": "member role with op ranges",
           "type": "array",
@@ -13568,6 +13803,14 @@
           "description": "Whether the member has project admin permission",
           "type": "boolean",
           "x-go-name": "IsProjectAdmin"
+        },
+        "project_manage_permissions": {
+          "description": "member project manage permissions",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "ProjectManagePermissions"
         },
         "role_with_op_ranges": {
           "description": "member role with op ranges",

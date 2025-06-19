@@ -19,6 +19,7 @@ type Member struct {
 	Projects         []string
 	PlatformRoles    []string
 	RoleWithOpRanges []MemberRoleWithOpRange
+	OpPermissions    []OpPermission
 }
 
 func (u *Member) GetUID() string {
@@ -54,6 +55,7 @@ type MemberRepo interface {
 	CheckMemberExist(ctx context.Context, memberUids []string) (exists bool, err error)
 	DelMember(ctx context.Context, memberUid string) error
 	DelRoleFromAllMembers(ctx context.Context, roleUid string) error
+	ReplaceOpPermissionsInMember(ctx context.Context, memberUid string, opPermissionUids []string) error
 }
 
 type MemberUsecase struct {
@@ -89,7 +91,7 @@ func NewMemberUsecase(log utilLog.Logger, tx TransactionGenerator, repo MemberRe
 }
 
 func (m *MemberUsecase) CreateMember(ctx context.Context, currentUserUid string, memberUserUid string, projectUid string, isProjectAdmin bool,
-	roleAndOpRanges []MemberRoleWithOpRange) (memberUid string, err error) {
+	roleAndOpRanges []MemberRoleWithOpRange, projectManagePermissions []string) (memberUid string, err error) {
 	// check
 	{
 		// 检查项目是否归档/删除
@@ -156,6 +158,10 @@ func (m *MemberUsecase) CreateMember(ctx context.Context, currentUserUid string,
 
 	if err := m.repo.SaveMember(tx, member); err != nil {
 		return "", fmt.Errorf("save member failed: %v", err)
+	}
+
+	if err := m.repo.ReplaceOpPermissionsInMember(tx, member.UID, projectManagePermissions); err != nil {
+		return "", fmt.Errorf("replace op permissions in member failed: %v", err)
 	}
 
 	if err := tx.Commit(m.log); err != nil {
@@ -307,7 +313,7 @@ func (m *MemberUsecase) CheckMemberExist(ctx context.Context, memberUids []strin
 }
 
 func (m *MemberUsecase) UpdateMember(ctx context.Context, currentUserUid, updateMemberUid, projectUid string, isProjectAdmin bool,
-	roleAndOpRanges []MemberRoleWithOpRange) error {
+	roleAndOpRanges []MemberRoleWithOpRange, projectManagePermissions []string) error {
 	// check
 	{
 		// 检查项目是否归档/删除
@@ -335,6 +341,10 @@ func (m *MemberUsecase) UpdateMember(ctx context.Context, currentUserUid, update
 	// 如果是项目管理员，则自动添加内置的项目管理员角色
 	if isProjectAdmin {
 		m.FixMemberWithProjectAdmin(ctx, member, projectUid)
+	}
+
+	if err := m.repo.ReplaceOpPermissionsInMember(ctx, updateMemberUid, projectManagePermissions); err != nil {
+		return fmt.Errorf("replace op permissions in member failed: %v", err)
 	}
 
 	tx := m.tx.BeginTX(ctx)
