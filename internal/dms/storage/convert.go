@@ -240,7 +240,7 @@ func convertModelUser(u *model.User) (*biz.User, error) {
 
 	projects := make([]string, 0)
 	for _, member := range u.Members {
-		if member !=nil && member.Project != nil {
+		if member != nil && member.Project != nil {
 			projects = append(projects, member.Project.Name)
 		}
 	}
@@ -532,7 +532,7 @@ func convertModelMember(m *model.Member) (*biz.Member, error) {
 		Base:             convertBase(m.Model),
 		UID:              m.UID,
 		ProjectUID:       m.ProjectUID,
-		Projects: 		  projects,
+		Projects:         projects,
 		UserUID:          m.UserUID,
 		RoleWithOpRanges: roles,
 		OpPermissions:    opPermissions,
@@ -711,6 +711,8 @@ func convertBizOauth2Configuration(b *biz.Oauth2Configuration) (*model.Oauth2Con
 		},
 		EnableOauth2:         b.EnableOauth2,
 		SkipCheckState:       b.SkipCheckState,
+		EnableManuallyBind:   b.EnableManuallyBind,
+		AutoBindSameNameUser: b.AutoBindSameNameUser,
 		AutoCreateUser:       b.AutoCreateUser,
 		AutoCreateUserPWD:    b.AutoCreateUserPWD,
 		AutoCreateUserSecret: b.AutoCreateUserSecret,
@@ -754,6 +756,8 @@ func convertModelOauth2Configuration(m *model.Oauth2Configuration) (*biz.Oauth2C
 		UID:                  m.UID,
 		EnableOauth2:         m.EnableOauth2,
 		SkipCheckState:       m.SkipCheckState,
+		EnableManuallyBind:   m.EnableManuallyBind,
+		AutoBindSameNameUser: m.AutoBindSameNameUser,
 		AutoCreateUser:       m.AutoCreateUser,
 		AutoCreateUserPWD:    m.AutoCreateUserPWD,
 		AutoCreateUserSecret: m.AutoCreateUserSecret,

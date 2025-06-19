@@ -29,7 +29,8 @@ GO_COMPILER_IMAGE ?= golang:1.19.6
 RPM_BUILD_IMAGE ?= rpmbuild/centos7
 DOCKER_IMAGE_GO_SWAGGER = quay.io/goswagger/swagger
 DMS_UNIT_TEST_MYSQL_DB_CONTAINER = dms-mysql-unit-test-db
-ARCH=$(shell uname -s| tr A-Z a-z)
+HOST_OS=$(shell uname -s| tr A-Z a-z)
+HOST_ARCH=$(shell go env GOHOSTARCH)
 
 GOARCH         		= amd64
 RPMBUILD_TARGET		= x86_64
@@ -182,11 +183,11 @@ docker_gen_swag:
 	$(DOCKER) run -v $(shell pwd):/universe --rm $(GO_COMPILER_IMAGE) sh -c "cd /universe &&make gen_swag"
 
 gen_swag:
-	./internal/apiserver/cmd/swag/swagger_${ARCH}_amd64 generate spec -m -w ./internal/apiserver/cmd/server/ -o ./api/swagger.yaml
-	./internal/apiserver/cmd/swag/swagger_${ARCH}_amd64 generate spec -i ./api/swagger.yaml -o ./api/swagger.json
+	./internal/apiserver/cmd/swag/swagger_${HOST_OS}_${HOST_ARCH} generate spec -m -w ./internal/apiserver/cmd/server/ -o ./api/swagger.yaml
+	./internal/apiserver/cmd/swag/swagger_${HOST_OS}_${HOST_ARCH} generate spec -i ./api/swagger.yaml -o ./api/swagger.json
 
 open_swag_server:
-	./internal/apiserver/cmd/swag/swagger_${ARCH}_amd64 serve --no-open -F=swagger --port 36666 ./api/swagger.yaml
+	./internal/apiserver/cmd/swag/swagger_${HOST_OS}_${HOST_ARCH} serve --no-open -F=swagger --port 36666 ./api/swagger.yaml
 
 ######################################## i18n ##########################################################
 GOBIN = ${shell pwd}/bin

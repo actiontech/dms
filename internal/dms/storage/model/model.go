@@ -191,7 +191,7 @@ type Member struct {
 	Model
 	UserUID          string              `json:"user_uid" gorm:"size:32;column:user_uid;index:project_user_id,unique"`
 	ProjectUID       string              `json:"project_uid" gorm:"size:32;column:project_uid;index:project_user_id,unique"`
-	Project	         *Project            `json:"project" gorm:"foreignKey:ProjectUID"`
+	Project          *Project            `json:"project" gorm:"foreignKey:ProjectUID"`
 	User             *User               `json:"user" gorm:"foreignkey:UserUID"`
 	RoleWithOpRanges []MemberRoleOpRange `json:"role_with_op_ranges" gorm:"foreignKey:MemberUID;references:UID"`
 	OpPermissions    []*OpPermission     `json:"op_permissions" gorm:"many2many:member_op_permissions"`
@@ -289,6 +289,8 @@ type Oauth2Configuration struct {
 	Model
 	EnableOauth2         bool   `json:"enable_oauth2" gorm:"column:enable_oauth2"`
 	SkipCheckState       bool   `json:"skip_check_state" gorm:"column:skip_check_state"`
+	EnableManuallyBind   bool   `json:"enable_manually_bind" gorm:"column:enable_manually_bind;default:true"`
+	AutoBindSameNameUser bool   `json:"auto_bind_same_name_user" gorm:"column:auto_bind_same_name_user"`
 	AutoCreateUser       bool   `json:"auto_create_user" gorm:"auto_create_user"`
 	AutoCreateUserPWD    string `json:"-" gorm:"-"`
 	AutoCreateUserSecret string `json:"auto_create_user_pwd" gorm:"size:255;column:auto_create_user_pwd"`

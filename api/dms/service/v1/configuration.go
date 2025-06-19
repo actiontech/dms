@@ -28,6 +28,8 @@ type LoginConfiguration struct {
 type GetOauth2ConfigurationResData struct {
 	EnableOauth2         bool     `json:"enable_oauth2"`
 	SkipCheckState       bool     `json:"skip_check_state"`
+	EnableManuallyBind   bool     `json:"enable_manually_bind"`
+	AutoBindSameNameUser bool     `json:"auto_bind_same_name_user"`
 	AutoCreateUser       bool     `json:"auto_create_user"`
 	ClientID             string   `json:"client_id"`
 	ClientHost           string   `json:"client_host"`
@@ -58,23 +60,25 @@ type Oauth2ConfigurationReq struct {
 	Oauth2Configuration Oauth2Configuration `json:"oauth2" validate:"required"`
 }
 type Oauth2Configuration struct {
-	EnableOauth2      *bool     `json:"enable_oauth2"`
-	SkipCheckState    *bool     `json:"skip_check_state"`
-	AutoCreateUser    *bool     `json:"auto_create_user"`
-	AutoCreateUserPWD *string   `json:"auto_create_user_pwd"`
-	ClientID          *string   `json:"client_id"`
-	ClientKey         *string   `json:"client_key"`
-	ClientHost        *string   `json:"client_host"`
-	ServerAuthUrl     *string   `json:"server_auth_url"`
-	ServerTokenUrl    *string   `json:"server_token_url"`
-	ServerUserIdUrl   *string   `json:"server_user_id_url"`
-	ServerLogoutUrl   *string   `json:"server_logout_url"`
-	Scopes            *[]string `json:"scopes"`
-	AccessTokenTag    *string   `json:"access_token_tag"`
-	UserIdTag         *string   `json:"user_id_tag"`
-	UserEmailTag      *string   `json:"user_email_tag"`
-	UserWeChatTag     *string   `json:"user_wechat_tag"`
-	LoginPermExpr     *string   `json:"login_perm_expr"`
+	EnableOauth2         *bool     `json:"enable_oauth2"`
+	SkipCheckState       *bool     `json:"skip_check_state"`
+	EnableManuallyBind   *bool     `json:"enable_manually_bind"`
+	AutoBindSameNameUser *bool     `json:"auto_bind_same_name_user"`
+	AutoCreateUser       *bool     `json:"auto_create_user"`
+	AutoCreateUserPWD    *string   `json:"auto_create_user_pwd"`
+	ClientID             *string   `json:"client_id"`
+	ClientKey            *string   `json:"client_key"`
+	ClientHost           *string   `json:"client_host"`
+	ServerAuthUrl        *string   `json:"server_auth_url"`
+	ServerTokenUrl       *string   `json:"server_token_url"`
+	ServerUserIdUrl      *string   `json:"server_user_id_url"`
+	ServerLogoutUrl      *string   `json:"server_logout_url"`
+	Scopes               *[]string `json:"scopes"`
+	AccessTokenTag       *string   `json:"access_token_tag"`
+	UserIdTag            *string   `json:"user_id_tag"`
+	UserEmailTag         *string   `json:"user_email_tag"`
+	UserWeChatTag        *string   `json:"user_wechat_tag"`
+	LoginPermExpr        *string   `json:"login_perm_expr"`
 	// Maximum: 28
 	LoginTip *string `json:"login_tip" validate:"max=28"`
 }

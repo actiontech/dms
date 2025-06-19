@@ -1814,12 +1814,15 @@ definitions:
                 type: string
                 x-go-name: Message
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GetOauth2ConfigurationResData:
         properties:
             access_token_tag:
                 type: string
                 x-go-name: AccessTokenTag
+            auto_bind_same_name_user:
+                type: boolean
+                x-go-name: AutoBindSameNameUser
             auto_create_user:
                 type: boolean
                 x-go-name: AutoCreateUser
@@ -1832,6 +1835,9 @@ definitions:
             client_id:
                 type: string
                 x-go-name: ClientID
+            enable_manually_bind:
+                type: boolean
+                x-go-name: EnableManuallyBind
             enable_oauth2:
                 type: boolean
                 x-go-name: EnableOauth2
@@ -3705,7 +3711,7 @@ definitions:
             role_uid:
                 $ref: '#/definitions/UidWithName'
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberTipsItem:
         properties:
             user_id:
@@ -4421,6 +4427,9 @@ definitions:
             access_token_tag:
                 type: string
                 x-go-name: AccessTokenTag
+            auto_bind_same_name_user:
+                type: boolean
+                x-go-name: AutoBindSameNameUser
             auto_create_user:
                 type: boolean
                 x-go-name: AutoCreateUser
@@ -4436,6 +4445,9 @@ definitions:
             client_key:
                 type: string
                 x-go-name: ClientKey
+            enable_manually_bind:
+                type: boolean
+                x-go-name: EnableManuallyBind
             enable_oauth2:
                 type: boolean
                 x-go-name: EnableOauth2
@@ -5535,7 +5547,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateBusinessTagReq:
         properties:
             business_tag:
@@ -7517,8 +7529,8 @@ paths:
                 - Notification
     /v1/dms/oauth2/link:
         get:
-            operationId: Oauth2Link
-            summary: Oauth2 Link.
+            operationId: Oauth2LinkOrCallback
+            summary: Oauth2 Link or Callback.
             tags:
                 - OAuth2
     /v1/dms/oauth2/tips:
