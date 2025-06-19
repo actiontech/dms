@@ -214,8 +214,6 @@ const (
 	OpPermissionVersionManage OpPermissionType = "version_manage"
 	// CI/CD集成;查看所有流水线
 	OpPermissionViewPipeline OpPermissionType = "view_pipeline"
-	// SQL管控;查看待处理的SQL管控
-	OpPermissionViewPendingSQLManage OpPermissionType = "view_pending_sql_manage"
 	// 数据源管理;管理项目数据源管理
 	OpPermissionManageProjectDataSource OpPermissionType = "manage_project_data_source"
 	// 审核规则模版;管理审核规则模版
@@ -281,7 +279,6 @@ func ParseOpPermissionType(typ string) (OpPermissionType, error) {
 	case string(OpPermissionViewOptimizationRecord): return OpPermissionViewOptimizationRecord, nil
 	case string(OpPermissionVersionManage): return OpPermissionVersionManage, nil
 	case string(OpPermissionViewPipeline): return OpPermissionViewPipeline, nil
-	case string(OpPermissionViewPendingSQLManage): return OpPermissionViewPendingSQLManage, nil
 	case string(OpPermissionManageProjectDataSource): return OpPermissionManageProjectDataSource, nil
 	case string(OpPermissionManageAuditRuleTemplate): return OpPermissionManageAuditRuleTemplate, nil
 	case string(OpPermissionManageApprovalTemplate): return OpPermissionManageApprovalTemplate, nil

@@ -129,7 +129,7 @@ func (d *RoleRepo) ListRoles(ctx context.Context, opt *biz.ListRolesOption) (rol
 		}
 	}
 
-	var models []*model.Role
+	var roleModels []*model.Role
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		// find models
 		{
@@ -143,10 +143,10 @@ func (d *RoleRepo) ListRoles(ctx context.Context, opt *biz.ListRolesOption) (rol
 				db = db.Joins("JOIN role_op_permissions on roles.uid = role_op_permissions.role_uid").
 					Joins("JOIN op_permissions ON op_permissions.uid = role_op_permissions.op_permission_uid").
 					Where("op_permissions.name like ?", "%"+opPermissionValue+"%").
-					Distinct()
+					Group("roles.uid")
 			}
 			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber)))))
-			if err := db.Find(&models).Error; err != nil {
+			if err := db.Find(&roleModels).Error; err != nil {
 				return fmt.Errorf("failed to list roles: %v", err)
 			}
 		}
@@ -175,8 +175,8 @@ func (d *RoleRepo) ListRoles(ctx context.Context, opt *biz.ListRolesOption) (rol
 	}
 
 	// convert model to biz
-	for _, model := range models {
-		ds, err := convertModelRole(model)
+	for _, role := range roleModels {
+		ds, err := convertModelRole(role)
 		if err != nil {
 			return nil, 0, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert model roles: %v", err))
 		}

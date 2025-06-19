@@ -159,7 +159,7 @@ func (o *OpPermissionVerifyRepo) GetUserProjectOpPermissionInProject(ctx context
 	type result struct {
 		OpPermissionUid string
 		OpRangeType     string
-		RangeUids       string
+		RangeDataSourceUids       string
 	}
 	var results []result
 	if err := transaction(o.log, ctx, o.db, func(tx *gorm.DB) error {
@@ -192,7 +192,7 @@ func (o *OpPermissionVerifyRepo) GetUserProjectOpPermissionInProject(ctx context
 		opPermissionWithOpRanges = append(opPermissionWithOpRanges, biz.OpPermissionWithOpRange{
 			OpPermissionUID: r.OpPermissionUid,
 			OpRangeType:     typ,
-			RangeUIDs:       convertModelRangeUIDs(r.RangeUids),
+			RangeUIDs:       convertModelRangeUIDs(r.RangeDataSourceUids),
 		})
 	}
 
@@ -248,7 +248,7 @@ func (o *OpPermissionVerifyRepo) GetUserProjectOpPermission(ctx context.Context,
 	type result struct {
 		OpPermissionUid string
 		OpRangeType     string
-		RangeUids       string
+		RangeDataSourceUids       string
 	}
 	var results []result
 	if err := transaction(o.log, ctx, o.db, func(tx *gorm.DB) error {
@@ -281,7 +281,7 @@ func (o *OpPermissionVerifyRepo) GetUserProjectOpPermission(ctx context.Context,
 		opPermissionWithOpRanges = append(opPermissionWithOpRanges, biz.OpPermissionWithOpRange{
 			OpPermissionUID: r.OpPermissionUid,
 			OpRangeType:     typ,
-			RangeUIDs:       convertModelRangeUIDs(r.RangeUids),
+			RangeUIDs:       convertModelRangeUIDs(r.RangeDataSourceUids),
 		})
 	}
 
