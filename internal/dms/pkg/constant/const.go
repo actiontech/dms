@@ -102,8 +102,6 @@ func ConvertPermissionIdToType(opPermissionUid string) (apiOpPermissionTyp dmsCo
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionVersionManage
 	case UIdOfOpPermissionViewPipeline:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionViewPipeline
-	case UIdOfOpPermissionViewPendingSQLManage:
-		apiOpPermissionTyp = dmsCommonV1.OpPermissionViewPendingSQLManage
 	case UIdOfOpPermissionManageProjectDataSource:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionManageProjectDataSource
 	case UIdOfOpPermissionManageAuditRuleTemplate:
@@ -177,8 +175,6 @@ func ConvertPermissionTypeToId(opPermissionType dmsCommonV1.OpPermissionType) (p
 		permissionId = UIDOfOpPermissionVersionManage
 	case dmsCommonV1.OpPermissionViewPipeline:
 		permissionId = UIdOfOpPermissionViewPipeline
-	case dmsCommonV1.OpPermissionViewPendingSQLManage:
-		permissionId = UIdOfOpPermissionViewPendingSQLManage
 	case dmsCommonV1.OpPermissionManageProjectDataSource:
 		permissionId = UIdOfOpPermissionManageProjectDataSource
 	case dmsCommonV1.OpPermissionManageAuditRuleTemplate:
