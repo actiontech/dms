@@ -606,6 +606,14 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV2.ListDB
 		FilterBy:     filterBy,
 	}
 
+	hasPermission, err := d.OpPermissionVerifyUsecase.HasViewPermission(ctx, currentUserUid, req.ProjectUid, pkgConst.UIdOfOpPermissionManageProjectDataSource)
+	if err != nil {
+		return nil, fmt.Errorf("check user has permission manageDataSource: %v", err)
+	}
+	if !hasPermission {
+		return nil, fmt.Errorf("user is not admin or data source management permission")
+	}
+
 	service, total, err := d.DBServiceUsecase.ListDBService(ctx, listOption, req.ProjectUid, currentUserUid)
 	if nil != err {
 		return nil, err

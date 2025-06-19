@@ -222,11 +222,14 @@ func (d *DBServiceUsecase) CreateDBService(ctx context.Context, args *BizDBServi
 	if err := d.projectUsecase.isProjectActive(ctx, args.ProjectUID); err != nil {
 		return "", fmt.Errorf("create db service error: %v", err)
 	}
-	// 检查当前用户有项目管理员权限
-	if canOpProject, err := d.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, args.ProjectUID); err != nil {
-		return "", fmt.Errorf("check user is admin or global management permission : %v", err)
-	} else if !canOpProject {
-		return "", fmt.Errorf("user is not admin or global management permission")
+	// 检查当前用户有项目管理员权限或者数据源管理权限
+	hasPermission, err := d.opPermissionVerifyUsecase.HasManagePermission(ctx, currentUserUid, args.ProjectUID, pkgConst.UIdOfOpPermissionManageProjectDataSource)
+	if err != nil {
+		return "", fmt.Errorf("check user has permission manageDataSource: %v", err)
+	}
+
+	if !hasPermission {
+		return "", fmt.Errorf("user is not admin or data source management permission")
 	}
 
 	ds, err := newDBService(args)
@@ -271,14 +274,13 @@ type ListDBServicesOption struct {
 }
 
 func (d *DBServiceUsecase) ListDBService(ctx context.Context, option *ListDBServicesOption, projectUid, currentUserUid string) (dbServices []*DBService, total int64, err error) {
-
 	services, total, err := d.repo.ListDBServices(ctx, option)
 	if err != nil {
 		return nil, 0, fmt.Errorf("list db services failed: %w", err)
 	}
 	// 只允许系统用户和平台管理/查看权限用户查询所有数据源,同步数据到其他服务(provision)
 	if projectUid == "" {
-		canViewProject, err := d.opPermissionVerifyUsecase.CanViewProject(ctx, currentUserUid, projectUid)
+		canViewProject, err := d.opPermissionVerifyUsecase.CanViewProject(ctx, currentUserUid, projectUid, pkgConst.UIdOfOpPermissionManageProjectDataSource)
 		if err != nil {
 			return nil, 0, err
 		}
@@ -432,7 +434,7 @@ func (d *DBServiceUsecase) ListDBServiceTips(ctx context.Context, req *dmsV1.Lis
 		return dbServices, nil
 	}
 	dbServices = filterExportSupportedDb(dbServices, dmsCommonV1.OpPermissionType(req.FunctionalModule))
-	isAdmin, err := d.opPermissionVerifyUsecase.CanViewProject(ctx, userId, req.ProjectUid)
+	isAdmin, err := d.opPermissionVerifyUsecase.CanViewProject(ctx, userId, req.ProjectUid, "")
 	if err != nil {
 		return nil, fmt.Errorf("check user is project admin or golobal view permission failed: %v", err)
 	}
@@ -637,6 +639,20 @@ func (d *DBServiceUsecase) UpdateDBService(ctx context.Context, ds *DBService, c
 	// 检查项目是否归档/删除
 	if err := d.projectUsecase.isProjectActive(ctx, ds.ProjectUID); err != nil {
 		return fmt.Errorf("update db service error: %v", err)
+	}
+
+	// 检查当前用户有项目管理员权限或者数据源管理权限
+	manageDataSource, err := d.opPermissionVerifyUsecase.HasOpPermissionInProject(ctx, currentUserUid, ds.ProjectUID, pkgConst.UIdOfOpPermissionManageProjectDataSource)
+	if err != nil {
+		return fmt.Errorf("check user has permission manageDataSource: %v", err)
+	}
+	canOpProject, err := d.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, ds.ProjectUID)
+	if err != nil {
+		return fmt.Errorf("check user is admin or global management permission : %v", err)
+	}
+
+	if !(canOpProject || manageDataSource) {
+		return fmt.Errorf("user is not admin or data source management permission")
 	}
 
 	// 检查当前用户有项目管理员权限

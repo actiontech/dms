@@ -26,6 +26,8 @@ func NewOpPermissionVerifyRepo(log utilLog.Logger, s *Storage) *OpPermissionVeri
 func (o *OpPermissionVerifyRepo) IsUserHasOpPermissionInProject(ctx context.Context, userUid, projectUid, opPermissionUid string) (has bool, err error) {
 	var count int64
 	var memberGroupCount int64
+	var projectPermissionMemberCount int64
+	var projectPermissionMemberGroupCount int64
 	if err := transaction(o.log, ctx, o.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Raw(`
 		SELECT 
@@ -46,11 +48,29 @@ func (o *OpPermissionVerifyRepo) IsUserHasOpPermissionInProject(ctx context.Cont
 			return fmt.Errorf("failed to check user has op permission in project: %v", err)
 		}
 
+		if err := tx.WithContext(ctx).Raw(`
+		SELECT 
+		    count(*) 
+		FROM members AS m 
+		JOIN member_op_permissions AS p ON m.uid = p.member_uid AND p.op_permission_uid = ?
+		WHERE m.user_uid=? AND m.project_uid=?`,opPermissionUid,userUid,projectUid).Count(&projectPermissionMemberCount).Error; err != nil {
+			return fmt.Errorf("failed to check user has op permission in project: %v", err)
+		}
+
+		if err := tx.WithContext(ctx).Raw(`
+		SELECT 
+		    count(*) 
+		FROM member_groups AS mg 
+		JOIN member_group_users AS mgu ON mg.uid = mgu.member_group_uid and mgu.user_uid = ? AND mg.project_uid = ? 
+		JOIN member_group_op_permissions AS p ON mg.uid = p.member_group_uid AND p.op_permission_uid = ?`,userUid,projectUid,opPermissionUid).Count(&projectPermissionMemberGroupCount).Error; err != nil {
+			return fmt.Errorf("failed to check user has op permission in project: %v", err)
+		}
+
 		return nil
 	}); err != nil {
 		return false, err
 	}
-	return count > 0 || memberGroupCount > 0, nil
+	return count > 0 || memberGroupCount > 0 || projectPermissionMemberCount > 0 || projectPermissionMemberGroupCount > 0, nil
 }
 func (o *OpPermissionVerifyRepo) GetUserProjectWithOpPermissions(ctx context.Context, userUid string) (projectWithPermission []biz.ProjectOpPermissionWithOpRange, err error) {
 	var ret []struct {

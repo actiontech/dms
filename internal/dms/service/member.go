@@ -13,6 +13,13 @@ import (
 )
 
 func (d *DMSService) AddMember(ctx context.Context, currentUserUid string, req *dmsV1.AddMemberReq) (reply *dmsV1.AddMemberReply, err error) {
+	hasPermission, err := d.OpPermissionVerifyUsecase.HasManagePermission(ctx, currentUserUid, req.ProjectUid, pkgConst.UIdOfOpPermissionManageMember)
+	if err != nil {
+		return nil, fmt.Errorf("check user has permission manage member: %v", err)
+	}
+	if !hasPermission {
+		return nil, fmt.Errorf("no permission to add member")
+	}
 	d.log.Infof("AddMembers.req=%v", req)
 	defer func() {
 		d.log.Infof("AddMembers.req=%v;reply=%v;error=%v", req, reply, err)
@@ -64,7 +71,14 @@ func (d *DMSService) ListMemberTips(ctx context.Context, projectId string) (repl
 	}, nil
 }
 
-func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq) (reply *dmsV1.ListMemberReply, err error) {
+func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq, currentUserId string) (reply *dmsV1.ListMemberReply, err error) {
+	hasPermission, err := d.OpPermissionVerifyUsecase.HasViewPermission(ctx, currentUserId, req.ProjectUid, pkgConst.UIdOfOpPermissionManageMember)
+	if err != nil {
+		return nil, err
+	}
+	if !hasPermission {
+		return nil, fmt.Errorf("no permission to view project members")
+	}
 	var orderBy biz.MemberField
 	switch req.OrderBy {
 	case dmsV1.MemberOrderByUserUid:
@@ -261,6 +275,13 @@ func convert2ProjectMemberGroup(memberGroup *biz.MemberGroup, memberGroupOpPermi
 }
 
 func (d *DMSService) UpdateMember(ctx context.Context, currentUserUid string, req *dmsV1.UpdateMemberReq) (err error) {
+	hasPermission, err := d.OpPermissionVerifyUsecase.HasManagePermission(ctx, currentUserUid, req.ProjectUid, pkgConst.UIdOfOpPermissionManageMember)
+	if err != nil {
+		return fmt.Errorf("check user has permission manage member: %v", err)
+	}
+	if !hasPermission {
+		return fmt.Errorf("no permission to add member")
+	}
 	d.log.Infof("UpdateMember.req=%v", req)
 	defer func() {
 		d.log.Infof("UpdateMember.req=%v;error=%v", req, err)
@@ -289,6 +310,13 @@ func (d *DMSService) UpdateMember(ctx context.Context, currentUserUid string, re
 }
 
 func (d *DMSService) DelMember(ctx context.Context, currentUserUid string, req *dmsV1.DelMemberReq) (err error) {
+	hasPermission, err := d.OpPermissionVerifyUsecase.HasManagePermission(ctx, currentUserUid, req.ProjectUid, pkgConst.UIdOfOpPermissionManageMember)
+	if err != nil {
+		return fmt.Errorf("check user has permission manage member: %v", err)
+	}
+	if !hasPermission {
+		return fmt.Errorf("no permission to add member")
+	}
 	d.log.Infof("DelMember.req=%v", req)
 	defer func() {
 		d.log.Infof("DelMember.req=%v;error=%v", req, err)
