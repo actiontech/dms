@@ -267,7 +267,7 @@ func initOpPermission() []*OpPermission {
 		{
 			UID: pkgConst.UIdOfOpPermissionManageProjectDataSource,
 			Name:      "管理项目数据源",
-			RangeType: OpRangeTypeDBService,
+			RangeType: OpRangeTypeProject,
 			Module: SQLDataSource,
 			Service:   v1.ServiceSQLE,
 		},
