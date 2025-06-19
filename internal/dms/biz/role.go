@@ -225,6 +225,13 @@ func (d *RoleUsecase) CreateRole(ctx context.Context, currentUserUid, name, desc
 			return "", fmt.Errorf("user is not admin or global management permission")
 		}
 	}
+	existed, err := d.repo.CheckRoleExistByRoleName(ctx, name)
+	if err != nil {
+		return "", fmt.Errorf("check role exist failed: %v", err)
+	}
+	if existed {
+		return "", fmt.Errorf("role name already existed")
+	}
 
 	u, err := newRole(name, desc)
 	if err != nil {
@@ -237,13 +244,6 @@ func (d *RoleUsecase) CreateRole(ctx context.Context, currentUserUid, name, desc
 			err = tx.RollbackWithError(d.log, err)
 		}
 	}()
-	existed, err := d.repo.CheckRoleExistByRoleName(ctx, name)
-	if err != nil {
-		return "", fmt.Errorf("check role exist failed: %v", err)
-	}
-	if existed {
-		return "", fmt.Errorf("role name already existed")
-	}
 
 	if err := d.repo.SaveRole(tx, u); err != nil {
 		return "", fmt.Errorf("save role failed: %v", err)
