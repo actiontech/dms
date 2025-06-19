@@ -61,6 +61,8 @@ func (d *DMSService) GetOauth2Configuration(ctx context.Context) (reply *dmsV1.G
 		Data: dmsV1.GetOauth2ConfigurationResData{
 			EnableOauth2:         oauth2C.EnableOauth2,
 			SkipCheckState:       oauth2C.SkipCheckState,
+			EnableManuallyBind:   oauth2C.EnableManuallyBind,
+			AutoBindSameNameUser: oauth2C.AutoBindSameNameUser,
 			AutoCreateUser:       oauth2C.AutoCreateUser,
 			ClientID:             oauth2C.ClientID,
 			ClientHost:           oauth2C.ClientHost,

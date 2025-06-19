@@ -41,7 +41,7 @@ var (
 	NameOpPermissionGlobalView             = &i18n.Message{ID: "NameOpPermissionGlobalView", Other: "审计管理员"}
 	NameOpPermissionViewOthersOptimization = &i18n.Message{ID: "NameOpPermissionViewOthersOptimization", Other: "查看他人创建的智能调优"}
 	NameOpPermissionCreatePipeline         = &i18n.Message{ID: "NameOpPermissionCreatePipeline", Other: "配置流水线"}
-	NameOpPermissionOrdinaryUser             = &i18n.Message{ID: "NameOpPermissionOrdinaryUser", Other: "普通用户"}
+	NameOpPermissionOrdinaryUser           = &i18n.Message{ID: "NameOpPermissionOrdinaryUser", Other: "普通用户"}
 	NameOpPermissionViewOperationRecord  = &i18n.Message{ID: "NameOpPermissionViewOperationRecord", Other: "查看所有操作记录"}
 	NameOpPermissionViewExportTask = &i18n.Message{ID: "NameOpPermissionViewExportTask", Other: "查看所有导出任务"}
 	NamePermissionViewQuickAuditRecord = &i18n.Message{ID: "NamePermissionViewQuickAuditRecord", Other: "查看所有快捷审核记录"}
@@ -179,4 +179,24 @@ var (
 var (
 	DBServiceSyncVersion = &i18n.Message{ID: "DBServiceSyncVersion", Other: "版本(支持DMP5.23.04.0及以上版本)"}
 	DBServiceSyncExpand  = &i18n.Message{ID: "DBServiceSyncExpand", Other: "数据源同步扩展服务"}
+)
+
+// OAuth2
+var (
+	OAuth2GetConfigErr                          = &i18n.Message{ID: "OAuth2GetConfigErr", Other: "获取OAuth2配置失败: %v"}
+	OAuth2ProcessErr                            = &i18n.Message{ID: "OAuth2ProcessErr", Other: "OAuth2流程错误: %v"}
+	OAuth2GetTokenErr                           = &i18n.Message{ID: "OAuth2GetTokenErr", Other: "OAuth2流程获取Token错误: %v"}
+	OAuth2BackendLogoutFailed                   = &i18n.Message{ID: "OAuth2BackendLogoutFailed", Other: "；注销第三方平台会话失败: %v"}
+	OAuth2BackendLogoutSuccess                  = &i18n.Message{ID: "OAuth2BackendLogoutSuccess", Other: "；已注销第三方平台会话"}
+	OAuth2HandleTokenErr                        = &i18n.Message{ID: "OAuth2HandleTokenErr", Other: "处理 OAuth2 Token 错误: %v"}
+	OAuth2GetUserInfoErr                        = &i18n.Message{ID: "OAuth2GetUserInfoErr", Other: "获取 OAuth2 用户信息错误: %v"}
+	OAuth2QueryBindUserByOAuthIDErr             = &i18n.Message{ID: "OAuth2QueryBindUserByOAuthIDErr", Other: "通过 OAuth2 用户ID查询绑定用户错误: %v"}
+	OAuth2QueryBindUserBySameNameErr            = &i18n.Message{ID: "OAuth2QueryBindUserBySameNameErr", Other: "通过 OAuth2 用户ID查询同名用户错误: %v"}
+	OAuth2SameNameUserIsBoundErr                = &i18n.Message{ID: "OAuth2SameNameUserIsBoundErr", Other: "通过 OAuth2 用户ID %q 查询到的同名用户已经被绑定"}
+	OAuth2UserNotBoundAndNoPermErr              = &i18n.Message{ID: "OAuth2UserNotBoundAndNoPermErr", Other: "该OAuth2用户未绑定且没有登陆权限"}
+	OAuth2AutoCreateUserWithoutDefaultPwdErr    = &i18n.Message{ID: "OAuth2AutoCreateUserWithoutDefaultPwdErr", Other: "自动创建用户失败，默认密码未配置"}
+	OAuth2AutoCreateUserErr                     = &i18n.Message{ID: "OAuth2AutoCreateUserErr", Other: "自动创建用户失败: %v"}
+	OAuth2UserNotBoundAndDisableManuallyBindErr = &i18n.Message{ID: "OAuth2UserNotBoundAndDisableManuallyBindErr", Other: "未查询到 %q 关联的用户且关闭了手动绑定功能，请联系系统管理员"}
+	OAuth2UserStatIsDisableErr                  = &i18n.Message{ID: "OAuth2UserStatIsDisableErr", Other: "用户 %q 被禁用"}
+	OAuth2SyncSessionErr                        = &i18n.Message{ID: "OAuth2SyncSessionErr", Other: "同步OAuth2会话失败: %v"}
 )
