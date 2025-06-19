@@ -19,6 +19,8 @@ type MemberGroup struct {
 	UserUids         []string
 	Users            []UIdWithName
 	RoleWithOpRanges []MemberRoleWithOpRange
+	OpPermissions    []OpPermission
+	ProjectManagePermissions []string
 }
 
 type MemberGroupRepo interface {
@@ -27,6 +29,8 @@ type MemberGroupRepo interface {
 	CreateMemberGroup(ctx context.Context, mg *MemberGroup) error
 	UpdateMemberGroup(ctx context.Context, mg *MemberGroup) error
 	DeleteMemberGroup(ctx context.Context, memberGroupId string) error
+	GetMemberGroupsByUserIDAndProjectID(ctx context.Context, userID, projectID string) ([]*MemberGroup, error)
+	ReplaceOpPermissionsInMemberGroup(ctx context.Context, memberUid string, opPermissionUids []string) error
 }
 
 type MemberGroupUsecase struct {
@@ -127,6 +131,9 @@ func (m *MemberGroupUsecase) CreateMemberGroup(ctx context.Context, currentUserU
 	if err = m.repo.CreateMemberGroup(ctx, mg); err != nil {
 		return "", fmt.Errorf("save member group failed: %v", err)
 	}
+	if err = m.repo.ReplaceOpPermissionsInMemberGroup(ctx, uid, mg.ProjectManagePermissions); err != nil {
+		return "", fmt.Errorf("replace op permissions in member group failed: %v", err)
+	}
 
 	return uid, nil
 
@@ -182,6 +189,9 @@ func (m *MemberGroupUsecase) UpdateMemberGroup(ctx context.Context, currentUserU
 			err = tx.RollbackWithError(m.log, err)
 		}
 	}()
+	if err := m.repo.ReplaceOpPermissionsInMemberGroup(ctx, memberGroup.UID, mg.ProjectManagePermissions); err != nil {
+		return fmt.Errorf("replace op permissions in member failed: %v", err)
+	}
 	if err = m.repo.UpdateMemberGroup(tx, mg); err != nil {
 		return fmt.Errorf("update member group failed: %v", err)
 	}
@@ -219,4 +229,17 @@ func (m *MemberGroupUsecase) DeleteMemberGroup(ctx context.Context, currentUserU
 		return err
 	}
 	return nil
+}
+
+func (m *MemberGroupUsecase) GetMemberGroupsByUserIDAndProjectID(ctx context.Context, userID, projectID string) ([]*MemberGroup, error) {
+	// 检查项目是否归档/删除
+	if err := m.projectUsecase.isProjectActive(ctx, projectID); err != nil {
+		return nil, fmt.Errorf("get member groups error: %v", err)
+	}
+	memberGroups, err := m.repo.GetMemberGroupsByUserIDAndProjectID(ctx, userID, projectID)
+	if err != nil {
+		return nil, fmt.Errorf("get member groups failed: %v", err)
+	}
+
+	return memberGroups, err
 }

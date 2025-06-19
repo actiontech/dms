@@ -97,6 +97,15 @@ func (d *DMSService) ListRoles(ctx context.Context, req *dmsV1.ListRoleReq) (rep
 		})
 	}
 
+	if req.FuzzyKeyword != "" {
+		filterBy = append(filterBy, pkgConst.FilterCondition{
+			Field:         string(biz.RoleFieldOpPermission),
+			Operator:      pkgConst.FilterOperatorContains,
+			Value:         req.FuzzyKeyword,
+			KeywordSearch: true,
+		})
+	}
+
 	listOption := &biz.ListRolesOption{
 		PageNumber:   req.PageIndex,
 		LimitPerPage: req.PageSize,
@@ -114,7 +123,6 @@ func (d *DMSService) ListRoles(ctx context.Context, req *dmsV1.ListRoleReq) (rep
 		if r.UID == pkgConst.UIDOfRoleProjectAdmin || r.UID == pkgConst.UIDOfRoleDevEngineer || r.UID == pkgConst.UIDOfRoleDevManager || r.UID == pkgConst.UIDOfRoleOpsEngineer {
 			// built in role, localize name and desc
 			r.Name = locale.Bundle.LocalizeMsgByCtx(ctx, RoleNameByUID[r.GetUID()])
-			r.Desc = locale.Bundle.LocalizeMsgByCtx(ctx, RoleDescByUID[r.GetUID()])
 		}
 		ret[i] = &dmsV1.ListRole{
 			RoleUid: r.GetUID(),
@@ -143,9 +151,10 @@ func (d *DMSService) ListRoles(ctx context.Context, req *dmsV1.ListRoleReq) (rep
 				(op.UID == pkgConst.UIDOfOpPermissionCreateOptimization || op.UID == pkgConst.UIDOfOpPermissionViewOthersOptimization) {
 				continue
 			}
-			ret[i].OpPermissions = append(ret[i].OpPermissions, dmsV1.UidWithName{
+			ret[i].OpPermissions = append(ret[i].OpPermissions, dmsV1.ListRoleOpPermission{
 				Uid:  op.GetUID(),
 				Name: locale.Bundle.LocalizeMsgByCtx(ctx, OpPermissionNameByUID[op.GetUID()]),
+				Module: string(op.Module),
 			})
 		}
 

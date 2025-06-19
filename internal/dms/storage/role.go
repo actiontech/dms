@@ -59,6 +59,23 @@ func (d *RoleRepo) CheckRoleExist(ctx context.Context, roleUids []string) (exist
 	return true, nil
 }
 
+func (d *RoleRepo) CheckRoleExistByRoleName(ctx context.Context, name string) (exists bool, err error) {
+	var count int64
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Model(&model.Role{}).Where("name = ?", name).Count(&count).Error; err != nil {
+			return fmt.Errorf("failed to check role exist: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return false, err
+	}
+
+	if count > 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
 func (d *RoleRepo) UpdateRole(ctx context.Context, u *biz.Role) error {
 	exist, err := d.CheckRoleExist(ctx, []string{u.UID})
 	if err != nil {
@@ -118,17 +135,35 @@ func (d *RoleRepo) ReplaceOpPermissionsInRole(ctx context.Context, roleUid strin
 }
 
 func (d *RoleRepo) ListRoles(ctx context.Context, opt *biz.ListRolesOption) (roles []*biz.Role, total int64, err error) {
+	// 取出权限条件的值
+	opPermissionValue := ""
+	for i := 0; i < len(opt.FilterBy); {
+		if opt.FilterBy[i].Field == string(biz.RoleFieldOpPermission) {
+			opPermissionValue = opt.FilterBy[i].Value.(string)
+			opt.FilterBy = append(opt.FilterBy[:i], opt.FilterBy[i+1:]...)
+		} else {
+			i++
+		}
+	}
 
-	var models []*model.Role
+	var roleModels []*model.Role
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		// find models
 		{
 			db := tx.WithContext(ctx).Order(opt.OrderBy)
 			for _, f := range opt.FilterBy {
-				db = gormWhere(db, f)
+				if f.Field != string(biz.RoleFieldOpPermission) {
+					db = gormWhere(db, f)
+				}
+			}
+			if opPermissionValue != "" {
+				db = db.Joins("JOIN role_op_permissions on roles.uid = role_op_permissions.role_uid").
+					Joins("JOIN op_permissions ON op_permissions.uid = role_op_permissions.op_permission_uid").
+					Where("op_permissions.name like ?", "%"+opPermissionValue+"%").
+					Group("roles.uid")
 			}
 			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber)))))
-			if err := db.Find(&models).Error; err != nil {
+			if err := db.Find(&roleModels).Error; err != nil {
 				return fmt.Errorf("failed to list roles: %v", err)
 			}
 		}
@@ -137,7 +172,15 @@ func (d *RoleRepo) ListRoles(ctx context.Context, opt *biz.ListRolesOption) (rol
 		{
 			db := tx.WithContext(ctx).Model(&model.Role{})
 			for _, f := range opt.FilterBy {
-				db = gormWhere(db, f)
+				if f.Field != string(biz.RoleFieldOpPermission) {
+					db = gormWhere(db, f)
+				}
+			}
+			if opPermissionValue != "" {
+				db = db.Joins("JOIN role_op_permissions on roles.uid = role_op_permissions.role_uid").
+					Joins("JOIN op_permissions ON op_permissions.uid = role_op_permissions.op_permission_uid").
+					Where("op_permissions.name like ?", "%"+opPermissionValue+"%").
+					Group("roles.uid")
 			}
 			if err := db.Count(&total).Error; err != nil {
 				return fmt.Errorf("failed to count roles: %v", err)
@@ -149,8 +192,8 @@ func (d *RoleRepo) ListRoles(ctx context.Context, opt *biz.ListRolesOption) (rol
 	}
 
 	// convert model to biz
-	for _, model := range models {
-		ds, err := convertModelRole(model)
+	for _, role := range roleModels {
+		ds, err := convertModelRole(role)
 		if err != nil {
 			return nil, 0, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert model roles: %v", err))
 		}
@@ -171,7 +214,7 @@ func (d *RoleRepo) DelRole(ctx context.Context, roleUid string) error {
 func (d *RoleRepo) GetRole(ctx context.Context, roleUid string) (*biz.Role, error) {
 	var role *model.Role
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
-		if err := tx.First(&role, "uid = ?", roleUid).Error; err != nil {
+		if err := tx.Preload("OpPermissions").First(&role, "uid = ?", roleUid).Error; err != nil {
 			return fmt.Errorf("failed to get role: %v", err)
 		}
 		return nil

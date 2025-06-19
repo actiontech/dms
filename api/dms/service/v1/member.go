@@ -15,6 +15,8 @@ type Member struct {
 	IsProjectAdmin bool `json:"is_project_admin"`
 	// member role with op ranges
 	RoleWithOpRanges []MemberRoleWithOpRange `json:"role_with_op_ranges"`
+	// member project manage permissions
+	ProjectManagePermissions []string `json:"project_manage_permissions"`
 }
 
 type MemberRoleWithOpRange struct {
@@ -94,6 +96,10 @@ type ListMemberRoleWithOpRange struct {
 	OpRangeType OpRangeType `json:"op_range_type" validate:"required"`
 	// op range uids
 	RangeUIDs []UidWithName `json:"range_uids" validate:"required"`
+	// member op permissions
+	OpPermissions []UidWithName  `json:"op_permissions"`
+	// member group
+	MemberGroup *ProjectMemberGroup `json:"member_group"`
 }
 
 // A dms member
@@ -102,14 +108,52 @@ type ListMember struct {
 	MemberUid string `json:"uid"`
 	// member user
 	User UidWithName `json:"user"`
+	// Whether the member is a group member
+	IsGroupMember  bool `json:"is_group_member"`
 	// Whether the member has project admin permission
 	IsProjectAdmin bool `json:"is_project_admin"`
+	// current project admin info
+	CurrentProjectAdmin CurrentProjectAdmin `json:"current_project_admin"`
 	// member op permission
 	RoleWithOpRanges []ListMemberRoleWithOpRange `json:"role_with_op_ranges"`
+	// current project permission
+	CurrentProjectOpPermissions []ProjectOpPermission `json:"current_project_op_permissions"`
+	// current project manage permissions
+	CurrentProjectManagePermissions []ProjectManagePermission `json:"current_project_manage_permissions"`
 	// member platform roles
 	PlatformRoles []UidWithName `json:"platform_roles"`
 	// member projects
 	Projects []string `json:"projects"`
+}
+
+type CurrentProjectAdmin struct {
+	IsAdmin bool `json:"is_admin"`
+	MemberGroups []string `json:"member_groups"`
+}
+
+type ProjectManagePermission struct {
+	Uid string `json:"uid"`
+	Name string `json:"name"`
+	MemberGroup string `json:"member_group"`
+}
+
+type ProjectOpPermission struct {
+	DataSource string `json:"data_source"`
+	Roles []ProjectRole `json:"roles"`
+}
+
+type ProjectRole struct {
+	Uid string `json:"uid"`
+	Name string `json:"name"`
+	OpPermissions []UidWithName `json:"op_permissions"`
+	MemberGroup *ProjectMemberGroup `json:"member_group"`
+}
+
+type ProjectMemberGroup  struct {
+	Uid string `json:"uid"`
+	Name string `json:"name"`
+	Users []UidWithName `json:"users"`
+	OpPermissions []UidWithName `json:"op_permissions"`
 }
 
 // swagger:model ListMemberReply
@@ -167,6 +211,8 @@ type UpdateMember struct {
 	IsProjectAdmin bool `json:"is_project_admin"`
 	// member role with op ranges
 	RoleWithOpRanges []MemberRoleWithOpRange `json:"role_with_op_ranges"`
+	// member project manage permissions
+	ProjectManagePermissions []string `json:"project_manage_permissions"`
 }
 
 // swagger:model
