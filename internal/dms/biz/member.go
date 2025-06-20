@@ -98,12 +98,6 @@ func (m *MemberUsecase) CreateMember(ctx context.Context, currentUserUid string,
 		if err := m.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
 			return "", fmt.Errorf("create member error: %v", err)
 		}
-		// 检查当前用户有项目管理员权限
-		if canOpProject, err := m.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, projectUid); err != nil {
-			return "", fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
-		} else if !canOpProject {
-			return "", fmt.Errorf("user is not project admin or golobal op permission user")
-		}
 
 		// 检查成员用户存在
 		if exist, err := m.userUsecase.CheckUserExist(ctx, []string{memberUserUid}); err != nil {
@@ -320,12 +314,6 @@ func (m *MemberUsecase) UpdateMember(ctx context.Context, currentUserUid, update
 		if err := m.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
 			return fmt.Errorf("update member error: %v", err)
 		}
-		// 检查当前用户有项目管理员权限
-		if canOpProject, err := m.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, projectUid); err != nil {
-			return fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
-		} else if !canOpProject {
-			return fmt.Errorf("user is not project admin or golobal op permission user")
-		}
 
 		if err := m.CheckRoleAndOpRanges(ctx, roleAndOpRanges); err != nil {
 			return err
@@ -374,13 +362,6 @@ func (m *MemberUsecase) DelMember(ctx context.Context, currentUserUid, memberUid
 		// 检查项目是否归档/删除
 		if err := m.projectUsecase.isProjectActive(ctx, member.ProjectUID); err != nil {
 			return fmt.Errorf("delete member error: %v", err)
-		}
-
-		// 检查当前用户有项目管理员权限
-		if canOpProject, err := m.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, member.ProjectUID); err != nil {
-			return fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
-		} else if !canOpProject {
-			return fmt.Errorf("user is not project admin or golobal op permission user")
 		}
 	}
 
