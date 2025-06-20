@@ -169,6 +169,7 @@ func (d *MemberRepo) DelRoleFromAllMembers(ctx context.Context, roleUid string) 
 
 func (d *MemberRepo) ReplaceOpPermissionsInMember(ctx context.Context, memberUid string, opPermissionUids []string) error {
 	if len(opPermissionUids) == 0 {
+		// delete all op permissions when op permission uids is empty
 		return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 			member := &model.Member{Model: model.Model{UID: memberUid}}
 			if err := tx.WithContext(ctx).Where("uid = ?", memberUid).First(member).Error; err != nil {
