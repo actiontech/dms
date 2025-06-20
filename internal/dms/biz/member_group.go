@@ -144,13 +144,6 @@ func (m *MemberGroupUsecase) checkMemberGroupBeforeUpsert(ctx context.Context, c
 	if err := m.projectUsecase.isProjectActive(ctx, mg.ProjectUID); err != nil {
 		return fmt.Errorf("create member error: %v", err)
 	}
-	// 检查当前用户有项目管理员权限
-	if canOpProject, err := m.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, mg.ProjectUID); err != nil {
-		return fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
-	} else if !canOpProject {
-		return fmt.Errorf("user is not project admin or golobal op permission user")
-	}
-
 	// 检查成员组成员用户存在
 	if exist, err := m.userUsecase.CheckUserExist(ctx, mg.UserUids); err != nil {
 		return fmt.Errorf("check user exist failed: %v", err)
@@ -212,12 +205,6 @@ func (m *MemberGroupUsecase) DeleteMemberGroup(ctx context.Context, currentUserU
 		// 检查项目是否归档/删除
 		if err := m.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
 			return fmt.Errorf("update member error: %v", err)
-		}
-		// 检查当前用户有项目管理员权限
-		if canOpProject, err := m.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, projectUid); err != nil {
-			return fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
-		} else if !canOpProject {
-			return fmt.Errorf("user is not project admin or golobal op permission user")
 		}
 	}
 	err = m.repo.DeleteMemberGroup(ctx, memberGroupUid)
