@@ -169,7 +169,21 @@ func (d *MemberRepo) DelRoleFromAllMembers(ctx context.Context, roleUid string) 
 
 func (d *MemberRepo) ReplaceOpPermissionsInMember(ctx context.Context, memberUid string, opPermissionUids []string) error {
 	if len(opPermissionUids) == 0 {
-		return nil
+		return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+			member := &model.Member{Model: model.Model{UID: memberUid}}
+			if err := tx.WithContext(ctx).Where("uid = ?", memberUid).First(member).Error; err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return fmt.Errorf("member not found: %v", err)
+				}
+				return fmt.Errorf("failed to query member existence: %v", err)
+			}
+
+			err := tx.WithContext(ctx).Model(member).Association("OpPermissions").Clear()
+			if err != nil {
+				return fmt.Errorf("failed to delete op permissions")
+			}
+			return nil
+		})
 	}
 	var ops []*model.OpPermission
 	for _, u := range opPermissionUids {
