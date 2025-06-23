@@ -49,7 +49,6 @@ var (
 	NameOpPermissionViewOptimizationRecord = &i18n.Message{ID: "NameOpPermissionViewOptimizationRecord", Other: "查看所有优化记录"}
 	NameOpPermissionVersionManage = &i18n.Message{ID: "NameOpPermissionVersionManage", Other: "版本管理"}
 	NameOpPermissionViewPipeline  = &i18n.Message{ID: "NameOpPermissionViewPipeline", Other: "查看所有流水线"}
-	NameOpPermissionViewPendingSQLManage = &i18n.Message{ID: "NameOpPermissionViewPendingSQLManage", Other: "查看所有待审核SQL"}
 	NameOpPermissionManageProjectDataSource  = &i18n.Message{ID: "NameOpPermissionManageProjectDataSource", Other: "管理项目数据源"}
 	NameOpPermissionManageAuditRuleTemplate = &i18n.Message{ID: "NameOpPermissionManageAuditRuleTemplate", Other: "管理审核规则模版"}
 	NameOpPermissionManageApprovalTemplate  = &i18n.Message{ID: "NameOpPermissionManageApprovalTemplate", Other: "管理审批流程模版'"}

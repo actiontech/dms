@@ -36,7 +36,6 @@ const (
 	UIDOfOpPermissionViewOptimizationRecord = "700023"
 	UIDOfOpPermissionVersionManage = "700025"
 	UIdOfOpPermissionViewPipeline  = "700026"
-	UIdOfOpPermissionViewPendingSQLManage = "700027"
 	UIdOfOpPermissionManageProjectDataSource  = "700028"
 	UIdOfOpPermissionManageAuditRuleTemplate = "700029"
 	UIdOfOpPermissionManageApprovalTemplate  = "700030"

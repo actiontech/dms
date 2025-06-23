@@ -1632,6 +1632,27 @@ func (ctl *DMSController) ListMemberGroups(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
+// swagger:route GET /v1/dms/projects/{project_uid}/member_groups/tips MemberGroup ListMemberGroupTips
+//
+// List member group tips.
+//
+//	responses:
+//	  200: body:ListMemberGroupTipsReply
+//	  default: body:GenericResp
+func (ctl *DMSController) ListMemberGroupTips(c echo.Context) error {
+	req := new(aV1.ListMemberGroupTipsReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	reply, err := ctl.DMS.ListMemberGroupTips(c.Request().Context(), req.ProjectUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
 // swagger:route GET /v1/dms/projects/{project_uid}/member_groups/{member_group_uid} MemberGroup GetMemberGroup
 //
 // Get member group, for front page.
