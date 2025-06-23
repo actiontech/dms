@@ -11146,7 +11146,7 @@
           "x-go-name": "Code"
         },
         "data": {
-          "description": "List member tip reply",
+          "description": "List member group tip reply",
           "type": "array",
           "items": {
             "$ref": "#/definitions/UidWithName"

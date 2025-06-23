@@ -184,7 +184,7 @@ type ListMemberGroupTipsReq struct {
 
 // swagger:model ListMemberGroupTipsReply
 type ListMemberGroupTipsReply struct {
-	// List member tip reply
+	// List member group tip reply
 	Data []UidWithName `json:"data"`
 
 	// Generic reply
