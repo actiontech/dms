@@ -3635,6 +3635,25 @@ definitions:
                 x-go-name: Users
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListMemberGroupTipsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: List member tip reply
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberGroupsReply:
         properties:
             code:
@@ -3683,6 +3702,14 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberRoleWithOpRange:
         properties:
+            member_group:
+                $ref: '#/definitions/ProjectMemberGroup'
+            op_permissions:
+                description: member op permissions
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: OpPermissions
             op_range_type:
                 description: |-
                     op permission range type, only support db service now
@@ -9034,6 +9061,28 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: update member group, for front page.
+            tags:
+                - MemberGroup
+    /v1/dms/projects/{project_uid}/member_groups/tips:
+        get:
+            operationId: ListMemberGroupTips
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+            responses:
+                "200":
+                    description: ListMemberGroupTipsReply
+                    schema:
+                        $ref: '#/definitions/ListMemberGroupTipsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List member group tips.
             tags:
                 - MemberGroup
     /v1/dms/projects/{project_uid}/members:
