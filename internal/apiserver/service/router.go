@@ -16,8 +16,6 @@ import (
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	"github.com/actiontech/dms/pkg/dms-common/i18nPkg"
 	commonLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
-	pkgLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
-	"github.com/go-kratos/kratos/v2/log"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -329,24 +327,27 @@ func (s *APIServer) installMiddleware() error {
 		}
 	}(allowedMethods))
 
+	var skipJWTPaths = []string{
+		dmsV1.SessionRouterGroup,
+		"/v1/dms/sessions/refresh",
+		"/v1/dms/oauth2",
+		"/v1/dms/configurations/login/tips",
+		"/v1/dms/personalization/logo",
+		"/v1/dms/configurations/license",
+		"/v1/dms/users/verify_user_login",
+		"/v1/dms/configurations/sms/send_code",
+		"/v1/dms/configurations/sms/verify_code",
+	}
 	s.echo.Use(dmsMiddleware.JWTTokenAdapter(), echojwt.WithConfig(echojwt.Config{
 		Skipper: middleware.Skipper(func(c echo.Context) bool {
-			logger := log.NewHelper(log.With(pkgLog.NewKLogWrapper(s.logger), "middleware", "jwt"))
-			if strings.HasSuffix(c.Request().RequestURI, dmsV1.SessionRouterGroup) ||
-				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/sessions/refresh" /* TODO 使用统一方法skip */) ||
-				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/oauth2" /* TODO 使用统一方法skip */) ||
-				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/login/tips" /* TODO 使用统一方法skip */) ||
-				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/personalization/logo") ||
-				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/license" /* TODO 使用统一方法skip */) ||
-				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/users/verify_user_login" /* TODO 使用统一方法skip */) ||
-				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/sms/send_code" /* TODO 使用统一方法skip */) ||
-				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/sms/verify_code" /* TODO 使用统一方法skip */) ||
-				!(strings.HasPrefix(c.Request().RequestURI, dmsV1.CurrentGroupVersion) ||
-					strings.HasPrefix(c.Request().RequestURI, dmsV2.CurrentGroupVersion)) {
-				logger.Debugf("skipper url jwt check: %v", c.Request().RequestURI)
-				return true
+			uri := c.Request().RequestURI
+			for _, skipPath := range skipJWTPaths {
+				if strings.HasSuffix(uri, skipPath) || strings.HasPrefix(uri, skipPath) {
+					return true
+				}
 			}
-			return false
+			// Non-DMS component's own uri
+			return !(strings.HasPrefix(uri, dmsV1.CurrentGroupVersion) || strings.HasPrefix(uri, dmsV2.CurrentGroupVersion))
 		}),
 		SigningKey:  dmsV1.JwtSigningKey,
 		TokenLookup: "cookie:dms-token,header:Authorization:Bearer ", // tell the middleware where to get token: from cookie and header,
