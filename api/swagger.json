@@ -4097,6 +4097,39 @@
         }
       }
     },
+    "/v1/dms/projects/{project_uid}/member_groups/tips": {
+      "get": {
+        "tags": [
+          "MemberGroup"
+        ],
+        "summary": "List member group tips.",
+        "operationId": "ListMemberGroupTips",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListMemberGroupTipsReply",
+            "schema": {
+              "$ref": "#/definitions/ListMemberGroupTipsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/projects/{project_uid}/member_groups/{member_group_uid}": {
       "get": {
         "tags": [
@@ -11099,6 +11132,31 @@
             "$ref": "#/definitions/UidWithName"
           },
           "x-go-name": "Users"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListMemberGroupTipsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "List member group tip reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
