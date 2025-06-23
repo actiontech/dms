@@ -71,6 +71,35 @@ func (d *DMSService) ListMemberTips(ctx context.Context, projectId string) (repl
 	}, nil
 }
 
+func (d *DMSService) ListMemberGroupTips(ctx context.Context, projectId string) (reply *dmsV1.ListMemberGroupTipsReply, err error) {
+	orderBy := biz.MemberGroupFieldName
+	filterBy := []pkgConst.FilterCondition{{
+		Field:    string(biz.MemberGroupFieldProjectUID),
+		Operator: pkgConst.FilterOperatorEqual,
+		Value:    projectId,
+	}}
+	listOption := &biz.ListMemberGroupsOption{
+		PageNumber:   1,
+		LimitPerPage: 9999,
+		OrderBy:      orderBy,
+		FilterBy:     filterBy,
+	}
+	memberGroups, _, err := d.MemberGroupUsecase.ListMemberGroups(ctx, listOption, projectId)
+	if nil != err {
+		return nil, err
+	}
+	ret := make([]dmsV1.UidWithName, len(memberGroups))
+	for i, memberGroup := range memberGroups {
+		ret[i] = dmsV1.UidWithName{
+			Uid: memberGroup.UID,
+			Name: memberGroup.Name,
+		}
+	}
+	return &dmsV1.ListMemberGroupTipsReply{
+		Data: ret,
+	}, nil
+}
+
 func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq, currentUserId string) (reply *dmsV1.ListMemberReply, err error) {
 	hasPermission, err := d.OpPermissionVerifyUsecase.HasViewPermission(ctx, currentUserId, req.ProjectUid, pkgConst.UIdOfOpPermissionManageMember)
 	if err != nil {

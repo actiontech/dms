@@ -174,6 +174,24 @@ type ListMemberTipsReq struct {
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 }
 
+// swagger:parameters ListMemberGroupTipsReq
+type ListMemberGroupTipsReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+}
+
+// swagger:model ListMemberGroupTipsReply
+type ListMemberGroupTipsReply struct {
+	// List member tip reply
+	Data []UidWithName `json:"data"`
+
+	// Generic reply
+	base.GenericResp
+}
+
+
 type ListMemberTipsItem struct {
 	UserId   string `json:"user_id"`
 	UserName string `json:"user_name"`
