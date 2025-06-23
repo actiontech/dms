@@ -60,6 +60,7 @@ const (
 	SQLMangeWhiteList = "管控SQL例外"
 	RoleMange  = "角色管理"
 	DesensitizationRule = "脱敏规则"
+	AccountManagement = "账号管理"
 )
 
 func ParseOpRangeType(t string) (OpRangeType, error) {
@@ -338,6 +339,8 @@ func GetProxyOpPermission() map[string][]*OpPermission {
 				Name:      "授权数据源数据权限",
 				RangeType: OpRangeTypeDBService,
 				Desc:      "授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限",
+				Service:   v1.ServiceDMS,
+				Module:    AccountManagement,
 			},
 		},
 	}

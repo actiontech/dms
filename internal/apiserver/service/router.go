@@ -124,6 +124,7 @@ func (s *APIServer) initRouter() error {
 
 		memberGroupV1 := v1.Group("/dms/projects/:project_uid/member_groups")
 		memberGroupV1.GET("", s.DMSController.ListMemberGroups)
+		memberGroupV1.GET("/tips", s.DMSController.ListMemberGroupTips)
 		memberGroupV1.GET("/:member_group_uid", s.DMSController.GetMemberGroup)
 		memberGroupV1.POST("", s.DMSController.AddMemberGroup)
 		memberGroupV1.PUT("/:member_group_uid", s.DMSController.UpdateMemberGroup)
