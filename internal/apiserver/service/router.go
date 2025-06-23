@@ -337,6 +337,7 @@ func (s *APIServer) installMiddleware() error {
 		"/v1/dms/users/verify_user_login",
 		"/v1/dms/configurations/sms/send_code",
 		"/v1/dms/configurations/sms/verify_code",
+		"/v1/dms/basic_info",
 	}
 	s.echo.Use(dmsMiddleware.JWTTokenAdapter(), echojwt.WithConfig(echojwt.Config{
 		Skipper: middleware.Skipper(func(c echo.Context) bool {
