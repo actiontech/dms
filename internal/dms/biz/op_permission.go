@@ -259,13 +259,6 @@ func initOpPermission() []*OpPermission {
 			Service:   v1.ServiceSQLE,
 		},
 		{
-			UID: pkgConst.UIdOfOpPermissionViewPendingSQLManage,
-			Name:      "查看所有待审核SQL",
-			RangeType: OpRangeTypeDBService,
-			Module: SQLManage,
-			Service:   v1.ServiceSQLE,
-		},
-		{
 			UID: pkgConst.UIdOfOpPermissionManageProjectDataSource,
 			Name:      "管理项目数据源",
 			RangeType: OpRangeTypeProject,
