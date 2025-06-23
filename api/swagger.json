@@ -4102,8 +4102,18 @@
         "tags": [
           "MemberGroup"
         ],
-        "summary": "List member tips.",
+        "summary": "List member group tips.",
         "operationId": "ListMemberGroupTips",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
         "responses": {
           "200": {
             "description": "ListMemberGroupTipsReply",

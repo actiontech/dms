@@ -174,7 +174,7 @@ type ListMemberTipsReq struct {
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 }
 
-// swagger:parameters ListMemberGroupTipsReq
+// swagger:parameters ListMemberGroupTips
 type ListMemberGroupTipsReq struct {
 	// project id
 	// Required: true

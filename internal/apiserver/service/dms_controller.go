@@ -1634,7 +1634,7 @@ func (ctl *DMSController) ListMemberGroups(c echo.Context) error {
 
 // swagger:route GET /v1/dms/projects/{project_uid}/member_groups/tips MemberGroup ListMemberGroupTips
 //
-// List member tips.
+// List member group tips.
 //
 //	responses:
 //	  200: body:ListMemberGroupTipsReply
