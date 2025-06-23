@@ -3643,7 +3643,7 @@ definitions:
                 type: integer
                 x-go-name: Code
             data:
-                description: List member tip reply
+                description: List member group tip reply
                 items:
                     $ref: '#/definitions/UidWithName'
                 type: array
