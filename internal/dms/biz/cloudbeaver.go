@@ -344,6 +344,28 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				ctx := graphql.StartOperationTrace(c.Request().Context())
 
 				var dbService *DBService
+				if params.OperationName == "asyncReadDataFromContainer" {
+					dbService, err = cu.getDbService(c.Request().Context(), params)
+					if err != nil {
+						cu.log.Error(err)
+						return err
+					}
+
+					// 创建缓冲区用于存储响应
+					cloudbeaverResBuf := new(bytes.Buffer)
+					// 使用多写器同时写入响应和缓冲区
+					mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
+					writer := &cloudbeaverResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
+					c.Response().Writer = writer
+
+					if err = next(c); err != nil {
+						return err
+					}
+
+					// 构建任务ID与数据脱敏的关联
+					return cu.buildTaskIdAssocDataMasking(cloudbeaverResBuf.Bytes(), dbService.IsMaskingSwitch)
+				}
+
 				// 处理异步SQL执行查询请求
 				if params.OperationName == "asyncSqlExecuteQuery" {
 					dbService, err = cu.getDbService(c.Request().Context(), params)
@@ -469,67 +491,20 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					return nil
 				}
 
+				enableMasking := false
 				// 处理获取SQL执行任务结果请求
 				if params.OperationName == "getSqlExecuteTaskResults" {
-					cloudbeaverResBuf := new(bytes.Buffer)
-					mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
-					writer := &cloudbeaverResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
-					c.Response().Writer = writer
-
-					if err = next(c); err != nil {
-						return err
-					}
-
-					// 从任务ID关联中获取用户ID
-					cbUid, exist := taskIDAssocUid.Load(params.Variables["taskId"])
-					if !exist {
-						return nil
-					}
-					cbUidStr, ok := cbUid.(string)
-					if !ok {
-						return nil
-					}
-
-					// 获取操作日志
-					operationLog, err := cu.cbOperationLogUsecase.GetCbOperationLogByID(ctx, cbUidStr)
-					if err != nil {
-						cu.log.Errorf("get cb operation log by id %s failed: %v", cbUidStr, err)
-						return nil
-					} else {
-						resp := &struct {
-							Data struct {
-								Result *model.SQLExecuteInfo `json:"result"`
-							} `json:"data"`
-						}{}
-						if err := json.Unmarshal(cloudbeaverResBuf.Bytes(), resp); err != nil {
-							cu.log.Errorf("extract task id err: %v", err)
-							return nil
-						}
-						// 更新执行总时间
-						if resp.Data.Result != nil {
-							operationLog.ExecTotalSec = int64(resp.Data.Result.Duration)
-							// 目前每一条SQL只会返回一个结果集，因此只需要记录第一个结果集的行数即可
-							if len(resp.Data.Result.Results) > 0 && resp.Data.Result.Results[0].ResultSet != nil {
-								operationLog.ResultSetRowCount = int64(len(resp.Data.Result.Results[0].ResultSet.Rows))
-							}
-						}
-						// 更新操作日志
-						err := cu.cbOperationLogUsecase.UpdateCbOperationLog(ctx, operationLog)
-						if err != nil {
-							cu.log.Error(err)
-							return nil
-						}
-					}
-
 					// 检查是否需要数据脱敏
 					taskIdAssocMaskingVal, exist := taskIdAssocMasking.LoadAndDelete(params.Variables["taskId"])
 					if !exist {
-						return next(c)
+						msg := fmt.Sprintf("task id %v assoc masking val does not exist", params.Variables["taskId"])
+						return c.JSON(http.StatusOK, model.ServerError{Message: &msg})
 					}
 
-					enableMasking, ok := taskIdAssocMaskingVal.(bool)
-					if !ok || !enableMasking {
-						return next(c)
+					enableMasking, ok = taskIdAssocMaskingVal.(bool)
+					if !ok {
+						msg := fmt.Sprintf("task id %v assoc masking val is not bool", params.Variables["taskId"])
+						return c.JSON(http.StatusOK, model.ServerError{Message: &msg})
 					}
 				}
 
@@ -640,7 +615,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 
 				// 创建GraphQL可执行schema
 				g := resolver.NewExecutableSchema(resolver.Config{
-					Resolvers: cloudbeaver.NewResolverImpl(c, cloudbeaverNext, cu.dataMaskingUseCase.SQLExecuteResultsDataMasking),
+					Resolvers: cloudbeaver.NewResolverImpl(c, cloudbeaverNext, cu.dataMaskingUseCase.SQLExecuteResultsDataMasking, enableMasking),
 				})
 
 				// 创建GraphQL执行器
