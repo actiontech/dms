@@ -47,6 +47,7 @@ var (
 	NamePermissionViewQuickAuditRecord = &i18n.Message{ID: "NamePermissionViewQuickAuditRecord", Other: "查看所有快捷审核记录"}
 	NameOpPermissionViewIDEAuditRecord = &i18n.Message{ID: "NameOpPermissionViewIDEAuditRecord", Other: "查看所有IDE审核记录"}
 	NameOpPermissionViewOptimizationRecord = &i18n.Message{ID: "NameOpPermissionViewOptimizationRecord", Other: "查看所有优化记录"}
+	NameOpPermissionViewVersionManage = &i18n.Message{ID: "NameOpPermissionViewVersionManage", Other: "查看他人创建的版本管理"}
 	NameOpPermissionVersionManage = &i18n.Message{ID: "NameOpPermissionVersionManage", Other: "版本管理"}
 	NameOpPermissionViewPipeline  = &i18n.Message{ID: "NameOpPermissionViewPipeline", Other: "查看所有流水线"}
 	NameOpPermissionManageProjectDataSource  = &i18n.Message{ID: "NameOpPermissionManageProjectDataSource", Other: "管理项目数据源"}

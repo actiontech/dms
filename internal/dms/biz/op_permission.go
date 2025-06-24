@@ -245,8 +245,15 @@ func initOpPermission() []*OpPermission {
 			Service:   v1.ServiceSQLE,
 		},
 		{
+			UID: pkgConst.UIDOfOpPermissionViewVersionManage,
+			Name: "查看他人创建的版本记录",
+			RangeType: OpRangeTypeDBService,
+			Module: VersionManage,
+			Service:  v1.ServiceSQLE,
+		},
+		{
 			UID: pkgConst.UIDOfOpPermissionVersionManage,
-			Name:      "版本管理",
+			Name:      "配置版本",
 			RangeType: OpRangeTypeDBService,
 			Module: VersionManage,
 			Service:   v1.ServiceSQLE,
@@ -329,9 +336,9 @@ func GetProxyOpPermission() map[string][]*OpPermission {
 		"provision": {
 			{
 				UID:       pkgConst.UIDOfOpPermissionAuthDBServiceData,
-				Name:      "授权数据源数据权限",
-				RangeType: OpRangeTypeDBService,
-				Desc:      "授权数据源数据权限；拥有该权限的用户可以授权数据源数据权限",
+				Name:      "账号管理",
+				RangeType: OpRangeTypeProject,
+				Desc:      "账号管理；拥有该权限的用户可以授权数据源数据权限",
 				Service:   v1.ServiceDMS,
 				Module:    AccountManagement,
 			},
