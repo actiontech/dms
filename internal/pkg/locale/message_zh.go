@@ -28,7 +28,7 @@ var (
 	NameOpPermissionProjectAdmin           = &i18n.Message{ID: "NameOpPermissionProjectAdmin", Other: "项目管理"}
 	NameOpPermissionCreateWorkflow         = &i18n.Message{ID: "NameOpPermissionCreateWorkflow", Other: "创建上线工单"}
 	NameOpPermissionAuditWorkflow          = &i18n.Message{ID: "NameOpPermissionAuditWorkflow", Other: "审批上线工单"}
-	NameOpPermissionAuthDBServiceData      = &i18n.Message{ID: "NameOpPermissionAuthDBServiceData", Other: "授权数据源数据权限"}
+	NameOpPermissionAuthDBServiceData      = &i18n.Message{ID: "NameOpPermissionAuthDBServiceData", Other: "账号管理"}
 	NameOpPermissionExecuteWorkflow        = &i18n.Message{ID: "NameOpPermissionExecuteWorkflow", Other: "执行上线工单"}
 	NameOpPermissionViewOthersWorkflow     = &i18n.Message{ID: "NameOpPermissionViewOthersWorkflow", Other: "查看所有工单"}
 	NameOpPermissionViewOthersAuditPlan    = &i18n.Message{ID: "NameOpPermissionViewOthersAuditPlan", Other: "访问所有管控SQL"}
