@@ -279,6 +279,7 @@ func ParseOpPermissionType(typ string) (OpPermissionType, error) {
 	case string(OpPermissionViewQuickAuditRecord): return OpPermissionViewQuickAuditRecord, nil
 	case string(OpPermissionViewIDEAuditRecord): return OpPermissionViewIDEAuditRecord, nil
 	case string(OpPermissionViewOptimizationRecord): return OpPermissionViewOptimizationRecord, nil
+	case string(OpPermissionViewVersionManage): return OpPermissionViewVersionManage, nil
 	case string(OpPermissionVersionManage): return OpPermissionVersionManage, nil
 	case string(OpPermissionViewPipeline): return OpPermissionViewPipeline, nil
 	case string(OpPermissionManageProjectDataSource): return OpPermissionManageProjectDataSource, nil
