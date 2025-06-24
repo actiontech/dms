@@ -27,22 +27,27 @@ type ResolverImpl struct {
 
 	// SQLExecuteResultsHandlerFn 为对SQL结果集的处理方法，具体处理逻辑为业务行为，由外部biz层定义后传入
 	SQLExecuteResultsHandlerFn SQLExecuteResultsHandler
+	EnableResultsHandlerFn     bool
 }
 
-func NewResolverImpl(ctx echo.Context, next Next, SQLExecuteResultsHandlerFn SQLExecuteResultsHandler) *ResolverImpl {
+func NewResolverImpl(ctx echo.Context, next Next, SQLExecuteResultsHandlerFn SQLExecuteResultsHandler, enableResultsHandlerFn bool) *ResolverImpl {
 	return &ResolverImpl{
 		Ctx:                        ctx,
 		Next:                       next,
 		SQLExecuteResultsHandlerFn: SQLExecuteResultsHandlerFn,
+		EnableResultsHandlerFn:     enableResultsHandlerFn,
 	}
 }
 
 func (r *ResolverImpl) Mutation() resolver.MutationResolver {
-	return &MutationResolverImpl{
-		Ctx:                        r.Ctx,
-		Next:                       r.Next,
-		SQLExecuteResultsHandlerFn: r.SQLExecuteResultsHandlerFn,
+	m := &MutationResolverImpl{
+		Ctx:  r.Ctx,
+		Next: r.Next,
 	}
+	if r.EnableResultsHandlerFn {
+		m.SQLExecuteResultsHandlerFn = r.SQLExecuteResultsHandlerFn
+	}
+	return m
 }
 
 // Query returns generated.QueryResolver implementation.
@@ -249,7 +254,7 @@ func (r *MutationResolverImpl) AsyncSQLExecuteResults(ctx context.Context, taskI
 		return nil, fmt.Errorf("failed to unmarshal sql execute info: %v", err)
 	}
 
-	if resp.Data.Result != nil {
+	if resp.Data.Result != nil && r.SQLExecuteResultsHandlerFn != nil {
 		if err := r.SQLExecuteResultsHandlerFn(ctx, resp.Data.Result); err != nil {
 			return nil, fmt.Errorf("failed to handle sql result: %v", err)
 		}

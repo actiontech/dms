@@ -469,17 +469,20 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					return nil
 				}
 
+				enableMasking := false
 				// 处理获取SQL执行任务结果请求
 				if params.OperationName == "getSqlExecuteTaskResults" {
 					// 检查是否需要数据脱敏
 					taskIdAssocMaskingVal, exist := taskIdAssocMasking.LoadAndDelete(params.Variables["taskId"])
 					if !exist {
-						return next(c)
+						msg := fmt.Sprintf("task id %v assoc masking val does not exist", params.Variables["taskId"])
+						return c.JSON(http.StatusOK, model.ServerError{Message: &msg})
 					}
 
-					enableMasking, ok := taskIdAssocMaskingVal.(bool)
-					if !ok || !enableMasking {
-						return next(c)
+					enableMasking, ok = taskIdAssocMaskingVal.(bool)
+					if !ok {
+						msg := fmt.Sprintf("task id %v assoc masking val is not bool", params.Variables["taskId"])
+						return c.JSON(http.StatusOK, model.ServerError{Message: &msg})
 					}
 				}
 
@@ -590,7 +593,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 
 				// 创建GraphQL可执行schema
 				g := resolver.NewExecutableSchema(resolver.Config{
-					Resolvers: cloudbeaver.NewResolverImpl(c, cloudbeaverNext, cu.dataMaskingUseCase.SQLExecuteResultsDataMasking),
+					Resolvers: cloudbeaver.NewResolverImpl(c, cloudbeaverNext, cu.dataMaskingUseCase.SQLExecuteResultsDataMasking, enableMasking),
 				})
 
 				// 创建GraphQL执行器
