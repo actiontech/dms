@@ -37,6 +37,7 @@ var OpPermissionNameByUID = map[string]*i18n.Message{
 	pkgConst.UIDOfPermissionViewQuickAuditRecord:     locale.NamePermissionViewQuickAuditRecord,
 	pkgConst.UIDOfOpPermissionViewIDEAuditRecord:     locale.NameOpPermissionViewIDEAuditRecord,
 	pkgConst.UIDOfOpPermissionViewOptimizationRecord: locale.NameOpPermissionViewOptimizationRecord,
+	pkgConst.UIDOfOpPermissionViewVersionManage:      locale.NameOpPermissionViewVersionManage,
 	pkgConst.UIDOfOpPermissionVersionManage:          locale.NameOpPermissionVersionManage,
 	pkgConst.UIdOfOpPermissionViewPipeline:			  locale.NameOpPermissionViewPipeline,
 	pkgConst.UIdOfOpPermissionManageProjectDataSource:locale.NameOpPermissionManageProjectDataSource,
