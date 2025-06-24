@@ -85,7 +85,7 @@ func (d *DMSService) ListRoles(ctx context.Context, req *dmsV1.ListRoleReq) (rep
 	case dmsV1.RoleOrderByName:
 		orderBy = biz.RoleFieldName
 	default:
-		orderBy = biz.RoleFieldName
+		orderBy = biz.RoleFieldCreatedAt
 	}
 
 	filterBy := make([]pkgConst.FilterCondition, 0)

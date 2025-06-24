@@ -150,7 +150,7 @@ func (d *RoleRepo) ListRoles(ctx context.Context, opt *biz.ListRolesOption) (rol
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		// find models
 		{
-			db := tx.WithContext(ctx).Order(opt.OrderBy)
+			db := tx.WithContext(ctx).Order(string(opt.OrderBy) + " DESC")
 			for _, f := range opt.FilterBy {
 				if f.Field != string(biz.RoleFieldOpPermission) {
 					db = gormWhere(db, f)

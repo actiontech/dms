@@ -302,6 +302,7 @@ const (
 const (
 	RoleFieldUID           RoleField = "roles.uid"
 	RoleFieldName          RoleField = "name"
+	RoleFieldCreatedAt     RoleField = "created_at"
 	RoleFieldDesc          RoleField = "description"
 	RoleFieldStat          RoleField = "stat"
 	RoleFieldOpPermission  RoleField = "op_permission"
