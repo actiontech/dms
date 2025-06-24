@@ -317,7 +317,7 @@ func initOpPermission() []*OpPermission {
 		{
 			UID: pkgConst.UIdOfOpPermissionManageRoleMange,
 			Name: "角色管理权限",
-			RangeType: OpRangeTypeDBService,
+			RangeType: OpRangeTypeProject,
 		 	Module: RoleMange,
 			Service: v1.ServiceDMS,
 		},
