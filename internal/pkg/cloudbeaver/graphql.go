@@ -272,6 +272,19 @@ type gqlBehavior struct {
 }
 
 var GraphQLHandlerRouters = map[string] /* gql operation name */ gqlBehavior{
+	"asyncReadDataFromContainer": {
+		UseLocalHandler:     true,
+		NeedModifyRemoteRes: false,
+		Preprocessing: func(ctx echo.Context, params *graphql.RawParams) (err error) {
+			// json中没有int类型, 这将导致执行json.Unmarshal()时int会被当作float64, 从而导致后面出现类型错误的异常
+			if filter, ok := params.Variables["filter"].(map[string]interface{}); ok {
+				if filter["limit"] != nil {
+					params.Variables["filter"].(map[string]interface{})["limit"], err = strconv.Atoi(fmt.Sprintf("%v", params.Variables["filter"].(map[string]interface{})["limit"]))
+				}
+			}
+			return err
+		},
+	},
 	"asyncSqlExecuteQuery": {
 		UseLocalHandler:     true,
 		NeedModifyRemoteRes: false,
