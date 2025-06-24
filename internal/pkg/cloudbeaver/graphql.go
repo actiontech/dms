@@ -27,22 +27,27 @@ type ResolverImpl struct {
 
 	// SQLExecuteResultsHandlerFn 为对SQL结果集的处理方法，具体处理逻辑为业务行为，由外部biz层定义后传入
 	SQLExecuteResultsHandlerFn SQLExecuteResultsHandler
+	EnableResultsHandlerFn     bool
 }
 
-func NewResolverImpl(ctx echo.Context, next Next, SQLExecuteResultsHandlerFn SQLExecuteResultsHandler) *ResolverImpl {
+func NewResolverImpl(ctx echo.Context, next Next, SQLExecuteResultsHandlerFn SQLExecuteResultsHandler, enableResultsHandlerFn bool) *ResolverImpl {
 	return &ResolverImpl{
 		Ctx:                        ctx,
 		Next:                       next,
 		SQLExecuteResultsHandlerFn: SQLExecuteResultsHandlerFn,
+		EnableResultsHandlerFn:     enableResultsHandlerFn,
 	}
 }
 
 func (r *ResolverImpl) Mutation() resolver.MutationResolver {
-	return &MutationResolverImpl{
-		Ctx:                        r.Ctx,
-		Next:                       r.Next,
-		SQLExecuteResultsHandlerFn: r.SQLExecuteResultsHandlerFn,
+	m := &MutationResolverImpl{
+		Ctx:  r.Ctx,
+		Next: r.Next,
 	}
+	if r.EnableResultsHandlerFn {
+		m.SQLExecuteResultsHandlerFn = r.SQLExecuteResultsHandlerFn
+	}
+	return m
 }
 
 // Query returns generated.QueryResolver implementation.
@@ -249,7 +254,7 @@ func (r *MutationResolverImpl) AsyncSQLExecuteResults(ctx context.Context, taskI
 		return nil, fmt.Errorf("failed to unmarshal sql execute info: %v", err)
 	}
 
-	if resp.Data.Result != nil {
+	if resp.Data.Result != nil && r.SQLExecuteResultsHandlerFn != nil {
 		if err := r.SQLExecuteResultsHandlerFn(ctx, resp.Data.Result); err != nil {
 			return nil, fmt.Errorf("failed to handle sql result: %v", err)
 		}
@@ -267,6 +272,19 @@ type gqlBehavior struct {
 }
 
 var GraphQLHandlerRouters = map[string] /* gql operation name */ gqlBehavior{
+	"asyncReadDataFromContainer": {
+		UseLocalHandler:     true,
+		NeedModifyRemoteRes: false,
+		Preprocessing: func(ctx echo.Context, params *graphql.RawParams) (err error) {
+			// json中没有int类型, 这将导致执行json.Unmarshal()时int会被当作float64, 从而导致后面出现类型错误的异常
+			if filter, ok := params.Variables["filter"].(map[string]interface{}); ok {
+				if filter["limit"] != nil {
+					params.Variables["filter"].(map[string]interface{})["limit"], err = strconv.Atoi(fmt.Sprintf("%v", params.Variables["filter"].(map[string]interface{})["limit"]))
+				}
+			}
+			return err
+		},
+	},
 	"asyncSqlExecuteQuery": {
 		UseLocalHandler:     true,
 		NeedModifyRemoteRes: false,
