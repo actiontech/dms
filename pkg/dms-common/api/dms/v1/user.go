@@ -210,7 +210,7 @@ const (
 	OpPermissionViewIDEAuditRecord OpPermissionType = "view_ide_audit_record"
 	// SQL优化;查看所有优化记录
 	OpPermissionViewOptimizationRecord OpPermissionType = "view_optimization_record"
-	// 版本管理;查看他人创建的版本
+	// 版本管理;查看他人创建的版本记录
 	OpPermissionViewVersionManage OpPermissionType = "view_version_manage"
 	// 版本管理;版本管理
 	OpPermissionVersionManage OpPermissionType = "version_manage"
