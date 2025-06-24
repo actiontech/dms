@@ -115,7 +115,7 @@ func initOpPermission() []*OpPermission {
 		},
 		{
 			UID:       pkgConst.UIDOfOpPermissionCreateWorkflow,
-			Name:      "创建/编辑工单",
+			Name:      "创建上线工单",
 			RangeType: OpRangeTypeDBService,
 			Module:    SQLWorkflow,
 			Desc:      "创建/编辑工单；拥有该权限的用户可以创建/编辑工单",
@@ -123,7 +123,7 @@ func initOpPermission() []*OpPermission {
 		},
 		{
 			UID:       pkgConst.UIDOfOpPermissionAuditWorkflow,
-			Name:      "审核/驳回工单",
+			Name:      "审批上线工单",
 			RangeType: OpRangeTypeDBService,
 			Module: SQLWorkflow,
 			Desc:      "审核/驳回工单；拥有该权限的用户可以审核/驳回工单",
@@ -131,7 +131,7 @@ func initOpPermission() []*OpPermission {
 		},
 		{
 			UID:       pkgConst.UIDOfOpPermissionExecuteWorkflow,
-			Name:      "上线工单",
+			Name:      "执行上线工单",
 			RangeType: OpRangeTypeDBService,
 			Module: SQLWorkflow,
 			Desc:      "上线工单；拥有该权限的用户可以上线工单",
@@ -139,7 +139,7 @@ func initOpPermission() []*OpPermission {
 		},
 		{
 			UID:       pkgConst.UIDOfOpPermissionViewOthersWorkflow,
-			Name:      "查看他人创建的工单",
+			Name:      "查看所有工单",
 			RangeType: OpRangeTypeDBService,
 			Module: SQLWorkflow,
 			Desc:      "查看他人创建的工单；拥有该权限的用户可以查看他人创建的工单",
@@ -147,7 +147,7 @@ func initOpPermission() []*OpPermission {
 		},
 		{
 			UID:       pkgConst.UIDOfOpPermissionSaveAuditPlan,
-			Name:      "创建/编辑扫描任务",
+			Name:      "配置SQL管控",
 			RangeType: OpRangeTypeDBService,
 			Module:    SQLManage,
 			Desc:      "创建/编辑扫描任务；拥有该权限的用户可以创建/编辑扫描任务",
@@ -155,7 +155,7 @@ func initOpPermission() []*OpPermission {
 		},
 		{
 			UID:       pkgConst.UIDOfOpPermissionViewOthersAuditPlan,
-			Name:      "查看他人创建的扫描任务",
+			Name:      "访问所有管控SQL",
 			RangeType: OpRangeTypeDBService,
 			Module:    SQLManage,
 			Desc:      "查看他人创建的扫描任务；拥有该权限的用户可以查看他人创建的扫描任务",
@@ -163,7 +163,7 @@ func initOpPermission() []*OpPermission {
 		},
 		{
 			UID:       pkgConst.UIDOfOpPermissionSQLQuery,
-			Name:      "SQL查询",
+			Name:      "SQL工作台操作权限",
 			RangeType: OpRangeTypeDBService,
 			Module:    SQLWorkBench,
 			Desc:      "SQL查询；拥有该权限的用户可以执行SQL查询",
@@ -171,7 +171,7 @@ func initOpPermission() []*OpPermission {
 		},
 		{
 			UID:       pkgConst.UIDOfOpPermissionExportApprovalReject,
-			Name:      "审批/驳回数据导出工单",
+			Name:      "审批导出工单",
 			RangeType: OpRangeTypeDBService,
 			Module:    SQLWorkflow,
 			Desc:      "审批/驳回数据导出工单；拥有该权限的用户可以执行审批导出数据工单或者驳回导出数据工单",
@@ -179,7 +179,7 @@ func initOpPermission() []*OpPermission {
 		},
 		{
 			UID:       pkgConst.UIDOfOpPermissionExportCreate,
-			Name:      "创建数据导出任务",
+			Name:      "创建导出工单",
 			RangeType: OpRangeTypeDBService,
 			Module:    DataExport,
 			Desc:      "创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单",
@@ -203,7 +203,7 @@ func initOpPermission() []*OpPermission {
 		},
 		{
 			UID:       pkgConst.UIDOfOpPermissionCreatePipeline,
-			Name:      "配置流水线",
+			Name:      "流水线增删改",
 			RangeType: OpRangeTypeDBService,
 			Module:    CICDIntegration,
 			Desc:      "配置流水线；拥有该权限的用户可以为数据源配置流水线",
