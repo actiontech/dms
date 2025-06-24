@@ -344,6 +344,28 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				ctx := graphql.StartOperationTrace(c.Request().Context())
 
 				var dbService *DBService
+				if params.OperationName == "asyncReadDataFromContainer" {
+					dbService, err = cu.getDbService(c.Request().Context(), params)
+					if err != nil {
+						cu.log.Error(err)
+						return err
+					}
+
+					// 创建缓冲区用于存储响应
+					cloudbeaverResBuf := new(bytes.Buffer)
+					// 使用多写器同时写入响应和缓冲区
+					mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
+					writer := &cloudbeaverResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
+					c.Response().Writer = writer
+
+					if err = next(c); err != nil {
+						return err
+					}
+
+					// 构建任务ID与数据脱敏的关联
+					return cu.buildTaskIdAssocDataMasking(cloudbeaverResBuf.Bytes(), dbService.IsMaskingSwitch)
+				}
+
 				// 处理异步SQL执行查询请求
 				if params.OperationName == "asyncSqlExecuteQuery" {
 					dbService, err = cu.getDbService(c.Request().Context(), params)
