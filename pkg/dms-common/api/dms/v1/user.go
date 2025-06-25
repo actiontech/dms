@@ -212,7 +212,7 @@ const (
 	OpPermissionViewOptimizationRecord OpPermissionType = "view_optimization_record"
 	// 版本管理;查看他人创建的版本记录
 	OpPermissionViewVersionManage OpPermissionType = "view_version_manage"
-	// 版本管理;版本管理
+	// 版本管理;配置版本
 	OpPermissionVersionManage OpPermissionType = "version_manage"
 	// CI/CD集成;查看所有流水线
 	OpPermissionViewPipeline OpPermissionType = "view_pipeline"
