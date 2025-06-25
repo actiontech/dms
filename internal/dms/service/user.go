@@ -694,6 +694,8 @@ func convertBizOpPermission(opPermissionUid string) (apiOpPermissionTyp dmsCommo
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionViewIDEAuditRecord
 	case pkgConst.UIDOfOpPermissionViewOptimizationRecord:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionViewOptimizationRecord
+	case pkgConst.UIDOfOpPermissionViewVersionManage:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionViewVersionManage
 	case pkgConst.UIDOfOpPermissionVersionManage:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionVersionManage
 	case pkgConst.UIdOfOpPermissionViewPipeline:
