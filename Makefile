@@ -11,6 +11,9 @@ PRE_RELEASE_TAG = $(shell git tag --points-at $(HEAD_HASH) --sort=-v:refname | h
 # 如果存在稳定版标签，则使用稳定版；否则使用预发布版
 HEAD_TAG := $(if $(STABLE_TAG),$(STABLE_TAG),$(PRE_RELEASE_TAG))
 
+# 当前分支名
+HEAD_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
+
 # 1. 如果HEAD存在tag，则GIT_VERSION=<版本名称>-<企业版/社区版> <commit>
 # PS: 通常会在版本名称前增加字符“v”作为tag内容，当版本名称为 3.2411.0时，tag内容为v3.2411.0 
 # e.g. tag为v3.2411.0时，社区版：GIT_VERSION=3.2411.0-ce a6355ff4cf8d181315a2b30341bc954b29576b11
