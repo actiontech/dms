@@ -173,7 +173,7 @@ func initOpPermission() []*OpPermission {
 			UID:       pkgConst.UIDOfOpPermissionExportApprovalReject,
 			Name:      "审批导出工单",
 			RangeType: OpRangeTypeDBService,
-			Module:    SQLWorkflow,
+			Module:    DataExport,
 			Desc:      "审批/驳回数据导出工单；拥有该权限的用户可以执行审批导出数据工单或者驳回导出数据工单",
 			Service:   v1.ServiceSQLE,
 		},
