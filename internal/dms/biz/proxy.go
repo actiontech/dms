@@ -164,9 +164,6 @@ func (d *DmsProxyUsecase) RegisterDMSProxyTarget(ctx context.Context, currentUse
 		}
 		// 更新角色
 		rolePermission := OpsEngineerPermissionsStrategy{}.GetPermissions()
-		for _, proxyPermission := range GetProxyOpPermission()[target.Name] {
-			rolePermission = append(rolePermission, proxyPermission.UID)
-		}
 		err = d.roleUc.InsureOpPermissionsToRole(ctx, rolePermission, pkgConst.UIDOfRoleOpsEngineer)
 		if err != nil {
 			return fmt.Errorf("insure op permissions to role failed: %v", err)
