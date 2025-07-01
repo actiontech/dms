@@ -34,7 +34,7 @@ var (
 	NameOpPermissionViewOthersAuditPlan    = &i18n.Message{ID: "NameOpPermissionViewOthersAuditPlan", Other: "访问所有管控SQL"}
 	NameOpPermissionSaveAuditPlan          = &i18n.Message{ID: "NameOpPermissionSaveAuditPlan", Other: "配置SQL管控"}
 	NameOpPermissionSQLQuery               = &i18n.Message{ID: "NameOpPermissionSQLQuery", Other: "SQL工作台操作权限"}
-	NameOpPermissionExportApprovalReject   = &i18n.Message{ID: "NameOpPermissionExportApprovalReject", Other: "审批/驳回数据导出工单"}
+	NameOpPermissionExportApprovalReject   = &i18n.Message{ID: "NameOpPermissionExportApprovalReject", Other: "审批导出工单"}
 	NameOpPermissionExportCreate           = &i18n.Message{ID: "NameOpPermissionExportCreate", Other: "创建导出工单"}
 	NameOpPermissionCreateOptimization     = &i18n.Message{ID: "NameOpPermissionCreateOptimization", Other: "创建智能调优"}
 	NameOpPermissionGlobalManagement       = &i18n.Message{ID: "NameOpPermissionGlobalManagement", Other: "系统管理员"}
