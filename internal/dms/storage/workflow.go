@@ -118,7 +118,7 @@ func (d *WorkflowRepo) GetDataExportWorkflowsForView(ctx context.Context, userUi
 	return workflowUids, nil
 }
 
-func (d *WorkflowRepo) GetAllDataExportWorkflowsForView(ctx context.Context) ([]string, error) {
+func (d *WorkflowRepo) GetProjectDataExportWorkflowsForView(ctx context.Context, projectUid string) ([]string, error) {
 	workflowUids := make([]string, 0)
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Raw(`
@@ -127,10 +127,12 @@ func (d *WorkflowRepo) GetAllDataExportWorkflowsForView(ctx context.Context) ([]
 	left join workflow_records wr on w.workflow_record_uid  = wr.uid
 	LEFT JOIN workflow_steps ws on wr.uid = ws.workflow_record_uid  and wr.uid  = ws.workflow_record_uid
 	left join data_export_tasks det on JSON_SEARCH(wr.task_ids ,'one',det.uid) IS NOT NULL
+	WHERE w.project_uid = ?
 	UNION
 	SELECT DISTINCT w.uid
 	FROM  workflows w
-	`).Find(&workflowUids).Error; err != nil {
+	WHERE w.project_uid = ?
+	`, projectUid, projectUid).Find(&workflowUids).Error; err != nil {
 			return fmt.Errorf("failed to find workflow for view: %v", err)
 		}
 		return nil
@@ -197,7 +199,7 @@ func (d *WorkflowRepo) GetDataExportWorkflowsByDBService(ctx context.Context, db
 	return workflowUids, nil
 }
 
-func (d *WorkflowRepo) GetDataExportWorkflowsByDBServices(ctx context.Context, dbUid []string) ([]string, error) {
+func (d *WorkflowRepo) GetProjectDataExportWorkflowsByDBServices(ctx context.Context, dbUid []string, projectUid string) ([]string, error) {
 	workflowUids := make([]string, 0)
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Raw(`
@@ -205,8 +207,8 @@ func (d *WorkflowRepo) GetDataExportWorkflowsByDBServices(ctx context.Context, d
 		FROM  workflows w
 		left join workflow_records wr on w.workflow_record_uid  = wr.uid
 		left join data_export_tasks det on JSON_SEARCH(wr.task_ids ,'one',det.uid) IS NOT NULL
-		WHERE det.db_service_uid IN (?)
-	`, dbUid).Find(&workflowUids).Error; err != nil {
+		WHERE det.db_service_uid IN (?) and w.project_uid = ?
+	`, dbUid, projectUid).Find(&workflowUids).Error; err != nil {
 			return fmt.Errorf("failed to find workflow by db uid: %v", err)
 		}
 		return nil
