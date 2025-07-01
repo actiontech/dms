@@ -363,8 +363,8 @@ func (o *OpPermissionVerifyUsecase) GetUserProject(ctx context.Context, userUid 
 
 func (o *OpPermissionVerifyUsecase) UserCanOpDB(userOpPermissions []OpPermissionWithOpRange, needOpPermissionTypes []string, dbServiceUid string) bool {
 	for _, userOpPermission := range userOpPermissions {
-		// 对象权限(当前空间内所有对象)
-		if userOpPermission.OpRangeType == OpRangeType(dmsV1.OpRangeTypeProject) {
+		// 项目管理员可以查看所有数据源
+		if userOpPermission.OpPermissionUID == pkgConst.UIDOfOpPermissionProjectAdmin {
 			return true
 		}
 
