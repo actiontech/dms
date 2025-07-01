@@ -101,7 +101,7 @@ func (d *WorkflowRepo) GetDataExportWorkflowsForView(ctx context.Context, userUi
 		SELECT DISTINCT w.uid
 	FROM  workflows w
 	left join workflow_records wr on w.workflow_record_uid  = wr.uid
-	LEFT JOIN workflow_steps ws on wr.uid = ws.workflow_record_uid  and wr.uid  = ws.workflow_record_uid
+	LEFT JOIN workflow_steps ws on wr.uid = ws.workflow_record_uid
 	left join data_export_tasks det on JSON_SEARCH(wr.task_ids ,'one',det.uid) IS NOT NULL
 	WHERE  JSON_SEARCH(ws.assignees,"one",?) IS NOT NULL
 	UNION
@@ -125,7 +125,7 @@ func (d *WorkflowRepo) GetProjectDataExportWorkflowsForView(ctx context.Context,
 		SELECT DISTINCT w.uid
 	FROM  workflows w
 	left join workflow_records wr on w.workflow_record_uid  = wr.uid
-	LEFT JOIN workflow_steps ws on wr.uid = ws.workflow_record_uid  and wr.uid  = ws.workflow_record_uid
+	LEFT JOIN workflow_steps ws on wr.uid = ws.workflow_record_uid
 	left join data_export_tasks det on JSON_SEARCH(wr.task_ids ,'one',det.uid) IS NOT NULL
 	WHERE w.project_uid = ?
 	UNION
