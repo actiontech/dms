@@ -122,13 +122,6 @@ func (d *WorkflowRepo) GetProjectDataExportWorkflowsForView(ctx context.Context,
 	workflowUids := make([]string, 0)
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Raw(`
-		SELECT DISTINCT w.uid
-	FROM  workflows w
-	left join workflow_records wr on w.workflow_record_uid  = wr.uid
-	LEFT JOIN workflow_steps ws on wr.uid = ws.workflow_record_uid
-	left join data_export_tasks det on JSON_SEARCH(wr.task_ids ,'one',det.uid) IS NOT NULL
-	WHERE w.project_uid = ?
-	UNION
 	SELECT DISTINCT w.uid
 	FROM  workflows w
 	WHERE w.project_uid = ?
