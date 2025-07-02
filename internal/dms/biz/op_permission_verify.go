@@ -15,6 +15,7 @@ import (
 type OpPermissionVerifyRepo interface {
 	IsUserHasOpPermissionInProject(ctx context.Context, userUid, projectUid, opPermissionUid string) (has bool, err error)
 	GetUserOpPermissionInProject(ctx context.Context, userUid, projectUid string) (opPermissionWithOpRanges []OpPermissionWithOpRange, err error)
+	GetOneOpPermissionInProject(ctx context.Context, userUid, projectUid, permissionId string) (opPermissionWithOpRanges []OpPermissionWithOpRange, err error)
 	GetUserProjectOpPermissionInProject(ctx context.Context, userUid, projectUid string) (opPermissionWithOpRanges []OpPermissionWithOpRange, err error)
 	GetUserOpPermission(ctx context.Context, userUid string) (opPermissionWithOpRanges []OpPermissionWithOpRange, err error)
 	GetUserProjectOpPermission(ctx context.Context, userUid string) (opPermissionWithOpRanges []OpPermissionWithOpRange, err error)
@@ -241,6 +242,14 @@ func (o *OpPermissionVerifyUsecase) GetUserOpPermissionInProject(ctx context.Con
 	}
 	opPermissionWithOpRanges = append(opPermissionWithOpRanges, opProjectPermissionWithOpRanges...)
 
+	return opPermissionWithOpRanges, nil
+}
+
+func (o *OpPermissionVerifyUsecase) GetOneOpPermissionInProject(ctx context.Context, userUid, projectUid, permissionId string) ([]OpPermissionWithOpRange, error) {
+	opPermissionWithOpRanges, err := o.repo.GetOneOpPermissionInProject(ctx, userUid, projectUid, permissionId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user op permission in project: %v", err)
+	}
 	return opPermissionWithOpRanges, nil
 }
 
