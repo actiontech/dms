@@ -125,7 +125,7 @@ func (d *WorkflowRepo) GetProjectDataExportWorkflowsForView(ctx context.Context,
 	SELECT DISTINCT w.uid
 	FROM  workflows w
 	WHERE w.project_uid = ?
-	`, projectUid, projectUid).Find(&workflowUids).Error; err != nil {
+	`, projectUid).Find(&workflowUids).Error; err != nil {
 			return fmt.Errorf("failed to find workflow for view: %v", err)
 		}
 		return nil
