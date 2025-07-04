@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -271,6 +272,39 @@ type gqlBehavior struct {
 	Preprocessing func(ctx echo.Context, params *graphql.RawParams) error
 }
 
+func convertKeysToInt(data interface{}, keysToConvert map[string]struct{}) error {
+	switch v := data.(type) {
+	case map[string]interface{}:
+		for key, val := range v {
+			// 若 key 是需要转 int 的字段
+			if _, shouldConvert := keysToConvert[key]; shouldConvert && val != nil {
+				if intVal, err := toInt(val); err == nil {
+					v[key] = intVal
+				} else {
+					return fmt.Errorf("failed to convert key %s: %v", key, err)
+				}
+			} else {
+				// 否则递归处理嵌套结构
+				if err := convertKeysToInt(val, keysToConvert); err != nil {
+					return err
+				}
+			}
+		}
+	case []interface{}:
+		for i := range v {
+			if err := convertKeysToInt(v[i], keysToConvert); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// 通用字符串转 int 工具
+func toInt(value interface{}) (int, error) {
+	return strconv.Atoi(fmt.Sprintf("%v", value))
+}
+
 var GraphQLHandlerRouters = map[string] /* gql operation name */ gqlBehavior{
 	"asyncReadDataFromContainer": {
 		UseLocalHandler:     true,
@@ -290,11 +324,17 @@ var GraphQLHandlerRouters = map[string] /* gql operation name */ gqlBehavior{
 		NeedModifyRemoteRes: false,
 		Preprocessing: func(ctx echo.Context, params *graphql.RawParams) (err error) {
 			// json中没有int类型, 这将导致执行json.Unmarshal()时int会被当作float64, 从而导致后面出现类型错误的异常
-			if filter, ok := params.Variables["filter"].(map[string]interface{}); ok {
-				if filter["limit"] != nil {
-					params.Variables["filter"].(map[string]interface{})["limit"], err = strconv.Atoi(fmt.Sprintf("%v", params.Variables["filter"].(map[string]interface{})["limit"]))
+			keysToConvert := map[string]struct{}{
+				"limit":             {},
+				"attributePosition": {},
+				"orderPosition":     {},
+			}
+			if filter, ok := params.Variables["filter"]; ok {
+				if err := convertKeysToInt(filter, keysToConvert); err != nil {
+					log.Printf("convertKeysToInt error: %v", err)
 				}
 			}
+
 			return err
 		},
 	},
