@@ -294,6 +294,19 @@ var GraphQLHandlerRouters = map[string] /* gql operation name */ gqlBehavior{
 				if filter["limit"] != nil {
 					params.Variables["filter"].(map[string]interface{})["limit"], err = strconv.Atoi(fmt.Sprintf("%v", params.Variables["filter"].(map[string]interface{})["limit"]))
 				}
+				if constraints, ok := filter["constraints"].([]interface{}); ok {
+					for i, constraintInterface := range constraints {
+						if constraint, ok := constraintInterface.(map[string]interface{}); ok {
+							if constraint["attributePosition"] != nil {
+								params.Variables["filter"].(map[string]interface{})["constraints"].([]interface{})[i].(map[string]interface{})["attributePosition"], err = strconv.Atoi(fmt.Sprintf("%v", params.Variables["filter"].(map[string]interface{})["constraints"].([]interface{})[i].(map[string]interface{})["attributePosition"]))
+							}
+							if constraint["orderPosition"] != nil {
+								params.Variables["filter"].(map[string]interface{})["constraints"].([]interface{})[i].(map[string]interface{})["orderPosition"], err = strconv.Atoi(fmt.Sprintf("%v", params.Variables["filter"].(map[string]interface{})["constraints"].([]interface{})[i].(map[string]interface{})["orderPosition"]))
+							}
+						}
+					}
+				}
+
 			}
 			return err
 		},
