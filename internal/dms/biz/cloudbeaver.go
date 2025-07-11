@@ -162,7 +162,7 @@ func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 			dmsUserId, err := jwt.ParseUidFromJwtTokenStr(dmsToken)
 			if err != nil {
 				cu.log.Errorf("GetUserUidStrFromContext err: %v", err)
-				return errors.New("get user name from token failed")
+				return c.JSON(http.StatusUnauthorized, fmt.Sprintf("get token detail failed, err:%v", err))
 			}
 			// set dmsUserId to context for save ob operation log
 			c.Set(dmsUserIdKey, dmsUserId)
