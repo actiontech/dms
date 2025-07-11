@@ -362,10 +362,11 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 
 			defer func() {
 
-				// 对响应体做分析
-				if handleErrResponse(c, srw, cloudbeaverResBuf.Bytes()) {
-					return
-				} else {
+				// TODO 对响应体做分析
+				// if handleErrResponse(c, srw, cloudbeaverResBuf.Bytes()) {
+				// 	return
+				// } else
+				{
 					// 如果没错误响应，写出原响应内容
 					if srw.status != 0 {
 						srw.original.WriteHeader(srw.status)
