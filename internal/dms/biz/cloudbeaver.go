@@ -143,6 +143,7 @@ func (cu *CloudbeaverUsecase) getGraphQLServerURI() string {
 }
 
 const dmsUserIdKey = "dmsToken"
+const CBErrorCode = "sessionExpired"
 
 func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -159,10 +160,25 @@ func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 				return c.Redirect(http.StatusFound, "/login?target=/sql_query")
 			}
 
+			requestURI := c.Request().RequestURI
+			if requestURI == "/sql_query/" {
+				return next(c)
+			}
+
 			dmsUserId, err := jwt.ParseUidFromJwtTokenStr(dmsToken)
 			if err != nil {
+				gqlResp := GraphQLResponse{
+					Data: nil,
+					Errors: []GraphQLError{{
+						Extensions: map[string]interface{}{
+							"webErrorCode": CBErrorCode,
+						},
+						Message: "dms user token expired",
+					}},
+				}
+
 				cu.log.Errorf("GetUserUidStrFromContext err: %v", err)
-				return c.JSON(http.StatusUnauthorized, fmt.Sprintf("get token detail failed, err:%v", err))
+				return c.JSON(http.StatusOK, gqlResp)
 			}
 			// set dmsUserId to context for save ob operation log
 			c.Set(dmsUserIdKey, dmsUserId)
@@ -345,7 +361,6 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 			c.Response().Writer = srw
 
 			defer func() {
-				// 能否拦截所有error场景，并让前端重新刷新页面
 
 				// 对响应体做分析
 				if handleErrResponse(c, srw, cloudbeaverResBuf.Bytes()) {
@@ -651,9 +666,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 	}
 }
 
-const (
-	SQLContextNotFoundCode = 508
-)
+var SQLContextNotFoundCode string = "508"
 
 // 示例：分析处理函数
 func handleErrResponse(c echo.Context, srw *smartResponseWriter, data []byte) bool {
@@ -665,11 +678,32 @@ func handleErrResponse(c echo.Context, srw *smartResponseWriter, data []byte) bo
 
 	// 检查是否匹配错误模式
 	if errorRegex.Match(data) {
-		baseResp := `{"code":%d,"message":"ok","data":[]}`
+		sqlContextNotfoune := "SQL context Not found"
+		resp := struct {
+			Data struct {
+				TaskInfo model.AsyncTaskInfo `json:"taskInfo"`
+			} `json:"data"`
+		}{
+			struct {
+				TaskInfo model.AsyncTaskInfo `json:"taskInfo"`
+			}{
+
+				TaskInfo: model.AsyncTaskInfo{
+					Running: false,
+					Error: &model.ServerError{
+						Message:   &sqlContextNotfoune,
+						ErrorCode: &SQLContextNotFoundCode,
+					},
+				},
+			},
+		}
 		// 构建自定义响应
-		response := []byte(fmt.Sprintf(baseResp, SQLContextNotFoundCode))
+		body, err := json.Marshal(resp)
+		if err != nil {
+			c.Logger().Error("Failed to marshal response:", err)
+		}
 		srw.original.WriteHeader(srw.status)
-		_, writeErr := srw.original.Write(response)
+		_, writeErr := srw.original.Write(body)
 		if writeErr != nil {
 			c.Logger().Error("Failed to write original response:", writeErr)
 		}
