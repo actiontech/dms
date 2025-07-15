@@ -1,16 +1,15 @@
 package biz
 
 import (
-	"bufio"
 	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"path"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -142,10 +141,16 @@ func (cu *CloudbeaverUsecase) getGraphQLServerURI() string {
 }
 
 const dmsUserIdKey = "dmsToken"
+const CBErrorCode = "sessionExpired"
 
 func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+
+			if c.Request().Method == http.MethodGet {
+				return next(c)
+			}
+
 			var dmsToken string
 			for _, cookie := range c.Cookies() {
 				if cookie.Name == constant.DMSToken {
@@ -155,13 +160,34 @@ func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 			}
 
 			if dmsToken == "" {
-				return c.Redirect(http.StatusFound, "/login?target=/sql_query")
+				gqlResp := GraphQLResponse{
+					Data: nil,
+					Errors: []GraphQLError{{
+						Extensions: map[string]interface{}{
+							"webErrorCode": CBErrorCode,
+						},
+						Message: "dms user token is empty",
+					}},
+				}
+
+				cu.log.Errorf("dmsToken is empty")
+				return c.JSON(http.StatusOK, gqlResp)
 			}
 
 			dmsUserId, err := jwt.ParseUidFromJwtTokenStr(dmsToken)
 			if err != nil {
+				gqlResp := GraphQLResponse{
+					Data: nil,
+					Errors: []GraphQLError{{
+						Extensions: map[string]interface{}{
+							"webErrorCode": CBErrorCode,
+						},
+						Message: "dms user token expired",
+					}},
+				}
+
 				cu.log.Errorf("GetUserUidStrFromContext err: %v", err)
-				return errors.New("get user name from token failed")
+				return c.JSON(http.StatusOK, gqlResp)
 			}
 			// set dmsUserId to context for save ob operation log
 			c.Set(dmsUserIdKey, dmsUserId)
@@ -216,7 +242,7 @@ func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 			for _, cookie := range cookies {
 				if cookie.Name == CloudbeaverCookieName {
 					cu.setCloudbeaverSession(user.UID, dmsToken, cookie.Value)
-					c.Request().AddCookie(cookie)
+					SetOrReplaceCBCookie(c, cookie)
 				}
 			}
 
@@ -225,32 +251,28 @@ func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 	}
 }
 
-type responseProcessWriter struct {
-	tmp        *bytes.Buffer
-	headerCode int
-	http.ResponseWriter
-}
+func SetOrReplaceCBCookie(c echo.Context, cookie *http.Cookie) {
+	req := c.Request()
+	original := req.Header.Get("Cookie")
+	pairs := []string{}
+	found := false
 
-func (w *responseProcessWriter) WriteHeader(code int) {
-	w.headerCode = code
-}
-
-func (w *responseProcessWriter) Write(b []byte) (int, error) {
-	return w.tmp.Write(b)
-}
-
-func (w *responseProcessWriter) Flush() {
-	if wf, ok := w.ResponseWriter.(http.Flusher); ok {
-		wf.Flush()
+	for _, segment := range strings.Split(original, ";") {
+		pair := strings.SplitN(strings.TrimSpace(segment), "=", 2)
+		if len(pair) != 2 {
+			continue
+		}
+		if pair[0] == cookie.Name {
+			pairs = append(pairs, fmt.Sprintf("%s=%s", cookie.Name, cookie.Value))
+			found = true
+		} else {
+			pairs = append(pairs, fmt.Sprintf("%s=%s", pair[0], pair[1]))
+		}
 	}
-}
-
-func (w *responseProcessWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
-	if wh, ok := w.ResponseWriter.(http.Hijacker); ok {
-		return wh.Hijack()
+	if !found {
+		pairs = append(pairs, fmt.Sprintf("%s=%s", cookie.Name, cookie.Value))
 	}
-
-	return nil, nil, errors.New("responseProcessWriter assert Hijacker failed")
+	req.Header.Set("Cookie", strings.Join(pairs, "; "))
 }
 
 func (cu *CloudbeaverUsecase) getSQLEUrl(ctx context.Context) (string, error) {
@@ -274,7 +296,7 @@ var taskIdAssocMasking sync.Map
 func (cu *CloudbeaverUsecase) buildTaskIdAssocDataMasking(raw []byte, enableMasking bool) error {
 	var taskInfo TaskInfo
 
-	if err := json.Unmarshal(raw, &taskInfo); err != nil {
+	if err := UnmarshalGraphQLResponse(raw, &taskInfo); err != nil {
 		cu.log.Errorf("extract task id err: %v", err)
 
 		return fmt.Errorf("extract task id err: %v", err)
@@ -321,7 +343,6 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 			if !ok {
 				return next(c)
 			}
-
 			// 如果该操作被禁用，返回错误响应
 			if cloudbeaverHandle.Disable {
 				message := "this feature is prohibited"
@@ -339,6 +360,29 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				}
 			}
 
+			//  统一拦截响应
+			srw := newSmartResponseWriter(c)
+			cloudbeaverResBuf := srw.Buffer
+			c.Response().Writer = srw
+
+			defer func() {
+
+				// TODO 对响应体做分析
+				// if handleErrResponse(c, srw, cloudbeaverResBuf.Bytes()) {
+				// 	return
+				// } else
+				{
+					// 如果没错误响应，写出原响应内容
+					if srw.status != 0 {
+						srw.original.WriteHeader(srw.status)
+					}
+					_, writeErr := srw.original.Write(cloudbeaverResBuf.Bytes())
+					if writeErr != nil {
+						c.Logger().Error("Failed to write original response:", writeErr)
+					}
+				}
+			}()
+
 			// 使用本地处理方法
 			if cloudbeaverHandle.UseLocalHandler {
 				ctx := graphql.StartOperationTrace(c.Request().Context())
@@ -350,13 +394,6 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						cu.log.Error(err)
 						return err
 					}
-
-					// 创建缓冲区用于存储响应
-					cloudbeaverResBuf := new(bytes.Buffer)
-					// 使用多写器同时写入响应和缓冲区
-					mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
-					writer := &cloudbeaverResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
-					c.Response().Writer = writer
 
 					if err = next(c); err != nil {
 						return err
@@ -376,12 +413,6 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 
 					// 如果未启用SQL审计
 					if !cu.isEnableSQLAudit(dbService) {
-						// 创建缓冲区用于存储响应
-						cloudbeaverResBuf := new(bytes.Buffer)
-						// 使用多写器同时写入响应和缓冲区
-						mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
-						writer := &cloudbeaverResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
-						c.Response().Writer = writer
 
 						if err = next(c); err != nil {
 							return err
@@ -420,10 +451,6 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 
 				// 处理批量更新结果请求
 				if params.OperationName == "updateResultsDataBatch" {
-					cloudbeaverResBuf := new(bytes.Buffer)
-					mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
-					writer := &cloudbeaverResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
-					c.Response().Writer = writer
 
 					if err = next(c); err != nil {
 						return err
@@ -440,11 +467,6 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 
 				// 处理获取异步任务信息请求
 				if params.OperationName == "getAsyncTaskInfo" {
-					cloudbeaverResBuf := new(bytes.Buffer)
-					mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
-					writer := &cloudbeaverResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
-					c.Response().Writer = writer
-
 					if err = next(c); err != nil {
 						return err
 					}
@@ -467,7 +489,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					}
 
 					var taskInfo TaskInfo
-					if err := json.Unmarshal(cloudbeaverResBuf.Bytes(), &taskInfo); err != nil {
+					if err := UnmarshalGraphQLResponse(cloudbeaverResBuf.Bytes(), &taskInfo); err != nil {
 						cu.log.Errorf("extract task id err: %v", err)
 						return nil
 					}
@@ -518,7 +540,6 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				params.Headers = c.Request().Header.Clone()
 
 				var cloudbeaverNext cloudbeaver.Next
-				var resWrite *responseProcessWriter
 				var resp cloudbeaver.AuditResults
 				// 如果不需要修改远程响应
 				if !cloudbeaverHandle.NeedModifyRemoteRes {
@@ -533,18 +554,13 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 							return nil, c.JSON(http.StatusOK, convertToResp(ctx, resp))
 						}
 
-						cloudbeaverResBuf := new(bytes.Buffer)
-						mw := io.MultiWriter(c.Response().Writer, cloudbeaverResBuf)
-						writer := &cloudbeaverResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
-						c.Response().Writer = writer
-
 						if err = next(c); err != nil {
 							return nil, err
 						}
 
 						if ok && resp.IsSuccess {
 							var taskInfo TaskInfo
-							err = json.Unmarshal(cloudbeaverResBuf.Bytes(), &taskInfo)
+							err = UnmarshalGraphQLResponse(cloudbeaverResBuf.Bytes(), &taskInfo)
 							if err != nil {
 								cu.log.Errorf("extract task id err: %v", err)
 							} else {
@@ -582,16 +598,13 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 							return nil, c.JSON(http.StatusOK, convertToResp(ctx, resp))
 						}
 
-						resWrite = &responseProcessWriter{tmp: &bytes.Buffer{}, ResponseWriter: c.Response().Writer}
-						c.Response().Writer = resWrite
-
 						if err = next(c); err != nil {
 							return nil, err
 						}
 
 						if ok && resp.IsSuccess {
 							var taskInfo TaskInfo
-							err = json.Unmarshal(resWrite.tmp.Bytes(), &taskInfo)
+							err = UnmarshalGraphQLResponse(cloudbeaverResBuf.Bytes(), &taskInfo)
 							if err != nil {
 								cu.log.Errorf("extract task id err: %v", err)
 							} else {
@@ -603,13 +616,13 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						}
 						// 处理SQL执行结果
 						if params.OperationName == "getSqlExecuteTaskResults" {
-							err = cu.UpdateCbOpResult(c, resWrite.tmp, params, ctx)
+							err = cu.UpdateCbOpResult(c, cloudbeaverResBuf, params, ctx)
 							if err != nil {
 								cu.log.Errorf("update cb operation result err: %v", err)
 							}
 						}
 
-						return resWrite.tmp.Bytes(), nil
+						return cloudbeaverResBuf.Bytes(), nil
 					}
 				}
 
@@ -638,20 +651,69 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					return nil
 				} else {
 					// 设置响应头
-					header := resWrite.ResponseWriter.Header()
 					b, err := json.Marshal(res)
 					if err != nil {
 						return err
 					}
+					header := srw.original.Header()
+					// 重写响应内容
 					header.Set("Content-Length", fmt.Sprintf("%d", len(b)))
-					// 写入响应
-					_, err = resWrite.ResponseWriter.Write(b)
+					cloudbeaverResBuf.Reset()
+					// 写入新内容
+					cloudbeaverResBuf.Write(b)
 					return err
 				}
 			}
-			return next(c)
+			next(c)
+			return
 		}
 	}
+}
+
+var SQLContextNotFoundCode string = "508"
+
+// 示例：分析处理函数
+func handleErrResponse(c echo.Context, srw *smartResponseWriter, data []byte) bool {
+	// 你可以解析 JSON、做日志记录、统计等操作
+	println("Captured response:", string(data))
+
+	// 定义错误匹配正则表达式
+	errorRegex := regexp.MustCompile(`"message":\s*"SQL context\s+[^"]+not found"`)
+
+	// 检查是否匹配错误模式
+	if errorRegex.Match(data) {
+		sqlContextNotfoune := "SQL context Not found"
+		resp := struct {
+			Data struct {
+				TaskInfo model.AsyncTaskInfo `json:"taskInfo"`
+			} `json:"data"`
+		}{
+			struct {
+				TaskInfo model.AsyncTaskInfo `json:"taskInfo"`
+			}{
+
+				TaskInfo: model.AsyncTaskInfo{
+					Running: false,
+					Error: &model.ServerError{
+						Message:   &sqlContextNotfoune,
+						ErrorCode: &SQLContextNotFoundCode,
+					},
+				},
+			},
+		}
+		// 构建自定义响应
+		body, err := json.Marshal(resp)
+		if err != nil {
+			c.Logger().Error("Failed to marshal response:", err)
+		}
+		srw.original.WriteHeader(srw.status)
+		_, writeErr := srw.original.Write(body)
+		if writeErr != nil {
+			c.Logger().Error("Failed to write original response:", writeErr)
+		}
+		return true
+	}
+	return false
 }
 
 func convertToResp(ctx context.Context, resp cloudbeaver.AuditResults) interface{} {
@@ -695,25 +757,33 @@ func convertToResp(ctx context.Context, resp cloudbeaver.AuditResults) interface
 	}
 }
 
-type cloudbeaverResponseWriter struct {
-	io.Writer
-	http.ResponseWriter
+type smartResponseWriter struct {
+	echo.Response
+	Buffer   *bytes.Buffer
+	original http.ResponseWriter
+	status   int
 }
 
-func (w *cloudbeaverResponseWriter) WriteHeader(code int) {
-	w.ResponseWriter.WriteHeader(code)
+func newSmartResponseWriter(c echo.Context) *smartResponseWriter {
+	buf := new(bytes.Buffer)
+	return &smartResponseWriter{
+		Response: *c.Response(),
+		Buffer:   buf,
+		original: c.Response().Writer,
+	}
 }
 
-func (w *cloudbeaverResponseWriter) Write(b []byte) (int, error) {
-	return w.Writer.Write(b)
+func (w *smartResponseWriter) Write(b []byte) (int, error) {
+	// 如果未设置状态码，则补默认值
+	if w.status == 0 {
+		w.WriteHeader(http.StatusOK)
+	}
+	// 写入 buffer，不立即写给客户端
+	return w.Buffer.Write(b)
 }
 
-func (w *cloudbeaverResponseWriter) Flush() {
-	w.ResponseWriter.(http.Flusher).Flush()
-}
-
-func (w *cloudbeaverResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
-	return w.ResponseWriter.(http.Hijacker).Hijack()
+func (w *smartResponseWriter) WriteHeader(code int) {
+	w.status = code
 }
 
 func (cu *CloudbeaverUsecase) isEnableSQLAudit(dbService *DBService) bool {
@@ -1433,4 +1503,37 @@ func (cu *CloudbeaverUsecase) loginCloudbeaverServer(user, pwd string) (cookie [
 	}
 
 	return cookie, nil
+}
+
+type GraphQLResponse struct {
+	Data   json.RawMessage `json:"data"`
+	Errors []GraphQLError  `json:"errors"`
+}
+
+type GraphQLError struct {
+	Message    string                 `json:"message"`
+	Locations  []map[string]int       `json:"locations"`
+	Path       []interface{}          `json:"path"`
+	Extensions map[string]interface{} `json:"extensions"`
+}
+
+func UnmarshalGraphQLResponse(body []byte, taskInfo *TaskInfo) error {
+	var gqlResp GraphQLResponse
+	if err := json.Unmarshal(body, &gqlResp); err != nil {
+		return err // 真正 JSON 格式错误时才报错
+	}
+
+	if len(gqlResp.Errors) > 0 {
+		// GraphQL 执行错误
+		return fmt.Errorf("GraphQL error: %s", gqlResp.Errors[0].Message)
+	}
+
+	// 再解析 Data 成真正结构
+	if err := json.Unmarshal(body, taskInfo); err != nil {
+		return err
+	}
+	if taskInfo == nil || taskInfo.Data.TaskInfo == nil {
+		return fmt.Errorf("GraphQL error: %v", gqlResp)
+	}
+	return nil
 }
