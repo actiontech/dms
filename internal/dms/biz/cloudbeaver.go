@@ -657,8 +657,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					return err
 				}
 			}
-			next(c)
-			return
+			return next(c)
 		}
 	}
 }
