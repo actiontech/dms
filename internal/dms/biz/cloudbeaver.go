@@ -241,7 +241,7 @@ func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 			for _, cookie := range cookies {
 				if cookie.Name == CloudbeaverCookieName {
 					cu.setCloudbeaverSession(user.UID, dmsToken, cookie.Value)
-					SetOrReplaceCBCookie(c, cookie)
+					SetOrReplaceCBCookieByDMSToken(c, cookie)
 				}
 			}
 
@@ -250,27 +250,50 @@ func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 	}
 }
 
-func SetOrReplaceCBCookie(c echo.Context, cookie *http.Cookie) {
+// SetOrReplaceCBCookieByDMSToken sets or replaces a specific cookie in the request header of an echo.Context.
+//
+// Example:
+//
+//	cookie = token=abc123
+//
+//	Replace existing cookie:
+//	  before: "sessionid=xyz789; token=oldval; lang=zh"
+//	  after:  "sessionid=xyz789; token=abc123; lang=zh"
+//
+//	Set new cookie (when "token" does not exist):
+//	  before: "sessionid=xyz789; lang=zh"
+//	  after:  "sessionid=xyz789; lang=zh; token=abc123"
+func SetOrReplaceCBCookieByDMSToken(c echo.Context, cookie *http.Cookie) {
 	req := c.Request()
+
+	// Get the original "Cookie" header, e.g., "a=1; b=2"
 	original := req.Header.Get("Cookie")
 	pairs := []string{}
 	found := false
 
+	// Split the cookie string into individual name-value pairs
 	for _, segment := range strings.Split(original, ";") {
 		pair := strings.SplitN(strings.TrimSpace(segment), "=", 2)
 		if len(pair) != 2 {
-			continue
+			continue // Skip malformed cookie segments
 		}
+
 		if pair[0] == cookie.Name {
+			// Replace the value if the target cookie is found
 			pairs = append(pairs, fmt.Sprintf("%s=%s", cookie.Name, cookie.Value))
 			found = true
 		} else {
+			// Preserve other cookies
 			pairs = append(pairs, fmt.Sprintf("%s=%s", pair[0], pair[1]))
 		}
 	}
+
+	// If the target cookie was not found, append it as a new entry
 	if !found {
 		pairs = append(pairs, fmt.Sprintf("%s=%s", cookie.Name, cookie.Value))
 	}
+
+	// Set the updated "Cookie" header back to the request
 	req.Header.Set("Cookie", strings.Join(pairs, "; "))
 }
 
