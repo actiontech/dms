@@ -9,7 +9,6 @@ import (
 	"io"
 	"net/http"
 	"path"
-	"regexp"
 	"strings"
 	"sync"
 
@@ -367,20 +366,14 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 
 			defer func() {
 
-				// TODO 对响应体做分析
-				// if handleErrResponse(c, srw, cloudbeaverResBuf.Bytes()) {
-				// 	return
-				// } else
-				{
-					// 如果没错误响应，写出原响应内容
-					if srw.status != 0 {
-						srw.original.WriteHeader(srw.status)
-					}
-					_, writeErr := srw.original.Write(cloudbeaverResBuf.Bytes())
-					if writeErr != nil {
-						c.Logger().Error("Failed to write original response:", writeErr)
-					}
+				if srw.status != 0 {
+					srw.original.WriteHeader(srw.status)
 				}
+				_, writeErr := srw.original.Write(cloudbeaverResBuf.Bytes())
+				if writeErr != nil {
+					c.Logger().Error("Failed to write original response:", writeErr)
+				}
+
 			}()
 
 			// 使用本地处理方法
@@ -668,52 +661,6 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 			return
 		}
 	}
-}
-
-var SQLContextNotFoundCode string = "508"
-
-// 示例：分析处理函数
-func handleErrResponse(c echo.Context, srw *smartResponseWriter, data []byte) bool {
-	// 你可以解析 JSON、做日志记录、统计等操作
-	println("Captured response:", string(data))
-
-	// 定义错误匹配正则表达式
-	errorRegex := regexp.MustCompile(`"message":\s*"SQL context\s+[^"]+not found"`)
-
-	// 检查是否匹配错误模式
-	if errorRegex.Match(data) {
-		sqlContextNotfoune := "SQL context Not found"
-		resp := struct {
-			Data struct {
-				TaskInfo model.AsyncTaskInfo `json:"taskInfo"`
-			} `json:"data"`
-		}{
-			struct {
-				TaskInfo model.AsyncTaskInfo `json:"taskInfo"`
-			}{
-
-				TaskInfo: model.AsyncTaskInfo{
-					Running: false,
-					Error: &model.ServerError{
-						Message:   &sqlContextNotfoune,
-						ErrorCode: &SQLContextNotFoundCode,
-					},
-				},
-			},
-		}
-		// 构建自定义响应
-		body, err := json.Marshal(resp)
-		if err != nil {
-			c.Logger().Error("Failed to marshal response:", err)
-		}
-		srw.original.WriteHeader(srw.status)
-		_, writeErr := srw.original.Write(body)
-		if writeErr != nil {
-			c.Logger().Error("Failed to write original response:", writeErr)
-		}
-		return true
-	}
-	return false
 }
 
 func convertToResp(ctx context.Context, resp cloudbeaver.AuditResults) interface{} {
