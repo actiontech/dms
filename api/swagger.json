@@ -8803,7 +8803,7 @@
           "x-go-name": "Users"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "GetMemberGroupReply": {
       "type": "object",
@@ -8823,7 +8823,7 @@
           "x-go-name": "Message"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetOauth2ConfigurationResData": {
       "type": "object",
@@ -11248,7 +11248,7 @@
           "$ref": "#/definitions/UidWithName"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "ListMemberTipsItem": {
       "type": "object",
@@ -12996,6 +12996,11 @@
     "SQLEConfig": {
       "type": "object",
       "properties": {
+        "audit_enabled": {
+          "description": "DB Service audit enabled",
+          "type": "boolean",
+          "x-go-name": "AuditEnabled"
+        },
         "rule_template_id": {
           "description": "DB Service rule template id",
           "type": "string",
@@ -13039,6 +13044,14 @@
           "type": "integer",
           "format": "int64",
           "x-go-name": "QueryTimeoutSecond"
+        },
+        "rule_template_id": {
+          "type": "string",
+          "x-go-name": "RuleTemplateID"
+        },
+        "rule_template_name": {
+          "type": "string",
+          "x-go-name": "RuleTemplateName"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
