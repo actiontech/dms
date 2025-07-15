@@ -703,23 +703,24 @@ func convertToResp(ctx context.Context, resp cloudbeaver.AuditResults) interface
 	}
 }
 
-type smartResponseWriter struct {
+// ResponseInterceptor 拦截HTTP响应，允许在响应发送到客户端之前进行修改或日志记录
+type ResponseInterceptor struct {
 	echo.Response
 	Buffer   *bytes.Buffer
 	original http.ResponseWriter
 	status   int
 }
 
-func newSmartResponseWriter(c echo.Context) *smartResponseWriter {
+func newSmartResponseWriter(c echo.Context) *ResponseInterceptor {
 	buf := new(bytes.Buffer)
-	return &smartResponseWriter{
+	return &ResponseInterceptor{
 		Response: *c.Response(),
 		Buffer:   buf,
 		original: c.Response().Writer,
 	}
 }
 
-func (w *smartResponseWriter) Write(b []byte) (int, error) {
+func (w *ResponseInterceptor) Write(b []byte) (int, error) {
 	// 如果未设置状态码，则补默认值
 	if w.status == 0 {
 		w.WriteHeader(http.StatusOK)
@@ -728,7 +729,7 @@ func (w *smartResponseWriter) Write(b []byte) (int, error) {
 	return w.Buffer.Write(b)
 }
 
-func (w *smartResponseWriter) WriteHeader(code int) {
+func (w *ResponseInterceptor) WriteHeader(code int) {
 	w.status = code
 }
 
