@@ -141,6 +141,8 @@ func newDBService(args *BizDBServiceArgs) (*DBService, error) {
 		dbService.SQLEConfig.AuditEnabled = args.AuditEnabled
 		dbService.SQLEConfig.RuleTemplateID = args.RuleTemplateID
 		dbService.SQLEConfig.RuleTemplateName = args.RuleTemplateName
+		dbService.SQLEConfig.DataExportRuleTemplateName = args.DataExportRuleTemplateName
+		dbService.SQLEConfig.DataExportRuleTemplateID = args.DataExportRuleTemplateID
 	}
 	if args.EnvironmentTagUID != "" {
 		dbService.EnvironmentTag = &dmsCommonV1.EnvironmentTag{
@@ -727,6 +729,8 @@ func (d *DBServiceUsecase) UpdateDBServiceByArgs(ctx context.Context, dbServiceU
 			ds.SQLEConfig.AuditEnabled = updateDBService.AuditEnabled
 			ds.SQLEConfig.RuleTemplateID = updateDBService.RuleTemplateID
 			ds.SQLEConfig.RuleTemplateName = updateDBService.RuleTemplateName
+			ds.SQLEConfig.DataExportRuleTemplateName = updateDBService.DataExportRuleTemplateName
+			ds.SQLEConfig.DataExportRuleTemplateID = updateDBService.DataExportRuleTemplateID
 		}
 		ds.EnvironmentTag = &dmsCommonV1.EnvironmentTag{
 			UID: updateDBService.EnvironmentTagUID,

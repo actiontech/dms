@@ -35,9 +35,11 @@ func toBizDBServiceSyncTask(syncTask *v1.DBServiceSyncTask) *biz.DBServiceSyncTa
 	}
 	if syncTask.SQLEConfig != nil {
 		ret.SQLEConfig = &biz.SQLEConfig{
-			AuditEnabled:     syncTask.SQLEConfig.AuditEnabled,
-			RuleTemplateName: syncTask.SQLEConfig.RuleTemplateName,
-			RuleTemplateID:   syncTask.SQLEConfig.RuleTemplateID,
+			AuditEnabled:               syncTask.SQLEConfig.AuditEnabled,
+			RuleTemplateName:           syncTask.SQLEConfig.RuleTemplateName,
+			RuleTemplateID:             syncTask.SQLEConfig.RuleTemplateID,
+			DataExportRuleTemplateName: syncTask.SQLEConfig.DataExportRuleTemplateName,
+			DataExportRuleTemplateID:   syncTask.SQLEConfig.DataExportRuleTemplateID,
 		}
 		if syncTask.SQLEConfig.SQLQueryConfig != nil {
 			ret.SQLEConfig.SQLQueryConfig = &biz.SQLQueryConfig{
@@ -104,10 +106,12 @@ func (d *DMSService) buildReplySqleConfig(params *biz.SQLEConfig) *dmsCommonV1.S
 	}
 
 	sqlConfig := &dmsCommonV1.SQLEConfig{
-		AuditEnabled:     params.AuditEnabled,
-		RuleTemplateName: params.RuleTemplateName,
-		RuleTemplateID:   params.RuleTemplateID,
-		SQLQueryConfig:   &dmsCommonV1.SQLQueryConfig{},
+		AuditEnabled:               params.AuditEnabled,
+		RuleTemplateName:           params.RuleTemplateName,
+		RuleTemplateID:             params.RuleTemplateID,
+		DataExportRuleTemplateName: params.DataExportRuleTemplateName,
+		DataExportRuleTemplateID:   params.DataExportRuleTemplateID,
+		SQLQueryConfig:             &dmsCommonV1.SQLQueryConfig{},
 	}
 	if params.SQLQueryConfig != nil {
 		sqlConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel = dmsCommonV1.SQLAllowQueryAuditLevel(params.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel)
