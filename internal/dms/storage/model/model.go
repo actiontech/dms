@@ -110,6 +110,7 @@ func (e *ExtraParameters) Scan(input interface{}) error {
 }
 
 type SQLEConfig struct {
+	AuditEnabled     bool            `json:"audit_enabled"`
 	RuleTemplateID   string          `json:"rule_template_id"`
 	RuleTemplateName string          `json:"rule_template_name"`
 	SqlQueryConfig   *SqlQueryConfig `json:"sql_query_config"`
@@ -119,6 +120,8 @@ type SqlQueryConfig struct {
 	QueryTimeoutSecond               int    `json:"query_timeout_second"`
 	AuditEnabled                     bool   `json:"audit_enabled"`
 	AllowQueryWhenLessThanAuditLevel string `json:"allow_query_when_less_than_audit_level"`
+	RuleTemplateID                   string `json:"rule_template_id"`
+	RuleTemplateName                 string `json:"rule_template_name"`
 }
 
 type User struct {

@@ -3,10 +3,11 @@ package storage
 import (
 	"database/sql"
 	"fmt"
-	v1 "github.com/actiontech/dms/api/dms/service/v1"
 	"net/url"
 	"strings"
 	"time"
+
+	v1 "github.com/actiontech/dms/api/dms/service/v1"
 
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/internal/dms/storage/model"
@@ -65,6 +66,7 @@ func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
 		if ds.SQLEConfig != nil {
 			dbService.ExtraParameters = model.ExtraParameters{
 				SqleConfig: &model.SQLEConfig{
+					AuditEnabled:     ds.SQLEConfig.AuditEnabled,
 					RuleTemplateName: ds.SQLEConfig.RuleTemplateName,
 					RuleTemplateID:   ds.SQLEConfig.RuleTemplateID,
 				},
@@ -76,6 +78,8 @@ func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
 					AuditEnabled:                     sqleQueryConfig.AuditEnabled,
 					MaxPreQueryRows:                  sqleQueryConfig.MaxPreQueryRows,
 					QueryTimeoutSecond:               sqleQueryConfig.QueryTimeoutSecond,
+					RuleTemplateName:                 sqleQueryConfig.RuleTemplateName,
+					RuleTemplateID:                   sqleQueryConfig.RuleTemplateID,
 				}
 			}
 		}
@@ -132,6 +136,7 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 		modelSqleConfig := ds.ExtraParameters.SqleConfig
 		if modelSqleConfig != nil {
 			dbService.SQLEConfig = &biz.SQLEConfig{}
+			dbService.SQLEConfig.AuditEnabled = modelSqleConfig.AuditEnabled
 			dbService.SQLEConfig.RuleTemplateName = modelSqleConfig.RuleTemplateName
 			dbService.SQLEConfig.RuleTemplateID = modelSqleConfig.RuleTemplateID
 			sqleQueryConfig := modelSqleConfig.SqlQueryConfig
@@ -141,6 +146,8 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 					AuditEnabled:                     sqleQueryConfig.AuditEnabled,
 					MaxPreQueryRows:                  sqleQueryConfig.MaxPreQueryRows,
 					QueryTimeoutSecond:               sqleQueryConfig.QueryTimeoutSecond,
+					RuleTemplateName:                 sqleQueryConfig.RuleTemplateName,
+					RuleTemplateID:                   sqleQueryConfig.RuleTemplateID,
 				}
 				dbService.SQLEConfig.SQLQueryConfig = sqc
 			}
@@ -339,7 +346,7 @@ func convertModelMemberGroup(mg *model.MemberGroup) (*biz.MemberGroup, error) {
 
 	opPermissions := make([]biz.OpPermission, 0)
 	for _, permission := range mg.OpPermissions {
-		bizPermission, err:= convertModelOpPermission(&permission)
+		bizPermission, err := convertModelOpPermission(&permission)
 		if err != nil {
 			return nil, err
 		}
@@ -353,7 +360,7 @@ func convertModelMemberGroup(mg *model.MemberGroup) (*biz.MemberGroup, error) {
 		Name:             mg.Name,
 		Users:            users,
 		RoleWithOpRanges: roles,
-		OpPermissions: opPermissions,
+		OpPermissions:    opPermissions,
 	}, nil
 }
 
@@ -384,11 +391,11 @@ func convertModelRole(u *model.Role) (*biz.Role, error) {
 	}
 
 	return &biz.Role{
-		Base: convertBase(u.Model),
-		UID:  u.UID,
-		Name: u.Name,
-		Desc: u.Desc,
-		Stat: stat,
+		Base:          convertBase(u.Model),
+		UID:           u.UID,
+		Name:          u.Name,
+		Desc:          u.Desc,
+		Stat:          stat,
 		OpPermissions: opPermissions,
 	}, nil
 }
@@ -402,8 +409,8 @@ func convertBizOpPermission(u *biz.OpPermission) (*model.OpPermission, error) {
 		Name:      u.Name,
 		Desc:      u.Desc,
 		RangeType: u.RangeType.String(),
-		Module: string(u.Module),
-		Service: string(u.Service),
+		Module:    string(u.Module),
+		Service:   string(u.Service),
 	}, nil
 }
 
@@ -414,8 +421,8 @@ func convertModelOpPermission(u *model.OpPermission) (*biz.OpPermission, error) 
 		Name:      u.Name,
 		Desc:      u.Desc,
 		RangeType: biz.OpRangeType(u.RangeType),
-		Module: biz.Module(u.Module),
-		Service: v1.Service(u.Service),
+		Module:    biz.Module(u.Module),
+		Service:   v1.Service(u.Service),
 	}, nil
 }
 
@@ -522,7 +529,7 @@ func convertModelMember(m *model.Member) (*biz.Member, error) {
 	}
 	opPermissions := make([]biz.OpPermission, 0)
 	for _, permission := range m.OpPermissions {
-		bizPermission, err:= convertModelOpPermission(permission)
+		bizPermission, err := convertModelOpPermission(permission)
 		if err != nil {
 			return nil, err
 		}
@@ -1271,6 +1278,7 @@ func toModelDBServiceSyncTask(u *biz.DBServiceSyncTask) *model.DBServiceSyncTask
 	}
 	if u.SQLEConfig != nil {
 		ret.ExtraParameters.SqleConfig = &model.SQLEConfig{
+			AuditEnabled:     u.SQLEConfig.AuditEnabled,
 			RuleTemplateName: u.SQLEConfig.RuleTemplateName,
 			RuleTemplateID:   u.SQLEConfig.RuleTemplateID,
 		}
@@ -1280,6 +1288,8 @@ func toModelDBServiceSyncTask(u *biz.DBServiceSyncTask) *model.DBServiceSyncTask
 				QueryTimeoutSecond:               u.SQLEConfig.SQLQueryConfig.QueryTimeoutSecond,
 				AuditEnabled:                     u.SQLEConfig.SQLQueryConfig.AuditEnabled,
 				AllowQueryWhenLessThanAuditLevel: u.SQLEConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel,
+				RuleTemplateName:                 u.SQLEConfig.SQLQueryConfig.RuleTemplateName,
+				RuleTemplateID:                   u.SQLEConfig.SQLQueryConfig.RuleTemplateID,
 			}
 		}
 	}
@@ -1304,6 +1314,7 @@ func toBizDBServiceSyncTask(m *model.DBServiceSyncTask) *biz.DBServiceSyncTask {
 	}
 	if m.ExtraParameters.SqleConfig != nil {
 		ret.SQLEConfig = &biz.SQLEConfig{
+			AuditEnabled:     m.ExtraParameters.SqleConfig.AuditEnabled,
 			RuleTemplateName: m.ExtraParameters.SqleConfig.RuleTemplateName,
 			RuleTemplateID:   m.ExtraParameters.SqleConfig.RuleTemplateID,
 		}
@@ -1313,6 +1324,8 @@ func toBizDBServiceSyncTask(m *model.DBServiceSyncTask) *biz.DBServiceSyncTask {
 				QueryTimeoutSecond:               m.ExtraParameters.SqleConfig.SqlQueryConfig.QueryTimeoutSecond,
 				AuditEnabled:                     m.ExtraParameters.SqleConfig.SqlQueryConfig.AuditEnabled,
 				AllowQueryWhenLessThanAuditLevel: m.ExtraParameters.SqleConfig.SqlQueryConfig.AllowQueryWhenLessThanAuditLevel,
+				RuleTemplateName:                 m.ExtraParameters.SqleConfig.SqlQueryConfig.RuleTemplateName,
+				RuleTemplateID:                   m.ExtraParameters.SqleConfig.SqlQueryConfig.RuleTemplateID,
 			}
 		}
 	}
