@@ -180,6 +180,10 @@ type SQLEConfig struct {
 	RuleTemplateName string `json:"rule_template_name"`
 	// DB Service rule template id
 	RuleTemplateID string `json:"rule_template_id"`
+	// DB Service data export rule template name
+	DataExportRuleTemplateName string `json:"data_export_rule_template_name"`
+	// DB Service data export rule template id
+	DataExportRuleTemplateID string `json:"data_export_rule_template_id"`
 	// DB Service SQL query config
 	SQLQueryConfig *SQLQueryConfig `json:"sql_query_config"`
 }
