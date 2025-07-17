@@ -24,41 +24,41 @@ var (
 
 // OpPermission
 var (
-	NameOpPermissionCreateProject          = &i18n.Message{ID: "NameOpPermissionCreateProject", Other: "项目总监"}
-	NameOpPermissionProjectAdmin           = &i18n.Message{ID: "NameOpPermissionProjectAdmin", Other: "项目管理"}
-	NameOpPermissionCreateWorkflow         = &i18n.Message{ID: "NameOpPermissionCreateWorkflow", Other: "创建上线工单"}
-	NameOpPermissionAuditWorkflow          = &i18n.Message{ID: "NameOpPermissionAuditWorkflow", Other: "审批上线工单"}
-	NameOpPermissionAuthDBServiceData      = &i18n.Message{ID: "NameOpPermissionAuthDBServiceData", Other: "账号管理"}
-	NameOpPermissionExecuteWorkflow        = &i18n.Message{ID: "NameOpPermissionExecuteWorkflow", Other: "执行上线工单"}
-	NameOpPermissionViewOthersWorkflow     = &i18n.Message{ID: "NameOpPermissionViewOthersWorkflow", Other: "查看所有工单"}
-	NameOpPermissionViewOthersAuditPlan    = &i18n.Message{ID: "NameOpPermissionViewOthersAuditPlan", Other: "访问所有管控SQL"}
-	NameOpPermissionSaveAuditPlan          = &i18n.Message{ID: "NameOpPermissionSaveAuditPlan", Other: "配置SQL管控"}
-	NameOpPermissionSQLQuery               = &i18n.Message{ID: "NameOpPermissionSQLQuery", Other: "SQL工作台操作权限"}
-	NameOpPermissionExportApprovalReject   = &i18n.Message{ID: "NameOpPermissionExportApprovalReject", Other: "审批导出工单"}
-	NameOpPermissionExportCreate           = &i18n.Message{ID: "NameOpPermissionExportCreate", Other: "创建导出工单"}
-	NameOpPermissionCreateOptimization     = &i18n.Message{ID: "NameOpPermissionCreateOptimization", Other: "创建智能调优"}
-	NameOpPermissionGlobalManagement       = &i18n.Message{ID: "NameOpPermissionGlobalManagement", Other: "系统管理员"}
-	NameOpPermissionGlobalView             = &i18n.Message{ID: "NameOpPermissionGlobalView", Other: "审计管理员"}
-	NameOpPermissionViewOthersOptimization = &i18n.Message{ID: "NameOpPermissionViewOthersOptimization", Other: "查看他人创建的智能调优"}
-	NameOpPermissionCreatePipeline         = &i18n.Message{ID: "NameOpPermissionCreatePipeline", Other: "流水线增删改"}
-	NameOpPermissionOrdinaryUser           = &i18n.Message{ID: "NameOpPermissionOrdinaryUser", Other: "普通用户"}
-	NameOpPermissionViewOperationRecord  = &i18n.Message{ID: "NameOpPermissionViewOperationRecord", Other: "查看所有操作记录"}
-	NameOpPermissionViewExportTask = &i18n.Message{ID: "NameOpPermissionViewExportTask", Other: "查看所有导出任务"}
-	NamePermissionViewQuickAuditRecord = &i18n.Message{ID: "NamePermissionViewQuickAuditRecord", Other: "查看所有快捷审核记录"}
-	NameOpPermissionViewIDEAuditRecord = &i18n.Message{ID: "NameOpPermissionViewIDEAuditRecord", Other: "查看所有IDE审核记录"}
-	NameOpPermissionViewOptimizationRecord = &i18n.Message{ID: "NameOpPermissionViewOptimizationRecord", Other: "查看所有优化记录"}
-	NameOpPermissionViewVersionManage = &i18n.Message{ID: "NameOpPermissionViewVersionManage", Other: "查看他人创建的版本记录"}
-	NameOpPermissionVersionManage = &i18n.Message{ID: "NameOpPermissionVersionManage", Other: "配置版本"}
-	NameOpPermissionViewPipeline  = &i18n.Message{ID: "NameOpPermissionViewPipeline", Other: "查看所有流水线"}
-	NameOpPermissionManageProjectDataSource  = &i18n.Message{ID: "NameOpPermissionManageProjectDataSource", Other: "管理项目数据源"}
+	NameOpPermissionCreateProject           = &i18n.Message{ID: "NameOpPermissionCreateProject", Other: "项目总监"}
+	NameOpPermissionProjectAdmin            = &i18n.Message{ID: "NameOpPermissionProjectAdmin", Other: "项目管理"}
+	NameOpPermissionCreateWorkflow          = &i18n.Message{ID: "NameOpPermissionCreateWorkflow", Other: "创建上线工单"}
+	NameOpPermissionAuditWorkflow           = &i18n.Message{ID: "NameOpPermissionAuditWorkflow", Other: "审批上线工单"}
+	NameOpPermissionAuthDBServiceData       = &i18n.Message{ID: "NameOpPermissionAuthDBServiceData", Other: "账号管理"}
+	NameOpPermissionExecuteWorkflow         = &i18n.Message{ID: "NameOpPermissionExecuteWorkflow", Other: "执行上线工单"}
+	NameOpPermissionViewOthersWorkflow      = &i18n.Message{ID: "NameOpPermissionViewOthersWorkflow", Other: "查看所有工单"}
+	NameOpPermissionViewOthersAuditPlan     = &i18n.Message{ID: "NameOpPermissionViewOthersAuditPlan", Other: "访问所有管控SQL"}
+	NameOpPermissionSaveAuditPlan           = &i18n.Message{ID: "NameOpPermissionSaveAuditPlan", Other: "配置SQL管控"}
+	NameOpPermissionSQLQuery                = &i18n.Message{ID: "NameOpPermissionSQLQuery", Other: "SQL工作台操作权限"}
+	NameOpPermissionExportApprovalReject    = &i18n.Message{ID: "NameOpPermissionExportApprovalReject", Other: "审批导出工单"}
+	NameOpPermissionExportCreate            = &i18n.Message{ID: "NameOpPermissionExportCreate", Other: "创建导出工单"}
+	NameOpPermissionCreateOptimization      = &i18n.Message{ID: "NameOpPermissionCreateOptimization", Other: "创建智能调优"}
+	NameOpPermissionGlobalManagement        = &i18n.Message{ID: "NameOpPermissionGlobalManagement", Other: "系统管理员"}
+	NameOpPermissionGlobalView              = &i18n.Message{ID: "NameOpPermissionGlobalView", Other: "审计管理员"}
+	NameOpPermissionViewOthersOptimization  = &i18n.Message{ID: "NameOpPermissionViewOthersOptimization", Other: "查看他人创建的智能调优"}
+	NameOpPermissionCreatePipeline          = &i18n.Message{ID: "NameOpPermissionCreatePipeline", Other: "流水线增删改"}
+	NameOpPermissionOrdinaryUser            = &i18n.Message{ID: "NameOpPermissionOrdinaryUser", Other: "普通用户"}
+	NameOpPermissionViewOperationRecord     = &i18n.Message{ID: "NameOpPermissionViewOperationRecord", Other: "查看所有操作记录"}
+	NameOpPermissionViewExportTask          = &i18n.Message{ID: "NameOpPermissionViewExportTask", Other: "查看所有导出任务"}
+	NamePermissionViewQuickAuditRecord      = &i18n.Message{ID: "NamePermissionViewQuickAuditRecord", Other: "查看所有快捷审核记录"}
+	NameOpPermissionViewIDEAuditRecord      = &i18n.Message{ID: "NameOpPermissionViewIDEAuditRecord", Other: "查看所有IDE审核记录"}
+	NameOpPermissionViewOptimizationRecord  = &i18n.Message{ID: "NameOpPermissionViewOptimizationRecord", Other: "查看所有优化记录"}
+	NameOpPermissionViewVersionManage       = &i18n.Message{ID: "NameOpPermissionViewVersionManage", Other: "查看他人创建的版本记录"}
+	NameOpPermissionVersionManage           = &i18n.Message{ID: "NameOpPermissionVersionManage", Other: "配置版本"}
+	NameOpPermissionViewPipeline            = &i18n.Message{ID: "NameOpPermissionViewPipeline", Other: "查看所有流水线"}
+	NameOpPermissionManageProjectDataSource = &i18n.Message{ID: "NameOpPermissionManageProjectDataSource", Other: "管理项目数据源"}
 	NameOpPermissionManageAuditRuleTemplate = &i18n.Message{ID: "NameOpPermissionManageAuditRuleTemplate", Other: "管理审核规则模版"}
 	NameOpPermissionManageApprovalTemplate  = &i18n.Message{ID: "NameOpPermissionManageApprovalTemplate", Other: "管理审批流程模版'"}
-	NameOpPermissionManageMember = &i18n.Message{ID: "NameOpPermissionManageMember", Other: "管理成员与权限"}
-	NameOpPermissionPushRule = &i18n.Message{ID: "NameOpPermissionPushRule", Other: "管理推送规则"}
-	NameOpPermissionMangeAuditSQLWhiteList = &i18n.Message{ID: "NameOpPermissionMangeAuditSQLWhiteList", Other: "审核SQL例外"}
+	NameOpPermissionManageMember            = &i18n.Message{ID: "NameOpPermissionManageMember", Other: "管理成员与权限"}
+	NameOpPermissionPushRule                = &i18n.Message{ID: "NameOpPermissionPushRule", Other: "管理推送规则"}
+	NameOpPermissionMangeAuditSQLWhiteList  = &i18n.Message{ID: "NameOpPermissionMangeAuditSQLWhiteList", Other: "审核SQL例外"}
 	NameOpPermissionManageSQLMangeWhiteList = &i18n.Message{ID: "NameOpPermissionManageSQLMangeWhiteList", Other: "管控SQL例外"}
-	NameOpPermissionManageRoleMange  = &i18n.Message{ID: "NameOpPermissionManageRoleMange", Other: "角色管理权限"}
-	NameOpPermissionDesensitization = &i18n.Message{ID: "NameOpPermissionDesensitization", Other: "脱敏规则配置权限"}
+	NameOpPermissionManageRoleMange         = &i18n.Message{ID: "NameOpPermissionManageRoleMange", Other: "角色管理权限"}
+	NameOpPermissionDesensitization         = &i18n.Message{ID: "NameOpPermissionDesensitization", Other: "脱敏规则配置权限"}
 
 	DescOpPermissionGlobalManagement       = &i18n.Message{ID: "DescOpPermissionGlobalManagement", Other: "具备系统最高权限，可进行系统配置、用户管理等操作"}
 	DescOpPermissionGlobalView             = &i18n.Message{ID: "DescOpPermissionGlobalView", Other: "负责系统操作审计、数据合规检查等工作"}
@@ -110,34 +110,36 @@ var (
 
 // DB service
 var (
-	DBServiceDbName           = &i18n.Message{ID: "DBServiceDbName", Other: "数据源名称"}
-	DBServiceProjName         = &i18n.Message{ID: "DBServiceProjName", Other: "所属项目(平台已有的项目名称)"}
-	DBServiceEnvironmentTag   = &i18n.Message{ID: "DBServiceEnvironmentTag", Other: "所属环境"}
-	DBServiceDesc             = &i18n.Message{ID: "DBServiceDesc", Other: "数据源描述"}
-	DBServiceDbType           = &i18n.Message{ID: "DBServiceDbType", Other: "数据源类型"}
-	DBServiceHost             = &i18n.Message{ID: "DBServiceHost", Other: "数据源地址"}
-	DBServicePort             = &i18n.Message{ID: "DBServicePort", Other: "数据源端口"}
-	DBServiceUser             = &i18n.Message{ID: "DBServiceUser", Other: "数据源连接用户"}
-	DBServicePassword         = &i18n.Message{ID: "DBServicePassword", Other: "数据源密码"}
-	DBServiceOracleService    = &i18n.Message{ID: "DBServiceOracleService", Other: "服务名(Oracle需填)"}
-	DBServiceDB2DbName        = &i18n.Message{ID: "DBServiceDB2DbName", Other: "数据库名(DB2需填)"}
-	DBServiceOpsTime          = &i18n.Message{ID: "DBServiceOpsTime", Other: "运维时间(非必填，9:30-11:00;14:10-18:30)"}
-	DBServiceRuleTemplateName = &i18n.Message{ID: "DBServiceRuleTemplateName", Other: "审核规则模板(项目已有的规则模板)"}
-	DBServiceAuditLevel       = &i18n.Message{ID: "DBServiceAuditLevel", Other: "工作台查询的最高审核等级[error|warn|notice|normal]"}
-	DBServiceProblem          = &i18n.Message{ID: "DBServiceProblem", Other: "问题"}
+	DBServiceDbName                   = &i18n.Message{ID: "DBServiceDbName", Other: "数据源名称"}
+	DBServiceProjName                 = &i18n.Message{ID: "DBServiceProjName", Other: "所属项目(平台已有的项目名称)"}
+	DBServiceEnvironmentTag           = &i18n.Message{ID: "DBServiceEnvironmentTag", Other: "所属环境"}
+	DBServiceDesc                     = &i18n.Message{ID: "DBServiceDesc", Other: "数据源描述"}
+	DBServiceDbType                   = &i18n.Message{ID: "DBServiceDbType", Other: "数据源类型"}
+	DBServiceHost                     = &i18n.Message{ID: "DBServiceHost", Other: "数据源地址"}
+	DBServicePort                     = &i18n.Message{ID: "DBServicePort", Other: "数据源端口"}
+	DBServiceUser                     = &i18n.Message{ID: "DBServiceUser", Other: "数据源连接用户"}
+	DBServicePassword                 = &i18n.Message{ID: "DBServicePassword", Other: "数据源密码"}
+	DBServiceOracleService            = &i18n.Message{ID: "DBServiceOracleService", Other: "服务名(Oracle需填)"}
+	DBServiceDB2DbName                = &i18n.Message{ID: "DBServiceDB2DbName", Other: "数据库名(DB2需填)"}
+	DBServiceOpsTime                  = &i18n.Message{ID: "DBServiceOpsTime", Other: "运维时间(非必填，9:30-11:00;14:10-18:30)"}
+	DBServiceRuleTemplateName         = &i18n.Message{ID: "DBServiceRuleTemplateName", Other: "审核规则模板(项目已有的规则模板)"}
+	DBServiceSQLQueryRuleTemplateName = &i18n.Message{ID: "DBServiceSQLQueryRuleTemplateName", Other: "工作台操作审核规则模板(需要先填写审核规则模板)"}
+	DBServiceAuditLevel               = &i18n.Message{ID: "DBServiceAuditLevel", Other: "工作台查询的最高审核等级[error|warn|notice|normal]"}
+	DBServiceProblem                  = &i18n.Message{ID: "DBServiceProblem", Other: "问题"}
 
-	DBServiceNoProblem               = &i18n.Message{ID: "DBServiceNoProblem", Other: "无"}
-	IDBPCErrMissingOrInvalidCols     = &i18n.Message{ID: "IDBPCErrMissingOrInvalidCols", Other: "缺失或不规范的列：%s"}
-	IDBPCErrInvalidInput             = &i18n.Message{ID: "IDBPCErrInvalidInput", Other: "若无特别说明每列均为必填"}
-	IDBPCErrProjNonExist             = &i18n.Message{ID: "IDBPCErrProjNonExist", Other: "所属项目不存在"}
-	IDBPCErrProjNotActive            = &i18n.Message{ID: "IDBPCErrProjNotActive", Other: "所属项目状态异常"}
-	IDBPCErrProjNotAllowed           = &i18n.Message{ID: "IDBPCErrProjNotAllowed", Other: "所属项目不是操作中的项目"}
-	IDBPCErrOptTimeInvalid           = &i18n.Message{ID: "IDBPCErrOptTimeInvalid", Other: "运维时间不规范"}
-	IDBPCErrDbTypeInvalid            = &i18n.Message{ID: "IDBPCErrDbTypeInvalid", Other: "数据源类型不规范或对应插件未安装"}
-	IDBPCErrOracleServiceNameInvalid = &i18n.Message{ID: "IDBPCErrOracleServiceNameInvalid", Other: "Oracle服务名错误"}
-	IDBPCErrDB2DbNameInvalid         = &i18n.Message{ID: "IDBPCErrDB2DbNameInvalid", Other: "DB2数据库名错误"}
-	IDBPCErrRuleTemplateInvalid      = &i18n.Message{ID: "IDBPCErrRuleTemplateInvalid", Other: "审核规则模板不存在或数据源类型不匹配"}
-	IDBPCErrEnvironmentTagInvalid    = &i18n.Message{ID: "IDBPCErrEnvironmentTagInvalid", Other: "项目环境标签检查错误或不存在"}
+	DBServiceNoProblem                  = &i18n.Message{ID: "DBServiceNoProblem", Other: "无"}
+	IDBPCErrMissingOrInvalidCols        = &i18n.Message{ID: "IDBPCErrMissingOrInvalidCols", Other: "缺失或不规范的列：%s"}
+	IDBPCErrInvalidInput                = &i18n.Message{ID: "IDBPCErrInvalidInput", Other: "若无特别说明每列均为必填"}
+	IDBPCErrProjNonExist                = &i18n.Message{ID: "IDBPCErrProjNonExist", Other: "所属项目不存在"}
+	IDBPCErrProjNotActive               = &i18n.Message{ID: "IDBPCErrProjNotActive", Other: "所属项目状态异常"}
+	IDBPCErrProjNotAllowed              = &i18n.Message{ID: "IDBPCErrProjNotAllowed", Other: "所属项目不是操作中的项目"}
+	IDBPCErrOptTimeInvalid              = &i18n.Message{ID: "IDBPCErrOptTimeInvalid", Other: "运维时间不规范"}
+	IDBPCErrDbTypeInvalid               = &i18n.Message{ID: "IDBPCErrDbTypeInvalid", Other: "数据源类型不规范或对应插件未安装"}
+	IDBPCErrOracleServiceNameInvalid    = &i18n.Message{ID: "IDBPCErrOracleServiceNameInvalid", Other: "Oracle服务名错误"}
+	IDBPCErrDB2DbNameInvalid            = &i18n.Message{ID: "IDBPCErrDB2DbNameInvalid", Other: "DB2数据库名错误"}
+	IDBPCErrRuleTemplateInvalid         = &i18n.Message{ID: "IDBPCErrRuleTemplateInvalid", Other: "审核规则模板不存在或数据源类型不匹配"}
+	IDBPCErrSQLQueryRuleTemplateInvalid = &i18n.Message{ID: "IDBPCErrSQLQueryRuleTemplateInvalid", Other: "工作台操作审核规则模板不存在或数据源类型不匹配"}
+	IDBPCErrEnvironmentTagInvalid       = &i18n.Message{ID: "IDBPCErrEnvironmentTagInvalid", Other: "项目环境标签检查错误或不存在"}
 )
 
 // project
