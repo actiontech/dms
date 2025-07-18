@@ -116,13 +116,13 @@ func (d *DMSService) UpdateOauth2Configuration(ctx context.Context, req *dmsV1.O
 	return d.Oauth2ConfigurationUsecase.UpdateOauth2Configuration(ctx, oauth2Configuration)
 }
 
-func (d *DMSService) Oauth2Link(ctx context.Context) (uri string, err error) {
-	d.log.Infof("Oauth2Link")
+func (d *DMSService) Oauth2Link(ctx context.Context, target string) (uri string, err error) {
+	d.log.Infof("Oauth2Link path: %v", target)
 	defer func() {
 		d.log.Infof("Oauth2Link;error=%v", err)
 	}()
 
-	uri, err = d.Oauth2ConfigurationUsecase.GenOauth2LinkURI(ctx)
+	uri, err = d.Oauth2ConfigurationUsecase.GenOauth2LinkURI(ctx, target)
 	if err != nil {
 		return "", err
 	}
