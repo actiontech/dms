@@ -22,7 +22,7 @@ func (d *Oauth2ConfigurationUsecase) GetOauth2Configuration(ctx context.Context)
 	return nil, false, errNotSupportOauth2
 }
 
-func (d *Oauth2ConfigurationUsecase) GenOauth2LinkURI(ctx context.Context) (uri string, err error) {
+func (d *Oauth2ConfigurationUsecase) GenOauth2LinkURI(ctx context.Context, target string) (uri string, err error) {
 	return "", errNotSupportOauth2
 }
 
