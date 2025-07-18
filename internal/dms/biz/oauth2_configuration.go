@@ -102,10 +102,12 @@ type CallbackRedirectData struct {
 	Oauth2Token  string
 	RefreshToken string
 	Error        string
+	State        string
 	uri          string
 }
 
 func (c CallbackRedirectData) Generate() string {
+	redirectUrl := fmt.Sprintf("%v/user/bind", c.uri)
 	params := url.Values{}
 	params.Set("user_exist", strconv.FormatBool(c.UserExist))
 	if c.DMSToken != "" {
@@ -120,7 +122,10 @@ func (c CallbackRedirectData) Generate() string {
 	if c.Error != "" {
 		params.Set("error", c.Error)
 	}
-	return fmt.Sprintf("%v/user/bind?%v", c.uri, params.Encode())
+	if val := strings.Split(c.State, oauthRedirectPrefixState); len(val) > 1 {
+		params.Set("target", val[1])
+	}
+	return fmt.Sprintf("%v?%v", redirectUrl, params.Encode())
 }
 
 type ClaimsInfo struct {

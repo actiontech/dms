@@ -2631,7 +2631,7 @@ func (ctl *DMSController) Oauth2LinkOrCallback(c echo.Context) error {
 }
 
 func (ctl *DMSController) oauth2Link(c echo.Context) error {
-	uri, err := ctl.DMS.Oauth2Link(c.Request().Context())
+	uri, err := ctl.DMS.Oauth2Link(c.Request().Context(), c.QueryString())
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -2661,7 +2661,7 @@ func (ctl *DMSController) oauth2Callback(c echo.Context) error {
 		if err != nil {
 			return NewErrResp(c, err, apiError.APIServerErr)
 		}
-
+		callbackData.State = req.State
 		callbackData.DMSToken = dmsToken
 		c.SetCookie(&http.Cookie{
 			Name:    constant.DMSToken,
@@ -4650,6 +4650,8 @@ func (ctl *DMSController)AddGateway(c echo.Context) error {
 	}
 	return NewOkResp(c)
 }
+
+
 
 
 
