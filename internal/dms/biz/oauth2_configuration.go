@@ -104,10 +104,14 @@ type CallbackRedirectData struct {
 	Oauth2Token  string
 	RefreshToken string
 	Error        string
+	State        string
 	uri          string
 }
 
+var oauthRedirectPrefixState = "target="
+
 func (c CallbackRedirectData) Generate() string {
+	redirectUrl := fmt.Sprintf("%v/user/bind", c.uri)
 	params := url.Values{}
 	params.Set("user_exist", strconv.FormatBool(c.UserExist))
 	if c.DMSToken != "" {
@@ -122,7 +126,16 @@ func (c CallbackRedirectData) Generate() string {
 	if c.Error != "" {
 		params.Set("error", c.Error)
 	}
-	return fmt.Sprintf("%v/user/bind?%v", c.uri, params.Encode())
+	// Extract the original target path from the OAuth2 State parameter for post-login redirection
+	// Scenario Description: The State parameter stores the original access path before login (in the format "target=/project/700300/exec-workflow/1934557787224805376")
+	// Processing Logic:
+	// 1. Split the State string using the prefix separator `oauthRedirectPrefixState`
+	// 2. If there is valid content after splitting (the part at index 1), extract it as the target path
+	// 3. Store the extracted path in `params` so that the front-end can read the parameter and implement automatic redirection to the original page after login
+	if val := strings.Split(c.State, oauthRedirectPrefixState); len(val) > 1 {
+		params.Set("target", val[1])
+	}
+	return fmt.Sprintf("%v?%v", redirectUrl, params.Encode())
 }
 
 type ClaimsInfo struct {
