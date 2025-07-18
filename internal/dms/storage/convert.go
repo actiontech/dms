@@ -66,9 +66,11 @@ func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
 		if ds.SQLEConfig != nil {
 			dbService.ExtraParameters = model.ExtraParameters{
 				SqleConfig: &model.SQLEConfig{
-					AuditEnabled:     ds.SQLEConfig.AuditEnabled,
-					RuleTemplateName: ds.SQLEConfig.RuleTemplateName,
-					RuleTemplateID:   ds.SQLEConfig.RuleTemplateID,
+					AuditEnabled:               ds.SQLEConfig.AuditEnabled,
+					RuleTemplateName:           ds.SQLEConfig.RuleTemplateName,
+					RuleTemplateID:             ds.SQLEConfig.RuleTemplateID,
+					DataExportRuleTemplateName: ds.SQLEConfig.DataExportRuleTemplateName,
+					DataExportRuleTemplateID:   ds.SQLEConfig.DataExportRuleTemplateID,
 				},
 			}
 			sqleQueryConfig := ds.SQLEConfig.SQLQueryConfig
@@ -139,6 +141,8 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 			dbService.SQLEConfig.AuditEnabled = modelSqleConfig.AuditEnabled
 			dbService.SQLEConfig.RuleTemplateName = modelSqleConfig.RuleTemplateName
 			dbService.SQLEConfig.RuleTemplateID = modelSqleConfig.RuleTemplateID
+			dbService.SQLEConfig.DataExportRuleTemplateName = modelSqleConfig.DataExportRuleTemplateName
+			dbService.SQLEConfig.DataExportRuleTemplateID = modelSqleConfig.DataExportRuleTemplateID
 			sqleQueryConfig := modelSqleConfig.SqlQueryConfig
 			if sqleQueryConfig != nil {
 				sqc := &biz.SQLQueryConfig{
@@ -1278,9 +1282,11 @@ func toModelDBServiceSyncTask(u *biz.DBServiceSyncTask) *model.DBServiceSyncTask
 	}
 	if u.SQLEConfig != nil {
 		ret.ExtraParameters.SqleConfig = &model.SQLEConfig{
-			AuditEnabled:     u.SQLEConfig.AuditEnabled,
-			RuleTemplateName: u.SQLEConfig.RuleTemplateName,
-			RuleTemplateID:   u.SQLEConfig.RuleTemplateID,
+			AuditEnabled:               u.SQLEConfig.AuditEnabled,
+			RuleTemplateName:           u.SQLEConfig.RuleTemplateName,
+			RuleTemplateID:             u.SQLEConfig.RuleTemplateID,
+			DataExportRuleTemplateName: u.SQLEConfig.DataExportRuleTemplateName,
+			DataExportRuleTemplateID:   u.SQLEConfig.DataExportRuleTemplateID,
 		}
 		if u.SQLEConfig.SQLQueryConfig != nil {
 			ret.ExtraParameters.SqleConfig.SqlQueryConfig = &model.SqlQueryConfig{
@@ -1314,9 +1320,11 @@ func toBizDBServiceSyncTask(m *model.DBServiceSyncTask) *biz.DBServiceSyncTask {
 	}
 	if m.ExtraParameters.SqleConfig != nil {
 		ret.SQLEConfig = &biz.SQLEConfig{
-			AuditEnabled:     m.ExtraParameters.SqleConfig.AuditEnabled,
-			RuleTemplateName: m.ExtraParameters.SqleConfig.RuleTemplateName,
-			RuleTemplateID:   m.ExtraParameters.SqleConfig.RuleTemplateID,
+			AuditEnabled:               m.ExtraParameters.SqleConfig.AuditEnabled,
+			RuleTemplateName:           m.ExtraParameters.SqleConfig.RuleTemplateName,
+			RuleTemplateID:             m.ExtraParameters.SqleConfig.RuleTemplateID,
+			DataExportRuleTemplateName: m.ExtraParameters.SqleConfig.DataExportRuleTemplateName,
+			DataExportRuleTemplateID:   m.ExtraParameters.SqleConfig.DataExportRuleTemplateID,
 		}
 		if m.ExtraParameters.SqleConfig.SqlQueryConfig != nil {
 			ret.SQLEConfig.SQLQueryConfig = &biz.SQLQueryConfig{
