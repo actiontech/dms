@@ -106,6 +106,8 @@ type CallbackRedirectData struct {
 	uri          string
 }
 
+var oauthRedirectPrefixState = "target="
+
 func (c CallbackRedirectData) Generate() string {
 	redirectUrl := fmt.Sprintf("%v/user/bind", c.uri)
 	params := url.Values{}
