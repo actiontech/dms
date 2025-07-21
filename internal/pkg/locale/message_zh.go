@@ -93,36 +93,39 @@ var (
 
 // DB service
 var (
-	DBServiceDbName                   = &i18n.Message{ID: "DBServiceDbName", Other: "数据源名称"}
-	DBServiceProjName                 = &i18n.Message{ID: "DBServiceProjName", Other: "所属项目(平台已有的项目名称)"}
-	DBServiceEnvironmentTag           = &i18n.Message{ID: "DBServiceEnvironmentTag", Other: "所属环境"}
-	DBServiceDesc                     = &i18n.Message{ID: "DBServiceDesc", Other: "数据源描述"}
-	DBServiceDbType                   = &i18n.Message{ID: "DBServiceDbType", Other: "数据源类型"}
-	DBServiceHost                     = &i18n.Message{ID: "DBServiceHost", Other: "数据源地址"}
-	DBServicePort                     = &i18n.Message{ID: "DBServicePort", Other: "数据源端口"}
-	DBServiceUser                     = &i18n.Message{ID: "DBServiceUser", Other: "数据源连接用户"}
-	DBServicePassword                 = &i18n.Message{ID: "DBServicePassword", Other: "数据源密码"}
-	DBServiceOracleService            = &i18n.Message{ID: "DBServiceOracleService", Other: "服务名(Oracle需填)"}
-	DBServiceDB2DbName                = &i18n.Message{ID: "DBServiceDB2DbName", Other: "数据库名(DB2需填)"}
-	DBServiceOpsTime                  = &i18n.Message{ID: "DBServiceOpsTime", Other: "运维时间(非必填，9:30-11:00;14:10-18:30)"}
-	DBServiceRuleTemplateName         = &i18n.Message{ID: "DBServiceRuleTemplateName", Other: "审核规则模板(项目已有的规则模板)"}
-	DBServiceSQLQueryRuleTemplateName = &i18n.Message{ID: "DBServiceSQLQueryRuleTemplateName", Other: "工作台操作审核规则模板(需要先填写审核规则模板)"}
-	DBServiceAuditLevel               = &i18n.Message{ID: "DBServiceAuditLevel", Other: "工作台查询的最高审核等级[error|warn|notice|normal]"}
-	DBServiceProblem                  = &i18n.Message{ID: "DBServiceProblem", Other: "问题"}
+	DBServiceDbName                     = &i18n.Message{ID: "DBServiceDbName", Other: "数据源名称"}
+	DBServiceProjName                   = &i18n.Message{ID: "DBServiceProjName", Other: "所属项目(平台已有的项目名称)"}
+	DBServiceEnvironmentTag             = &i18n.Message{ID: "DBServiceEnvironmentTag", Other: "所属环境"}
+	DBServiceDesc                       = &i18n.Message{ID: "DBServiceDesc", Other: "数据源描述"}
+	DBServiceDbType                     = &i18n.Message{ID: "DBServiceDbType", Other: "数据源类型"}
+	DBServiceHost                       = &i18n.Message{ID: "DBServiceHost", Other: "数据源地址"}
+	DBServicePort                       = &i18n.Message{ID: "DBServicePort", Other: "数据源端口"}
+	DBServiceUser                       = &i18n.Message{ID: "DBServiceUser", Other: "数据源连接用户"}
+	DBServicePassword                   = &i18n.Message{ID: "DBServicePassword", Other: "数据源密码"}
+	DBServiceOracleService              = &i18n.Message{ID: "DBServiceOracleService", Other: "服务名(Oracle需填)"}
+	DBServiceDB2DbName                  = &i18n.Message{ID: "DBServiceDB2DbName", Other: "数据库名(DB2需填)"}
+	DBServiceOpsTime                    = &i18n.Message{ID: "DBServiceOpsTime", Other: "运维时间(非必填，9:30-11:00;14:10-18:30)"}
+	DBServiceRuleTemplateName           = &i18n.Message{ID: "DBServiceRuleTemplateName", Other: "审核规则模板(项目已有的规则模板)"}
+	DBServiceSQLQueryRuleTemplateName   = &i18n.Message{ID: "DBServiceSQLQueryRuleTemplateName", Other: "工作台操作审核规则模板(需要先填写审核规则模板)"}
+	DBServiceDataExportRuleTemplateName = &i18n.Message{ID: "DBServiceDataExportRuleTemplateName", Other: "数据导出审核规则模板(需要先填写审核规则模板)"}
+	DBServiceAuditLevel                 = &i18n.Message{ID: "DBServiceAuditLevel", Other: "工作台查询的最高审核等级[error|warn|notice|normal]"}
+	DBServiceProblem                    = &i18n.Message{ID: "DBServiceProblem", Other: "问题"}
 
-	DBServiceNoProblem                  = &i18n.Message{ID: "DBServiceNoProblem", Other: "无"}
-	IDBPCErrMissingOrInvalidCols        = &i18n.Message{ID: "IDBPCErrMissingOrInvalidCols", Other: "缺失或不规范的列：%s"}
-	IDBPCErrInvalidInput                = &i18n.Message{ID: "IDBPCErrInvalidInput", Other: "若无特别说明每列均为必填"}
-	IDBPCErrProjNonExist                = &i18n.Message{ID: "IDBPCErrProjNonExist", Other: "所属项目不存在"}
-	IDBPCErrProjNotActive               = &i18n.Message{ID: "IDBPCErrProjNotActive", Other: "所属项目状态异常"}
-	IDBPCErrProjNotAllowed              = &i18n.Message{ID: "IDBPCErrProjNotAllowed", Other: "所属项目不是操作中的项目"}
-	IDBPCErrOptTimeInvalid              = &i18n.Message{ID: "IDBPCErrOptTimeInvalid", Other: "运维时间不规范"}
-	IDBPCErrDbTypeInvalid               = &i18n.Message{ID: "IDBPCErrDbTypeInvalid", Other: "数据源类型不规范或对应插件未安装"}
-	IDBPCErrOracleServiceNameInvalid    = &i18n.Message{ID: "IDBPCErrOracleServiceNameInvalid", Other: "Oracle服务名错误"}
-	IDBPCErrDB2DbNameInvalid            = &i18n.Message{ID: "IDBPCErrDB2DbNameInvalid", Other: "DB2数据库名错误"}
-	IDBPCErrRuleTemplateInvalid         = &i18n.Message{ID: "IDBPCErrRuleTemplateInvalid", Other: "审核规则模板不存在或数据源类型不匹配"}
-	IDBPCErrSQLQueryRuleTemplateInvalid = &i18n.Message{ID: "IDBPCErrSQLQueryRuleTemplateInvalid", Other: "工作台操作审核规则模板不存在或数据源类型不匹配"}
-	IDBPCErrEnvironmentTagInvalid       = &i18n.Message{ID: "IDBPCErrEnvironmentTagInvalid", Other: "项目环境标签检查错误或不存在"}
+	DBServiceNoProblem                    = &i18n.Message{ID: "DBServiceNoProblem", Other: "无"}
+	IDBPCErrMissingOrInvalidCols          = &i18n.Message{ID: "IDBPCErrMissingOrInvalidCols", Other: "缺失或不规范的列：%s"}
+	IDBPCErrInvalidInput                  = &i18n.Message{ID: "IDBPCErrInvalidInput", Other: "若无特别说明每列均为必填"}
+	IDBPCErrProjNonExist                  = &i18n.Message{ID: "IDBPCErrProjNonExist", Other: "所属项目不存在"}
+	IDBPCErrProjNotActive                 = &i18n.Message{ID: "IDBPCErrProjNotActive", Other: "所属项目状态异常"}
+	IDBPCErrProjNotAllowed                = &i18n.Message{ID: "IDBPCErrProjNotAllowed", Other: "所属项目不是操作中的项目"}
+	IDBPCErrOptTimeInvalid                = &i18n.Message{ID: "IDBPCErrOptTimeInvalid", Other: "运维时间不规范"}
+	IDBPCErrDbTypeInvalid                 = &i18n.Message{ID: "IDBPCErrDbTypeInvalid", Other: "数据源类型不规范或对应插件未安装"}
+	IDBPCErrOracleServiceNameInvalid      = &i18n.Message{ID: "IDBPCErrOracleServiceNameInvalid", Other: "Oracle服务名错误"}
+	IDBPCErrDB2DbNameInvalid              = &i18n.Message{ID: "IDBPCErrDB2DbNameInvalid", Other: "DB2数据库名错误"}
+	IDBPCErrRuleTemplateInvalid           = &i18n.Message{ID: "IDBPCErrRuleTemplateInvalid", Other: "审核规则模板不存在或数据源类型不匹配"}
+	IDBPCErrSQLQueryRuleTemplateInvalid   = &i18n.Message{ID: "IDBPCErrSQLQueryRuleTemplateInvalid", Other: "工作台操作审核规则模板不存在或数据源类型不匹配"}
+	IDBPCErrDataExportRuleTemplateInvalid = &i18n.Message{ID: "IDBPCErrDataExportRuleTemplateInvalid", Other: "数据导出审核规则模板不存在或数据源类型不匹配"}
+	IDBPCErrRuleTemplateBaseCheck         = &i18n.Message{ID: "IDBPCErrRuleTemplateBaseCheck", Other: "需要先添加审核规则模板，工作台和数据导出审核模板才会生效"}
+	IDBPCErrEnvironmentTagInvalid         = &i18n.Message{ID: "IDBPCErrEnvironmentTagInvalid", Other: "项目环境标签检查错误或不存在"}
 )
 
 // project
