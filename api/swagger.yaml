@@ -1787,7 +1787,7 @@ definitions:
                 type: array
                 x-go-name: Users
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetMemberGroupReply:
         properties:
             code:
@@ -1802,7 +1802,7 @@ definitions:
                 type: string
                 x-go-name: Message
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GetOauth2ConfigurationResData:
         properties:
             access_token_tag:
@@ -3635,6 +3635,14 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberRoleWithOpRange:
         properties:
+            member_group:
+                $ref: '#/definitions/ProjectMemberGroup'
+            op_permissions:
+                description: member op permissions
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: OpPermissions
             op_range_type:
                 description: |-
                     op permission range type, only support db service now
@@ -3663,7 +3671,7 @@ definitions:
             role_uid:
                 $ref: '#/definitions/UidWithName'
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberTipsItem:
         properties:
             user_id:
@@ -5026,6 +5034,14 @@ definitions:
                 description: DB Service audit enabled
                 type: boolean
                 x-go-name: AuditEnabled
+            data_export_rule_template_id:
+                description: DB Service data export rule template id
+                type: string
+                x-go-name: DataExportRuleTemplateID
+            data_export_rule_template_name:
+                description: DB Service data export rule template name
+                type: string
+                x-go-name: DataExportRuleTemplateName
             rule_template_id:
                 description: DB Service rule template id
                 type: string
