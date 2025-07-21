@@ -64,8 +64,11 @@ func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
 		if ds.SQLEConfig != nil {
 			dbService.ExtraParameters = model.ExtraParameters{
 				SqleConfig: &model.SQLEConfig{
-					RuleTemplateName: ds.SQLEConfig.RuleTemplateName,
-					RuleTemplateID:   ds.SQLEConfig.RuleTemplateID,
+					AuditEnabled:               ds.SQLEConfig.AuditEnabled,
+					RuleTemplateName:           ds.SQLEConfig.RuleTemplateName,
+					RuleTemplateID:             ds.SQLEConfig.RuleTemplateID,
+					DataExportRuleTemplateName: ds.SQLEConfig.DataExportRuleTemplateName,
+					DataExportRuleTemplateID:   ds.SQLEConfig.DataExportRuleTemplateID,
 				},
 			}
 			sqleQueryConfig := ds.SQLEConfig.SQLQueryConfig
@@ -75,6 +78,8 @@ func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
 					AuditEnabled:                     sqleQueryConfig.AuditEnabled,
 					MaxPreQueryRows:                  sqleQueryConfig.MaxPreQueryRows,
 					QueryTimeoutSecond:               sqleQueryConfig.QueryTimeoutSecond,
+					RuleTemplateName:                 sqleQueryConfig.RuleTemplateName,
+					RuleTemplateID:                   sqleQueryConfig.RuleTemplateID,
 				}
 			}
 		}
@@ -131,8 +136,11 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 		modelSqleConfig := ds.ExtraParameters.SqleConfig
 		if modelSqleConfig != nil {
 			dbService.SQLEConfig = &biz.SQLEConfig{}
+			dbService.SQLEConfig.AuditEnabled = modelSqleConfig.AuditEnabled
 			dbService.SQLEConfig.RuleTemplateName = modelSqleConfig.RuleTemplateName
 			dbService.SQLEConfig.RuleTemplateID = modelSqleConfig.RuleTemplateID
+			dbService.SQLEConfig.DataExportRuleTemplateName = modelSqleConfig.DataExportRuleTemplateName
+			dbService.SQLEConfig.DataExportRuleTemplateID = modelSqleConfig.DataExportRuleTemplateID
 			sqleQueryConfig := modelSqleConfig.SqlQueryConfig
 			if sqleQueryConfig != nil {
 				sqc := &biz.SQLQueryConfig{
@@ -140,6 +148,8 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 					AuditEnabled:                     sqleQueryConfig.AuditEnabled,
 					MaxPreQueryRows:                  sqleQueryConfig.MaxPreQueryRows,
 					QueryTimeoutSecond:               sqleQueryConfig.QueryTimeoutSecond,
+					RuleTemplateName:                 sqleQueryConfig.RuleTemplateName,
+					RuleTemplateID:                   sqleQueryConfig.RuleTemplateID,
 				}
 				dbService.SQLEConfig.SQLQueryConfig = sqc
 			}
@@ -239,7 +249,7 @@ func convertModelUser(u *model.User) (*biz.User, error) {
 
 	projects := make([]string, 0)
 	for _, member := range u.Members {
-		if member !=nil && member.Project != nil {
+		if member != nil && member.Project != nil {
 			projects = append(projects, member.Project.Name)
 		}
 	}
@@ -490,7 +500,7 @@ func convertModelMember(m *model.Member) (*biz.Member, error) {
 		Base:             convertBase(m.Model),
 		UID:              m.UID,
 		ProjectUID:       m.ProjectUID,
-		Projects: 		  projects,
+		Projects:         projects,
 		UserUID:          m.UserUID,
 		RoleWithOpRanges: roles,
 	}, nil
@@ -1224,8 +1234,11 @@ func toModelDBServiceSyncTask(u *biz.DBServiceSyncTask) *model.DBServiceSyncTask
 	}
 	if u.SQLEConfig != nil {
 		ret.ExtraParameters.SqleConfig = &model.SQLEConfig{
-			RuleTemplateName: u.SQLEConfig.RuleTemplateName,
-			RuleTemplateID:   u.SQLEConfig.RuleTemplateID,
+			AuditEnabled:               u.SQLEConfig.AuditEnabled,
+			RuleTemplateName:           u.SQLEConfig.RuleTemplateName,
+			RuleTemplateID:             u.SQLEConfig.RuleTemplateID,
+			DataExportRuleTemplateName: u.SQLEConfig.DataExportRuleTemplateName,
+			DataExportRuleTemplateID:   u.SQLEConfig.DataExportRuleTemplateID,
 		}
 		if u.SQLEConfig.SQLQueryConfig != nil {
 			ret.ExtraParameters.SqleConfig.SqlQueryConfig = &model.SqlQueryConfig{
@@ -1233,6 +1246,8 @@ func toModelDBServiceSyncTask(u *biz.DBServiceSyncTask) *model.DBServiceSyncTask
 				QueryTimeoutSecond:               u.SQLEConfig.SQLQueryConfig.QueryTimeoutSecond,
 				AuditEnabled:                     u.SQLEConfig.SQLQueryConfig.AuditEnabled,
 				AllowQueryWhenLessThanAuditLevel: u.SQLEConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel,
+				RuleTemplateName:                 u.SQLEConfig.SQLQueryConfig.RuleTemplateName,
+				RuleTemplateID:                   u.SQLEConfig.SQLQueryConfig.RuleTemplateID,
 			}
 		}
 	}
@@ -1257,8 +1272,11 @@ func toBizDBServiceSyncTask(m *model.DBServiceSyncTask) *biz.DBServiceSyncTask {
 	}
 	if m.ExtraParameters.SqleConfig != nil {
 		ret.SQLEConfig = &biz.SQLEConfig{
-			RuleTemplateName: m.ExtraParameters.SqleConfig.RuleTemplateName,
-			RuleTemplateID:   m.ExtraParameters.SqleConfig.RuleTemplateID,
+			AuditEnabled:               m.ExtraParameters.SqleConfig.AuditEnabled,
+			RuleTemplateName:           m.ExtraParameters.SqleConfig.RuleTemplateName,
+			RuleTemplateID:             m.ExtraParameters.SqleConfig.RuleTemplateID,
+			DataExportRuleTemplateName: m.ExtraParameters.SqleConfig.DataExportRuleTemplateName,
+			DataExportRuleTemplateID:   m.ExtraParameters.SqleConfig.DataExportRuleTemplateID,
 		}
 		if m.ExtraParameters.SqleConfig.SqlQueryConfig != nil {
 			ret.SQLEConfig.SQLQueryConfig = &biz.SQLQueryConfig{
@@ -1266,6 +1284,8 @@ func toBizDBServiceSyncTask(m *model.DBServiceSyncTask) *biz.DBServiceSyncTask {
 				QueryTimeoutSecond:               m.ExtraParameters.SqleConfig.SqlQueryConfig.QueryTimeoutSecond,
 				AuditEnabled:                     m.ExtraParameters.SqleConfig.SqlQueryConfig.AuditEnabled,
 				AllowQueryWhenLessThanAuditLevel: m.ExtraParameters.SqleConfig.SqlQueryConfig.AllowQueryWhenLessThanAuditLevel,
+				RuleTemplateName:                 m.ExtraParameters.SqleConfig.SqlQueryConfig.RuleTemplateName,
+				RuleTemplateID:                   m.ExtraParameters.SqleConfig.SqlQueryConfig.RuleTemplateID,
 			}
 		}
 	}

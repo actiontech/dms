@@ -26,10 +26,16 @@ import (
 )
 
 type SQLEConfig struct {
+	// DB Service audit enabled
+	AuditEnabled bool `json:"audit_enabled"`
 	// DB Service rule template name
 	RuleTemplateName string `json:"rule_template_name"`
 	// DB Service rule template id
 	RuleTemplateID string `json:"rule_template_id"`
+	// DB Service data export rule template name
+	DataExportRuleTemplateName string `json:"data_export_rule_template_name"`
+	// DB Service data export rule template id
+	DataExportRuleTemplateID string `json:"data_export_rule_template_id"`
 	// DB Service SQL query config
 	SQLQueryConfig *SQLQueryConfig `json:"sql_query_config"`
 }
@@ -131,9 +137,12 @@ func newDBService(args *BizDBServiceArgs) (*DBService, error) {
 		BackupMaxRows:     args.BackupMaxRows,
 	}
 
-	if args.RuleTemplateName != "" {
+	if args.AuditEnabled {
+		dbService.SQLEConfig.AuditEnabled = args.AuditEnabled
 		dbService.SQLEConfig.RuleTemplateID = args.RuleTemplateID
 		dbService.SQLEConfig.RuleTemplateName = args.RuleTemplateName
+		dbService.SQLEConfig.DataExportRuleTemplateName = args.DataExportRuleTemplateName
+		dbService.SQLEConfig.DataExportRuleTemplateID = args.DataExportRuleTemplateID
 	}
 	if args.EnvironmentTagUID != "" {
 		dbService.EnvironmentTag = &dmsCommonV1.EnvironmentTag{
@@ -202,12 +211,15 @@ type BizDBServiceArgs struct {
 	ProjectUID         string
 	MaintenancePeriod  pkgPeriods.Periods
 	// sqle config
-	RuleTemplateName string
-	RuleTemplateID   string
-	SQLQueryConfig   *SQLQueryConfig
-	IsMaskingSwitch  bool
-	EnableBackup     bool
-	BackupMaxRows    uint64
+	AuditEnabled               bool
+	RuleTemplateName           string
+	RuleTemplateID             string
+	DataExportRuleTemplateName string
+	DataExportRuleTemplateID   string
+	SQLQueryConfig             *SQLQueryConfig
+	IsMaskingSwitch            bool
+	EnableBackup               bool
+	BackupMaxRows              uint64
 }
 
 type SQLQueryConfig struct {
@@ -215,6 +227,8 @@ type SQLQueryConfig struct {
 	QueryTimeoutSecond               int    `json:"query_timeout_second"`
 	AuditEnabled                     bool   `json:"audit_enabled"`
 	AllowQueryWhenLessThanAuditLevel string `json:"allow_query_when_less_than_audit_level"`
+	RuleTemplateID                   string `json:"rule_template_id"`
+	RuleTemplateName                 string `json:"rule_template_name"`
 }
 
 func (d *DBServiceUsecase) CreateDBService(ctx context.Context, args *BizDBServiceArgs, currentUserUid string) (uid string, err error) {
@@ -712,8 +726,11 @@ func (d *DBServiceUsecase) UpdateDBServiceByArgs(ctx context.Context, dbServiceU
 		ds.SQLEConfig = &SQLEConfig{}
 		// 支持新增和更新sqleConfig，不允许删除sqle配置
 		if updateDBService.RuleTemplateName != "" {
+			ds.SQLEConfig.AuditEnabled = updateDBService.AuditEnabled
 			ds.SQLEConfig.RuleTemplateID = updateDBService.RuleTemplateID
 			ds.SQLEConfig.RuleTemplateName = updateDBService.RuleTemplateName
+			ds.SQLEConfig.DataExportRuleTemplateName = updateDBService.DataExportRuleTemplateName
+			ds.SQLEConfig.DataExportRuleTemplateID = updateDBService.DataExportRuleTemplateID
 		}
 		ds.EnvironmentTag = &dmsCommonV1.EnvironmentTag{
 			UID: updateDBService.EnvironmentTagUID,

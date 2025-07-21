@@ -68,14 +68,19 @@ func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV2.UpdateDBSer
 
 	sqleConfig := req.DBService.SQLEConfig
 	if sqleConfig != nil {
+		args.AuditEnabled = sqleConfig.AuditEnabled
 		args.RuleTemplateName = sqleConfig.RuleTemplateName
 		args.RuleTemplateID = sqleConfig.RuleTemplateID
+		args.DataExportRuleTemplateName = sqleConfig.DataExportRuleTemplateName
+		args.DataExportRuleTemplateID = sqleConfig.DataExportRuleTemplateID
 		if sqleConfig.SQLQueryConfig != nil {
 			args.SQLQueryConfig = &biz.SQLQueryConfig{
 				MaxPreQueryRows:                  sqleConfig.SQLQueryConfig.MaxPreQueryRows,
 				QueryTimeoutSecond:               sqleConfig.SQLQueryConfig.QueryTimeoutSecond,
 				AuditEnabled:                     sqleConfig.SQLQueryConfig.AuditEnabled,
 				AllowQueryWhenLessThanAuditLevel: string(sqleConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel),
+				RuleTemplateID:                   sqleConfig.SQLQueryConfig.RuleTemplateID,
+				RuleTemplateName:                 sqleConfig.SQLQueryConfig.RuleTemplateName,
 			}
 		}
 	}
@@ -273,14 +278,19 @@ func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceRe
 
 	sqleConfig := req.DBService.SQLEConfig
 	if sqleConfig != nil {
+		args.AuditEnabled = sqleConfig.AuditEnabled
 		args.RuleTemplateName = sqleConfig.RuleTemplateName
 		args.RuleTemplateID = sqleConfig.RuleTemplateID
+		args.DataExportRuleTemplateName = sqleConfig.DataExportRuleTemplateName
+		args.DataExportRuleTemplateID = sqleConfig.DataExportRuleTemplateID
 		if sqleConfig.SQLQueryConfig != nil {
 			args.SQLQueryConfig = &biz.SQLQueryConfig{
 				MaxPreQueryRows:                  sqleConfig.SQLQueryConfig.MaxPreQueryRows,
 				QueryTimeoutSecond:               sqleConfig.SQLQueryConfig.QueryTimeoutSecond,
 				AuditEnabled:                     sqleConfig.SQLQueryConfig.AuditEnabled,
 				AllowQueryWhenLessThanAuditLevel: string(sqleConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel),
+				RuleTemplateID:                   sqleConfig.SQLQueryConfig.RuleTemplateID,
+				RuleTemplateName:                 sqleConfig.SQLQueryConfig.RuleTemplateName,
 			}
 		}
 	}
@@ -334,14 +344,19 @@ func (d *DMSService) AddDBServiceV2(ctx context.Context, req *dmsV2.AddDBService
 
 	sqleConfig := req.DBService.SQLEConfig
 	if sqleConfig != nil {
+		args.AuditEnabled = sqleConfig.AuditEnabled
 		args.RuleTemplateName = sqleConfig.RuleTemplateName
 		args.RuleTemplateID = sqleConfig.RuleTemplateID
+		args.DataExportRuleTemplateName = sqleConfig.DataExportRuleTemplateName
+		args.DataExportRuleTemplateID = sqleConfig.DataExportRuleTemplateID
 		if sqleConfig.SQLQueryConfig != nil {
 			args.SQLQueryConfig = &biz.SQLQueryConfig{
 				MaxPreQueryRows:                  sqleConfig.SQLQueryConfig.MaxPreQueryRows,
 				QueryTimeoutSecond:               sqleConfig.SQLQueryConfig.QueryTimeoutSecond,
 				AuditEnabled:                     sqleConfig.SQLQueryConfig.AuditEnabled,
 				AllowQueryWhenLessThanAuditLevel: string(sqleConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel),
+				RuleTemplateID:                   sqleConfig.SQLQueryConfig.RuleTemplateID,
+				RuleTemplateName:                 sqleConfig.SQLQueryConfig.RuleTemplateName,
 			}
 		}
 	}
@@ -403,9 +418,12 @@ func (d *DMSService) convertBizDBServiceArgs2ImportDBService(dbs []*biz.BizDBSer
 			Source:           u.Source,
 			ProjectUID:       u.ProjectUID,
 			SQLEConfig: &dmsCommonV1.SQLEConfig{
-				RuleTemplateName: u.RuleTemplateName,
-				RuleTemplateID:   u.RuleTemplateID,
-				SQLQueryConfig:   nil,
+				AuditEnabled:               u.AuditEnabled,
+				RuleTemplateName:           u.RuleTemplateName,
+				RuleTemplateID:             u.RuleTemplateID,
+				DataExportRuleTemplateName: u.DataExportRuleTemplateName,
+				DataExportRuleTemplateID:   u.DataExportRuleTemplateID,
+				SQLQueryConfig:             nil,
 			},
 			AdditionalParams:   nil,
 			IsEnableMasking:    false,
@@ -431,6 +449,8 @@ func (d *DMSService) convertBizDBServiceArgs2ImportDBService(dbs []*biz.BizDBSer
 				QueryTimeoutSecond:               u.SQLQueryConfig.QueryTimeoutSecond,
 				AuditEnabled:                     u.SQLQueryConfig.AuditEnabled,
 				AllowQueryWhenLessThanAuditLevel: dmsCommonV1.SQLAllowQueryAuditLevel(u.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel),
+				RuleTemplateID:                   u.SQLQueryConfig.RuleTemplateID,
+				RuleTemplateName:                 u.SQLQueryConfig.RuleTemplateName,
 			}
 		}
 	}
@@ -480,15 +500,20 @@ func (d *DMSService) convertImportDBService2BizDBService(ctx context.Context, im
 
 		if u.SQLEConfig != nil {
 			sqlConfig := &biz.SQLEConfig{
-				RuleTemplateName: u.SQLEConfig.RuleTemplateName,
-				RuleTemplateID:   u.SQLEConfig.RuleTemplateID,
-				SQLQueryConfig:   &biz.SQLQueryConfig{},
+				AuditEnabled:               u.SQLEConfig.AuditEnabled,
+				RuleTemplateName:           u.SQLEConfig.RuleTemplateName,
+				RuleTemplateID:             u.SQLEConfig.RuleTemplateID,
+				DataExportRuleTemplateName: u.SQLEConfig.DataExportRuleTemplateName,
+				DataExportRuleTemplateID:   u.SQLEConfig.DataExportRuleTemplateID,
+				SQLQueryConfig:             &biz.SQLQueryConfig{},
 			}
 			if u.SQLEConfig.SQLQueryConfig != nil {
 				sqlConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel = string(u.SQLEConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel)
 				sqlConfig.SQLQueryConfig.AuditEnabled = u.SQLEConfig.SQLQueryConfig.AuditEnabled
 				sqlConfig.SQLQueryConfig.MaxPreQueryRows = u.SQLEConfig.SQLQueryConfig.MaxPreQueryRows
 				sqlConfig.SQLQueryConfig.QueryTimeoutSecond = u.SQLEConfig.SQLQueryConfig.QueryTimeoutSecond
+				sqlConfig.SQLQueryConfig.RuleTemplateID = u.SQLEConfig.SQLQueryConfig.RuleTemplateID
+				sqlConfig.SQLQueryConfig.RuleTemplateName = u.SQLEConfig.SQLQueryConfig.RuleTemplateName
 			}
 			ret[i].SQLEConfig = sqlConfig
 		}
@@ -662,15 +687,20 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV2.ListDB
 
 		if u.SQLEConfig != nil {
 			sqlConfig := &dmsCommonV1.SQLEConfig{
-				RuleTemplateName: u.SQLEConfig.RuleTemplateName,
-				RuleTemplateID:   u.SQLEConfig.RuleTemplateID,
-				SQLQueryConfig:   &dmsCommonV1.SQLQueryConfig{},
+				AuditEnabled:               u.SQLEConfig.AuditEnabled,
+				RuleTemplateName:           u.SQLEConfig.RuleTemplateName,
+				RuleTemplateID:             u.SQLEConfig.RuleTemplateID,
+				DataExportRuleTemplateName: u.SQLEConfig.DataExportRuleTemplateName,
+				DataExportRuleTemplateID:   u.SQLEConfig.DataExportRuleTemplateID,
+				SQLQueryConfig:             &dmsCommonV1.SQLQueryConfig{},
 			}
 			if u.SQLEConfig.SQLQueryConfig != nil {
 				sqlConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel = dmsCommonV1.SQLAllowQueryAuditLevel(u.SQLEConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel)
 				sqlConfig.SQLQueryConfig.AuditEnabled = u.SQLEConfig.SQLQueryConfig.AuditEnabled
 				sqlConfig.SQLQueryConfig.MaxPreQueryRows = u.SQLEConfig.SQLQueryConfig.MaxPreQueryRows
 				sqlConfig.SQLQueryConfig.QueryTimeoutSecond = u.SQLEConfig.SQLQueryConfig.QueryTimeoutSecond
+				sqlConfig.SQLQueryConfig.RuleTemplateID = u.SQLEConfig.SQLQueryConfig.RuleTemplateID
+				sqlConfig.SQLQueryConfig.RuleTemplateName = u.SQLEConfig.SQLQueryConfig.RuleTemplateName
 			}
 			ret[i].SQLEConfig = sqlConfig
 		}

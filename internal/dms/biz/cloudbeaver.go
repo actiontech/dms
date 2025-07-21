@@ -434,7 +434,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						AuditSQLReq: cloudbeaver.AuditSQLReq{
 							InstanceType:     dbService.DBType,
 							ProjectId:        dbService.ProjectUID,
-							RuleTemplateName: dbService.SQLEConfig.RuleTemplateName,
+							RuleTemplateName: dbService.SQLEConfig.SQLQueryConfig.RuleTemplateName,
 						},
 						SQLEAddr:                         fmt.Sprintf("%s/v2/sql_audit", sqleUrl),
 						AllowQueryWhenLessThanAuditLevel: dbService.GetAllowQueryWhenLessThanAuditLevel(),
@@ -780,7 +780,10 @@ func (w *smartResponseWriter) WriteHeader(code int) {
 }
 
 func (cu *CloudbeaverUsecase) isEnableSQLAudit(dbService *DBService) bool {
-	return dbService.SQLEConfig.SQLQueryConfig.AuditEnabled
+	if dbService.SQLEConfig == nil || dbService.SQLEConfig.SQLQueryConfig == nil {
+		return false
+	}
+	return dbService.SQLEConfig.AuditEnabled && dbService.SQLEConfig.SQLQueryConfig.AuditEnabled
 }
 
 func (cu *CloudbeaverUsecase) getDbService(ctx context.Context, params *graphql.RawParams) (*DBService, error) {

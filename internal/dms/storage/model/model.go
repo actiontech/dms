@@ -110,15 +110,20 @@ func (e *ExtraParameters) Scan(input interface{}) error {
 }
 
 type SQLEConfig struct {
-	RuleTemplateID   string          `json:"rule_template_id"`
-	RuleTemplateName string          `json:"rule_template_name"`
-	SqlQueryConfig   *SqlQueryConfig `json:"sql_query_config"`
+	AuditEnabled               bool            `json:"audit_enabled"`
+	RuleTemplateID             string          `json:"rule_template_id"`
+	RuleTemplateName           string          `json:"rule_template_name"`
+	DataExportRuleTemplateName string          `json:"data_export_rule_template_name"`
+	DataExportRuleTemplateID   string          `json:"data_export_rule_template_id"`
+	SqlQueryConfig             *SqlQueryConfig `json:"sql_query_config"`
 }
 type SqlQueryConfig struct {
 	MaxPreQueryRows                  int    `json:"max_pre_query_rows"`
 	QueryTimeoutSecond               int    `json:"query_timeout_second"`
 	AuditEnabled                     bool   `json:"audit_enabled"`
 	AllowQueryWhenLessThanAuditLevel string `json:"allow_query_when_less_than_audit_level"`
+	RuleTemplateID                   string `json:"rule_template_id"`
+	RuleTemplateName                 string `json:"rule_template_name"`
 }
 
 type User struct {
