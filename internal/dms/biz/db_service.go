@@ -26,6 +26,8 @@ import (
 )
 
 type SQLEConfig struct {
+	// DB Service audit enabled
+	AuditEnabled bool `json:"audit_enabled"`
 	// DB Service rule template name
 	RuleTemplateName string `json:"rule_template_name"`
 	// DB Service rule template id
@@ -202,6 +204,7 @@ type BizDBServiceArgs struct {
 	ProjectUID         string
 	MaintenancePeriod  pkgPeriods.Periods
 	// sqle config
+	AuditEnabled     bool
 	RuleTemplateName string
 	RuleTemplateID   string
 	SQLQueryConfig   *SQLQueryConfig
@@ -215,6 +218,8 @@ type SQLQueryConfig struct {
 	QueryTimeoutSecond               int    `json:"query_timeout_second"`
 	AuditEnabled                     bool   `json:"audit_enabled"`
 	AllowQueryWhenLessThanAuditLevel string `json:"allow_query_when_less_than_audit_level"`
+	RuleTemplateID                   string `json:"rule_template_id"`
+	RuleTemplateName                 string `json:"rule_template_name"`
 }
 
 func (d *DBServiceUsecase) CreateDBService(ctx context.Context, args *BizDBServiceArgs, currentUserUid string) (uid string, err error) {
