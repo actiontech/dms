@@ -35,6 +35,7 @@ func toBizDBServiceSyncTask(syncTask *v1.DBServiceSyncTask) *biz.DBServiceSyncTa
 	}
 	if syncTask.SQLEConfig != nil {
 		ret.SQLEConfig = &biz.SQLEConfig{
+			AuditEnabled:     syncTask.SQLEConfig.AuditEnabled,
 			RuleTemplateName: syncTask.SQLEConfig.RuleTemplateName,
 			RuleTemplateID:   syncTask.SQLEConfig.RuleTemplateID,
 		}
@@ -44,6 +45,8 @@ func toBizDBServiceSyncTask(syncTask *v1.DBServiceSyncTask) *biz.DBServiceSyncTa
 				QueryTimeoutSecond:               syncTask.SQLEConfig.SQLQueryConfig.QueryTimeoutSecond,
 				AuditEnabled:                     syncTask.SQLEConfig.SQLQueryConfig.AuditEnabled,
 				AllowQueryWhenLessThanAuditLevel: string(syncTask.SQLEConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel),
+				RuleTemplateID:                   syncTask.SQLEConfig.SQLQueryConfig.RuleTemplateID,
+				RuleTemplateName:                 syncTask.SQLEConfig.SQLQueryConfig.RuleTemplateName,
 			}
 		}
 	}
@@ -101,6 +104,7 @@ func (d *DMSService) buildReplySqleConfig(params *biz.SQLEConfig) *dmsCommonV1.S
 	}
 
 	sqlConfig := &dmsCommonV1.SQLEConfig{
+		AuditEnabled:     params.AuditEnabled,
 		RuleTemplateName: params.RuleTemplateName,
 		RuleTemplateID:   params.RuleTemplateID,
 		SQLQueryConfig:   &dmsCommonV1.SQLQueryConfig{},
@@ -110,6 +114,8 @@ func (d *DMSService) buildReplySqleConfig(params *biz.SQLEConfig) *dmsCommonV1.S
 		sqlConfig.SQLQueryConfig.AuditEnabled = params.SQLQueryConfig.AuditEnabled
 		sqlConfig.SQLQueryConfig.MaxPreQueryRows = params.SQLQueryConfig.MaxPreQueryRows
 		sqlConfig.SQLQueryConfig.QueryTimeoutSecond = params.SQLQueryConfig.QueryTimeoutSecond
+		sqlConfig.SQLQueryConfig.RuleTemplateID = params.SQLQueryConfig.RuleTemplateID
+		sqlConfig.SQLQueryConfig.RuleTemplateName = params.SQLQueryConfig.RuleTemplateName
 	}
 
 	return sqlConfig

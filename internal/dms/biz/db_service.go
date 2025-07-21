@@ -133,7 +133,8 @@ func newDBService(args *BizDBServiceArgs) (*DBService, error) {
 		BackupMaxRows:     args.BackupMaxRows,
 	}
 
-	if args.RuleTemplateName != "" {
+	if args.AuditEnabled {
+		dbService.SQLEConfig.AuditEnabled = args.AuditEnabled
 		dbService.SQLEConfig.RuleTemplateID = args.RuleTemplateID
 		dbService.SQLEConfig.RuleTemplateName = args.RuleTemplateName
 	}
@@ -717,6 +718,7 @@ func (d *DBServiceUsecase) UpdateDBServiceByArgs(ctx context.Context, dbServiceU
 		ds.SQLEConfig = &SQLEConfig{}
 		// 支持新增和更新sqleConfig，不允许删除sqle配置
 		if updateDBService.RuleTemplateName != "" {
+			ds.SQLEConfig.AuditEnabled = updateDBService.AuditEnabled
 			ds.SQLEConfig.RuleTemplateID = updateDBService.RuleTemplateID
 			ds.SQLEConfig.RuleTemplateName = updateDBService.RuleTemplateName
 		}
