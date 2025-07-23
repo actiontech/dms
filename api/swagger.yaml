@@ -1114,6 +1114,10 @@ definitions:
                 description: backup switch
                 type: boolean
                 x-go-name: EnableBackup
+            enable_perf_collect:
+                description: sql performance insight
+                type: boolean
+                x-go-name: EnablePerfCollect
             environment_tag_uid:
                 description: DB Service environment tag
                 type: string
@@ -1799,7 +1803,7 @@ definitions:
                 type: array
                 x-go-name: Users
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GetMemberGroupReply:
         properties:
             code:
@@ -1814,7 +1818,7 @@ definitions:
                 type: string
                 x-go-name: Message
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetOauth2ConfigurationResData:
         properties:
             access_token_tag:
@@ -2999,6 +3003,10 @@ definitions:
                 description: backup switch
                 type: boolean
                 x-go-name: EnableBackup
+            enable_perf_collect:
+                description: sql performance insight
+                type: boolean
+                x-go-name: EnablePerfCollect
             environment_tag:
                 $ref: '#/definitions/EnvironmentTag'
             host:
@@ -3366,6 +3374,10 @@ definitions:
                 description: backup switch
                 type: boolean
                 x-go-name: EnableBackup
+            enable_perf_collect:
+                description: sql performance insight
+                type: boolean
+                x-go-name: EnablePerfCollect
             environment_tag:
                 $ref: '#/definitions/EnvironmentTag'
             host:
@@ -3702,14 +3714,6 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberRoleWithOpRange:
         properties:
-            member_group:
-                $ref: '#/definitions/ProjectMemberGroup'
-            op_permissions:
-                description: member op permissions
-                items:
-                    $ref: '#/definitions/UidWithName'
-                type: array
-                x-go-name: OpPermissions
             op_range_type:
                 description: |-
                     op permission range type, only support db service now
@@ -3738,7 +3742,7 @@ definitions:
             role_uid:
                 $ref: '#/definitions/UidWithName'
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ListMemberTipsItem:
         properties:
             user_id:
@@ -5788,6 +5792,10 @@ definitions:
                 description: backup switch
                 type: boolean
                 x-go-name: EnableBackup
+            enable_perf_collect:
+                description: sql performance insight
+                type: boolean
+                x-go-name: EnablePerfCollect
             environment_tag_uid:
                 description: DB Service environment tag
                 type: string
@@ -10477,6 +10485,11 @@ paths:
                   name: filter_by_is_enable_masking
                   type: boolean
                   x-go-name: FilterByIsEnableMasking
+                - description: is enable perf collect
+                  in: query
+                  name: filter_by_is_enable_perf_collect
+                  type: boolean
+                  x-go-name: FilterByIsEnablePerfCollect
                 - description: the db service fuzzy keyword
                   in: query
                   name: fuzzy_keyword
@@ -10715,6 +10728,11 @@ paths:
                   name: is_enable_masking
                   type: boolean
                   x-go-name: IsEnableMasking
+                - description: is enable perf collect
+                  in: query
+                  name: filter_by_is_enable_perf_collect
+                  type: boolean
+                  x-go-name: FilterByIsEnablePerfCollect
             responses:
                 "200":
                     description: ListDBServiceReplyV2
