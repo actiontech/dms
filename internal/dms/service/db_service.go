@@ -336,6 +336,7 @@ func (d *DMSService) AddDBServiceV2(ctx context.Context, req *dmsV2.AddDBService
 		AdditionalParams:  additionalParams,
 		EnableBackup:      req.DBService.EnableBackup,
 		BackupMaxRows:     autoChooseBackupMaxRows(req.DBService.EnableBackup, req.DBService.BackupMaxRows),
+		EnablePerfCollect: req.DBService.EnablePerfCollect,
 	}
 
 	if biz.IsDMS() {
@@ -556,6 +557,14 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV2.ListDB
 		})
 	}
 
+	if req.FilterByIsEnablePerfCollect != nil {
+		filterBy = append(filterBy, pkgConst.FilterCondition{
+			Field:    string(biz.DBServiceFieldEnablePerfCollect),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    *req.FilterByIsEnablePerfCollect,
+		})
+	}
+
 	if biz.IsDMS() && req.IsEnableMasking != nil {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldIsEnableMasking),
@@ -668,6 +677,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV2.ListDB
 			AuditPlanTypes:      u.AuditPlanTypes,
 			EnableBackup:        u.EnableBackup,
 			BackupMaxRows:       u.BackupMaxRows,
+			EnablePerfCollect:   u.EnablePerfCollect,
 		}
 
 		if u.LastConnectionTime != nil {

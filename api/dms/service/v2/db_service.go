@@ -48,6 +48,9 @@ type ListGlobalDBServicesReq struct {
 	// is masking
 	// in:query
 	FilterByIsEnableMasking *bool `query:"filter_by_is_enable_masking" json:"filter_by_is_enable_masking"`
+	// is enable perf collect
+	// in:query
+	FilterByIsEnablePerfCollect *bool `query:"filter_by_is_enable_perf_collect" json:"filter_by_is_enable_perf_collect"`
 	// the db service fuzzy keyword
 	// in:query
 	FuzzyKeyword string `query:"fuzzy_keyword" json:"fuzzy_keyword"`
@@ -133,6 +136,8 @@ type DBService struct {
 	// backup switch
 	// Required: false
 	BackupMaxRows *uint64 `json:"backup_max_rows,omitempty"`
+	// sql performance insight
+	EnablePerfCollect bool `json:"enable_perf_collect"`
 }
 
 // swagger:model AddDBServiceReqV2
@@ -189,6 +194,8 @@ type UpdateDBService struct {
 	// backup switch
 	// Required: false
 	BackupMaxRows *uint64 `json:"backup_max_rows,omitempty"`
+	// sql performance insight
+	EnablePerfCollect bool `json:"enable_perf_collect"`
 }
 
 // swagger:model ImportDBServicesOfOneProjectReqV2
@@ -277,6 +284,8 @@ type ListGlobalDBService struct {
 	// backup switch
 	// Required: false
 	BackupMaxRows uint64 `json:"backup_max_rows"`
+	// sql performance insight
+	EnablePerfCollect bool `json:"enable_perf_collect"`
 	// DB connection test time
 	LastConnectionTestTime strfmt.DateTime `json:"last_connection_test_time"`
 	// DB connect test status

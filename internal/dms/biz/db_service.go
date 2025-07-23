@@ -81,6 +81,8 @@ type DBService struct {
 	InstanceAuditPlanID uint   `json:"instance_audit_plan_id"`
 	EnableBackup        bool   `json:"enable_backup"`
 	BackupMaxRows       uint64 `json:"backup_max_rows"`
+	// sql performance insight
+	EnablePerfCollect bool `json:"enable_perf_collect"`
 }
 
 type DBTypeCount struct {
@@ -135,6 +137,7 @@ func newDBService(args *BizDBServiceArgs) (*DBService, error) {
 		IsMaskingSwitch:   args.IsMaskingSwitch,
 		EnableBackup:      args.EnableBackup,
 		BackupMaxRows:     args.BackupMaxRows,
+		EnablePerfCollect: args.EnablePerfCollect,
 	}
 
 	if args.AuditEnabled {
@@ -220,6 +223,7 @@ type BizDBServiceArgs struct {
 	IsMaskingSwitch            bool
 	EnableBackup               bool
 	BackupMaxRows              uint64
+	EnablePerfCollect          bool
 }
 
 type SQLQueryConfig struct {
@@ -723,6 +727,7 @@ func (d *DBServiceUsecase) UpdateDBServiceByArgs(ctx context.Context, dbServiceU
 		ds.IsMaskingSwitch = updateDBService.IsMaskingSwitch
 		ds.EnableBackup = updateDBService.EnableBackup
 		ds.BackupMaxRows = updateDBService.BackupMaxRows
+		ds.EnablePerfCollect = updateDBService.EnablePerfCollect
 		ds.SQLEConfig = &SQLEConfig{}
 		// 支持新增和更新sqleConfig，不允许删除sqle配置
 		if updateDBService.RuleTemplateName != "" {

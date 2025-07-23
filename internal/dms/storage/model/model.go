@@ -85,6 +85,7 @@ type DBService struct {
 	LastConnectionErrorMsg *string         `json:"last_connection_error_msg"`
 	EnableBackup           bool            `json:"enable_backup" gorm:"column:enable_backup;type:bool"`
 	BackupMaxRows          uint64          `json:"backup_max_rows" gorm:"column:backup_max_rows;not null;default:1000"`
+	EnablePerfCollect      bool            `json:"enable_perf_collect" gorm:"column:enable_perf_collect;type:bool;default:false"`
 	EnvironmentTag         *EnvironmentTag
 }
 

@@ -48,6 +48,7 @@ func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
 		IsEnableMasking:   ds.IsMaskingSwitch,
 		EnableBackup:      ds.EnableBackup,
 		BackupMaxRows:     ds.BackupMaxRows,
+		EnablePerfCollect: ds.EnablePerfCollect,
 	}
 	if ds.EnvironmentTag != nil {
 		dbService.EnvironmentTagUID = ds.EnvironmentTag.UID
@@ -115,6 +116,7 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 		IsMaskingSwitch:   ds.IsEnableMasking,
 		EnableBackup:      ds.EnableBackup,
 		BackupMaxRows:     ds.BackupMaxRows,
+		EnablePerfCollect: ds.EnablePerfCollect,
 	}
 
 	if ds.LastConnectionStatus != nil {

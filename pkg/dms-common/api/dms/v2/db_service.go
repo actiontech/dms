@@ -52,6 +52,9 @@ type ListDBServiceReq struct {
 	// is masking
 	// in:query
 	IsEnableMasking *bool `query:"is_enable_masking" json:"is_enable_masking"`
+	// is enable perf collect
+	// in:query
+	FilterByIsEnablePerfCollect *bool `query:"filter_by_is_enable_perf_collect" json:"filter_by_is_enable_perf_collect"`
 }
 
 // swagger:model ListDBServiceReplyV2
@@ -100,6 +103,8 @@ type ListDBService struct {
 	EnableBackup bool `json:"enable_backup"`
 	// backup max rows
 	BackupMaxRows uint64 `json:"backup_max_rows"`
+	// sql performance insight
+	EnablePerfCollect bool `json:"enable_perf_collect"`
 	// audit plan types
 	AuditPlanTypes []*v1.AuditPlanTypes `json:"audit_plan_types"`
 	// instance audit plan id
