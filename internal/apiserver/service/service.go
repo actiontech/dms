@@ -25,6 +25,7 @@
 package service
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/http"
 
@@ -90,13 +91,32 @@ func (s *APIServer) RunHttpServer(logger utilLog.Logger) error {
 		if s.opts.APIServiceOpts.CertFilePath == "" || s.opts.APIServiceOpts.KeyFilePath == "" {
 			return fmt.Errorf("cert file path and key file path are required on https mode")
 		}
-		if err := s.echo.StartTLS(
-			s.opts.GetAPIServer().GetHTTPAddr(),
-			s.opts.APIServiceOpts.CertFilePath,
-			s.opts.APIServiceOpts.KeyFilePath,
-		); err != nil {
+		// 自定义 TLS 配置
+		tlsConfig := &tls.Config{
+			MinVersion: tls.VersionTLS12, // 禁用 TLS1.0 和 TLS1.1
+			CipherSuites: []uint16{
+				tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+				tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+				tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+				tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+				tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
+				tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
+				// 你可以添加你信任的其他套件，但不要添加 TLS_RSA_WITH_3DES_EDE_CBC_SHA
+			},
+			PreferServerCipherSuites: true,
+		}
+		// 启动 HTTPS 服务器
+		server := &http.Server{
+			Addr:      s.opts.GetAPIServer().GetHTTPAddr(),
+			Handler:   s.echo,
+			TLSConfig: tlsConfig,
+		}
+		err := server.ListenAndServeTLS(s.opts.APIServiceOpts.CertFilePath, s.opts.APIServiceOpts.KeyFilePath)
+		if err != nil {
 			if err != http.ErrServerClosed {
 				return fmt.Errorf("failed to run https server: %v", err)
+			} else {
+				s.DMSController.log.Warnf("failed to run https server,err :%v", err)
 			}
 		}
 	} else {
