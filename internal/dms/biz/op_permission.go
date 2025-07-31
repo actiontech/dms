@@ -42,25 +42,25 @@ const (
 type Module string
 
 const (
-	SQLWorkflow Module = "SQL工单"
-	SQLManage = "SQL管控"
-	SQLDataSource = "数据源管理"
-	SQLWorkBench = "SQL工作台"
-	DataExport = "数据导出"
-	QuickAudit = "快捷审核"
-	VersionManage = "版本管理"
-	CICDIntegration = "CI/CD集成"
-	IDEAudit = "IDE审核"
-	SQLOptimization = "SQL优化"
-	AuditRuleTemplate = "审核规则模板"
-	ApprovalFlowTemplate = "审批流模板管理"
-	MemberMange = "成员与权限"
-	PushRule = "推送规则"
-	AuditSQLWhiteList = "审核SQL例外"
-	SQLMangeWhiteList = "管控SQL例外"
-	RoleMange  = "角色管理"
-	DesensitizationRule = "脱敏规则"
-	AccountManagement = "账号管理"
+	SQLWorkflow          Module = "SQL工单"
+	SQLManage                   = "SQL管控"
+	SQLDataSource               = "数据源管理"
+	SQLWorkBench                = "SQL工作台"
+	DataExport                  = "数据导出"
+	QuickAudit                  = "快捷审核"
+	VersionManage               = "版本管理"
+	CICDIntegration             = "CI/CD集成"
+	IDEAudit                    = "IDE审核"
+	SQLOptimization             = "SQL优化"
+	AuditRuleTemplate           = "审核规则模板"
+	ApprovalFlowTemplate        = "审批流模板管理"
+	MemberMange                 = "成员与权限"
+	PushRule                    = "推送规则"
+	AuditSQLWhiteList           = "审核SQL例外"
+	SQLMangeWhiteList           = "管控SQL例外"
+	RoleMange                   = "角色管理"
+	DesensitizationRule         = "脱敏规则"
+	AccountManagement           = "账号管理"
 )
 
 func ParseOpRangeType(t string) (OpRangeType, error) {
@@ -125,7 +125,7 @@ func initOpPermission() []*OpPermission {
 			UID:       pkgConst.UIDOfOpPermissionAuditWorkflow,
 			Name:      "审批上线工单",
 			RangeType: OpRangeTypeDBService,
-			Module: SQLWorkflow,
+			Module:    SQLWorkflow,
 			Desc:      "审核/驳回工单；拥有该权限的用户可以审核/驳回工单",
 			Service:   v1.ServiceSQLE,
 		},
@@ -133,7 +133,7 @@ func initOpPermission() []*OpPermission {
 			UID:       pkgConst.UIDOfOpPermissionExecuteWorkflow,
 			Name:      "执行上线工单",
 			RangeType: OpRangeTypeDBService,
-			Module: SQLWorkflow,
+			Module:    SQLWorkflow,
 			Desc:      "上线工单；拥有该权限的用户可以上线工单",
 			Service:   v1.ServiceSQLE,
 		},
@@ -141,7 +141,7 @@ func initOpPermission() []*OpPermission {
 			UID:       pkgConst.UIDOfOpPermissionViewOthersWorkflow,
 			Name:      "查看所有工单",
 			RangeType: OpRangeTypeDBService,
-			Module: SQLWorkflow,
+			Module:    SQLWorkflow,
 			Desc:      "查看他人创建的工单；拥有该权限的用户可以查看他人创建的工单",
 			Service:   v1.ServiceSQLE,
 		},
@@ -159,6 +159,14 @@ func initOpPermission() []*OpPermission {
 			RangeType: OpRangeTypeDBService,
 			Module:    SQLManage,
 			Desc:      "查看他人创建的扫描任务；拥有该权限的用户可以查看他人创建的扫描任务",
+			Service:   v1.ServiceSQLE,
+		},
+		{
+			UID:       pkgConst.UIDOfOpPermissionViewSQLInsight,
+			Name:      "查看性能洞察",
+			RangeType: OpRangeTypeDBService,
+			Module:    SQLManage,
+			Desc:      "查看性能洞察；拥有该权限的用户可以查看性能洞察的数据",
 			Service:   v1.ServiceSQLE,
 		},
 		{
@@ -210,116 +218,116 @@ func initOpPermission() []*OpPermission {
 			Service:   v1.ServiceSQLE,
 		},
 		{
-			UID: pkgConst.UIDOfOpPermissionViewOperationRecord,
+			UID:       pkgConst.UIDOfOpPermissionViewOperationRecord,
 			Name:      "查看所有操作记录",
 			RangeType: OpRangeTypeDBService,
-			Module: SQLWorkBench,
+			Module:    SQLWorkBench,
 			Service:   v1.ServiceSQLE,
 		},
 		{
-			UID: pkgConst.UIDOfOpPermissionViewExportTask,
+			UID:       pkgConst.UIDOfOpPermissionViewExportTask,
 			Name:      "查看所有导出任务",
 			RangeType: OpRangeTypeDBService,
-			Module: DataExport,
+			Module:    DataExport,
 			Service:   v1.ServiceSQLE,
 		},
 		{
-			UID: pkgConst.UIDOfPermissionViewQuickAuditRecord,
+			UID:       pkgConst.UIDOfPermissionViewQuickAuditRecord,
 			Name:      "查看所有快捷审核记录",
 			RangeType: OpRangeTypeDBService,
-			Module: QuickAudit,
+			Module:    QuickAudit,
 			Service:   v1.ServiceSQLE,
 		},
 		{
-			UID: pkgConst.UIDOfOpPermissionViewIDEAuditRecord,
+			UID:       pkgConst.UIDOfOpPermissionViewIDEAuditRecord,
 			Name:      "查看所有IDE审核记录",
 			RangeType: OpRangeTypeDBService,
-			Module: IDEAudit,
+			Module:    IDEAudit,
 			Service:   v1.ServiceSQLE,
 		},
 		{
-			UID: pkgConst.UIDOfOpPermissionViewVersionManage,
-			Name: "查看他人创建的版本记录",
+			UID:       pkgConst.UIDOfOpPermissionViewVersionManage,
+			Name:      "查看他人创建的版本记录",
 			RangeType: OpRangeTypeDBService,
-			Module: VersionManage,
-			Service:  v1.ServiceSQLE,
+			Module:    VersionManage,
+			Service:   v1.ServiceSQLE,
 		},
 		{
-			UID: pkgConst.UIDOfOpPermissionVersionManage,
+			UID:       pkgConst.UIDOfOpPermissionVersionManage,
 			Name:      "配置版本",
 			RangeType: OpRangeTypeDBService,
-			Module: VersionManage,
+			Module:    VersionManage,
 			Service:   v1.ServiceSQLE,
 		},
 		{
-			UID: pkgConst.UIdOfOpPermissionViewPipeline,
+			UID:       pkgConst.UIdOfOpPermissionViewPipeline,
 			Name:      "查看所有流水线",
 			RangeType: OpRangeTypeDBService,
-			Module: CICDIntegration,
+			Module:    CICDIntegration,
 			Service:   v1.ServiceSQLE,
 		},
 		{
-			UID: pkgConst.UIdOfOpPermissionManageProjectDataSource,
+			UID:       pkgConst.UIdOfOpPermissionManageProjectDataSource,
 			Name:      "管理项目数据源",
 			RangeType: OpRangeTypeProject,
-			Module: SQLDataSource,
+			Module:    SQLDataSource,
 			Service:   v1.ServiceSQLE,
 		},
 		{
-			UID: pkgConst.UIdOfOpPermissionManageAuditRuleTemplate,
+			UID:       pkgConst.UIdOfOpPermissionManageAuditRuleTemplate,
 			Name:      "管理审核规则模版",
 			RangeType: OpRangeTypeProject,
-			Module: AuditRuleTemplate,
+			Module:    AuditRuleTemplate,
 			Service:   v1.ServiceSQLE,
 		},
 		{
-			UID: pkgConst.UIdOfOpPermissionManageApprovalTemplate,
-			Name: "管理审批流程模版",
+			UID:       pkgConst.UIdOfOpPermissionManageApprovalTemplate,
+			Name:      "管理审批流程模版",
 			RangeType: OpRangeTypeProject,
-			Module: ApprovalFlowTemplate,
+			Module:    ApprovalFlowTemplate,
 			Service:   v1.ServiceSQLE,
 		},
 		{
-			UID: pkgConst.UIdOfOpPermissionManageMember,
-			Name: "管理成员与权限",
+			UID:       pkgConst.UIdOfOpPermissionManageMember,
+			Name:      "管理成员与权限",
 			RangeType: OpRangeTypeProject,
-			Module: MemberMange,
+			Module:    MemberMange,
 			Service:   v1.ServiceSQLE,
 		},
 		{
-			UID: pkgConst.UIdOfOpPermissionPushRule,
-			Name: "管理推送规则",
+			UID:       pkgConst.UIdOfOpPermissionPushRule,
+			Name:      "管理推送规则",
 			RangeType: OpRangeTypeProject,
-			Module: PushRule ,
+			Module:    PushRule,
 			Service:   v1.ServiceSQLE,
 		},
 		{
-			UID: pkgConst.UIdOfOpPermissionMangeAuditSQLWhiteList,
-			Name: "审核SQL例外",
+			UID:       pkgConst.UIdOfOpPermissionMangeAuditSQLWhiteList,
+			Name:      "审核SQL例外",
 			RangeType: OpRangeTypeProject,
-			Module: AuditSQLWhiteList,
+			Module:    AuditSQLWhiteList,
 			Service:   v1.ServiceSQLE,
 		},
 		{
-			UID: pkgConst.UIdOfOpPermissionManageSQLMangeWhiteList,
-			Name: "管控SQL例外",
+			UID:       pkgConst.UIdOfOpPermissionManageSQLMangeWhiteList,
+			Name:      "管控SQL例外",
 			RangeType: OpRangeTypeProject,
-			Module: SQLMangeWhiteList,
+			Module:    SQLMangeWhiteList,
 			Service:   v1.ServiceSQLE,
 		},
 		{
-			UID: pkgConst.UIdOfOpPermissionManageRoleMange,
-			Name: "角色管理权限",
+			UID:       pkgConst.UIdOfOpPermissionManageRoleMange,
+			Name:      "角色管理权限",
 			RangeType: OpRangeTypeProject,
-		 	Module: RoleMange,
-			Service: v1.ServiceDMS,
+			Module:    RoleMange,
+			Service:   v1.ServiceDMS,
 		},
 		{
-			UID: pkgConst.UIdOfOpPermissionDesensitization,
-			Name: "脱敏规则配置权限",
+			UID:       pkgConst.UIdOfOpPermissionDesensitization,
+			Name:      "脱敏规则配置权限",
 			RangeType: OpRangeTypeProject,
-			Module: DesensitizationRule,
-			Service: v1.ServiceDMS,
+			Module:    DesensitizationRule,
+			Service:   v1.ServiceDMS,
 		},
 	}
 }
@@ -470,7 +478,7 @@ func (d *OpPermissionUsecase) ListProjectOpPermissions(ctx context.Context, opt 
 	opt.FilterBy = append(opt.FilterBy, pkgConst.FilterCondition{
 		Field:    string(OpPermissionFieldUID),
 		Operator: pkgConst.FilterOperatorNotEqual,
-		Value: pkgConst.UIDOfOpPermissionProjectAdmin,
+		Value:    pkgConst.UIDOfOpPermissionProjectAdmin,
 	})
 
 	ops, total, err = d.repo.ListOpPermissions(ctx, opt)
