@@ -672,6 +672,8 @@ func convertBizOpPermission(opPermissionUid string) (apiOpPermissionTyp dmsCommo
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeSaveAuditPlan
 	case pkgConst.UIDOfOpPermissionViewOthersAuditPlan:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeViewOtherAuditPlan
+	case pkgConst.UIDOfOpPermissionViewSQLInsight:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeViewSQLInsight
 	case pkgConst.UIDOfOpPermissionSQLQuery:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeSQLQuery
 	case pkgConst.UIDOfOpPermissionExportApprovalReject:

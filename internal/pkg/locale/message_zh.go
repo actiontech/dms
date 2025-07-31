@@ -32,6 +32,7 @@ var (
 	NameOpPermissionExecuteWorkflow         = &i18n.Message{ID: "NameOpPermissionExecuteWorkflow", Other: "执行上线工单"}
 	NameOpPermissionViewOthersWorkflow      = &i18n.Message{ID: "NameOpPermissionViewOthersWorkflow", Other: "查看所有工单"}
 	NameOpPermissionViewOthersAuditPlan     = &i18n.Message{ID: "NameOpPermissionViewOthersAuditPlan", Other: "访问所有管控SQL"}
+	NameOpPermissionViewSQLInsight          = &i18n.Message{ID: "NameOpPermissionViewSQLInsight", Other: "查看性能洞察"}
 	NameOpPermissionSaveAuditPlan           = &i18n.Message{ID: "NameOpPermissionSaveAuditPlan", Other: "配置SQL管控"}
 	NameOpPermissionSQLQuery                = &i18n.Message{ID: "NameOpPermissionSQLQuery", Other: "SQL工作台操作权限"}
 	NameOpPermissionExportApprovalReject    = &i18n.Message{ID: "NameOpPermissionExportApprovalReject", Other: "审批导出工单"}
@@ -71,6 +72,7 @@ var (
 	DescOpPermissionExecuteWorkflow        = &i18n.Message{ID: "DescOpPermissionExecuteWorkflow", Other: "上线工单；拥有该权限的用户可以上线工单"}
 	DescOpPermissionViewOthersWorkflow     = &i18n.Message{ID: "DescOpPermissionViewOthersWorkflow", Other: "查看他人创建的工单；拥有该权限的用户可以查看他人创建的工单"}
 	DescOpPermissionViewOthersAuditPlan    = &i18n.Message{ID: "DescOpPermissionViewOthersAuditPlan", Other: "查看他人创建的扫描任务；拥有该权限的用户可以查看他人创建的扫描任务"}
+	DescOpPermissionViewSQLInsight         = &i18n.Message{ID: "DescOpPermissionViewSQLInsight", Other: "查看性能洞察；拥有该权限的用户可以查看性能洞察的数据"}
 	DescOpPermissionSaveAuditPlan          = &i18n.Message{ID: "DescOpPermissionSaveAuditPlan", Other: "创建/编辑扫描任务；拥有该权限的用户可以创建/编辑扫描任务"}
 	DescOpPermissionSQLQuery               = &i18n.Message{ID: "DescOpPermissionSQLQuery", Other: "SQL工作台查询；拥有该权限的用户可以执行SQL工作台查询"}
 	DescOpPermissionExportApprovalReject   = &i18n.Message{ID: "DescOpPermissionExportApprovalReject", Other: "审批/驳回数据导出工单；拥有该权限的用户可以执行审批导出数据工单或者驳回导出数据工单"}
