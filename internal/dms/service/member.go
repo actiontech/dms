@@ -163,7 +163,8 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq, 
 		if err != nil {
 			return nil, err
 		}
-		projectManagePermissions := make([]dmsV1.ProjectManagePermission, 0,len(m.OpPermissions))
+		projectManagePermissions := make([]dmsV1.ProjectManagePermission, 0, len(m.OpPermissions))
+		projectManagePermissionMap := make(map[string]struct{}, len(m.OpPermissions))
 		memberGroupRoleWithOpRanges := make([]dmsV1.ListMemberRoleWithOpRange, 0)
 		// 转换所有用户组的RoleWithOpRanges
 		for _, memberGroup := range memberGroups {
@@ -174,15 +175,20 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq, 
 			memberGroupRoleWithOpRanges = append(memberGroupRoleWithOpRanges, memberRoleWithOpRanges...)
 			for _, permission := range memberGroup.OpPermissions {
 				projectManagePermissions = append(projectManagePermissions, dmsV1.ProjectManagePermission{
-					Uid:  permission.GetUID(),
-					Name: locale.Bundle.LocalizeMsgByCtx(ctx, OpPermissionNameByUID[permission.GetUID()]),
+					Uid:         permission.GetUID(),
+					Name:        locale.Bundle.LocalizeMsgByCtx(ctx, OpPermissionNameByUID[permission.GetUID()]),
 					MemberGroup: memberGroup.Name,
 				})
+				projectManagePermissionMap[permission.GetUID()] = struct{}{}
 			}
 		}
 
 		projectOpPermissions := d.aggregateRoleByDataSource(roleWithOpRanges, memberGroupRoleWithOpRanges)
 		for _, permission := range m.OpPermissions {
+			// 如果成员组中已经有了项目权限那么就跳过,避免权限重复展示
+			if _, exist := projectManagePermissionMap[permission.GetUID()]; exist {
+				continue
+			}
 			projectManagePermissions = append(projectManagePermissions, dmsV1.ProjectManagePermission{
 				Uid:  permission.GetUID(),
 				Name: locale.Bundle.LocalizeMsgByCtx(ctx, OpPermissionNameByUID[permission.GetUID()]),
