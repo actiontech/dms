@@ -169,7 +169,22 @@ func (d *MemberGroupRepo) GetMemberGroupsByUserIDAndProjectID(ctx context.Contex
 
 func (d *MemberGroupRepo) ReplaceOpPermissionsInMemberGroup(ctx context.Context, memberGroupUid string, opPermissionUids []string) error {
 	if len(opPermissionUids) == 0 {
-		return nil
+		// delete all op permissions when op permission uids is empty
+		return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+			memberGroup := &model.MemberGroup{Model: model.Model{UID: memberGroupUid}}
+			if err := tx.WithContext(ctx).Where("uid = ?", memberGroupUid).First(memberGroup).Error; err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return fmt.Errorf("member group not found: %v", err)
+				}
+				return fmt.Errorf("failed to query member group existence: %v", err)
+			}
+
+			err := tx.WithContext(ctx).Model(memberGroup).Association("OpPermissions").Clear()
+			if err != nil {
+				return fmt.Errorf("failed to delete op permissions: %v", err)
+			}
+			return nil
+		})
 	}
 	var ops []*model.OpPermission
 	for _, u := range opPermissionUids {
