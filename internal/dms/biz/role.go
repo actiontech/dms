@@ -35,10 +35,10 @@ func ParseRoleStat(stat uint) (RoleStat, error) {
 type Role struct {
 	Base
 
-	UID  string
-	Name string
-	Desc string
-	Stat RoleStat
+	UID           string
+	Name          string
+	Desc          string
+	Stat          RoleStat
 	OpPermissions []*OpPermission
 }
 
@@ -173,6 +173,7 @@ func (s OpsEngineerPermissionsStrategy) GetPermissions() []string {
 		pkgConst.UIDOfOpPermissionSaveAuditPlan,
 		pkgConst.UIDOfOpPermissionViewOthersAuditPlan,
 		pkgConst.UIDOfOpPermissionExportCreate,
+		pkgConst.UIDOfOpPermissionViewSQLInsight,
 	}
 }
 
