@@ -181,7 +181,7 @@ func (d *MemberGroupRepo) ReplaceOpPermissionsInMemberGroup(ctx context.Context,
 
 			err := tx.WithContext(ctx).Model(memberGroup).Association("OpPermissions").Clear()
 			if err != nil {
-				return fmt.Errorf("failed to delete op permissions")
+				return fmt.Errorf("failed to delete op permissions: %v", err)
 			}
 			return nil
 		})
