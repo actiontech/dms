@@ -168,10 +168,11 @@ const (
 )
 
 var SupportedDataExportDBTypes = map[DBType]struct{}{
-	DBTypeMySQL:      {},
-	DBTypePostgreSQL: {},
-	DBTypeOracle:     {},
-	DBTypeSQLServer:  {},
+	DBTypeMySQL:          {},
+	DBTypePostgreSQL:     {},
+	DBTypeOracle:         {},
+	DBTypeSQLServer:      {},
+	DBTypeOceanBaseMySQL: {},
 }
 
 type FilterCondition struct {
