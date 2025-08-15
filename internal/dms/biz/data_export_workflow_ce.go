@@ -47,7 +47,7 @@ func (d *DataExportWorkflowUsecase) AddDataExportTasks(ctx context.Context, proj
 	return nil, errNotDataExportTask
 }
 
-func (d *DataExportWorkflowUsecase) BatchGetDataExportTask(ctx context.Context, taskUids []string, currentUserId string) ([]*DataExportTask, error) {
+func (d *DataExportWorkflowUsecase) BatchGetDataExportTask(ctx context.Context, taskUids []string) ([]*DataExportTask, error) {
 	return nil, errNotDataExportTask
 }
 
