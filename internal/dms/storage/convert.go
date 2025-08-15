@@ -1005,6 +1005,7 @@ func convertModelWorkflow(m *model.Workflow) (w *biz.Workflow, err error) {
 		CreateTime:        *m.CreateTime,
 		CreateUserUID:     m.CreateUserUID,
 		WorkflowRecordUid: m.WorkflowRecordUid,
+		TaskIds:           m.GetTaskIds(),
 	}
 	if m.WorkflowRecord != nil {
 		w.WorkflowRecord, err = convertModelWorkflowRecord(m.WorkflowRecord)
@@ -1047,6 +1048,11 @@ func convertModelWorkflowRecord(m *model.WorkflowRecord) (wr *biz.WorkflowRecord
 		Status:                biz.DataExportWorkflowStatus(m.Status),
 		Tasks:                 make([]biz.Task, 0),
 		CurrentWorkflowStepId: m.CurrentWorkflowStepId,
+		CurrentStep:           convertModelWorkflowStep(m, m.CurrentWorkflowStepId),
+	}
+
+	if len(m.Steps) != 0 {
+		wr.CurrentStep = convertModelWorkflowStep(m, m.CurrentWorkflowStepId)
 	}
 	if m.Steps != nil {
 		wr.WorkflowSteps = make([]*biz.WorkflowStep, 0)
@@ -1077,8 +1083,24 @@ func convertBizWorkflowStep(b *biz.WorkflowStep) *model.WorkflowStep {
 	}
 }
 
-func convertModelWorkflowStep(m *model.WorkflowStep) (*biz.WorkflowStep, error) {
-	return &biz.WorkflowStep{}, nil
+func convertModelWorkflowStep(workflowRecord *model.WorkflowRecord, currentWorkflowStepId uint64) *biz.WorkflowStep {
+	if len(workflowRecord.Steps) == 0 {
+		return nil
+	}
+	for _, step := range workflowRecord.Steps {
+		if step.StepId == currentWorkflowStepId {
+			return &biz.WorkflowStep{
+				StepId:            step.StepId,
+				WorkflowRecordUid: step.WorkflowRecordUid,
+				OperationUserUid:  step.OperationUserUid,
+				OperateAt:         step.OperateAt,
+				State:             step.State,
+				Reason:            step.Reason,
+				Assignees:         step.Assignees,
+			}
+		}
+	}
+	return nil
 }
 
 func convertBizDataExportTask(b *biz.DataExportTask) *model.DataExportTask {
