@@ -61,8 +61,13 @@ type Workflow struct {
 	Status            string
 	WorkflowRecordUid string
 	Tasks             []Task
+	TaskIds           []string
 
 	WorkflowRecord *WorkflowRecord
+}
+
+func (w *Workflow) FinalStep() *WorkflowStep {
+	return w.WorkflowRecord.WorkflowSteps[len(w.WorkflowRecord.WorkflowSteps)-1]
 }
 
 type Task struct {
@@ -74,6 +79,7 @@ type WorkflowRecord struct {
 	Status                DataExportWorkflowStatus
 	Tasks                 []Task
 	CurrentWorkflowStepId uint64
+	CurrentStep           *WorkflowStep
 	WorkflowSteps         []*WorkflowStep
 }
 

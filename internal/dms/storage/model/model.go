@@ -458,6 +458,14 @@ type Workflow struct {
 	WorkflowRecord *WorkflowRecord `gorm:"foreignkey:WorkflowUid"`
 }
 
+func (w *Workflow) GetTaskIds() Strings {
+	return w.WorkflowRecord.TaskIds
+}
+
+func (w *Workflow) FinalStep() *WorkflowStep {
+	return w.WorkflowRecord.Steps[len(w.WorkflowRecord.Steps)-1]
+}
+
 type WorkflowRecord struct {
 	Model
 	WorkflowUid           string  `json:"workflow_uid" gorm:"size:32" `
