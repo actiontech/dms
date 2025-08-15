@@ -3845,11 +3845,7 @@ func (ctl *DMSController) BatchGetDataExportTask(c echo.Context) error {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-	reply, err := ctl.DMS.BatchGetDataExportTask(c.Request().Context(), req, currentUserUid)
+	reply, err := ctl.DMS.BatchGetDataExportTask(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
