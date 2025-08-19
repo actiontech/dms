@@ -42,8 +42,16 @@ type DataExportTask struct {
 	ExportStatus    DataExportTaskStatus
 	ExportStartTime *time.Time
 	ExportEndTime   *time.Time
+	DbService       *DBService
 
 	DataExportTaskRecords []*DataExportTaskRecord
+}
+
+func (t *DataExportTask) InstanceName() string {
+	if t.DbService != nil {
+		return t.DbService.Name
+	}
+	return ""
 }
 
 type DataExportTaskRecord struct {

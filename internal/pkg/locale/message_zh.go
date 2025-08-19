@@ -53,7 +53,7 @@ var (
 	NameOpPermissionViewPipeline            = &i18n.Message{ID: "NameOpPermissionViewPipeline", Other: "查看所有流水线"}
 	NameOpPermissionManageProjectDataSource = &i18n.Message{ID: "NameOpPermissionManageProjectDataSource", Other: "管理项目数据源"}
 	NameOpPermissionManageAuditRuleTemplate = &i18n.Message{ID: "NameOpPermissionManageAuditRuleTemplate", Other: "管理审核规则模版"}
-	NameOpPermissionManageApprovalTemplate  = &i18n.Message{ID: "NameOpPermissionManageApprovalTemplate", Other: "管理审批流程模版'"}
+	NameOpPermissionManageApprovalTemplate  = &i18n.Message{ID: "NameOpPermissionManageApprovalTemplate", Other: "管理审批流程模版"}
 	NameOpPermissionManageMember            = &i18n.Message{ID: "NameOpPermissionManageMember", Other: "管理成员与权限"}
 	NameOpPermissionPushRule                = &i18n.Message{ID: "NameOpPermissionPushRule", Other: "管理推送规则"}
 	NameOpPermissionMangeAuditSQLWhiteList  = &i18n.Message{ID: "NameOpPermissionMangeAuditSQLWhiteList", Other: "审核SQL例外"}
