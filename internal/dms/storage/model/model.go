@@ -56,6 +56,7 @@ var AutoMigrateList = []interface{}{
 	CbOperationLog{},
 	EnvironmentTag{},
 	Gateway{},
+	SystemVariable{},
 }
 
 type Model struct {
@@ -677,4 +678,9 @@ type Gateway struct {
 	Name        string `gorm:"type:varchar(100);unique;column:name"`
 	Description string `gorm:"type:varchar(255);column:description"`
 	Address     string `gorm:"type:varchar(255);column:address"`
+}
+
+type SystemVariable struct {
+	Key   string `gorm:"primary_key"`
+	Value string `gorm:"not null;type:text"`
 }
