@@ -4681,15 +4681,14 @@ func (ctl *DMSController) GetSystemVariables(c echo.Context) error {
 //       "$ref": "#/definitions/UpdateSystemVariablesReqV1"
 //
 // responses:
-//
-//	'200':
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
-//	default:
-//	  description: GenericResp
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (ctl *DMSController) UpdateSystemVariables(c echo.Context) error {
 	req := new(aV1.UpdateSystemVariablesReqV1)
 	err := bindAndValidateReq(c, req)
