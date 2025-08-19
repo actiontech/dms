@@ -3845,11 +3845,7 @@ func (ctl *DMSController) BatchGetDataExportTask(c echo.Context) error {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-	reply, err := ctl.DMS.BatchGetDataExportTask(c.Request().Context(), req, currentUserUid)
+	reply, err := ctl.DMS.BatchGetDataExportTask(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -4680,22 +4676,63 @@ func (ctl *DMSController)AddGateway(c echo.Context) error {
 	return NewOkResp(c)
 }
 
+// swagger:route GET /v1/dms/configurations/system_variables Configuration GetSystemVariables
+//
+// 获取系统变量配置
+//
+//	responses:
+//	  200: body:GetSystemVariablesReply
+//	  default: body:GenericResp
+func (ctl *DMSController) GetSystemVariables(c echo.Context) error {
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	reply, err := ctl.DMS.GetSystemVariables(c.Request().Context(), currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
 
+// swagger:operation PATCH /v1/dms/configurations/system_variables Configuration UpdateSystemVariables
+//
+// 更新系统变量配置
+//
+// ---
+// parameters:
+//   - name: system_variables
+//     description: 更新系统变量配置
+//     required: true
+//     in: body
+//     schema:
+//       "$ref": "#/definitions/UpdateSystemVariablesReqV1"
+//
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) UpdateSystemVariables(c echo.Context) error {
+	req := new(aV1.UpdateSystemVariablesReqV1)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
 
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	err = ctl.DMS.UpdateSystemVariables(c.Request().Context(), req, currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkResp(c)
+}

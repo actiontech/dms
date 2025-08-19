@@ -202,9 +202,9 @@ func (d *DMSService) AddDataExportTask(ctx context.Context, req *dmsV1.AddDataEx
 	}, nil
 }
 
-func (d *DMSService) BatchGetDataExportTask(ctx context.Context, req *dmsV1.BatchGetDataExportTaskReq, currentUserUid string) (reply *dmsV1.BatchGetDataExportTaskReply, err error) {
+func (d *DMSService) BatchGetDataExportTask(ctx context.Context, req *dmsV1.BatchGetDataExportTaskReq) (reply *dmsV1.BatchGetDataExportTaskReply, err error) {
 	taskUids := strings.Split(req.TaskUids, ",")
-	tasks, err := d.DataExportWorkflowUsecase.BatchGetDataExportTask(ctx, taskUids, currentUserUid)
+	tasks, err := d.DataExportWorkflowUsecase.BatchGetDataExportTask(ctx, taskUids)
 	if err != nil {
 		return nil, fmt.Errorf("get data export workflow error: %v", err)
 	}
