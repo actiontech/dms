@@ -4707,7 +4707,7 @@ func (ctl *DMSController) GetSystemVariables(c echo.Context) error {
 //     required: true
 //     in: body
 //     schema:
-//     "$ref": "#/definitions/UpdateSystemVariablesReqV1"
+//       "$ref": "#/definitions/UpdateSystemVariablesReqV1"
 //
 // responses:
 //
