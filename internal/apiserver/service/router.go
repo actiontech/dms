@@ -201,11 +201,13 @@ func (s *APIServer) initRouter() error {
 		configurationV1.POST("/sms/send_code", s.DMSController.SendSmsCode)
 		configurationV1.POST("/sms/verify_code", s.DMSController.VerifySmsCode)
 
-		configurationV1.GET("/license", s.DMSController.GetLicense)            /* TODO AdminUserAllowed()*/
-		configurationV1.POST("/license", s.DMSController.SetLicense)           /* TODO AdminUserAllowed()*/
-		configurationV1.GET("/license/info", s.DMSController.GetLicenseInfo)   /* TODO AdminUserAllowed()*/
-		configurationV1.POST("/license/check", s.DMSController.CheckLicense)   /* TODO AdminUserAllowed()*/
-		configurationV1.GET("/license/usage", s.DMSController.GetLicenseUsage) /* TODO AdminUserAllowed()*/
+		configurationV1.GET("/license", s.DMSController.GetLicense)                       /* TODO AdminUserAllowed()*/
+		configurationV1.POST("/license", s.DMSController.SetLicense)                      /* TODO AdminUserAllowed()*/
+		configurationV1.GET("/license/info", s.DMSController.GetLicenseInfo)              /* TODO AdminUserAllowed()*/
+		configurationV1.POST("/license/check", s.DMSController.CheckLicense)              /* TODO AdminUserAllowed()*/
+		configurationV1.GET("/license/usage", s.DMSController.GetLicenseUsage)            /* TODO AdminUserAllowed()*/
+		configurationV1.GET("/system_variables", s.DMSController.GetSystemVariables)      /* TODO AdminUserAllowed()*/
+		configurationV1.PATCH("/system_variables", s.DMSController.UpdateSystemVariables) /* TODO AdminUserAllowed()*/
 		// notify
 		notificationV1 := v1.Group(dmsV1.NotificationRouterGroup)
 		notificationV1.POST("", s.DMSController.Notify) /* TODO AdminUserAllowed()*/
