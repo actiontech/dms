@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
@@ -564,4 +565,89 @@ func (d *DMSService) WebHookSendMessage(ctx context.Context, req *dmsCommonV1.We
 	}()
 
 	return d.WebHookConfigurationUsecase.SendWebHookMessage(ctx, string(req.WebHookMessage.TriggerEventType), req.WebHookMessage.Message)
+}
+
+// GetSystemVariables 获取系统变量
+func (d *DMSService) GetSystemVariables(ctx context.Context, currentUserUid string) (reply *dmsV1.GetSystemVariablesReply, err error) {
+	d.log.Infof("GetSystemVariables")
+	defer func() {
+		d.log.Infof("GetSystemVariables.reply=%v;error=%v", reply, err)
+	}()
+
+	canViewGlobal, err := d.OpPermissionVerifyUsecase.CanViewGlobal(ctx, currentUserUid)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check user can view global")
+	}
+	if !canViewGlobal {
+		return nil, fmt.Errorf("user can not get system variables")
+	}
+
+	variables, err := d.SystemVariableUsecase.GetSystemVariables(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	operationRecordExpiredHours, err := strconv.Atoi(variables[biz.SystemVariableOperationRecordExpiredHours].Value)
+	if err != nil {
+		return nil, err
+	}
+
+	cbOperationLogsExpiredHours, err := strconv.Atoi(variables[biz.SystemVariableCbOperationLogsExpiredHours].Value)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dmsV1.GetSystemVariablesReply{
+		Data: dmsV1.SystemVariablesResV1{
+			Url:                         variables[biz.SystemVariableSqleUrl].Value,
+			OperationRecordExpiredHours: operationRecordExpiredHours,
+			CbOperationLogsExpiredHours: cbOperationLogsExpiredHours,
+		},
+	}, nil
+}
+
+// UpdateSystemVariables 更新系统变量
+func (d *DMSService) UpdateSystemVariables(ctx context.Context, req *dmsV1.UpdateSystemVariablesReqV1, currentUserUid string) (err error) {
+	d.log.Infof("UpdateSystemVariables.req=%v", req)
+	defer func() {
+		d.log.Infof("UpdateSystemVariables.req=%v;error=%v", req, err)
+	}()
+
+	canOpGlobal, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid)
+	if err != nil {
+		return fmt.Errorf("failed to check user can op global")
+	}
+	if !canOpGlobal {
+		return fmt.Errorf("user can not update system variables")
+	}
+
+	// 构建要更新的系统变量列表
+	var variables []*biz.SystemVariable
+
+	if req.Url != nil {
+		variables = append(variables, &biz.SystemVariable{
+			Key:   biz.SystemVariableSqleUrl,
+			Value: *req.Url,
+		})
+	}
+
+	if req.OperationRecordExpiredHours != nil {
+		variables = append(variables, &biz.SystemVariable{
+			Key:   biz.SystemVariableOperationRecordExpiredHours,
+			Value: fmt.Sprintf("%d", *req.OperationRecordExpiredHours),
+		})
+	}
+
+	if req.CbOperationLogsExpiredHours != nil {
+		variables = append(variables, &biz.SystemVariable{
+			Key:   biz.SystemVariableCbOperationLogsExpiredHours,
+			Value: fmt.Sprintf("%d", *req.CbOperationLogsExpiredHours),
+		})
+	}
+
+	if len(variables) == 0 {
+		return nil // 没有需要更新的变量
+	}
+
+	return d.SystemVariableUsecase.UpdateSystemVariables(ctx, variables)
 }
