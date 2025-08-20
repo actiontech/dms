@@ -7,6 +7,7 @@ import (
 )
 
 const (
+	SystemVariableSqlManageRawExpiredHours    = "system_variable_sql_manage_raw_expired_hours"
 	SystemVariableWorkflowExpiredHours        = "system_variable_workflow_expired_hours"
 	SystemVariableSqleUrl                     = "system_variable_sqle_url"
 	SystemVariableOperationRecordExpiredHours = "system_variable_operation_record_expired_hours"
@@ -17,7 +18,8 @@ const (
 const (
 	DefaultOperationRecordExpiredHours        = 90 * 24
 	DefaultCbOperationLogsExpiredHours        = 90 * 24
-	DefaultSystemVariableWorkflowExpiredHours = 90 * 24
+	DefaultSystemVariableWorkflowExpiredHours  = 30 * 24
+	DefaultSystemVariableSqlManageRawExpiredHours= 30 * 24
 )
 
 // SystemVariable 系统变量业务模型
