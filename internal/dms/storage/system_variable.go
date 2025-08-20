@@ -64,7 +64,7 @@ func (s *SystemVariableRepo) UpdateSystemVariables(ctx context.Context, variable
 
 // convertModelSystemVariables 转换存储模型到业务模型
 func convertModelSystemVariables(variables []*model.SystemVariable) map[string]biz.SystemVariable {
-	sysVariables := make(map[string] biz.SystemVariable, len(variables))
+	sysVariables := make(map[string]biz.SystemVariable, len(variables))
 	for _, sv := range variables {
 		sysVariables[sv.Key] = biz.SystemVariable{
 			Key:   sv.Key,
@@ -86,6 +86,12 @@ func convertModelSystemVariables(variables []*model.SystemVariable) map[string]b
 		}
 	}
 
+	if _, ok := sysVariables[biz.SystemVariableWorkflowExpiredHours]; !ok {
+		sysVariables[biz.SystemVariableWorkflowExpiredHours] = biz.SystemVariable{
+			Key:   biz.SystemVariableWorkflowExpiredHours,
+			Value: strconv.Itoa(biz.DefaultSystemVariableWorkflowExpiredHours),
+		}
+	}
+
 	return sysVariables
 }
-
