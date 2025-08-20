@@ -140,11 +140,10 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	dataExportTaskRepo := storage.NewDataExportTaskRepo(logger, st)
 
 	swaggerUseCase := biz.NewSwaggerUseCase(logger, dmsProxyUsecase)
-
-	cbOperationRepo := storage.NewCbOperationLogRepo(logger, st)
-	CbOperationLogUsecase := biz.NewCbOperationLogUsecase(logger, cbOperationRepo, opPermissionVerifyUsecase, dmsProxyTargetRepo)
-	workflowRepo := storage.NewWorkflowRepo(logger, st)
 	systemVariableUsecase := biz.NewSystemVariableUsecase(logger, storage.NewSystemVariableRepo(logger, st))
+	cbOperationRepo := storage.NewCbOperationLogRepo(logger, st)
+	CbOperationLogUsecase := biz.NewCbOperationLogUsecase(logger, cbOperationRepo, opPermissionVerifyUsecase, dmsProxyTargetRepo, systemVariableUsecase)
+	workflowRepo := storage.NewWorkflowRepo(logger, st)
 	DataExportWorkflowUsecase := biz.NewDataExportWorkflowUsecase(logger, tx, workflowRepo, dataExportTaskRepo, dbServiceRepo, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, clusterUsecase, webhookConfigurationUsecase, userUsecase, systemVariableUsecase, fmt.Sprintf("%s:%d", opts.ReportHost, opts.APIServiceOpts.Port))
 	dataMasking, err := maskingBiz.NewDataMaskingUseCase(logger)
 	authAccessTokenUsecase := biz.NewAuthAccessTokenUsecase(logger, userUsecase)
