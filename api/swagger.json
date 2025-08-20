@@ -8788,7 +8788,7 @@
           "x-go-name": "Users"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetMemberGroupReply": {
       "type": "object",
@@ -12920,6 +12920,15 @@
           "format": "int64",
           "x-go-name": "OperationRecordExpiredHours"
         },
+        "system_variable_ssh_primary_key": {
+          "type": "string",
+          "x-go-name": "SystemVariableSSHPrimaryKey"
+        },
+        "system_variable_workflow_expired_hours": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "SystemVariableWorkflowExpiredHours"
+        },
         "url": {
           "type": "string",
           "x-go-name": "Url"
@@ -13260,7 +13269,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateBusinessTagReq": {
       "type": "object",
@@ -13935,6 +13944,15 @@
           "type": "integer",
           "format": "int64",
           "x-go-name": "OperationRecordExpiredHours"
+        },
+        "system_variable_ssh_primary_key": {
+          "type": "string",
+          "x-go-name": "SystemVariableSSHPrimaryKey"
+        },
+        "system_variable_workflow_expired_hours": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "SystemVariableWorkflowExpiredHours"
         },
         "url": {
           "type": "string",
