@@ -100,15 +100,17 @@ type CbOperationLogUsecase struct {
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	repo                      CbOperationLogRepo
 	dmsProxyTargetRepo        ProxyTargetRepo
+	systemVariableUsecase     *SystemVariableUsecase
 	log                       *utilLog.Helper
 }
 
 // NewCbOperationLogUsecase 创建一个新的操作日志业务逻辑实例
-func NewCbOperationLogUsecase(logger utilLog.Logger, repo CbOperationLogRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, proxyTargetRepo ProxyTargetRepo) *CbOperationLogUsecase {
+func NewCbOperationLogUsecase(logger utilLog.Logger, repo CbOperationLogRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, proxyTargetRepo ProxyTargetRepo, systemVariableUsecase *SystemVariableUsecase) *CbOperationLogUsecase {
 	return &CbOperationLogUsecase{
 		repo:                      repo,
 		log:                       utilLog.NewHelper(logger, utilLog.WithMessageKey("biz.cbOperationLog")),
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 		dmsProxyTargetRepo:        proxyTargetRepo,
+		systemVariableUsecase:     systemVariableUsecase,
 	}
 }
