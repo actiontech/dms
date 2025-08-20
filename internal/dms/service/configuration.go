@@ -660,7 +660,7 @@ func (d *DMSService) UpdateSystemVariables(ctx context.Context, req *dmsCommonV1
 	if req.SystemVariableWorkflowExpiredHours != nil {
 		variables = append(variables, &biz.SystemVariable{
 			Key:   biz.SystemVariableWorkflowExpiredHours,
-			Value: fmt.Sprintf("%d", *req.CbOperationLogsExpiredHours),
+			Value: fmt.Sprintf("%d", *req.SystemVariableWorkflowExpiredHours),
 		})
 	}
 
