@@ -15,8 +15,9 @@ const (
 )
 
 const (
-	DefaultOperationRecordExpiredHours = 90 * 24
-	DefaultCbOperationLogsExpiredHours = 90 * 24
+	DefaultOperationRecordExpiredHours        = 90 * 24
+	DefaultCbOperationLogsExpiredHours        = 90 * 24
+	DefaultSystemVariableWorkflowExpiredHours = 90 * 24
 )
 
 // SystemVariable 系统变量业务模型
@@ -73,4 +74,3 @@ func (s *SystemVariableUsecase) UpdateSystemVariables(ctx context.Context, varia
 
 	return nil
 }
-
