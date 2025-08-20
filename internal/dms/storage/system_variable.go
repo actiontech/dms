@@ -93,5 +93,12 @@ func convertModelSystemVariables(variables []*model.SystemVariable) map[string]b
 		}
 	}
 
+	if _, ok := sysVariables[biz.SystemVariableSqlManageRawExpiredHours]; !ok {
+		sysVariables[biz.SystemVariableSqlManageRawExpiredHours] = biz.SystemVariable{
+			Key:   biz.SystemVariableSqlManageRawExpiredHours,
+			Value: strconv.Itoa(biz.DefaultSystemVariableSqlManageRawExpiredHours),
+		}
+	}
+
 	return sysVariables
 }
