@@ -2005,7 +2005,7 @@ definitions:
                 type: string
                 x-go-name: Message
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GetUser:
         description: A dms user
         properties:
@@ -3650,6 +3650,14 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberRoleWithOpRange:
         properties:
+            member_group:
+                $ref: '#/definitions/ProjectMemberGroup'
+            op_permissions:
+                description: member op permissions
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: OpPermissions
             op_range_type:
                 description: |-
                     op permission range type, only support db service now
@@ -3678,7 +3686,7 @@ definitions:
             role_uid:
                 $ref: '#/definitions/UidWithName'
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberTipsItem:
         properties:
             user_id:
@@ -5153,7 +5161,7 @@ definitions:
                 type: string
                 x-go-name: Url
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     Task:
         properties:
             task_uid:
@@ -5397,7 +5405,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateBusinessTagReq:
         properties:
             business_tag:
@@ -5920,7 +5928,7 @@ definitions:
                 type: string
                 x-go-name: Url
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateUser:
         properties:
             email:
