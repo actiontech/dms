@@ -4719,7 +4719,7 @@ func (ctl *DMSController) GetSystemVariables(c echo.Context) error {
 //     schema:
 //       "$ref": "#/definitions/GenericResp"
 func (ctl *DMSController) UpdateSystemVariables(c echo.Context) error {
-	req := new(aV1.UpdateSystemVariablesReqV1)
+	req := new(dmsV1.UpdateSystemVariablesReqV1)
 	err := bindAndValidateReq(c, req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)

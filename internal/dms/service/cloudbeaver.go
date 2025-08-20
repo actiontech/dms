@@ -70,7 +70,7 @@ func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) 
 	dataMaskingUsecase := biz.NewMaskingUsecase(logger, dataMasking)
 	dmsConfigRepo := storage.NewDMSConfigRepo(logger, st)
 	dmsConfigUseCase := biz.NewDMSConfigUseCase(logger, dmsConfigRepo)
-	cbOperationLogUsecase := biz.NewCbOperationLogUsecase(logger, storage.NewCbOperationLogRepo(logger, st), opPermissionVerifyUsecase, dmsProxyTargetRepo)
+	cbOperationLogUsecase := biz.NewCbOperationLogUsecase(logger, storage.NewCbOperationLogRepo(logger, st), opPermissionVerifyUsecase, dmsProxyTargetRepo, biz.NewSystemVariableUsecase(logger, storage.NewSystemVariableRepo(logger, st)))
 
 	var cfg *biz.CloudbeaverCfg
 	if opts.CloudbeaverOpts != nil {
