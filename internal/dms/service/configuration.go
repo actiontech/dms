@@ -568,7 +568,7 @@ func (d *DMSService) WebHookSendMessage(ctx context.Context, req *dmsCommonV1.We
 }
 
 // GetSystemVariables 获取系统变量
-func (d *DMSService) GetSystemVariables(ctx context.Context, currentUserUid string) (reply *dmsV1.GetSystemVariablesReply, err error) {
+func (d *DMSService) GetSystemVariables(ctx context.Context, currentUserUid string) (reply *dmsCommonV1.GetSystemVariablesReply, err error) {
 	d.log.Infof("GetSystemVariables")
 	defer func() {
 		d.log.Infof("GetSystemVariables.reply=%v;error=%v", reply, err)
@@ -597,8 +597,8 @@ func (d *DMSService) GetSystemVariables(ctx context.Context, currentUserUid stri
 		return nil, err
 	}
 
-	return &dmsV1.GetSystemVariablesReply{
-		Data: dmsV1.SystemVariablesResV1{
+	return &dmsCommonV1.GetSystemVariablesReply{
+		Data: dmsCommonV1.SystemVariablesResV1{
 			Url:                         variables[biz.SystemVariableSqleUrl].Value,
 			OperationRecordExpiredHours: operationRecordExpiredHours,
 			CbOperationLogsExpiredHours: cbOperationLogsExpiredHours,
@@ -607,7 +607,7 @@ func (d *DMSService) GetSystemVariables(ctx context.Context, currentUserUid stri
 }
 
 // UpdateSystemVariables 更新系统变量
-func (d *DMSService) UpdateSystemVariables(ctx context.Context, req *dmsV1.UpdateSystemVariablesReqV1, currentUserUid string) (err error) {
+func (d *DMSService) UpdateSystemVariables(ctx context.Context, req *dmsCommonV1.UpdateSystemVariablesReqV1, currentUserUid string) (err error) {
 	d.log.Infof("UpdateSystemVariables.req=%v", req)
 	defer func() {
 		d.log.Infof("UpdateSystemVariables.req=%v;error=%v", req, err)
