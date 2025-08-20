@@ -3717,14 +3717,6 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberRoleWithOpRange:
         properties:
-            member_group:
-                $ref: '#/definitions/ProjectMemberGroup'
-            op_permissions:
-                description: member op permissions
-                items:
-                    $ref: '#/definitions/UidWithName'
-                type: array
-                x-go-name: OpPermissions
             op_range_type:
                 description: |-
                     op permission range type, only support db service now
@@ -3753,7 +3745,7 @@ definitions:
             role_uid:
                 $ref: '#/definitions/UidWithName'
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ListMemberTipsItem:
         properties:
             user_id:
@@ -5380,6 +5372,10 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: OperationRecordExpiredHours
+            system_variable_sql_manage_raw_expired_hours:
+                format: int64
+                type: integer
+                x-go-name: SystemVariableSqlManageRawExpiredHours
             system_variable_ssh_primary_key:
                 type: string
                 x-go-name: SystemVariableSSHPrimaryKey
@@ -5635,7 +5631,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateBusinessTagReq:
         properties:
             business_tag:
@@ -6166,6 +6162,10 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: OperationRecordExpiredHours
+            system_variable_sql_manage_raw_expired_hours:
+                format: int64
+                type: integer
+                x-go-name: SystemVariableSqlManageRawExpiredHours
             system_variable_ssh_primary_key:
                 type: string
                 x-go-name: SystemVariableSSHPrimaryKey

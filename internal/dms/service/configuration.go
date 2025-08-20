@@ -666,6 +666,13 @@ func (d *DMSService) UpdateSystemVariables(ctx context.Context, req *dmsCommonV1
 		})
 	}
 
+	if req.SystemVariableSqlManageRawExpiredHours != nil {
+		variables = append(variables, &biz.SystemVariable{
+			Key:   biz.SystemVariableSqlManageRawExpiredHours,
+			Value: fmt.Sprintf("%d", *req.SystemVariableSqlManageRawExpiredHours),
+		})
+	}
+
 	if len(variables) == 0 {
 		return nil // 没有需要更新的变量
 	}
