@@ -4684,7 +4684,12 @@ func (ctl *DMSController)AddGateway(c echo.Context) error {
 //	  200: body:GetSystemVariablesReply
 //	  default: body:GenericResp
 func (ctl *DMSController) GetSystemVariables(c echo.Context) error {
-	reply, err := ctl.DMS.GetSystemVariables(c.Request().Context())
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	reply, err := ctl.DMS.GetSystemVariables(c.Request().Context(), currentUserUid)
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -4720,7 +4725,12 @@ func (ctl *DMSController) UpdateSystemVariables(c echo.Context) error {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	err = ctl.DMS.UpdateSystemVariables(c.Request().Context(), req)
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	err = ctl.DMS.UpdateSystemVariables(c.Request().Context(), req, currentUserUid)
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
