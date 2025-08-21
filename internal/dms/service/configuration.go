@@ -566,19 +566,11 @@ func (d *DMSService) WebHookSendMessage(ctx context.Context, req *dmsCommonV1.We
 }
 
 // GetSystemVariables 获取系统变量
-func (d *DMSService) GetSystemVariables(ctx context.Context, currentUserUid string) (reply *dmsCommonV1.GetSystemVariablesReply, err error) {
+func (d *DMSService) GetSystemVariables(ctx context.Context) (reply *dmsCommonV1.GetSystemVariablesReply, err error) {
 	d.log.Infof("GetSystemVariables")
 	defer func() {
 		d.log.Infof("GetSystemVariables.reply=%v;error=%v", reply, err)
 	}()
-
-	canViewGlobal, err := d.OpPermissionVerifyUsecase.CanViewGlobal(ctx, currentUserUid)
-	if err != nil {
-		return nil, fmt.Errorf("failed to check user can view global")
-	}
-	if !canViewGlobal {
-		return nil, fmt.Errorf("user can not get system variables")
-	}
 
 	variables, err := d.SystemVariableUsecase.GetSystemVariables(ctx)
 	if err != nil {
@@ -612,19 +604,11 @@ func (d *DMSService) GetSystemVariables(ctx context.Context, currentUserUid stri
 }
 
 // UpdateSystemVariables 更新系统变量
-func (d *DMSService) UpdateSystemVariables(ctx context.Context, req *dmsCommonV1.UpdateSystemVariablesReqV1, currentUserUid string) (err error) {
+func (d *DMSService) UpdateSystemVariables(ctx context.Context, req *dmsCommonV1.UpdateSystemVariablesReqV1) (err error) {
 	d.log.Infof("UpdateSystemVariables.req=%v", req)
 	defer func() {
 		d.log.Infof("UpdateSystemVariables.req=%v;error=%v", req, err)
 	}()
-
-	canOpGlobal, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid)
-	if err != nil {
-		return fmt.Errorf("failed to check user can op global")
-	}
-	if !canOpGlobal {
-		return fmt.Errorf("user can not update system variables")
-	}
 
 	// 构建要更新的系统变量列表
 	var variables []*biz.SystemVariable
