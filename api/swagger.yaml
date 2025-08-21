@@ -1802,7 +1802,7 @@ definitions:
                 type: string
                 x-go-name: Message
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetOauth2ConfigurationResData:
         properties:
             access_token_tag:
@@ -1991,6 +1991,21 @@ definitions:
                 x-go-name: Url
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetSystemVariablesReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/SystemVariablesResV1'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GetUser:
         description: A dms user
         properties:
@@ -3635,14 +3650,6 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberRoleWithOpRange:
         properties:
-            member_group:
-                $ref: '#/definitions/ProjectMemberGroup'
-            op_permissions:
-                description: member op permissions
-                items:
-                    $ref: '#/definitions/UidWithName'
-                type: array
-                x-go-name: OpPermissions
             op_range_type:
                 description: |-
                     op permission range type, only support db service now
@@ -3671,7 +3678,7 @@ definitions:
             role_uid:
                 $ref: '#/definitions/UidWithName'
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ListMemberTipsItem:
         properties:
             user_id:
@@ -4428,6 +4435,7 @@ definitions:
                     view_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限
                     execute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单
                     view_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限
+                    view_sql_insight OpPermissionTypeViewSQLInsight  查看SQL洞察权限
                     save_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务
                     sql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限
                     create_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单
@@ -4448,6 +4456,7 @@ definitions:
                     - view_others_workflow
                     - execute_workflow
                     - view_other_audit_plan
+                    - view_sql_insight
                     - save_audit_plan
                     - sql_query
                     - create_export_task
@@ -4469,6 +4478,7 @@ definitions:
                     view_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限
                     execute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单
                     view_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限
+                    view_sql_insight OpPermissionTypeViewSQLInsight  查看SQL洞察权限
                     save_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务
                     sql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限
                     create_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单
@@ -5129,6 +5139,32 @@ definitions:
                 x-go-name: Gateways
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    SystemVariablesResV1:
+        properties:
+            cb_operation_logs_expired_hours:
+                format: int64
+                type: integer
+                x-go-name: CbOperationLogsExpiredHours
+            operation_record_expired_hours:
+                format: int64
+                type: integer
+                x-go-name: OperationRecordExpiredHours
+            system_variable_sql_manage_raw_expired_hours:
+                format: int64
+                type: integer
+                x-go-name: SystemVariableSqlManageRawExpiredHours
+            system_variable_ssh_primary_key:
+                type: string
+                x-go-name: SystemVariableSSHPrimaryKey
+            system_variable_workflow_expired_hours:
+                format: int64
+                type: integer
+                x-go-name: SystemVariableWorkflowExpiredHours
+            url:
+                type: string
+                x-go-name: Url
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     Task:
         properties:
             task_uid:
@@ -5372,7 +5408,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateBusinessTagReq:
         properties:
             business_tag:
@@ -5881,6 +5917,32 @@ definitions:
                 $ref: '#/definitions/UpdateSmsConfiguration'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateSystemVariablesReqV1:
+        properties:
+            cb_operation_logs_expired_hours:
+                format: int64
+                type: integer
+                x-go-name: CbOperationLogsExpiredHours
+            operation_record_expired_hours:
+                format: int64
+                type: integer
+                x-go-name: OperationRecordExpiredHours
+            system_variable_sql_manage_raw_expired_hours:
+                format: int64
+                type: integer
+                x-go-name: SystemVariableSqlManageRawExpiredHours
+            system_variable_ssh_primary_key:
+                type: string
+                x-go-name: SystemVariableSSHPrimaryKey
+            system_variable_workflow_expired_hours:
+                format: int64
+                type: integer
+                x-go-name: SystemVariableWorkflowExpiredHours
+            url:
+                type: string
+                x-go-name: Url
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateUser:
         properties:
             email:
@@ -6798,6 +6860,42 @@ paths:
             summary: get sql_query configuration.
             tags:
                 - CloudBeaver
+    /v1/dms/configurations/system_variables:
+        get:
+            description: 获取系统变量配置
+            operationId: GetSystemVariables
+            responses:
+                "200":
+                    description: GetSystemVariablesReply
+                    schema:
+                        $ref: '#/definitions/GetSystemVariablesReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            tags:
+                - Configuration
+        patch:
+            description: 更新系统变量配置
+            operationId: UpdateSystemVariables
+            parameters:
+                - description: 更新系统变量配置
+                  in: body
+                  name: system_variables
+                  required: true
+                  schema:
+                    $ref: '#/definitions/UpdateSystemVariablesReqV1'
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            tags:
+                - Configuration
     /v1/dms/configurations/webhook:
         get:
             operationId: GetWebHookConfiguration

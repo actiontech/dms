@@ -762,6 +762,61 @@
         }
       }
     },
+    "/v1/dms/configurations/system_variables": {
+      "get": {
+        "description": "获取系统变量配置",
+        "tags": [
+          "Configuration"
+        ],
+        "operationId": "GetSystemVariables",
+        "responses": {
+          "200": {
+            "description": "GetSystemVariablesReply",
+            "schema": {
+              "$ref": "#/definitions/GetSystemVariablesReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "patch": {
+        "description": "更新系统变量配置",
+        "tags": [
+          "Configuration"
+        ],
+        "operationId": "UpdateSystemVariables",
+        "parameters": [
+          {
+            "description": "更新系统变量配置",
+            "name": "system_variables",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateSystemVariablesReqV1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/configurations/webhook": {
       "get": {
         "tags": [
@@ -8753,7 +8808,7 @@
           "x-go-name": "Message"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetOauth2ConfigurationResData": {
       "type": "object",
@@ -9007,6 +9062,26 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetSystemVariablesReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/SystemVariablesResV1"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "GetUser": {
       "description": "A dms user",
@@ -11081,17 +11156,6 @@
     "ListMemberRoleWithOpRange": {
       "type": "object",
       "properties": {
-        "member_group": {
-          "$ref": "#/definitions/ProjectMemberGroup"
-        },
-        "op_permissions": {
-          "description": "member op permissions",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/UidWithName"
-          },
-          "x-go-name": "OpPermissions"
-        },
         "op_range_type": {
           "description": "op permission range type, only support db service now\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "type": "string",
@@ -11116,7 +11180,7 @@
           "$ref": "#/definitions/UidWithName"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "ListMemberTipsItem": {
       "type": "object",
@@ -12832,6 +12896,40 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "SystemVariablesResV1": {
+      "type": "object",
+      "properties": {
+        "cb_operation_logs_expired_hours": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CbOperationLogsExpiredHours"
+        },
+        "operation_record_expired_hours": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "OperationRecordExpiredHours"
+        },
+        "system_variable_sql_manage_raw_expired_hours": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "SystemVariableSqlManageRawExpiredHours"
+        },
+        "system_variable_ssh_primary_key": {
+          "type": "string",
+          "x-go-name": "SystemVariableSSHPrimaryKey"
+        },
+        "system_variable_workflow_expired_hours": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "SystemVariableWorkflowExpiredHours"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "Url"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
     "Task": {
       "type": "object",
       "properties": {
@@ -13165,7 +13263,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateBusinessTagReq": {
       "type": "object",
@@ -13827,6 +13925,40 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateSystemVariablesReqV1": {
+      "type": "object",
+      "properties": {
+        "cb_operation_logs_expired_hours": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CbOperationLogsExpiredHours"
+        },
+        "operation_record_expired_hours": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "OperationRecordExpiredHours"
+        },
+        "system_variable_sql_manage_raw_expired_hours": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "SystemVariableSqlManageRawExpiredHours"
+        },
+        "system_variable_ssh_primary_key": {
+          "type": "string",
+          "x-go-name": "SystemVariableSSHPrimaryKey"
+        },
+        "system_variable_workflow_expired_hours": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "SystemVariableWorkflowExpiredHours"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "Url"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateUser": {
       "type": "object",

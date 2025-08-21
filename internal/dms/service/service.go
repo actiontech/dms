@@ -47,6 +47,7 @@ type DMSService struct {
 	AuthAccessTokenUseCase      *biz.AuthAccessTokenUsecase
 	SwaggerUseCase              *biz.SwaggerUseCase
 	GatewayUsecase              *biz.GatewayUsecase
+	SystemVariableUsecase       *biz.SystemVariableUsecase
 	log                         *utilLog.Helper
 	shutdownCallback            func() error
 }
@@ -139,11 +140,11 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	dataExportTaskRepo := storage.NewDataExportTaskRepo(logger, st)
 
 	swaggerUseCase := biz.NewSwaggerUseCase(logger, dmsProxyUsecase)
-
+	systemVariableUsecase := biz.NewSystemVariableUsecase(logger, storage.NewSystemVariableRepo(logger, st))
 	cbOperationRepo := storage.NewCbOperationLogRepo(logger, st)
-	CbOperationLogUsecase := biz.NewCbOperationLogUsecase(logger, cbOperationRepo, opPermissionVerifyUsecase, dmsProxyTargetRepo)
+	CbOperationLogUsecase := biz.NewCbOperationLogUsecase(logger, cbOperationRepo, opPermissionVerifyUsecase, dmsProxyTargetRepo, systemVariableUsecase)
 	workflowRepo := storage.NewWorkflowRepo(logger, st)
-	DataExportWorkflowUsecase := biz.NewDataExportWorkflowUsecase(logger, tx, workflowRepo, dataExportTaskRepo, dbServiceRepo, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, clusterUsecase, webhookConfigurationUsecase, userUsecase, fmt.Sprintf("%s:%d", opts.ReportHost, opts.APIServiceOpts.Port))
+	DataExportWorkflowUsecase := biz.NewDataExportWorkflowUsecase(logger, tx, workflowRepo, dataExportTaskRepo, dbServiceRepo, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, clusterUsecase, webhookConfigurationUsecase, userUsecase, systemVariableUsecase, fmt.Sprintf("%s:%d", opts.ReportHost, opts.APIServiceOpts.Port))
 	dataMasking, err := maskingBiz.NewDataMaskingUseCase(logger)
 	authAccessTokenUsecase := biz.NewAuthAccessTokenUsecase(logger, userUsecase)
 	if err != nil {
@@ -192,6 +193,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		AuthAccessTokenUseCase:      authAccessTokenUsecase,
 		SwaggerUseCase:              swaggerUseCase,
 		GatewayUsecase:              gatewayUsecase,
+		SystemVariableUsecase:       systemVariableUsecase,
 		log:                         utilLog.NewHelper(logger, utilLog.WithMessageKey("dms.service")),
 		shutdownCallback: func() error {
 			if err := st.Close(); nil != err {

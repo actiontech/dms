@@ -56,6 +56,7 @@ var AutoMigrateList = []interface{}{
 	CbOperationLog{},
 	EnvironmentTag{},
 	Gateway{},
+	SystemVariable{},
 }
 
 type Model struct {
@@ -452,6 +453,14 @@ type Workflow struct {
 	WorkflowRecord *WorkflowRecord `gorm:"foreignkey:WorkflowUid"`
 }
 
+func (w *Workflow) GetTaskIds() Strings {
+	return w.WorkflowRecord.TaskIds
+}
+
+func (w *Workflow) FinalStep() *WorkflowStep {
+	return w.WorkflowRecord.Steps[len(w.WorkflowRecord.Steps)-1]
+}
+
 type WorkflowRecord struct {
 	Model
 	WorkflowUid           string  `json:"workflow_uid" gorm:"size:32" `
@@ -669,4 +678,9 @@ type Gateway struct {
 	Name        string `gorm:"type:varchar(100);unique;column:name"`
 	Description string `gorm:"type:varchar(255);column:description"`
 	Address     string `gorm:"type:varchar(255);column:address"`
+}
+
+type SystemVariable struct {
+	Key   string `gorm:"primary_key"`
+	Value string `gorm:"not null;type:text"`
 }

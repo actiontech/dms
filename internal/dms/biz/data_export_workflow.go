@@ -61,8 +61,13 @@ type Workflow struct {
 	Status            string
 	WorkflowRecordUid string
 	Tasks             []Task
+	TaskIds           []string
 
 	WorkflowRecord *WorkflowRecord
+}
+
+func (w *Workflow) FinalStep() *WorkflowStep {
+	return w.WorkflowRecord.WorkflowSteps[len(w.WorkflowRecord.WorkflowSteps)-1]
 }
 
 type Task struct {
@@ -74,6 +79,7 @@ type WorkflowRecord struct {
 	Status                DataExportWorkflowStatus
 	Tasks                 []Task
 	CurrentWorkflowStepId uint64
+	CurrentStep           *WorkflowStep
 	WorkflowSteps         []*WorkflowStep
 }
 
@@ -113,11 +119,12 @@ type DataExportWorkflowUsecase struct {
 	clusterUsecase            *ClusterUsecase
 	webhookUsecase            *WebHookConfigurationUsecase
 	userUsecase               *UserUsecase
+	systemVariableUsecase     *SystemVariableUsecase
 	log                       *utilLog.Helper
 	reportHost                string
 }
 
-func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator, repo WorkflowRepo, dataExportTaskRepo DataExportTaskRepo, dbServiceRepo DBServiceRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, clusterUseCase *ClusterUsecase, webhookUsecase *WebHookConfigurationUsecase, userUsecase *UserUsecase, reportHost string) *DataExportWorkflowUsecase {
+func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator, repo WorkflowRepo, dataExportTaskRepo DataExportTaskRepo, dbServiceRepo DBServiceRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, clusterUseCase *ClusterUsecase, webhookUsecase *WebHookConfigurationUsecase, userUsecase *UserUsecase, systemVariableUsecase *SystemVariableUsecase, reportHost string) *DataExportWorkflowUsecase {
 	return &DataExportWorkflowUsecase{
 		tx:                        tx,
 		repo:                      repo,
@@ -129,7 +136,8 @@ func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator
 		clusterUsecase:            clusterUseCase,
 		webhookUsecase:            webhookUsecase,
 		userUsecase:               userUsecase,
-		log:                       utilLog.NewHelper(logger, utilLog.WithMessageKey("biz.dtaExportWorkflow")),
+		systemVariableUsecase:     systemVariableUsecase,
+		log:                       utilLog.NewHelper(logger, utilLog.WithMessageKey("biz.dataExportWorkflow")),
 		reportHost:                reportHost,
 	}
 }
