@@ -10952,6 +10952,16 @@
         "data": {
           "type": "object",
           "properties": {
+            "password_expired": {
+              "description": "Password expiration information",
+              "type": "boolean",
+              "x-go-name": "PasswordExpired"
+            },
+            "password_expiry_days": {
+              "type": "integer",
+              "format": "int64",
+              "x-go-name": "PasswordExpiryDays"
+            },
             "phone": {
               "type": "string",
               "x-go-name": "Phone"

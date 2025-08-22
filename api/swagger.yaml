@@ -4834,6 +4834,14 @@ definitions:
                 x-go-name: Code
             data:
                 properties:
+                    password_expired:
+                        description: Password expiration information
+                        type: boolean
+                        x-go-name: PasswordExpired
+                    password_expiry_days:
+                        format: int64
+                        type: integer
+                        x-go-name: PasswordExpiryDays
                     phone:
                         type: string
                         x-go-name: Phone
