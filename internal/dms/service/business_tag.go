@@ -92,8 +92,9 @@ func (d *DMSService) ListBusinessTags(ctx context.Context, req *v1.ListBusinessT
 	}()
 	limit, offset := d.GetLimitAndOffset(req.PageIndex, req.PageSize)
 	bizBusinessTags, count, err := d.BusinessTagUsecase.ListBusinessTags(ctx, &biz.ListBusinessTagsOption{
-		Limit:  limit,
-		Offset: offset,
+		Limit:        limit,
+		Offset:       offset,
+		FuzzyKeyword: req.FuzzyKeyword,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("list business tags failed: %w", err)

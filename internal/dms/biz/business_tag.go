@@ -94,8 +94,9 @@ func (uc *BusinessTagUsecase) DeleteBusinessTag(ctx context.Context, businessTag
 }
 
 type ListBusinessTagsOption struct {
-	Limit  int
-	Offset int
+	Limit        int
+	Offset       int
+	FuzzyKeyword string
 }
 
 func (uc *BusinessTagUsecase) ListBusinessTags(ctx context.Context, options *ListBusinessTagsOption) ([]*BusinessTag, int64, error) {
@@ -129,7 +130,7 @@ func (uc *BusinessTagUsecase) GetBusinessTagByUID(ctx context.Context, uid strin
 // 对于每个项目，如果 BusinessTag 的 Name 为空但 UID 不为空，则通过 UID 查找并填充 Name。
 // 如果 BusinessTag 的 Name 不为空但 UID 为空，则通过 Name 查找并填充 UID。
 func (uc *BusinessTagUsecase) LoadBusinessTagForProjects(ctx context.Context, projects []*Project) error {
-	businessTags, _, err := uc.businessTagRepo.ListBusinessTags(ctx, &ListBusinessTagsOption{Limit: 9999, Offset: 0})
+	businessTags, _, err := uc.businessTagRepo.ListBusinessTags(ctx, &ListBusinessTagsOption{Limit: 9999, Offset: 0, FuzzyKeyword: ""})
 	if err != nil {
 		uc.log.Errorf("list business tags failed: %v", err)
 		return err

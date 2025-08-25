@@ -93,6 +93,12 @@ func (repo *BusinessTagRepo) ListBusinessTags(ctx context.Context, options *biz.
 
 	// 构建查询条件
 	query := db.Model(&model.BusinessTag{})
+
+	// 添加模糊搜索条件
+	if options.FuzzyKeyword != "" {
+		query = query.Where("name LIKE ?", "%"+options.FuzzyKeyword+"%")
+	}
+
 	if options.Limit >= 0 {
 		query = query.Limit(options.Limit)
 	}
@@ -105,9 +111,13 @@ func (repo *BusinessTagRepo) ListBusinessTags(ctx context.Context, options *biz.
 		return nil, 0, fmt.Errorf("failed to list business tags: %w", err)
 	}
 
-	// 获取总数
+	// 获取总数（需要考虑模糊搜索条件）
 	var count int64
-	if err := repo.db.WithContext(ctx).Model(&model.BusinessTag{}).Count(&count).Error; err != nil {
+	countQuery := repo.db.WithContext(ctx).Model(&model.BusinessTag{})
+	if options.FuzzyKeyword != "" {
+		countQuery = countQuery.Where("name LIKE ?", "%"+options.FuzzyKeyword+"%")
+	}
+	if err := countQuery.Count(&count).Error; err != nil {
 		return nil, 0, fmt.Errorf("failed to count business tags: %w", err)
 	}
 
