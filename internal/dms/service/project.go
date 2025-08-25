@@ -62,6 +62,16 @@ func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV2.ListProj
 		})
 	}
 
+	// 添加模糊搜索条件
+	if req.FuzzyKeyword != "" {
+		filterBy = append(filterBy, pkgConst.FilterCondition{
+			Field:         string(biz.ProjectFieldName),
+			Operator:      pkgConst.FilterOperatorContains,
+			Value:         req.FuzzyKeyword,
+			KeywordSearch: true,
+		})
+	}
+
 	if req.FilterByBusinessTag != "" {
 		businessTag, err := d.BusinessTagUsecase.GetBusinessTagByName(ctx, req.FilterByBusinessTag)
 		if err != nil {
