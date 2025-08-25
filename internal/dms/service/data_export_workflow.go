@@ -99,7 +99,7 @@ func (d *DMSService) ListDataExportWorkflow(ctx context.Context, req *dmsV1.List
 		FilterBy:     filterBy,
 	}
 
-	workflows, total, err := d.DataExportWorkflowUsecase.ListDataExportWorkflows(ctx, listOption, currentUserUid, req.FilterByDBServiceUid, req.FilterCurrentStepAssigneeUserUid, string(req.FilterByStatus))
+	workflows, total, err := d.DataExportWorkflowUsecase.ListDataExportWorkflows(ctx, listOption, currentUserUid, req.FilterByDBServiceUid, req.FilterCurrentStepAssigneeUserUid, string(req.FilterByStatus), req.ProjectUid)
 	if nil != err {
 		return nil, err
 	}

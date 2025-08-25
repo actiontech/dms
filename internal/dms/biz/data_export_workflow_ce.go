@@ -15,7 +15,7 @@ var errNotDataExportTask = errors.New("data export task related functions are en
 func (d *DataExportWorkflowUsecase) AddDataExportWorkflow(ctx context.Context, currentUserId string, params *Workflow) (string, error) {
 	return "", errNotDataExportWorkflow
 }
-func (d *DataExportWorkflowUsecase) ListDataExportWorkflows(ctx context.Context, workflowsOption *ListWorkflowsOption, currentUserId, dbServiceUID, filterCurrentStepAssigneeUserUid, filterByStatus string) ([]*Workflow, int64, error) {
+func (d *DataExportWorkflowUsecase) ListDataExportWorkflows(ctx context.Context, workflowsOption *ListWorkflowsOption, currentUserId, dbServiceUID, filterCurrentStepAssigneeUserUid, filterByStatus string, projectUid string) ([]*Workflow, int64, error) {
 	return nil, 0, errNotDataExportWorkflow
 }
 
