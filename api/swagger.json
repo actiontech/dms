@@ -1558,6 +1558,15 @@
         }
       }
     },
+    "/v1/dms/platform_metrics": {
+      "get": {
+        "tags": [
+          "PlatformMetrics"
+        ],
+        "summary": "Get platform resource metrics.",
+        "operationId": "GetPlatformMetrics"
+      }
+    },
     "/v1/dms/plugins": {
       "post": {
         "tags": [
@@ -6941,6 +6950,26 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "GetPlatformMetricsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/PlatformMetrics"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "GetProjectTipsReply": {
       "type": "object",
       "properties": {
@@ -9481,6 +9510,61 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "PlatformMetrics": {
+      "description": "PlatformMetrics represents platform resource metrics",
+      "type": "object",
+      "properties": {
+        "cpu_usage": {
+          "description": "CPU usage percentage",
+          "type": "number",
+          "format": "double",
+          "x-go-name": "CPUUsage"
+        },
+        "goroutine_count": {
+          "description": "Number of goroutines",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "GoroutineCount"
+        },
+        "memory_usage": {
+          "description": "Memory usage in bytes",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "MemoryUsage"
+        },
+        "memory_usage_percent": {
+          "description": "Memory usage percentage",
+          "type": "number",
+          "format": "double",
+          "x-go-name": "MemoryUsagePercent"
+        },
+        "process_id": {
+          "description": "Process ID",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ProcessID"
+        },
+        "timestamp": {
+          "description": "Timestamp when metrics were collected",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Timestamp"
+        },
+        "total_memory": {
+          "description": "Total memory in bytes",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "TotalMemory"
+        },
+        "uptime": {
+          "description": "Uptime in seconds",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Uptime"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "Plugin": {
       "type": "object",
       "properties": {
@@ -10168,7 +10252,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",

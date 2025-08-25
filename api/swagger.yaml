@@ -1620,6 +1620,21 @@ definitions:
                 x-go-name: LoginTip
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetPlatformMetricsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/PlatformMetrics'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetProjectTipsReply:
         properties:
             code:
@@ -3724,6 +3739,51 @@ definitions:
                 x-go-name: Title
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    PlatformMetrics:
+        description: PlatformMetrics represents platform resource metrics
+        properties:
+            cpu_usage:
+                description: CPU usage percentage
+                format: double
+                type: number
+                x-go-name: CPUUsage
+            goroutine_count:
+                description: Number of goroutines
+                format: int64
+                type: integer
+                x-go-name: GoroutineCount
+            memory_usage:
+                description: Memory usage in bytes
+                format: uint64
+                type: integer
+                x-go-name: MemoryUsage
+            memory_usage_percent:
+                description: Memory usage percentage
+                format: double
+                type: number
+                x-go-name: MemoryUsagePercent
+            process_id:
+                description: Process ID
+                format: int64
+                type: integer
+                x-go-name: ProcessID
+            timestamp:
+                description: Timestamp when metrics were collected
+                format: int64
+                type: integer
+                x-go-name: Timestamp
+            total_memory:
+                description: Total memory in bytes
+                format: uint64
+                type: integer
+                x-go-name: TotalMemory
+            uptime:
+                description: Uptime in seconds
+                format: uint64
+                type: integer
+                x-go-name: Uptime
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     Plugin:
         properties:
             get_database_driver_logos_url:
@@ -4247,7 +4307,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateCompanyNotice:
         description: A companynotice
         properties:
@@ -6043,6 +6103,12 @@ paths:
                         $ref: '#/definitions/GenericResp'
             tags:
                 - BasicInfo
+    /v1/dms/platform_metrics:
+        get:
+            operationId: GetPlatformMetrics
+            summary: Get platform resource metrics.
+            tags:
+                - PlatformMetrics
     /v1/dms/plugins:
         post:
             operationId: RegisterDMSPlugin
