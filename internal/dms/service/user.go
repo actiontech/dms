@@ -197,6 +197,16 @@ func (d *DMSService) ListUsers(ctx context.Context, req *dmsCommonV1.ListUserReq
 		})
 	}
 
+	// 添加模糊搜索条件
+	if req.FuzzyKeyword != "" {
+		filterBy = append(filterBy, pkgConst.FilterCondition{
+			Field:         string(biz.UserFieldName),
+			Operator:      pkgConst.FilterOperatorContains,
+			Value:         req.FuzzyKeyword,
+			KeywordSearch: true,
+		})
+	}
+
 	// 默认为false,不展示已删除用户
 	if !req.FilterDeletedUser {
 		filterBy = append(filterBy, pkgConst.FilterCondition{
