@@ -858,15 +858,13 @@ func (cu *CloudbeaverUsecase) createUserIfNotExist(ctx context.Context, cloudbea
 		return err
 	}
 
-	checkExistReq := cloudbeaver.NewRequest(cu.graphQl.IsUserExistQuery(cloudbeaverUserId))
-	cloudbeaverUserList := UserList{}
-	err = graphQLClient.Run(ctx, checkExistReq, &cloudbeaverUserList)
+	userExist, err := cu.checkCloudBeaverUserExist(ctx, graphQLClient, cloudbeaverUserId)
 	if err != nil {
 		return fmt.Errorf("check cloudbeaver user exist failed: %v", err)
 	}
 
 	// 用户不存在则创建CloudBeaver用户
-	if len(cloudbeaverUserList.ListUsers) == 0 {
+	if !userExist {
 		// 创建用户
 		createUserReq := cloudbeaver.NewRequest(cu.graphQl.CreateUserQuery(), map[string]interface{}{
 			"userId": cloudbeaverUserId,
@@ -916,6 +914,25 @@ func (cu *CloudbeaverUsecase) createUserIfNotExist(ctx context.Context, cloudbea
 	}
 
 	return cu.repo.UpdateCloudbeaverUserCache(ctx, cloudbeaverUser)
+}
+
+func (cu *CloudbeaverUsecase) checkCloudBeaverUserExist(ctx context.Context, graphQLClient *cloudbeaver.Client, cloudbeaverUserId string) (bool, error) {
+	if graphQLClient == nil {
+		return false, fmt.Errorf("graphQLClient is nil")
+	}
+
+	checkExistReq := cloudbeaver.NewRequest(cu.graphQl.IsUserExistQuery(cloudbeaverUserId))
+	cloudbeaverUserList := UserList{}
+	err := graphQLClient.Run(ctx, checkExistReq, &cloudbeaverUserList)
+	if err != nil {
+		return false, err
+	}
+	for _, cloudBeaverUser := range cloudbeaverUserList.ListUsers {
+		if cloudBeaverUser.UserID == cloudbeaverUserId {
+			return true, nil
+		}
+	}
+	return false, nil
 }
 
 func (cu *CloudbeaverUsecase) connectManagement(ctx context.Context, cloudbeaverUserId string, dmsUser *User) error {
