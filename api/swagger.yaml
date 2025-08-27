@@ -9433,6 +9433,10 @@ paths:
                   required: true
                   type: integer
                   x-go-name: PageSize
+                - in: query
+                  name: fuzzy_keyword
+                  type: string
+                  x-go-name: FuzzyKeyword
             responses:
                 "200":
                     description: ListBusinessTagsReply
@@ -10280,6 +10284,11 @@ paths:
                   name: filter_del_user
                   type: boolean
                   x-go-name: FilterDeletedUser
+                - description: fuzzy keyword for user name search
+                  in: query
+                  name: fuzzy_keyword
+                  type: string
+                  x-go-name: FuzzyKeyword
             responses:
                 "200":
                     description: ListUserReply
@@ -10665,6 +10674,11 @@ paths:
                   name: filter_by_desc
                   type: string
                   x-go-name: FilterByDesc
+                - description: fuzzy keyword for project name search
+                  in: query
+                  name: fuzzy_keyword
+                  type: string
+                  x-go-name: FuzzyKeyword
             responses:
                 "200":
                     description: ListProjectReplyV2

@@ -28,6 +28,8 @@ type ListBusinessTagReq struct {
 	// in:query
 	// Required: true
 	PageSize uint32 `query:"page_size" json:"page_size" validate:"required"`
+	// in:query
+	FuzzyKeyword string `query:"fuzzy_keyword" json:"fuzzy_keyword"`
 }
 
 // swagger:model ListBusinessTagsReply
