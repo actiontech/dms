@@ -2018,6 +2018,12 @@
             "name": "page_size",
             "in": "query",
             "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "FuzzyKeyword",
+            "name": "fuzzy_keyword",
+            "in": "query"
           }
         ],
         "responses": {
@@ -5392,6 +5398,13 @@
             "description": "filter deleted user to be return ,default is false",
             "name": "filter_del_user",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FuzzyKeyword",
+            "description": "fuzzy keyword for user name search",
+            "name": "fuzzy_keyword",
+            "in": "query"
           }
         ],
         "responses": {
@@ -5938,6 +5951,13 @@
             "x-go-name": "FilterByDesc",
             "description": "filter the Project By Project description",
             "name": "filter_by_desc",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FuzzyKeyword",
+            "description": "fuzzy keyword for project name search",
+            "name": "fuzzy_keyword",
             "in": "query"
           }
         ],
