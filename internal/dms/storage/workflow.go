@@ -296,3 +296,39 @@ func (d *WorkflowRepo) DeleteDataExportWorkflowsByIds(ctx context.Context, dataE
 		return nil
 	})
 }
+
+func (d *WorkflowRepo) GetProjectDataExportWorkflowsForView(ctx context.Context, projectUid string) ([]string, error) {
+	workflowUids := make([]string, 0)
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Raw(`
+	SELECT DISTINCT w.uid
+	FROM  workflows w
+	WHERE w.project_uid = ?
+	`, projectUid).Find(&workflowUids).Error; err != nil {
+			return fmt.Errorf("failed to find workflow for view: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	return workflowUids, nil
+}
+
+func (d *WorkflowRepo) GetProjectDataExportWorkflowsByDBServices(ctx context.Context, dbUid []string, projectUid string) ([]string, error) {
+	workflowUids := make([]string, 0)
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Raw(`
+		SELECT w.uid
+		FROM  workflows w
+		left join workflow_records wr on w.workflow_record_uid  = wr.uid
+		left join data_export_tasks det on JSON_SEARCH(wr.task_ids ,'one',det.uid) IS NOT NULL
+		WHERE det.db_service_uid IN (?) and w.project_uid = ?
+	`, dbUid, projectUid).Find(&workflowUids).Error; err != nil {
+			return fmt.Errorf("failed to find workflow by db uid: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	return workflowUids, nil
+}
