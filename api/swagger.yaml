@@ -6106,6 +6106,15 @@ paths:
     /v1/dms/platform_metrics:
         get:
             operationId: GetPlatformMetrics
+            responses:
+                "200":
+                    description: GetPlatformMetricsReply
+                    schema:
+                        $ref: '#/definitions/GetPlatformMetricsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
             summary: Get platform resource metrics.
             tags:
                 - PlatformMetrics

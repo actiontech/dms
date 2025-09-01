@@ -1564,7 +1564,21 @@
           "PlatformMetrics"
         ],
         "summary": "Get platform resource metrics.",
-        "operationId": "GetPlatformMetrics"
+        "operationId": "GetPlatformMetrics",
+        "responses": {
+          "200": {
+            "description": "GetPlatformMetricsReply",
+            "schema": {
+              "$ref": "#/definitions/GetPlatformMetricsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
       }
     },
     "/v1/dms/plugins": {
