@@ -98,6 +98,8 @@ type UpdateUser struct {
 	ThirdPartyUserID       *string `json:"third_party_user_id"`
 	ThirdPartyUserInfo     *string `json:"third_party_user_info"`
 	UserAuthenticationType *string `json:"user_authentication_type"`
+	// User system
+	System *UserSystem `json:"system"`
 }
 
 // swagger:model
@@ -147,6 +149,8 @@ type UpdateCurrentUser struct {
 	Language *string `json:"language"`
 	// User two factor enabled
 	TwoFactorEnabled *bool `json:"two_factor_enabled"`
+	// User system
+	System *UserSystem `json:"system"`
 }
 
 type VerifyUserLoginReq struct {
@@ -196,3 +200,11 @@ func (u *AfterUserLoginReq) String() string {
 	}
 	return fmt.Sprintf("AfterUserLoginReq{UserUid:%s}", u.UserUid)
 }
+
+// swagger:enum UserSystem
+type UserSystem string
+
+const (
+	UserSystemWorkbench  UserSystem = "WORKBENCH"
+	UserSystemManagement UserSystem = "MANAGEMENT"
+)

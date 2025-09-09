@@ -186,6 +186,7 @@ func convertBizUser(u *biz.User) (*model.User, error) {
 		Language:               u.Language,
 		UserAuthenticationType: u.UserAuthenticationType.String(),
 		Stat:                   u.Stat.Uint(),
+		System:                 string(u.System),
 		LastLoginAt:            lastLoginAt,
 	}, nil
 }
@@ -270,6 +271,7 @@ func convertModelUser(u *model.User) (*biz.User, error) {
 		UserAuthenticationType: typ,
 		Stat:                   stat,
 		TwoFactorEnabled:       u.TwoFactorEnabled,
+		System:                 biz.UserSystem(u.System),
 		LastLoginAt:            lastLoginAt,
 		Password:               decrypted,
 		Deleted:                u.DeletedAt.Valid,
