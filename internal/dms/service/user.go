@@ -142,6 +142,7 @@ func (d *DMSService) UpdateUser(ctx context.Context, req *dmsV1.UpdateUserReq, c
 		Language:         req.User.Language,
 		UserGroupUIDs:    *req.User.UserGroupUids,
 		OpPermissionUIDs: *req.User.OpPermissionUids,
+		System:           (*biz.UserSystem)(req.User.System),
 	}); nil != err {
 		return fmt.Errorf("update user failed: %v", err)
 	}
@@ -150,7 +151,7 @@ func (d *DMSService) UpdateUser(ctx context.Context, req *dmsV1.UpdateUserReq, c
 }
 
 func (d *DMSService) UpdateCurrentUser(ctx context.Context, req *dmsV1.UpdateCurrentUserReq, currentUserUid string) (err error) {
-	if err = d.UserUsecase.UpdateCurrentUser(ctx, currentUserUid, req.User.OldPassword, req.User.Password, req.User.Email, req.User.Phone, req.User.WxID, req.User.Language, req.User.TwoFactorEnabled); nil != err {
+	if err = d.UserUsecase.UpdateCurrentUser(ctx, currentUserUid, req.User.OldPassword, req.User.Password, req.User.Email, req.User.Phone, req.User.WxID, req.User.Language, req.User.TwoFactorEnabled, (*biz.UserSystem)(req.User.System)); nil != err {
 		return fmt.Errorf("update user failed: %v", err)
 	}
 
@@ -239,6 +240,7 @@ func (d *DMSService) ListUsers(ctx context.Context, req *dmsCommonV1.ListUserReq
 			IsDeleted:          u.Deleted,
 			ThirdPartyUserInfo: u.ThirdPartyUserInfo,
 			Projects:           u.Projects,
+			System:             dmsCommonV1.UserSystem(u.System),
 		}
 		// 已删除用户只有基础信息
 		if u.Deleted {
@@ -498,6 +500,7 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 		Language:           u.Language,
 		TwoFactorEnabled:   u.TwoFactorEnabled,
 		ThirdPartyUserInfo: u.ThirdPartyUserInfo,
+		System:             dmsCommonV1.UserSystem(u.System),
 	}
 
 	// 获取用户状态
