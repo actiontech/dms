@@ -35,7 +35,7 @@ alwaysApply: false
 			return fmt.Errorf("failed to save model1: %v", err)
 		}
     if err := tx.WithContext(ctx).Delete(convertBizModel2(u)).Error; err != nil {
-			return fmt.Errorf("failed to save model2: %v", err)
+			return fmt.Errorf("failed to delete model2: %v", err)
 		}
 		return nil
 	}); err != nil {
