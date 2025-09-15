@@ -140,6 +140,7 @@ type User struct {
 	UserAuthenticationType string         `json:"user_authentication_type" gorm:"size:255;not null;column:user_authentication_type"`
 	Stat                   uint           `json:"stat" gorm:"not null"`
 	TwoFactorEnabled       bool           `json:"two_factor_enabled" gorm:"default:false; not null"`
+	System                 string         `json:"system" gorm:"size:50;column:system"`
 	LastLoginAt            *time.Time     `json:"last_login_at" gorm:"column:last_login_at"`
 	DeletedAt              gorm.DeletedAt `json:"delete_at" gorm:"column:delete_at" sql:"index"`
 

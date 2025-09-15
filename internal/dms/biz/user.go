@@ -31,6 +31,13 @@ const (
 	UserAuthenticationTypeOAUTH2 UserAuthenticationType = "oauth2"                // user verify through oauth2
 )
 
+type UserSystem string
+
+const (
+	UserSystemWorkbench  UserSystem = "WORKBENCH"
+	UserSystemManagement UserSystem = "MANAGEMENT"
+)
+
 func (u *UserAuthenticationType) String() string {
 	return string(*u)
 }
@@ -85,6 +92,8 @@ type User struct {
 	TwoFactorEnabled       bool
 	UserAuthenticationType UserAuthenticationType
 	Stat                   UserStat
+	// 用户系统类型
+	System UserSystem
 	// 用户上次登录时间的时间
 	LastLoginAt time.Time
 	// 用户是否被删除
@@ -148,6 +157,7 @@ func newUser(args *CreateUserArgs) (user *User, err error) {
 		UserAuthenticationType: args.UserAuthenticationType,
 		ThirdPartyUserID:       args.ThirdPartyUserID,
 		ThirdPartyUserInfo:     args.ThirdPartyUserInfo,
+		System:                 args.System,
 		Stat:                   UserStatOK,
 	}, nil
 }
@@ -454,6 +464,7 @@ type CreateUserArgs struct {
 	IsDisabled             bool
 	OpPermissionUIDs       []string
 	UserAuthenticationType UserAuthenticationType
+	System                 UserSystem
 }
 
 func (d *UserUsecase) AddUser(ctx context.Context, currentUserUid string, args *CreateUserArgs) (uid string, err error) {
@@ -485,8 +496,8 @@ func (d *UserUsecase) AddUser(ctx context.Context, currentUserUid string, args *
 		if err == nil {
 			return "", fmt.Errorf("user %v is exist", user.Name)
 		}
-		if nil != err && !errors.Is(err, pkgErr.ErrStorageNoData) {
-			return "", fmt.Errorf("get user by name error: %v", user)
+		if !errors.Is(err, pkgErr.ErrStorageNoData) {
+			return "", fmt.Errorf("get user by name error: %v", err)
 		}
 	}
 
@@ -713,6 +724,7 @@ type UpdateUserArgs struct {
 	UserAuthenticationType *UserAuthenticationType
 	ThirdPartyUserInfo     *string
 	ThirdPartyUserID       *string
+	System                 *UserSystem
 }
 
 func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid string, args *UpdateUserArgs) (err error) {
@@ -795,6 +807,9 @@ func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid string, arg
 	if args.Language != nil {
 		user.Language = *args.Language
 	}
+	if args.System != nil {
+		user.System = *args.System
+	}
 
 	if user.GetUID() == pkgConst.UIDOfUserSys {
 		if args.ThirdPartyUserID != nil {
@@ -836,7 +851,7 @@ func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid string, arg
 	return nil
 }
 
-func (d *UserUsecase) UpdateCurrentUser(ctx context.Context, currentUserUid string, oldPassword, password, email, phone, wxId, language *string, twoFactorEnabled *bool) error {
+func (d *UserUsecase) UpdateCurrentUser(ctx context.Context, currentUserUid string, oldPassword, password, email, phone, wxId, language *string, twoFactorEnabled *bool, system *UserSystem) error {
 	user, err := d.GetUser(ctx, currentUserUid)
 	if err != nil {
 		return fmt.Errorf("get user failed: %v", err)
@@ -867,6 +882,9 @@ func (d *UserUsecase) UpdateCurrentUser(ctx context.Context, currentUserUid stri
 	}
 	if twoFactorEnabled != nil {
 		user.TwoFactorEnabled = *twoFactorEnabled
+	}
+	if system != nil {
+		user.System = *system
 	}
 
 	if err := d.repo.UpdateUser(ctx, user); nil != err {
