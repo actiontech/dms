@@ -1,0 +1,507 @@
+---
+alwaysApply: false
+globs: 
+  - "internal/apiserver/**/*.go"
+  - "api/**/*.go"
+  - "pkg/dms-common/**/*.go"
+---
+## Swagger Documentation Standards
+- Use Swaggo toolchain for Swagger documentation generation
+- Required tools: `github.com/go-swagger/go-swagger`, 
+
+
+### Swagger Comment Format
+- Use declarative comment format following go-swag standards!!!（https://goswagger.io/go-swagger/generate-spec/）
+- Every API endpoint must have complete swagger annotations
+- Include comprehensive parameter descriptions and validation rules
+
+### API Operation Definition
+```go
+// swagger:operation {HTTP_METHOD} {PATH} {TAG} {OPERATION_ID}
+//
+// {DESCRIPTION}
+//
+// ---
+// parameters:
+//   - name: {PARAM_NAME}
+//     description: {PARAM_DESCRIPTION}
+//     in: {PARAM_LOCATION}
+//     required: {REQUIRED}
+//     type: {PARAM_TYPE}
+// requestBody:
+//   description: {REQUEST_DESCRIPTION}
+//   required: {REQUIRED}
+//   content:
+//     application/json:
+//       schema:
+//         "$ref": "#/definitions/{REQUEST_MODEL_NAME}"
+// responses:
+//   '{STATUS_CODE}':
+//     description: {RESPONSE_DESCRIPTION}
+//     schema:
+//       "$ref": "#/definitions/{MODEL_NAME}"
+```
+
+### Request Definition
+```go
+// swagger:parameters {OPERATION_ID}
+type RequestModel struct {
+    // Path parameters
+    // in: path
+    // required: true
+    ParamName string `param:"param_name" json:"param_name" validate:"required"`
+    
+    // Query parameters
+    // in: query
+    QueryParam string `query:"query_param" json:"query_param"`
+    
+    // Body parameters
+    // in: body
+    BodyData interface{} `json:"body_data"`
+    
+    // Header parameters
+    // in: header
+    HeaderParam string `header:"header_param" json:"header_param"`
+}
+```
+
+### Request Body Definition
+```go
+// swagger:model {REQUEST_MODEL_NAME}
+type RequestModel struct {
+    // Field description
+    // Required: true
+    // Example: "example_value"
+    FieldName string `json:"field_name" validate:"required"`
+    
+    // Optional field
+    OptionalField *string `json:"optional_field,omitempty"`
+    
+    // Array field
+    ArrayField []string `json:"array_field"`
+    
+    // Nested object
+    NestedObject *NestedType `json:"nested_object"`
+}
+```
+
+### Model Definition
+```go
+// swagger:model {MODEL_NAME}
+type ModelName struct {
+    // Field description
+    // Required: true
+    // Example: "example_value"
+    FieldName string `json:"field_name" validate:"required"`
+    
+    // Optional field
+    OptionalField *string `json:"optional_field,omitempty"`
+    
+    // Array field
+    ArrayField []string `json:"array_field"`
+    
+    // Nested object
+    NestedObject *NestedType `json:"nested_object"`
+    
+    // Enum field with swagger:enum
+    Status Status `json:"status"`
+}
+
+// swagger:enum Status
+type Status string
+
+const (
+    StatusOK      Status = "正常"
+    StatusDisable Status = "被禁用"
+)
+```
+
+### Response Definition
+```go
+// swagger:response {RESPONSE_NAME}
+type ResponseName struct {
+    // swagger:file
+    // in: body
+    File []byte
+}
+
+// swagger:model {RESPONSE_MODEL_NAME}
+type ResponseModel struct {
+    // Response data
+    Data interface{} `json:"data"`
+    
+    // Generic response
+    base.GenericResp
+}
+```
+
+### Pagination Response Structure
+```go
+// swagger:model ListResourceReply
+type ListResourceReply struct {
+    // List resource reply
+    Data []*Resource `json:"data"`
+    
+    // Total count of resources
+    Total int64 `json:"total_nums"`
+    
+    // Generic reply
+    base.GenericResp
+}
+
+// swagger:parameters ListResource
+type ListResourceReq struct {
+    // The maximum count of resources to be returned
+    // in: query
+    // Required: true
+    PageSize uint32 `query:"page_size" json:"page_size" validate:"required"`
+    
+    // The offset of resources to be returned, default is 0
+    // in: query
+    PageIndex uint32 `query:"page_index" json:"page_index"`
+    
+    // Order by field, multiple of ["name"], default is ["name"]
+    // in: query
+    OrderBy ResourceOrderByField `query:"order_by" json:"order_by"`
+    
+    // Filter by name
+    // in: query
+    FilterByName string `query:"filter_by_name" json:"filter_by_name"`
+    
+    // Filter by UIDs
+    // in: query
+    FilterByUids string `query:"filter_by_uids" json:"filter_by_uids"`
+}
+```
+
+### Common Business Models
+```go
+// swagger:model UidWithName
+type UidWithName struct {
+    // Resource UID
+    Uid string `json:"uid"`
+    
+    // Resource name
+    Name string `json:"name"`
+}
+
+// swagger:model AddResourceReply
+type AddResourceReply struct {
+    // Add resource reply
+    Data struct {
+        // Resource UID
+        Uid string `json:"uid"`
+    } `json:"data"`
+    
+    // Generic reply
+    base.GenericResp
+}
+
+// swagger:model UpdateResourceReq
+type UpdateResourceReq struct {
+    // Resource UID (path parameter)
+    // swagger:ignore
+    ResourceUid string `param:"resource_uid" json:"resource_uid" validate:"required"`
+    
+    // Resource update data
+    Resource *UpdateResource `json:"resource" validate:"required"`
+}
+
+// swagger:model FileResponse
+type FileResponse struct {
+    // swagger:file
+    // in: body
+    File []byte
+}
+```
+
+### Complete API Operation Example
+```go
+// swagger:operation GET /v1/dms/users User ListUsers
+//
+// List all users with pagination and filtering.
+//
+// ---
+// parameters:
+//   - name: page_size
+//     description: The maximum count of users to be returned
+//     in: query
+//     required: true
+//     type: integer
+//     format: uint32
+//   - name: page_index
+//     description: The offset of users to be returned, default is 0
+//     in: query
+//     required: false
+//     type: integer
+//     format: uint32
+//   - name: order_by
+//     description: Order by field, multiple of ["name"], default is ["name"]
+//     in: query
+//     required: false
+//     type: string
+//     enum: [name]
+//   - name: filter_by_name
+//     description: Filter the user name
+//     in: query
+//     required: false
+//     type: string
+// responses:
+//   '200':
+//     description: List users successfully
+//     schema:
+//       "$ref": "#/definitions/ListUserReply"
+//   default:
+//     description: Generic error response
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+```
+
+### Documentation Generation Process
+1. Install Swaggo CLI: `go install github.com/swaggo/swag/cmd/swag@latest`
+2. Generate documentation: `swag init -g internal/apiserver/service/service.go`
+3. Integrate with Echo: Register `/swagger/*` route with `echoSwagger.WrapHandler`
+4. Keep documentation synchronized with code changes
+
+### Best Practices
+- Ensure comment completeness for all API endpoints
+- Use `$ref` to reference defined models consistently
+- Define all possible response statuses and formats
+- Organize APIs with meaningful tags for better documentation structure
+- Validate generated Swagger documentation for accuracy
+
+## Performance Considerations
+- Implement proper connection pooling
+- Use goroutines for concurrent operations where beneficial
+- Optimize database queries and reduce N+1 problems
+- Implement caching strategies for frequently accessed data
+- Monitor API response times and resource usage
+
+## Cluster Mode Support
+- Enable cluster mode configuration
+- Implement service discovery and registration
+- Support load balancing across multiple instances
+- Handle cluster node failures gracefully
+- Maintain data consistency in distributed environment
+
+
+## Data Format Standards
+- Maintain consistent data format across all API endpoints
+- Follow industry standards for data representation
+- Ensure data compatibility and interoperability
+
+### JSON Field Naming Convention
+- **All JSON fields must use snake_case naming**
+- Maintain consistency across request/response models
+- Follow Go struct tag conventions
+
+```go
+// Correct JSON field naming examples
+type User struct {
+    // User unique identifier
+    UID string `json:"uid" validate:"required"`
+    
+    // User display name
+    Name string `json:"name" validate:"required"`
+    
+    // User email address
+    Email string `json:"email"`
+    
+    // User phone number
+    Phone string `json:"phone"`
+    
+    // User WeChat ID
+    WxID string `json:"wxid"`
+    
+    // User password (never return in responses)
+    Password string `json:"password,omitempty"`
+    
+    // User group identifiers
+    UserGroupUids []string `json:"user_group_uids"`
+    
+    // User operation permissions
+    OpPermissionUids []string `json:"op_permission_uids"`
+    
+    // User authentication type
+    UserAuthenticationType string `json:"user_authentication_type"`
+    
+    // User creation timestamp
+    CreatedAt string `json:"created_at"`
+    
+    // User last update timestamp
+    UpdatedAt string `json:"updated_at"`
+}
+
+// Incorrect examples (DO NOT USE)
+type IncorrectUser struct {
+    UID string `json:"UID"`                    // Wrong: PascalCase
+    Name string `json:"userName"`              // Wrong: camelCase
+    Email string `json:"EMAIL"`                // Wrong: UPPER_CASE
+    Phone string `json:"phone_number"`         // Wrong: inconsistent with existing
+}
+```
+
+### Time Field Format Standards
+- **All time fields must use RFC3339 format with timezone information**
+- Use string type for JSON serialization
+- Include timezone offset or UTC designation
+
+```go
+// Time field format examples
+type TimeFields struct {
+    // Creation timestamp in RFC3339 format
+    CreatedAt string `json:"created_at" example:"2024-01-15T10:30:00Z"`
+    
+    // Update timestamp in RFC3339 format
+    UpdatedAt string `json:"updated_at" example:"2024-01-15T14:45:00+08:00"`
+    
+    // Expiration timestamp in RFC3339 format
+    ExpiresAt string `json:"expires_at" example:"2024-12-31T23:59:59-05:00"`
+    
+    // Last login timestamp in RFC3339 format
+    LastLoginAt string `json:"last_login_at" example:"2024-01-15T09:15:30Z"`
+}
+
+// RFC3339 format examples
+// UTC time: "2024-01-15T10:30:00Z"
+// With timezone: "2024-01-15T18:30:00+08:00"
+// With timezone: "2024-01-15T05:30:00-05:00"
+
+// Time handling in Go
+import "time"
+
+func formatTimeRFC3339(t time.Time) string {
+    return t.Format(time.RFC3339)
+}
+
+func parseTimeRFC3339(timeStr string) (time.Time, error) {
+    return time.Parse(time.RFC3339, timeStr)
+}
+```
+
+### Enum Value Standards
+- **All enum values must use fixed case, recommended UPPER_CASE**
+- Maintain consistency across all enum definitions
+- Use descriptive names that clearly indicate the value's purpose
+
+```go
+// Enum value examples
+// swagger:enum UserStatus
+type UserStatus string
+
+const (
+    // User is active and can access the system
+    UserStatusActive UserStatus = "ACTIVE"
+    
+    // User is disabled and cannot access the system
+    UserStatusDisabled UserStatus = "DISABLED"
+    
+    // User account is pending activation
+    UserStatusPending UserStatus = "PENDING"
+    
+    // User account is locked due to security reasons
+    UserStatusLocked UserStatus = "LOCKED"
+)
+
+// swagger:enum AuthenticationType
+type AuthenticationType string
+
+const (
+    // Local DMS authentication
+    AuthenticationTypeDMS AuthenticationType = "DMS"
+    
+    // LDAP authentication
+    AuthenticationTypeLDAP AuthenticationType = "LDAP"
+    
+    // OAuth2 authentication
+    AuthenticationTypeOAuth2 AuthenticationType = "OAUTH2"
+    
+    // Unknown authentication type
+    AuthenticationTypeUnknown AuthenticationType = "UNKNOWN"
+)
+
+// swagger:enum ProjectOrderByField
+type ProjectOrderByField string
+
+const (
+    // Order by project name
+    ProjectOrderByName ProjectOrderByField = "NAME"
+    
+    // Order by creation time
+    ProjectOrderByCreatedAt ProjectOrderByField = "CREATED_AT"
+    
+    // Order by update time
+    ProjectOrderByUpdatedAt ProjectOrderByField = "UPDATED_AT"
+)
+
+// Incorrect enum examples (DO NOT USE)
+type IncorrectEnum string
+
+const (
+    IncorrectEnumValue1 IncorrectEnum = "value1"    // Wrong: lowercase
+    IncorrectEnumValue2 IncorrectEnum = "Value2"    // Wrong: PascalCase
+    IncorrectEnumValue3 IncorrectEnum = "VALUE_3"   // Wrong: inconsistent with others
+)
+```
+
+### Data Validation and Examples
+Include proper validation rules and examples in Swagger annotations:
+
+```go
+// swagger:model CreateUserReq
+type CreateUserReq struct {
+    // User information
+    User *CreateUser `json:"user" validate:"required"`
+}
+
+// swagger:model CreateUser
+type CreateUser struct {
+    // User display name
+    // Required: true
+    // MinLength: 1
+    // MaxLength: 100
+    // Example: "John Doe"
+    Name string `json:"name" validate:"required,min=1,max=100"`
+    
+    // User email address
+    // Required: true
+    // Format: email
+    // Example: "john.doe@example.com"
+    Email string `json:"email" validate:"required,email"`
+    
+    // User phone number
+    // Format: phone
+    // Example: "+86-138-0013-8000"
+    Phone string `json:"phone"`
+    
+    // User status
+    // Required: true
+    // Enum: [ACTIVE, DISABLED, PENDING]
+    // Example: "ACTIVE"
+    Status UserStatus `json:"status" validate:"required,oneof=ACTIVE DISABLED PENDING"`
+    
+    // User creation timestamp
+    // Format: date-time (RFC3339)
+    // Example: "2024-01-15T10:30:00Z"
+    CreatedAt string `json:"created_at"`
+}
+```
+
+### Migration Guidelines
+When updating existing APIs to follow these standards:
+
+1. **JSON Field Names**: Update struct tags to use snake_case
+2. **Time Fields**: Convert existing time formats to RFC3339
+3. **Enum Values**: Standardize enum values to UPPER_CASE
+4. **Backward Compatibility**: Consider API versioning for breaking changes
+5. **Documentation**: Update Swagger examples and documentation
+
+### Consistency Checklist
+Before committing code, ensure:
+
+- [ ] All JSON fields use snake_case naming
+- [ ] All time fields use RFC3339 format with timezone
+- [ ] All enum values use consistent UPPER_CASE format
+- [ ] Swagger examples match the actual data format
+- [ ] Validation rules are properly defined
+- [ ] Backward compatibility is maintained where required

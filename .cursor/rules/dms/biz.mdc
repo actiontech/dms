@@ -1,0 +1,48 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+
+
+#### Biz Layer Implementation Guidelines (`internal/dms/biz/`)
+- Use usecase pattern for business logic:
+  ```go
+  type SomeUsecase struct {
+      repo Repository
+      // Other dependencies
+  }
+  ```
+- Define clear domain models:
+  ```go
+  type DomainModel struct {
+      UID string
+      // Domain-specific fields
+  }
+  ```
+- Implement business validation:
+  ```go
+  func (u *SomeUsecase) validateData(ctx context.Context, data *DomainModel) error {
+      if err := u.validateBusinessRules(data); err != nil {
+          return fmt.Errorf("business validation failed: %v", err)
+      }
+      return nil
+  }
+  ```
+- Handle state transitions:
+  ```go
+  func (u *SomeUsecase) UpdateState(ctx context.Context, model *DomainModel, newState State) error {
+      if !model.CanTransitionTo(newState) {
+          return pkgErr.ErrInvalidStateTransition
+      }
+      // Update state
+  }
+  ```
+- Define repository interfaces:
+  ```go
+  type DBModelRepository interface {
+      Create(ctx context.Context, model *DomainModel) error
+      Update(ctx context.Context, model *DomainModel) error
+      // Other methods
+  }
+  ```

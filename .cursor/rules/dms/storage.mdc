@@ -1,0 +1,61 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+
+### Storage Implementation Guidelines (`internal/{module}/storage/`)
+- Use GORM for database operations:
+  ```go
+  var _ biz.DBModelRepo = (*DBModelRepo)(nil)
+  type DBModelRepo struct {
+	  *Storage
+	  log *utilLog.Helper
+  }
+  func NewDBModelRepo(log utilLog.Logger, s *Storage) *DBModelRepo {
+	  return &SmsDBModelRepo{Storage: s, log: utilLog.NewHelper(log, utilLog.WithMessageKey("storage.DBModel"))}
+  }
+  ```
+- Use proper table naming and tags:
+  ```go
+  type DBModel struct {
+      gorm.Model
+      Name string `gorm:"column:name;type:varchar(255)"`
+      // Other fields
+  }
+  
+  func (DBModel) TableName() string {
+      return "table_name"
+  }
+  ```
+- Handle transactions:
+  ```go
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Create(convertBizModel1(u)).Error; err != nil {
+			return fmt.Errorf("failed to save model1: %v", err)
+		}
+    if err := tx.WithContext(ctx).Delete(convertBizModel2(u)).Error; err != nil {
+			return fmt.Errorf("failed to delete model2: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return err
+	}
+  ```
+- Implement repository interfaces,filtering and pagination:
+  ```go
+    func (s *DBModelRepo) Create(ctx context.Context, model *Model) error {
+      return s.db.WithContext(ctx).Create(model).Error
+  }
+  func (s *DBModelRepo) List(ctx context.Context, opt *ListOption) ([]*Model, error) {
+      query := s.db.WithContext(ctx)
+      // Apply filters
+      for _, filter := range opt.Filters {
+          query = query.Where(filter.Condition, filter.Value)
+      }
+      // Apply pagination
+      query = query.Offset(opt.Offset).Limit(opt.Limit)
+      var models []*Model
+      return models, query.Find(&models).Error
+  }
+  ```

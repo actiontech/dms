@@ -1,0 +1,69 @@
+---
+description: DMS project API architecture, development standards, and implementation guidelines. Apply these rules when working with DMS API code to ensure consistency with existing patterns and maintainability.
+globs: 
+  - "internal/apiserver/**/*.go"
+  - "api/**/*.go"
+  - "pkg/dms-common/**/*.go"
+---
+
+# DMS API Standards
+
+## Framework and Architecture
+- Use Echo v4 as the web framework for all HTTP handling
+- Maintain Go 1.19+ compatibility
+- Follow layered architecture: API -> Service -> Business Logic
+- Support both v1 and v2 API versions with proper versioning strategy
+- Use JWT authentication with echo-jwt middleware
+
+## API Versioning
+- Implement versioned routes: `/v1/dms/`, `/v2/dms/`
+- Keep v1 APIs backward compatible
+- Introduce new features in v2 first
+- Use route groups for version management
+- Mark deprecated endpoints with `DeprecatedBy()` function
+
+
+## Routing Standards
+- Organize routes in `router.go` by functional modules
+- Use Echo route groups for logical separation
+- Apply middleware selectively to specific route groups
+- Support RESTful resource patterns: `GET /resource`, `POST /resource`, `PUT /resource/:id`, `DELETE /resource/:id`
+- Implement proper HTTP method handling for each endpoint
+
+## Request and Response Handling
+- Use `base.GenericResp` for consistent response structure
+- Implement proper request validation with validator tags
+- Support JSON and form data binding
+- Return standardized error codes using `apiError.ErrorCode`
+- Include proper HTTP status codes in responses
+
+## Data Models
+- Define all API models in `api/dms/service/v1/` and `api/dms/service/v2/`
+- Use consistent naming: `{Action}{Resource}Req` for requests, `{Action}{Resource}Reply` for responses
+- Include proper JSON tags and validation rules
+- Support pagination, filtering, and sorting where appropriate
+- Use `UidWithName` struct for common identifier patterns
+
+## Error Handling
+- Implement centralized error handling in controllers
+- Use predefined error codes from `apiError` package
+- Log errors with appropriate context and stack traces
+- Return user-friendly error messages
+- Support internationalization for error messages
+
+## Security Implementation
+- Enable HTTPS with TLS 1.2+ configuration
+- Implement JWT token validation and refresh
+- Use role-based access control (RBAC)
+- Validate all input parameters and request data
+- Implement proper session management and timeout
+
+## Middleware Usage
+- Apply authentication middleware to protected routes
+- Use compression middleware for response optimization
+- Implement logging middleware for request tracking
+- Apply rate limiting where necessary
+- Use custom middleware for business-specific concerns
+
+## Swagger Documentation Standards
+@swagger-documentation-standards.mdc
