@@ -5402,7 +5402,7 @@
           {
             "type": "string",
             "x-go-name": "FuzzyKeyword",
-            "description": "fuzzy keyword for user name search",
+            "description": "fuzzy keyword",
             "name": "fuzzy_keyword",
             "in": "query"
           }
@@ -5956,7 +5956,7 @@
           {
             "type": "string",
             "x-go-name": "FuzzyKeyword",
-            "description": "fuzzy keyword for project name search",
+            "description": "fuzzy keyword",
             "name": "fuzzy_keyword",
             "in": "query"
           }
@@ -9247,6 +9247,16 @@
           "x-go-enum-desc": "正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown\nNormal StatOKEn\nDisabled StatDisableEn\nUnknown StatUnknownEn",
           "x-go-name": "Stat"
         },
+        "system": {
+          "description": "user system\nWORKBENCH UserSystemWorkbench\nMANAGEMENT UserSystemManagement",
+          "type": "string",
+          "enum": [
+            "WORKBENCH",
+            "MANAGEMENT"
+          ],
+          "x-go-enum-desc": "WORKBENCH UserSystemWorkbench\nMANAGEMENT UserSystemManagement",
+          "x-go-name": "System"
+        },
         "third_party_user_info": {
           "type": "string",
           "x-go-name": "ThirdPartyUserInfo"
@@ -11836,6 +11846,16 @@
           "x-go-enum-desc": "正常 StatOK\n被禁用 StatDisable\n未知 StatUnknown\nNormal StatOKEn\nDisabled StatDisableEn\nUnknown StatUnknownEn",
           "x-go-name": "Stat"
         },
+        "system": {
+          "description": "user system\nWORKBENCH UserSystemWorkbench\nMANAGEMENT UserSystemManagement",
+          "type": "string",
+          "enum": [
+            "WORKBENCH",
+            "MANAGEMENT"
+          ],
+          "x-go-enum-desc": "WORKBENCH UserSystemWorkbench\nMANAGEMENT UserSystemManagement",
+          "x-go-name": "System"
+        },
         "third_party_user_info": {
           "description": "third party user info",
           "type": "string",
@@ -13646,6 +13666,16 @@
           "type": "string",
           "x-go-name": "Phone"
         },
+        "system": {
+          "description": "User system\nWORKBENCH UserSystemWorkbench\nMANAGEMENT UserSystemManagement",
+          "type": "string",
+          "enum": [
+            "WORKBENCH",
+            "MANAGEMENT"
+          ],
+          "x-go-enum-desc": "WORKBENCH UserSystemWorkbench\nMANAGEMENT UserSystemManagement",
+          "x-go-name": "System"
+        },
         "two_factor_enabled": {
           "description": "User two factor enabled",
           "type": "boolean",
@@ -14334,6 +14364,16 @@
           "description": "User phone",
           "type": "string",
           "x-go-name": "Phone"
+        },
+        "system": {
+          "description": "User system\nWORKBENCH UserSystemWorkbench\nMANAGEMENT UserSystemManagement",
+          "type": "string",
+          "enum": [
+            "WORKBENCH",
+            "MANAGEMENT"
+          ],
+          "x-go-enum-desc": "WORKBENCH UserSystemWorkbench\nMANAGEMENT UserSystemManagement",
+          "x-go-name": "System"
         },
         "third_party_user_id": {
           "description": "对接登录的参数",

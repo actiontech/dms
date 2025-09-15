@@ -2099,6 +2099,19 @@ definitions:
                     Disabled StatDisableEn
                     Unknown StatUnknownEn
                 x-go-name: Stat
+            system:
+                description: |-
+                    user system
+                    WORKBENCH UserSystemWorkbench
+                    MANAGEMENT UserSystemManagement
+                enum:
+                    - WORKBENCH
+                    - MANAGEMENT
+                type: string
+                x-go-enum-desc: |-
+                    WORKBENCH UserSystemWorkbench
+                    MANAGEMENT UserSystemManagement
+                x-go-name: System
             third_party_user_info:
                 type: string
                 x-go-name: ThirdPartyUserInfo
@@ -4185,6 +4198,19 @@ definitions:
                     Disabled StatDisableEn
                     Unknown StatUnknownEn
                 x-go-name: Stat
+            system:
+                description: |-
+                    user system
+                    WORKBENCH UserSystemWorkbench
+                    MANAGEMENT UserSystemManagement
+                enum:
+                    - WORKBENCH
+                    - MANAGEMENT
+                type: string
+                x-go-enum-desc: |-
+                    WORKBENCH UserSystemWorkbench
+                    MANAGEMENT UserSystemManagement
+                x-go-name: System
             third_party_user_info:
                 description: third party user info
                 type: string
@@ -5675,6 +5701,19 @@ definitions:
                 description: User phone
                 type: string
                 x-go-name: Phone
+            system:
+                description: |-
+                    User system
+                    WORKBENCH UserSystemWorkbench
+                    MANAGEMENT UserSystemManagement
+                enum:
+                    - WORKBENCH
+                    - MANAGEMENT
+                type: string
+                x-go-enum-desc: |-
+                    WORKBENCH UserSystemWorkbench
+                    MANAGEMENT UserSystemManagement
+                x-go-name: System
             two_factor_enabled:
                 description: User two factor enabled
                 type: boolean
@@ -6206,6 +6245,19 @@ definitions:
                 description: User phone
                 type: string
                 x-go-name: Phone
+            system:
+                description: |-
+                    User system
+                    WORKBENCH UserSystemWorkbench
+                    MANAGEMENT UserSystemManagement
+                enum:
+                    - WORKBENCH
+                    - MANAGEMENT
+                type: string
+                x-go-enum-desc: |-
+                    WORKBENCH UserSystemWorkbench
+                    MANAGEMENT UserSystemManagement
+                x-go-name: System
             third_party_user_id:
                 description: 对接登录的参数
                 type: string
@@ -10284,7 +10336,7 @@ paths:
                   name: filter_del_user
                   type: boolean
                   x-go-name: FilterDeletedUser
-                - description: fuzzy keyword for user name search
+                - description: fuzzy keyword
                   in: query
                   name: fuzzy_keyword
                   type: string
@@ -10674,7 +10726,7 @@ paths:
                   name: filter_by_desc
                   type: string
                   x-go-name: FilterByDesc
-                - description: fuzzy keyword for project name search
+                - description: fuzzy keyword
                   in: query
                   name: fuzzy_keyword
                   type: string
