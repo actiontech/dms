@@ -1,0 +1,123 @@
+---
+alwaysApply: true
+---
+# DMS Architecture Standards
+
+## Layered Architecture Design
+
+### API Definition Layer (`api/`)
+- Define Request and Response structures
+@dms-api-standards.mdc
+- Version-controlled API definitions (v1, v2, etc.)
+
+### API Layer (`internal/apiserver/service/route.go`)
+- Implement RESTful API design standards
+- Handle HTTP requests and responses
+- Implement request parameter binding and validation
+- Unified error handling and response format
+- Route registration and middleware configuration
+
+#### Controller Implementation Guidelines(`internal/apiserver/service/*_controller.go`)
+- Use `DMSController` struct for controller implementation
+- Include service dependencies and logger in controller struct
+- Use swagger annotations for API documentation
+@dms-api-standards.mdc  
+- Follow standard error handling pattern:
+  ```go
+  func (ctl *DMSController) MethodName(c echo.Context) error {
+      req := new(aV1.RequestStruct)
+      err := bindAndValidateReq(c, req)
+      if nil != err {
+          return NewErrResp(c, err, apiError.BadRequestErr)
+      }
+      // Business logic
+      return NewOkRespWithReply(c, reply)
+  }
+  ```
+
+
+### Service Layer (`internal/dms/service/`)
+- Implement business process orchestration without specific business rules
+- Handle transaction control and concurrency
+- Combine multiple Biz layer interfaces to complete business functions
+- Business parameter validation
+
+#### Service Implementation Guidelines
+- Use service struct with required dependencies:
+  ```go
+  type DMSService struct {
+      // Biz layer dependencies
+      BusinessUsecase *biz.BusinessUsecase
+      // Other dependencies
+  }
+  ```
+- Follow standard method signature pattern:
+  ```go
+  func (d *DMSService) MethodName(ctx context.Context, req *dmsV1.RequestStruct, currentUserUid string) (reply *dmsV1.ReplyStruct, err error)
+  ```
+- Handle request transformation:
+  ```go
+  // Transform API request to biz layer args
+  args := &biz.SomeStruct{
+      Field1: req.Field1,
+      Field2: req.Field2,
+  }
+  ```
+- Proper error handling and wrapping:
+  ```go
+  if err != nil {
+      return nil, fmt.Errorf("operation failed: %v", err)
+  }
+  ```
+- Standard response structure:
+  ```go
+  return &dmsV1.ReplyStruct{
+      Data: struct {
+          Field string `json:"field"`
+      }{Field: value},
+  }, nil
+  ```
+
+### Biz Layer (`internal/dms/biz/`)
+- Implement core business logic of domain models
+- Define domain object behaviors and rules
+- Independent of specific storage implementations
+- Include business rule validation
+- Implement core features like permission verification
+@biz.mdc
+
+### Storage Layer (`internal/{module}/storage/`)
+- Implement data access interfaces
+- Implement DBModelRepository interface,Handle database CRUD operations
+- Support multiple storage implementations
+- Contains no business logic
+@storage.mdc
+
+
+## Development Standards
+
+### Dependency Principles
+- Each layer maintains single responsibility, no cross-layer calls
+- Upper layers depend on lower layers, no reverse dependencies
+- Isolate dependencies through interfaces
+- Follow Clean Code principles
+
+### Testing Requirements
+- Write unit tests for all controller methods
+- Implement integration tests for complete API flows
+- Use `testify` library for assertions and mocking
+- Maintain test coverage above 80%
+- Test both success and error scenarios
+
+### Logging Standards
+- Use structured logging with consistent field naming
+- Include essential context fields in all log entries
+- Follow proper log level classification for different types of messages
+- Ensure logs are searchable and traceable across distributed systems
+
+### Module Development Guidelines
+- Each module should follow the layered architecture
+- Implement related functionality in corresponding directories
+- When adding new APIs, first define interfaces and data structures in the api directory
+- Then implement corresponding functionality in each layer
+- Maintain module independence and low coupling
