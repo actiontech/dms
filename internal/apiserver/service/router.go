@@ -263,10 +263,9 @@ func (s *APIServer) initRouter() error {
 			}))
 		}
 
-		// ODC SQL工作台路由
-		if s.OdcController.OdcService.OdcUsecase.IsOdcConfigured() {
-			odcV1 := s.echo.Group(s.OdcController.OdcService.OdcUsecase.GetRootUri())
-			targets, err := s.OdcController.OdcService.ProxyUsecase.GetOdcProxyTarget()
+		if s.CloudbeaverController.CloudbeaverService.SqlWorkbenchService.IsConfigured() {
+			odcV1 := s.echo.Group(s.CloudbeaverController.CloudbeaverService.SqlWorkbenchService.GetRootUri())
+			targets, err := s.CloudbeaverController.CloudbeaverService.SqlWorkbenchService.GetOdcProxyTarget()
 			if err != nil {
 				return err
 			}
@@ -465,7 +464,9 @@ func (s *APIServer) installController() error {
 
 	s.DMSController = DMSController
 	s.CloudbeaverController = cloudbeaverController
-
+	if nil != err {
+		return fmt.Errorf("failed to create sqlworkbench service: %v", err)
+	}
 	// s.AuthController.RegisterPlugin(s.DMSController.GetRegisterPluginFn())
 	return nil
 }

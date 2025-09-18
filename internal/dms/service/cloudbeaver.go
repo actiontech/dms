@@ -9,14 +9,15 @@ import (
 	maskingBiz "github.com/actiontech/dms/internal/data_masking/biz"
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/internal/dms/storage"
+	workbench "github.com/actiontech/dms/internal/sql_workbench/service"
 
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 )
 
 type CloudbeaverService struct {
 	CloudbeaverUsecase *biz.CloudbeaverUsecase
-	OdcUserCase        *biz.OdcUsecase
 	ProxyUsecase       *biz.CloudbeaverProxyUsecase
+	SqlWorkbenchService *workbench.SqlWorkbenchService
 	log                *utilLog.Helper
 }
 
@@ -61,7 +62,6 @@ func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) 
 	opPermissionRepo := storage.NewOpPermissionRepo(logger, st)
 	opPermissionUsecase := biz.NewOpPermissionUsecase(logger, tx, opPermissionRepo, pluginUseCase)
 	cloudbeaverRepo := storage.NewCloudbeaverRepo(logger, st)
-	odcRepo := storage.NewOdcRepo(logger, st)
 	loginConfigurationRepo := storage.NewLoginConfigurationRepo(logger, st)
 	loginConfigurationUsecase := biz.NewLoginConfigurationUsecase(logger, tx, loginConfigurationRepo)
 	userUsecase := biz.NewUserUsecase(logger, tx, userRepo, userGroupRepo, pluginUseCase, opPermissionUsecase, opPermissionVerifyUsecase, loginConfigurationUsecase, ldapConfigurationUsecase, cloudbeaverRepo, nil)
@@ -84,24 +84,13 @@ func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) 
 			AdminPassword: opts.CloudbeaverOpts.AdminPassword,
 		}
 	}
-
-	var odcCfg *biz.OdcCfg
-	if opts.OdcOpts != nil {
-		odcCfg = &biz.OdcCfg{
-			EnableHttps:   opts.CloudbeaverOpts.EnableHttps,
-			Host:          opts.CloudbeaverOpts.Host,
-			Port:          opts.CloudbeaverOpts.Port,
-			AdminUser:     opts.CloudbeaverOpts.AdminUser,
-			AdminPassword: opts.CloudbeaverOpts.AdminPassword,
-		}
-	}
 	cloudbeaverUsecase := biz.NewCloudbeaverUsecase(logger, cfg, userUsecase, dbServiceUseCase, opPermissionVerifyUsecase, dmsConfigUseCase, dataMaskingUsecase, cloudbeaverRepo, dmsProxyTargetRepo, cbOperationLogUsecase, projectUsecase)
 	proxyUsecase := biz.NewCloudbeaverProxyUsecase(logger, cloudbeaverUsecase)
-
+	sqlWorkbenchService, err := workbench.NewAndInitSqlWorkbenchService(logger, opts)
 	return &CloudbeaverService{
 		CloudbeaverUsecase: cloudbeaverUsecase,
-		OdcUserCase:        biz.NewOdcUsecase(logger, odcCfg, userUsecase, dbServiceUseCase, opPermissionVerifyUsecase, dmsConfigUseCase, dataMaskingUsecase, odcRepo, dmsProxyTargetRepo, cbOperationLogUsecase, projectUsecase),
 		ProxyUsecase:       proxyUsecase,
+		SqlWorkbenchService: sqlWorkbenchService,
 		log:                utilLog.NewHelper(logger, utilLog.WithMessageKey("cloudbeaver.service")),
 	}, nil
 }
@@ -111,10 +100,10 @@ func (cs *CloudbeaverService) GetCloudbeaverConfiguration(ctx context.Context) (
 	defer func() {
 		cs.log.Infof("GetCloudbeaverConfiguration; reply=%v, error=%v", reply, err)
 	}()
-	enableSqlQuery := cs.CloudbeaverUsecase.IsCloudbeaverConfigured() || cs.OdcUserCase.IsOdcConfigured()
+	enableSqlQuery := cs.CloudbeaverUsecase.IsCloudbeaverConfigured() || cs.SqlWorkbenchService.IsConfigured()
 	sqlQueryRootURI := cs.CloudbeaverUsecase.GetRootUri() + "/"
-	if cs.OdcUserCase.IsOdcConfigured() {
-		sqlQueryRootURI = cs.OdcUserCase.GetRootUri()
+	if cs.SqlWorkbenchService.IsConfigured() {
+		sqlQueryRootURI = cs.SqlWorkbenchService.GetRootUri()
 	}
 	return &dmsV1.GetSQLQueryConfigurationReply{
 		Data: struct {
