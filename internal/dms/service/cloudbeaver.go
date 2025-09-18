@@ -15,6 +15,7 @@ import (
 
 type CloudbeaverService struct {
 	CloudbeaverUsecase *biz.CloudbeaverUsecase
+	OdcUserCase        *biz.OdcUsecase
 	ProxyUsecase       *biz.CloudbeaverProxyUsecase
 	log                *utilLog.Helper
 }
@@ -60,6 +61,7 @@ func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) 
 	opPermissionRepo := storage.NewOpPermissionRepo(logger, st)
 	opPermissionUsecase := biz.NewOpPermissionUsecase(logger, tx, opPermissionRepo, pluginUseCase)
 	cloudbeaverRepo := storage.NewCloudbeaverRepo(logger, st)
+	odcRepo := storage.NewOdcRepo(logger, st)
 	loginConfigurationRepo := storage.NewLoginConfigurationRepo(logger, st)
 	loginConfigurationUsecase := biz.NewLoginConfigurationUsecase(logger, tx, loginConfigurationRepo)
 	userUsecase := biz.NewUserUsecase(logger, tx, userRepo, userGroupRepo, pluginUseCase, opPermissionUsecase, opPermissionVerifyUsecase, loginConfigurationUsecase, ldapConfigurationUsecase, cloudbeaverRepo, nil)
@@ -83,11 +85,22 @@ func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) 
 		}
 	}
 
+	var odcCfg *biz.OdcCfg
+	if opts.OdcOpts != nil {
+		odcCfg = &biz.OdcCfg{
+			EnableHttps:   opts.CloudbeaverOpts.EnableHttps,
+			Host:          opts.CloudbeaverOpts.Host,
+			Port:          opts.CloudbeaverOpts.Port,
+			AdminUser:     opts.CloudbeaverOpts.AdminUser,
+			AdminPassword: opts.CloudbeaverOpts.AdminPassword,
+		}
+	}
 	cloudbeaverUsecase := biz.NewCloudbeaverUsecase(logger, cfg, userUsecase, dbServiceUseCase, opPermissionVerifyUsecase, dmsConfigUseCase, dataMaskingUsecase, cloudbeaverRepo, dmsProxyTargetRepo, cbOperationLogUsecase, projectUsecase)
 	proxyUsecase := biz.NewCloudbeaverProxyUsecase(logger, cloudbeaverUsecase)
 
 	return &CloudbeaverService{
 		CloudbeaverUsecase: cloudbeaverUsecase,
+		OdcUserCase:        biz.NewOdcUsecase(logger, odcCfg, userUsecase, dbServiceUseCase, opPermissionVerifyUsecase, dmsConfigUseCase, dataMaskingUsecase, odcRepo, dmsProxyTargetRepo, cbOperationLogUsecase, projectUsecase),
 		ProxyUsecase:       proxyUsecase,
 		log:                utilLog.NewHelper(logger, utilLog.WithMessageKey("cloudbeaver.service")),
 	}, nil
@@ -98,14 +111,18 @@ func (cs *CloudbeaverService) GetCloudbeaverConfiguration(ctx context.Context) (
 	defer func() {
 		cs.log.Infof("GetCloudbeaverConfiguration; reply=%v, error=%v", reply, err)
 	}()
-
+	enableSqlQuery := cs.CloudbeaverUsecase.IsCloudbeaverConfigured() || cs.OdcUserCase.IsOdcConfigured()
+	sqlQueryRootURI := cs.CloudbeaverUsecase.GetRootUri() + "/"
+	if cs.OdcUserCase.IsOdcConfigured() {
+		sqlQueryRootURI = cs.OdcUserCase.GetRootUri()
+	}
 	return &dmsV1.GetSQLQueryConfigurationReply{
 		Data: struct {
 			EnableSQLQuery  bool   `json:"enable_sql_query"`
 			SQLQueryRootURI string `json:"sql_query_root_uri"`
 		}{
-			EnableSQLQuery:  cs.CloudbeaverUsecase.IsCloudbeaverConfigured(),
-			SQLQueryRootURI: cs.CloudbeaverUsecase.GetRootUri() + "/", // 确保URL以斜杠结尾，防止DMS开启HTTPS时，Web服务器重定向到HTTP根路径导致访问错误
+			EnableSQLQuery:  enableSqlQuery,
+			SQLQueryRootURI: sqlQueryRootURI,
 		},
 	}, nil
 }

@@ -262,6 +262,24 @@ func (s *APIServer) initRouter() error {
 				Balancer: middleware.NewRandomBalancer(targets),
 			}))
 		}
+
+		// ODC SQL工作台路由
+		if s.OdcController.OdcService.OdcUsecase.IsOdcConfigured() {
+			odcV1 := s.echo.Group(s.OdcController.OdcService.OdcUsecase.GetRootUri())
+			targets, err := s.OdcController.OdcService.ProxyUsecase.GetOdcProxyTarget()
+			if err != nil {
+				return err
+			}
+
+			odcV1.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
+				Skipper:  middleware.DefaultSkipper,
+				Balancer: middleware.NewRandomBalancer(targets),
+				Rewrite: map[string]string{
+					"/odc_query":   "/",
+					"/odc_query/*": "/$1",
+				},
+			}))
+		}
 	}
 
 	{

@@ -41,6 +41,7 @@ import (
 type APIServer struct {
 	DMSController         *DMSController
 	CloudbeaverController *CloudbeaverController
+	OdcController         *OdcController
 	// more controllers
 
 	echo   *echo.Echo
