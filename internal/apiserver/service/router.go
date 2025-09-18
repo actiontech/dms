@@ -269,7 +269,8 @@ func (s *APIServer) initRouter() error {
 			if err != nil {
 				return err
 			}
-
+			
+			odcV1.Use(s.CloudbeaverController.CloudbeaverService.SqlWorkbenchService.Login())
 			odcV1.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
 				Skipper:  middleware.DefaultSkipper,
 				Balancer: middleware.NewRandomBalancer(targets),

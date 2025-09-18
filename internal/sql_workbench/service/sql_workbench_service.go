@@ -6,7 +6,9 @@ import (
 	"github.com/actiontech/dms/internal/apiserver/conf"
 	config "github.com/actiontech/dms/internal/sql_workbench/config"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
+	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"net/http"
 	"net/url"
 )
 
@@ -69,4 +71,17 @@ func (sqlWorkbenchService *SqlWorkbenchService) GetOdcProxyTarget() ([]*middlewa
 
 func (sqlWorkbenchService *SqlWorkbenchService) GetRootUri() string {
 	return SQL_WORKBENCH_URL
+}
+
+func (sqlWorkbenchService *SqlWorkbenchService) Login() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			// TODO set cookie c.Request().AddCookie(&http.Cookie{Name: "JSESSIONID", Value: "MWYyODgyMTktYTQ4MS00Yjc3LThjYjQtZjFlOTJjODZiMGRj"})
+			if c.Request().Method == http.MethodGet {
+				return next(c)
+			}
+
+			return next(c)
+		}
+	}
 }
