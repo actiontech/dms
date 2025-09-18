@@ -26,9 +26,6 @@ func NewAndInitOdcService(logger utilLog.Logger, opts *conf.DMSOptions) (*OdcSer
 			Port:          opts.OdcOpts.Port,
 			AdminUser:     opts.OdcOpts.AdminUser,
 			AdminPassword: opts.OdcOpts.AdminPassword,
-			APIKey:        opts.OdcOpts.APIKey,
-			ClientID:      opts.OdcOpts.ClientID,
-			ClientSecret:  opts.OdcOpts.ClientSecret,
 		}
 	}
 

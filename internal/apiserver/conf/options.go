@@ -21,10 +21,19 @@ type SQLEOptions struct {
 type DMSOptions struct {
 	dmsCommonConf.BaseOptions `yaml:",inline"`
 	CloudbeaverOpts           *CloudbeaverOpts `yaml:"cloudbeaver"`
+	OdcOpts                   *OdcOpts         `yaml:"odc"`
 	ServiceOpts               *ServiceOptions  `yaml:"service"`
 }
 
 type CloudbeaverOpts struct {
+	EnableHttps   bool   `yaml:"enable_https"`
+	Host          string `yaml:"host"`
+	Port          string `yaml:"port"`
+	AdminUser     string `yaml:"admin_user"`
+	AdminPassword string `yaml:"admin_password"`
+}
+
+type OdcOpts struct {
 	EnableHttps   bool   `yaml:"enable_https"`
 	Host          string `yaml:"host"`
 	Port          string `yaml:"port"`
