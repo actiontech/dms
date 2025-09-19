@@ -264,14 +264,14 @@ func (s *APIServer) initRouter() error {
 		}
 
 		if s.CloudbeaverController.CloudbeaverService.SqlWorkbenchService.IsConfigured() {
-			odcV1 := s.echo.Group(s.CloudbeaverController.CloudbeaverService.SqlWorkbenchService.GetRootUri())
+			sqlWorkbenchV1 := s.echo.Group(s.CloudbeaverController.CloudbeaverService.SqlWorkbenchService.GetRootUri())
 			targets, err := s.CloudbeaverController.CloudbeaverService.SqlWorkbenchService.GetOdcProxyTarget()
 			if err != nil {
 				return err
 			}
-			
-			odcV1.Use(s.CloudbeaverController.CloudbeaverService.SqlWorkbenchService.Login())
-			odcV1.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
+
+			sqlWorkbenchV1.Use(s.CloudbeaverController.CloudbeaverService.SqlWorkbenchService.Login())
+			sqlWorkbenchV1.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
 				Skipper:  middleware.DefaultSkipper,
 				Balancer: middleware.NewRandomBalancer(targets),
 				Rewrite: map[string]string{
