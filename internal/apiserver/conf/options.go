@@ -1,6 +1,7 @@
 package conf
 
 import (
+	workbench "github.com/actiontech/dms/internal/sql_workbench/config"
 	dmsCommonConf "github.com/actiontech/dms/pkg/dms-common/conf"
 	utilConf "github.com/actiontech/dms/pkg/dms-common/pkg/config"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
@@ -20,8 +21,9 @@ type SQLEOptions struct {
 
 type DMSOptions struct {
 	dmsCommonConf.BaseOptions `yaml:",inline"`
-	CloudbeaverOpts           *CloudbeaverOpts `yaml:"cloudbeaver"`
-	ServiceOpts               *ServiceOptions  `yaml:"service"`
+	CloudbeaverOpts  *CloudbeaverOpts  `yaml:"cloudbeaver"`
+	SqlWorkBenchOpts *workbench.SqlWorkbenchOpts `yaml:"sqlworkbench"`
+	ServiceOpts      *ServiceOptions   `yaml:"service"`
 }
 
 type CloudbeaverOpts struct {

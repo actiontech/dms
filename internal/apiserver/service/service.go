@@ -42,7 +42,6 @@ type APIServer struct {
 	DMSController         *DMSController
 	CloudbeaverController *CloudbeaverController
 	// more controllers
-
 	echo   *echo.Echo
 	opts   *conf.DMSOptions
 	logger utilLog.Logger

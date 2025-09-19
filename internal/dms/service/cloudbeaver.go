@@ -9,6 +9,7 @@ import (
 	maskingBiz "github.com/actiontech/dms/internal/data_masking/biz"
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/internal/dms/storage"
+	workbench "github.com/actiontech/dms/internal/sql_workbench/service"
 
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 )
@@ -16,6 +17,7 @@ import (
 type CloudbeaverService struct {
 	CloudbeaverUsecase *biz.CloudbeaverUsecase
 	ProxyUsecase       *biz.CloudbeaverProxyUsecase
+	SqlWorkbenchService *workbench.SqlWorkbenchService
 	log                *utilLog.Helper
 }
 
@@ -82,13 +84,13 @@ func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) 
 			AdminPassword: opts.CloudbeaverOpts.AdminPassword,
 		}
 	}
-
 	cloudbeaverUsecase := biz.NewCloudbeaverUsecase(logger, cfg, userUsecase, dbServiceUseCase, opPermissionVerifyUsecase, dmsConfigUseCase, dataMaskingUsecase, cloudbeaverRepo, dmsProxyTargetRepo, cbOperationLogUsecase, projectUsecase)
 	proxyUsecase := biz.NewCloudbeaverProxyUsecase(logger, cloudbeaverUsecase)
-
+	sqlWorkbenchService, err := workbench.NewAndInitSqlWorkbenchService(logger, opts)
 	return &CloudbeaverService{
 		CloudbeaverUsecase: cloudbeaverUsecase,
 		ProxyUsecase:       proxyUsecase,
+		SqlWorkbenchService: sqlWorkbenchService,
 		log:                utilLog.NewHelper(logger, utilLog.WithMessageKey("cloudbeaver.service")),
 	}, nil
 }
@@ -98,14 +100,18 @@ func (cs *CloudbeaverService) GetCloudbeaverConfiguration(ctx context.Context) (
 	defer func() {
 		cs.log.Infof("GetCloudbeaverConfiguration; reply=%v, error=%v", reply, err)
 	}()
-
+	enableSqlQuery := cs.CloudbeaverUsecase.IsCloudbeaverConfigured() || cs.SqlWorkbenchService.IsConfigured()
+	sqlQueryRootURI := cs.CloudbeaverUsecase.GetRootUri() + "/"
+	if cs.SqlWorkbenchService.IsConfigured() {
+		sqlQueryRootURI = cs.SqlWorkbenchService.GetRootUri()
+	}
 	return &dmsV1.GetSQLQueryConfigurationReply{
 		Data: struct {
 			EnableSQLQuery  bool   `json:"enable_sql_query"`
 			SQLQueryRootURI string `json:"sql_query_root_uri"`
 		}{
-			EnableSQLQuery:  cs.CloudbeaverUsecase.IsCloudbeaverConfigured(),
-			SQLQueryRootURI: cs.CloudbeaverUsecase.GetRootUri() + "/", // 确保URL以斜杠结尾，防止DMS开启HTTPS时，Web服务器重定向到HTTP根路径导致访问错误
+			EnableSQLQuery:  enableSqlQuery,
+			SQLQueryRootURI: sqlQueryRootURI,
 		},
 	}, nil
 }

@@ -262,6 +262,24 @@ func (s *APIServer) initRouter() error {
 				Balancer: middleware.NewRandomBalancer(targets),
 			}))
 		}
+
+		if s.CloudbeaverController.CloudbeaverService.SqlWorkbenchService.IsConfigured() {
+			sqlWorkbenchV1 := s.echo.Group(s.CloudbeaverController.CloudbeaverService.SqlWorkbenchService.GetRootUri())
+			targets, err := s.CloudbeaverController.CloudbeaverService.SqlWorkbenchService.GetOdcProxyTarget()
+			if err != nil {
+				return err
+			}
+
+			sqlWorkbenchV1.Use(s.CloudbeaverController.CloudbeaverService.SqlWorkbenchService.Login())
+			sqlWorkbenchV1.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
+				Skipper:  middleware.DefaultSkipper,
+				Balancer: middleware.NewRandomBalancer(targets),
+				Rewrite: map[string]string{
+					"/odc_query":   "/",
+					"/odc_query/*": "/$1",
+				},
+			}))
+		}
 	}
 
 	{
@@ -447,7 +465,9 @@ func (s *APIServer) installController() error {
 
 	s.DMSController = DMSController
 	s.CloudbeaverController = cloudbeaverController
-
+	if nil != err {
+		return fmt.Errorf("failed to create sqlworkbench service: %v", err)
+	}
 	// s.AuthController.RegisterPlugin(s.DMSController.GetRegisterPluginFn())
 	return nil
 }
