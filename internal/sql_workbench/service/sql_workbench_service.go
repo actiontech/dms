@@ -2,25 +2,21 @@ package sql_workbench
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/apiserver/conf"
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
-	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	"github.com/actiontech/dms/internal/dms/storage"
 	"github.com/actiontech/dms/internal/sql_workbench/client"
 	config "github.com/actiontech/dms/internal/sql_workbench/config"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
-	"github.com/go-openapi/strfmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -29,7 +25,6 @@ const SQL_WORKBENCH_URL = "/odc_query"
 const SQL_WORKBENCH_PREFIX = "DMS-"
 const SQL_WORKBENCH_DEFAULT_PASSWORD = "DMS123__"
 const SQL_WORKBENCH_REAL_PASSWORD = "DMS123__@"
-const SYS_ADMIN = 1
 const INDIVIDUAL_SPACE = 4
 
 // generateSqlWorkbenchUsername 生成 SQL Workbench 用户名
@@ -268,11 +263,6 @@ func (sqlWorkbenchService *SqlWorkbenchService) createSqlWorkbenchUser(ctx conte
 		return err
 	}
 
-	roleIds := []int64{INDIVIDUAL_SPACE}
-	if dmsUser.Name == "admin" {
-		roleIds = []int64{SYS_ADMIN}
-	}
-
 	// 创建用户请求
 	sqlWorkbenchUsername := sqlWorkbenchService.generateSqlWorkbenchUsername(dmsUser.Name)
 	createUserReq := []client.CreateUserRequest{
@@ -281,7 +271,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) createSqlWorkbenchUser(ctx conte
 			Name:        sqlWorkbenchUsername,
 			Password:    SQL_WORKBENCH_DEFAULT_PASSWORD,
 			Enabled:     true,
-			RoleIDs:     roleIds,
+			RoleIDs:     []int64{INDIVIDUAL_SPACE},
 		},
 	}
 
@@ -780,70 +770,6 @@ func (sqlWorkbenchService *SqlWorkbenchService) convertDBType(dmsDBType string) 
 	default:
 		return dmsDBType
 	}
-}
-
-// todo ResetDbServiceByAuth 及其依赖函数的代码优化 现在基本是从cb那复制的
-
-func (sqlWorkbenchService *SqlWorkbenchService) ResetDbServiceByAuth(ctx context.Context, activeDBServices []*biz.DBService, userId string) ([]*biz.DBService, error) {
-	proxyTarget, err := sqlWorkbenchService.proxyTargetRepo.GetProxyTargetByName(ctx, "provision")
-	if errors.Is(err, pkgErr.ErrStorageNoData) {
-		return activeDBServices, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	dbaccounts := make(map[string]*TempDBAccount, 0)
-	projectTips := make(map[string]struct{}, 0)
-	for _, db := range activeDBServices {
-		if _, ok := projectTips[db.ProjectUID]; ok {
-			continue
-		}
-		projectTips[db.ProjectUID] = struct{}{}
-		accounts, err := ListAuthDbAccount(ctx, proxyTarget.URL.String(), db.ProjectUID, userId)
-		if err != nil {
-			return nil, err
-		}
-		for _, account := range accounts {
-			dbaccounts[account.DBAccountUid] = account
-		}
-
-	}
-
-	ret := make([]*biz.DBService, 0)
-	for _, activeDBService := range activeDBServices {
-		// prov不支持的数据库类型 使用数据源账号密码连接
-		if !sqlWorkbenchService.SupportDBType(pkgConst.DBType(activeDBService.DBType)) {
-			ret = append(ret, activeDBService)
-			continue
-		}
-
-		for _, dbaccount := range dbaccounts {
-
-			if dbaccount.ExpiredTime != "" {
-				expiredTime, err := time.Parse(strfmt.RFC3339Millis, dbaccount.ExpiredTime)
-				if err != nil {
-					sqlWorkbenchService.log.Errorf("failed to parse expired time %v: %v", dbaccount.ExpiredTime, err)
-					continue
-				}
-				if expiredTime.Unix() <= time.Now().Unix() {
-					continue
-				}
-			}
-
-			if dbaccount.DbService.Uid == activeDBService.UID {
-				db := *activeDBService
-				db.User = buildDatabaseUser(dbaccount.AccountInfo.User, db.User, db.DBType)
-				db.Password = dbaccount.AccountInfo.Password
-				db.AccountPurpose = buildDatabaseUser(dbaccount.AccountInfo.User, db.User, db.DBType)
-				ret = append(ret, &db)
-				break
-			}
-
-		}
-	}
-
-	return ret, nil
 }
 
 func (sqlWorkbenchService *SqlWorkbenchService) SupportDBType(dbType pkgConst.DBType) bool {
