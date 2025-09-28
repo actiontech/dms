@@ -362,11 +362,6 @@ func (sqlWorkbenchService *SqlWorkbenchService) syncDatasources(ctx context.Cont
 		return fmt.Errorf("failed to get user accessible db services: %v", err)
 	}
 
-	if len(activeDBServices) == 0 {
-		sqlWorkbenchService.log.Infof("No accessible db services for user %s", dmsUser.Name)
-		return nil
-	}
-
 	// 获取当前用户Cookie
 	userCookie, organizationId, err := sqlWorkbenchService.getUserCookie(dmsUser)
 	if err != nil {
@@ -556,6 +551,11 @@ func (sqlWorkbenchService *SqlWorkbenchService) syncDBServicesToSqlWorkbench(ctx
 	for _, ds := range existingDatasources {
 		key := sqlWorkbenchService.getDatasourceKey(ds.DMSDBServiceID, ds.Purpose)
 		existingDatasourceMap[key] = ds
+	}
+
+	if len(dbServices) == 0 {
+		sqlWorkbenchService.log.Infof("No accessible db services for user, cleaning up all existing datasources")
+		return sqlWorkbenchService.cleanupObsoleteDatasources(ctx, dbServices, existingDatasourceMap, userCookie, organizationID)
 	}
 
 	// 处理每个数据源
