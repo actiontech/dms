@@ -140,9 +140,6 @@ func (c *SqlWorkbenchClient) Login(username, password, publicKey string) (*Login
 		return nil, fmt.Errorf("failed to send login request: %v", err)
 	}
 	defer resp.Body.Close()
-	for _, v := range resp.Cookies() {
-		fmt.Println(v.Name, v.Value)
-	}
 	// 读取响应
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -204,10 +201,6 @@ func (c *SqlWorkbenchClient) GetOrganizations(cookie string) (*GetOrganizationsR
 		return nil, fmt.Errorf("failed to send get organizations request: %v", err)
 	}
 	defer resp.Body.Close()
-
-	for _, v := range resp.Cookies() {
-		fmt.Println(v.Name, v.Value)
-	}
 	// 读取响应
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
