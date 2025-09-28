@@ -173,12 +173,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) GetSqlWorkbenchConfiguration() (
 
 func (sqlWorkbenchService *SqlWorkbenchService) GetOdcProxyTarget() ([]*middleware.ProxyTarget, error) {
 	cfg := sqlWorkbenchService.cfg
-	protocol := "http"
-	if cfg.EnableHttps {
-		protocol = "https"
-	}
-
-	rawUrl, err := url.Parse(fmt.Sprintf("%v://%v:%v", protocol, cfg.Host, cfg.Port))
+	rawUrl, err := url.Parse(fmt.Sprintf("http://%v:%v", cfg.Host, cfg.Port))
 	if err != nil {
 		return nil, err
 	}

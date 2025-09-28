@@ -29,11 +29,7 @@ type SqlWorkbenchClient struct {
 
 // NewSqlWorkbenchClient 创建SQL工作台客户端
 func NewSqlWorkbenchClient(cfg *config.SqlWorkbenchOpts, logger utilLog.Logger) *SqlWorkbenchClient {
-	protocol := "http"
-	if cfg.EnableHttps {
-		protocol = "https"
-	}
-	baseURL := fmt.Sprintf("%s://%s:%s", protocol, cfg.Host, cfg.Port)
+	baseURL := fmt.Sprintf("http://%s:%s", cfg.Host, cfg.Port)
 
 	return &SqlWorkbenchClient{
 		cfg: cfg,
