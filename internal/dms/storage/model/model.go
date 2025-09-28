@@ -42,6 +42,8 @@ var AutoMigrateList = []interface{}{
 	SmsConfiguration{},
 	CloudbeaverUserCache{},
 	CloudbeaverConnectionCache{},
+	SqlWorkbenchUserCache{},
+	SqlWorkbenchDatasourceCache{},
 	DBServiceSyncTask{},
 	BasicConfig{},
 	CompanyNotice{},
@@ -396,6 +398,20 @@ type IMConfiguration struct {
 	ProcessCode string `json:"process_code" gorm:"size:255;column:process_code"`
 	// 类型唯一
 	Type string `json:"type" gorm:"index:unique,size:255"`
+}
+
+type SqlWorkbenchUserCache struct {
+	DMSUserID            string `json:"dms_user_id" gorm:"column:dms_user_id;primaryKey"`
+	SqlWorkbenchUserId   int64  `json:"sql_workbench_user_id" gorm:"column:sql_workbench_user_id"`
+	SqlWorkbenchUsername string `json:"sql_workbench_username" gorm:"size:255;column:sql_workbench_username"`
+}
+
+type SqlWorkbenchDatasourceCache struct {
+	DMSDBServiceID           string `json:"dms_db_service_id" gorm:"column:dms_db_service_id;primaryKey"`
+	DMSUserID                string `json:"dms_user_id" gorm:"column:dms_user_id;primaryKey"`
+	DMSDBServiceFingerprint  string `json:"dms_db_service_fingerprint" gorm:"size:255;column:dms_db_service_fingerprint"`
+	SqlWorkbenchDatasourceID int64  `json:"sql_workbench_datasource_id" gorm:"column:sql_workbench_datasource_id"`
+	Purpose                  string `json:"purpose" gorm:"size:255;column:purpose;primaryKey"`
 }
 
 type CloudbeaverUserCache struct {

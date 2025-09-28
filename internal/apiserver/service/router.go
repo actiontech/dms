@@ -193,7 +193,7 @@ func (s *APIServer) initRouter() error {
 		configurationV1.GET("/webhook", s.DMSController.GetWebHookConfiguration)        /* TODO AdminUserAllowed()*/
 		configurationV1.PATCH("/webhook", s.DMSController.UpdateWebHookConfiguration)   /* TODO AdminUserAllowed()*/
 		configurationV1.POST("/webhook/test", s.DMSController.TestWebHookConfiguration) /* TODO AdminUserAllowed()*/
-		configurationV1.GET("/sql_query", s.CloudbeaverController.GetSQLQueryConfiguration)
+		configurationV1.GET("/sql_query", s.SqlWorkbenchController.GetSQLQueryConfiguration)
 		configurationV1.GET("/sms", s.DMSController.GetSmsConfiguration) /* TODO AdminUserAllowed()*/
 		configurationV1.POST("/sms/test", s.DMSController.TestSmsConfiguration)
 		configurationV1.PATCH("/sms", s.DMSController.UpdateSmsConfiguration)
@@ -248,18 +248,37 @@ func (s *APIServer) initRouter() error {
 		gatewayV1.GET("/tips", s.DMSController.GetGatewayTips)
 		gatewayV1.PUT("/", s.DMSController.SyncGateways, s.DMSController.DMS.GatewayUsecase.Broadcast())
 
-		if s.CloudbeaverController.CloudbeaverService.CloudbeaverUsecase.IsCloudbeaverConfigured() {
-			cloudbeaverV1 := s.echo.Group(s.CloudbeaverController.CloudbeaverService.CloudbeaverUsecase.GetRootUri())
-			targets, err := s.CloudbeaverController.CloudbeaverService.ProxyUsecase.GetCloudbeaverProxyTarget()
+		if s.SqlWorkbenchController.CloudbeaverService.CloudbeaverUsecase.IsCloudbeaverConfigured() {
+			cloudbeaverV1 := s.echo.Group(s.SqlWorkbenchController.CloudbeaverService.CloudbeaverUsecase.GetRootUri())
+			targets, err := s.SqlWorkbenchController.CloudbeaverService.ProxyUsecase.GetCloudbeaverProxyTarget()
 			if err != nil {
 				return err
 			}
 
-			cloudbeaverV1.Use(s.CloudbeaverController.CloudbeaverService.CloudbeaverUsecase.Login())
-			cloudbeaverV1.Use(s.CloudbeaverController.CloudbeaverService.CloudbeaverUsecase.GraphQLDistributor())
+			cloudbeaverV1.Use(s.SqlWorkbenchController.CloudbeaverService.CloudbeaverUsecase.Login())
+			cloudbeaverV1.Use(s.SqlWorkbenchController.CloudbeaverService.CloudbeaverUsecase.GraphQLDistributor())
 			cloudbeaverV1.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
 				Skipper:  middleware.DefaultSkipper,
 				Balancer: middleware.NewRandomBalancer(targets),
+			}))
+		}
+
+
+		if s.SqlWorkbenchController.SqlWorkbenchService.IsConfigured() {
+			sqlWorkbenchV1 := s.echo.Group(s.SqlWorkbenchController.SqlWorkbenchService.GetRootUri())
+			targets, err := s.SqlWorkbenchController.SqlWorkbenchService.GetOdcProxyTarget()
+			if err != nil {
+				return err
+			}
+
+			sqlWorkbenchV1.Use(s.SqlWorkbenchController.SqlWorkbenchService.Login())
+			sqlWorkbenchV1.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
+				Skipper:  middleware.DefaultSkipper,
+				Balancer: middleware.NewRandomBalancer(targets),
+				Rewrite: map[string]string{
+					"/odc_query":   "/",
+					"/odc_query/*": "/$1",
+				},
 			}))
 		}
 	}
@@ -398,7 +417,7 @@ func (s *APIServer) installMiddleware() error {
 
 	s.echo.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Skipper: middleware.Skipper(func(c echo.Context) bool {
-			if strings.HasPrefix(c.Request().URL.Path, s.CloudbeaverController.CloudbeaverService.CloudbeaverUsecase.GetRootUri()) {
+			if strings.HasPrefix(c.Request().URL.Path, s.SqlWorkbenchController.CloudbeaverService.CloudbeaverUsecase.GetRootUri()) {
 				return true
 			}
 			if strings.HasPrefix(c.Request().URL.Path, "/provision/v") ||
@@ -435,18 +454,19 @@ func (s *APIServer) installMiddleware() error {
 }
 
 func (s *APIServer) installController() error {
-	cloudbeaverController, err := NewCloudbeaverController(s.logger, s.opts)
+	sqlWorkbenchController, err := NewSqlWorkbenchController(s.logger, s.opts)
 	if nil != err {
-		return fmt.Errorf("failed to create CloudbeaverController: %v", err)
+		return fmt.Errorf("failed to create SqlWorkbenchController: %v", err)
 	}
 
-	DMSController, err := NewDMSController(s.logger, s.opts, cloudbeaverController.CloudbeaverService)
+	DMSController, err := NewDMSController(s.logger, s.opts, sqlWorkbenchController.CloudbeaverService)
 	if nil != err {
 		return fmt.Errorf("failed to create DMSController: %v", err)
 	}
 
 	s.DMSController = DMSController
-	s.CloudbeaverController = cloudbeaverController
+	s.SqlWorkbenchController = sqlWorkbenchController
+
 
 	// s.AuthController.RegisterPlugin(s.DMSController.GetRegisterPluginFn())
 	return nil
