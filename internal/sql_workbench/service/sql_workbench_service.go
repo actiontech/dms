@@ -247,10 +247,6 @@ func (sqlWorkbenchService *SqlWorkbenchService) Login() echo.MiddlewareFunc {
 				return err
 			}
 
-			if c.Request().Method == http.MethodGet {
-				return next(c)
-			}
-
 			return next(c)
 		}
 	}
