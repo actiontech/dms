@@ -40,7 +40,7 @@ import (
 
 type APIServer struct {
 	DMSController         *DMSController
-	CloudbeaverController *CloudbeaverController
+	SqlWorkbenchController *SqlWorkbenchController
 	// more controllers
 
 	echo   *echo.Echo
