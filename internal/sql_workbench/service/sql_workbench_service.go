@@ -749,7 +749,8 @@ func (sqlWorkbenchService *SqlWorkbenchService) buildUpdateDatasourceRequest(ctx
 // convertDBType 转换数据库类型
 func (sqlWorkbenchService *SqlWorkbenchService) convertDBType(dmsDBType string) string {
 	// 这里需要根据实际的数据库类型映射关系进行转换
-	// 目前简化处理，直接返回
+	// ODC目前支持的数据源有: OB_MYSQL, OB_ORACLE, ORACLE, MYSQL, ODP_SHARDING_OB_MYSQL, DORIS, POSTGRESQL
+	// 其余调用创建数据源接口会直接失败
 	switch dmsDBType {
 	case "MySQL":
 		return "MYSQL"
