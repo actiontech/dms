@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/actiontech/dms/internal/dms/biz"
@@ -24,15 +25,12 @@ func NewSqlWorkbenchRepo(log utilLog.Logger, s *Storage) *SqlWorkbenchRepo {
 
 func (sr *SqlWorkbenchRepo) GetSqlWorkbenchUserByDMSUserID(ctx context.Context, dmsUserID string) (*biz.SqlWorkbenchUser, bool, error) {
 	var user model.SqlWorkbenchUserCache
-	err := transaction(sr.log, ctx, sr.db, func(tx *gorm.DB) error {
-		if err := tx.First(&user, "dms_user_id = ?", dmsUserID).Error; err != nil {
-			return err
-		}
-		return nil
-	})
-
+	err := sr.db.WithContext(ctx).Where("dms_user_id = ?", dmsUserID).First(&user).Error
 	if err != nil {
-		return nil, false, nil
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, false, nil
+		}
+		return nil, false, err
 	}
 
 	return convertModelSqlWorkbenchUser(&user), true, nil
