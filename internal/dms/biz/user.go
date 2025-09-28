@@ -193,6 +193,36 @@ type UserRepo interface {
 	GetAccessTokenByUser(ctx context.Context, UserUid string) (*AccessTokenInfo, error)
 }
 
+// SqlWorkbenchUser SqlWorkbench用户缓存
+type SqlWorkbenchUser struct {
+	DMSUserID            string `json:"dms_user_id"`
+	SqlWorkbenchUserId   int64  `json:"sql_workbench_user_id"`
+	SqlWorkbenchUsername string `json:"sql_workbench_username"`
+}
+
+// SqlWorkbenchUserRepo SqlWorkbench用户缓存存储接口
+type SqlWorkbenchUserRepo interface {
+	GetSqlWorkbenchUserByDMSUserID(ctx context.Context, dmsUserID string) (*SqlWorkbenchUser, bool, error)
+	SaveSqlWorkbenchUserCache(ctx context.Context, user *SqlWorkbenchUser) error
+}
+
+// SqlWorkbenchDatasource SqlWorkbench数据源缓存
+type SqlWorkbenchDatasource struct {
+	DMSDBServiceID           string `json:"dms_db_service_id"`
+	DMSUserID                string `json:"dms_user_id"`
+	DMSDBServiceFingerprint  string `json:"dms_db_service_fingerprint"`
+	SqlWorkbenchDatasourceID int64  `json:"sql_workbench_datasource_id"`
+	Purpose                  string `json:"purpose"`
+}
+
+// SqlWorkbenchDatasourceRepo SqlWorkbench数据源缓存存储接口
+type SqlWorkbenchDatasourceRepo interface {
+	GetSqlWorkbenchDatasourceByDMSDBServiceID(ctx context.Context, dmsDBServiceID, dmsUserID, purpose string) (*SqlWorkbenchDatasource, bool, error)
+	SaveSqlWorkbenchDatasourceCache(ctx context.Context, datasource *SqlWorkbenchDatasource) error
+	DeleteSqlWorkbenchDatasourceCache(ctx context.Context, dmsDBServiceID, dmsUserID, purpose string) error
+	GetSqlWorkbenchDatasourcesByUserID(ctx context.Context, dmsUserID string) ([]*SqlWorkbenchDatasource, error)
+}
+
 type UserUsecase struct {
 	tx                        TransactionGenerator
 	repo                      UserRepo
