@@ -32,6 +32,11 @@ const SQL_WORKBENCH_REAL_PASSWORD = "DMS123__@"
 const SYS_ADMIN = 1
 const INDIVIDUAL_SPACE = 4
 
+// generateSqlWorkbenchUsername 生成 SQL Workbench 用户名
+func (s *SqlWorkbenchService) generateSqlWorkbenchUsername(dmsUserName string) string {
+	return SQL_WORKBENCH_PREFIX + dmsUserName
+}
+
 // TempDBAccount 临时数据库账号
 type TempDBAccount struct {
 	DBAccountUid string            `json:"db_account_uid"`
@@ -241,7 +246,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) Login() echo.MiddlewareFunc {
 			}
 
 			// 5. 调用登录接口进行登录，并且从登录接口的返回值中获取Cookie设置到c echo.Context的上下文中
-			err = sqlWorkbenchService.loginSqlWorkbenchUser(c, user, sqlWorkbenchUser)
+			err = sqlWorkbenchService.loginSqlWorkbenchUser(c, user)
 			if err != nil {
 				sqlWorkbenchService.log.Errorf("Failed to login sql workbench user: %v", err)
 				return err
@@ -258,26 +263,10 @@ func (sqlWorkbenchService *SqlWorkbenchService) Login() echo.MiddlewareFunc {
 
 // createSqlWorkbenchUser 创建SqlWorkbench用户
 func (sqlWorkbenchService *SqlWorkbenchService) createSqlWorkbenchUser(ctx context.Context, dmsUser *biz.User) error {
-	// 获取公钥
-	publicKey, err := sqlWorkbenchService.client.GetPublicKey()
+	cookie, publicKey, err := sqlWorkbenchService.getAdminCookie()
 	if err != nil {
-		return fmt.Errorf("failed to get public key: %v", err)
+		return err
 	}
-
-	// 使用管理员账号登录
-	loginResp, err := sqlWorkbenchService.client.Login(sqlWorkbenchService.cfg.AdminUser, sqlWorkbenchService.cfg.AdminPassword, publicKey)
-	if err != nil {
-		return fmt.Errorf("failed to login as admin: %v", err)
-	}
-
-	// 获取组织信息
-	orgResp, err := sqlWorkbenchService.client.GetOrganizations(loginResp.Cookie)
-	if err != nil {
-		return fmt.Errorf("failed to get organizations: %v", err)
-	}
-
-	// 合并Cookie
-	mergedCookie := sqlWorkbenchService.client.MergeCookies(orgResp.XsrfToken, loginResp.Cookie)
 
 	roleIds := []int64{INDIVIDUAL_SPACE}
 	if dmsUser.Name == "admin" {
@@ -285,10 +274,11 @@ func (sqlWorkbenchService *SqlWorkbenchService) createSqlWorkbenchUser(ctx conte
 	}
 
 	// 创建用户请求
+	sqlWorkbenchUsername := sqlWorkbenchService.generateSqlWorkbenchUsername(dmsUser.Name)
 	createUserReq := []client.CreateUserRequest{
 		{
-			AccountName: SQL_WORKBENCH_PREFIX + dmsUser.Name,
-			Name:        SQL_WORKBENCH_PREFIX + dmsUser.Name,
+			AccountName: sqlWorkbenchUsername,
+			Name:        sqlWorkbenchUsername,
 			Password:    SQL_WORKBENCH_DEFAULT_PASSWORD,
 			Enabled:     true,
 			RoleIDs:     roleIds,
@@ -296,7 +286,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) createSqlWorkbenchUser(ctx conte
 	}
 
 	// 调用创建用户接口
-	createUserResp, err := sqlWorkbenchService.client.CreateUsers(createUserReq, publicKey, mergedCookie)
+	createUserResp, err := sqlWorkbenchService.client.CreateUsers(createUserReq, publicKey, cookie)
 	if err != nil {
 		return fmt.Errorf("failed to create user in sql workbench: %v", err)
 	}
@@ -307,11 +297,11 @@ func (sqlWorkbenchService *SqlWorkbenchService) createSqlWorkbenchUser(ctx conte
 
 	// 激活用户
 	activateUserResp, err := sqlWorkbenchService.client.ActivateUser(
-		SQL_WORKBENCH_PREFIX+dmsUser.Name,
+		sqlWorkbenchService.generateSqlWorkbenchUsername(dmsUser.Name),
 		SQL_WORKBENCH_DEFAULT_PASSWORD,
 		SQL_WORKBENCH_REAL_PASSWORD,
 		publicKey,
-		mergedCookie,
+		cookie,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to activate user in sql workbench: %v", err)
@@ -319,7 +309,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) createSqlWorkbenchUser(ctx conte
 
 	// 保存用户缓存
 	sqlWorkbenchUser := &biz.SqlWorkbenchUser{
-		SqlWorkbenchUsername: SQL_WORKBENCH_PREFIX + dmsUser.Name,
+		SqlWorkbenchUsername: sqlWorkbenchService.generateSqlWorkbenchUsername(dmsUser.Name),
 		DMSUserID:            dmsUser.UID,
 		SqlWorkbenchUserId:   activateUserResp.Data.ID,
 	}
@@ -334,7 +324,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) createSqlWorkbenchUser(ctx conte
 }
 
 // loginSqlWorkbenchUser 使用SqlWorkbench用户登录并设置Cookie
-func (sqlWorkbenchService *SqlWorkbenchService) loginSqlWorkbenchUser(c echo.Context, dmsUser *biz.User, sqlWorkbenchUser *biz.SqlWorkbenchUser) error {
+func (sqlWorkbenchService *SqlWorkbenchService) loginSqlWorkbenchUser(c echo.Context, dmsUser *biz.User) error {
 	// 获取公钥
 	publicKey, err := sqlWorkbenchService.client.GetPublicKey()
 	if err != nil {
@@ -342,7 +332,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) loginSqlWorkbenchUser(c echo.Con
 	}
 
 	// 使用SqlWorkbench用户登录
-	loginResp, err := sqlWorkbenchService.client.Login(SQL_WORKBENCH_PREFIX+dmsUser.Name, SQL_WORKBENCH_REAL_PASSWORD, publicKey)
+	loginResp, err := sqlWorkbenchService.client.Login(sqlWorkbenchService.generateSqlWorkbenchUsername(dmsUser.Name), SQL_WORKBENCH_REAL_PASSWORD, publicKey)
 	if err != nil {
 		return fmt.Errorf("failed to login sql workbench user: %v", err)
 	}
@@ -387,26 +377,14 @@ func (sqlWorkbenchService *SqlWorkbenchService) syncDatasources(ctx context.Cont
 		return nil
 	}
 
-	// 获取SqlWorkbench管理员Cookie
-	/*adminCookie, err := sqlWorkbenchService.getAdminCookie(ctx)
-	  if err != nil {
-	  	return fmt.Errorf("failed to get admin cookie: %v", err)
-	  }*/
-
 	// 获取当前用户Cookie
-	userCookie, err := sqlWorkbenchService.getUserCookie(ctx, dmsUser)
+	userCookie, organizationId, err := sqlWorkbenchService.getUserCookie(dmsUser)
 	if err != nil {
 		return fmt.Errorf("failed to get user cookie: %v", err)
 	}
 
-	// 获取组织ID（使用当前用户Cookie）
-	organizationID, err := sqlWorkbenchService.getOrganizationID(ctx, userCookie)
-	if err != nil {
-		return fmt.Errorf("failed to get organization id: %v", err)
-	}
-
 	// 同步数据源
-	return sqlWorkbenchService.syncDBServicesToSqlWorkbench(ctx, activeDBServices, sqlWorkbenchUser, userCookie, organizationID)
+	return sqlWorkbenchService.syncDBServicesToSqlWorkbench(ctx, activeDBServices, sqlWorkbenchUser, userCookie, organizationId)
 }
 
 // getUserAccessibleDBServices 获取用户有权限访问的数据源
@@ -487,72 +465,60 @@ func (sqlWorkbenchService *SqlWorkbenchService) filterDBServicesByPermissions(ct
 }
 
 // getAdminCookie 获取SqlWorkbench管理员Cookie
-func (sqlWorkbenchService *SqlWorkbenchService) getAdminCookie(ctx context.Context) (string, error) {
+func (sqlWorkbenchService *SqlWorkbenchService) getAdminCookie() (string, string, error) {
 	// 获取公钥
 	publicKey, err := sqlWorkbenchService.client.GetPublicKey()
 	if err != nil {
-		return "", fmt.Errorf("failed to get public key: %v", err)
+		return "", "", fmt.Errorf("failed to get public key: %v", err)
 	}
 
 	// 使用管理员账号登录
 	loginResp, err := sqlWorkbenchService.client.Login(sqlWorkbenchService.cfg.AdminUser, sqlWorkbenchService.cfg.AdminPassword, publicKey)
 	if err != nil {
-		return "", fmt.Errorf("failed to login as admin: %v", err)
+		return "", publicKey, fmt.Errorf("failed to login as admin: %v", err)
 	}
 
 	// 获取组织信息
 	orgResp, err := sqlWorkbenchService.client.GetOrganizations(loginResp.Cookie)
 	if err != nil {
-		return "", fmt.Errorf("failed to get organizations: %v", err)
+		return "", publicKey, fmt.Errorf("failed to get organizations: %v", err)
 	}
 
 	// 合并Cookie
-	return sqlWorkbenchService.client.MergeCookies(orgResp.XsrfToken, loginResp.Cookie), nil
+	return sqlWorkbenchService.client.MergeCookies(orgResp.XsrfToken, loginResp.Cookie), publicKey, nil
 }
 
 // getUserCookie 获取当前用户Cookie
-func (sqlWorkbenchService *SqlWorkbenchService) getUserCookie(ctx context.Context, dmsUser *biz.User) (string, error) {
+func (sqlWorkbenchService *SqlWorkbenchService) getUserCookie(dmsUser *biz.User) (string, int64, error) {
 	// 获取公钥
 	publicKey, err := sqlWorkbenchService.client.GetPublicKey()
 	if err != nil {
-		return "", fmt.Errorf("failed to get public key: %v", err)
+		return "", 0, fmt.Errorf("failed to get public key: %v", err)
 	}
 
 	// 使用当前用户账号登录
-	loginResp, err := sqlWorkbenchService.client.Login(SQL_WORKBENCH_PREFIX+dmsUser.Name, SQL_WORKBENCH_REAL_PASSWORD, publicKey)
+	loginResp, err := sqlWorkbenchService.client.Login(sqlWorkbenchService.generateSqlWorkbenchUsername(dmsUser.Name), SQL_WORKBENCH_REAL_PASSWORD, publicKey)
 	if err != nil {
-		return "", fmt.Errorf("failed to login as user: %v", err)
+		return "", 0, fmt.Errorf("failed to login as user: %v", err)
 	}
 
 	// 获取组织信息
 	orgResp, err := sqlWorkbenchService.client.GetOrganizations(loginResp.Cookie)
 	if err != nil {
-		return "", fmt.Errorf("failed to get organizations: %v", err)
-	}
-
-	// 合并Cookie
-	return sqlWorkbenchService.client.MergeCookies(orgResp.XsrfToken, loginResp.Cookie), nil
-}
-
-// getOrganizationID 获取组织ID
-func (sqlWorkbenchService *SqlWorkbenchService) getOrganizationID(ctx context.Context, cookie string) (int64, error) {
-	// 调用GetOrganizations接口获取组织信息
-	orgResp, err := sqlWorkbenchService.client.GetOrganizations(cookie)
-	if err != nil {
-		return 0, fmt.Errorf("failed to get organizations: %v", err)
+		return "", 0, fmt.Errorf("failed to get organizations: %v", err)
 	}
 
 	// 检查是否有足够的组织
 	if len(orgResp.Data.Contents) < 2 {
-		return 0, fmt.Errorf("insufficient organizations, expected at least 2, got %d", len(orgResp.Data.Contents))
+		return "", 0, fmt.Errorf("insufficient organizations, expected at least 2, got %d", len(orgResp.Data.Contents))
 	}
 
-	// 返回第二个元素的ID
-	return orgResp.Data.Contents[1].ID, nil
+	// 合并Cookie
+	return sqlWorkbenchService.client.MergeCookies(orgResp.XsrfToken, loginResp.Cookie), orgResp.Data.Contents[1].ID, nil
 }
 
 // getEnvironmentID 获取环境ID
-func (sqlWorkbenchService *SqlWorkbenchService) getEnvironmentID(ctx context.Context, organizationID int64, cookie string) (int64, error) {
+func (sqlWorkbenchService *SqlWorkbenchService) getEnvironmentID(organizationID int64, cookie string) (int64, error) {
 	// 调用GetEnvironments接口获取环境信息
 	envResp, err := sqlWorkbenchService.client.GetEnvironments(organizationID, cookie)
 	if err != nil {
@@ -584,7 +550,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) syncDBServicesToSqlWorkbench(ctx
 	}
 
 	// 获取环境ID
-	environmentID, err := sqlWorkbenchService.getEnvironmentID(ctx, organizationID, userCookie)
+	environmentID, err := sqlWorkbenchService.getEnvironmentID(organizationID, userCookie)
 	if err != nil {
 		return fmt.Errorf("failed to get environment id: %v", err)
 	}
@@ -809,6 +775,8 @@ func (sqlWorkbenchService *SqlWorkbenchService) convertDBType(dmsDBType string) 
 		return "SQLSERVER"
 	case "OceanBase For Oracle":
 		return "OB_ORACLE"
+	case "OceanBase For MySQL":
+		return "OB_MYSQL"
 	default:
 		return dmsDBType
 	}
