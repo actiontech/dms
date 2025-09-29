@@ -3730,6 +3730,14 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberRoleWithOpRange:
         properties:
+            member_group:
+                $ref: '#/definitions/ProjectMemberGroup'
+            op_permissions:
+                description: member op permissions
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: OpPermissions
             op_range_type:
                 description: |-
                     op permission range type, only support db service now
@@ -3758,7 +3766,7 @@ definitions:
             role_uid:
                 $ref: '#/definitions/UidWithName'
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberTipsItem:
         properties:
             user_id:
@@ -5657,7 +5665,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateBusinessTagReq:
         properties:
             business_tag:
@@ -8436,7 +8444,7 @@ paths:
                     description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: List data_export workflow.
+            summary: List all data_export workflow.
             tags:
                 - DataExportWorkflows
         post:
@@ -9590,6 +9598,100 @@ paths:
             summary: check if the db_services hava enough privileges.
             tags:
                 - Project
+    /v1/dms/projects/data_export_workflows:
+        get:
+            operationId: ListDataExportWorkflows
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: the maximum count of member to be returned
+                  format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of members to be returned, default is 0
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - description: |-
+                    filter the status
+                    wait_for_approve DataExportWorkflowStatusWaitForApprove
+                    wait_for_export DataExportWorkflowStatusWaitForExport
+                    exporting DataExportWorkflowStatusWaitForExporting
+                    rejected DataExportWorkflowStatusRejected
+                    cancel DataExportWorkflowStatusCancel
+                    failed DataExportWorkflowStatusFailed
+                    finish DataExportWorkflowStatusFinish
+                  enum:
+                    - wait_for_approve
+                    - wait_for_export
+                    - exporting
+                    - rejected
+                    - cancel
+                    - failed
+                    - finish
+                  in: query
+                  name: filter_by_status
+                  type: string
+                  x-go-enum-desc: |-
+                    wait_for_approve DataExportWorkflowStatusWaitForApprove
+                    wait_for_export DataExportWorkflowStatusWaitForExport
+                    exporting DataExportWorkflowStatusWaitForExporting
+                    rejected DataExportWorkflowStatusRejected
+                    cancel DataExportWorkflowStatusCancel
+                    failed DataExportWorkflowStatusFailed
+                    finish DataExportWorkflowStatusFinish
+                  x-go-name: FilterByStatus
+                - description: filter create user id
+                  in: query
+                  name: filter_by_create_user_uid
+                  type: string
+                  x-go-name: FilterByCreateUserUid
+                - description: filter current assignee user id
+                  in: query
+                  name: filter_current_step_assignee_user_uid
+                  type: string
+                  x-go-name: FilterCurrentStepAssigneeUserUid
+                - description: filter db_service id
+                  in: query
+                  name: filter_by_db_service_uid
+                  type: string
+                  x-go-name: FilterByDBServiceUid
+                - description: filter create time from
+                  in: query
+                  name: filter_create_time_from
+                  type: string
+                  x-go-name: FilterCreateTimeFrom
+                - description: filter create time end
+                  in: query
+                  name: filter_create_time_to
+                  type: string
+                  x-go-name: FilterCreateTimeTo
+                - description: filter fuzzy key word for id/name
+                  in: query
+                  name: fuzzy_keyword
+                  type: string
+                  x-go-name: FuzzyKeyword
+            responses:
+                "200":
+                    description: ListDataExportWorkflowsReply
+                    schema:
+                        $ref: '#/definitions/ListDataExportWorkflowsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List all data_export workflow.
+            tags:
+                - DataExportWorkflows
     /v1/dms/projects/db_services_connection:
         post:
             operationId: DBServicesConnection
