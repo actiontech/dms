@@ -9007,7 +9007,7 @@
           "x-go-name": "Message"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetOauth2ConfigurationResData": {
       "type": "object",
@@ -10738,6 +10738,10 @@
           "type": "string",
           "format": "date-time",
           "x-go-name": "ExportedAt"
+        },
+        "project_name": {
+          "type": "string",
+          "x-go-name": "ProjectName"
         },
         "project_uid": {
           "type": "string",
@@ -13726,7 +13730,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateBusinessTagReq": {
       "type": "object",
