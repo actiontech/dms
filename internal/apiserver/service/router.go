@@ -223,6 +223,9 @@ func (s *APIServer) initRouter() error {
 		dataExportWorkflowsV1.POST("/:data_export_workflow_uid/export", s.DMSController.ExportDataExportWorkflow)
 		dataExportWorkflowsV1.POST("/cancel", s.DMSController.CancelDataExportWorkflow)
 
+		allDataExportWorkflowsV1 := v1.Group("/dms/projects/data_export_workflows")
+		allDataExportWorkflowsV1.GET("", s.DMSController.ListAllDataExportWorkflows)
+
 		dataExportTaskV1 := v1.Group("/dms/projects/:project_uid/data_export_tasks")
 		dataExportTaskV1.POST("", s.DMSController.AddDataExportTask)
 		dataExportTaskV1.GET("", s.DMSController.BatchGetDataExportTask)
