@@ -254,7 +254,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) Login() echo.MiddlewareFunc {
 
 // createSqlWorkbenchUser 创建SqlWorkbench用户
 func (sqlWorkbenchService *SqlWorkbenchService) createSqlWorkbenchUser(ctx context.Context, dmsUser *biz.User) error {
-	cookie, publicKey, err := sqlWorkbenchService.getAdminCookie()
+	cookie, _, publicKey, err := sqlWorkbenchService.getUserCookie(sqlWorkbenchService.cfg.AdminUser, sqlWorkbenchService.cfg.AdminPassword)
 	if err != nil {
 		return err
 	}
@@ -359,7 +359,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) syncDatasources(ctx context.Cont
 	}
 
 	// 获取当前用户Cookie
-	userCookie, organizationId, err := sqlWorkbenchService.getUserCookie(dmsUser)
+	userCookie, organizationId, _, err := sqlWorkbenchService.getUserCookie(dmsUser.Name, SQL_WORKBENCH_REAL_PASSWORD)
 	if err != nil {
 		return fmt.Errorf("failed to get user cookie: %v", err)
 	}
@@ -445,57 +445,33 @@ func (sqlWorkbenchService *SqlWorkbenchService) filterDBServicesByPermissions(ct
 	return filteredDBServices, nil
 }
 
-// getAdminCookie 获取SqlWorkbench管理员Cookie
-func (sqlWorkbenchService *SqlWorkbenchService) getAdminCookie() (string, string, error) {
-	// 获取公钥
-	publicKey, err := sqlWorkbenchService.client.GetPublicKey()
-	if err != nil {
-		return "", "", fmt.Errorf("failed to get public key: %v", err)
-	}
-
-	// 使用管理员账号登录
-	loginResp, err := sqlWorkbenchService.client.Login(sqlWorkbenchService.cfg.AdminUser, sqlWorkbenchService.cfg.AdminPassword, publicKey)
-	if err != nil {
-		return "", publicKey, fmt.Errorf("failed to login as admin: %v", err)
-	}
-
-	// 获取组织信息
-	orgResp, err := sqlWorkbenchService.client.GetOrganizations(loginResp.Cookie)
-	if err != nil {
-		return "", publicKey, fmt.Errorf("failed to get organizations: %v", err)
-	}
-
-	// 合并Cookie
-	return sqlWorkbenchService.client.MergeCookies(orgResp.XsrfToken, loginResp.Cookie), publicKey, nil
-}
-
 // getUserCookie 获取当前用户Cookie
-func (sqlWorkbenchService *SqlWorkbenchService) getUserCookie(dmsUser *biz.User) (string, int64, error) {
+func (sqlWorkbenchService *SqlWorkbenchService) getUserCookie(dmsUsername string, dmsUserPassword string) (string, int64, string, error) {
 	// 获取公钥
 	publicKey, err := sqlWorkbenchService.client.GetPublicKey()
 	if err != nil {
-		return "", 0, fmt.Errorf("failed to get public key: %v", err)
+		return "", 0, "", fmt.Errorf("failed to get public key: %v", err)
 	}
 
 	// 使用当前用户账号登录
-	loginResp, err := sqlWorkbenchService.client.Login(sqlWorkbenchService.generateSqlWorkbenchUsername(dmsUser.Name), SQL_WORKBENCH_REAL_PASSWORD, publicKey)
+	loginResp, err := sqlWorkbenchService.client.Login(sqlWorkbenchService.generateSqlWorkbenchUsername(dmsUsername), dmsUserPassword, publicKey)
 	if err != nil {
-		return "", 0, fmt.Errorf("failed to login as user: %v", err)
+		return "", 0, publicKey, fmt.Errorf("failed to login as user: %v", err)
 	}
 
 	// 获取组织信息
 	orgResp, err := sqlWorkbenchService.client.GetOrganizations(loginResp.Cookie)
 	if err != nil {
-		return "", 0, fmt.Errorf("failed to get organizations: %v", err)
+		return "", 0, publicKey, fmt.Errorf("failed to get organizations: %v", err)
 	}
 
 	// 检查是否有足够的组织
 	if len(orgResp.Data.Contents) < 2 {
-		return "", 0, fmt.Errorf("insufficient organizations, expected at least 2, got %d", len(orgResp.Data.Contents))
+		return "", 0, publicKey, fmt.Errorf("insufficient organizations, expected at least 2, got %d", len(orgResp.Data.Contents))
 	}
 
 	// 合并Cookie
-	return sqlWorkbenchService.client.MergeCookies(orgResp.XsrfToken, loginResp.Cookie), orgResp.Data.Contents[1].ID, nil
+	return sqlWorkbenchService.client.MergeCookies(orgResp.XsrfToken, loginResp.Cookie), orgResp.Data.Contents[1].ID, publicKey, nil
 }
 
 // getEnvironmentID 获取环境ID
