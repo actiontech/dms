@@ -104,10 +104,31 @@ func (d *DMSService) ListDataExportWorkflow(ctx context.Context, req *dmsV1.List
 		return nil, err
 	}
 
+	// 收集所有唯一的项目UID
+	projectUIDs := make(map[string]bool)
+	for _, w := range workflows {
+		if w.ProjectUID != "" {
+			projectUIDs[w.ProjectUID] = true
+		}
+	}
+
+	// 批量获取项目信息
+	projectMap := make(map[string]string)
+	for projectUID := range projectUIDs {
+		project, err := d.ProjectUsecase.GetProject(ctx, projectUID)
+		if err != nil {
+			// 如果获取项目失败，记录错误但继续处理
+			projectMap[projectUID] = "Unknown Project"
+		} else {
+			projectMap[projectUID] = project.Name
+		}
+	}
+
 	ret := make([]*dmsV1.ListDataExportWorkflow, len(workflows))
 	for i, w := range workflows {
 		ret[i] = &dmsV1.ListDataExportWorkflow{
 			ProjectUid:   w.ProjectUID,
+			ProjectName:  projectMap[w.ProjectUID],
 			WorkflowID:   w.UID,
 			WorkflowName: w.Name,
 			Description:  w.Desc,
