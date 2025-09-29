@@ -709,8 +709,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) buildCreateDatasourceRequest(ctx
 	if err != nil {
 		return client.CreateDatasourceRequest{}, err
 	}
-
-	return client.CreateDatasourceRequest{
+	createDatasourceRequest := client.CreateDatasourceRequest{
 		CreatorID: sqlWorkbenchUser.SqlWorkbenchUserId,
 		Type:      sqlWorkbenchService.convertDBType(dbService.DBType),
 		Name:      datasourceName,
@@ -722,7 +721,13 @@ func (sqlWorkbenchService *SqlWorkbenchService) buildCreateDatasourceRequest(ctx
 			Enabled: false,
 		},
 		EnvironmentID: environmentID,
-	}, nil
+	}
+	if dbService.DBType == "Oracle" {
+		serviceName := dbService.AdditionalParams.GetParam("service_name").Value
+		createDatasourceRequest.ServiceName = &serviceName
+	}
+
+	return createDatasourceRequest, nil
 }
 
 // buildUpdateDatasourceRequest 构建更新数据源请求
@@ -731,8 +736,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) buildUpdateDatasourceRequest(ctx
 	if err != nil {
 		return client.UpdateDatasourceRequest{}, err
 	}
-
-	return client.UpdateDatasourceRequest{
+	updateDatasourceRequest := client.UpdateDatasourceRequest{
 		Type:     sqlWorkbenchService.convertDBType(dbService.DBType),
 		Name:     &datasourceName,
 		Username: dbService.User,
@@ -743,7 +747,14 @@ func (sqlWorkbenchService *SqlWorkbenchService) buildUpdateDatasourceRequest(ctx
 			Enabled: false,
 		},
 		EnvironmentID: environmentID,
-	}, nil
+	}
+
+	if dbService.DBType == "Oracle" {
+		serviceName := dbService.AdditionalParams.GetParam("service_name").Value
+		updateDatasourceRequest.ServiceName = &serviceName
+	}
+
+	return updateDatasourceRequest, nil
 }
 
 // convertDBType 转换数据库类型
