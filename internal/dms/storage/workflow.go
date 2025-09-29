@@ -211,6 +211,25 @@ func (d *WorkflowRepo) GetProjectDataExportWorkflowsByDBServices(ctx context.Con
 	return workflowUids, nil
 }
 
+func (d *WorkflowRepo) GetDataExportWorkflowsByDBServices(ctx context.Context, dbUid []string) ([]string, error) {
+	workflowUids := make([]string, 0)
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Raw(`
+		SELECT w.uid
+		FROM  workflows w
+		left join workflow_records wr on w.workflow_record_uid  = wr.uid
+		left join data_export_tasks det on JSON_SEARCH(wr.task_ids ,'one',det.uid) IS NOT NULL
+		WHERE det.db_service_uid IN (?)
+	`, dbUid).Find(&workflowUids).Error; err != nil {
+			return fmt.Errorf("failed to find workflow by db uid: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	return workflowUids, nil
+}
+
 func (d *WorkflowRepo) GetDataExportWorkflow(ctx context.Context, workflowUid string) (*biz.Workflow, error) {
 	var workflow *model.Workflow
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {

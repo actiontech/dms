@@ -3690,6 +3690,31 @@ func (ctl *DMSController) ListDataExportWorkflows(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
+// swagger:route GET /v1/dms/projects/data_export_workflows DataExportWorkflows ListAllDataExportWorkflows
+//
+// List all data_export workflow.
+//
+//	responses:
+//	  200: body:ListDataExportWorkflowsReply
+//	  default: body:GenericResp
+func (ctl *DMSController) ListAllDataExportWorkflows(c echo.Context) error {
+	req := new(aV1.ListDataExportWorkflowsReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	reply, err := ctl.DMS.ListDataExportWorkflow(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
 // swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid} DataExportWorkflows GetDataExportWorkflow
 //
 // Get data_export workflow.

@@ -2178,6 +2178,115 @@
         }
       }
     },
+    "/v1/dms/projects/data_export_workflows": {
+      "get": {
+        "tags": [
+          "DataExportWorkflows"
+        ],
+        "summary": "List all data_export workflow.",
+        "operationId": "ListAllDataExportWorkflows",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of member to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of members to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "wait_for_approve",
+              "wait_for_export",
+              "exporting",
+              "rejected",
+              "cancel",
+              "failed",
+              "finish"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "wait_for_approve DataExportWorkflowStatusWaitForApprove\nwait_for_export DataExportWorkflowStatusWaitForExport\nexporting DataExportWorkflowStatusWaitForExporting\nrejected DataExportWorkflowStatusRejected\ncancel DataExportWorkflowStatusCancel\nfailed DataExportWorkflowStatusFailed\nfinish DataExportWorkflowStatusFinish",
+            "x-go-name": "FilterByStatus",
+            "description": "filter the status\nwait_for_approve DataExportWorkflowStatusWaitForApprove\nwait_for_export DataExportWorkflowStatusWaitForExport\nexporting DataExportWorkflowStatusWaitForExporting\nrejected DataExportWorkflowStatusRejected\ncancel DataExportWorkflowStatusCancel\nfailed DataExportWorkflowStatusFailed\nfinish DataExportWorkflowStatusFinish",
+            "name": "filter_by_status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByCreateUserUid",
+            "description": "filter create user id",
+            "name": "filter_by_create_user_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterCurrentStepAssigneeUserUid",
+            "description": "filter current assignee user id",
+            "name": "filter_current_step_assignee_user_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByDBServiceUid",
+            "description": "filter db_service id",
+            "name": "filter_by_db_service_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterCreateTimeFrom",
+            "description": "filter create time from",
+            "name": "filter_create_time_from",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterCreateTimeTo",
+            "description": "filter create time end",
+            "name": "filter_create_time_to",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FuzzyKeyword",
+            "description": "filter fuzzy key word for id/name",
+            "name": "fuzzy_keyword",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListDataExportWorkflowsReply",
+            "schema": {
+              "$ref": "#/definitions/ListDataExportWorkflowsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/projects/db_services_connection": {
       "post": {
         "tags": [
@@ -10630,6 +10739,10 @@
           "format": "date-time",
           "x-go-name": "ExportedAt"
         },
+        "project_name": {
+          "type": "string",
+          "x-go-name": "ProjectName"
+        },
         "project_uid": {
           "type": "string",
           "x-go-name": "ProjectUid"
@@ -11329,6 +11442,17 @@
     "ListMemberRoleWithOpRange": {
       "type": "object",
       "properties": {
+        "member_group": {
+          "$ref": "#/definitions/ProjectMemberGroup"
+        },
+        "op_permissions": {
+          "description": "member op permissions",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "OpPermissions"
+        },
         "op_range_type": {
           "description": "op permission range type, only support db service now\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "type": "string",
@@ -11353,7 +11477,7 @@
           "$ref": "#/definitions/UidWithName"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ListMemberTipsItem": {
       "type": "object",
@@ -13606,7 +13730,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateBusinessTagReq": {
       "type": "object",
