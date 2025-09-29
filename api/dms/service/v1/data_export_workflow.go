@@ -43,9 +43,8 @@ type AddDataExportWorkflowReply struct {
 // swagger:parameters ListDataExportWorkflows
 type ListDataExportWorkflowsReq struct {
 	// project id
-	// Required: true
 	// in:path
-	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	ProjectUid string `param:"project_uid" json:"project_uid"`
 	// the maximum count of member to be returned
 	// in:query
 	// Required: true

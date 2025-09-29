@@ -107,6 +107,7 @@ type WorkflowRepo interface {
 	GetDataExportWorkflowsByAssignUser(ctx context.Context, userUid string) ([]string, error)
 	GetDataExportWorkflowsByDBService(ctx context.Context, dbUid string) ([]string, error)
 	GetProjectDataExportWorkflowsByDBServices(ctx context.Context, dbUid []string, projectUid string) ([]string, error)
+	GetDataExportWorkflowsByDBServices(ctx context.Context, dbUid []string) ([]string, error)
 	DeleteDataExportWorkflowsByIds(ctx context.Context, dataExportWorkflowUid []string) error
 }
 
