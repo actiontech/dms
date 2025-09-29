@@ -679,58 +679,83 @@ func (sqlWorkbenchService *SqlWorkbenchService) buildDatasourceName(ctx context.
 	return fmt.Sprintf("%s:%s", projectName, dbService.Name), nil
 }
 
+// datasourceBaseInfo 数据源基础信息
+type datasourceBaseInfo struct {
+	Name          string
+	Type          string
+	Username      string
+	Password      string
+	Host          string
+	Port          string
+	ServiceName   *string
+	EnvironmentID int64
+}
+
+// buildDatasourceBaseInfo 构建数据源基础信息
+func (sqlWorkbenchService *SqlWorkbenchService) buildDatasourceBaseInfo(ctx context.Context, dbService *biz.DBService, environmentID int64) (*datasourceBaseInfo, error) {
+	datasourceName, err := sqlWorkbenchService.buildDatasourceName(ctx, dbService)
+	if err != nil {
+		return nil, err
+	}
+
+	baseInfo := &datasourceBaseInfo{
+		Name:          datasourceName,
+		Type:          sqlWorkbenchService.convertDBType(dbService.DBType),
+		Username:      dbService.User,
+		Password:      dbService.Password,
+		Host:          dbService.Host,
+		Port:          dbService.Port,
+		EnvironmentID: environmentID,
+	}
+
+	// Oracle 特殊处理
+	if dbService.DBType == "Oracle" {
+		serviceName := dbService.AdditionalParams.GetParam("service_name").Value
+		baseInfo.ServiceName = &serviceName
+	}
+
+	return baseInfo, nil
+}
+
 // buildCreateDatasourceRequest 构建创建数据源请求
 func (sqlWorkbenchService *SqlWorkbenchService) buildCreateDatasourceRequest(ctx context.Context, dbService *biz.DBService, sqlWorkbenchUser *biz.SqlWorkbenchUser, environmentID int64) (client.CreateDatasourceRequest, error) {
-	datasourceName, err := sqlWorkbenchService.buildDatasourceName(ctx, dbService)
+	baseInfo, err := sqlWorkbenchService.buildDatasourceBaseInfo(ctx, dbService, environmentID)
 	if err != nil {
 		return client.CreateDatasourceRequest{}, err
 	}
-	createDatasourceRequest := client.CreateDatasourceRequest{
-		CreatorID: sqlWorkbenchUser.SqlWorkbenchUserId,
-		Type:      sqlWorkbenchService.convertDBType(dbService.DBType),
-		Name:      datasourceName,
-		Username:  dbService.User,
-		Password:  dbService.Password,
-		Host:      dbService.Host,
-		Port:      dbService.Port,
-		SSLConfig: client.SSLConfig{
-			Enabled: false,
-		},
-		EnvironmentID: environmentID,
-	}
-	if dbService.DBType == "Oracle" {
-		serviceName := dbService.AdditionalParams.GetParam("service_name").Value
-		createDatasourceRequest.ServiceName = &serviceName
-	}
 
-	return createDatasourceRequest, nil
+	return client.CreateDatasourceRequest{
+		CreatorID:     sqlWorkbenchUser.SqlWorkbenchUserId,
+		Type:          baseInfo.Type,
+		Name:          baseInfo.Name,
+		Username:      baseInfo.Username,
+		Password:      baseInfo.Password,
+		Host:          baseInfo.Host,
+		Port:          baseInfo.Port,
+		ServiceName:   baseInfo.ServiceName,
+		SSLConfig:     client.SSLConfig{Enabled: false},
+		EnvironmentID: baseInfo.EnvironmentID,
+	}, nil
 }
 
 // buildUpdateDatasourceRequest 构建更新数据源请求
 func (sqlWorkbenchService *SqlWorkbenchService) buildUpdateDatasourceRequest(ctx context.Context, dbService *biz.DBService, environmentID int64) (client.UpdateDatasourceRequest, error) {
-	datasourceName, err := sqlWorkbenchService.buildDatasourceName(ctx, dbService)
+	baseInfo, err := sqlWorkbenchService.buildDatasourceBaseInfo(ctx, dbService, environmentID)
 	if err != nil {
 		return client.UpdateDatasourceRequest{}, err
 	}
-	updateDatasourceRequest := client.UpdateDatasourceRequest{
-		Type:     sqlWorkbenchService.convertDBType(dbService.DBType),
-		Name:     &datasourceName,
-		Username: dbService.User,
-		Password: &dbService.Password,
-		Host:     dbService.Host,
-		Port:     dbService.Port,
-		SSLConfig: client.SSLConfig{
-			Enabled: false,
-		},
-		EnvironmentID: environmentID,
-	}
 
-	if dbService.DBType == "Oracle" {
-		serviceName := dbService.AdditionalParams.GetParam("service_name").Value
-		updateDatasourceRequest.ServiceName = &serviceName
-	}
-
-	return updateDatasourceRequest, nil
+	return client.UpdateDatasourceRequest{
+		Type:          baseInfo.Type,
+		Name:          &baseInfo.Name,
+		Username:      baseInfo.Username,
+		Password:      &baseInfo.Password,
+		Host:          baseInfo.Host,
+		Port:          baseInfo.Port,
+		ServiceName:   baseInfo.ServiceName,
+		SSLConfig:     client.SSLConfig{Enabled: false},
+		EnvironmentID: baseInfo.EnvironmentID,
+	}, nil
 }
 
 // convertDBType 转换数据库类型
