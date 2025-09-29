@@ -2173,7 +2173,6 @@
             "description": "GenericResp",
             "schema": {
               "$ref": "#/definitions/GenericResp"
-
             }
           }
         }
@@ -2185,7 +2184,7 @@
           "DataExportWorkflows"
         ],
         "summary": "List all data_export workflow.",
-        "operationId": "ListDataExportWorkflows",
+        "operationId": "ListAllDataExportWorkflows",
         "parameters": [
           {
             "type": "string",
@@ -9008,7 +9007,7 @@
           "x-go-name": "Message"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "GetOauth2ConfigurationResData": {
       "type": "object",
@@ -13727,7 +13726,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateBusinessTagReq": {
       "type": "object",
