@@ -3690,7 +3690,7 @@ func (ctl *DMSController) ListDataExportWorkflows(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/data_export_workflows DataExportWorkflows ListDataExportWorkflows
+// swagger:route GET /v1/dms/projects/data_export_workflows DataExportWorkflows ListAllDataExportWorkflows
 //
 // List all data_export workflow.
 //
