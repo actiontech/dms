@@ -43,6 +43,7 @@ type AddDataExportWorkflowReply struct {
 // swagger:parameters ListDataExportWorkflows ListAllDataExportWorkflows
 type ListDataExportWorkflowsReq struct {
 	// project id
+	// Required: false
 	// in:path
 	ProjectUid string `param:"project_uid" json:"project_uid"`
 	// the maximum count of member to be returned
@@ -85,6 +86,7 @@ type ListDataExportWorkflowsReply struct {
 
 type ListDataExportWorkflow struct {
 	ProjectUid   string                   `json:"project_uid"`
+	ProjectName  string                   `json:"project_name"`  // 项目名称
 	WorkflowID   string                   `json:"workflow_uid"`  // 数据导出工单ID
 	WorkflowName string                   `json:"workflow_name"` // 数据导出工单的名称
 	Description  string                   `json:"desc"`          // 数据导出工单的描述
