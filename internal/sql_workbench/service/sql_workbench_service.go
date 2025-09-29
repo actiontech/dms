@@ -254,7 +254,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) Login() echo.MiddlewareFunc {
 
 // createSqlWorkbenchUser 创建SqlWorkbench用户
 func (sqlWorkbenchService *SqlWorkbenchService) createSqlWorkbenchUser(ctx context.Context, dmsUser *biz.User) error {
-	cookie, publicKey, err := sqlWorkbenchService.getAdminCookie()
+	cookie, _, publicKey, err := sqlWorkbenchService.getUserCookie(sqlWorkbenchService.cfg.AdminUser, sqlWorkbenchService.cfg.AdminPassword)
 	if err != nil {
 		return err
 	}
@@ -359,7 +359,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) syncDatasources(ctx context.Cont
 	}
 
 	// 获取当前用户Cookie
-	userCookie, organizationId, err := sqlWorkbenchService.getUserCookie(dmsUser)
+	userCookie, organizationId, _, err := sqlWorkbenchService.getUserCookie(dmsUser.Name, SQL_WORKBENCH_REAL_PASSWORD)
 	if err != nil {
 		return fmt.Errorf("failed to get user cookie: %v", err)
 	}
@@ -445,57 +445,33 @@ func (sqlWorkbenchService *SqlWorkbenchService) filterDBServicesByPermissions(ct
 	return filteredDBServices, nil
 }
 
-// getAdminCookie 获取SqlWorkbench管理员Cookie
-func (sqlWorkbenchService *SqlWorkbenchService) getAdminCookie() (string, string, error) {
-	// 获取公钥
-	publicKey, err := sqlWorkbenchService.client.GetPublicKey()
-	if err != nil {
-		return "", "", fmt.Errorf("failed to get public key: %v", err)
-	}
-
-	// 使用管理员账号登录
-	loginResp, err := sqlWorkbenchService.client.Login(sqlWorkbenchService.cfg.AdminUser, sqlWorkbenchService.cfg.AdminPassword, publicKey)
-	if err != nil {
-		return "", publicKey, fmt.Errorf("failed to login as admin: %v", err)
-	}
-
-	// 获取组织信息
-	orgResp, err := sqlWorkbenchService.client.GetOrganizations(loginResp.Cookie)
-	if err != nil {
-		return "", publicKey, fmt.Errorf("failed to get organizations: %v", err)
-	}
-
-	// 合并Cookie
-	return sqlWorkbenchService.client.MergeCookies(orgResp.XsrfToken, loginResp.Cookie), publicKey, nil
-}
-
 // getUserCookie 获取当前用户Cookie
-func (sqlWorkbenchService *SqlWorkbenchService) getUserCookie(dmsUser *biz.User) (string, int64, error) {
+func (sqlWorkbenchService *SqlWorkbenchService) getUserCookie(dmsUsername string, dmsUserPassword string) (string, int64, string, error) {
 	// 获取公钥
 	publicKey, err := sqlWorkbenchService.client.GetPublicKey()
 	if err != nil {
-		return "", 0, fmt.Errorf("failed to get public key: %v", err)
+		return "", 0, "", fmt.Errorf("failed to get public key: %v", err)
 	}
 
 	// 使用当前用户账号登录
-	loginResp, err := sqlWorkbenchService.client.Login(sqlWorkbenchService.generateSqlWorkbenchUsername(dmsUser.Name), SQL_WORKBENCH_REAL_PASSWORD, publicKey)
+	loginResp, err := sqlWorkbenchService.client.Login(sqlWorkbenchService.generateSqlWorkbenchUsername(dmsUsername), dmsUserPassword, publicKey)
 	if err != nil {
-		return "", 0, fmt.Errorf("failed to login as user: %v", err)
+		return "", 0, publicKey, fmt.Errorf("failed to login as user: %v", err)
 	}
 
 	// 获取组织信息
 	orgResp, err := sqlWorkbenchService.client.GetOrganizations(loginResp.Cookie)
 	if err != nil {
-		return "", 0, fmt.Errorf("failed to get organizations: %v", err)
+		return "", 0, publicKey, fmt.Errorf("failed to get organizations: %v", err)
 	}
 
 	// 检查是否有足够的组织
 	if len(orgResp.Data.Contents) < 2 {
-		return "", 0, fmt.Errorf("insufficient organizations, expected at least 2, got %d", len(orgResp.Data.Contents))
+		return "", 0, publicKey, fmt.Errorf("insufficient organizations, expected at least 2, got %d", len(orgResp.Data.Contents))
 	}
 
 	// 合并Cookie
-	return sqlWorkbenchService.client.MergeCookies(orgResp.XsrfToken, loginResp.Cookie), orgResp.Data.Contents[1].ID, nil
+	return sqlWorkbenchService.client.MergeCookies(orgResp.XsrfToken, loginResp.Cookie), orgResp.Data.Contents[1].ID, publicKey, nil
 }
 
 // getEnvironmentID 获取环境ID
@@ -703,46 +679,82 @@ func (sqlWorkbenchService *SqlWorkbenchService) buildDatasourceName(ctx context.
 	return fmt.Sprintf("%s:%s", projectName, dbService.Name), nil
 }
 
+// datasourceBaseInfo 数据源基础信息
+type datasourceBaseInfo struct {
+	Name          string
+	Type          string
+	Username      string
+	Password      string
+	Host          string
+	Port          string
+	ServiceName   *string
+	EnvironmentID int64
+}
+
+// buildDatasourceBaseInfo 构建数据源基础信息
+func (sqlWorkbenchService *SqlWorkbenchService) buildDatasourceBaseInfo(ctx context.Context, dbService *biz.DBService, environmentID int64) (*datasourceBaseInfo, error) {
+	datasourceName, err := sqlWorkbenchService.buildDatasourceName(ctx, dbService)
+	if err != nil {
+		return nil, err
+	}
+
+	baseInfo := &datasourceBaseInfo{
+		Name:          datasourceName,
+		Type:          sqlWorkbenchService.convertDBType(dbService.DBType),
+		Username:      dbService.User,
+		Password:      dbService.Password,
+		Host:          dbService.Host,
+		Port:          dbService.Port,
+		EnvironmentID: environmentID,
+	}
+
+	// Oracle 特殊处理
+	if dbService.DBType == "Oracle" {
+		serviceName := dbService.AdditionalParams.GetParam("service_name").Value
+		baseInfo.ServiceName = &serviceName
+	}
+
+	return baseInfo, nil
+}
+
 // buildCreateDatasourceRequest 构建创建数据源请求
 func (sqlWorkbenchService *SqlWorkbenchService) buildCreateDatasourceRequest(ctx context.Context, dbService *biz.DBService, sqlWorkbenchUser *biz.SqlWorkbenchUser, environmentID int64) (client.CreateDatasourceRequest, error) {
-	datasourceName, err := sqlWorkbenchService.buildDatasourceName(ctx, dbService)
+	baseInfo, err := sqlWorkbenchService.buildDatasourceBaseInfo(ctx, dbService, environmentID)
 	if err != nil {
 		return client.CreateDatasourceRequest{}, err
 	}
 
 	return client.CreateDatasourceRequest{
-		CreatorID: sqlWorkbenchUser.SqlWorkbenchUserId,
-		Type:      sqlWorkbenchService.convertDBType(dbService.DBType),
-		Name:      datasourceName,
-		Username:  dbService.User,
-		Password:  dbService.Password,
-		Host:      dbService.Host,
-		Port:      dbService.Port,
-		SSLConfig: client.SSLConfig{
-			Enabled: false,
-		},
-		EnvironmentID: environmentID,
+		CreatorID:     sqlWorkbenchUser.SqlWorkbenchUserId,
+		Type:          baseInfo.Type,
+		Name:          baseInfo.Name,
+		Username:      baseInfo.Username,
+		Password:      baseInfo.Password,
+		Host:          baseInfo.Host,
+		Port:          baseInfo.Port,
+		ServiceName:   baseInfo.ServiceName,
+		SSLConfig:     client.SSLConfig{Enabled: false},
+		EnvironmentID: baseInfo.EnvironmentID,
 	}, nil
 }
 
 // buildUpdateDatasourceRequest 构建更新数据源请求
 func (sqlWorkbenchService *SqlWorkbenchService) buildUpdateDatasourceRequest(ctx context.Context, dbService *biz.DBService, environmentID int64) (client.UpdateDatasourceRequest, error) {
-	datasourceName, err := sqlWorkbenchService.buildDatasourceName(ctx, dbService)
+	baseInfo, err := sqlWorkbenchService.buildDatasourceBaseInfo(ctx, dbService, environmentID)
 	if err != nil {
 		return client.UpdateDatasourceRequest{}, err
 	}
 
 	return client.UpdateDatasourceRequest{
-		Type:     sqlWorkbenchService.convertDBType(dbService.DBType),
-		Name:     &datasourceName,
-		Username: dbService.User,
-		Password: &dbService.Password,
-		Host:     dbService.Host,
-		Port:     dbService.Port,
-		SSLConfig: client.SSLConfig{
-			Enabled: false,
-		},
-		EnvironmentID: environmentID,
+		Type:          baseInfo.Type,
+		Name:          &baseInfo.Name,
+		Username:      baseInfo.Username,
+		Password:      &baseInfo.Password,
+		Host:          baseInfo.Host,
+		Port:          baseInfo.Port,
+		ServiceName:   baseInfo.ServiceName,
+		SSLConfig:     client.SSLConfig{Enabled: false},
+		EnvironmentID: baseInfo.EnvironmentID,
 	}, nil
 }
 

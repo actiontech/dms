@@ -948,6 +948,7 @@ type CreateDatasourceRequest struct {
 	Username          string                 `json:"username"`
 	Password          string                 `json:"password"`
 	SysTenantUsername *string                `json:"sysTenantUsername"`
+	ServiceName       *string                `json:"serviceName"`
 	SSLConfig         SSLConfig              `json:"sslConfig"`
 	SysTenantPassword *string                `json:"sysTenantPassword"`
 	Properties        interface{}            `json:"properties"`
@@ -966,6 +967,7 @@ type UpdateDatasourceRequest struct {
 	Username          string                  `json:"username"`
 	Password          *string                 `json:"password"`
 	SysTenantUsername *string                 `json:"sysTenantUsername"`
+	ServiceName       *string                 `json:"serviceName"`
 	SSLConfig         SSLConfig               `json:"sslConfig"`
 	SysTenantPassword *string                 `json:"sysTenantPassword"`
 	Properties        *interface{}            `json:"properties"`
