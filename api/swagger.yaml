@@ -1814,7 +1814,7 @@ definitions:
                 type: string
                 x-go-name: Message
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetOauth2ConfigurationResData:
         properties:
             access_token_tag:
@@ -3173,6 +3173,9 @@ definitions:
                 format: date-time
                 type: string
                 x-go-name: ExportedAt
+            project_name:
+                type: string
+                x-go-name: ProjectName
             project_uid:
                 type: string
                 x-go-name: ProjectUid
@@ -5665,7 +5668,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateBusinessTagReq:
         properties:
             business_tag:
