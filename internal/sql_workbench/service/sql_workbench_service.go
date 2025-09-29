@@ -264,7 +264,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) createSqlWorkbenchUser(ctx conte
 	createUserReq := []client.CreateUserRequest{
 		{
 			AccountName: sqlWorkbenchUsername,
-			Name:        sqlWorkbenchUsername,
+			Name:        dmsUser.Name,
 			Password:    SQL_WORKBENCH_DEFAULT_PASSWORD,
 			Enabled:     true,
 			RoleIDs:     []int64{INDIVIDUAL_SPACE},
@@ -359,7 +359,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) syncDatasources(ctx context.Cont
 	}
 
 	// 获取当前用户Cookie
-	userCookie, organizationId, _, err := sqlWorkbenchService.getUserCookie(dmsUser.Name, SQL_WORKBENCH_REAL_PASSWORD)
+	userCookie, organizationId, _, err := sqlWorkbenchService.getUserCookie(sqlWorkbenchService.generateSqlWorkbenchUsername(dmsUser.Name), SQL_WORKBENCH_REAL_PASSWORD)
 	if err != nil {
 		return fmt.Errorf("failed to get user cookie: %v", err)
 	}
@@ -454,7 +454,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) getUserCookie(dmsUsername string
 	}
 
 	// 使用当前用户账号登录
-	loginResp, err := sqlWorkbenchService.client.Login(sqlWorkbenchService.generateSqlWorkbenchUsername(dmsUsername), dmsUserPassword, publicKey)
+	loginResp, err := sqlWorkbenchService.client.Login(dmsUsername, dmsUserPassword, publicKey)
 	if err != nil {
 		return "", 0, publicKey, fmt.Errorf("failed to login as user: %v", err)
 	}
