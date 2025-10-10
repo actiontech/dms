@@ -34,7 +34,7 @@ type StorageConfig struct {
 	Port        string
 	Schema      string
 	AutoMigrate bool
-	Debug       bool // 暂时无用
+	Debug       bool
 }
 
 func NewStorage(logger pkgLog.Logger, conf *StorageConfig) (*Storage, error) {
@@ -42,9 +42,18 @@ func NewStorage(logger pkgLog.Logger, conf *StorageConfig) (*Storage, error) {
 	log.Infof("connecting to storage, host: %s, port: %s, user: %s, schema: %s",
 		conf.Host, conf.Port, conf.User, conf.Schema)
 
+	// 根据 Debug 配置设置 GORM 日志级别
+	// Debug = false: 使用 Warn 级别，输出警告和错误日志，但不输出 SQL 查询
+	// Debug = true: 使用 Info 级别，输出详细 SQL 日志
+	logLevel := gormLog.Warn
+	if conf.Debug {
+		logLevel = gormLog.Info
+		log.Info("gorm debug mode enabled")
+	}
+
 	db, err := gorm.Open(mysql.Open(fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
 		conf.User, conf.Password, conf.Host, conf.Port, conf.Schema)), &gorm.Config{
-		Logger:                                   pkgLog.NewGormLogWrapper(pkgLog.NewKLogWrapper(logger), gormLog.Info),
+		Logger:                                   pkgLog.NewGormLogWrapper(pkgLog.NewKLogWrapper(logger), logLevel),
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {
