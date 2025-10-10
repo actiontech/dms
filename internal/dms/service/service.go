@@ -59,6 +59,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		Host:        opts.ServiceOpts.Database.Host,
 		Port:        opts.ServiceOpts.Database.Port,
 		Schema:      opts.ServiceOpts.Database.Database,
+		Debug:       opts.ServiceOpts.Database.Debug,
 		AutoMigrate: opts.ServiceOpts.Database.AutoMigrate,
 	})
 	if nil != err {
