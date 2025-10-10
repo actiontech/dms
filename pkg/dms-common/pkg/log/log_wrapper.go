@@ -159,12 +159,12 @@ func (h *gormLogWrapper) LogMode(level gormLog.LogLevel) gormLog.Interface {
 }
 
 func (h *gormLogWrapper) Trace(ctx context.Context, begin time.Time, fc func() (sql string, rowsAffected int64), err error) {
-	if h.logLevel <= gormLog.Silent {
-		return
+	// 只有在 Info 级别或更高时才输出 SQL trace 日志
+	if h.logLevel >= gormLog.Info {
+		elapsed := time.Since(begin)
+		sql, rowsAffected := fc()
+		_ = h.logger.Log(log.LevelDebug, h.msgKey, fmt.Sprintf("trace: begin:%v; elapsed:%v; sql: %v; rowsAffected: %v; err: %v", begin.Format(LogTimeLayout), elapsed, sql, rowsAffected, err))
 	}
-	elapsed := time.Since(begin)
-	sql, rowsAffected := fc()
-	_ = h.logger.Log(log.LevelDebug, h.msgKey, fmt.Sprintf("trace: begin:%v; elapsed:%v; sql: %v; rowsAffected: %v; err: %v", begin.Format(LogTimeLayout), elapsed, sql, rowsAffected, err))
 }
 
 func (h *gormLogWrapper) Error(ctx context.Context, format string, a ...interface{}) {
