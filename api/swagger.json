@@ -17,6 +17,91 @@
   },
   "basePath": "/",
   "paths": {
+    "/v1/dms/audit_logs": {
+      "get": {
+        "tags": [
+          "AuditLogs"
+        ],
+        "summary": "List AuditLogs.",
+        "operationId": "ListAuditLogs",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "页码，从1开始",
+            "name": "page_index",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "每页大小",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "OrderBy",
+            "description": "排序字段",
+            "name": "order_by",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByEventType",
+            "description": "按事件类型过滤",
+            "name": "filter_by_event_type",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterBySubjectID",
+            "description": "按主体ID过滤",
+            "name": "filter_by_subject_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByResult",
+            "description": "按结果过滤",
+            "name": "filter_by_result",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByStartTime",
+            "description": "按开始时间过滤",
+            "name": "filter_by_start_time",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByEndTime",
+            "description": "按结束时间过滤",
+            "name": "filter_by_end_time",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListAuditLogsReply",
+            "schema": {
+              "$ref": "#/definitions/ListAuditLogsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/basic_info": {
       "get": {
         "tags": [
@@ -1558,6 +1643,29 @@
         }
       }
     },
+    "/v1/dms/platform_metrics": {
+      "get": {
+        "tags": [
+          "PlatformMetrics"
+        ],
+        "summary": "Get platform resource metrics.",
+        "operationId": "GetPlatformMetrics",
+        "responses": {
+          "200": {
+            "description": "GetPlatformMetricsReply",
+            "schema": {
+              "$ref": "#/definitions/GetPlatformMetricsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/plugins": {
       "post": {
         "tags": [
@@ -2199,6 +2307,13 @@
           },
           {
             "type": "string",
+            "x-go-name": "FilterOperationIP",
+            "description": "filter operation ip",
+            "name": "filter_operation_ip",
+            "in": "query"
+          },
+          {
+            "type": "string",
             "x-go-name": "FuzzyKeyword",
             "description": "filter fuzzy key word for operation_detail/operation_ip",
             "name": "fuzzy_keyword",
@@ -2282,6 +2397,13 @@
             "type": "string",
             "x-go-name": "FilterExecResult",
             "name": "filter_exec_result",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterOperationIP",
+            "description": "filter operation ip",
+            "name": "filter_operation_ip",
             "in": "query"
           },
           {
@@ -5295,6 +5417,69 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "AuditLog": {
+      "description": "审计日志",
+      "type": "object",
+      "properties": {
+        "client_ip": {
+          "description": "客户端IP地址",
+          "type": "string",
+          "x-go-name": "ClientIP"
+        },
+        "event_description": {
+          "description": "事件描述",
+          "type": "string",
+          "x-go-name": "EventDescription"
+        },
+        "event_time": {
+          "description": "事件发生时间",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "EventTime"
+        },
+        "event_type": {
+          "description": "事件类型",
+          "type": "string",
+          "x-go-name": "EventType"
+        },
+        "extra_info": {
+          "description": "额外信息（JSON格式）",
+          "type": "string",
+          "x-go-name": "ExtraInfo"
+        },
+        "project_uid": {
+          "description": "项目ID",
+          "type": "string",
+          "x-go-name": "ProjectUID"
+        },
+        "result": {
+          "description": "操作结果",
+          "type": "string",
+          "x-go-name": "Result"
+        },
+        "subject_id": {
+          "description": "主体标识（用户ID）",
+          "type": "string",
+          "x-go-name": "SubjectID"
+        },
+        "subject_name": {
+          "description": "主体名称（用户名）",
+          "type": "string",
+          "x-go-name": "SubjectName"
+        },
+        "uid": {
+          "description": "审计日志UID",
+          "type": "string",
+          "x-go-name": "UID"
+        },
+        "user_agent": {
+          "description": "用户代理",
+          "type": "string",
+          "x-go-name": "UserAgent"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "AuditPlanTypes": {
       "type": "object",
       "properties": {
@@ -5515,6 +5700,10 @@
           "type": "integer",
           "format": "int64",
           "x-go-name": "ExecTimeSecond"
+        },
+        "manage_method": {
+          "type": "string",
+          "x-go-name": "ManageMethod"
         },
         "operation": {
           "$ref": "#/definitions/Operation"
@@ -6413,6 +6602,33 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
     },
+    "GetAuditLogReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "审计日志详情",
+          "type": "object",
+          "properties": {
+            "audit_log": {
+              "$ref": "#/definitions/AuditLog"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "GetBasicInfoReply": {
       "type": "object",
       "properties": {
@@ -6937,6 +7153,26 @@
         "login_tip": {
           "type": "string",
           "x-go-name": "LoginTip"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetPlatformMetricsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/PlatformMetrics"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -7638,6 +7874,107 @@
           "type": "integer",
           "format": "uint64",
           "x-go-name": "Used"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListAuditLog": {
+      "description": "审计日志列表项",
+      "type": "object",
+      "properties": {
+        "client_ip": {
+          "description": "客户端IP地址",
+          "type": "string",
+          "x-go-name": "ClientIP"
+        },
+        "event_description": {
+          "description": "事件描述",
+          "type": "string",
+          "x-go-name": "EventDescription"
+        },
+        "event_time": {
+          "description": "事件发生时间",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "EventTime"
+        },
+        "event_type": {
+          "description": "事件类型",
+          "type": "string",
+          "x-go-name": "EventType"
+        },
+        "extra_info": {
+          "description": "额外信息（JSON格式）",
+          "type": "string",
+          "x-go-name": "ExtraInfo"
+        },
+        "project_uid": {
+          "description": "项目ID",
+          "type": "string",
+          "x-go-name": "ProjectUID"
+        },
+        "result": {
+          "description": "操作结果",
+          "type": "string",
+          "x-go-name": "Result"
+        },
+        "subject_id": {
+          "description": "主体标识（用户ID）",
+          "type": "string",
+          "x-go-name": "SubjectID"
+        },
+        "subject_name": {
+          "description": "主体名称（用户名）",
+          "type": "string",
+          "x-go-name": "SubjectName"
+        },
+        "uid": {
+          "description": "审计日志UID",
+          "type": "string",
+          "x-go-name": "UID"
+        },
+        "user_agent": {
+          "description": "用户代理",
+          "type": "string",
+          "x-go-name": "UserAgent"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListAuditLogsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "审计日志列表",
+          "type": "object",
+          "properties": {
+            "audit_logs": {
+              "description": "审计日志列表",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ListAuditLog"
+              },
+              "x-go-name": "AuditLogs"
+            },
+            "total": {
+              "description": "总数",
+              "type": "integer",
+              "format": "int64",
+              "x-go-name": "Total"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -9481,6 +9818,61 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "PlatformMetrics": {
+      "description": "PlatformMetrics represents platform resource metrics",
+      "type": "object",
+      "properties": {
+        "cpu_usage": {
+          "description": "CPU usage percentage",
+          "type": "number",
+          "format": "double",
+          "x-go-name": "CPUUsage"
+        },
+        "goroutine_count": {
+          "description": "Number of goroutines",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "GoroutineCount"
+        },
+        "memory_usage": {
+          "description": "Memory usage in bytes",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "MemoryUsage"
+        },
+        "memory_usage_percent": {
+          "description": "Memory usage percentage",
+          "type": "number",
+          "format": "double",
+          "x-go-name": "MemoryUsagePercent"
+        },
+        "process_id": {
+          "description": "Process ID",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ProcessID"
+        },
+        "timestamp": {
+          "description": "Timestamp when metrics were collected",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Timestamp"
+        },
+        "total_memory": {
+          "description": "Total memory in bytes",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "TotalMemory"
+        },
+        "uptime": {
+          "description": "Uptime in seconds",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Uptime"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "Plugin": {
       "type": "object",
       "properties": {
@@ -10168,7 +10560,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateCompanyNotice": {
       "description": "A companynotice",
@@ -10952,6 +11344,16 @@
         "data": {
           "type": "object",
           "properties": {
+            "password_expired": {
+              "description": "Password expiration information",
+              "type": "boolean",
+              "x-go-name": "PasswordExpired"
+            },
+            "password_expiry_days": {
+              "type": "integer",
+              "format": "int64",
+              "x-go-name": "PasswordExpiryDays"
+            },
             "phone": {
               "type": "string",
               "x-go-name": "Phone"
