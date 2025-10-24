@@ -223,6 +223,10 @@ func (s *APIServer) initRouter() error {
 		dataExportWorkflowsV1.POST("/:data_export_workflow_uid/export", s.DMSController.ExportDataExportWorkflow)
 		dataExportWorkflowsV1.POST("/cancel", s.DMSController.CancelDataExportWorkflow)
 
+		// 内部接口，仅允许sys用户访问
+		dataExportWorkflowsDashboardV1 := v1.Group("/dms/dashboard/data_export_workflows")
+		dataExportWorkflowsDashboardV1.GET("", s.DMSController.GetGlobalDataExportWorkflows)
+
 		allDataExportWorkflowsV1 := v1.Group("/dms/projects/data_export_workflows")
 		allDataExportWorkflowsV1.GET("", s.DMSController.ListAllDataExportWorkflows)
 
@@ -265,7 +269,6 @@ func (s *APIServer) initRouter() error {
 				Balancer: middleware.NewRandomBalancer(targets),
 			}))
 		}
-
 
 		if s.SqlWorkbenchController.SqlWorkbenchService.IsConfigured() {
 			sqlWorkbenchV1 := s.echo.Group(s.SqlWorkbenchController.SqlWorkbenchService.GetRootUri())
@@ -469,7 +472,6 @@ func (s *APIServer) installController() error {
 
 	s.DMSController = DMSController
 	s.SqlWorkbenchController = sqlWorkbenchController
-
 
 	// s.AuthController.RegisterPlugin(s.DMSController.GetRegisterPluginFn())
 	return nil

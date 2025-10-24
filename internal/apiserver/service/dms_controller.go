@@ -20,6 +20,7 @@ import (
 	"github.com/actiontech/dms/internal/apiserver/conf"
 	apiError "github.com/actiontech/dms/internal/apiserver/pkg/error"
 	"github.com/actiontech/dms/internal/dms/pkg/constant"
+	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/dms/service"
 	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
@@ -3688,6 +3689,32 @@ func (ctl *DMSController) ListDataExportWorkflows(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route GET /v1/dms/dashboard/data_export_workflows DataExportWorkflows GetGlobalDataExportWorkflows
+// 
+// Get global data export workflows.
+//
+//	responses:
+//	  200: body:GetGlobalDataExportWorkflowsReply
+//	  default: body:GenericResp
+
+func (ctl *DMSController) GetGlobalDataExportWorkflows(c echo.Context) error {
+	// 内部接口，仅允许sys用户访问
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	if currentUserUid != pkgConst.UIDOfUserSys && currentUserUid != pkgConst.UIDOfUserAdmin {
+		return NewErrResp(c, fmt.Errorf("only sys user can get global data export workflows"), apiError.DMSServiceErr)
+	}
+	req := new(aV1.FilterGlobalDataExportWorkflowReq)
+	err = bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	return NewOkRespWithReply(c, nil)
 }
 
 // swagger:route GET /v1/dms/projects/data_export_workflows DataExportWorkflows ListAllDataExportWorkflows
