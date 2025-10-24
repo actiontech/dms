@@ -1089,6 +1089,14 @@ definitions:
                 $ref: '#/definitions/DBServiceSourceName'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DBServiceUidWithNameInfo:
+        properties:
+            DBServiceName:
+                type: string
+            DBServiceUid:
+                type: string
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     DBServiceV2:
         properties:
             additional_params:
@@ -1706,6 +1714,28 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetGlobalDataExportWorkflowsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/GlobalDataExportWorkflow'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetLDAPConfigurationResDataReply:
         properties:
             code:
@@ -1799,7 +1829,7 @@ definitions:
                 type: array
                 x-go-name: Users
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GetMemberGroupReply:
         properties:
             code:
@@ -1814,7 +1844,7 @@ definitions:
                 type: string
                 x-go-name: Message
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GetOauth2ConfigurationResData:
         properties:
             access_token_tag:
@@ -2261,6 +2291,56 @@ definitions:
             url:
                 type: string
                 x-go-name: URL
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GlobalDataExportWorkflow:
+        properties:
+            created_at:
+                format: date-time
+                type: string
+                x-go-name: CreatedAt
+            creater:
+                $ref: '#/definitions/UidWithName'
+            current_step_assignee_user_list:
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: CurrentStepAssigneeUsers
+            db_service_info:
+                items:
+                    $ref: '#/definitions/DBServiceUidWithNameInfo'
+                type: array
+                x-go-name: DBServiceInfos
+            desc:
+                type: string
+                x-go-name: Description
+            project_info:
+                $ref: '#/definitions/ProjectInfo'
+            status:
+                enum:
+                    - wait_for_approve
+                    - wait_for_export
+                    - exporting
+                    - rejected
+                    - cancel
+                    - failed
+                    - finish
+                type: string
+                x-go-enum-desc: |-
+                    wait_for_approve DataExportWorkflowStatusWaitForApprove
+                    wait_for_export DataExportWorkflowStatusWaitForExport
+                    exporting DataExportWorkflowStatusWaitForExporting
+                    rejected DataExportWorkflowStatusRejected
+                    cancel DataExportWorkflowStatusCancel
+                    failed DataExportWorkflowStatusFailed
+                    finish DataExportWorkflowStatusFinish
+                x-go-name: Status
+            workflow_name:
+                type: string
+                x-go-name: WorkflowName
+            workflow_uid:
+                type: string
+                x-go-name: WorkflowID
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     I18nStr:
@@ -3163,9 +3243,11 @@ definitions:
                     $ref: '#/definitions/UidWithName'
                 type: array
                 x-go-name: CurrentStepAssigneeUsers
-            current_step_type:
-                type: string
-                x-go-name: CurrentStepType
+            db_service_info:
+                items:
+                    $ref: '#/definitions/DBServiceUidWithNameInfo'
+                type: array
+                x-go-name: DBServiceInfos
             desc:
                 type: string
                 x-go-name: Description
@@ -3173,6 +3255,8 @@ definitions:
                 format: date-time
                 type: string
                 x-go-name: ExportedAt
+            project_info:
+                $ref: '#/definitions/ProjectInfo'
             project_name:
                 type: string
                 x-go-name: ProjectName
@@ -3733,14 +3817,6 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberRoleWithOpRange:
         properties:
-            member_group:
-                $ref: '#/definitions/ProjectMemberGroup'
-            op_permissions:
-                description: member op permissions
-                items:
-                    $ref: '#/definitions/UidWithName'
-                type: array
-                x-go-name: OpPermissions
             op_range_type:
                 description: |-
                     op permission range type, only support db service now
@@ -3769,7 +3845,7 @@ definitions:
             role_uid:
                 $ref: '#/definitions/UidWithName'
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ListMemberTipsItem:
         properties:
             user_id:
@@ -4865,6 +4941,29 @@ definitions:
         type: object
         x-go-name: PreviewImportProjects
         x-go-package: github.com/actiontech/dms/api/dms/service/v2
+    ProjectInfo:
+        properties:
+            project_name:
+                type: string
+                x-go-name: ProjectName
+            project_priority:
+                enum:
+                    - high
+                    - medium
+                    - low
+                    - unknown
+                type: string
+                x-go-enum-desc: |-
+                    high ProjectPriorityHigh
+                    medium ProjectPriorityMedium
+                    low ProjectPriorityLow
+                    unknown ProjectPriorityUnknown
+                x-go-name: ProjectPriority
+            project_uid:
+                type: string
+                x-go-name: ProjectUid
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ProjectManagePermission:
         properties:
             member_group:
@@ -5668,7 +5767,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateBusinessTagReq:
         properties:
             business_tag:
@@ -7300,6 +7399,21 @@ paths:
             summary: test wechat configuration.
             tags:
                 - Configuration
+    /v1/dms/dashboard/data_export_workflows:
+        get:
+            operationId: GetGlobalDataExportWorkflows
+            responses:
+                "200":
+                    description: GetGlobalDataExportWorkflowsReply
+                    schema:
+                        $ref: '#/definitions/GetGlobalDataExportWorkflowsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get global data export workflows.
+            tags:
+                - DataExportWorkflows
     /v1/dms/db_service_sync_tasks:
         get:
             operationId: ListDBServiceSyncTasks
