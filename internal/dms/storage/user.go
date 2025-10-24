@@ -252,6 +252,28 @@ func (d *UserRepo) GetUser(ctx context.Context, userUid string) (*biz.User, erro
 	return ret, nil
 }
 
+// GetUserIncludeDeleted 查找用户，包括已删除用户
+func (d *UserRepo) GetUserIncludeDeleted(ctx context.Context, userUid string) (*biz.User, error) {
+	var user *model.User
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		// 不加全局软删除约束
+		if err := tx.Unscoped().First(&user, "uid = ?", userUid).Error; err != nil {
+			return fmt.Errorf("failed to get user(include deleted): %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	if user.DeletedAt.Valid {
+		user.Name = user.Name + "[x]"
+	}
+	ret, err := convertModelUser(user)
+	if err != nil {
+		return nil, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to convert model user(include deleted): %v", err))
+	}
+	return ret, nil
+}
+
 func (d *UserRepo) GetUserByName(ctx context.Context, userName string) (*biz.User, error) {
 	var user *model.User
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
