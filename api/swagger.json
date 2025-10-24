@@ -981,6 +981,29 @@
         }
       }
     },
+    "/v1/dms/dashboard/data_export_workflows": {
+      "get": {
+        "tags": [
+          "DataExportWorkflows"
+        ],
+        "summary": "Get global data export workflows.",
+        "operationId": "GetGlobalDataExportWorkflows",
+        "responses": {
+          "200": {
+            "description": "GetGlobalDataExportWorkflowsReply",
+            "schema": {
+              "$ref": "#/definitions/GetGlobalDataExportWorkflowsReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/db_service_sync_tasks": {
       "get": {
         "tags": [
@@ -8066,6 +8089,18 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "DBServiceUidWithNameInfo": {
+      "type": "object",
+      "properties": {
+        "DBServiceName": {
+          "type": "string"
+        },
+        "DBServiceUid": {
+          "type": "string"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
     "DBServiceV2": {
       "type": "object",
       "required": [
@@ -8864,6 +8899,35 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "GetGlobalDataExportWorkflowsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GlobalDataExportWorkflow"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "GetLDAPConfigurationResDataReply": {
       "type": "object",
       "properties": {
@@ -8987,7 +9051,7 @@
           "x-go-name": "Users"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "GetMemberGroupReply": {
       "type": "object",
@@ -9007,7 +9071,7 @@
           "x-go-name": "Message"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "GetOauth2ConfigurationResData": {
       "type": "object",
@@ -9559,6 +9623,63 @@
         "url": {
           "type": "string",
           "x-go-name": "URL"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GlobalDataExportWorkflow": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "creater": {
+          "$ref": "#/definitions/UidWithName"
+        },
+        "current_step_assignee_user_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "CurrentStepAssigneeUsers"
+        },
+        "db_service_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DBServiceUidWithNameInfo"
+          },
+          "x-go-name": "DBServiceInfos"
+        },
+        "desc": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "project_info": {
+          "$ref": "#/definitions/ProjectInfo"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "wait_for_approve",
+            "wait_for_export",
+            "exporting",
+            "rejected",
+            "cancel",
+            "failed",
+            "finish"
+          ],
+          "x-go-enum-desc": "wait_for_approve DataExportWorkflowStatusWaitForApprove\nwait_for_export DataExportWorkflowStatusWaitForExport\nexporting DataExportWorkflowStatusWaitForExporting\nrejected DataExportWorkflowStatusRejected\ncancel DataExportWorkflowStatusCancel\nfailed DataExportWorkflowStatusFailed\nfinish DataExportWorkflowStatusFinish",
+          "x-go-name": "Status"
+        },
+        "workflow_name": {
+          "type": "string",
+          "x-go-name": "WorkflowName"
+        },
+        "workflow_uid": {
+          "type": "string",
+          "x-go-name": "WorkflowID"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -10726,9 +10847,12 @@
           },
           "x-go-name": "CurrentStepAssigneeUsers"
         },
-        "current_step_type": {
-          "type": "string",
-          "x-go-name": "CurrentStepType"
+        "db_service_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DBServiceUidWithNameInfo"
+          },
+          "x-go-name": "DBServiceInfos"
         },
         "desc": {
           "type": "string",
@@ -10738,6 +10862,9 @@
           "type": "string",
           "format": "date-time",
           "x-go-name": "ExportedAt"
+        },
+        "project_info": {
+          "$ref": "#/definitions/ProjectInfo"
         },
         "project_name": {
           "type": "string",
@@ -11442,17 +11569,6 @@
     "ListMemberRoleWithOpRange": {
       "type": "object",
       "properties": {
-        "member_group": {
-          "$ref": "#/definitions/ProjectMemberGroup"
-        },
-        "op_permissions": {
-          "description": "member op permissions",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/UidWithName"
-          },
-          "x-go-name": "OpPermissions"
-        },
         "op_range_type": {
           "description": "op permission range type, only support db service now\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "type": "string",
@@ -11477,7 +11593,7 @@
           "$ref": "#/definitions/UidWithName"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "ListMemberTipsItem": {
       "type": "object",
@@ -12677,6 +12793,31 @@
       "x-go-name": "PreviewImportProjects",
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
     },
+    "ProjectInfo": {
+      "type": "object",
+      "properties": {
+        "project_name": {
+          "type": "string",
+          "x-go-name": "ProjectName"
+        },
+        "project_priority": {
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low",
+            "unknown"
+          ],
+          "x-go-enum-desc": "high ProjectPriorityHigh\nmedium ProjectPriorityMedium\nlow ProjectPriorityLow\nunknown ProjectPriorityUnknown",
+          "x-go-name": "ProjectPriority"
+        },
+        "project_uid": {
+          "type": "string",
+          "x-go-name": "ProjectUid"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
     "ProjectManagePermission": {
       "type": "object",
       "properties": {
@@ -13730,7 +13871,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateBusinessTagReq": {
       "type": "object",
