@@ -61,3 +61,7 @@ func (d *DataExportWorkflowUsecase) DownloadDataExportTaskSQLs(ctx context.Conte
 func (d *DataExportWorkflowUsecase) RecycleWorkflow()            {}
 func (d *DataExportWorkflowUsecase) RecycleDataExportTask()      {}
 func (d *DataExportWorkflowUsecase) RecycleDataExportTaskFiles() {}
+
+func (d *DataExportWorkflowUsecase) GetGlobalWorkflowsList(ctx context.Context, req *dmsV1.FilterGlobalDataExportWorkflowReq, limit, offset int) ([]*Workflow, int64, error) {
+	return nil, 0, errNotDataExportWorkflow
+}

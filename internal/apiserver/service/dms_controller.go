@@ -3713,8 +3713,11 @@ func (ctl *DMSController) GetGlobalDataExportWorkflows(c echo.Context) error {
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-
-	return NewOkRespWithReply(c, nil)
+	reply, err := ctl.DMS.GetGlobalWorkflowsList(c.Request().Context(), req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
 }
 
 // swagger:route GET /v1/dms/projects/data_export_workflows DataExportWorkflows ListAllDataExportWorkflows

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 )
 
@@ -64,6 +65,8 @@ type Workflow struct {
 	TaskIds           []string
 
 	WorkflowRecord *WorkflowRecord
+	DBServiceInfos []*dmsCommonV1.DBServiceUidWithNameInfo // 所属数据源信息
+	ProjectInfo    *dmsCommonV1.ProjectInfo                // 所属项目信息
 }
 
 func (w *Workflow) FinalStep() *WorkflowStep {
@@ -109,6 +112,7 @@ type WorkflowRepo interface {
 	GetProjectDataExportWorkflowsByDBServices(ctx context.Context, dbUid []string, projectUid string) ([]string, error)
 	GetDataExportWorkflowsByDBServices(ctx context.Context, dbUid []string) ([]string, error)
 	DeleteDataExportWorkflowsByIds(ctx context.Context, dataExportWorkflowUid []string) error
+	GetGlobalWorkflowsByParameterMap(ctx context.Context, data map[string]interface{}) ([]*Workflow, int64, error)
 }
 
 type DataExportWorkflowUsecase struct {

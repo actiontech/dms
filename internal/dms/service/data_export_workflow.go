@@ -148,6 +148,46 @@ func (d *DMSService) ListDataExportWorkflow(ctx context.Context, req *dmsV1.List
 	}, nil
 }
 
+func (d *DMSService) GetGlobalWorkflowsList(ctx context.Context, req *dmsV1.FilterGlobalDataExportWorkflowReq) (
+	*dmsV1.GetGlobalDataExportWorkflowsReply, error) {
+
+	limit, offset := d.GetLimitAndOffset(req.PageIndex, req.PageSize)
+	workflows, total, err := d.DataExportWorkflowUsecase.GetGlobalWorkflowsList(ctx, req, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	// 收集所有唯一的项目UID
+	projectUIDs := make(map[string]bool)
+	for _, w := range workflows {
+		if w.ProjectUID != "" {
+			projectUIDs[w.ProjectUID] = true
+		}
+	}
+
+	ret := make([]*dmsV1.GlobalDataExportWorkflow, len(workflows))
+	for i, w := range workflows {
+		ret[i] = &dmsV1.GlobalDataExportWorkflow{
+			ProjectInfo:    w.ProjectInfo,
+			WorkflowID:     w.UID,
+			WorkflowName:   w.Name,
+			Description:    w.Desc,
+			Creater:        convertBizUidWithName(d.UserUsecase.GetBizUserIncludeDeletedWithNameByUids(ctx, []string{w.CreateUserUID}))[0],
+			CreatedAt:      w.CreatedAt,
+			Status:         dmsV1.DataExportWorkflowStatus(w.WorkflowRecord.Status),
+			DBServiceInfos: w.DBServiceInfos,
+		}
+		if w.WorkflowRecord.WorkflowSteps[w.WorkflowRecord.CurrentWorkflowStepId-1].State == "init" {
+			ret[i].CurrentStepAssigneeUsers = convertBizUidWithName(d.UserUsecase.GetBizUserIncludeDeletedWithNameByUids(ctx, w.WorkflowRecord.WorkflowSteps[w.WorkflowRecord.CurrentWorkflowStepId-1].Assignees))
+		}
+	}
+
+	return &dmsV1.GetGlobalDataExportWorkflowsReply{
+		Data:  ret,
+		Total: total,
+	}, nil
+}
+
 func (d *DMSService) GetDataExportWorkflow(ctx context.Context, req *dmsV1.GetDataExportWorkflowReq, currentUserUid string) (reply *dmsV1.GetDataExportWorkflowReply, err error) {
 	w, err := d.DataExportWorkflowUsecase.GetDataExportWorkflow(ctx, req.DataExportWorkflowUid, currentUserUid)
 	if err != nil {
