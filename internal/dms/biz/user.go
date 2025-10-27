@@ -990,27 +990,21 @@ func (d *UserUsecase) GetBizUserIncludeDeletedWithNameByUids(ctx context.Context
 	if len(uids) == 0 {
 		return []UIdWithName{}
 	}
-	uidWithNameCacheCache.ulock.Lock()
-	defer uidWithNameCacheCache.ulock.Unlock()
-	if uidWithNameCacheCache.UserCache == nil {
-		uidWithNameCacheCache.UserCache = make(map[string]UIdWithName)
-	}
 	ret := make([]UIdWithName, 0)
 	for _, uid := range uids {
-		userCache, ok := uidWithNameCacheCache.UserCache[uid]
+		user, ok := uidWithNameCacheCache.UserCache[uid]
 		if !ok {
-			userCache = UIdWithName{
+			user = UIdWithName{
 				Uid: uid,
 			}
-			user, err := d.repo.GetUserIncludeDeleted(ctx, uid)
+			userInfo, err := d.repo.GetUserIncludeDeleted(ctx, uid)
 			if err == nil {
-				userCache.Name = user.Name
-				uidWithNameCacheCache.UserCache[user.UID] = userCache
+				user.Name = userInfo.Name
 			} else {
 				d.log.Errorf("get user for cache err: %v", err)
 			}
 		}
-		ret = append(ret, userCache)
+		ret = append(ret, user)
 	}
 	return ret
 }
