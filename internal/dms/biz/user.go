@@ -181,6 +181,7 @@ type UserRepo interface {
 	CountUsers(ctx context.Context, opts []pkgConst.FilterCondition) (total int64, err error)
 	DelUser(ctx context.Context, UserUid string) error
 	GetUser(ctx context.Context, UserUid string) (*User, error)
+	GetUserIncludeDeleted(ctx context.Context, UserUid string) (*User, error)
 	GetUserByName(ctx context.Context, userName string) (*User, error)
 	AddUserToUserGroup(ctx context.Context, userGroupUid string, userUid string) error
 	DelUserFromAllUserGroups(ctx context.Context, userUid string) error
@@ -981,6 +982,29 @@ func (d *UserUsecase) GetBizUserWithNameByUids(ctx context.Context, uids []strin
 			}
 		}
 		ret = append(ret, userCache)
+	}
+	return ret
+}
+
+func (d *UserUsecase) GetBizUserIncludeDeletedWithNameByUids(ctx context.Context, uids []string) []UIdWithName {
+	if len(uids) == 0 {
+		return []UIdWithName{}
+	}
+	ret := make([]UIdWithName, 0)
+	for _, uid := range uids {
+		user, ok := uidWithNameCacheCache.UserCache[uid]
+		if !ok {
+			user = UIdWithName{
+				Uid: uid,
+			}
+			userInfo, err := d.repo.GetUserIncludeDeleted(ctx, uid)
+			if err == nil {
+				user.Name = userInfo.Name
+			} else {
+				d.log.Errorf("get user for cache err: %v", err)
+			}
+		}
+		ret = append(ret, user)
 	}
 	return ret
 }
