@@ -132,12 +132,15 @@ func (d *DMSService) ListDataExportWorkflow(ctx context.Context, req *dmsV1.List
 			WorkflowID:   w.UID,
 			WorkflowName: w.Name,
 			Description:  w.Desc,
-			Creater:      convertBizUidWithName(d.UserUsecase.GetBizUserWithNameByUids(ctx, []string{w.CreateUserUID}))[0],
 			CreatedAt:    w.CreatedAt,
 			Status:       dmsV1.DataExportWorkflowStatus(w.WorkflowRecord.Status),
 		}
+		creater := convertBizUidWithName(d.UserUsecase.GetBizUserWithNameByUids(ctx, []string{w.CreateUserUID}))
+		if len(creater) > 0 {
+			ret[i].Creater = creater[0]
+		}
 		if w.WorkflowRecord.WorkflowSteps[w.WorkflowRecord.CurrentWorkflowStepId-1].State == "init" {
-			ret[i].CurrentStepAssigneeUsers = convertBizUidWithName(d.UserUsecase.GetBizUserWithNameByUids(ctx, w.WorkflowRecord.WorkflowSteps[w.WorkflowRecord.CurrentWorkflowStepId-1].Assignees))
+			ret[i].CurrentStepAssigneeUsers = convertBizUidWithName(d.UserUsecase.GetBizUserIncludeDeletedWithNameByUids(ctx, w.WorkflowRecord.WorkflowSteps[w.WorkflowRecord.CurrentWorkflowStepId-1].Assignees))
 		}
 
 	}
@@ -172,10 +175,14 @@ func (d *DMSService) GetGlobalWorkflowsList(ctx context.Context, req *dmsV1.Filt
 			WorkflowID:     w.UID,
 			WorkflowName:   w.Name,
 			Description:    w.Desc,
-			Creater:        convertBizUidWithName(d.UserUsecase.GetBizUserIncludeDeletedWithNameByUids(ctx, []string{w.CreateUserUID}))[0],
 			CreatedAt:      w.CreatedAt,
 			Status:         dmsV1.DataExportWorkflowStatus(w.WorkflowRecord.Status),
 			DBServiceInfos: w.DBServiceInfos,
+		}
+
+		creater := convertBizUidWithName(d.UserUsecase.GetBizUserIncludeDeletedWithNameByUids(ctx, []string{w.CreateUserUID}))
+		if len(creater) > 0 {
+			ret[i].Creater = creater[0]
 		}
 		if w.WorkflowRecord.WorkflowSteps[w.WorkflowRecord.CurrentWorkflowStepId-1].State == "init" {
 			ret[i].CurrentStepAssigneeUsers = convertBizUidWithName(d.UserUsecase.GetBizUserIncludeDeletedWithNameByUids(ctx, w.WorkflowRecord.WorkflowSteps[w.WorkflowRecord.CurrentWorkflowStepId-1].Assignees))
