@@ -210,18 +210,18 @@ var (
 
 // Data Export Workflow
 var (
-	DataWorkflowDefault = &i18n.Message{ID: "DataWorkflowDefault", Other: "数据导出工单未知请求"}
-	DataWorkflowExportFailed = &i18n.Message{ID: "DataWorkflowExportFailed", Other: "数据导出失败"}
-	DataWorkflowExportSuccess = &i18n.Message{ID: "DataWorkflowExportSuccess", Other: "数据导出成功"}
-	DataWorkflowReject = &i18n.Message{ID: "DataWorkflowReject", Other: "数据导出工单被驳回"}
-	DataWorkflowWaitExporting = &i18n.Message{ID: "DataWorkflowWaitExporting", Other: "数据导出工单待导出"}
-	DataWorkflowWaiting = &i18n.Message{ID: "DataWorkflowWaiting", Other: "数据导出工单待审批"}
-	NotifyDataWorkflowBodyConfigUrl = &i18n.Message{ID: "NotifyDataWorkflowBodyConfigUrl", Other: "请在系统设置-全局配置中补充全局url"}
-	NotifyDataWorkflowBodyHead = &i18n.Message{ID: "NotifyDataWorkflowBodyHead", Other: "\n- 数据导出工单主题: %v\n- 所属项目： %v\n- 数据导出工单ID: %v\n- 数据导出工单描述: %v\n- 申请人: %v\n- 创建时间: %v"}
-	NotifyDataWorkflowBodyInstanceAndSchema = &i18n.Message{ID:    "NotifyDataWorkflowBodyInstanceAndSchema", Other: "- 数据源: %v\n- schema: %v",}
-	NotifyDataWorkflowBodyLink = &i18n.Message{ID: "NotifyDataWorkflowBodyLink", Other: "- 数据导出工单链接: %v",}
-	NotifyDataWorkflowBodyReason = &i18n.Message{ID: "NotifyDataWorkflowBodyReason", Other: "- 驳回原因: %v" }
-	NotifyDataWorkflowBodyReport = &i18n.Message{ID: "NotifyDataWorkflowBodyReport", Other: "- 数据导出工单审核得分: %v",}
-	NotifyDataWorkflowBodyStartEnd = &i18n.Message{ID: "NotifyDataWorkflowBodyStartEnd", Other: "- 数据导出开始时间: %v\n- 数据导出结束时间: %v",}
-	NotifyDataWorkflowBodyWorkFlowErr = &i18n.Message{ID: "NotifyDataWorkflowBodyWorkFlowErr", Other: "- 读取工单任务内容失败，请通过SQLE界面确认工单状态",}
+	DataWorkflowDefault                     = &i18n.Message{ID: "DataWorkflowDefault", Other: "❓数据导出工单未知请求"}
+	DataWorkflowExportFailed                = &i18n.Message{ID: "DataWorkflowExportFailed", Other: "⚠️ 数据导出失败"}
+	DataWorkflowExportSuccess               = &i18n.Message{ID: "DataWorkflowExportSuccess", Other: "✅ 数据导出成功"}
+	DataWorkflowReject                      = &i18n.Message{ID: "DataWorkflowReject", Other: "❌ 数据导出工单被驳回"}
+	DataWorkflowWaitExporting               = &i18n.Message{ID: "DataWorkflowWaitExporting", Other: "⏳ 数据导出工单待导出"}
+	DataWorkflowWaiting                     = &i18n.Message{ID: "DataWorkflowWaiting", Other: "🔍 数据导出工单待审批"}
+	NotifyDataWorkflowBodyConfigUrl         = &i18n.Message{ID: "NotifyDataWorkflowBodyConfigUrl", Other: "请在系统设置-全局配置中补充全局url"}
+	NotifyDataWorkflowBodyHead              = &i18n.Message{ID: "NotifyDataWorkflowBodyHead", Other: "\n📋 数据导出工单主题: %v\n📍 所属项目： %v\n🆔 数据导出工单ID: %v\n📝 数据导出工单描述: %v\n👤 申请人: %v\n⏰ 创建时间: %v\n"}
+	NotifyDataWorkflowBodyInstanceAndSchema = &i18n.Message{ID: "NotifyDataWorkflowBodyInstanceAndSchema", Other: "🗄️ 数据源: %v\n📊 schema: %v\n"}
+	NotifyDataWorkflowBodyLink              = &i18n.Message{ID: "NotifyDataWorkflowBodyLink", Other: "🔗 数据导出工单链接: %v"}
+	NotifyDataWorkflowBodyReason            = &i18n.Message{ID: "NotifyDataWorkflowBodyReason", Other: "❌ 驳回原因: %v"}
+	NotifyDataWorkflowBodyReport            = &i18n.Message{ID: "NotifyDataWorkflowBodyReport", Other: "⭐ 数据导出工单审核得分: %v"}
+	NotifyDataWorkflowBodyStartEnd          = &i18n.Message{ID: "NotifyDataWorkflowBodyStartEnd", Other: "▶️ 数据导出开始时间: %v\n◀️ 数据导出结束时间: %v"}
+	NotifyDataWorkflowBodyWorkFlowErr       = &i18n.Message{ID: "NotifyDataWorkflowBodyWorkFlowErr", Other: "❌ 读取工单任务内容失败，请通过SQLE界面确认工单状态"}
 )
