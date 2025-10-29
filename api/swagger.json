@@ -1452,6 +1452,12 @@
     },
     "/v1/dms/files/upload": {
       "post": {
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "File"
         ],
@@ -1461,7 +1467,7 @@
           {
             "type": "string",
             "x-go-name": "Name",
-            "description": "file name",
+            "description": "File name",
             "name": "name",
             "in": "formData",
             "required": true
@@ -1469,10 +1475,9 @@
           {
             "type": "file",
             "x-go-name": "File",
-            "description": "file content",
+            "description": "File content",
             "name": "file",
-            "in": "formData",
-            "required": true
+            "in": "formData"
           }
         ],
         "responses": {

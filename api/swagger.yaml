@@ -6293,20 +6293,23 @@ paths:
                 - File
     /v1/dms/files/upload:
         post:
+            consumes:
+                - multipart/form-data
             operationId: UploadFile
             parameters:
-                - description: file name
+                - description: File name
                   in: formData
                   name: name
                   required: true
                   type: string
                   x-go-name: Name
-                - description: file content
+                - description: File content
                   in: formData
                   name: file
-                  required: true
                   type: file
                   x-go-name: File
+            produces:
+                - application/json
             responses:
                 "200":
                     description: UploadFileReply
