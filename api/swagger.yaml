@@ -368,6 +368,56 @@ definitions:
                 x-go-name: Value
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    AuditLog:
+        description: 审计日志
+        properties:
+            client_ip:
+                description: 客户端IP地址
+                type: string
+                x-go-name: ClientIP
+            event_description:
+                description: 事件描述
+                type: string
+                x-go-name: EventDescription
+            event_time:
+                description: 事件发生时间
+                format: date-time
+                type: string
+                x-go-name: EventTime
+            event_type:
+                description: 事件类型
+                type: string
+                x-go-name: EventType
+            extra_info:
+                description: 额外信息（JSON格式）
+                type: string
+                x-go-name: ExtraInfo
+            project_uid:
+                description: 项目ID
+                type: string
+                x-go-name: ProjectUID
+            result:
+                description: 操作结果
+                type: string
+                x-go-name: Result
+            subject_id:
+                description: 主体标识（用户ID）
+                type: string
+                x-go-name: SubjectID
+            subject_name:
+                description: 主体名称（用户名）
+                type: string
+                x-go-name: SubjectName
+            uid:
+                description: 审计日志UID
+                type: string
+                x-go-name: UID
+            user_agent:
+                description: 用户代理
+                type: string
+                x-go-name: UserAgent
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AuditPlanTypes:
         properties:
             audit_plan_id:
@@ -530,6 +580,9 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: ExecTimeSecond
+            manage_method:
+                type: string
+                x-go-name: ManageMethod
             operation:
                 $ref: '#/definitions/Operation'
             operation_ip:
@@ -1182,6 +1235,36 @@ definitions:
         title: A FileHeader describes a file part of a multipart request.
         type: object
         x-go-package: mime/multipart
+    FileInfo:
+        properties:
+            created_at:
+                description: File upload time
+                format: date-time
+                type: string
+                x-go-name: CreatedAt
+            name:
+                description: File name
+                type: string
+                x-go-name: Name
+            size:
+                description: File size
+                format: int64
+                type: integer
+                x-go-name: Size
+            uid:
+                description: File UID
+                type: string
+                x-go-name: UID
+            user_name:
+                description: File upload user name
+                type: string
+                x-go-name: UserName
+            user_uid:
+                description: File upload user UID
+                type: string
+                x-go-name: UserUID
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GenAccessToken:
         properties:
             expiration_days:
@@ -1218,6 +1301,26 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/base/v1
+    GetAuditLogReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: 审计日志详情
+                properties:
+                    audit_log:
+                        $ref: '#/definitions/AuditLog'
+                type: object
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetBasicInfoReply:
         properties:
             code:
@@ -1618,6 +1721,21 @@ definitions:
             login_tip:
                 type: string
                 x-go-name: LoginTip
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetPlatformMetricsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/PlatformMetrics'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetProjectTipsReply:
@@ -2171,6 +2289,85 @@ definitions:
                 x-go-name: Used
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListAuditLog:
+        description: 审计日志列表项
+        properties:
+            client_ip:
+                description: 客户端IP地址
+                type: string
+                x-go-name: ClientIP
+            event_description:
+                description: 事件描述
+                type: string
+                x-go-name: EventDescription
+            event_time:
+                description: 事件发生时间
+                format: date-time
+                type: string
+                x-go-name: EventTime
+            event_type:
+                description: 事件类型
+                type: string
+                x-go-name: EventType
+            extra_info:
+                description: 额外信息（JSON格式）
+                type: string
+                x-go-name: ExtraInfo
+            project_uid:
+                description: 项目ID
+                type: string
+                x-go-name: ProjectUID
+            result:
+                description: 操作结果
+                type: string
+                x-go-name: Result
+            subject_id:
+                description: 主体标识（用户ID）
+                type: string
+                x-go-name: SubjectID
+            subject_name:
+                description: 主体名称（用户名）
+                type: string
+                x-go-name: SubjectName
+            uid:
+                description: 审计日志UID
+                type: string
+                x-go-name: UID
+            user_agent:
+                description: 用户代理
+                type: string
+                x-go-name: UserAgent
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListAuditLogsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: 审计日志列表
+                properties:
+                    audit_logs:
+                        description: 审计日志列表
+                        items:
+                            $ref: '#/definitions/ListAuditLog'
+                        type: array
+                        x-go-name: AuditLogs
+                    total:
+                        description: 总数
+                        format: int64
+                        type: integer
+                        x-go-name: Total
+                type: object
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListCBOperationLogsReply:
         properties:
             audit_intercepted_sql_count:
@@ -2606,6 +2803,30 @@ definitions:
                 type: string
                 x-go-name: Message
             total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListFilesReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: File list
+                items:
+                    $ref: '#/definitions/FileInfo'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total:
+                description: Total count
                 format: int64
                 type: integer
                 x-go-name: Total
@@ -3724,6 +3945,51 @@ definitions:
                 x-go-name: Title
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    PlatformMetrics:
+        description: PlatformMetrics represents platform resource metrics
+        properties:
+            cpu_usage:
+                description: CPU usage percentage
+                format: double
+                type: number
+                x-go-name: CPUUsage
+            goroutine_count:
+                description: Number of goroutines
+                format: int64
+                type: integer
+                x-go-name: GoroutineCount
+            memory_usage:
+                description: Memory usage in bytes
+                format: uint64
+                type: integer
+                x-go-name: MemoryUsage
+            memory_usage_percent:
+                description: Memory usage percentage
+                format: double
+                type: number
+                x-go-name: MemoryUsagePercent
+            process_id:
+                description: Process ID
+                format: int64
+                type: integer
+                x-go-name: ProcessID
+            timestamp:
+                description: Timestamp when metrics were collected
+                format: int64
+                type: integer
+                x-go-name: Timestamp
+            total_memory:
+                description: Total memory in bytes
+                format: uint64
+                type: integer
+                x-go-name: TotalMemory
+            uptime:
+                description: Uptime in seconds
+                format: uint64
+                type: integer
+                x-go-name: Uptime
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     Plugin:
         properties:
             get_database_driver_logos_url:
@@ -4705,6 +4971,21 @@ definitions:
                 $ref: '#/definitions/WebHookConfigurationData'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UploadFileReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/FileInfo'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     User:
         description: A user
         properties:
@@ -4834,6 +5115,14 @@ definitions:
                 x-go-name: Code
             data:
                 properties:
+                    password_expired:
+                        description: Password expiration information
+                        type: boolean
+                        x-go-name: PasswordExpired
+                    password_expiry_days:
+                        format: int64
+                        type: integer
+                        x-go-name: PasswordExpiryDays
                     phone:
                         type: string
                         x-go-name: Phone
@@ -5008,6 +5297,66 @@ info:
     title: dms api.
     version: 0.1.0
 paths:
+    /v1/dms/audit_logs:
+        get:
+            operationId: ListAuditLogs
+            parameters:
+                - description: 页码，从1开始
+                  format: uint32
+                  in: query
+                  name: page_index
+                  required: true
+                  type: integer
+                  x-go-name: PageIndex
+                - description: 每页大小
+                  format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+                - description: 排序字段
+                  in: query
+                  name: order_by
+                  type: string
+                  x-go-name: OrderBy
+                - description: 按事件类型过滤
+                  in: query
+                  name: filter_by_event_type
+                  type: string
+                  x-go-name: FilterByEventType
+                - description: 按主体ID过滤
+                  in: query
+                  name: filter_by_subject_id
+                  type: string
+                  x-go-name: FilterBySubjectID
+                - description: 按结果过滤
+                  in: query
+                  name: filter_by_result
+                  type: string
+                  x-go-name: FilterByResult
+                - description: 按开始时间过滤
+                  in: query
+                  name: filter_by_start_time
+                  type: string
+                  x-go-name: FilterByStartTime
+                - description: 按结束时间过滤
+                  in: query
+                  name: filter_by_end_time
+                  type: string
+                  x-go-name: FilterByEndTime
+            responses:
+                "200":
+                    description: ListAuditLogsReply
+                    schema:
+                        $ref: '#/definitions/ListAuditLogsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List AuditLogs.
+            tags:
+                - AuditLogs
     /v1/dms/basic_info:
         get:
             operationId: GetBasicInfo
@@ -5861,6 +6210,115 @@ paths:
                         $ref: '#/definitions/GenericResp'
             tags:
                 - DBService
+    /v1/dms/files:
+        get:
+            operationId: ListFiles
+            parameters:
+                - description: page number
+                  format: int64
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - description: limit per page
+                  format: int64
+                  in: query
+                  name: page_size
+                  type: integer
+                  x-go-name: PageSize
+                - description: filter by upload user UID
+                  in: query
+                  name: filter_by_user_uid
+                  type: string
+                  x-go-name: FilterByUserUID
+                - description: filter by upload user name
+                  in: query
+                  name: filter_by_user_name
+                  type: string
+                  x-go-name: FilterByUserName
+            responses:
+                "200":
+                    description: ListFilesReply
+                    schema:
+                        $ref: '#/definitions/ListFilesReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List files.
+            tags:
+                - File
+    /v1/dms/files/{file_uid}:
+        delete:
+            operationId: DeleteFile
+            parameters:
+                - description: file UID
+                  in: path
+                  name: file_uid
+                  required: true
+                  type: string
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Delete file.
+            tags:
+                - File
+    /v1/dms/files/{file_uid}/download:
+        get:
+            operationId: DownloadFile
+            parameters:
+                - description: file UID
+                  in: path
+                  name: file_uid
+                  required: true
+                  type: string
+                  x-go-name: FileUID
+            responses:
+                "200":
+                    description: DownloadFileReply
+                    schema:
+                        $ref: '#/definitions/DownloadFileReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Download file.
+            tags:
+                - File
+    /v1/dms/files/upload:
+        post:
+            operationId: UploadFile
+            parameters:
+                - description: file name
+                  in: formData
+                  name: name
+                  required: true
+                  type: string
+                  x-go-name: Name
+                - description: file content
+                  in: formData
+                  name: file
+                  required: true
+                  type: file
+                  x-go-name: File
+            responses:
+                "200":
+                    description: UploadFileReply
+                    schema:
+                        $ref: '#/definitions/UploadFileReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Upload file.
+            tags:
+                - File
     /v1/dms/masking/rules:
         get:
             operationId: ListMaskingRules
@@ -6035,6 +6493,21 @@ paths:
                         $ref: '#/definitions/GenericResp'
             tags:
                 - BasicInfo
+    /v1/dms/platform_metrics:
+        get:
+            operationId: GetPlatformMetrics
+            responses:
+                "200":
+                    description: GetPlatformMetricsReply
+                    schema:
+                        $ref: '#/definitions/GetPlatformMetricsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get platform resource metrics.
+            tags:
+                - PlatformMetrics
     /v1/dms/plugins:
         post:
             operationId: RegisterDMSPlugin
@@ -6259,6 +6732,11 @@ paths:
                   name: filter_exec_result
                   type: string
                   x-go-name: FilterExecResult
+                - description: filter operation ip
+                  in: query
+                  name: filter_operation_ip
+                  type: string
+                  x-go-name: FilterOperationIP
                 - description: filter fuzzy key word for operation_detail/operation_ip
                   in: query
                   name: fuzzy_keyword
@@ -6319,6 +6797,11 @@ paths:
                   name: filter_exec_result
                   type: string
                   x-go-name: FilterExecResult
+                - description: filter operation ip
+                  in: query
+                  name: filter_operation_ip
+                  type: string
+                  x-go-name: FilterOperationIP
                 - description: filter fuzzy key word for operation_detail/operation_ip
                   in: query
                   name: fuzzy_keyword
@@ -8270,6 +8753,10 @@ responses:
         schema:
             type: file
     DownloadDataExportTaskSQLsReply:
+        description: ""
+        schema:
+            type: file
+    DownloadFileReply:
         description: ""
         schema:
             type: file
