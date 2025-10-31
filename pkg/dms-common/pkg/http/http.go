@@ -61,7 +61,7 @@ func Call(ctx context.Context, method, url string, headers map[string]string, bo
 	// 获取上下文中的超时值，并将其断言为 int64 类型
 	timeout, ok := ctx.Value(timeoutKey).(int64)
 	if !ok {
-		timeout = 15 // 默认超时时间
+		timeout = 30 * 60 // 默认超时时间
 	}
 	var bodyReader io.Reader
 	if body != nil {
