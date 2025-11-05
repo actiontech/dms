@@ -1,10 +1,8 @@
 package service
 
 import (
-	"context"
 	"fmt"
 
-	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/apiserver/conf"
 	maskingBiz "github.com/actiontech/dms/internal/data_masking/biz"
 	"github.com/actiontech/dms/internal/dms/biz"
@@ -90,23 +88,6 @@ func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) 
 		CloudbeaverUsecase: cloudbeaverUsecase,
 		ProxyUsecase:       proxyUsecase,
 		log:                utilLog.NewHelper(logger, utilLog.WithMessageKey("cloudbeaver.service")),
-	}, nil
-}
-
-func (cs *CloudbeaverService) GetCloudbeaverConfiguration(ctx context.Context) (reply *dmsV1.GetSQLQueryConfigurationReply, err error) {
-	cs.log.Infof("GetCloudbeaverConfiguration")
-	defer func() {
-		cs.log.Infof("GetCloudbeaverConfiguration; reply=%v, error=%v", reply, err)
-	}()
-
-	return &dmsV1.GetSQLQueryConfigurationReply{
-		Data: struct {
-			EnableSQLQuery  bool   `json:"enable_sql_query"`
-			SQLQueryRootURI string `json:"sql_query_root_uri"`
-		}{
-			EnableSQLQuery:  cs.CloudbeaverUsecase.IsCloudbeaverConfigured(),
-			SQLQueryRootURI: cs.CloudbeaverUsecase.GetRootUri() + "/", // 确保URL以斜杠结尾，防止DMS开启HTTPS时，Web服务器重定向到HTTP根路径导致访问错误
-		},
 	}, nil
 }
 
