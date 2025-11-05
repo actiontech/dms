@@ -1829,7 +1829,7 @@ definitions:
                 type: array
                 x-go-name: Users
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetMemberGroupReply:
         properties:
             code:
@@ -1844,7 +1844,7 @@ definitions:
                 type: string
                 x-go-name: Message
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetOauth2ConfigurationResData:
         properties:
             access_token_tag:
@@ -1992,9 +1992,15 @@ definitions:
                 x-go-name: Code
             data:
                 properties:
+                    enable_odc_query:
+                        type: boolean
+                        x-go-name: EnableOdcQuery
                     enable_sql_query:
                         type: boolean
                         x-go-name: EnableSQLQuery
+                    odc_query_root_uri:
+                        type: string
+                        x-go-name: OdcQueryRootURI
                     sql_query_root_uri:
                         type: string
                         x-go-name: SQLQueryRootURI
@@ -5767,7 +5773,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateBusinessTagReq:
         properties:
             business_tag:

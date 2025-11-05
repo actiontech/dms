@@ -9051,7 +9051,7 @@
           "x-go-name": "Users"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetMemberGroupReply": {
       "type": "object",
@@ -9071,7 +9071,7 @@
           "x-go-name": "Message"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetOauth2ConfigurationResData": {
       "type": "object",
@@ -9270,9 +9270,17 @@
         "data": {
           "type": "object",
           "properties": {
+            "enable_odc_query": {
+              "type": "boolean",
+              "x-go-name": "EnableOdcQuery"
+            },
             "enable_sql_query": {
               "type": "boolean",
               "x-go-name": "EnableSQLQuery"
+            },
+            "odc_query_root_uri": {
+              "type": "string",
+              "x-go-name": "OdcQueryRootURI"
             },
             "sql_query_root_uri": {
               "type": "string",
@@ -13871,7 +13879,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateBusinessTagReq": {
       "type": "object",
