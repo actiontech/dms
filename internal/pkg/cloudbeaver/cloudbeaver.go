@@ -22,6 +22,9 @@ var (
 	Version2321 = CBVersion{
 		version: []int{23, 2, 1},
 	}
+	Version2521 = CBVersion{
+		version: []int{25, 2, 1},
+	}
 )
 
 // CloudBeaver 版本号格式一般为 X.X.X.X 格式,例如 '22.3.1.202212261505' , 其中前三位为版本号
@@ -62,7 +65,6 @@ func (v CBVersion) LessThan(version CBVersion) bool {
 		return false
 	}
 	return v.version[2] < version.version[2]
-
 }
 
 // 不同版本的CloudBeaver间存在不兼容查询语句
@@ -289,8 +291,28 @@ type CloudBeaverV2321 struct {
 	CloudBeaverV2223
 }
 
-func (CloudBeaverV2321) IsUserExistQuery(userId string) (string, map[string]interface{}) {
+type CloudBeaverV2521 struct {
+	CloudBeaverV2321
+}
 
+func (CloudBeaverV2521) GetUserConnectionsQuery() string {
+	return `
+query getUserConnections (
+  $projectId: ID
+  $connectionId: ID
+  $projectIds: [ID!]
+){
+  connections: userConnections(projectId: $projectId, id: $connectionId, projectIds: $projectIds) {
+    ...DatabaseConnection
+  }
+}
+fragment DatabaseConnection on ConnectionInfo {
+  id
+}
+`
+}
+
+func (CloudBeaverV2321) IsUserExistQuery(userId string) (string, map[string]interface{}) {
 	return `
 query getUserList(
 	$page: PageInput!
@@ -338,9 +360,12 @@ func NewGraphQL(url string) (GraphQLImpl, error) {
 		return nil, err
 	}
 
-	var queryGraphQL GraphQLImpl = CloudBeaverV2321{}
+	var queryGraphQL GraphQLImpl = CloudBeaverV2521{}
 
-	// QueryGQL 默认值是 CloudBeaverV2223{}
+	// QueryGQL 默认值是 CloudBeaverV2521{}
+	if version.LessThan(Version2521) {
+		queryGraphQL = CloudBeaverV2321{}
+	}
 	if version.LessThan(Version2321) {
 		queryGraphQL = CloudBeaverV2223{}
 	}

@@ -14,36 +14,71 @@ type DataTransferProcessorInfo {
     isHTML: Boolean
 }
 
+input DataTransferOutputSettingsInput {
+    insertBom: Boolean
+    encoding: String
+    timestampPattern: String
+    compress: Boolean
+    fileName: String
+}
+
+type DataTransferOutputSettings {
+    insertBom: Boolean!
+    encoding: String!
+    timestampPattern: String!
+    compress: Boolean!
+}
+
+type DataTransferDefaultExportSettings {
+    outputSettings : DataTransferOutputSettings!
+    supportedEncodings: [String!]!
+}
+
 input DataTransferParameters {
-    # Processor ID
+    "Processor ID"
     processorId: ID!
-    # General settings:
-    #   - openNewConnection: opens new database connection for data transfer task
+    """
+    General settings:
+    - openNewConnection: opens new database connection for data transfer task
+    """
     settings: Object
-    # Processor properties. See DataTransferProcessorInfo.properties
+    "Processor properties. See DataTransferProcessorInfo.properties"
     processorProperties: Object!
-    # Data filter settings
+    "Consumer properties. See StreamConsumerSettings"
+    outputSettings: DataTransferOutputSettingsInput
+    "Data filter settings"
     filter: SQLDataFilter
 }
 
 extend type Query {
 
-    # Available transfer processors
+    "Returns available transfer processors for data transfer export"
     dataTransferAvailableStreamProcessors: [ DataTransferProcessorInfo! ]!
 
+    "Returns available transfer processors for data transfer import"
+    dataTransferAvailableImportStreamProcessors: [ DataTransferProcessorInfo! ]!
+
+    "Returns default export settings for data transfer"
+    dataTransferDefaultExportSettings: DataTransferDefaultExportSettings!
+
+    "Creates async task for data transfer export from the container node path"
     dataTransferExportDataFromContainer(
+        projectId: ID,
         connectionId: ID!,
         containerNodePath: ID!,
         parameters: DataTransferParameters!
     ): AsyncTaskInfo!
 
+    "Creates async task for data transfer export from results"
     dataTransferExportDataFromResults(
+        projectId: ID,
         connectionId: ID!,
         contextId: ID!,
         resultsId: ID!,
         parameters: DataTransferParameters!
     ): AsyncTaskInfo!
 
-    dataTransferRemoveDataFile(dataFileId: String!): Boolean
+    "Deletes data transfer file by ID"
+    dataTransferRemoveDataFile(dataFileId: String!): Boolean @deprecated(reason: "25.0.1")
 
 }
