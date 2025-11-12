@@ -28,11 +28,12 @@ override DOCKER         		= $(shell which docker)
 override GOOS           		= linux
 override OS_VERSION 			= el7
 override GO_BUILD_FLAGS 		= -mod=vendor
+override CGO_ENABLED 			= 0
 override RPM_USER_GROUP_NAME 	= actiontech
 override RPM_USER_NAME 			= actiontech-universe
 override LDFLAGS 				= -ldflags "-X 'main.Version=${GIT_VERSION}' -X 'main.gitCommitID=${GIT_COMMIT}' -X 'main.defaultRunUser=${RPM_USER_NAME}'"
 
-GO_COMPILER_IMAGE ?= golang:1.19.6
+DMS_GO_COMPILER_IMAGE ?= golang:1.24.1
 RPM_BUILD_IMAGE ?= rpmbuild/centos7
 DOCKER_IMAGE_GO_SWAGGER = quay.io/goswagger/swagger
 DMS_UNIT_TEST_MYSQL_DB_CONTAINER = dms-mysql-unit-test-db
@@ -90,13 +91,13 @@ override FTP_PATH = ftp://$(RELEASE_FTPD_HOST)/actiontech-$(PROJECT_NAME)/$(EDIT
 
 ############################### compiler ##################################
 dlv_install:
-	GOOS=linux GOARCH=amd64 GOPROXY=https://goproxy.io,direct go build -gcflags "all=-N -l" $(GO_BUILD_FLAGS) ${LDFLAGS} -tags $(GO_BUILD_TAGS) -o ./bin/dms ./internal/apiserver/cmd/server/main.go
+	CGO_ENABLED=$(CGO_ENABLED) GOOS=linux GOARCH=amd64 GOPROXY=https://goproxy.io,direct go build -gcflags "all=-N -l" $(GO_BUILD_FLAGS) ${LDFLAGS} -tags $(GO_BUILD_TAGS) -o ./bin/dms ./internal/apiserver/cmd/server/main.go
 
 install:
-	GOOS=$(GOOS) GOARCH=$(GOARCH) go build $(GO_BUILD_FLAGS) ${LDFLAGS} -tags $(GO_BUILD_TAGS) -o ./bin/dms ./internal/apiserver/cmd/server/main.go
+	CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH) go build $(GO_BUILD_FLAGS) ${LDFLAGS} -tags $(GO_BUILD_TAGS) -o ./bin/dms ./internal/apiserver/cmd/server/main.go
 
 docker_install:
-	$(DOCKER) run -v $(shell pwd):/universe --rm $(GO_COMPILER_IMAGE) sh -c "cd /universe && git config --global --add safe.directory /universe && make install $(MAKEFLAGS)"
+	$(DOCKER) run -v $(shell pwd):/universe --rm $(DMS_GO_COMPILER_IMAGE) sh -c "cd /universe && git config --global --add safe.directory /universe && make install $(MAKEFLAGS)"
 
 docker_rpm: docker_install
 	$(DOCKER) run -v $(shell pwd):/universe/dms --user root --rm -e VERBOSE=1 $(RPM_BUILD_IMAGE) sh -c "(mkdir -p /root/rpmbuild/SOURCES >/dev/null 2>&1);cd /root/rpmbuild/SOURCES; \
@@ -189,7 +190,7 @@ gen_repo_fields:
 	go run ./internal/dms/cmd/gencli/gencli.go -d generate-node-repo-fields ./internal/dms/storage/model/ ./internal/dms/biz/
 
 docker_gen_swag:
-	$(DOCKER) run -v $(shell pwd):/universe --rm $(GO_COMPILER_IMAGE) sh -c "cd /universe &&make gen_swag"
+	$(DOCKER) run -v $(shell pwd):/universe --rm $(DMS_GO_COMPILER_IMAGE) sh -c "cd /universe &&make gen_swag"
 
 gen_swag:
 	./internal/apiserver/cmd/swag/swagger_${HOST_OS}_${HOST_ARCH} generate spec -m -w ./internal/apiserver/cmd/server/ -o ./api/swagger.yaml
