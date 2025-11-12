@@ -1,18 +1,21 @@
-package validator
+package rules
 
 import (
 	"github.com/vektah/gqlparser/v2/ast"
-	. "github.com/vektah/gqlparser/v2/validator"
+
+	//nolint:staticcheck // Validator rules each use dot imports for convenience.
+	. "github.com/vektah/gqlparser/v2/validator/core"
 )
 
-func init() {
-	AddRule("KnownDirectives", func(observers *Events, addError AddErrFunc) {
+var KnownDirectivesRule = Rule{
+	Name: "KnownDirectives",
+	RuleFunc: func(observers *Events, addError AddErrFunc) {
 		type mayNotBeUsedDirective struct {
 			Name   string
 			Line   int
 			Column int
 		}
-		var seen map[mayNotBeUsedDirective]bool = map[mayNotBeUsedDirective]bool{}
+		seen := map[mayNotBeUsedDirective]bool{}
 		observers.OnDirective(func(walker *Walker, directive *ast.Directive) {
 			if directive.Definition == nil {
 				addError(
@@ -43,5 +46,5 @@ func init() {
 				seen[tmp] = true
 			}
 		})
-	})
+	},
 }

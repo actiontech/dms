@@ -1,12 +1,15 @@
-package validator
+package rules
 
 import (
 	"github.com/vektah/gqlparser/v2/ast"
-	. "github.com/vektah/gqlparser/v2/validator"
+
+	//nolint:staticcheck // Validator rules each use dot imports for convenience.
+	. "github.com/vektah/gqlparser/v2/validator/core"
 )
 
-func init() {
-	AddRule("UniqueDirectivesPerLocation", func(observers *Events, addError AddErrFunc) {
+var UniqueDirectivesPerLocationRule = Rule{
+	Name: "UniqueDirectivesPerLocation",
+	RuleFunc: func(observers *Events, addError AddErrFunc) {
 		observers.OnDirectiveList(func(walker *Walker, directives []*ast.Directive) {
 			seen := map[string]bool{}
 
@@ -20,5 +23,5 @@ func init() {
 				seen[dir.Name] = true
 			}
 		})
-	})
+	},
 }

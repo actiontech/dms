@@ -1,14 +1,17 @@
-package validator
+package rules
 
 import (
 	"fmt"
 
 	"github.com/vektah/gqlparser/v2/ast"
-	. "github.com/vektah/gqlparser/v2/validator"
+
+	//nolint:staticcheck // Validator rules each use dot imports for convenience.
+	. "github.com/vektah/gqlparser/v2/validator/core"
 )
 
-func init() {
-	AddRule("FragmentsOnCompositeTypes", func(observers *Events, addError AddErrFunc) {
+var FragmentsOnCompositeTypesRule = Rule{
+	Name: "FragmentsOnCompositeTypes",
+	RuleFunc: func(observers *Events, addError AddErrFunc) {
 		observers.OnInlineFragment(func(walker *Walker, inlineFragment *ast.InlineFragment) {
 			fragmentType := walker.Schema.Types[inlineFragment.TypeCondition]
 			if fragmentType == nil || fragmentType.IsCompositeType() {
@@ -18,7 +21,7 @@ func init() {
 			message := fmt.Sprintf(`Fragment cannot condition on non composite type "%s".`, inlineFragment.TypeCondition)
 
 			addError(
-				Message(message),
+				Message("%s", message),
 				At(inlineFragment.Position),
 			)
 		})
@@ -31,9 +34,9 @@ func init() {
 			message := fmt.Sprintf(`Fragment "%s" cannot condition on non composite type "%s".`, fragment.Name, fragment.TypeCondition)
 
 			addError(
-				Message(message),
+				Message("%s", message),
 				At(fragment.Position),
 			)
 		})
-	})
+	},
 }

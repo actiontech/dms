@@ -1,12 +1,15 @@
 package code
 
 import (
+	"errors"
 	"fmt"
 	"go/types"
 )
 
 // CompatibleTypes isnt a strict comparison, it allows for pointer differences
-func CompatibleTypes(expected types.Type, actual types.Type) error {
+func CompatibleTypes(expected, actual types.Type) error {
+	// Unwrap any aliases
+	expected, actual = Unalias(expected), Unalias(actual)
 	// Special case to deal with pointer mismatches
 	{
 		expectedPtr, expectedIsPtr := expected.(*types.Pointer)
@@ -32,7 +35,7 @@ func CompatibleTypes(expected types.Type, actual types.Type) error {
 	case *types.Array:
 		if actual, ok := actual.(*types.Array); ok {
 			if expected.Len() != actual.Len() {
-				return fmt.Errorf("array length differs")
+				return errors.New("array length differs")
 			}
 
 			return CompatibleTypes(expected.Elem(), actual.Elem())
@@ -50,7 +53,7 @@ func CompatibleTypes(expected types.Type, actual types.Type) error {
 	case *types.Struct:
 		if actual, ok := actual.(*types.Struct); ok {
 			if expected.NumFields() != actual.NumFields() {
-				return fmt.Errorf("number of struct fields differ")
+				return errors.New("number of struct fields differ")
 			}
 
 			for i := 0; i < expected.NumFields(); i++ {
@@ -84,11 +87,8 @@ func CompatibleTypes(expected types.Type, actual types.Type) error {
 			if err := CompatibleTypes(expected.Params(), actual.Params()); err != nil {
 				return err
 			}
-			if err := CompatibleTypes(expected.Results(), actual.Results()); err != nil {
-				return err
-			}
-
-			return nil
+			err := CompatibleTypes(expected.Results(), actual.Results())
+			return err
 		}
 	case *types.Interface:
 		if actual, ok := actual.(*types.Interface); ok {
@@ -114,11 +114,8 @@ func CompatibleTypes(expected types.Type, actual types.Type) error {
 				return err
 			}
 
-			if err := CompatibleTypes(expected.Elem(), actual.Elem()); err != nil {
-				return err
-			}
-
-			return nil
+			err := CompatibleTypes(expected.Elem(), actual.Elem())
+			return err
 		}
 
 	case *types.Chan:
