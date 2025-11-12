@@ -9,6 +9,9 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"time"
+
+	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 )
 
 // Client is a client for interacting with a GraphQL API.
@@ -28,6 +31,9 @@ type Client struct {
 	Log func(s string)
 
 	HttpResHandler func(res *http.Response)
+
+	// maxRetries 最大重试次数，默认为0表示不重试
+	maxRetries int
 }
 
 // NewClient makes a new Client capable of making GraphQL requests.
@@ -70,147 +76,227 @@ func (c *Client) Run(ctx context.Context, req *Request, resp interface{}) error 
 }
 
 func (c *Client) runWithJSON(ctx context.Context, req *Request, resp interface{}) error {
-	var requestBody bytes.Buffer
-	requestBodyObj := struct {
-		Query         string                 `json:"query"`
-		Variables     map[string]interface{} `json:"variables"`
-		OperationName string                 `json:"operationName"`
-	}{
-		Query:     req.q,
-		Variables: req.vars,
-	}
-	if req.operationName != "" {
-		requestBodyObj.OperationName = req.operationName
-	}
-	if err := json.NewEncoder(&requestBody).Encode(requestBodyObj); err != nil {
-		return fmt.Errorf("encode body %w", err)
-	}
-	c.logf(">> variables: %v", req.vars)
-	c.logf(">> query: %s", req.q)
-	gr := &graphResponse{
-		Data: resp,
-	}
-	r, err := http.NewRequest(http.MethodPost, c.endpoint, &requestBody)
-	if err != nil {
-		return err
-	}
-	r.Close = c.closeReq
-	r.Header.Set("Content-Type", "application/json; charset=utf-8")
-	r.Header.Set("Accept", "application/json; charset=utf-8")
-	for _, cookie := range c.cookies {
-		r.AddCookie(cookie)
-	}
-	for key, values := range req.Header {
-		for _, value := range values {
-			r.Header.Add(key, value)
+	var lastErr error
+	maxAttempts := c.maxRetries + 1 // 总尝试次数 = 重试次数 + 1
+
+	for attempt := 0; attempt < maxAttempts; attempt++ {
+		if attempt > 0 {
+			// 重试前等待，使用指数退避策略
+			waitTime := time.Duration(attempt) * 100 * time.Millisecond
+			c.logf(">> retry attempt %d/%d after %v", attempt, c.maxRetries, waitTime)
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-time.After(waitTime):
+			}
 		}
-	}
-	c.logf(">> headers: %v", r.Header)
-	r = r.WithContext(ctx)
-	res, err := c.httpClient.Do(r)
-	if err != nil {
-		return err
-	}
-	if c.HttpResHandler != nil {
-		c.HttpResHandler(res)
+
+		var requestBody bytes.Buffer
+		requestBodyObj := struct {
+			Query         string                 `json:"query"`
+			Variables     map[string]interface{} `json:"variables"`
+			OperationName string                 `json:"operationName"`
+		}{
+			Query:     req.q,
+			Variables: req.vars,
+		}
+		if req.operationName != "" {
+			requestBodyObj.OperationName = req.operationName
+		}
+		if err := json.NewEncoder(&requestBody).Encode(requestBodyObj); err != nil {
+			return fmt.Errorf("encode body %w", err)
+		}
+		c.logf(">> variables: %v", req.vars)
+		c.logf(">> query: %s", req.q)
+		gr := &graphResponse{
+			Data: resp,
+		}
+		r, err := http.NewRequest(http.MethodPost, c.endpoint, &requestBody)
+		if err != nil {
+			return err
+		}
+		r.Close = c.closeReq
+		r.Header.Set("Content-Type", "application/json; charset=utf-8")
+		r.Header.Set("Accept", "application/json; charset=utf-8")
+		for _, cookie := range c.cookies {
+			r.AddCookie(cookie)
+		}
+		for key, values := range req.Header {
+			for _, value := range values {
+				r.Header.Add(key, value)
+			}
+		}
+		c.logf(">> headers: %v", r.Header)
+		r = r.WithContext(ctx)
+		res, err := c.httpClient.Do(r)
+		if err != nil {
+			lastErr = err
+			if attempt < c.maxRetries {
+				c.logf(">> request failed: %v, will retry", err)
+				continue
+			}
+			return err
+		}
+		if c.HttpResHandler != nil {
+			c.HttpResHandler(res)
+		}
+
+		func() {
+			defer res.Body.Close()
+			var buf bytes.Buffer
+			if err := func() error {
+				if _, err := io.Copy(&buf, res.Body); err != nil {
+					return fmt.Errorf("reading body %w", err)
+				}
+				c.logf("<< %s", buf.String())
+				if err := json.NewDecoder(&buf).Decode(&gr); err != nil {
+					if res.StatusCode != http.StatusOK {
+						return fmt.Errorf("graphql: server returned a non-200 status code: %v", res.StatusCode)
+					}
+					return fmt.Errorf("decoding response %w", err)
+				}
+				if len(gr.Errors) > 0 {
+					// return first error
+					return gr.Errors[0]
+				}
+				return nil
+			}(); err != nil {
+				lastErr = err
+			} else {
+				lastErr = nil
+			}
+		}()
+
+		if lastErr == nil {
+			return nil
+		}
+
+		if attempt < c.maxRetries {
+			c.logf(">> request failed: %v, will retry", lastErr)
+		}
 	}
 
-	defer res.Body.Close()
-	var buf bytes.Buffer
-	if _, err := io.Copy(&buf, res.Body); err != nil {
-		return fmt.Errorf("reading body %w", err)
-	}
-	c.logf("<< %s", buf.String())
-	if err := json.NewDecoder(&buf).Decode(&gr); err != nil {
-		if res.StatusCode != http.StatusOK {
-			return fmt.Errorf("graphql: server returned a non-200 status code: %v", res.StatusCode)
-		}
-		return fmt.Errorf("decoding response %w", err)
-	}
-	if len(gr.Errors) > 0 {
-		// return first error
-		return gr.Errors[0]
-	}
-	return nil
+	return lastErr
 }
 
 func (c *Client) runWithPostFields(ctx context.Context, req *Request, resp interface{}) error {
-	var requestBody bytes.Buffer
-	writer := multipart.NewWriter(&requestBody)
-	if err := writer.WriteField("query", req.q); err != nil {
-		return fmt.Errorf("write query field %w", err)
-	}
-	var variablesBuf bytes.Buffer
-	if len(req.vars) > 0 {
-		variablesField, err := writer.CreateFormField("variables")
+	var lastErr error
+	maxAttempts := c.maxRetries + 1 // 总尝试次数 = 重试次数 + 1
+
+	for attempt := 0; attempt < maxAttempts; attempt++ {
+		if attempt > 0 {
+			// 重试前等待，使用指数退避策略
+			waitTime := time.Duration(attempt) * 100 * time.Millisecond
+			c.logf(">> retry attempt %d/%d after %v", attempt, c.maxRetries, waitTime)
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-time.After(waitTime):
+			}
+		}
+
+		var requestBody bytes.Buffer
+		writer := multipart.NewWriter(&requestBody)
+		if err := writer.WriteField("query", req.q); err != nil {
+			return fmt.Errorf("write query field %w", err)
+		}
+		var variablesBuf bytes.Buffer
+		if len(req.vars) > 0 {
+			variablesField, err := writer.CreateFormField("variables")
+			if err != nil {
+				return fmt.Errorf("create variables field %w", err)
+			}
+			if err := json.NewEncoder(io.MultiWriter(variablesField, &variablesBuf)).Encode(req.vars); err != nil {
+				return fmt.Errorf("encode variables %w", err)
+			}
+		}
+		for i := range req.files {
+			part, err := writer.CreateFormFile(req.files[i].Field, req.files[i].Name)
+			if err != nil {
+				return fmt.Errorf("create form file %w", err)
+			}
+			if _, err := io.Copy(part, req.files[i].R); err != nil {
+				return fmt.Errorf("preparing file %w", err)
+			}
+		}
+		if err := writer.Close(); err != nil {
+			return fmt.Errorf("close writer %w", err)
+		}
+		c.logf(">> variables: %s", variablesBuf.String())
+		c.logf(">> files: %d", len(req.files))
+		c.logf(">> query: %s", req.q)
+		gr := &graphResponse{
+			Data: resp,
+		}
+		r, err := http.NewRequest(http.MethodPost, c.endpoint, &requestBody)
 		if err != nil {
-			return fmt.Errorf("create variables field %w", err)
+			return err
 		}
-		if err := json.NewEncoder(io.MultiWriter(variablesField, &variablesBuf)).Encode(req.vars); err != nil {
-			return fmt.Errorf("encode variables %w", err)
+		r.Close = c.closeReq
+		r.Header.Set("Content-Type", writer.FormDataContentType())
+		r.Header.Set("Accept", "application/json; charset=utf-8")
+		for _, cookie := range c.cookies {
+			r.AddCookie(cookie)
 		}
-	}
-	for i := range req.files {
-		part, err := writer.CreateFormFile(req.files[i].Field, req.files[i].Name)
+		for key, values := range req.Header {
+			for _, value := range values {
+				r.Header.Add(key, value)
+			}
+		}
+		c.logf(">> headers: %v", r.Header)
+		r = r.WithContext(ctx)
+		res, err := c.httpClient.Do(r)
 		if err != nil {
-			return fmt.Errorf("create form file %w", err)
+			lastErr = err
+			if attempt < c.maxRetries {
+				c.logf(">> request failed: %v, will retry", err)
+				continue
+			}
+			return err
 		}
-		if _, err := io.Copy(part, req.files[i].R); err != nil {
-			return fmt.Errorf("preparing file %w", err)
+
+		func() {
+			defer res.Body.Close()
+			var buf bytes.Buffer
+			if err := func() error {
+				if _, err := io.Copy(&buf, res.Body); err != nil {
+					return fmt.Errorf("reading body %w", err)
+				}
+				c.logf("<< %s", buf.String())
+				if err := json.NewDecoder(&buf).Decode(&gr); err != nil {
+					if res.StatusCode != http.StatusOK {
+						return fmt.Errorf("graphql: server returned a non-200 status code: %v", res.StatusCode)
+					}
+					return fmt.Errorf("decoding response %w", err)
+				}
+				if len(gr.Errors) > 0 {
+					// return first error
+					return gr.Errors[0]
+				}
+				return nil
+			}(); err != nil {
+				lastErr = err
+			} else {
+				lastErr = nil
+			}
+		}()
+
+		if lastErr == nil {
+			return nil
+		}
+
+		if attempt < c.maxRetries {
+			c.logf(">> request failed: %v, will retry", lastErr)
 		}
 	}
-	if err := writer.Close(); err != nil {
-		return fmt.Errorf("close writer %w", err)
-	}
-	c.logf(">> variables: %s", variablesBuf.String())
-	c.logf(">> files: %d", len(req.files))
-	c.logf(">> query: %s", req.q)
-	gr := &graphResponse{
-		Data: resp,
-	}
-	r, err := http.NewRequest(http.MethodPost, c.endpoint, &requestBody)
-	if err != nil {
-		return err
-	}
-	r.Close = c.closeReq
-	r.Header.Set("Content-Type", writer.FormDataContentType())
-	r.Header.Set("Accept", "application/json; charset=utf-8")
-	for _, cookie := range c.cookies {
-		r.AddCookie(cookie)
-	}
-	for key, values := range req.Header {
-		for _, value := range values {
-			r.Header.Add(key, value)
-		}
-	}
-	c.logf(">> headers: %v", r.Header)
-	r = r.WithContext(ctx)
-	res, err := c.httpClient.Do(r)
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-	var buf bytes.Buffer
-	if _, err := io.Copy(&buf, res.Body); err != nil {
-		return fmt.Errorf("reading body %w", err)
-	}
-	c.logf("<< %s", buf.String())
-	if err := json.NewDecoder(&buf).Decode(&gr); err != nil {
-		if res.StatusCode != http.StatusOK {
-			return fmt.Errorf("graphql: server returned a non-200 status code: %v", res.StatusCode)
-		}
-		return fmt.Errorf("decoding response %w", err)
-	}
-	if len(gr.Errors) > 0 {
-		// return first error
-		return gr.Errors[0]
-	}
-	return nil
+
+	return lastErr
 }
 
 // WithHTTPClient specifies the underlying http.Client to use when
 // making requests.
-//  NewClient(endpoint, WithHTTPClient(specificHTTPClient))
+//
+//	NewClient(endpoint, WithHTTPClient(specificHTTPClient))
 func WithHTTPClient(httpclient *http.Client) ClientOption {
 	return func(client *Client) {
 		client.httpClient = httpclient
@@ -225,7 +311,7 @@ func UseMultipartForm() ClientOption {
 	}
 }
 
-//ImmediatelyCloseReqBody will close the req body immediately after each request body is ready
+// ImmediatelyCloseReqBody will close the req body immediately after each request body is ready
 func ImmediatelyCloseReqBody() ClientOption {
 	return func(client *Client) {
 		client.closeReq = true
@@ -241,6 +327,24 @@ func WithHttpResHandler(fn func(response *http.Response)) ClientOption {
 func WithCookie(cookie []*http.Cookie) ClientOption {
 	return func(client *Client) {
 		client.cookies = cookie
+	}
+}
+
+func WithLogger(logger *utilLog.Helper) ClientOption {
+	return func(client *Client) {
+		client.Log = func(s string) {
+			logger.Debugf("%s", s)
+		}
+	}
+}
+
+// WithMaxRetries 设置最大重试次数，默认为0表示不重试
+func WithMaxRetries(maxRetries int) ClientOption {
+	return func(client *Client) {
+		if maxRetries < 0 {
+			maxRetries = 0
+		}
+		client.maxRetries = maxRetries
 	}
 }
 

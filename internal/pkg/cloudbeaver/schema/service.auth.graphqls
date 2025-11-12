@@ -30,16 +30,22 @@ type AuthProviderConfiguration {
     id: ID!
     displayName: String!
     disabled: Boolean!
+    authRoleProvided: Boolean
 
     iconURL: String
     description: String
 
-    # URL to external authentication service.
-    # If specified then it is external auhentication provider (SSO).
-    # Otherwise authLogin function must be called.
+    """
+    URL to external authentication service.
+    If specified then it is external authentication provider (SSO).
+    Otherwise authLogin function must be called.
+    """
     signInLink: String
     signOutLink: String
+    redirectLink: String
     metadataLink: String
+    acsLink: String
+    entityIdLink: String @since(version: "24.2.1")
 }
 
 type AuthProviderCredentialsProfile {
@@ -56,98 +62,154 @@ type AuthProviderInfo {
     description: String
 
     defaultProvider: Boolean!
+    trusted: Boolean!
+    private: Boolean!
+    authHidden: Boolean! @since(version: "24.2.4")
+    supportProvisioning: Boolean!
 
-    # Configurable providers must be configured first. See configurations field.
+    "Configurable providers must be configured first. See configurations field."
     configurable: Boolean!
+    "Federated providers means authorization must occur asynchronously through redirects."
+    federated: Boolean!
 
-    # Provider configurations (applicable only if configurable=true)
+    "Provider configurations (applicable only if configurable=true)"
     configurations: [AuthProviderConfiguration!]
+
+    templateConfiguration: AuthProviderConfiguration! @since(version: "24.1.2")
 
     credentialProfiles: [AuthProviderCredentialsProfile!]!
 
     requiredFeatures: [String!]!
+
+    required: Boolean!
 }
 
+
 type AuthInfo {
-    redirectLink: String
+    redirectLink: String @deprecated
 
-    authId: String
+    authId: String @deprecated
 
-    authStatus: AuthStatus!
+    authStatus: AuthStatus! @deprecated
 
     userTokens: [UserAuthToken!]
 }
 
+type FederatedAuthInfo @since(version: "25.0.3") {
+    redirectLink: String!
+    taskInfo: AsyncTaskInfo!
+}
+
+type FederatedAuthResult @since(version: "25.0.3") {
+    userTokens: [UserAuthToken!]! @since(version: "25.0.3")
+}
+
+type LogoutInfo @since(version: "23.3.3") {
+    redirectLinks: [String!]!
+}
+
 type UserAuthToken {
-    # Auth provider used for authorization
+    "Auth provider used for authorization"
     authProvider: ID!
 
-    # Auth provider configuration ID
+    "Auth provider configuration ID"
     authConfiguration: ID
 
-    # Authorization time
+    "Authorization time"
     loginTime: DateTime!
 
-    # User identity (aka user name) specific to auth provider
+    "User identity (aka user name) specific to auth provider"
     userId: String!
 
-    # User display name specific to auth provider
+    "User display name specific to auth provider"
     displayName: String!
 
-    # Optional login message
+    "Optional login message"
     message: String
 
-    # Auth origin
+    "Auth origin"
     origin: ObjectOrigin!
 
 }
 
 type UserInfo {
-    # User unique identifier
+    "User unique identifier"
     userId: ID!
 
-    # Human readable display name. It is taken from the first auth provider which was used for user login.
+    "Human readable display name. It is taken from the first auth provider which was used for user login."
     displayName: String
-
-    # User auth role ID. Optional.
+    "User auth role ID. Optional."
     authRole: ID
 
-    # All authentication tokens used during current session
+    "All authentication tokens used during current session"
     authTokens: [UserAuthToken!]!
 
     linkedAuthProviders: [String!]!
 
-    # User profile properties map
+    "User profile properties map"
     metaParameters: Object!
-
-    # USer configuration parameters
+    "User configuration parameters"
     configurationParameters: Object!
+    "User teams"
+    teams: [UserTeamInfo!]!
+
+    "Indicates whether the user is anonymous (not authenticated)."
+    isAnonymous: Boolean! @since(version: "24.2.3")
+}
+
+type UserTeamInfo {
+    teamId: String!
+    teamName: String!
+    teamRole: String
 }
 
 extend type Query {
 
-    # Authorize user using specified auth provider. If linkUser=true then associates new
-    authLogin(provider: ID!, configuration: ID, credentials: Object, linkUser: Boolean): AuthInfo!
+    """
+    Authorizes the user using specified auth provider.
+    Associates new credentials with the active user when linkUser=true.
+    Kills another user sessions if forceSessionsLogout=true.
+    """
+    authLogin(provider: ID!, configuration: ID, credentials: Object, linkUser: Boolean, forceSessionsLogout: Boolean): AuthInfo!
 
-    authUpdateStatus(authId: ID!, linkUser: Boolean): AuthInfo!
+    "Returns result of federated authentication task"
+    federatedAuthTaskResult(taskId: String!): FederatedAuthResult! @since(version: "25.0.3")
 
-    # Logouts user. If provider not specified then all authorizations are revoked from session.
-    authLogout(provider: ID, configuration: ID): Boolean
+    authUpdateStatus(authId: ID!, linkUser: Boolean): AuthInfo! @deprecated
 
-    # Active user information. null is no user was authorized within session
+    "Same as authLogoutExtended but without additional information"
+    authLogout(provider: ID, configuration: ID): Boolean @deprecated(reason: "use authLogoutExtended instead")
+
+    "Logouts user. If provider not specified then all authorizations are revoked from session. Contains additional information"
+    authLogoutExtended(provider: ID, configuration: ID): LogoutInfo! @since(version: "23.3.3")
+
+    "Active user information. null is no user was authorized within session"
     activeUser: UserInfo
 
+    "Returns list of all available auth providers"
     authProviders: [AuthProviderInfo!]!
 
+    "Changes the local password of the current user"
     authChangeLocalPassword(oldPassword: String!, newPassword: String!): Boolean!
 
+    "Returns properties that can be shown in user profile"
     listUserProfileProperties: [ObjectPropertyInfo!]!
 
 }
 
+
 extend type Mutation {
 
-    # Set user config parameter. If parameter value is null then removes the parameter
+    "Set user config parameter. If parameter value is null then removes the parameter"
     setUserConfigurationParameter(name: String!, value: Object): Boolean!
+    "Updates user preferences"
+    setUserPreferences(preferences: Object!): UserInfo! @since(version: "24.0.1")
 
+    "Creates async task for federated login. Returns redirect link to the task info page."
+    federatedLogin(
+        provider: ID!,
+        configuration: ID,
+        linkUser: Boolean,
+        forceSessionsLogout: Boolean
+    ): FederatedAuthInfo! @since(version: "25.0.3")
 }

@@ -1,7 +1,7 @@
 
 enum AdminSubjectType {
     user,
-    role
+    team
 }
 
 type AdminConnectionGrantInfo {
@@ -9,6 +9,22 @@ type AdminConnectionGrantInfo {
     dataSourceId: ID!
     subjectId: ID!
     subjectType: AdminSubjectType!
+}
+
+type AdminUserTeamGrantInfo @since(version: "24.0.5"){
+    userId: ID!
+    teamRole: String
+}
+
+type AdminObjectPermissions {
+    objectId: ID!
+    permissions: [String!]!
+}
+
+type AdminObjectGrantInfo {
+    subjectId: ID!
+    subjectType: AdminSubjectType!
+    objectPermissions: AdminObjectPermissions!
 }
 
 type AdminConnectionSearchInfo {
@@ -24,24 +40,33 @@ type AdminUserInfo {
 
     metaParameters: Object!
     configurationParameters: Object!
-    grantedRoles: [ID!]!
+    grantedTeams: [ID!]!
     grantedConnections: [AdminConnectionGrantInfo!]!
 
     origins: [ObjectOrigin!]!
 
     linkedAuthProviders: [String!]!
     enabled: Boolean!
+    authRole: String
+
+    disableDate: DateTime @since(version: "25.0.2")
+    disabledBy: String @since(version: "25.0.2")
+    disableReason: String @since(version: "25.0.2")
+
 }
 
-type AdminRoleInfo {
-    roleId: ID!
-    roleName: String
+type AdminTeamInfo {
+    teamId: ID!
+    teamName: String
     description: String
 
+    metaParameters: Object!
+
     grantedUsers: [ID!]!
+    grantedUsersInfo: [AdminUserTeamGrantInfo!]! @since(version: "24.0.5")
     grantedConnections: [AdminConnectionGrantInfo!]!
 
-    rolePermissions: [ID!]!
+    teamPermissions: [ID!]!
 }
 
 type AdminPermissionInfo {
@@ -68,6 +93,8 @@ type AdminAuthProviderConfiguration {
     signOutLink: String
     redirectLink: String
     metadataLink: String
+    acsLink: String
+    entityIdLink: String @since(version: "24.2.1")
 }
 
 type WebFeatureSet {
@@ -81,7 +108,7 @@ type WebFeatureSet {
 
 input ServerConfigInput {
     serverName: String
-    serverURL: String
+    serverURL: String @deprecated
 
     adminName: String
     adminPassword: String
@@ -92,67 +119,114 @@ input ServerConfigInput {
     publicCredentialsSaveEnabled: Boolean
     adminCredentialsSaveEnabled: Boolean
     resourceManagerEnabled: Boolean
+    secretManagerEnabled: Boolean @since(version: "24.3.2")
 
     enabledFeatures: [ID!]
     enabledAuthProviders: [ID!]
     disabledDrivers: [ID!]
 
     sessionExpireTime: Int
+    forceHttps: Boolean @since(version: "25.1.3")
+    supportedHosts: [String!] @since(version: "25.1.3")
+    bindSessionToIp: String @since(version: "25.1.4")
+}
+
+input AdminUserFilterInput {
+    userIdMask: String
+    enabledState: Boolean
 }
 
 extend type Query {
+    #### Users and teams
 
-    #### Users and roles
-
-    listUsers(userId: ID): [AdminUserInfo!]!
-    listRoles(roleId: ID): [AdminRoleInfo!]!
+    "Returns information about user by userId"
+    adminUserInfo(userId: ID!): AdminUserInfo!
+    "Returns all users with pagination and filter"
+    listUsers(page: PageInput!, filter: AdminUserFilterInput!): [AdminUserInfo!]!
+    "Returns information about team by teamId. If teamId is not provided, returns information about all teams"
+    listTeams(teamId: ID): [AdminTeamInfo!]!
+    "Returns all permissions"
     listPermissions: [AdminPermissionInfo!]!
+    "Returns all auth roles based on the license"
+    listAuthRoles: [String!]!
+    "Returns all team roles"
+    listTeamRoles: [String!]!
+    "Returns teams meta parameters for displaying in the UI"
+    listTeamMetaParameters: [ObjectPropertyInfo!]!
 
-    createUser(userId: ID!): AdminUserInfo!
+    "Creates a new user with the specified userId"
+    createUser(userId: ID!, enabled: Boolean!, authRole: String): AdminUserInfo!
+    "Deletes user by userId"
     deleteUser(userId: ID!): Boolean
 
-    createRole(roleId: ID!, roleName: String, description: String): AdminRoleInfo!
-    updateRole(roleId: ID!, roleName: String, description: String): AdminRoleInfo!
-    deleteRole(roleId: ID!): Boolean
+    "Creates a new team with the specified teamId"
+    createTeam(teamId: ID!, teamName: String, description: String): AdminTeamInfo!
+    "Updates team information by teamId"
+    updateTeam(teamId: ID!, teamName: String, description: String): AdminTeamInfo!
+    "Deletes team by teamId"
+    deleteTeam(teamId: ID!, force: Boolean): Boolean
 
-    grantUserRole(userId: ID!, roleId: ID!): Boolean
-    revokeUserRole(userId: ID!, roleId: ID!): Boolean
+    "Grants user to team with the specified userId and teamId"
+    grantUserTeam(userId: ID!, teamId: ID!): Boolean
+    "Revokes user from team with the specified userId and teamId"
+    revokeUserTeam(userId: ID!, teamId: ID!): Boolean
 
-    setSubjectPermissions(roleId: ID!, permissions: [ID!]!): [AdminPermissionInfo!]!
+    "Sets permissions to the subject (user or team) with the specified subjectId"
+    setSubjectPermissions(subjectId: ID!, permissions: [ID!]!): [AdminPermissionInfo!]!
 
+    "Sets user credentials for the specified userId and providerId"
     setUserCredentials(userId: ID!, providerId: ID!, credentials: Object!): Boolean
 
+    "Deletes user credentials for the specified userId and providerId"
+    deleteUserCredentials(userId: ID!, providerId: ID!): Boolean
+
+    "Enables or disables user by userId"
     enableUser(userId: ID!, enabled: Boolean!): Boolean
+
+    "Sets user auth role for the specified userId"
+    setUserAuthRole(userId: ID!, authRole: String): Boolean
+
+    "Sets user team role for the specified userId and teamId"
+    setUserTeamRole(userId: ID!, teamId: ID!, teamRole: String): Boolean @since(version: "24.0.5")
 
     #### Connection management
 
-    # All connection configurations
-    allConnections( id: ID ): [ ConnectionInfo! ]!
-
+    "Finds available connections by host names"
     searchConnections( hostNames: [String!]! ): [AdminConnectionSearchInfo!]!
-
-    createConnectionConfiguration( config: ConnectionConfig! ): ConnectionInfo!
-    copyConnectionConfiguration( nodePath: String!, config: ConnectionConfig ): ConnectionInfo!
-    updateConnectionConfiguration( id: ID!, config: ConnectionConfig! ): ConnectionInfo!
-    deleteConnectionConfiguration( id: ID! ): Boolean
 
     # Permissions
 
-    getConnectionSubjectAccess(connectionId: ID): [AdminConnectionGrantInfo!]!
-    setConnectionSubjectAccess(connectionId: ID!, subjects: [ID!]!): Boolean
+    "Returns all subjects (users and teams) that have access to the specified connection"
+    getConnectionSubjectAccess(projectId: ID!, connectionId: ID): [AdminConnectionGrantInfo!]!
 
-    getSubjectConnectionAccess(subjectId: ID): [AdminConnectionGrantInfo!]!
-    setSubjectConnectionAccess(subjectId: ID!, connections: [ID!]!): Boolean
+    "Sets access to the connection for the specified subjects (users and teams)"
+    setConnectionSubjectAccess(projectId: ID!, connectionId: ID!, subjects: [ID!]!): Boolean @deprecated(reason: "use addConnectionsAccess (23.2.2)")
+
+    "Sets access to the connections for the specified subjects (users and teams)"
+    addConnectionsAccess(projectId: ID!, connectionIds: [ID!]!, subjects: [ID!]!): Boolean @since(version: "23.2.2")
+
+    "Deletes access to the connections for the specified subjects (users and teams)"
+    deleteConnectionsAccess(projectId: ID!, connectionIds: [ID!]!, subjects: [ID!]!): Boolean @since(version: "23.2.2")
+
+    "Returns all connections that the subject (user or team) has access to"
+    getSubjectConnectionAccess(subjectId: ID!): [AdminConnectionGrantInfo!]!
+
+    "Sets access for a subject (user or team) to the specified connections"
+    setSubjectConnectionAccess(subjectId: ID!, connections: [ID!]!): Boolean @deprecated(reason: "23.2.2")
 
     #### Feature sets
 
+    "Returns all available feature sets that can be enabled or disabled"
     listFeatureSets: [WebFeatureSet!]!
 
     #### Auth providers and configurations
 
+    "Returns all properties of the auth provider with the specified providerId"
     listAuthProviderConfigurationParameters(providerId: ID!): [ObjectPropertyInfo!]!
+    "Returns all auth provider configurations for the specified providerId. If providerId is not provided, returns all configurations"
     listAuthProviderConfigurations(providerId: ID): [AdminAuthProviderConfiguration!]!
 
+    "Saves auth provider configuration with the specified parameters"
     saveAuthProviderConfiguration(
         providerId: ID!,
         id: ID!,
@@ -160,22 +234,37 @@ extend type Query {
         disabled: Boolean,
         iconURL: String
         description: String
-        parameters: Object): AdminAuthProviderConfiguration!
+        parameters: Object
+    ): AdminAuthProviderConfiguration!
+
+    "Deletes auth provider configuration by id"
     deleteAuthProviderConfiguration(id: ID!): Boolean!
 
     #### User profile
 
+    "Not implemented yet"
     saveUserMetaParameter(id: ID!, displayName: String!, description: String, required: Boolean!): ObjectPropertyInfo!
 
+    "Not implemented yet"
     deleteUserMetaParameter(id: ID!): Boolean!
 
+    "Sets user meta parameters values for the specified userId"
     setUserMetaParameterValues(userId: ID!, parameters: Object!): Boolean!
+
+    "Sets team meta parameters values for the specified teamId"
+    setTeamMetaParameterValues(teamId: ID!, parameters: Object!): Boolean!
 
     #### Global configuration
 
+    "Saves server configuration"
     configureServer(configuration: ServerConfigInput!): Boolean!
 
-    # Changes default navigator settings
+    "Changes default navigator settings"
     setDefaultNavigatorSettings( settings: NavigatorSettingsInput!): Boolean!
 
+}
+
+extend type Mutation {
+    "Updates product configuration"
+    adminUpdateProductConfiguration(configuration: Object!): Boolean! @since(version: "23.3.4")
 }
