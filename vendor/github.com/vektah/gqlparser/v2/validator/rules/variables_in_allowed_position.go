@@ -1,12 +1,15 @@
-package validator
+package rules
 
 import (
 	"github.com/vektah/gqlparser/v2/ast"
-	. "github.com/vektah/gqlparser/v2/validator"
+
+	//nolint:staticcheck // Validator rules each use dot imports for convenience.
+	. "github.com/vektah/gqlparser/v2/validator/core"
 )
 
-func init() {
-	AddRule("VariablesInAllowedPosition", func(observers *Events, addError AddErrFunc) {
+var VariablesInAllowedPositionRule = Rule{
+	Name: "VariablesInAllowedPosition",
+	RuleFunc: func(observers *Events, addError AddErrFunc) {
 		observers.OnValue(func(walker *Walker, value *ast.Value) {
 			if value.Kind != ast.Variable || value.ExpectedType == nil || value.VariableDefinition == nil || walker.CurrentOperation == nil {
 				return
@@ -34,5 +37,5 @@ func init() {
 				)
 			}
 		})
-	})
+	},
 }

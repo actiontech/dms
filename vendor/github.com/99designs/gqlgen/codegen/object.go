@@ -7,10 +7,11 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/99designs/gqlgen/codegen/config"
 	"github.com/vektah/gqlparser/v2/ast"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+
+	"github.com/99designs/gqlgen/codegen/config"
 )
 
 type GoFieldType int
@@ -25,14 +26,15 @@ const (
 type Object struct {
 	*ast.Definition
 
-	Type               types.Type
-	ResolverInterface  types.Type
-	Root               bool
-	Fields             []*Field
-	Implements         []*ast.Definition
-	DisableConcurrency bool
-	Stream             bool
-	Directives         []*Directive
+	Type                     types.Type
+	ResolverInterface        types.Type
+	Root                     bool
+	Fields                   []*Field
+	Implements               []*ast.Definition
+	DisableConcurrency       bool
+	Stream                   bool
+	Directives               []*Directive
+	PointersInUnmarshalInput bool
 }
 
 func (b *builder) buildObject(typ *ast.Definition) (*Object, error) {
@@ -42,11 +44,12 @@ func (b *builder) buildObject(typ *ast.Definition) (*Object, error) {
 	}
 	caser := cases.Title(language.English, cases.NoLower)
 	obj := &Object{
-		Definition:         typ,
-		Root:               b.Schema.Query == typ || b.Schema.Mutation == typ || b.Schema.Subscription == typ,
-		DisableConcurrency: typ == b.Schema.Mutation,
-		Stream:             typ == b.Schema.Subscription,
-		Directives:         dirs,
+		Definition:               typ,
+		Root:                     b.Config.IsRoot(typ),
+		DisableConcurrency:       typ == b.Schema.Mutation,
+		Stream:                   typ == b.Schema.Subscription,
+		Directives:               dirs,
+		PointersInUnmarshalInput: b.Config.ReturnPointersInUnmarshalInput,
 		ResolverInterface: types.NewNamed(
 			types.NewTypeName(0, b.Config.Exec.Pkg(), caser.String(typ.Name)+"Resolver", nil),
 			nil,
@@ -110,8 +113,8 @@ func (o *Object) HasResolvers() bool {
 }
 
 func (o *Object) HasUnmarshal() bool {
-	if o.Type == config.MapType {
-		return true
+	if o.IsMap() {
+		return false
 	}
 	for i := 0; i < o.Type.(*types.Named).NumMethods(); i++ {
 		if o.Type.(*types.Named).Method(i).Name() == "UnmarshalGQL" {
@@ -144,16 +147,30 @@ func (o *Object) IsConcurrent() bool {
 }
 
 func (o *Object) IsReserved() bool {
-	return strings.HasPrefix(o.Definition.Name, "__")
+	return strings.HasPrefix(o.Name, "__")
+}
+
+func (o *Object) IsMap() bool {
+	return o.Type == config.MapType
 }
 
 func (o *Object) Description() string {
 	return o.Definition.Description
 }
 
+func (o *Object) HasField(name string) bool {
+	for _, f := range o.Fields {
+		if f.Name == name {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (os Objects) ByName(name string) *Object {
 	for i, o := range os {
-		if strings.EqualFold(o.Definition.Name, name) {
+		if strings.EqualFold(o.Name, name) {
 			return os[i]
 		}
 	}

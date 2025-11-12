@@ -1,6 +1,7 @@
 package templates
 
 import (
+	"errors"
 	"fmt"
 	"go/types"
 	"strconv"
@@ -45,7 +46,7 @@ func (s *Imports) Reserve(path string, aliases ...string) (string, error) {
 		panic("empty ambient import")
 	}
 
-	// if we are referencing our own package we dont need an import
+	// if we are referencing our own package we don't need an import
 	if code.ImportPathForDir(s.destDir) == path {
 		return "", nil
 	}
@@ -62,11 +63,11 @@ func (s *Imports) Reserve(path string, aliases ...string) (string, error) {
 		if existing.Alias == alias {
 			return "", nil
 		}
-		return "", fmt.Errorf("ambient import already exists")
+		return "", errors.New("ambient import already exists")
 	}
 
 	if alias := s.findByAlias(alias); alias != nil {
-		return "", fmt.Errorf("ambient import collides on an alias")
+		return "", errors.New("ambient import collides on an alias")
 	}
 
 	s.imports = append(s.imports, &Import{
@@ -85,7 +86,7 @@ func (s *Imports) Lookup(path string) string {
 
 	path = code.NormalizeVendor(path)
 
-	// if we are referencing our own package we dont need an import
+	// if we are referencing our own package we don't need an import
 	if code.ImportPathForDir(s.destDir) == path {
 		return ""
 	}
