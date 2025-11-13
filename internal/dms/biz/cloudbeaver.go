@@ -1703,6 +1703,8 @@ func (cu *CloudbeaverUsecase) GenerateCloudbeaverConnectionParams(dbService *DBS
 		err = cu.fillOceanBaseParams(dbService, config)
 	case constant.DBTypeGoldenDB:
 		err = cu.fillGoldenDBParams(config)
+	case constant.DBTypeHive:
+		err = cu.fillHive4Params(config)
 	default:
 		return nil, fmt.Errorf("temporarily unsupported instance types")
 	}
@@ -1796,6 +1798,11 @@ func (cu *CloudbeaverUsecase) fillOceanBaseParams(inst *DBService, config map[st
 
 func (cu *CloudbeaverUsecase) fillGoldenDBParams(config map[string]interface{}) error {
 	config["driverId"] = "mysql:mysql8"
+	return nil
+}
+
+func (cu *CloudbeaverUsecase) fillHive4Params(config map[string]interface{}) error {
+	config["driverId"] = "hive:apache_hive4"
 	return nil
 }
 
