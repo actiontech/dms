@@ -118,10 +118,31 @@ func (c *SqlWorkbenchClient) Login(username, password, publicKey string) (*Login
 	var buf bytes.Buffer
 	writer := multipart.NewWriter(&buf)
 
-	// 添加表单字段
-	writer.WriteField("username", username)
-	writer.WriteField("password", encryptedPassword)
-	writer.Close()
+	// 添加表单字段，使用CreateFormField确保UTF-8编码正确
+	usernameField, err := writer.CreateFormField("username")
+	if err != nil {
+		c.log.Errorf("Failed to create username field: %v", err)
+		return nil, fmt.Errorf("failed to create username field: %v", err)
+	}
+	if _, err := usernameField.Write([]byte(username)); err != nil {
+		c.log.Errorf("Failed to write username field: %v", err)
+		return nil, fmt.Errorf("failed to write username field: %v", err)
+	}
+
+	passwordField, err := writer.CreateFormField("password")
+	if err != nil {
+		c.log.Errorf("Failed to create password field: %v", err)
+		return nil, fmt.Errorf("failed to create password field: %v", err)
+	}
+	if _, err := passwordField.Write([]byte(encryptedPassword)); err != nil {
+		c.log.Errorf("Failed to write password field: %v", err)
+		return nil, fmt.Errorf("failed to write password field: %v", err)
+	}
+
+	if err := writer.Close(); err != nil {
+		c.log.Errorf("Failed to close multipart writer: %v", err)
+		return nil, fmt.Errorf("failed to close multipart writer: %v", err)
+	}
 
 	// 创建请求
 	req, err := http.NewRequest("POST", loginURL, &buf)
@@ -130,8 +151,9 @@ func (c *SqlWorkbenchClient) Login(username, password, publicKey string) (*Login
 		return nil, fmt.Errorf("failed to create login request: %v", err)
 	}
 
-	// 设置请求头
-	req.Header.Set("Content-Type", writer.FormDataContentType())
+	// 设置请求头，显式指定 charset=utf-8 确保中文字符正确编码
+	contentType := writer.FormDataContentType() + "; charset=utf-8"
+	req.Header.Set("Content-Type", contentType)
 
 	// 发送请求
 	resp, err := c.httpClient.Do(req)
