@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/apiserver/conf"
@@ -26,6 +27,24 @@ const SQL_WORKBENCH_PREFIX = "DMS-"
 const SQL_WORKBENCH_DEFAULT_PASSWORD = "DMS123__"
 const SQL_WORKBENCH_REAL_PASSWORD = "DMS123__@"
 const INDIVIDUAL_SPACE = 4
+
+// ODC 会话相关的 cookie 名称
+const (
+	ODCSessionCookieName   = "JSESSIONID"
+	ODCXsrfTokenCookieName = "XSRF-TOKEN"
+)
+
+// odcSession ODC 会话缓存结构
+type odcSession struct {
+	dmsToken   string
+	jsessionID string
+	xsrfToken  string
+}
+
+var (
+	dmsUserIdODCSessionMap = make(map[string]odcSession)
+	odcSessionMutex        = &sync.Mutex{}
+)
 
 // generateSqlWorkbenchUsername 生成 SQL Workbench 用户名
 func (s *SqlWorkbenchService) generateSqlWorkbenchUsername(dmsUserName string) string {
@@ -192,6 +211,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) GetRootUri() string {
 func (sqlWorkbenchService *SqlWorkbenchService) Login() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			// 从Cookie中获取DMS token
 			var dmsToken string
 			for _, cookie := range c.Cookies() {
 				if cookie.Name == pkgConst.DMSToken {
@@ -199,10 +219,35 @@ func (sqlWorkbenchService *SqlWorkbenchService) Login() echo.MiddlewareFunc {
 					break
 				}
 			}
+
+			if dmsToken == "" {
+				sqlWorkbenchService.log.Errorf("dmsToken is empty")
+				return fmt.Errorf("dms user token is empty")
+			}
+
 			dmsUserId, err := jwt.ParseUidFromJwtTokenStr(dmsToken)
 			if err != nil {
-				return err
+				sqlWorkbenchService.log.Errorf("ParseUidFromJwtTokenStr err: %v", err)
+				return fmt.Errorf("parse dms user uid from token err: %v", err)
 			}
+
+			// 检查缓存中是否有有效的 ODC 会话
+			odcSession := sqlWorkbenchService.getODCSession(dmsUserId, dmsToken)
+			if odcSession != nil {
+				// 验证会话是否有效
+				if sqlWorkbenchService.validateODCSession(odcSession.jsessionID, odcSession.xsrfToken) {
+					// 会话有效，设置 cookie 到请求中
+					sqlWorkbenchService.setODCCookiesToRequest(c, odcSession.jsessionID, odcSession.xsrfToken)
+					sqlWorkbenchService.log.Debugf("Using cached ODC session for user: %s", dmsUserId)
+					return next(c)
+				}
+				// 会话无效，清除缓存
+				sqlWorkbenchService.log.Debugf("Cached ODC session invalid, clearing cache for user: %s", dmsUserId)
+				sqlWorkbenchService.clearODCSession(dmsUserId)
+			}
+
+			// 缓存不存在或会话无效，需要重新登录
+			sqlWorkbenchService.log.Debugf("No valid cached ODC session, performing login for user: %s", dmsUserId)
 
 			// 1. 根据dmsUserId从数据库获取用户信息
 			user, err := sqlWorkbenchService.userUsecase.GetUser(c.Request().Context(), dmsUserId)
@@ -241,11 +286,14 @@ func (sqlWorkbenchService *SqlWorkbenchService) Login() echo.MiddlewareFunc {
 			}
 
 			// 5. 调用登录接口进行登录，并且从登录接口的返回值中获取Cookie设置到c echo.Context的上下文中
-			err = sqlWorkbenchService.loginSqlWorkbenchUser(c, user)
+			jsessionID, xsrfToken, err := sqlWorkbenchService.loginSqlWorkbenchUser(c, user, dmsUserId, dmsToken)
 			if err != nil {
 				sqlWorkbenchService.log.Errorf("Failed to login sql workbench user: %v", err)
 				return err
 			}
+
+			// 将新会话设置到请求中
+			sqlWorkbenchService.setODCCookiesToRequest(c, jsessionID, xsrfToken)
 
 			return next(c)
 		}
@@ -310,44 +358,140 @@ func (sqlWorkbenchService *SqlWorkbenchService) createSqlWorkbenchUser(ctx conte
 }
 
 // loginSqlWorkbenchUser 使用SqlWorkbench用户登录并设置Cookie
-func (sqlWorkbenchService *SqlWorkbenchService) loginSqlWorkbenchUser(c echo.Context, dmsUser *biz.User) error {
+// 返回 jsessionID 和 xsrfToken，并缓存会话
+func (sqlWorkbenchService *SqlWorkbenchService) loginSqlWorkbenchUser(c echo.Context, dmsUser *biz.User, dmsUserId, dmsToken string) (string, string, error) {
 	// 获取公钥
 	publicKey, err := sqlWorkbenchService.client.GetPublicKey()
 	if err != nil {
-		return fmt.Errorf("failed to get public key: %v", err)
+		return "", "", fmt.Errorf("failed to get public key: %v", err)
 	}
 
 	// 使用SqlWorkbench用户登录
 	loginResp, err := sqlWorkbenchService.client.Login(sqlWorkbenchService.generateSqlWorkbenchUsername(dmsUser.Name), SQL_WORKBENCH_REAL_PASSWORD, publicKey)
 	if err != nil {
-		return fmt.Errorf("failed to login sql workbench user: %v", err)
+		return "", "", fmt.Errorf("failed to login sql workbench user: %v", err)
 	}
 
 	// 获取组织信息
 	orgResp, err := sqlWorkbenchService.client.GetOrganizations(loginResp.Cookie)
 	if err != nil {
-		return fmt.Errorf("failed to get organizations: %v", err)
+		return "", "", fmt.Errorf("failed to get organizations: %v", err)
 	}
+
+	// 提取cookie值
+	jsessionID := sqlWorkbenchService.client.ExtractCookieValue(loginResp.Cookie, ODCSessionCookieName)
+	xsrfToken := sqlWorkbenchService.client.ExtractCookieValue(orgResp.XsrfToken, ODCXsrfTokenCookieName)
 
 	// 设置Cookie到echo.Context中
 	c.SetCookie(&http.Cookie{
-		Name:     "JSESSIONID",
-		Value:    sqlWorkbenchService.client.ExtractCookieValue(loginResp.Cookie, "JSESSIONID"),
+		Name:     ODCSessionCookieName,
+		Value:    jsessionID,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   false, // 根据实际情况设置
+		Secure:   false,
 	})
 
 	c.SetCookie(&http.Cookie{
-		Name:     "XSRF-TOKEN",
-		Value:    sqlWorkbenchService.client.ExtractCookieValue(orgResp.XsrfToken, "XSRF-TOKEN"),
+		Name:     ODCXsrfTokenCookieName,
+		Value:    xsrfToken,
 		Path:     "/",
 		HttpOnly: false, // XSRF-TOKEN通常需要JavaScript访问
-		Secure:   false, // 根据实际情况设置
+		Secure:   false,
 	})
 
+	// 缓存会话
+	sqlWorkbenchService.setODCSession(dmsUserId, dmsToken, jsessionID, xsrfToken)
+
 	sqlWorkbenchService.log.Infof("Successfully logged in sql workbench user %s", dmsUser.Name)
+	return jsessionID, xsrfToken, nil
+}
+
+// getODCSession 获取缓存的 ODC 会话
+func (sqlWorkbenchService *SqlWorkbenchService) getODCSession(dmsUserId, dmsToken string) *odcSession {
+	odcSessionMutex.Lock()
+	defer odcSessionMutex.Unlock()
+
+	if item, ok := dmsUserIdODCSessionMap[dmsUserId]; ok {
+		if dmsToken == item.dmsToken {
+			// 返回副本以避免并发安全问题
+			session := item
+			return &session
+		}
+	}
+
 	return nil
+}
+
+// setODCSession 设置 ODC 会话缓存
+func (sqlWorkbenchService *SqlWorkbenchService) setODCSession(dmsUserId, dmsToken, jsessionID, xsrfToken string) {
+	odcSessionMutex.Lock()
+	defer odcSessionMutex.Unlock()
+
+	dmsUserIdODCSessionMap[dmsUserId] = odcSession{
+		dmsToken:   dmsToken,
+		jsessionID: jsessionID,
+		xsrfToken:  xsrfToken,
+	}
+}
+
+// clearODCSession 清除 ODC 会话缓存
+func (sqlWorkbenchService *SqlWorkbenchService) clearODCSession(dmsUserId string) {
+	odcSessionMutex.Lock()
+	defer odcSessionMutex.Unlock()
+
+	delete(dmsUserIdODCSessionMap, dmsUserId)
+}
+
+// validateODCSession 验证 ODC 会话是否有效
+// 通过调用 GetOrganizations API 来验证会话
+func (sqlWorkbenchService *SqlWorkbenchService) validateODCSession(jsessionID, xsrfToken string) bool {
+	cookie := fmt.Sprintf("%s=%s; %s=%s", ODCSessionCookieName, jsessionID, ODCXsrfTokenCookieName, xsrfToken)
+	_, err := sqlWorkbenchService.client.GetOrganizations(cookie)
+	if err != nil {
+		sqlWorkbenchService.log.Debugf("ODC session validation failed: %v", err)
+		return false
+	}
+	return true
+}
+
+// setODCCookiesToRequest 将 ODC cookies 设置到请求中
+func (sqlWorkbenchService *SqlWorkbenchService) setODCCookiesToRequest(c echo.Context, jsessionID, xsrfToken string) {
+	// 更新请求的 Cookie header
+	// 获取请求中现有的 Cookie header，用于保留客户端已有的 cookies
+	currentCookies := c.Request().Header.Get("Cookie")
+	cookieMap := make(map[string]string)
+	// 解析现有 Cookie 字符串为 map，避免覆盖客户端已有的 cookies
+	// Cookie 格式为 "key1=value1; key2=value2"，使用分号分隔
+	if currentCookies != "" {
+		existingCookies := strings.Split(currentCookies, ";")
+		for _, cookie := range existingCookies {
+			cookie = strings.TrimSpace(cookie)
+			if cookie != "" {
+				// 使用 SplitN 限制分割次数为 2，防止 cookie 值中包含 "=" 时被错误分割
+				parts := strings.SplitN(cookie, "=", 2)
+				if len(parts) == 2 {
+					cookieMap[parts[0]] = parts[1]
+				}
+			}
+		}
+	}
+
+	// 设置 ODC cookies
+	cookieMap[ODCSessionCookieName] = jsessionID
+	cookieMap[ODCXsrfTokenCookieName] = xsrfToken
+
+	// 构建新的 Cookie header
+	var cookieStrings []string
+	for name, value := range cookieMap {
+		cookieStrings = append(cookieStrings, fmt.Sprintf("%s=%s", name, value))
+	}
+
+	if len(cookieStrings) > 0 {
+		c.Request().Header.Set("Cookie", strings.Join(cookieStrings, "; "))
+	}
+
+	// 更新请求 header 中的 X-XSRF-TOKEN
+	c.Request().Header.Set("X-XSRF-TOKEN", xsrfToken)
 }
 
 // syncDatasources 同步DMS数据源到SqlWorkbench
