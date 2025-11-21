@@ -111,6 +111,18 @@ func initOpPermission() []*OpPermission {
 			RangeType: OpRangeTypeDBService,
 			Desc:      "SQL查询；拥有该权限的用户可以执行SQL查询",
 		},
+		{
+			UID:       pkgConst.UIDOfOpPermissionCreateOptimization,
+			Name:      "创建智能调优",
+			RangeType: OpRangeTypeDBService,
+			Desc:      "创建智能调优；拥有该权限的用户可以创建智能调优",
+		},
+		{
+			UID:       pkgConst.UIDOfOpPermissionViewOthersOptimization,
+			Name:      "查看他人创建的智能调优",
+			RangeType: OpRangeTypeDBService,
+			Desc:      "查看他人创建的智能调优；拥有该权限的用户可以查看他人创建的智能调优",
+		},
 	}
 }
 
