@@ -15,6 +15,9 @@ const (
 	UIDOfOpPermissionSaveAuditPlan       = "700009"
 	UIDOfOpPermissionSQLQuery            = "700010"
 
+	UIDOfOpPermissionCreateOptimization     = "700013"
+	UIDOfOpPermissionViewOthersOptimization = "700014"
+
 	UIDOfDMSConfig = "700100"
 
 	UIDOfUserAdmin = "700200"
