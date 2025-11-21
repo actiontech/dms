@@ -21,6 +21,9 @@ const (
 	UIDOfOpPermissionExportApprovalReject = "700011"
 	UIDOfOpPermissionExportCreate         = "700012"
 
+	UIDOfOpPermissionCreateOptimization     = "700013"
+	UIDOfOpPermissionViewOthersOptimization = "700014"
+
 	UIDOfDMSConfig = "700100"
 
 	UIDOfUserAdmin = "700200"
