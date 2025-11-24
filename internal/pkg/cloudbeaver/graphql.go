@@ -136,6 +136,7 @@ type AuditSQLResV2 struct {
 	ExecSQL     string               `json:"exec_sql"`
 	AuditResult dbmodel.AuditResults `json:"audit_result"`
 	AuditLevel  string               `json:"audit_level"`
+	SQLType     string               `json:"sql_type"`
 }
 
 type AuditResDataV2 struct {
@@ -195,7 +196,7 @@ func (r *MutationResolverImpl) AuditSQL(ctx context.Context, sql string, connect
 		}
 		return false, reply.Data.SQLResults, nil
 	}
-	return true, nil, nil
+	return true, reply.Data.SQLResults, nil
 }
 
 // AllowQuery 根据AllowQueryWhenLessThanAuditLevel字段判断能否执行SQL
