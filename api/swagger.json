@@ -7483,6 +7483,10 @@
         "uid": {
           "type": "string",
           "x-go-name": "UID"
+        },
+        "workflow_id": {
+          "type": "string",
+          "x-go-name": "WorkflowID"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -11220,6 +11224,11 @@
           "type": "integer",
           "format": "int64",
           "x-go-name": "UnfinishedWorkflowNum"
+        },
+        "workflow_exec_enabled": {
+          "description": "is enabled workflow exec",
+          "type": "boolean",
+          "x-go-name": "WorkflowExecEnabled"
         }
       },
       "x-go-name": "ListGlobalDBService",
@@ -11569,6 +11578,17 @@
     "ListMemberRoleWithOpRange": {
       "type": "object",
       "properties": {
+        "member_group": {
+          "$ref": "#/definitions/ProjectMemberGroup"
+        },
+        "op_permissions": {
+          "description": "member op permissions",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "OpPermissions"
+        },
         "op_range_type": {
           "description": "op permission range type, only support db service now\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "type": "string",
@@ -11593,7 +11613,7 @@
           "$ref": "#/definitions/UidWithName"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ListMemberTipsItem": {
       "type": "object",
@@ -13443,6 +13463,10 @@
         "rule_template_name": {
           "type": "string",
           "x-go-name": "RuleTemplateName"
+        },
+        "workflow_exec_enabled": {
+          "type": "boolean",
+          "x-go-name": "WorkflowExecEnabled"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -13871,7 +13895,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateBusinessTagReq": {
       "type": "object",
