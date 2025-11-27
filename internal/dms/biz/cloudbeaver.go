@@ -1,16 +1,20 @@
 package biz
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"path"
+	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/executor"
@@ -100,6 +104,9 @@ func NewCloudbeaverUsecase(log utilLog.Logger, cfg *CloudbeaverCfg, userUsecase 
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.cloudbeaver")),
 	}
 
+	// 启动缓存清理协程
+	go cu.startCacheCleanupRoutine()
+
 	return
 }
 
@@ -139,23 +146,28 @@ func (cu *CloudbeaverUsecase) getGraphQLServerURI() string {
 	return fmt.Sprintf("%v://%v:%v%v%v", protocol, cu.cloudbeaverCfg.Host, cu.cloudbeaverCfg.Port, CbRootUri, CbGqlApi)
 }
 
-const dmsUserIdKey = "dmsToken"
-const CBErrorCode = "sessionExpired"
+const (
+	dmsUserIdKey = "dmsToken"
+	CBErrorCode  = "sessionExpired"
+)
 
 func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 
-			if c.Request().Method == http.MethodGet {
-				return next(c)
-			}
-
+			// 从Cookie中获取DMS token
 			var dmsToken string
 			for _, cookie := range c.Cookies() {
 				if cookie.Name == constant.DMSToken {
 					dmsToken = cookie.Value
 					break
 				}
+			}
+
+			// 普通非WebSocket的GET请求跳过token校验和cookie设置逻辑
+			if c.Request().Method == http.MethodGet && !c.IsWebSocket() {
+				cu.log.Debugf("Cloudbeaver login middleware: Skipping GET request to %s", c.Request().RequestURI)
+				return next(c)
 			}
 
 			if dmsToken == "" {
@@ -232,9 +244,10 @@ func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 				return err
 			}
 
-			cookies, err := cu.loginCloudbeaverServer(cloudbeaverUserId, user.Password)
+			// 获取认证 cookies（已包含缓存逻辑）
+			cookies, err := cu.getAuthCookies(cloudbeaverUserId, user.Password)
 			if err != nil {
-				cu.log.Errorf("login to cloudbeaver failed: %v", err)
+				cu.log.Errorf("CloudBeaver authentication failed: %v", err)
 				return err
 			}
 
@@ -312,8 +325,10 @@ type TaskInfo struct {
 	} `json:"data"`
 }
 
-var taskIDAssocUid sync.Map
-var taskIdAssocMasking sync.Map
+var (
+	taskIDAssocUid     sync.Map
+	taskIdAssocMasking sync.Map
+)
 
 func (cu *CloudbeaverUsecase) buildTaskIdAssocDataMasking(raw []byte, enableMasking bool) error {
 	var taskInfo TaskInfo
@@ -335,15 +350,16 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) (err error) {
 			// 检查请求URI是否匹配CloudBeaver的GraphQL API路径
-			if c.Request().RequestURI != path.Join(CbRootUri, CbGqlApi) {
+			gqlPath := path.Join(CbRootUri, CbGqlApi)
+
+			if c.Request().RequestURI != gqlPath {
 				return next(c)
 			}
 
 			// 复制请求体内容
-			var reqBody = make([]byte, 0)
+			reqBody := make([]byte, 0)
 			if c.Request().Body != nil { // 读取请求体
 				reqBody, err = io.ReadAll(c.Request().Body)
-
 				if err != nil {
 					cu.log.Errorf("read request body err: %v", err)
 					return err
@@ -382,22 +398,40 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				}
 			}
 
-			//  统一拦截响应
-			srw := newSmartResponseWriter(c)
-			cloudbeaverResBuf := srw.Buffer
-			c.Response().Writer = srw
+			// 只有当使用本地处理器或需要特殊处理时才创建smartResponseWriter
+			var srw *ResponseInterceptor
+			var cloudbeaverResBuf *bytes.Buffer
+			var needSmartWriter bool = cloudbeaverHandle.UseLocalHandler ||
+				params.OperationName == "navNodeChildren"
 
-			defer func() {
+			if needSmartWriter {
+				srw = newSmartResponseWriter(c)
+				cloudbeaverResBuf = srw.Buffer
+				c.Response().Writer = srw
+				defer func() {
+					if !needSmartWriter || srw == nil {
+						return
+					}
+					cu.handleNavNodeChildrenOperation(params, c, cloudbeaverResBuf)
+					respBytesBuf := cloudbeaverResBuf.Bytes()
 
-				if srw.status != 0 {
-					srw.original.WriteHeader(srw.status)
-				}
-				_, writeErr := srw.original.Write(cloudbeaverResBuf.Bytes())
-				if writeErr != nil {
-					c.Logger().Error("Failed to write original response:", writeErr)
-				}
+					length := c.Response().Header().Get("content-length")
+					actualLength := strconv.Itoa(len(respBytesBuf))
+					if length != actualLength {
+						cu.log.Warnf("Response content-length mismatch, header: %s, actual: %s", length, actualLength)
+						// 在WriteHeader之前设置正确的content-length
+						c.Response().Header().Set("content-length", actualLength)
+					}
 
-			}()
+					if srw.status != 0 {
+						srw.original.WriteHeader(srw.status)
+					}
+					_, writeErr := srw.original.Write(respBytesBuf)
+					if writeErr != nil {
+						c.Logger().Error("Failed to write original response:", writeErr)
+					}
+				}()
+			}
 
 			// 使用本地处理方法
 			if cloudbeaverHandle.UseLocalHandler {
@@ -479,6 +513,22 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					}
 
 					return nil
+				}
+
+				// 处理异步批量更新结果请求
+				if params.OperationName == "asyncUpdateResultsDataBatch" {
+					dbService, err := cu.getDbService(c.Request().Context(), params)
+					if err != nil {
+						cu.log.Error(err)
+						return err
+					}
+
+					if err = next(c); err != nil {
+						return err
+					}
+
+					// 构建任务ID与数据脱敏的关联
+					return cu.buildTaskIdAssocDataMasking(cloudbeaverResBuf.Bytes(), dbService.IsMaskingSwitch)
 				}
 
 				// 处理获取异步任务信息请求
@@ -645,6 +695,15 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				// 创建GraphQL可执行schema
 				g := resolver.NewExecutableSchema(resolver.Config{
 					Resolvers: cloudbeaver.NewResolverImpl(c, cloudbeaverNext, cu.dataMaskingUseCase.SQLExecuteResultsDataMasking, enableMasking),
+					Directives: resolver.DirectiveRoot{
+						Since: func(ctx context.Context, obj any, next graphql.Resolver, version string) (res any, err error) {
+							// @since directive implementation
+							// This directive is used to mark fields that are available since a specific version
+							// For CloudBeaver integration, we'll always allow access to these fields
+							// as they are part of the current schema
+							return next(ctx)
+						},
+					},
 				})
 
 				// 创建GraphQL执行器
@@ -661,6 +720,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				// 获取响应
 				res := responses(ctx)
 				if res.Errors.Error() != "" {
+					cu.log.Errorf("GraphQL error: %v", res.Errors)
 					return res.Errors
 				}
 				if !cloudbeaverHandle.NeedModifyRemoteRes {
@@ -732,6 +792,7 @@ type ResponseInterceptor struct {
 	Buffer   *bytes.Buffer
 	original http.ResponseWriter
 	status   int
+	hijacked bool // 添加劫持状态标记
 }
 
 func newSmartResponseWriter(c echo.Context) *ResponseInterceptor {
@@ -740,10 +801,25 @@ func newSmartResponseWriter(c echo.Context) *ResponseInterceptor {
 		Response: *c.Response(),
 		Buffer:   buf,
 		original: c.Response().Writer,
+		hijacked: false,
 	}
 }
 
+// 实现Hijacker接口
+func (w *ResponseInterceptor) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	w.hijacked = true
+	if hijacker, ok := w.original.(http.Hijacker); ok {
+		return hijacker.Hijack()
+	}
+	return nil, nil, fmt.Errorf("underlying ResponseWriter does not support Hijack")
+}
+
 func (w *ResponseInterceptor) Write(b []byte) (int, error) {
+	// 检查连接是否已被劫持
+	if w.hijacked {
+		return len(b), nil
+	}
+
 	// 如果未设置状态码，则补默认值
 	if w.status == 0 {
 		w.WriteHeader(http.StatusOK)
@@ -753,7 +829,84 @@ func (w *ResponseInterceptor) Write(b []byte) (int, error) {
 }
 
 func (w *ResponseInterceptor) WriteHeader(code int) {
+	// 检查连接是否已被劫持
+	if w.hijacked {
+		return
+	}
 	w.status = code
+}
+
+func (cu *CloudbeaverUsecase) handleNavNodeChildrenOperation(params *graphql.RawParams, c echo.Context, responseBuf *bytes.Buffer) {
+	if params.OperationName != "navNodeChildren" {
+		return
+	}
+
+	parentPath, ok := params.Variables["parentPath"].(string)
+	if !ok || parentPath != "resource://g_GlobalConfiguration" {
+		return
+	}
+
+	currentUserUid := c.Get(dmsUserIdKey).(string)
+	var navNodeChildrenResponse cloudbeaver.NavNodeChildrenResponse
+	if err := UnmarshalGraphQLResponseNavNodeChildren(responseBuf.Bytes(), &navNodeChildrenResponse); err != nil {
+		cu.log.Errorf("Cloudbeaver extract navNodeChildren response err: %v", err)
+		return
+	}
+
+	cu.log.Debugf("user %s get connections navNodeChildren: %v", currentUserUid, navNodeChildrenResponse.Data.NavNodeChildren)
+	connections, err := cu.repo.GetCloudbeaverConnectionsByUserId(c.Request().Context(), currentUserUid)
+	if err != nil {
+		cu.log.Errorf("get cloudbeaver connections by user id %s failed: %v", currentUserUid, err)
+		return
+	}
+
+	if len(connections) != len(navNodeChildrenResponse.Data.NavNodeChildren) &&
+		len(navNodeChildrenResponse.Data.NavNodeChildren) > 0 {
+		// 根据connections的值来过滤navNodeChildren，删除多余的信息
+		originalCount := len(navNodeChildrenResponse.Data.NavNodeChildren)
+		filteredNavNodeChildren := make([]cloudbeaver.NavNodeInfo, 0)
+
+		// 创建connections的ID映射，提高查找效率
+		connectionIDMap := make(map[string]bool)
+		for _, connection := range connections {
+			if connection != nil {
+				connectionIDMap[connection.CloudbeaverConnectionID] = true
+			}
+		}
+
+		// 只保留在connections中存在的navNode
+		for _, navNode := range navNodeChildrenResponse.Data.NavNodeChildren {
+			if connectionIDMap[strings.TrimPrefix(navNode.ID, "database://")] {
+				filteredNavNodeChildren = append(filteredNavNodeChildren, navNode)
+			}
+		}
+
+		// 保持完整的 GraphQL 响应结构，只修改 data.navNodeChildren 部分
+		var originalResponse map[string]interface{}
+		if err := json.Unmarshal(responseBuf.Bytes(), &originalResponse); err != nil {
+			cu.log.Errorf("failed to unmarshal original response: %v", err)
+			return
+		}
+
+		// 更新 data.navNodeChildren
+		if data, ok := originalResponse["data"].(map[string]interface{}); ok {
+			data["navNodeChildren"] = filteredNavNodeChildren
+		}
+
+		// 重新序列化并更新responseBuf
+		updatedResponseBytes, err := json.Marshal(originalResponse)
+		if err != nil {
+			cu.log.Errorf("failed to marshal updated response: %v", err)
+			return
+		}
+
+		// 清空原buffer并写入新的响应
+		responseBuf.Reset()
+		responseBuf.Write(updatedResponseBytes)
+
+		cu.log.Warnf("user %s filtered navNodeChildren from %d to %d based on connections",
+			currentUserUid, originalCount, len(filteredNavNodeChildren))
+	}
 }
 
 func (cu *CloudbeaverUsecase) isEnableSQLAudit(dbService *DBService) bool {
@@ -790,7 +943,7 @@ type ActiveUserQueryRes struct {
 }
 
 func (cu *CloudbeaverUsecase) getActiveUserQuery(cookies []*http.Cookie) (*ActiveUserQueryRes, error) {
-	client := cloudbeaver.NewGraphQlClient(cu.getGraphQLServerURI(), cloudbeaver.WithCookie(cookies))
+	client := cloudbeaver.NewGraphQlClient(cu.getGraphQLServerURI(), cloudbeaver.WithCookie(cookies), cloudbeaver.WithLogger(cu.log))
 	req := cloudbeaver.NewRequest(cu.graphQl.GetActiveUserQuery(), map[string]interface{}{})
 
 	res := &ActiveUserQueryRes{}
@@ -805,9 +958,21 @@ type cloudbeaverSession struct {
 	cloudbeaverSessionId string
 }
 
+type authCache struct {
+	cookies   []*http.Cookie
+	expiresAt time.Time
+}
+
 var (
 	dmsUserIdCloudbeaverLoginMap = make(map[string]cloudbeaverSession)
 	tokenMapMutex                = &sync.Mutex{}
+
+	// 统一认证缓存
+	authCacheMap = make(map[string]*authCache)
+	authMutex    = &sync.Mutex{}
+
+	// 缓存过期时间：5分钟
+	authCacheExpiry = 5 * time.Minute
 )
 
 func (cu *CloudbeaverUsecase) getCloudbeaverSession(dmsUserId, dmsToken string) string {
@@ -839,6 +1004,80 @@ func (cu *CloudbeaverUsecase) setCloudbeaverSession(dmsUserId, dmsToken, cloudbe
 	}
 }
 
+// getAuthCache 获取认证缓存
+func (cu *CloudbeaverUsecase) getAuthCache(username string) []*http.Cookie {
+	authMutex.Lock()
+	defer authMutex.Unlock()
+
+	cache, exists := authCacheMap[username]
+	if !exists || time.Now().After(cache.expiresAt) {
+		// 缓存不存在或已过期，清理
+		delete(authCacheMap, username)
+		return nil
+	}
+
+	cu.log.Debugf("Using cached auth for user: %s", username)
+	return cache.cookies
+}
+
+// setAuthCache 设置认证缓存
+func (cu *CloudbeaverUsecase) setAuthCache(username string, cookies []*http.Cookie) {
+	authMutex.Lock()
+	defer authMutex.Unlock()
+
+	authCacheMap[username] = &authCache{
+		cookies:   cookies,
+		expiresAt: time.Now().Add(authCacheExpiry),
+	}
+
+	cu.log.Debugf("Cached auth for user: %s, expires at: %v", username, authCacheMap[username].expiresAt)
+}
+
+// getAuthCookies 获取认证 cookies（复用缓存逻辑）
+func (cu *CloudbeaverUsecase) getAuthCookies(username, password string) ([]*http.Cookie, error) {
+	// 尝试从缓存获取认证信息
+	cachedCookies := cu.getAuthCache(username)
+	if cachedCookies != nil {
+		cu.log.Debugf("Using cached authentication for user: %s", username)
+		return cachedCookies, nil
+	}
+
+	// 缓存未命中，执行登录
+	cu.log.Debugf("Cache miss, performing CloudBeaver login for user: %s", username)
+	cookies, err := cu.loginCloudbeaverServer(username, password)
+	if err != nil {
+		return nil, err
+	}
+
+	// 缓存认证信息
+	cu.setAuthCache(username, cookies)
+	return cookies, nil
+}
+
+// clearExpiredAuthCache 清理过期的认证缓存
+func (cu *CloudbeaverUsecase) clearExpiredAuthCache() {
+	authMutex.Lock()
+	defer authMutex.Unlock()
+
+	now := time.Now()
+	for user, cache := range authCacheMap {
+		if now.After(cache.expiresAt) {
+			delete(authCacheMap, user)
+			cu.log.Debugf("Cleared expired auth cache for user: %s", user)
+		}
+	}
+}
+
+// startCacheCleanupRoutine 启动缓存清理协程
+func (cu *CloudbeaverUsecase) startCacheCleanupRoutine() {
+	ticker := time.NewTicker(authCacheExpiry / 2) // 每2.5分钟清理一次
+	defer ticker.Stop()
+
+	for range ticker.C {
+		cu.clearExpiredAuthCache()
+	}
+}
+
 type UserList struct {
 	ListUsers []struct {
 		UserID string `json:"userID"`
@@ -848,31 +1087,41 @@ type UserList struct {
 var reservedCloudbeaverUserId = map[string]struct{}{"admin": {}, "user": {}}
 
 func (cu *CloudbeaverUsecase) createUserIfNotExist(ctx context.Context, cloudbeaverUserId string, dmsUser *User) error {
+	cu.log.Infof("Creating CloudBeaver user if not exist: %s for DMS user: %s", cloudbeaverUserId, dmsUser.UID)
+
 	if _, ok := reservedCloudbeaverUserId[cloudbeaverUserId]; ok {
+		cu.log.Errorf("Username %s is reserved and cannot be used", cloudbeaverUserId)
 		return fmt.Errorf("username %s is reserved， cann't be used", cloudbeaverUserId)
 	}
 
 	// 使用管理员身份登录
 	graphQLClient, err := cu.getGraphQLClientWithRootUser()
 	if err != nil {
+		cu.log.Errorf("Failed to get GraphQL client with root user for creating user %s: %v", cloudbeaverUserId, err)
 		return err
 	}
 
 	userExist, err := cu.checkCloudBeaverUserExist(ctx, graphQLClient, cloudbeaverUserId)
 	if err != nil {
+		cu.log.Errorf("Failed to check if CloudBeaver user %s exists: %v", cloudbeaverUserId, err)
 		return fmt.Errorf("check cloudbeaver user exist failed: %v", err)
 	}
 
 	// 用户不存在则创建CloudBeaver用户
 	if !userExist {
+		cu.log.Infof("CloudBeaver user %s does not exist, creating new user", cloudbeaverUserId)
+
 		// 创建用户
 		createUserReq := cloudbeaver.NewRequest(cu.graphQl.CreateUserQuery(), map[string]interface{}{
 			"userId": cloudbeaverUserId,
 		})
 		err = graphQLClient.Run(ctx, createUserReq, &UserList{})
 		if err != nil {
+			cu.log.Errorf("Failed to create CloudBeaver user %s: %v", cloudbeaverUserId, err)
 			return fmt.Errorf("create cloudbeaver user failed: %v", err)
 		}
+
+		cu.log.Infof("Successfully created CloudBeaver user: %s", cloudbeaverUserId)
 
 		// 授予角色(不授予角色的用户无法登录)
 		grantUserRoleReq := cloudbeaver.NewRequest(cu.graphQl.GrantUserRoleQuery(), map[string]interface{}{
@@ -882,20 +1131,29 @@ func (cu *CloudbeaverUsecase) createUserIfNotExist(ctx context.Context, cloudbea
 		})
 		err = graphQLClient.Run(ctx, grantUserRoleReq, nil)
 		if err != nil {
+			cu.log.Errorf("Failed to grant role to CloudBeaver user %s: %v", cloudbeaverUserId, err)
 			return fmt.Errorf("grant cloudbeaver user failed: %v", err)
 		}
+
+		cu.log.Infof("Successfully granted role to CloudBeaver user: %s", cloudbeaverUserId)
 	} else {
+		cu.log.Debugf("CloudBeaver user %s already exists, checking fingerprint", cloudbeaverUserId)
+
 		cloudbeaverUser, exist, err := cu.repo.GetCloudbeaverUserByID(ctx, cloudbeaverUserId)
 		if err != nil {
+			cu.log.Errorf("Failed to get CloudBeaver user %s from cache: %v", cloudbeaverUserId, err)
 			return err
 		}
 
 		if exist && cloudbeaverUser.DMSFingerprint == cu.userUsecase.GetUserFingerprint(dmsUser) {
+			cu.log.Debugf("CloudBeaver user %s fingerprint matches, no update needed", cloudbeaverUserId)
 			return nil
 		}
 	}
 
 	// 设置CloudBeaver用户密码
+	cu.log.Infof("Updating CloudBeaver user password for user: %s", cloudbeaverUserId)
+
 	updatePasswordReq := cloudbeaver.NewRequest(cu.graphQl.UpdatePasswordQuery(), map[string]interface{}{
 		"userId": cloudbeaverUserId,
 		"credentials": model.JSON{
@@ -904,8 +1162,11 @@ func (cu *CloudbeaverUsecase) createUserIfNotExist(ctx context.Context, cloudbea
 	})
 	err = graphQLClient.Run(ctx, updatePasswordReq, nil)
 	if err != nil {
+		cu.log.Errorf("Failed to update CloudBeaver user password for user %s: %v", cloudbeaverUserId, err)
 		return fmt.Errorf("update cloudbeaver user failed: %v", err)
 	}
+
+	cu.log.Infof("Successfully updated CloudBeaver user password for user: %s", cloudbeaverUserId)
 
 	cloudbeaverUser := &CloudbeaverUser{
 		DMSUserID:         dmsUser.UID,
@@ -1028,7 +1289,8 @@ type UserConnectionsResp struct {
 
 // 获取用户当前数据库连接ID
 func (cu *CloudbeaverUsecase) getUserConnectionIds(ctx context.Context, cloudbeaverUser *CloudbeaverUser, dmsUser *User) ([]string, error) {
-	client, err := cu.getGraphQLClient(cloudbeaverUser.CloudbeaverUserID, dmsUser.Password)
+	// 使用3次重试，因为这个接口有时会出现不稳定的情况
+	client, err := cu.getGraphQLClient(cloudbeaverUser.CloudbeaverUserID, dmsUser.Password, 3)
 	if err != nil {
 		return nil, err
 	}
@@ -1066,7 +1328,7 @@ func (cu *CloudbeaverUsecase) operateConnection(ctx context.Context, cloudbeaver
 		}
 	}
 
-	//获取当前用户所有已创建的连接
+	// 获取当前用户所有已创建的连接
 	localCloudbeaverConnections, err := cu.repo.GetCloudbeaverConnectionsByUserId(ctx, dmsUser.UID)
 	if err != nil {
 		return err
@@ -1206,10 +1468,14 @@ func (cu *CloudbeaverUsecase) grantAccessConnection(ctx context.Context, cloudbe
 }
 
 func (cu *CloudbeaverUsecase) bindUserAccessConnection(ctx context.Context, cloudbeaverDBServices []*CloudbeaverConnection, cloudBeaverUserID string) error {
-	var cloudbeaverConnectionIds = make([]string, 0, len(cloudbeaverDBServices))
+	cu.log.Infof("Binding CloudBeaver connections to user: %s, connection count: %d", cloudBeaverUserID, len(cloudbeaverDBServices))
+
+	cloudbeaverConnectionIds := make([]string, 0, len(cloudbeaverDBServices))
 	for _, service := range cloudbeaverDBServices {
 		cloudbeaverConnectionIds = append(cloudbeaverConnectionIds, service.CloudbeaverConnectionID)
 	}
+
+	cu.log.Debugf("CloudBeaver connection IDs for user %s: %v", cloudBeaverUserID, cloudbeaverConnectionIds)
 
 	cloudbeaverConnReq := cloudbeaver.NewRequest(cu.graphQl.SetUserConnectionsQuery(), map[string]interface{}{
 		"userId":      cloudBeaverUserID,
@@ -1218,15 +1484,27 @@ func (cu *CloudbeaverUsecase) bindUserAccessConnection(ctx context.Context, clou
 
 	rootClient, err := cu.getGraphQLClientWithRootUser()
 	if err != nil {
+		cu.log.Errorf("Failed to get GraphQL client with root user for binding connections to user %s: %v", cloudBeaverUserID, err)
 		return err
 	}
 
-	return rootClient.Run(ctx, cloudbeaverConnReq, nil)
+	err = rootClient.Run(ctx, cloudbeaverConnReq, nil)
+	if err != nil {
+		cu.log.Errorf("Failed to bind CloudBeaver connections to user %s: %v", cloudBeaverUserID, err)
+		return err
+	}
+
+	cu.log.Infof("Successfully bound %d CloudBeaver connections to user: %s", len(cloudbeaverConnectionIds), cloudBeaverUserID)
+	return nil
 }
 
 func (cu *CloudbeaverUsecase) createCloudbeaverConnection(ctx context.Context, client *cloudbeaver.Client, dbService *DBService, project, userId string) error {
+	cu.log.Infof("Creating CloudBeaver connection for DB service: %s, project: %s, user: %s, purpose: %s",
+		dbService.UID, project, userId, dbService.AccountPurpose)
+
 	params, err := cu.GenerateCloudbeaverConnectionParams(dbService, project, dbService.AccountPurpose)
 	if err != nil {
+		cu.log.Errorf("Failed to generate connection params for DB service %s: %v", dbService.UID, err)
 		return fmt.Errorf("%s unsupported", dbService.DBType)
 	}
 
@@ -1240,28 +1518,40 @@ func (cu *CloudbeaverUsecase) createCloudbeaverConnection(ctx context.Context, c
 
 	err = client.Run(ctx, req, &resp)
 	if err != nil {
+		cu.log.Errorf("Failed to create CloudBeaver connection for DB service %s: %v", dbService.UID, err)
 		return err
 	}
 
+	cu.log.Infof("Successfully created CloudBeaver connection: %s for DB service: %s", resp.Connection.ID, dbService.UID)
+
 	// 同步缓存
-	return cu.repo.UpdateCloudbeaverConnectionCache(ctx, &CloudbeaverConnection{
+	err = cu.repo.UpdateCloudbeaverConnectionCache(ctx, &CloudbeaverConnection{
 		DMSDBServiceID:          dbService.UID,
 		DMSUserId:               userId,
 		DMSDBServiceFingerprint: cu.dbServiceUsecase.GetDBServiceFingerprint(dbService),
 		Purpose:                 dbService.AccountPurpose,
 		CloudbeaverConnectionID: resp.Connection.ID,
 	})
+	if err != nil {
+		cu.log.Errorf("Failed to update CloudBeaver connection cache for DB service %s: %v", dbService.UID, err)
+	}
+	return err
 }
 
 // UpdateCloudbeaverConnection 更新完毕后会同步缓存
 func (cu *CloudbeaverUsecase) updateCloudbeaverConnection(ctx context.Context, client *cloudbeaver.Client, cloudbeaverConnectionId string, dbService *DBService, project, userId string) error {
+	cu.log.Infof("Updating CloudBeaver connection: %s for DB service: %s, project: %s, user: %s, purpose: %s",
+		cloudbeaverConnectionId, dbService.UID, project, userId, dbService.AccountPurpose)
+
 	params, err := cu.GenerateCloudbeaverConnectionParams(dbService, project, dbService.AccountPurpose)
 	if err != nil {
+		cu.log.Errorf("Failed to generate connection params for DB service %s: %v", dbService.UID, err)
 		return fmt.Errorf("%s unsupported", dbService.DBType)
 	}
 
 	config, ok := params["config"].(map[string]interface{})
 	if !ok {
+		cu.log.Errorf("Failed to assert connection params for DB service %s", dbService.UID)
 		return errors.New("assert connection params failed")
 	}
 
@@ -1276,19 +1566,29 @@ func (cu *CloudbeaverUsecase) updateCloudbeaverConnection(ctx context.Context, c
 
 	err = client.Run(ctx, req, &resp)
 	if err != nil {
+		cu.log.Errorf("Failed to update CloudBeaver connection %s for DB service %s: %v", cloudbeaverConnectionId, dbService.UID, err)
 		return err
 	}
 
-	return cu.repo.UpdateCloudbeaverConnectionCache(ctx, &CloudbeaverConnection{
+	cu.log.Infof("Successfully updated CloudBeaver connection: %s for DB service: %s", resp.Connection.ID, dbService.UID)
+
+	err = cu.repo.UpdateCloudbeaverConnectionCache(ctx, &CloudbeaverConnection{
 		DMSDBServiceID:          dbService.UID,
 		DMSUserId:               userId,
 		DMSDBServiceFingerprint: cu.dbServiceUsecase.GetDBServiceFingerprint(dbService),
 		Purpose:                 dbService.AccountPurpose,
 		CloudbeaverConnectionID: resp.Connection.ID,
 	})
+	if err != nil {
+		cu.log.Errorf("Failed to update CloudBeaver connection cache for DB service %s: %v", dbService.UID, err)
+	}
+	return err
 }
 
 func (cu *CloudbeaverUsecase) deleteCloudbeaverConnection(ctx context.Context, client *cloudbeaver.Client, cloudbeaverConnectionId, dbServiceId, userId, purpose string) error {
+	cu.log.Infof("Deleting CloudBeaver connection: %s for DB service: %s, user: %s, purpose: %s",
+		cloudbeaverConnectionId, dbServiceId, userId, purpose)
+
 	variables := make(map[string]interface{})
 	variables["connectionId"] = cloudbeaverConnectionId
 	variables["projectId"] = cloudbeaverProjectId
@@ -1299,10 +1599,17 @@ func (cu *CloudbeaverUsecase) deleteCloudbeaverConnection(ctx context.Context, c
 	}{}
 
 	if err := client.Run(ctx, req, &resp); err != nil {
+		cu.log.Errorf("Failed to delete CloudBeaver connection %s for DB service %s: %v", cloudbeaverConnectionId, dbServiceId, err)
 		return err
 	}
 
-	return cu.repo.DeleteCloudbeaverConnectionCache(ctx, dbServiceId, userId, purpose)
+	cu.log.Infof("Successfully deleted CloudBeaver connection: %s for DB service: %s", cloudbeaverConnectionId, dbServiceId)
+
+	err := cu.repo.DeleteCloudbeaverConnectionCache(ctx, dbServiceId, userId, purpose)
+	if err != nil {
+		cu.log.Errorf("Failed to delete CloudBeaver connection cache for DB service %s: %v", dbServiceId, err)
+	}
+	return err
 }
 
 func (cu *CloudbeaverUsecase) generateCommonCloudbeaverConfigParams(dbService *DBService, project, purpose string) map[string]interface{} {
@@ -1313,13 +1620,13 @@ func (cu *CloudbeaverUsecase) generateCommonCloudbeaverConfigParams(dbService *D
 	return map[string]interface{}{
 		"configurationType": "MANUAL",
 		"name":              name,
-		"template":          false,
-		"host":              dbService.Host,
-		"port":              dbService.Port,
-		"databaseName":      nil,
-		"description":       nil,
-		"authModelId":       "native",
-		"saveCredentials":   true,
+		// "template":          false,
+		"host":            dbService.Host,
+		"port":            dbService.Port,
+		"databaseName":    nil,
+		"description":     nil,
+		"authModelId":     "native",
+		"saveCredentials": true,
 		"credentials": map[string]interface{}{
 			"userName":     dbService.User,
 			"userPassword": dbService.Password,
@@ -1451,22 +1758,35 @@ func (cu *CloudbeaverUsecase) fillGoldenDBParams(config map[string]interface{}) 
 }
 
 func (cu *CloudbeaverUsecase) getGraphQLClientWithRootUser() (*cloudbeaver.Client, error) {
-	cookies, err := cu.loginCloudbeaverServer(cu.cloudbeaverCfg.AdminUser, cu.cloudbeaverCfg.AdminPassword)
+	adminUser := cu.cloudbeaverCfg.AdminUser
+
+	cookies, err := cu.getAuthCookies(adminUser, cu.cloudbeaverCfg.AdminPassword)
 	if err != nil {
 		return nil, err
 	}
 
-	return cloudbeaver.NewGraphQlClient(cu.getGraphQLServerURI(), cloudbeaver.WithCookie(cookies)), nil
+	return cloudbeaver.NewGraphQlClient(cu.getGraphQLServerURI(), cloudbeaver.WithCookie(cookies), cloudbeaver.WithLogger(cu.log)), nil
 }
 
 // 这个客户端会用指定用户操作, 请求会直接发到CB
-func (cu *CloudbeaverUsecase) getGraphQLClient(username, password string) (*cloudbeaver.Client, error) {
-	cookies, err := cu.loginCloudbeaverServer(username, password)
+// maxRetries 为可选参数，默认为0（不重试）
+func (cu *CloudbeaverUsecase) getGraphQLClient(username, password string, maxRetries ...int) (*cloudbeaver.Client, error) {
+	cookies, err := cu.getAuthCookies(username, password)
 	if err != nil {
 		return nil, err
 	}
 
-	return cloudbeaver.NewGraphQlClient(cu.getGraphQLServerURI(), cloudbeaver.WithCookie(cookies)), nil
+	opts := []cloudbeaver.ClientOption{
+		cloudbeaver.WithCookie(cookies),
+		cloudbeaver.WithLogger(cu.log),
+	}
+
+	// 如果提供了重试次数参数，则添加重试配置
+	if len(maxRetries) > 0 && maxRetries[0] > 0 {
+		opts = append(opts, cloudbeaver.WithMaxRetries(maxRetries[0]))
+	}
+
+	return cloudbeaver.NewGraphQlClient(cu.getGraphQLServerURI(), opts...), nil
 }
 
 func (cu *CloudbeaverUsecase) loginCloudbeaverServer(user, pwd string) (cookie []*http.Cookie, err error) {
@@ -1475,7 +1795,7 @@ func (cu *CloudbeaverUsecase) loginCloudbeaverServer(user, pwd string) (cookie [
 			if response != nil {
 				cookie = response.Cookies()
 			}
-		}))
+		}), cloudbeaver.WithLogger(cu.log))
 	req := cloudbeaver.NewRequest(cu.graphQl.LoginQuery(), map[string]interface{}{
 		"credentials": model.JSON{
 			"user":     user,
@@ -1498,6 +1818,10 @@ func (cu *CloudbeaverUsecase) loginCloudbeaverServer(user, pwd string) (cookie [
 type GraphQLResponse struct {
 	Data   json.RawMessage `json:"data"`
 	Errors []GraphQLError  `json:"errors"`
+}
+
+func (g *GraphQLResponse) Bytes() ([]byte, error) {
+	return json.Marshal(g)
 }
 
 type GraphQLError struct {
@@ -1523,6 +1847,27 @@ func UnmarshalGraphQLResponse(body []byte, taskInfo *TaskInfo) error {
 		return err
 	}
 	if taskInfo == nil || taskInfo.Data.TaskInfo == nil {
+		return fmt.Errorf("GraphQL error: %v", gqlResp)
+	}
+	return nil
+}
+
+func UnmarshalGraphQLResponseNavNodeChildren(body []byte, resp *cloudbeaver.NavNodeChildrenResponse) error {
+	var gqlResp GraphQLResponse
+	if err := json.Unmarshal(body, &gqlResp); err != nil {
+		return err // 真正 JSON 格式错误时才报错
+	}
+
+	if len(gqlResp.Errors) > 0 {
+		// GraphQL 执行错误
+		return fmt.Errorf("GraphQL error: %s", gqlResp.Errors[0].Message)
+	}
+
+	// 再解析 Data 成真正结构
+	if err := json.Unmarshal(body, resp); err != nil {
+		return err
+	}
+	if resp == nil || resp.Data.NavNodeChildren == nil {
 		return fmt.Errorf("GraphQL error: %v", gqlResp)
 	}
 	return nil

@@ -1,6 +1,7 @@
 package codegen
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -34,6 +35,7 @@ type Data struct {
 	MutationRoot     *Object
 	SubscriptionRoot *Object
 	AugmentedSources []AugmentedSource
+	Plugins          []any
 }
 
 func (d *Data) HasEmbeddableSources() bool {
@@ -62,6 +64,30 @@ type builder struct {
 	Directives map[string]*Directive
 }
 
+// Get only the directives which should have a user provided definition on server instantiation
+func (d *Data) UserDirectives() DirectiveList {
+	res := DirectiveList{}
+	directives := d.Directives()
+	for k, directive := range directives {
+		if directive.Implementation == nil {
+			res[k] = directive
+		}
+	}
+	return res
+}
+
+// Get only the directives which should have a statically provided definition
+func (d *Data) BuiltInDirectives() DirectiveList {
+	res := DirectiveList{}
+	directives := d.Directives()
+	for k, directive := range directives {
+		if directive.Implementation != nil {
+			res[k] = directive
+		}
+	}
+	return res
+}
+
 // Get only the directives which are defined in the config's sources.
 func (d *Data) Directives() DirectiveList {
 	res := DirectiveList{}
@@ -76,7 +102,7 @@ func (d *Data) Directives() DirectiveList {
 	return res
 }
 
-func BuildData(cfg *config.Config) (*Data, error) {
+func BuildData(cfg *config.Config, plugins ...any) (*Data, error) {
 	// We reload all packages to allow packages to be compared correctly.
 	cfg.ReloadAllPackages()
 
@@ -95,7 +121,7 @@ func BuildData(cfg *config.Config) (*Data, error) {
 
 	dataDirectives := make(map[string]*Directive)
 	for name, d := range b.Directives {
-		if !d.Builtin {
+		if !d.SkipRuntime {
 			dataDirectives[name] = d
 		}
 	}
@@ -105,6 +131,7 @@ func BuildData(cfg *config.Config) (*Data, error) {
 		AllDirectives: dataDirectives,
 		Schema:        b.Schema,
 		Interfaces:    map[string]*Interface{},
+		Plugins:       plugins,
 	}
 
 	for _, schemaType := range b.Schema.Types {
@@ -135,7 +162,7 @@ func BuildData(cfg *config.Config) (*Data, error) {
 	if s.Schema.Query != nil {
 		s.QueryRoot = s.Objects.ByName(s.Schema.Query.Name)
 	} else {
-		return nil, fmt.Errorf("query entry point missing")
+		return nil, errors.New("query entry point missing")
 	}
 
 	if s.Schema.Mutation != nil {
@@ -153,11 +180,11 @@ func BuildData(cfg *config.Config) (*Data, error) {
 	s.ReferencedTypes = b.buildTypes()
 
 	sort.Slice(s.Objects, func(i, j int) bool {
-		return s.Objects[i].Definition.Name < s.Objects[j].Definition.Name
+		return s.Objects[i].Name < s.Objects[j].Name
 	})
 
 	sort.Slice(s.Inputs, func(i, j int) bool {
-		return s.Inputs[i].Definition.Name < s.Inputs[j].Definition.Name
+		return s.Inputs[i].Name < s.Inputs[j].Name
 	})
 
 	if b.Binder.SawInvalid {
@@ -168,7 +195,7 @@ func BuildData(cfg *config.Config) (*Data, error) {
 		}
 
 		// otherwise show a generic error message
-		return nil, fmt.Errorf("invalid types were encountered while traversing the go source code, this probably means the invalid code generated isnt correct. add try adding -v to debug")
+		return nil, errors.New("invalid types were encountered while traversing the go source code, this probably means the invalid code generated isnt correct. add try adding -v to debug")
 	}
 	aSources := []AugmentedSource{}
 	for _, s := range cfg.Sources {
@@ -202,7 +229,7 @@ func BuildData(cfg *config.Config) (*Data, error) {
 func (b *builder) injectIntrospectionRoots(s *Data) error {
 	obj := s.Objects.ByName(b.Schema.Query.Name)
 	if obj == nil {
-		return fmt.Errorf("root query type must be defined")
+		return errors.New("root query type must be defined")
 	}
 
 	__type, err := b.buildField(obj, &ast.FieldDefinition{

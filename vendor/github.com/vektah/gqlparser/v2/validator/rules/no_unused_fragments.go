@@ -1,13 +1,15 @@
-package validator
+package rules
 
 import (
 	"github.com/vektah/gqlparser/v2/ast"
-	. "github.com/vektah/gqlparser/v2/validator"
+
+	//nolint:staticcheck // Validator rules each use dot imports for convenience.
+	. "github.com/vektah/gqlparser/v2/validator/core"
 )
 
-func init() {
-	AddRule("NoUnusedFragments", func(observers *Events, addError AddErrFunc) {
-
+var NoUnusedFragmentsRule = Rule{
+	Name: "NoUnusedFragments",
+	RuleFunc: func(observers *Events, addError AddErrFunc) {
 		inFragmentDefinition := false
 		fragmentNameUsed := make(map[string]bool)
 
@@ -26,5 +28,5 @@ func init() {
 				)
 			}
 		})
-	})
+	},
 }

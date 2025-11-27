@@ -3,6 +3,7 @@
 package model
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"strconv"
@@ -10,17 +11,19 @@ import (
 )
 
 type AdminAuthProviderConfiguration struct {
-	ProviderID   string      `json:"providerId"`
-	ID           string      `json:"id"`
-	DisplayName  string      `json:"displayName"`
-	Disabled     bool        `json:"disabled"`
-	IconURL      *string     `json:"iconURL"`
-	Description  *string     `json:"description"`
-	Parameters   interface{} `json:"parameters"`
-	SignInLink   *string     `json:"signInLink"`
-	SignOutLink  *string     `json:"signOutLink"`
-	RedirectLink *string     `json:"redirectLink"`
-	MetadataLink *string     `json:"metadataLink"`
+	ProviderID   string  `json:"providerId"`
+	ID           string  `json:"id"`
+	DisplayName  string  `json:"displayName"`
+	Disabled     bool    `json:"disabled"`
+	IconURL      *string `json:"iconURL,omitempty"`
+	Description  *string `json:"description,omitempty"`
+	Parameters   any     `json:"parameters"`
+	SignInLink   *string `json:"signInLink,omitempty"`
+	SignOutLink  *string `json:"signOutLink,omitempty"`
+	RedirectLink *string `json:"redirectLink,omitempty"`
+	MetadataLink *string `json:"metadataLink,omitempty"`
+	AcsLink      *string `json:"acsLink,omitempty"`
+	EntityIDLink *string `json:"entityIdLink,omitempty"`
 }
 
 type AdminConnectionGrantInfo struct {
@@ -38,190 +41,358 @@ type AdminConnectionSearchInfo struct {
 	DefaultDriver   string   `json:"defaultDriver"`
 }
 
-type AdminPermissionInfo struct {
-	ID          string  `json:"id"`
-	Label       *string `json:"label"`
-	Description *string `json:"description"`
-	Provider    string  `json:"provider"`
-	Category    *string `json:"category"`
+type AdminObjectGrantInfo struct {
+	SubjectID         string                  `json:"subjectId"`
+	SubjectType       AdminSubjectType        `json:"subjectType"`
+	ObjectPermissions *AdminObjectPermissions `json:"objectPermissions"`
 }
 
-type AdminRoleInfo struct {
-	RoleID             string                      `json:"roleId"`
-	RoleName           *string                     `json:"roleName"`
-	Description        *string                     `json:"description"`
+type AdminObjectPermissions struct {
+	ObjectID    string   `json:"objectId"`
+	Permissions []string `json:"permissions"`
+}
+
+type AdminPermissionInfo struct {
+	ID          string  `json:"id"`
+	Label       *string `json:"label,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Provider    string  `json:"provider"`
+	Category    *string `json:"category,omitempty"`
+}
+
+type AdminTeamInfo struct {
+	TeamID             string                      `json:"teamId"`
+	TeamName           *string                     `json:"teamName,omitempty"`
+	Description        *string                     `json:"description,omitempty"`
+	MetaParameters     any                         `json:"metaParameters"`
 	GrantedUsers       []string                    `json:"grantedUsers"`
+	GrantedUsersInfo   []*AdminUserTeamGrantInfo   `json:"grantedUsersInfo"`
 	GrantedConnections []*AdminConnectionGrantInfo `json:"grantedConnections"`
-	RolePermissions    []string                    `json:"rolePermissions"`
+	TeamPermissions    []string                    `json:"teamPermissions"`
+}
+
+type AdminUserFilterInput struct {
+	UserIDMask   *string `json:"userIdMask,omitempty"`
+	EnabledState *bool   `json:"enabledState,omitempty"`
 }
 
 type AdminUserInfo struct {
 	UserID                  string                      `json:"userId"`
-	MetaParameters          interface{}                 `json:"metaParameters"`
-	ConfigurationParameters interface{}                 `json:"configurationParameters"`
-	GrantedRoles            []string                    `json:"grantedRoles"`
+	MetaParameters          any                         `json:"metaParameters"`
+	ConfigurationParameters any                         `json:"configurationParameters"`
+	GrantedTeams            []string                    `json:"grantedTeams"`
 	GrantedConnections      []*AdminConnectionGrantInfo `json:"grantedConnections"`
 	Origins                 []*ObjectOrigin             `json:"origins"`
 	LinkedAuthProviders     []string                    `json:"linkedAuthProviders"`
 	Enabled                 bool                        `json:"enabled"`
+	AuthRole                *string                     `json:"authRole,omitempty"`
+	DisableDate             *time.Time                  `json:"disableDate,omitempty"`
+	DisabledBy              *string                     `json:"disabledBy,omitempty"`
+	DisableReason           *string                     `json:"disableReason,omitempty"`
 }
 
+type AdminUserTeamGrantInfo struct {
+	UserID   string  `json:"userId"`
+	TeamRole *string `json:"teamRole,omitempty"`
+}
+
+// Async types
 type AsyncTaskInfo struct {
-	ID         string          `json:"id"`
-	Name       *string         `json:"name"`
-	Running    bool            `json:"running"`
-	Status     *string         `json:"status"`
-	Error      *ServerError    `json:"error"`
-	Result     *SQLExecuteInfo `json:"result"`
-	TaskResult interface{}     `json:"taskResult"`
+	// Task unique identifier
+	ID string `json:"id"`
+	// Async task name
+	Name *string `json:"name,omitempty"`
+	// Indicates if the task is currently running
+	Running bool `json:"running"`
+	// Current status of the async task
+	Status *string `json:"status,omitempty"`
+	// Error information if the task failed
+	Error *ServerError `json:"error,omitempty"`
+	// Task result.
+	// Can be some kind of identifier to obtain real result using another API function
+	TaskResult any `json:"taskResult,omitempty"`
 }
 
 type AuthCredentialInfo struct {
 	ID             string                    `json:"id"`
 	DisplayName    string                    `json:"displayName"`
-	Description    *string                   `json:"description"`
+	Description    *string                   `json:"description,omitempty"`
 	Admin          bool                      `json:"admin"`
 	User           bool                      `json:"user"`
 	Identifying    bool                      `json:"identifying"`
-	PossibleValues []*string                 `json:"possibleValues"`
-	Encryption     *AuthCredentialEncryption `json:"encryption"`
+	PossibleValues []*string                 `json:"possibleValues,omitempty"`
+	Encryption     *AuthCredentialEncryption `json:"encryption,omitempty"`
 }
 
 type AuthInfo struct {
-	RedirectLink *string          `json:"redirectLink"`
-	AuthID       *string          `json:"authId"`
+	RedirectLink *string          `json:"redirectLink,omitempty"`
+	AuthID       *string          `json:"authId,omitempty"`
 	AuthStatus   AuthStatus       `json:"authStatus"`
-	UserTokens   []*UserAuthToken `json:"userTokens"`
+	UserTokens   []*UserAuthToken `json:"userTokens,omitempty"`
 }
 
 type AuthProviderConfiguration struct {
-	ID           string  `json:"id"`
-	DisplayName  string  `json:"displayName"`
-	Disabled     bool    `json:"disabled"`
-	IconURL      *string `json:"iconURL"`
-	Description  *string `json:"description"`
-	SignInLink   *string `json:"signInLink"`
-	SignOutLink  *string `json:"signOutLink"`
-	MetadataLink *string `json:"metadataLink"`
+	ID               string  `json:"id"`
+	DisplayName      string  `json:"displayName"`
+	Disabled         bool    `json:"disabled"`
+	AuthRoleProvided *bool   `json:"authRoleProvided,omitempty"`
+	IconURL          *string `json:"iconURL,omitempty"`
+	Description      *string `json:"description,omitempty"`
+	// URL to external authentication service.
+	// If specified then it is external authentication provider (SSO).
+	// Otherwise authLogin function must be called.
+	SignInLink   *string `json:"signInLink,omitempty"`
+	SignOutLink  *string `json:"signOutLink,omitempty"`
+	RedirectLink *string `json:"redirectLink,omitempty"`
+	MetadataLink *string `json:"metadataLink,omitempty"`
+	AcsLink      *string `json:"acsLink,omitempty"`
+	EntityIDLink *string `json:"entityIdLink,omitempty"`
 }
 
 type AuthProviderCredentialsProfile struct {
-	ID                   *string               `json:"id"`
-	Label                *string               `json:"label"`
-	Description          *string               `json:"description"`
+	ID                   *string               `json:"id,omitempty"`
+	Label                *string               `json:"label,omitempty"`
+	Description          *string               `json:"description,omitempty"`
 	CredentialParameters []*AuthCredentialInfo `json:"credentialParameters"`
 }
 
 type AuthProviderInfo struct {
-	ID                 string                            `json:"id"`
-	Label              string                            `json:"label"`
-	Icon               *string                           `json:"icon"`
-	Description        *string                           `json:"description"`
-	DefaultProvider    bool                              `json:"defaultProvider"`
-	Configurable       bool                              `json:"configurable"`
-	Configurations     []*AuthProviderConfiguration      `json:"configurations"`
-	CredentialProfiles []*AuthProviderCredentialsProfile `json:"credentialProfiles"`
-	RequiredFeatures   []string                          `json:"requiredFeatures"`
+	ID                  string  `json:"id"`
+	Label               string  `json:"label"`
+	Icon                *string `json:"icon,omitempty"`
+	Description         *string `json:"description,omitempty"`
+	DefaultProvider     bool    `json:"defaultProvider"`
+	Trusted             bool    `json:"trusted"`
+	Private             bool    `json:"private"`
+	AuthHidden          bool    `json:"authHidden"`
+	SupportProvisioning bool    `json:"supportProvisioning"`
+	// Configurable providers must be configured first. See configurations field.
+	Configurable bool `json:"configurable"`
+	// Federated providers means authorization must occur asynchronously through redirects.
+	Federated bool `json:"federated"`
+	// Provider configurations (applicable only if configurable=true)
+	Configurations        []*AuthProviderConfiguration      `json:"configurations,omitempty"`
+	TemplateConfiguration *AuthProviderConfiguration        `json:"templateConfiguration"`
+	CredentialProfiles    []*AuthProviderCredentialsProfile `json:"credentialProfiles"`
+	RequiredFeatures      []string                          `json:"requiredFeatures"`
+	Required              bool                              `json:"required"`
 }
 
+// Represents a dynamic condition for a property, such as visibility or read-only state
+type Condition struct {
+	// The logical expression that defines when the condition applies
+	Expression string `json:"expression"`
+	// The type of condition (e.g., HIDE or READ_ONLY)
+	ConditionType ConditionType `json:"conditionType"`
+}
+
+// Configuration of particular connection. Used for new connection create. Includes auth info
 type ConnectionConfig struct {
-	ConnectionID          *string                      `json:"connectionId"`
-	Name                  *string                      `json:"name"`
-	Description           *string                      `json:"description"`
-	TemplateID            *string                      `json:"templateId"`
-	DriverID              *string                      `json:"driverId"`
-	Host                  *string                      `json:"host"`
-	Port                  *string                      `json:"port"`
-	ServerName            *string                      `json:"serverName"`
-	DatabaseName          *string                      `json:"databaseName"`
-	URL                   *string                      `json:"url"`
-	Properties            interface{}                  `json:"properties"`
-	Template              *bool                        `json:"template"`
-	ReadOnly              *bool                        `json:"readOnly"`
-	SaveCredentials       *bool                        `json:"saveCredentials"`
-	AuthModelID           *string                      `json:"authModelId"`
-	Credentials           interface{}                  `json:"credentials"`
-	ProviderProperties    interface{}                  `json:"providerProperties"`
-	NetworkHandlersConfig []*NetworkHandlerConfigInput `json:"networkHandlersConfig"`
-	DataSourceID          *string                      `json:"dataSourceId"`
-	UserName              *string                      `json:"userName"`
-	UserPassword          *string                      `json:"userPassword"`
-	Folder                *string                      `json:"folder"`
+	// used only for testing created connection
+	ConnectionID *string `json:"connectionId,omitempty"`
+	Name         *string `json:"name,omitempty"`
+	Description  *string `json:"description,omitempty"`
+	// ID of database driver
+	DriverID     *string `json:"driverId,omitempty"`
+	Host         *string `json:"host,omitempty"`
+	Port         *string `json:"port,omitempty"`
+	ServerName   *string `json:"serverName,omitempty"`
+	DatabaseName *string `json:"databaseName,omitempty"`
+	// Host, port, serverName, databaseName are also stored in mainPropertyValues for custom pages
+	MainPropertyValues any `json:"mainPropertyValues,omitempty"`
+	// Keep-alive, auto-commit, read-only and other expert settings are stored in expertSettingsValues
+	ExpertSettingsValues any `json:"expertSettingsValues,omitempty"`
+	// Sets connection URL jdbc:{driver}://{host}[:{port}]/[{database}]
+	URL *string `json:"url,omitempty"`
+	// Set properties list
+	Properties any `json:"properties,omitempty"`
+	// Set keep-alive interval
+	KeepAliveInterval *int `json:"keepAliveInterval,omitempty"`
+	// Sets auto-commit connection state
+	Autocommit *bool `json:"autocommit,omitempty"`
+	// Sets read-only connection state
+	ReadOnly *bool `json:"readOnly,omitempty"`
+	// Flag for saving credentials in secure storage
+	SaveCredentials *bool `json:"saveCredentials,omitempty"`
+	// Flag for using shared credentials.
+	SharedCredentials *bool `json:"sharedCredentials,omitempty"`
+	// Auth model ID that will be used for connection
+	AuthModelID *string `json:"authModelId,omitempty"`
+	// Secret ID that will be used for connection
+	SelectedSecretID *string `json:"selectedSecretId,omitempty"`
+	// Credentials for the connection (usually user name and password but it may vary for different auth models)
+	Credentials any `json:"credentials,omitempty"`
+	// Returns map of provider properties (name/value)
+	ProviderProperties any `json:"providerProperties,omitempty"`
+	// Returns network handlers configuration. Map of id->property map (name/value).
+	NetworkHandlersConfig []*NetworkHandlerConfigInput `json:"networkHandlersConfig,omitempty"`
+	// ID of predefined datasource
+	DataSourceID *string `json:"dataSourceId,omitempty"`
+	// Direct user credentials
+	UserName     *string `json:"userName,omitempty"`
+	UserPassword *string `json:"userPassword,omitempty"`
+	// Defines in which connection folder the connection should be created
+	Folder *string `json:"folder,omitempty"`
+	// Configuration type (MANUAL, URL)
+	ConfigurationType *DriverConfigurationType `json:"configurationType,omitempty"`
+	// Sets catalog name for the connection
+	DefaultCatalogName *string `json:"defaultCatalogName,omitempty"`
+	// Sets schema name for the connection
+	DefaultSchemaName *string `json:"defaultSchemaName,omitempty"`
 }
 
 type ConnectionFolderInfo struct {
 	ID          string  `json:"id"`
-	Description *string `json:"description"`
+	ProjectID   string  `json:"projectId"`
+	Description *string `json:"description,omitempty"`
 }
 
+// Connection instance
 type ConnectionInfo struct {
-	ID                    string                  `json:"id"`
-	DriverID              string                  `json:"driverId"`
-	Name                  string                  `json:"name"`
-	Description           *string                 `json:"description"`
-	Host                  *string                 `json:"host"`
-	Port                  *string                 `json:"port"`
-	ServerName            *string                 `json:"serverName"`
-	DatabaseName          *string                 `json:"databaseName"`
-	URL                   *string                 `json:"url"`
-	Properties            interface{}             `json:"properties"`
-	Template              bool                    `json:"template"`
-	Connected             bool                    `json:"connected"`
-	Provided              bool                    `json:"provided"`
-	ReadOnly              bool                    `json:"readOnly"`
-	UseURL                bool                    `json:"useUrl"`
-	SaveCredentials       bool                    `json:"saveCredentials"`
-	Folder                *string                 `json:"folder"`
-	NodePath              *string                 `json:"nodePath"`
-	ConnectTime           *string                 `json:"connectTime"`
-	ConnectionError       *ServerError            `json:"connectionError"`
-	ServerVersion         *string                 `json:"serverVersion"`
-	ClientVersion         *string                 `json:"clientVersion"`
-	Origin                *ObjectOrigin           `json:"origin"`
-	AuthNeeded            bool                    `json:"authNeeded"`
-	AuthModel             *string                 `json:"authModel"`
+	// Connection unique ID
+	ID string `json:"id"`
+	// ID of the driver that is used for this connection (see DriverInfo)
+	DriverID string `json:"driverId"`
+	// Connection name
+	Name string `json:"name"`
+	// Connection description
+	Description  *string `json:"description,omitempty"`
+	Host         *string `json:"host,omitempty"`
+	Port         *string `json:"port,omitempty"`
+	ServerName   *string `json:"serverName,omitempty"`
+	DatabaseName *string `json:"databaseName,omitempty"`
+	URL          *string `json:"url,omitempty"`
+	// Main connection properties. Contains host, port, database, server name fields
+	MainPropertyValues any `json:"mainPropertyValues,omitempty"`
+	// Expert connection settings. Contains expert settings properties (like keep-alive interval or auto-commit) that are not often used
+	ExpertSettingsValues any `json:"expertSettingsValues,omitempty"`
+	// Connection keep-alive interval in seconds
+	KeepAliveInterval int `json:"keepAliveInterval"`
+	// Defines if the connection is in auto-commit mode
+	Autocommit *bool `json:"autocommit,omitempty"`
+	Properties any   `json:"properties,omitempty"`
+	// Indicates if the connection is already connected to the database
+	Connected bool `json:"connected"`
+	Provided  bool `json:"provided"`
+	// Indicates if the connection is read-only (no data modification allowed)
+	ReadOnly bool `json:"readOnly"`
+	// Forces connection URL use, host/port/database parameters will be ignored
+	UseURL bool `json:"useUrl"`
+	// Forces credentials save. This flag doesn't work in shared projects.
+	SaveCredentials bool `json:"saveCredentials"`
+	// Shared credentials - the same for all users, stored in secure storage.
+	SharedCredentials bool          `json:"sharedCredentials"`
+	SharedSecrets     []*SecretInfo `json:"sharedSecrets"`
+	// Determines that credentials were saved for current user.
+	// This field read is slow, it should be read only when it really needed
+	CredentialsSaved bool `json:"credentialsSaved"`
+	// Determines that additional credentials are needed to connect
+	// This field read is slow, it should be read only when it really needed
+	AuthNeeded bool `json:"authNeeded"`
+	// ID of the connection folder where this connection is stored
+	Folder *string `json:"folder,omitempty"`
+	// Node path of the connection in the navigator
+	NodePath *string `json:"nodePath,omitempty"`
+	// Connection time in ISO format
+	ConnectTime *string `json:"connectTime,omitempty"`
+	// Connection error if any
+	ConnectionError *ServerError `json:"connectionError,omitempty"`
+	// Server version that is used for this connection
+	ServerVersion *string `json:"serverVersion,omitempty"`
+	// Client version that is used for this connection
+	ClientVersion *string       `json:"clientVersion,omitempty"`
+	Origin        *ObjectOrigin `json:"origin"`
+	// ID of the auth model that is used for this connection (see authModels)
+	AuthModel             *string                 `json:"authModel,omitempty"`
 	AuthProperties        []*ObjectPropertyInfo   `json:"authProperties"`
-	ProviderProperties    interface{}             `json:"providerProperties"`
+	ProviderProperties    any                     `json:"providerProperties"`
 	NetworkHandlersConfig []*NetworkHandlerConfig `json:"networkHandlersConfig"`
-	Features              []string                `json:"features"`
-	NavigatorSettings     *NavigatorSettings      `json:"navigatorSettings"`
-	SupportedDataFormats  []ResultDataFormat      `json:"supportedDataFormats"`
+	// Supported features (provided etc)
+	Features             []string                 `json:"features"`
+	NavigatorSettings    *NavigatorSettings       `json:"navigatorSettings"`
+	SupportedDataFormats []ResultDataFormat       `json:"supportedDataFormats"`
+	ConfigurationType    *DriverConfigurationType `json:"configurationType,omitempty"`
+	CanViewSettings      bool                     `json:"canViewSettings"`
+	CanEdit              bool                     `json:"canEdit"`
+	CanDelete            bool                     `json:"canDelete"`
+	ProjectID            string                   `json:"projectId"`
+	RequiredAuth         *string                  `json:"requiredAuth,omitempty"`
+	DefaultCatalogName   *string                  `json:"defaultCatalogName,omitempty"`
+	DefaultSchemaName    *string                  `json:"defaultSchemaName,omitempty"`
+	// List of tools that can be used with this connection. Returns empty list if no tools are available
+	Tools []string `json:"tools"`
+}
+
+type DataTransferDefaultExportSettings struct {
+	OutputSettings     *DataTransferOutputSettings `json:"outputSettings"`
+	SupportedEncodings []string                    `json:"supportedEncodings"`
+}
+
+type DataTransferOutputSettings struct {
+	InsertBom        bool   `json:"insertBom"`
+	Encoding         string `json:"encoding"`
+	TimestampPattern string `json:"timestampPattern"`
+	Compress         bool   `json:"compress"`
+}
+
+type DataTransferOutputSettingsInput struct {
+	InsertBom        *bool   `json:"insertBom,omitempty"`
+	Encoding         *string `json:"encoding,omitempty"`
+	TimestampPattern *string `json:"timestampPattern,omitempty"`
+	Compress         *bool   `json:"compress,omitempty"`
+	FileName         *string `json:"fileName,omitempty"`
 }
 
 type DataTransferParameters struct {
-	ProcessorID         string         `json:"processorId"`
-	Settings            interface{}    `json:"settings"`
-	ProcessorProperties interface{}    `json:"processorProperties"`
-	Filter              *SQLDataFilter `json:"filter"`
+	// Processor ID
+	ProcessorID string `json:"processorId"`
+	// General settings:
+	// - openNewConnection: opens new database connection for data transfer task
+	Settings any `json:"settings,omitempty"`
+	// Processor properties. See DataTransferProcessorInfo.properties
+	ProcessorProperties any `json:"processorProperties"`
+	// Consumer properties. See StreamConsumerSettings
+	OutputSettings *DataTransferOutputSettingsInput `json:"outputSettings,omitempty"`
+	// Data filter settings
+	Filter *SQLDataFilter `json:"filter,omitempty"`
 }
 
 type DataTransferProcessorInfo struct {
 	ID               string                `json:"id"`
-	Name             *string               `json:"name"`
-	Description      *string               `json:"description"`
-	FileExtension    *string               `json:"fileExtension"`
-	AppFileExtension *string               `json:"appFileExtension"`
-	AppName          *string               `json:"appName"`
+	Name             *string               `json:"name,omitempty"`
+	Description      *string               `json:"description,omitempty"`
+	FileExtension    *string               `json:"fileExtension,omitempty"`
+	AppFileExtension *string               `json:"appFileExtension,omitempty"`
+	AppName          *string               `json:"appName,omitempty"`
 	Order            int                   `json:"order"`
-	Icon             *string               `json:"icon"`
-	Properties       []*ObjectPropertyInfo `json:"properties"`
-	IsBinary         *bool                 `json:"isBinary"`
-	IsHTML           *bool                 `json:"isHTML"`
+	Icon             *string               `json:"icon,omitempty"`
+	Properties       []*ObjectPropertyInfo `json:"properties,omitempty"`
+	IsBinary         *bool                 `json:"isBinary,omitempty"`
+	IsHTML           *bool                 `json:"isHTML,omitempty"`
 }
 
 type DataTypeLogicalOperation struct {
 	ID            string `json:"id"`
 	Expression    string `json:"expression"`
-	ArgumentCount *int   `json:"argumentCount"`
+	ArgumentCount *int   `json:"argumentCount,omitempty"`
 }
 
+// Drivers and connections
 type DatabaseAuthModel struct {
-	ID                         string                `json:"id"`
-	DisplayName                string                `json:"displayName"`
-	Description                *string               `json:"description"`
-	Icon                       *string               `json:"icon"`
-	RequiresLocalConfiguration *bool                 `json:"requiresLocalConfiguration"`
-	Properties                 []*ObjectPropertyInfo `json:"properties"`
+	// Auth model unique ID
+	ID string `json:"id"`
+	// Display name of the auth model
+	DisplayName string `json:"displayName"`
+	// Description of the auth model
+	Description *string `json:"description,omitempty"`
+	// Path to the auth model icon
+	Icon *string `json:"icon,omitempty"`
+	// Checks if the auth model needs a configuration on a local file system
+	RequiresLocalConfiguration *bool `json:"requiresLocalConfiguration,omitempty"`
+	// Returns id of the required auth provider if the auth model requires it
+	RequiredAuth *string `json:"requiredAuth,omitempty"`
+	// List of properties for the auth model that can be displayed in the UI
+	Properties []*ObjectPropertyInfo `json:"properties"`
 }
 
 type DatabaseCatalog struct {
@@ -230,87 +401,223 @@ type DatabaseCatalog struct {
 }
 
 type DatabaseDocument struct {
-	ID          *string     `json:"id"`
-	ContentType *string     `json:"contentType"`
-	Properties  interface{} `json:"properties"`
-	Data        interface{} `json:"data"`
+	ID          *string `json:"id,omitempty"`
+	ContentType *string `json:"contentType,omitempty"`
+	Properties  any     `json:"properties,omitempty"`
+	Data        any     `json:"data,omitempty"`
 }
 
 type DatabaseObjectInfo struct {
-	Name               *string               `json:"name"`
-	Description        *string               `json:"description"`
-	Type               *string               `json:"type"`
-	Properties         []*ObjectPropertyInfo `json:"properties"`
-	OrdinalPosition    *int                  `json:"ordinalPosition"`
-	FullyQualifiedName *string               `json:"fullyQualifiedName"`
-	OverloadedName     *string               `json:"overloadedName"`
-	UniqueName         *string               `json:"uniqueName"`
-	State              *string               `json:"state"`
-	Features           []string              `json:"features"`
-	Editors            []string              `json:"editors"`
+	//  Object name
+	Name *string `json:"name,omitempty"`
+	//  Description - optional
+	Description *string `json:"description,omitempty"`
+	//  Object type. Java class name in most cases
+	Type *string `json:"type,omitempty"`
+	// Read object properties.
+	// Optional parameter 'ids' filters properties by id. null means all properties.
+	// Note: property value reading may take a lot of time so don't read all property values always
+	// Examine property meta (features in particular) before reading them
+	Properties         []*ObjectPropertyInfo `json:"properties,omitempty"`
+	OrdinalPosition    *int                  `json:"ordinalPosition,omitempty"`
+	FullyQualifiedName *string               `json:"fullyQualifiedName,omitempty"`
+	OverloadedName     *string               `json:"overloadedName,omitempty"`
+	UniqueName         *string               `json:"uniqueName,omitempty"`
+	State              *string               `json:"state,omitempty"`
+	// Features: script, scriptExtended, dataContainer, dataManipulator, entity, schema, catalog
+	Features []string `json:"features,omitempty"`
+	//  Supported editors: ddl, permissions, sourceDeclaration, sourceDefinition
+	Editors []string `json:"editors,omitempty"`
 }
 
 type DatabaseStructContainers struct {
+	ParentNode            *NavigatorNodeInfo   `json:"parentNode,omitempty"`
 	CatalogList           []*DatabaseCatalog   `json:"catalogList"`
 	SchemaList            []*NavigatorNodeInfo `json:"schemaList"`
 	SupportsCatalogChange bool                 `json:"supportsCatalogChange"`
 	SupportsSchemaChange  bool                 `json:"supportsSchemaChange"`
 }
 
+// Driver file information.
+type DriverFileInfo struct {
+	// Driver file unique ID
+	ID string `json:"id"`
+	// Driver file name
+	FileName string `json:"fileName"`
+	// Path to the driver file icon
+	Icon *string `json:"icon,omitempty"`
+}
+
 type DriverInfo struct {
-	ID                        string                `json:"id"`
-	Name                      *string               `json:"name"`
-	Description               *string               `json:"description"`
-	Icon                      *string               `json:"icon"`
-	IconBig                   *string               `json:"iconBig"`
-	ProviderID                *string               `json:"providerId"`
-	DriverClassName           *string               `json:"driverClassName"`
-	DefaultHost               *string               `json:"defaultHost"`
-	DefaultPort               *string               `json:"defaultPort"`
-	DefaultDatabase           *string               `json:"defaultDatabase"`
-	DefaultServer             *string               `json:"defaultServer"`
-	DefaultUser               *string               `json:"defaultUser"`
-	SampleURL                 *string               `json:"sampleURL"`
-	DriverInfoURL             *string               `json:"driverInfoURL"`
-	DriverPropertiesURL       *string               `json:"driverPropertiesURL"`
-	Embedded                  *bool                 `json:"embedded"`
-	Enabled                   bool                  `json:"enabled"`
-	RequiresServerName        *bool                 `json:"requiresServerName"`
-	AllowsEmptyPassword       *bool                 `json:"allowsEmptyPassword"`
-	LicenseRequired           *bool                 `json:"licenseRequired"`
-	License                   *string               `json:"license"`
-	Custom                    *bool                 `json:"custom"`
-	PromotedScore             *int                  `json:"promotedScore"`
-	DriverProperties          []*ObjectPropertyInfo `json:"driverProperties"`
-	DriverParameters          interface{}           `json:"driverParameters"`
-	ProviderProperties        []*ObjectPropertyInfo `json:"providerProperties"`
-	AnonymousAccess           *bool                 `json:"anonymousAccess"`
-	DefaultAuthModel          string                `json:"defaultAuthModel"`
-	ApplicableAuthModels      []string              `json:"applicableAuthModels"`
-	ApplicableNetworkHandlers []*string             `json:"applicableNetworkHandlers"`
+	// Driver unique full ID. It is `providerId + "." + driverId`.
+	// It is recommended to use providerId and driverId separately.
+	ID string `json:"id"`
+	// Name of the driver
+	Name *string `json:"name,omitempty"`
+	// Description of the driver
+	Description *string `json:"description,omitempty"`
+	// Path to the driver icon
+	Icon *string `json:"icon,omitempty"`
+	// Path to the driver icon for big size
+	IconBig *string `json:"iconBig,omitempty"`
+	// Driver ID. It is unique within provider
+	DriverID string `json:"driverId"`
+	// Driver provider ID. It is globally unique
+	ProviderID string `json:"providerId"`
+	// Driver Java class name
+	DriverClassName *string `json:"driverClassName,omitempty"`
+	// Default host for the driver
+	DefaultHost *string `json:"defaultHost,omitempty"`
+	// Default port for the driver
+	DefaultPort *string `json:"defaultPort,omitempty"`
+	// Default database name for the driver
+	DefaultDatabase *string `json:"defaultDatabase,omitempty"`
+	// Default server name for the driver
+	DefaultServer *string `json:"defaultServer,omitempty"`
+	// Default user name for the driver
+	DefaultUser *string `json:"defaultUser,omitempty"`
+	// Default connection URL for the driver
+	SampleURL *string `json:"sampleURL,omitempty"`
+	// Returns link to the driver documentation page
+	DriverInfoURL *string `json:"driverInfoURL,omitempty"`
+	// Returns link to the driver properties page
+	DriverPropertiesURL *string `json:"driverPropertiesURL,omitempty"`
+	// Defines if the database for this driver is embedded
+	Embedded *bool `json:"embedded,omitempty"`
+	// Defines if the driver is enabled
+	Enabled bool `json:"enabled"`
+	// Defines if the driver page requires server name field
+	RequiresServerName *bool `json:"requiresServerName,omitempty"`
+	// Defines if the driver page requires database name field
+	RequiresDatabaseName *bool `json:"requiresDatabaseName,omitempty"`
+	// Defines if host, port, database, server name fields are using a custom page
+	UseCustomPage bool `json:"useCustomPage"`
+	// Defines if driver license is required
+	LicenseRequired *bool `json:"licenseRequired,omitempty"`
+	// Driver license information
+	License *string `json:"license,omitempty"`
+	// Defines if the driver is a custom driver
+	Custom *bool `json:"custom,omitempty"`
+	// Driver score for ordering, biggest first
+	PromotedScore *int `json:"promotedScore,omitempty"`
+	// Driver properties.
+	// Note: it is expensive property and it may produce database server roundtrips.
+	// Call it only when you really need it.
+	// These properties are for advanced users in usually shouldn't be specified for new connections.
+	DriverProperties []*ObjectPropertyInfo `json:"driverProperties"`
+	// Driver parameters (map name->value)
+	DriverParameters any `json:"driverParameters"`
+	// Main driver properties.
+	// Contains info about main fields (host, port, database, server name) that are used in main connection page
+	MainProperties []*ObjectPropertyInfo `json:"mainProperties"`
+	// Additional driver provider properties.
+	// These properties can be configured by user on main connection page to provide important connection settings
+	ProviderProperties []*ObjectPropertyInfo `json:"providerProperties"`
+	// Expert driver settings properties. Returns properties (like keep-alive interval) that are not often used and can be hidden in UI
+	ExpertSettingsProperties []*ObjectPropertyInfo `json:"expertSettingsProperties"`
+	// False for drivers which do not support authentication.
+	AnonymousAccess *bool `json:"anonymousAccess,omitempty"`
+	// Default auth model that is used for this driver (see authModels)
+	DefaultAuthModel string `json:"defaultAuthModel"`
+	// List of auth models that can be used with this driver (see authModels)
+	ApplicableAuthModels []string `json:"applicableAuthModels"`
+	// List of network handlers that can be used with this driver (SSH/SSL)
+	ApplicableNetworkHandlers []*string `json:"applicableNetworkHandlers"`
+	// Configuration types are used in UI to determine how to display connection settings (show host/port/database fields or use URL field)
+	ConfigurationTypes []*DriverConfigurationType `json:"configurationTypes"`
+	// Defines if the driver can be downloaded remotely
+	Downloadable bool `json:"downloadable"`
+	// Defines if the driver is installed on the server
+	DriverInstalled bool `json:"driverInstalled"`
+	// List of driver libraries that are used for connecting to the database
+	DriverLibraries []*DriverLibraryInfo `json:"driverLibraries"`
+	// Defines if embedded driver is safe to use in the server
+	SafeEmbeddedDriver bool `json:"safeEmbeddedDriver"`
+}
+
+// Driver library information. Used to display driver files in UI
+type DriverLibraryInfo struct {
+	// Driver library unique ID
+	ID string `json:"id"`
+	// Driver library name
+	Name string `json:"name"`
+	// Path to the driver library icon
+	Icon *string `json:"icon,omitempty"`
+	// List of files that are used by the driver
+	LibraryFiles []*DriverFileInfo `json:"libraryFiles,omitempty"`
+}
+
+type DynamicTraceProperty struct {
+	Name        string  `json:"name"`
+	Value       *string `json:"value,omitempty"`
+	Description *string `json:"description,omitempty"`
+}
+
+type FederatedAuthInfo struct {
+	RedirectLink string         `json:"redirectLink"`
+	TaskInfo     *AsyncTaskInfo `json:"taskInfo"`
+}
+
+type FederatedAuthResult struct {
+	UserTokens []*UserAuthToken `json:"userTokens"`
 }
 
 type LogEntry struct {
-	Time       *time.Time `json:"time"`
+	Time       *time.Time `json:"time,omitempty"`
 	Type       string     `json:"type"`
-	Message    *string    `json:"message"`
-	StackTrace *string    `json:"stackTrace"`
+	Message    *string    `json:"message,omitempty"`
+	StackTrace *string    `json:"stackTrace,omitempty"`
+}
+
+type LogoutInfo struct {
+	RedirectLinks []string `json:"redirectLinks"`
+}
+
+type Mutation struct {
+}
+
+type NavigatorNodeFilter struct {
+	Include []string `json:"include,omitempty"`
+	Exclude []string `json:"exclude,omitempty"`
 }
 
 type NavigatorNodeInfo struct {
-	ID          string                `json:"id"`
-	Name        *string               `json:"name"`
-	FullName    *string               `json:"fullName"`
-	Icon        *string               `json:"icon"`
-	Description *string               `json:"description"`
-	NodeType    *string               `json:"nodeType"`
-	HasChildren *bool                 `json:"hasChildren"`
-	Object      *DatabaseObjectInfo   `json:"object"`
-	Features    []string              `json:"features"`
-	NodeDetails []*ObjectPropertyInfo `json:"nodeDetails"`
-	Folder      *bool                 `json:"folder"`
-	Inline      *bool                 `json:"inline"`
-	Navigable   *bool                 `json:"navigable"`
+	// Node ID - generally a full path to the node from root of tree
+	ID string `json:"id"`
+	// Node URI - a unique path to a node including all parent nodes
+	URI string `json:"uri"`
+	// Node human readable name
+	Name *string `json:"name,omitempty"`
+	// Node full name
+	FullName *string `json:"fullName,omitempty"`
+	// Node plain name (23.2.0)
+	PlainName *string `json:"plainName,omitempty"`
+	// Node icon path
+	Icon *string `json:"icon,omitempty"`
+	// Node description
+	Description *string `json:"description,omitempty"`
+	// Node type
+	NodeType *string `json:"nodeType,omitempty"`
+	// Can this property have child nodes?
+	HasChildren bool `json:"hasChildren"`
+	// Project id of the node
+	ProjectID *string `json:"projectId,omitempty"`
+	// Associated object. Maybe null for non-database objects
+	Object *DatabaseObjectInfo `json:"object,omitempty"`
+	// Associated object. Return value depends on the node type - connectionId for connection node, resource path for resource node, etc.
+	// null - if node currently not support this property
+	ObjectID *string `json:"objectId,omitempty"`
+	// Supported features: item, container, leaf, canDelete, canRename
+	Features []string `json:"features,omitempty"`
+	// Object detailed info.
+	// If is different than properties. It doesn't perform any expensive operation and doesn't require authentication.
+	NodeDetails []*ObjectPropertyInfo `json:"nodeDetails,omitempty"`
+	Folder      bool                  `json:"folder"`
+	Inline      bool                  `json:"inline"`
+	Navigable   bool                  `json:"navigable"`
+	Filtered    bool                  `json:"filtered"`
+	// Reads node filter. Expensive invocation, read only when it is really needed
+	Filter *NavigatorNodeFilter `json:"filter,omitempty"`
 }
 
 type NavigatorSettings struct {
@@ -334,149 +641,273 @@ type NavigatorSettingsInput struct {
 }
 
 type NetworkEndpointInfo struct {
-	Message       *string `json:"message"`
-	ClientVersion *string `json:"clientVersion"`
-	ServerVersion *string `json:"serverVersion"`
+	Message       *string `json:"message,omitempty"`
+	ClientVersion *string `json:"clientVersion,omitempty"`
+	ServerVersion *string `json:"serverVersion,omitempty"`
 }
 
+// SSH/SSL network handler config. Name without prefix only for backward compatibility
 type NetworkHandlerConfig struct {
-	ID           string                 `json:"id"`
-	Enabled      bool                   `json:"enabled"`
-	AuthType     NetworkHandlerAuthType `json:"authType"`
-	UserName     *string                `json:"userName"`
-	Password     *string                `json:"password"`
-	Key          *string                `json:"key"`
-	SavePassword bool                   `json:"savePassword"`
-	Properties   interface{}            `json:"properties"`
+	ID string `json:"id"`
+	// Defines if the network handler is enabled
+	Enabled bool `json:"enabled"`
+	// SSH network handler auth type
+	AuthType NetworkHandlerAuthType `json:"authType"`
+	// SSH network handler user name
+	UserName *string `json:"userName,omitempty"`
+	// SSH network handler user password
+	Password *string `json:"password,omitempty"`
+	// SSH network handler private key
+	Key *string `json:"key,omitempty"`
+	// A flag that indicates if the password should be saved in the secure storage
+	SavePassword bool `json:"savePassword"`
+	// Network handler properties (name/value)
+	Properties any `json:"properties"`
+	// Network handler secure properties (name/value). Used for passwords and keys
+	SecureProperties any `json:"secureProperties"`
 }
 
 type NetworkHandlerConfigInput struct {
-	ID           string                  `json:"id"`
-	Enabled      *bool                   `json:"enabled"`
-	AuthType     *NetworkHandlerAuthType `json:"authType"`
-	UserName     *string                 `json:"userName"`
-	Password     *string                 `json:"password"`
-	Key          *string                 `json:"key"`
-	SavePassword *bool                   `json:"savePassword"`
-	Properties   interface{}             `json:"properties"`
+	ID string `json:"id"`
+	// Defines if the network handler should be enabled
+	Enabled *bool `json:"enabled,omitempty"`
+	// Network handler type (TUNNEL, PROXY, CONFIG)
+	AuthType *NetworkHandlerAuthType `json:"authType,omitempty"`
+	// Sets user name for the network handler (SSH)
+	UserName *string `json:"userName,omitempty"`
+	// Sets user password for the network handler (SSH)
+	Password *string `json:"password,omitempty"`
+	// Sets private key for the network handler (SSH)
+	Key *string `json:"key,omitempty"`
+	// Sets a flag that indicates if the password should be saved in the secure storage
+	SavePassword *bool `json:"savePassword,omitempty"`
+	// Network handler properties (name/value)
+	Properties any `json:"properties,omitempty"`
+	// Network handler secure properties (name/value). Used for passwords and keys
+	SecureProperties any `json:"secureProperties,omitempty"`
 }
 
+// Network handler descriptor.
+// This descriptor is used to describe network handlers (SSH/SSL) that can be used for connections.
 type NetworkHandlerDescriptor struct {
-	ID          string                `json:"id"`
-	CodeName    string                `json:"codeName"`
-	Label       string                `json:"label"`
-	Description *string               `json:"description"`
-	Secured     bool                  `json:"secured"`
-	Type        *NetworkHandlerType   `json:"type"`
-	Properties  []*ObjectPropertyInfo `json:"properties"`
+	ID          string              `json:"id"`
+	CodeName    string              `json:"codeName"`
+	Label       string              `json:"label"`
+	Description *string             `json:"description,omitempty"`
+	Secured     bool                `json:"secured"`
+	Type        *NetworkHandlerType `json:"type,omitempty"`
+	// Properties that can be displayed in the UI
+	Properties []*ObjectPropertyInfo `json:"properties"`
 }
 
 type ObjectDescriptor struct {
-	ID          *int    `json:"id"`
-	DisplayName *string `json:"displayName"`
-	FullName    *string `json:"fullName"`
-	UniqueName  *string `json:"uniqueName"`
-	Description *string `json:"description"`
-	Value       *string `json:"value"`
+	ID          *int    `json:"id,omitempty"`
+	DisplayName *string `json:"displayName,omitempty"`
+	FullName    *string `json:"fullName,omitempty"`
+	UniqueName  *string `json:"uniqueName,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Value       *string `json:"value,omitempty"`
 }
 
 type ObjectDetails struct {
-	ID          *int        `json:"id"`
-	DisplayName *string     `json:"displayName"`
-	Description *string     `json:"description"`
-	Value       interface{} `json:"value"`
+	ID          *int    `json:"id,omitempty"`
+	DisplayName *string `json:"displayName,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Value       any     `json:"value,omitempty"`
 }
 
 type ObjectOrigin struct {
 	Type          string                `json:"type"`
-	SubType       *string               `json:"subType"`
+	SubType       *string               `json:"subType,omitempty"`
 	DisplayName   string                `json:"displayName"`
-	Icon          *string               `json:"icon"`
-	Configuration interface{}           `json:"configuration"`
-	Details       []*ObjectPropertyInfo `json:"details"`
+	Icon          *string               `json:"icon,omitempty"`
+	Configuration any                   `json:"configuration,omitempty"`
+	Details       []*ObjectPropertyInfo `json:"details,omitempty"`
 }
 
 type ObjectPropertyFilter struct {
-	Ids        []string `json:"ids"`
-	Features   []string `json:"features"`
-	Categories []string `json:"categories"`
-	DataTypes  []string `json:"dataTypes"`
+	Ids        []string `json:"ids,omitempty"`
+	Features   []string `json:"features,omitempty"`
+	Categories []string `json:"categories,omitempty"`
+	DataTypes  []string `json:"dataTypes,omitempty"`
 }
 
+// Information about the object property used to generate its UI
 type ObjectPropertyInfo struct {
-	ID           *string              `json:"id"`
-	DisplayName  *string              `json:"displayName"`
-	Description  *string              `json:"description"`
-	Category     *string              `json:"category"`
-	DataType     *string              `json:"dataType"`
-	Value        interface{}          `json:"value"`
-	ValidValues  []interface{}        `json:"validValues"`
-	DefaultValue interface{}          `json:"defaultValue"`
-	Length       ObjectPropertyLength `json:"length"`
-	Features     []string             `json:"features"`
-	Order        int                  `json:"order"`
+	// Unique property identifier
+	ID *string `json:"id,omitempty"`
+	// Human-readable name
+	DisplayName *string `json:"displayName,omitempty"`
+	// Property description
+	Description *string `json:"description,omitempty"`
+	// Usage hint for the property
+	Hint *string `json:"hint,omitempty"`
+	// Property category (may be used if object has a lot of properties)
+	Category *string `json:"category,omitempty"`
+	// Property data type (e.g., int, String)
+	DataType *string `json:"dataType,omitempty"`
+	// Property value (can be resource-intensive for some properties, e.g., RowCount for tables)
+	Value any `json:"value,omitempty"`
+	// List of allowed values (for enumerable properties)
+	ValidValues []any `json:"validValues,omitempty"`
+	// Default property value
+	DefaultValue any `json:"defaultValue,omitempty"`
+	// Property value length
+	Length ObjectPropertyLength `json:"length"`
+	// List of supported features (e.g., system, hidden, inherited, foreign, expensive)
+	Features []string `json:"features"`
+	// Order position
+	Order int `json:"order"`
+	// Supported configuration types (for driver properties)
+	SupportedConfigurationTypes []string `json:"supportedConfigurationTypes,omitempty"`
+	// Is the property required
+	Required bool `json:"required"`
+	// List of preference scopes (e.g., global, user)
+	Scopes []string `json:"scopes,omitempty"`
+	// Dynamic conditions for the property (e.g., visibility or read-only)
+	Conditions []*Condition `json:"conditions,omitempty"`
 }
 
+type PageInput struct {
+	Limit  *int `json:"limit,omitempty"`
+	Offset *int `json:"offset,omitempty"`
+}
+
+// Password policy configuration
+type PasswordPolicyConfig struct {
+	// Minimum password length
+	MinLength int `json:"minLength"`
+	// Minimum number of digits required
+	MinNumberCount int `json:"minNumberCount"`
+	// Minimum number of symbols required
+	MinSymbolCount int `json:"minSymbolCount"`
+	// Require both uppercase and lowercase letters
+	RequireMixedCase bool `json:"requireMixedCase"`
+}
+
+// Product information
 type ProductInfo struct {
-	ID                string  `json:"id"`
-	Version           string  `json:"version"`
-	Name              string  `json:"name"`
-	Description       *string `json:"description"`
-	BuildTime         string  `json:"buildTime"`
-	ReleaseTime       string  `json:"releaseTime"`
-	LicenseInfo       *string `json:"licenseInfo"`
-	LatestVersionInfo *string `json:"latestVersionInfo"`
+	// ID of the product
+	ID string `json:"id"`
+	// The product version
+	Version string `json:"version"`
+	// The product name
+	Name string `json:"name"`
+	// The product description
+	Description *string `json:"description,omitempty"`
+	// The build timestamp of the product
+	BuildTime string `json:"buildTime"`
+	// The release timestamp of the product
+	ReleaseTime string `json:"releaseTime"`
+	// Information about the product license
+	LicenseInfo *string `json:"licenseInfo,omitempty"`
+	// Information about the latest available version
+	LatestVersionInfo *string `json:"latestVersionInfo,omitempty"`
+	// URL for purchasing the product
+	ProductPurchaseURL *string `json:"productPurchaseURL,omitempty"`
+}
+
+type ProductSettings struct {
+	Groups []*ProductSettingsGroup `json:"groups"`
+	// each property is associated with a group by category
+	Settings []*ObjectPropertyInfo `json:"settings"`
+}
+
+type ProductSettingsGroup struct {
+	ID          string `json:"id"`
+	DisplayName string `json:"displayName"`
+}
+
+type ProjectInfo struct {
+	ID                 string            `json:"id"`
+	Global             bool              `json:"global"`
+	Shared             bool              `json:"shared"`
+	Name               string            `json:"name"`
+	Description        *string           `json:"description,omitempty"`
+	CanEditDataSources bool              `json:"canEditDataSources"`
+	CanViewDataSources bool              `json:"canViewDataSources"`
+	CanEditResources   bool              `json:"canEditResources"`
+	CanViewResources   bool              `json:"canViewResources"`
+	ResourceTypes      []*RMResourceType `json:"resourceTypes"`
+}
+
+type Query struct {
 }
 
 type RMProject struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Description *string   `json:"description"`
-	Shared      bool      `json:"shared"`
-	CreateTime  time.Time `json:"createTime"`
-	Creator     string    `json:"creator"`
+	ID                 string            `json:"id"`
+	Name               string            `json:"name"`
+	Description        *string           `json:"description,omitempty"`
+	Shared             bool              `json:"shared"`
+	Global             bool              `json:"global"`
+	CreateTime         time.Time         `json:"createTime"`
+	Creator            string            `json:"creator"`
+	ProjectPermissions []string          `json:"projectPermissions"`
+	ResourceTypes      []*RMResourceType `json:"resourceTypes"`
+}
+
+type RMProjectPermissions struct {
+	ProjectID   string   `json:"projectId"`
+	Permissions []string `json:"permissions"`
 }
 
 type RMResource struct {
-	Name   string `json:"name"`
-	Folder bool   `json:"folder"`
-	Length int    `json:"length"`
+	Name       string `json:"name"`
+	Folder     bool   `json:"folder"`
+	Length     int    `json:"length"`
+	Properties any    `json:"properties,omitempty"`
+}
+
+type RMResourceType struct {
+	ID             string   `json:"id"`
+	DisplayName    string   `json:"displayName"`
+	Icon           *string  `json:"icon,omitempty"`
+	FileExtensions []string `json:"fileExtensions"`
+	RootFolder     *string  `json:"rootFolder,omitempty"`
+}
+
+type RMSubjectProjectPermissions struct {
+	SubjectID   string   `json:"subjectId"`
+	Permissions []string `json:"permissions"`
 }
 
 type SQLCompletionProposal struct {
 	DisplayString     string  `json:"displayString"`
 	Type              string  `json:"type"`
-	Score             *int    `json:"score"`
+	Score             *int    `json:"score,omitempty"`
 	ReplacementString string  `json:"replacementString"`
 	ReplacementOffset int     `json:"replacementOffset"`
 	ReplacementLength int     `json:"replacementLength"`
-	CursorPosition    *int    `json:"cursorPosition"`
-	Icon              *string `json:"icon"`
-	NodePath          *string `json:"nodePath"`
+	CursorPosition    *int    `json:"cursorPosition,omitempty"`
+	Icon              *string `json:"icon,omitempty"`
+	NodePath          *string `json:"nodePath,omitempty"`
 }
 
 type SQLContextInfo struct {
 	ID             string  `json:"id"`
+	ProjectID      string  `json:"projectId"`
 	ConnectionID   string  `json:"connectionId"`
-	DefaultCatalog *string `json:"defaultCatalog"`
-	DefaultSchema  *string `json:"defaultSchema"`
+	AutoCommit     *bool   `json:"autoCommit,omitempty"`
+	DefaultCatalog *string `json:"defaultCatalog,omitempty"`
+	DefaultSchema  *string `json:"defaultSchema,omitempty"`
 }
 
 type SQLDataFilter struct {
-	Offset      *float64                   `json:"offset"`
-	Limit       *int                       `json:"limit"`
-	Constraints []*SQLDataFilterConstraint `json:"constraints"`
-	Where       *string                    `json:"where"`
-	OrderBy     *string                    `json:"orderBy"`
+	// Row offset. We use Float because offset may be bigger than 32 bit.
+	Offset      *float64                   `json:"offset,omitempty"`
+	Limit       *int                       `json:"limit,omitempty"`
+	Constraints []*SQLDataFilterConstraint `json:"constraints,omitempty"`
+	Where       *string                    `json:"where,omitempty"`
+	OrderBy     *string                    `json:"orderBy,omitempty"`
 }
 
 type SQLDataFilterConstraint struct {
-	AttributePosition int         `json:"attributePosition"`
-	OrderPosition     *int        `json:"orderPosition"`
-	OrderAsc          *bool       `json:"orderAsc"`
-	Criteria          *string     `json:"criteria"`
-	Operator          *string     `json:"operator"`
-	Value             interface{} `json:"value"`
+	AttributePosition int     `json:"attributePosition"`
+	OrderPosition     *int    `json:"orderPosition,omitempty"`
+	OrderAsc          *bool   `json:"orderAsc,omitempty"`
+	Criteria          *string `json:"criteria,omitempty"`
+	Operator          *string `json:"operator,omitempty"`
+	Value             any     `json:"value,omitempty"`
 }
 
 type SQLDialectInfo struct {
@@ -487,17 +918,17 @@ type SQLDialectInfo struct {
 	QuoteStrings                 [][]*string `json:"quoteStrings"`
 	SingleLineComments           []*string   `json:"singleLineComments"`
 	MultiLineComments            [][]*string `json:"multiLineComments"`
-	CatalogSeparator             *string     `json:"catalogSeparator"`
-	StructSeparator              *string     `json:"structSeparator"`
-	ScriptDelimiter              *string     `json:"scriptDelimiter"`
+	CatalogSeparator             *string     `json:"catalogSeparator,omitempty"`
+	StructSeparator              *string     `json:"structSeparator,omitempty"`
+	ScriptDelimiter              *string     `json:"scriptDelimiter,omitempty"`
 	SupportsExplainExecutionPlan bool        `json:"supportsExplainExecutionPlan"`
 }
 
 type SQLExecuteInfo struct {
-	StatusMessage *string            `json:"statusMessage"`
+	StatusMessage *string            `json:"statusMessage,omitempty"`
 	Duration      int                `json:"duration"`
-	FilterText    *string            `json:"filterText"`
-	FullQuery     *string            `json:"fullQuery"`
+	FilterText    *string            `json:"filterText,omitempty"`
+	FullQuery     *string            `json:"fullQuery,omitempty"`
 	Results       []*SQLQueryResults `json:"results"`
 }
 
@@ -508,61 +939,93 @@ type SQLExecutionPlan struct {
 
 type SQLExecutionPlanNode struct {
 	ID          string                `json:"id"`
-	ParentID    *string               `json:"parentId"`
+	ParentID    *string               `json:"parentId,omitempty"`
 	Kind        string                `json:"kind"`
-	Name        *string               `json:"name"`
+	Name        *string               `json:"name,omitempty"`
 	Type        string                `json:"type"`
-	Condition   *string               `json:"condition"`
-	Description *string               `json:"description"`
+	Condition   *string               `json:"condition,omitempty"`
+	Description *string               `json:"description,omitempty"`
 	Properties  []*ObjectPropertyInfo `json:"properties"`
 }
 
 type SQLQueryGenerator struct {
 	ID          string  `json:"id"`
 	Label       string  `json:"label"`
-	Description *string `json:"description"`
+	Description *string `json:"description,omitempty"`
 	Order       int     `json:"order"`
 	MultiObject bool    `json:"multiObject"`
 }
 
 type SQLQueryResults struct {
-	Title          *string           `json:"title"`
-	UpdateRowCount *float64          `json:"updateRowCount"`
-	SourceQuery    *string           `json:"sourceQuery"`
-	DataFormat     *ResultDataFormat `json:"dataFormat"`
-	ResultSet      *SQLResultSet     `json:"resultSet"`
+	Title          *string           `json:"title,omitempty"`
+	UpdateRowCount *float64          `json:"updateRowCount,omitempty"`
+	SourceQuery    *string           `json:"sourceQuery,omitempty"`
+	DataFormat     *ResultDataFormat `json:"dataFormat,omitempty"`
+	ResultSet      *SQLResultSet     `json:"resultSet,omitempty"`
 }
 
 type SQLResultColumn struct {
-	Position            int                         `json:"position"`
-	Name                *string                     `json:"name"`
-	Label               *string                     `json:"label"`
-	Icon                *string                     `json:"icon"`
-	EntityName          *string                     `json:"entityName"`
-	DataKind            *string                     `json:"dataKind"`
-	TypeName            *string                     `json:"typeName"`
-	FullTypeName        *string                     `json:"fullTypeName"`
-	MaxLength           *float64                    `json:"maxLength"`
-	Scale               *int                        `json:"scale"`
-	Precision           *int                        `json:"precision"`
-	Required            bool                        `json:"required"`
-	ReadOnly            bool                        `json:"readOnly"`
-	ReadOnlyStatus      *string                     `json:"readOnlyStatus"`
+	Position     int     `json:"position"`
+	Name         *string `json:"name,omitempty"`
+	Label        *string `json:"label,omitempty"`
+	Icon         *string `json:"icon,omitempty"`
+	EntityName   *string `json:"entityName,omitempty"`
+	DataKind     *string `json:"dataKind,omitempty"`
+	TypeName     *string `json:"typeName,omitempty"`
+	FullTypeName *string `json:"fullTypeName,omitempty"`
+	// Column value max length. We use Float because it may be bigger than 32 bit
+	MaxLength      *float64 `json:"maxLength,omitempty"`
+	Scale          *int     `json:"scale,omitempty"`
+	Precision      *int     `json:"precision,omitempty"`
+	Required       bool     `json:"required"`
+	AutoGenerated  bool     `json:"autoGenerated"`
+	ReadOnly       bool     `json:"readOnly"`
+	ReadOnlyStatus *string  `json:"readOnlyStatus,omitempty"`
+	// Operations supported for this attribute
 	SupportedOperations []*DataTypeLogicalOperation `json:"supportedOperations"`
+	// Description of the column
+	Description *string `json:"description,omitempty"`
 }
 
 type SQLResultRow struct {
-	Data         []interface{} `json:"data"`
-	UpdateValues interface{}   `json:"updateValues"`
+	Data         []any `json:"data"`
+	UpdateValues any   `json:"updateValues,omitempty"`
+	MetaData     any   `json:"metaData,omitempty"`
+}
+
+type SQLResultRowMetaData struct {
+	Data     []any `json:"data"`
+	MetaData any   `json:"metaData,omitempty"`
+}
+
+type SQLResultRowMetaDataInput struct {
+	Data     []any `json:"data,omitempty"`
+	MetaData any   `json:"metaData"`
 }
 
 type SQLResultSet struct {
-	ID               string             `json:"id"`
-	Columns          []*SQLResultColumn `json:"columns"`
-	Rows             [][]interface{}    `json:"rows"`
-	SingleEntity     bool               `json:"singleEntity"`
-	HasMoreData      bool               `json:"hasMoreData"`
-	HasRowIdentifier bool               `json:"hasRowIdentifier"`
+	// Result set ID
+	ID string `json:"id"`
+	// Returns list of columns in the result set
+	Columns []*SQLResultColumn `json:"columns,omitempty"`
+	// Returns list of rows in the result set. Each row is an array of column values
+	Rows [][]any `json:"rows,omitempty"`
+	// Returns list of rows in the result set. Each row contains data and metadata
+	RowsWithMetaData []*SQLResultRowMetaData `json:"rowsWithMetaData,omitempty"`
+	SingleEntity     bool                    `json:"singleEntity"`
+	HasMoreData      bool                    `json:"hasMoreData"`
+	// Identifies if result set has row identifier. If true then it is possible update data or load LOB files
+	HasRowIdentifier bool `json:"hasRowIdentifier"`
+	// Identifies if result has children collections. If true then children collections can be read from the result set
+	HasChildrenCollection bool `json:"hasChildrenCollection"`
+	// Identifies if result set supports dynamic trace. If true then dynamic trace can be read from the result set
+	HasDynamicTrace bool `json:"hasDynamicTrace"`
+	// Identifies if result set supports data filter. If true then data filter can be applied to the result set
+	IsSupportsDataFilter bool `json:"isSupportsDataFilter"`
+	// Identifies if result set is read-only. If true then no updates are allowed
+	ReadOnly bool `json:"readOnly"`
+	// Status of read-only result set. If readOnly is true then this field contains reason why result set is read-only
+	ReadOnlyStatus *string `json:"readOnlyStatus,omitempty"`
 }
 
 type SQLScriptInfo struct {
@@ -574,136 +1037,217 @@ type SQLScriptQuery struct {
 	End   int `json:"end"`
 }
 
+type SecretInfo struct {
+	DisplayName string `json:"displayName"`
+	SecretID    string `json:"secretId"`
+}
+
+// Server configuration
 type ServerConfig struct {
-	Name                         string              `json:"name"`
-	Version                      string              `json:"version"`
-	WorkspaceID                  string              `json:"workspaceId"`
-	ServerURL                    string              `json:"serverURL"`
-	RootURI                      string              `json:"rootURI"`
-	HostName                     string              `json:"hostName"`
-	AnonymousAccessEnabled       *bool               `json:"anonymousAccessEnabled"`
-	AuthenticationEnabled        *bool               `json:"authenticationEnabled"`
-	SupportsCustomConnections    *bool               `json:"supportsCustomConnections"`
-	SupportsConnectionBrowser    *bool               `json:"supportsConnectionBrowser"`
-	SupportsWorkspaces           *bool               `json:"supportsWorkspaces"`
-	ResourceManagerEnabled       *bool               `json:"resourceManagerEnabled"`
-	PublicCredentialsSaveEnabled *bool               `json:"publicCredentialsSaveEnabled"`
-	AdminCredentialsSaveEnabled  *bool               `json:"adminCredentialsSaveEnabled"`
-	LicenseRequired              bool                `json:"licenseRequired"`
-	LicenseValid                 bool                `json:"licenseValid"`
-	SessionExpireTime            *int                `json:"sessionExpireTime"`
-	LocalHostAddress             *string             `json:"localHostAddress"`
-	ConfigurationMode            *bool               `json:"configurationMode"`
-	DevelopmentMode              *bool               `json:"developmentMode"`
-	RedirectOnFederatedAuth      *bool               `json:"redirectOnFederatedAuth"`
-	EnabledFeatures              []string            `json:"enabledFeatures"`
-	EnabledAuthProviders         []string            `json:"enabledAuthProviders"`
-	SupportedLanguages           []*ServerLanguage   `json:"supportedLanguages"`
-	Services                     []*WebServiceConfig `json:"services"`
-	ProductConfiguration         interface{}         `json:"productConfiguration"`
-	ProductInfo                  *ProductInfo        `json:"productInfo"`
-	DefaultNavigatorSettings     *NavigatorSettings  `json:"defaultNavigatorSettings"`
-	DisabledDrivers              []string            `json:"disabledDrivers"`
-	ResourceQuotas               interface{}         `json:"resourceQuotas"`
+	// Server name
+	Name string `json:"name"`
+	// Version of the server
+	Version string `json:"version"`
+	// ID of the server workspace
+	WorkspaceID string `json:"workspaceId"`
+	// Defines if the anonymous access is enabled
+	AnonymousAccessEnabled bool `json:"anonymousAccessEnabled"`
+	// Defines if non-admin users can create connections
+	SupportsCustomConnections bool `json:"supportsCustomConnections"`
+	// Defines if resource manager is enabled
+	ResourceManagerEnabled bool `json:"resourceManagerEnabled"`
+	// Defines if secret manager is enabled
+	SecretManagerEnabled bool `json:"secretManagerEnabled"`
+	// Defines is it is possible to save user database credentials
+	PublicCredentialsSaveEnabled bool `json:"publicCredentialsSaveEnabled"`
+	// Defines is it is possible to save global database credentials
+	AdminCredentialsSaveEnabled bool `json:"adminCredentialsSaveEnabled"`
+	// Defines if the server requires a license
+	LicenseRequired bool `json:"licenseRequired"`
+	// Defines if the server license is valid
+	LicenseValid bool `json:"licenseValid"`
+	// Returns information about the server license status
+	LicenseStatus *string `json:"licenseStatus,omitempty"`
+	// Defines if the server is in configuration mode
+	ConfigurationMode bool `json:"configurationMode"`
+	// Defines if the server is in development mode
+	DevelopmentMode bool `json:"developmentMode"`
+	// Defines if the server is distributed
+	Distributed bool `json:"distributed"`
+	// List of enabled features
+	EnabledFeatures []string `json:"enabledFeatures"`
+	// List of disabled beta features
+	DisabledBetaFeatures []string `json:"disabledBetaFeatures,omitempty"`
+	// List of server features
+	ServerFeatures []string `json:"serverFeatures,omitempty"`
+	// List of supported languages
+	SupportedLanguages []*ServerLanguage `json:"supportedLanguages"`
+	// Product configuration
+	ProductConfiguration any `json:"productConfiguration"`
+	// Product information
+	ProductInfo *ProductInfo `json:"productInfo"`
+	// Navigator settings for the server
+	DefaultNavigatorSettings *NavigatorSettings `json:"defaultNavigatorSettings"`
+	// List of disabled drivers (IDs of DriverInfo)
+	DisabledDrivers []string `json:"disabledDrivers"`
+	// Resource quotas (e.g., max amount of running SQL queries)
+	ResourceQuotas any `json:"resourceQuotas"`
 }
 
 type ServerConfigInput struct {
-	ServerName                   *string  `json:"serverName"`
-	ServerURL                    *string  `json:"serverURL"`
-	AdminName                    *string  `json:"adminName"`
-	AdminPassword                *string  `json:"adminPassword"`
-	AnonymousAccessEnabled       *bool    `json:"anonymousAccessEnabled"`
-	AuthenticationEnabled        *bool    `json:"authenticationEnabled"`
-	CustomConnectionsEnabled     *bool    `json:"customConnectionsEnabled"`
-	PublicCredentialsSaveEnabled *bool    `json:"publicCredentialsSaveEnabled"`
-	AdminCredentialsSaveEnabled  *bool    `json:"adminCredentialsSaveEnabled"`
-	ResourceManagerEnabled       *bool    `json:"resourceManagerEnabled"`
-	EnabledFeatures              []string `json:"enabledFeatures"`
-	EnabledAuthProviders         []string `json:"enabledAuthProviders"`
-	DisabledDrivers              []string `json:"disabledDrivers"`
-	SessionExpireTime            *int     `json:"sessionExpireTime"`
+	ServerName                   *string  `json:"serverName,omitempty"`
+	ServerURL                    *string  `json:"serverURL,omitempty"`
+	AdminName                    *string  `json:"adminName,omitempty"`
+	AdminPassword                *string  `json:"adminPassword,omitempty"`
+	AnonymousAccessEnabled       *bool    `json:"anonymousAccessEnabled,omitempty"`
+	AuthenticationEnabled        *bool    `json:"authenticationEnabled,omitempty"`
+	CustomConnectionsEnabled     *bool    `json:"customConnectionsEnabled,omitempty"`
+	PublicCredentialsSaveEnabled *bool    `json:"publicCredentialsSaveEnabled,omitempty"`
+	AdminCredentialsSaveEnabled  *bool    `json:"adminCredentialsSaveEnabled,omitempty"`
+	ResourceManagerEnabled       *bool    `json:"resourceManagerEnabled,omitempty"`
+	SecretManagerEnabled         *bool    `json:"secretManagerEnabled,omitempty"`
+	EnabledFeatures              []string `json:"enabledFeatures,omitempty"`
+	EnabledAuthProviders         []string `json:"enabledAuthProviders,omitempty"`
+	DisabledDrivers              []string `json:"disabledDrivers,omitempty"`
+	SessionExpireTime            *int     `json:"sessionExpireTime,omitempty"`
+	ForceHTTPS                   *bool    `json:"forceHttps,omitempty"`
+	SupportedHosts               []string `json:"supportedHosts,omitempty"`
+	BindSessionToIP              *string  `json:"bindSessionToIp,omitempty"`
 }
 
+// Various server errors descriptor
 type ServerError struct {
-	Message                *string      `json:"message"`
-	ExecutionFailedMessage *string      `json:"executionFailedMessage"`
-	ErrorCode              *string      `json:"errorCode"`
-	ErrorType              *string      `json:"errorType"`
-	StackTrace             *string      `json:"stackTrace"`
-	CausedBy               *ServerError `json:"causedBy"`
+	// Error message text
+	Message *string `json:"message,omitempty"`
+	// Retrieves the vendor-specific error code
+	ErrorCode *string `json:"errorCode,omitempty"`
+	// Type/category of the error
+	ErrorType *string `json:"errorType,omitempty"`
+	// Stack trace for debugging
+	StackTrace *string `json:"stackTrace,omitempty"`
+	// Nested error that caused this error (recursive)
+	CausedBy *ServerError `json:"causedBy,omitempty"`
+	// TODO 临时使用，后续需要删除
+	ExecutionFailedMessage *string `json:"executionFailedMessage,omitempty"`
 }
 
+// Languages supported by server
 type ServerLanguage struct {
-	IsoCode     string  `json:"isoCode"`
-	DisplayName *string `json:"displayName"`
-	NativeName  *string `json:"nativeName"`
+	// ISO 639-1 or similar language code (e.g., "en", "ru")
+	IsoCode string `json:"isoCode"`
+	// Display name of the language in the current locale (e.g., "English")
+	DisplayName *string `json:"displayName,omitempty"`
+	// Native name of the language (e.g., "English", "Русский")
+	NativeName *string `json:"nativeName,omitempty"`
 }
 
 type ServerMessage struct {
-	Time    *string `json:"time"`
-	Message *string `json:"message"`
+	// The time when the server message was created
+	Time *string `json:"time,omitempty"`
+	// The content of the message
+	Message *string `json:"message,omitempty"`
 }
 
 type SessionInfo struct {
-	CreateTime       string            `json:"createTime"`
-	LastAccessTime   string            `json:"lastAccessTime"`
-	Locale           string            `json:"locale"`
-	CacheExpired     bool              `json:"cacheExpired"`
-	ServerMessages   []*ServerMessage  `json:"serverMessages"`
-	Connections      []*ConnectionInfo `json:"connections"`
-	ActionParameters interface{}       `json:"actionParameters"`
+	// The time when the session was created
+	CreateTime string `json:"createTime"`
+	// The last time the session was accessed
+	LastAccessTime string `json:"lastAccessTime"`
+	// The current locale of the session
+	Locale string `json:"locale"`
+	// Indicates whether the session cache has expired
+	CacheExpired bool `json:"cacheExpired"`
+	// List of active connections in the session
+	Connections []*ConnectionInfo `json:"connections"`
+	// Action parameters for the session (e.g., opening a connection)
+	ActionParameters any `json:"actionParameters,omitempty"`
+	// Indicates if the session is valid
+	Valid bool `json:"valid"`
+	// Remaining time before the session expires (in seconds)
+	RemainingTime int `json:"remainingTime"`
+}
+
+type TransactionLogInfoItem struct {
+	ID          int       `json:"id"`
+	Time        time.Time `json:"time"`
+	Type        string    `json:"type"`
+	QueryString string    `json:"queryString"`
+	DurationMs  int       `json:"durationMs"`
+	Rows        int       `json:"rows"`
+	Result      string    `json:"result"`
+}
+
+type TransactionLogInfos struct {
+	Count               int                       `json:"count"`
+	TransactionLogInfos []*TransactionLogInfoItem `json:"transactionLogInfos"`
 }
 
 type UserAuthToken struct {
-	AuthProvider      string        `json:"authProvider"`
-	AuthConfiguration *string       `json:"authConfiguration"`
-	LoginTime         time.Time     `json:"loginTime"`
-	UserID            string        `json:"userId"`
-	DisplayName       string        `json:"displayName"`
-	Message           *string       `json:"message"`
-	Origin            *ObjectOrigin `json:"origin"`
+	// Auth provider used for authorization
+	AuthProvider string `json:"authProvider"`
+	// Auth provider configuration ID
+	AuthConfiguration *string `json:"authConfiguration,omitempty"`
+	// Authorization time
+	LoginTime time.Time `json:"loginTime"`
+	// User identity (aka user name) specific to auth provider
+	UserID string `json:"userId"`
+	// User display name specific to auth provider
+	DisplayName string `json:"displayName"`
+	// Optional login message
+	Message *string `json:"message,omitempty"`
+	// Auth origin
+	Origin *ObjectOrigin `json:"origin"`
 }
 
 type UserInfo struct {
-	UserID                  string           `json:"userId"`
-	DisplayName             *string          `json:"displayName"`
-	AuthRole                *string          `json:"authRole"`
-	AuthTokens              []*UserAuthToken `json:"authTokens"`
-	LinkedAuthProviders     []string         `json:"linkedAuthProviders"`
-	MetaParameters          interface{}      `json:"metaParameters"`
-	ConfigurationParameters interface{}      `json:"configurationParameters"`
+	// User unique identifier
+	UserID string `json:"userId"`
+	// Human readable display name. It is taken from the first auth provider which was used for user login.
+	DisplayName *string `json:"displayName,omitempty"`
+	// User auth role ID. Optional.
+	AuthRole *string `json:"authRole,omitempty"`
+	// All authentication tokens used during current session
+	AuthTokens          []*UserAuthToken `json:"authTokens"`
+	LinkedAuthProviders []string         `json:"linkedAuthProviders"`
+	// User profile properties map
+	MetaParameters any `json:"metaParameters"`
+	// User configuration parameters
+	ConfigurationParameters any `json:"configurationParameters"`
+	// User teams
+	Teams []*UserTeamInfo `json:"teams"`
+	// Indicates whether the user is anonymous (not authenticated).
+	IsAnonymous bool `json:"isAnonymous"`
+}
+
+type UserTeamInfo struct {
+	TeamID   string  `json:"teamId"`
+	TeamName string  `json:"teamName"`
+	TeamRole *string `json:"teamRole,omitempty"`
 }
 
 type WebFeatureSet struct {
 	ID          string  `json:"id"`
 	Label       string  `json:"label"`
-	Description *string `json:"description"`
-	Icon        *string `json:"icon"`
+	Description *string `json:"description,omitempty"`
+	Icon        *string `json:"icon,omitempty"`
 	Enabled     bool    `json:"enabled"`
-}
-
-type WebServiceConfig struct {
-	ID            string `json:"id"`
-	Name          string `json:"name"`
-	Description   string `json:"description"`
-	BundleVersion string `json:"bundleVersion"`
 }
 
 type AdminSubjectType string
 
 const (
 	AdminSubjectTypeUser AdminSubjectType = "user"
-	AdminSubjectTypeRole AdminSubjectType = "role"
+	AdminSubjectTypeTeam AdminSubjectType = "team"
 )
 
 var AllAdminSubjectType = []AdminSubjectType{
 	AdminSubjectTypeUser,
-	AdminSubjectTypeRole,
+	AdminSubjectTypeTeam,
 }
 
 func (e AdminSubjectType) IsValid() bool {
 	switch e {
-	case AdminSubjectTypeUser, AdminSubjectTypeRole:
+	case AdminSubjectTypeUser, AdminSubjectTypeTeam:
 		return true
 	}
 	return false
@@ -713,7 +1257,7 @@ func (e AdminSubjectType) String() string {
 	return string(e)
 }
 
-func (e *AdminSubjectType) UnmarshalGQL(v interface{}) error {
+func (e *AdminSubjectType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -728,6 +1272,20 @@ func (e *AdminSubjectType) UnmarshalGQL(v interface{}) error {
 
 func (e AdminSubjectType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AdminSubjectType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AdminSubjectType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type AuthCredentialEncryption string
@@ -756,7 +1314,7 @@ func (e AuthCredentialEncryption) String() string {
 	return string(e)
 }
 
-func (e *AuthCredentialEncryption) UnmarshalGQL(v interface{}) error {
+func (e *AuthCredentialEncryption) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -771,6 +1329,20 @@ func (e *AuthCredentialEncryption) UnmarshalGQL(v interface{}) error {
 
 func (e AuthCredentialEncryption) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AuthCredentialEncryption) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AuthCredentialEncryption) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type AuthStatus string
@@ -799,7 +1371,7 @@ func (e AuthStatus) String() string {
 	return string(e)
 }
 
-func (e *AuthStatus) UnmarshalGQL(v interface{}) error {
+func (e *AuthStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -816,6 +1388,135 @@ func (e AuthStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *AuthStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AuthStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type ConditionType string
+
+const (
+	// hiding property condition
+	ConditionTypeHide ConditionType = "HIDE"
+	// restriction for setting a property value
+	ConditionTypeReadOnly ConditionType = "READ_ONLY"
+)
+
+var AllConditionType = []ConditionType{
+	ConditionTypeHide,
+	ConditionTypeReadOnly,
+}
+
+func (e ConditionType) IsValid() bool {
+	switch e {
+	case ConditionTypeHide, ConditionTypeReadOnly:
+		return true
+	}
+	return false
+}
+
+func (e ConditionType) String() string {
+	return string(e)
+}
+
+func (e *ConditionType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ConditionType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ConditionType", str)
+	}
+	return nil
+}
+
+func (e ConditionType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ConditionType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ConditionType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type DriverConfigurationType string
+
+const (
+	// Driver uses host, port, database and server name fields
+	DriverConfigurationTypeManual DriverConfigurationType = "MANUAL"
+	// Driver uses URL field
+	DriverConfigurationTypeURL DriverConfigurationType = "URL"
+)
+
+var AllDriverConfigurationType = []DriverConfigurationType{
+	DriverConfigurationTypeManual,
+	DriverConfigurationTypeURL,
+}
+
+func (e DriverConfigurationType) IsValid() bool {
+	switch e {
+	case DriverConfigurationTypeManual, DriverConfigurationTypeURL:
+		return true
+	}
+	return false
+}
+
+func (e DriverConfigurationType) String() string {
+	return string(e)
+}
+
+func (e *DriverConfigurationType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = DriverConfigurationType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid DriverConfigurationType", str)
+	}
+	return nil
+}
+
+func (e DriverConfigurationType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *DriverConfigurationType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e DriverConfigurationType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// SSH network handler authentication type
 type NetworkHandlerAuthType string
 
 const (
@@ -842,7 +1543,7 @@ func (e NetworkHandlerAuthType) String() string {
 	return string(e)
 }
 
-func (e *NetworkHandlerAuthType) UnmarshalGQL(v interface{}) error {
+func (e *NetworkHandlerAuthType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -857,6 +1558,20 @@ func (e *NetworkHandlerAuthType) UnmarshalGQL(v interface{}) error {
 
 func (e NetworkHandlerAuthType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *NetworkHandlerAuthType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e NetworkHandlerAuthType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type NetworkHandlerType string
@@ -885,7 +1600,7 @@ func (e NetworkHandlerType) String() string {
 	return string(e)
 }
 
-func (e *NetworkHandlerType) UnmarshalGQL(v interface{}) error {
+func (e *NetworkHandlerType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -902,13 +1617,32 @@ func (e NetworkHandlerType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *NetworkHandlerType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e NetworkHandlerType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 type ObjectPropertyLength string
 
 const (
-	ObjectPropertyLengthTiny      ObjectPropertyLength = "TINY"
-	ObjectPropertyLengthShort     ObjectPropertyLength = "SHORT"
-	ObjectPropertyLengthMedium    ObjectPropertyLength = "MEDIUM"
-	ObjectPropertyLengthLong      ObjectPropertyLength = "LONG"
+	// 1 character
+	ObjectPropertyLengthTiny ObjectPropertyLength = "TINY"
+	// 20 characters
+	ObjectPropertyLengthShort ObjectPropertyLength = "SHORT"
+	// <= 64 characters
+	ObjectPropertyLengthMedium ObjectPropertyLength = "MEDIUM"
+	// Full line length. The default
+	ObjectPropertyLengthLong ObjectPropertyLength = "LONG"
+	// Multi-line long text
 	ObjectPropertyLengthMultiline ObjectPropertyLength = "MULTILINE"
 )
 
@@ -932,7 +1666,7 @@ func (e ObjectPropertyLength) String() string {
 	return string(e)
 }
 
-func (e *ObjectPropertyLength) UnmarshalGQL(v interface{}) error {
+func (e *ObjectPropertyLength) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -947,6 +1681,20 @@ func (e *ObjectPropertyLength) UnmarshalGQL(v interface{}) error {
 
 func (e ObjectPropertyLength) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ObjectPropertyLength) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ObjectPropertyLength) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type ResultDataFormat string
@@ -977,7 +1725,7 @@ func (e ResultDataFormat) String() string {
 	return string(e)
 }
 
-func (e *ResultDataFormat) UnmarshalGQL(v interface{}) error {
+func (e *ResultDataFormat) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -992,4 +1740,18 @@ func (e *ResultDataFormat) UnmarshalGQL(v interface{}) error {
 
 func (e ResultDataFormat) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ResultDataFormat) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ResultDataFormat) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }

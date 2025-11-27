@@ -348,6 +348,9 @@ var GraphQLHandlerRouters = map[string] /* gql operation name */ gqlBehavior{
 	"updateResultsDataBatch": {
 		UseLocalHandler: true,
 	},
+	"asyncUpdateResultsDataBatch": {
+		UseLocalHandler: true,
+	},
 	"getActiveUser": {
 		UseLocalHandler:     true,
 		NeedModifyRemoteRes: true,
@@ -380,4 +383,35 @@ var GraphQLHandlerRouters = map[string] /* gql operation name */ gqlBehavior{
 	}, "authChangeLocalPassword": {
 		Disable: true,
 	},
+	"navNodeChildren": {},
+}
+
+// NavNodeObject 导航节点对象信息
+type NavNodeObject struct {
+	Features []string `json:"features"`
+}
+
+// NavNodeInfo 导航节点信息
+type NavNodeInfo struct {
+	ID          string         `json:"id"`
+	Name        string         `json:"name"`
+	PlainName   *string        `json:"plainName"`
+	HasChildren bool           `json:"hasChildren"`
+	NodeType    string         `json:"nodeType"`
+	Icon        string         `json:"icon"`
+	Folder      bool           `json:"folder"`
+	Inline      bool           `json:"inline"`
+	Navigable   bool           `json:"navigable"`
+	Filtered    bool           `json:"filtered"`
+	Features    []string       `json:"features"`
+	ProjectID   string         `json:"projectId"`
+	Object      *NavNodeObject `json:"object"`
+}
+
+// NavNodeChildrenResponse 导航节点子节点响应
+type NavNodeChildrenResponse struct {
+	Data struct {
+		NavNodeChildren []NavNodeInfo `json:"navNodeChildren"`
+		NavNodeInfo     NavNodeInfo   `json:"navNodeInfo"`
+	} `json:"data"`
 }
