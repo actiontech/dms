@@ -1,12 +1,15 @@
-package validator
+package rules
 
 import (
 	"github.com/vektah/gqlparser/v2/ast"
-	. "github.com/vektah/gqlparser/v2/validator"
+
+	//nolint:staticcheck // Validator rules each use dot imports for convenience.
+	. "github.com/vektah/gqlparser/v2/validator/core"
 )
 
-func init() {
-	AddRule("UniqueVariableNames", func(observers *Events, addError AddErrFunc) {
+var UniqueVariableNamesRule = Rule{
+	Name: "UniqueVariableNames",
+	RuleFunc: func(observers *Events, addError AddErrFunc) {
 		observers.OnOperation(func(walker *Walker, operation *ast.OperationDefinition) {
 			seen := map[string]int{}
 			for _, def := range operation.VariableDefinitions {
@@ -20,5 +23,5 @@ func init() {
 				seen[def.Variable]++
 			}
 		})
-	})
+	},
 }

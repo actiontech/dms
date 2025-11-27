@@ -1,12 +1,15 @@
-package validator
+package rules
 
 import (
 	"github.com/vektah/gqlparser/v2/ast"
-	. "github.com/vektah/gqlparser/v2/validator"
+
+	//nolint:staticcheck // Validator rules each use dot imports for convenience.
+	. "github.com/vektah/gqlparser/v2/validator/core"
 )
 
-func init() {
-	AddRule("UniqueFragmentNames", func(observers *Events, addError AddErrFunc) {
+var UniqueFragmentNamesRule = Rule{
+	Name: "UniqueFragmentNames",
+	RuleFunc: func(observers *Events, addError AddErrFunc) {
 		seenFragments := map[string]bool{}
 
 		observers.OnFragment(func(walker *Walker, fragment *ast.FragmentDefinition) {
@@ -18,5 +21,5 @@ func init() {
 			}
 			seenFragments[fragment.Name] = true
 		})
-	})
+	},
 }

@@ -3,17 +3,20 @@ package codegen
 import (
 	"errors"
 	"fmt"
+	goast "go/ast"
 	"go/types"
 	"log"
 	"reflect"
 	"strconv"
 	"strings"
 
-	"github.com/99designs/gqlgen/codegen/config"
-	"github.com/99designs/gqlgen/codegen/templates"
 	"github.com/vektah/gqlparser/v2/ast"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+
+	"github.com/99designs/gqlgen/codegen/config"
+	"github.com/99designs/gqlgen/codegen/templates"
+	"github.com/99designs/gqlgen/internal/code"
 )
 
 type Field struct {
@@ -27,9 +30,9 @@ type Field struct {
 	Args             []*FieldArgument // A list of arguments to be passed to this field
 	MethodHasContext bool             // If this is bound to a go method, does the method also take a context
 	NoErr            bool             // If this is bound to a go method, does that method have an error as the second argument
-	VOkFunc          bool             // If this is bound to a go method, is it of shape (interface{}, bool)
+	VOkFunc          bool             // If this is bound to a go method, is it of shape (any, bool)
 	Object           *Object          // A link back to the parent object
-	Default          interface{}      // The default value
+	Default          any              // The default value
 	Stream           bool             // does this field return a channel?
 	Directives       []*Directive
 }
@@ -142,7 +145,7 @@ func (b *builder) bindField(obj *Object, f *Field) (errret error) {
 		f.GoFieldName = b.Config.Models[obj.Name].Fields[f.Name].FieldName
 	}
 
-	target, err := b.findBindTarget(obj.Type.(*types.Named), f.GoFieldName)
+	target, err := b.findBindTarget(obj.Type, f.GoFieldName)
 	if err != nil {
 		return err
 	}
@@ -151,6 +154,11 @@ func (b *builder) bindField(obj *Object, f *Field) (errret error) {
 
 	switch target := target.(type) {
 	case nil:
+		// Skips creating a resolver for any root types
+		if b.Config.IsRoot(b.Schema.Types[f.Type.Name()]) {
+			return nil
+		}
+
 		objPos := b.Binder.TypePosition(obj.Type)
 		return fmt.Errorf(
 			"%s:%d adding resolver method for %s.%s, nothing matched",
@@ -167,7 +175,7 @@ func (b *builder) bindField(obj *Object, f *Field) (errret error) {
 		} else if s := sig.Results(); s.Len() == 2 && s.At(1).Type().String() == "bool" {
 			f.VOkFunc = true
 		} else if sig.Results().Len() != 2 {
-			return fmt.Errorf("method has wrong number of args")
+			return errors.New("method has wrong number of args")
 		}
 		params := sig.Params()
 		// If the first argument is the context, remove it from the comparison and set
@@ -222,7 +230,7 @@ func (b *builder) bindField(obj *Object, f *Field) (errret error) {
 }
 
 // findBindTarget attempts to match the name to a field or method on a Type
-// with the following priorites:
+// with the following priorities:
 // 1. Any Fields with a struct tag (see config.StructTag). Errors if more than one match is found
 // 2. Any method or field with a matching name. Errors if more than one match is found
 // 3. Same logic again for embedded fields
@@ -280,7 +288,7 @@ func (b *builder) findBindStructTagTarget(in types.Type, name string) (types.Obj
 			tags := reflect.StructTag(t.Tag(i))
 			if val, ok := tags.Lookup(b.Config.StructTag); ok && equalFieldName(val, name) {
 				if found != nil {
-					return nil, fmt.Errorf("tag %s is ambigious; multiple fields have the same tag value of %s", b.Config.StructTag, val)
+					return nil, fmt.Errorf("tag %s is ambiguous; multiple fields have the same tag value of %s", b.Config.StructTag, val)
 				}
 
 				found = field
@@ -311,7 +319,7 @@ func (b *builder) findBindMethodTarget(in types.Type, name string) (types.Object
 
 func (b *builder) findBindMethoderTarget(methodFunc func(i int) *types.Func, methodCount int, name string) (types.Object, error) {
 	var found types.Object
-	for i := 0; i < methodCount; i++ {
+	for i := range methodCount {
 		method := methodFunc(i)
 		if !method.Exported() || !strings.EqualFold(method.Name(), name) {
 			continue
@@ -373,7 +381,7 @@ func (b *builder) findBindStructEmbedsTarget(strukt *types.Struct, name string) 
 			continue
 		}
 
-		fieldType := field.Type()
+		fieldType := code.Unalias(field.Type())
 		if ptr, ok := fieldType.(*types.Pointer); ok {
 			fieldType = ptr.Elem()
 		}
@@ -435,7 +443,7 @@ func (f *Field) ImplDirectives() []*Directive {
 		loc = ast.LocationInputFieldDefinition
 	}
 	for i := range f.Directives {
-		if !f.Directives[i].Builtin &&
+		if !f.Directives[i].SkipRuntime &&
 			(f.Directives[i].IsLocation(loc, ast.LocationObject) || f.Directives[i].IsLocation(loc, ast.LocationInputObject)) {
 			d = append(d, f.Directives[i])
 		}
@@ -473,9 +481,9 @@ func (f *Field) GoNameUnexported() string {
 func (f *Field) ShortInvocation() string {
 	caser := cases.Title(language.English, cases.NoLower)
 	if f.Object.Kind == ast.InputObject {
-		return fmt.Sprintf("%s().%s(ctx, &it, data)", caser.String(f.Object.Definition.Name), f.GoFieldName)
+		return fmt.Sprintf("%s().%s(ctx, &it, data)", caser.String(f.Object.Name), f.GoFieldName)
 	}
-	return fmt.Sprintf("%s().%s(%s)", caser.String(f.Object.Definition.Name), f.GoFieldName, f.CallArgs())
+	return fmt.Sprintf("%s().%s(%s)", caser.String(f.Object.Name), f.GoFieldName, f.CallArgs())
 }
 
 func (f *Field) ArgsFunc() string {
@@ -483,11 +491,11 @@ func (f *Field) ArgsFunc() string {
 		return ""
 	}
 
-	return "field_" + f.Object.Definition.Name + "_" + f.Name + "_args"
+	return "field_" + f.Object.Name + "_" + f.Name + "_args"
 }
 
 func (f *Field) FieldContextFunc() string {
-	return "fieldContext_" + f.Object.Definition.Name + "_" + f.Name
+	return "fieldContext_" + f.Object.Name + "_" + f.Name
 }
 
 func (f *Field) ChildFieldContextFunc(name string) string {
@@ -499,10 +507,24 @@ func (f *Field) ResolverType() string {
 		return ""
 	}
 
-	return fmt.Sprintf("%s().%s(%s)", f.Object.Definition.Name, f.GoFieldName, f.CallArgs())
+	return fmt.Sprintf("%s().%s(%s)", f.Object.Name, f.GoFieldName, f.CallArgs())
+}
+
+func (f *Field) IsInputObject() bool {
+	return f.Object.Kind == ast.InputObject
+}
+
+func (f *Field) IsRoot() bool {
+	return f.Object.Root
 }
 
 func (f *Field) ShortResolverDeclaration() string {
+	return f.ShortResolverSignature(nil)
+}
+
+// ShortResolverSignature is identical to ShortResolverDeclaration,
+// but respects previous naming (return) conventions, if any.
+func (f *Field) ShortResolverSignature(ft *goast.FuncType) string {
 	if f.Object.Kind == ast.InputObject {
 		return fmt.Sprintf("(ctx context.Context, obj %s, data %s) error",
 			templates.CurrentImports.LookupType(f.Object.Reference()),
@@ -523,9 +545,25 @@ func (f *Field) ShortResolverDeclaration() string {
 	if f.Object.Stream {
 		result = "<-chan " + result
 	}
-
-	res += fmt.Sprintf(") (%s, error)", result)
+	// Named return.
+	var namedV, namedE string
+	if ft != nil {
+		if ft.Results != nil && len(ft.Results.List) > 0 && len(ft.Results.List[0].Names) > 0 {
+			namedV = ft.Results.List[0].Names[0].Name
+		}
+		if ft.Results != nil && len(ft.Results.List) > 1 && len(ft.Results.List[1].Names) > 0 {
+			namedE = ft.Results.List[1].Names[0].Name
+		}
+	}
+	res += fmt.Sprintf(") (%s %s, %s error)", namedV, result, namedE)
 	return res
+}
+
+func (f *Field) GoResultName() (string, bool) {
+	name := fmt.Sprintf("%v", f.TypeReference.GO)
+	splits := strings.Split(name, "/")
+
+	return splits[len(splits)-1], strings.HasPrefix(name, "[]")
 }
 
 func (f *Field) ComplexitySignature() string {
@@ -550,7 +588,7 @@ func (f *Field) CallArgs() string {
 	args := make([]string, 0, len(f.Args)+2)
 
 	if f.IsResolver {
-		args = append(args, "rctx")
+		args = append(args, "ctx")
 
 		if !f.Object.Root {
 			args = append(args, "obj")
@@ -564,11 +602,11 @@ func (f *Field) CallArgs() string {
 
 		if iface, ok := arg.TypeReference.GO.(*types.Interface); ok && iface.Empty() {
 			tmp = fmt.Sprintf(`
-				func () interface{} {
+				func () any {
 					if fc.Args["%s"] == nil {
 						return nil
 					}
-					return fc.Args["%s"].(interface{})
+					return fc.Args["%s"].(any)
 				}()`, arg.Name, arg.Name,
 			)
 		}
