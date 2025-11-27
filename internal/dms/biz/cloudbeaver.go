@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net"
 	"net/http"
 	"path"
@@ -25,6 +26,7 @@ import (
 	"github.com/actiontech/dms/internal/pkg/locale"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	"github.com/actiontech/dms/pkg/dms-common/pkg/aes"
+	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	"github.com/labstack/echo/v4"
 )
@@ -1986,6 +1988,128 @@ func (cu *CloudbeaverUsecase) checkWorkflowPermission(ctx context.Context, userU
 
 	// 检查是否拥有所有必需的工单权限
 	return len(dbServicePermissions) == len(requiredPermissions), nil
+}
+
+type InstanceForCreatingTask struct {
+	InstanceName   string `json:"instance_name"`
+	InstanceSchema string `json:"instance_schema"`
+}
+
+type AutoCreateAndExecuteWorkflowReq struct {
+	Instances       []*InstanceForCreatingTask `json:"instances"`
+	ExecMode        string                     `json:"exec_mode"`
+	FileOrderMethod string                     `json:"file_order_method"`
+	Sql             string                     `json:"sql"`
+	Subject         string                     `json:"workflow_subject"`
+	Desc            string                     `json:"desc"`
+}
+
+type AutoCreateAndExecuteWorkflowRes struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    struct {
+		WorkflowID     string `json:"workflow_id"`
+		WorkFlowStatus string `json:"workflow_status"`
+	} `json:"data"`
+}
+
+func (cu *CloudbeaverUsecase) AutoCreateAndExecuteWorkflow(ctx context.Context, projectName string, dbService *DBService, sql string, instanceSchema string) (*AutoCreateAndExecuteWorkflowRes, error) {
+	sqleUrl, err := cu.getSQLEUrl(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("get sqle url failed: %v", err)
+	}
+
+	project, err := cu.projectUsecase.GetProject(ctx, dbService.ProjectUID)
+	if err != nil {
+		return nil, fmt.Errorf("get project failed: %v", err)
+	}
+
+	if projectName == "" {
+		projectName = project.Name
+	}
+
+	instances := []*InstanceForCreatingTask{
+		{
+			InstanceName:   dbService.Name,
+			InstanceSchema: instanceSchema,
+		},
+	}
+
+	req := AutoCreateAndExecuteWorkflowReq{
+		Instances:       instances,
+		ExecMode:        "sqls",
+		FileOrderMethod: "",
+		Sql:             sql,
+		Subject:         fmt.Sprintf("工作台工单_%s_%s", dbService.Name, time.Now().Format("20060102150405")),
+		Desc:            "通过工作台执行非DQL类型的SQL时，自动创建的工单",
+	}
+
+	instancesJSON, err := json.Marshal(req.Instances)
+	if err != nil {
+		return nil, fmt.Errorf("marshal instances failed: %v", err)
+	}
+
+	var requestBody bytes.Buffer
+	writer := multipart.NewWriter(&requestBody)
+
+	fields := map[string]string{
+		"instances":         string(instancesJSON),
+		"exec_mode":         req.ExecMode,
+		"file_order_method": req.FileOrderMethod,
+		"sql":               req.Sql,
+		"workflow_subject":  req.Subject,
+		"desc":              req.Desc,
+	}
+
+	for key, value := range fields {
+		if err := writer.WriteField(key, value); err != nil {
+			writer.Close()
+			return nil, fmt.Errorf("write field %s failed: %v", key, err)
+		}
+	}
+
+	if err := writer.Close(); err != nil {
+		return nil, fmt.Errorf("close multipart writer failed: %v", err)
+	}
+
+	url := fmt.Sprintf("%s/v1/projects/%s/workflows/auto_create_and_execute", sqleUrl, projectName)
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, url, &requestBody)
+	if err != nil {
+		return nil, fmt.Errorf("create request failed: %v", err)
+	}
+
+	httpReq.Header.Set("Content-Type", writer.FormDataContentType())
+	httpReq.Header.Set("Authorization", pkgHttp.DefaultDMSToken)
+
+	client := &http.Client{
+		Timeout: 30 * time.Minute,
+	}
+
+	resp, err := client.Do(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("request sqle failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	result, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read response failed: %v", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("sqle request failed with status %d: %s", resp.StatusCode, string(result))
+	}
+
+	var reply AutoCreateAndExecuteWorkflowRes
+	if err := json.Unmarshal(result, &reply); err != nil {
+		return nil, fmt.Errorf("unmarshal response failed: %v", err)
+	}
+
+	if reply.Code != 0 {
+		return nil, fmt.Errorf("sqle returned error code %d: %s", reply.Code, reply.Message)
+	}
+
+	return &reply, nil
 }
 
 func UnmarshalGraphQLResponseNavNodeChildren(body []byte, resp *cloudbeaver.NavNodeChildrenResponse) error {
