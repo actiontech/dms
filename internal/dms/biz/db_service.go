@@ -226,6 +226,7 @@ type SQLQueryConfig struct {
 	MaxPreQueryRows                  int    `json:"max_pre_query_rows"`
 	QueryTimeoutSecond               int    `json:"query_timeout_second"`
 	AuditEnabled                     bool   `json:"audit_enabled"`
+	WorkflowExecEnabled              bool   `json:"workflow_exec_enabled"`
 	AllowQueryWhenLessThanAuditLevel string `json:"allow_query_when_less_than_audit_level"`
 	RuleTemplateID                   string `json:"rule_template_id"`
 	RuleTemplateName                 string `json:"rule_template_name"`

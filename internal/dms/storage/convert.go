@@ -78,6 +78,7 @@ func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
 				dbService.ExtraParameters.SqleConfig.SqlQueryConfig = &model.SqlQueryConfig{
 					AllowQueryWhenLessThanAuditLevel: sqleQueryConfig.AllowQueryWhenLessThanAuditLevel,
 					AuditEnabled:                     sqleQueryConfig.AuditEnabled,
+					WorkflowExecEnabled:              sqleQueryConfig.WorkflowExecEnabled,
 					MaxPreQueryRows:                  sqleQueryConfig.MaxPreQueryRows,
 					QueryTimeoutSecond:               sqleQueryConfig.QueryTimeoutSecond,
 					RuleTemplateName:                 sqleQueryConfig.RuleTemplateName,
@@ -148,6 +149,7 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 				sqc := &biz.SQLQueryConfig{
 					AllowQueryWhenLessThanAuditLevel: sqleQueryConfig.AllowQueryWhenLessThanAuditLevel,
 					AuditEnabled:                     sqleQueryConfig.AuditEnabled,
+					WorkflowExecEnabled:              sqleQueryConfig.WorkflowExecEnabled,
 					MaxPreQueryRows:                  sqleQueryConfig.MaxPreQueryRows,
 					QueryTimeoutSecond:               sqleQueryConfig.QueryTimeoutSecond,
 					RuleTemplateName:                 sqleQueryConfig.RuleTemplateName,
@@ -1250,6 +1252,7 @@ func convertBizCbOperationLog(src *biz.CbOperationLog) *model.CbOperationLog {
 		ExecResult:        src.ExecResult,
 		ExecTotalSec:      src.ExecTotalSec,
 		ResultSetRowCount: src.ResultSetRowCount,
+		WorkflowID:        src.WorkflowID,
 	}
 }
 
@@ -1284,6 +1287,7 @@ func convertModelCbOperationLog(model *model.CbOperationLog) (*biz.CbOperationLo
 		ExecResult:        model.ExecResult,
 		ExecTotalSec:      model.ExecTotalSec,
 		ResultSetRowCount: model.ResultSetRowCount,
+		WorkflowID:        model.WorkflowID,
 		User:              user,
 		DbService:         dbService,
 		Project:           project,
@@ -1317,6 +1321,7 @@ func toModelDBServiceSyncTask(u *biz.DBServiceSyncTask) *model.DBServiceSyncTask
 				MaxPreQueryRows:                  u.SQLEConfig.SQLQueryConfig.QueryTimeoutSecond,
 				QueryTimeoutSecond:               u.SQLEConfig.SQLQueryConfig.QueryTimeoutSecond,
 				AuditEnabled:                     u.SQLEConfig.SQLQueryConfig.AuditEnabled,
+				WorkflowExecEnabled:              u.SQLEConfig.SQLQueryConfig.WorkflowExecEnabled,
 				AllowQueryWhenLessThanAuditLevel: u.SQLEConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel,
 				RuleTemplateName:                 u.SQLEConfig.SQLQueryConfig.RuleTemplateName,
 				RuleTemplateID:                   u.SQLEConfig.SQLQueryConfig.RuleTemplateID,
@@ -1355,6 +1360,7 @@ func toBizDBServiceSyncTask(m *model.DBServiceSyncTask) *biz.DBServiceSyncTask {
 				MaxPreQueryRows:                  m.ExtraParameters.SqleConfig.SqlQueryConfig.QueryTimeoutSecond,
 				QueryTimeoutSecond:               m.ExtraParameters.SqleConfig.SqlQueryConfig.QueryTimeoutSecond,
 				AuditEnabled:                     m.ExtraParameters.SqleConfig.SqlQueryConfig.AuditEnabled,
+				WorkflowExecEnabled:              m.ExtraParameters.SqleConfig.SqlQueryConfig.WorkflowExecEnabled,
 				AllowQueryWhenLessThanAuditLevel: m.ExtraParameters.SqleConfig.SqlQueryConfig.AllowQueryWhenLessThanAuditLevel,
 				RuleTemplateName:                 m.ExtraParameters.SqleConfig.SqlQueryConfig.RuleTemplateName,
 				RuleTemplateID:                   m.ExtraParameters.SqleConfig.SqlQueryConfig.RuleTemplateID,
