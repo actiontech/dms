@@ -622,6 +622,11 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 							return nil, c.JSON(http.StatusOK, convertToResp(ctx, resp))
 						}
 
+						// 判断是否需要通过工单执行（非 DQL 语句）
+						if cu.shouldExecuteByWorkflow(dbService, resp.Results) {
+							return cu.executeNonDQLByWorkflow(ctx, c, dbService, params, resp)
+						}
+
 						if err = next(c); err != nil {
 							return nil, err
 						}
@@ -788,6 +793,28 @@ func convertToResp(ctx context.Context, resp cloudbeaver.AuditResults) interface
 	}
 }
 
+func newResp(ctx context.Context, name, errCode, msg string) interface{} {
+	return struct {
+		Data struct {
+			TaskInfo model.AsyncTaskInfo `json:"taskInfo"`
+		} `json:"data"`
+	}{
+		struct {
+			TaskInfo model.AsyncTaskInfo `json:"taskInfo"`
+		}{
+			TaskInfo: model.AsyncTaskInfo{
+				Name:    &name,
+				Running: false,
+				Error: &model.ServerError{
+					Message:    &msg,
+					ErrorCode:  &errCode,
+					StackTrace: &msg,
+				},
+			},
+		},
+	}
+}
+
 // ResponseInterceptor 拦截HTTP响应，允许在响应发送到客户端之前进行修改或日志记录
 type ResponseInterceptor struct {
 	echo.Response
@@ -916,6 +943,13 @@ func (cu *CloudbeaverUsecase) isEnableSQLAudit(dbService *DBService) bool {
 		return false
 	}
 	return dbService.SQLEConfig.AuditEnabled && dbService.SQLEConfig.SQLQueryConfig.AuditEnabled
+}
+
+func (cu *CloudbeaverUsecase) isEnableWorkflowExec(dbService *DBService) bool {
+	if dbService.SQLEConfig == nil || dbService.SQLEConfig.SQLQueryConfig == nil {
+		return false
+	}
+	return dbService.SQLEConfig.AuditEnabled && dbService.SQLEConfig.SQLQueryConfig.WorkflowExecEnabled
 }
 
 func (cu *CloudbeaverUsecase) getDbService(ctx context.Context, params *graphql.RawParams) (*DBService, error) {
@@ -1988,6 +2022,114 @@ func (cu *CloudbeaverUsecase) checkWorkflowPermission(ctx context.Context, userU
 
 	// 检查是否拥有所有必需的工单权限
 	return len(dbServicePermissions) == len(requiredPermissions), nil
+}
+
+// shouldExecuteByWorkflow 判断是否需要通过工单执行（非 DQL 语句）
+func (cu *CloudbeaverUsecase) shouldExecuteByWorkflow(dbService *DBService, auditResults []cloudbeaver.AuditSQLResV2) bool {
+	if !cu.isEnableSQLAudit(dbService) || !cu.isEnableWorkflowExec(dbService) {
+		return false
+	}
+
+	for _, result := range auditResults {
+		if result.SQLType != "" && result.SQLType != "dql" {
+			return true
+		}
+	}
+	return false
+}
+
+// workflowExecParams 工单执行所需的参数
+type workflowExecParams struct {
+	contextIdStr    string
+	connectionIdStr string
+	query           string
+	instanceSchema  string
+}
+
+// getWorkflowExecParams 从 GraphQL 参数中提取工单执行所需的参数
+func (cu *CloudbeaverUsecase) getWorkflowExecParams(c echo.Context, params *graphql.RawParams) (*workflowExecParams, error) {
+	contextIdStr, ok := params.Variables["contextId"].(string)
+	if !ok {
+		return nil, fmt.Errorf("missing contextId in params")
+	}
+
+	connectionIdStr, ok := params.Variables["connectionId"].(string)
+	if !ok {
+		return nil, fmt.Errorf("missing connectionId in params")
+	}
+
+	query, ok := params.Variables["query"].(string)
+	if !ok {
+		return nil, fmt.Errorf("missing query in params")
+	}
+
+	instanceSchema, err := cu.getContextSchema(c, connectionIdStr, contextIdStr)
+	if err != nil {
+		return nil, fmt.Errorf("get context schema failed: %v", err)
+	}
+
+	return &workflowExecParams{
+		contextIdStr:    contextIdStr,
+		connectionIdStr: connectionIdStr,
+		query:           query,
+		instanceSchema:  instanceSchema,
+	}, nil
+}
+
+// executeNonDQLByWorkflow 通过工单执行非 DQL 语句
+func (cu *CloudbeaverUsecase) executeNonDQLByWorkflow(ctx context.Context, c echo.Context, dbService *DBService, params *graphql.RawParams, auditResults cloudbeaver.AuditResults) ([]byte, error) {
+	// 1. 获取当前用户 ID
+	currentUserUid, _ := c.Get(dmsUserIdKey).(string)
+	if currentUserUid == "" {
+		return nil, c.JSON(http.StatusOK, newResp(ctx, "get dms user id", "failed", "get dms user id failed"))
+	}
+
+	// 2. 校验工单权限
+	hasPermission, err := cu.checkWorkflowPermission(ctx, currentUserUid, dbService)
+	if err != nil {
+		return nil, c.JSON(http.StatusOK, newResp(ctx, "check workflow permission", "failed", err.Error()))
+	}
+	if !hasPermission {
+		return nil, c.JSON(http.StatusOK, newResp(ctx, "check workflow permission", "failed", "用户没有数据源上的创建、审批、上线工单权限"))
+	}
+
+	// 3. 获取项目信息
+	project, err := cu.projectUsecase.GetProject(ctx, dbService.ProjectUID)
+	if err != nil {
+		return nil, c.JSON(http.StatusOK, newResp(ctx, "get project", "failed", err.Error()))
+	}
+
+	// 4. 提取工单执行参数
+	execParams, err := cu.getWorkflowExecParams(c, params)
+	if err != nil {
+		return nil, c.JSON(http.StatusOK, newResp(ctx, "get workflow exec params", "failed", err.Error()))
+	}
+
+	// 5. 执行工单上线流程
+	workflowRes, err := cu.AutoCreateAndExecuteWorkflow(ctx, project.Name, dbService, execParams.query, execParams.instanceSchema)
+	if err != nil {
+		err = fmt.Errorf("auto create and execute workflow failed: %w", err)
+		cu.log.Error(err)
+		return nil, c.JSON(http.StatusOK, newResp(ctx, "auto create and execute workflow", "failed", err.Error()))
+	}
+	cu.log.Infof("auto create and execute workflow, workflow_id: %s, status: %s", workflowRes.Data.WorkflowID, workflowRes.Data.WorkFlowStatus)
+
+	// 6. 判断执行结果
+	isExecFailed := !strings.Contains(workflowRes.Data.WorkFlowStatus, "finished")
+
+	// 7. 保存操作日志
+	if err := cu.SaveCbOpLogForWorkflow(c, dbService, params, auditResults.Results, auditResults.IsSuccess, workflowRes.Data.WorkflowID, isExecFailed); err != nil {
+		cu.log.Errorf("save cb operation log for workflow failed: %v", err)
+	}
+
+	// 8. 返回执行结果
+	if isExecFailed {
+		return nil, c.JSON(http.StatusOK, newResp(ctx, "auto create and execute workflow", "workflow_failed",
+			fmt.Sprintf("workflow_id:%s, workflow_status:%s", workflowRes.Data.WorkflowID, workflowRes.Data.WorkFlowStatus)))
+	}
+
+	return nil, c.JSON(http.StatusOK, newResp(ctx, "auto create and execute workflow", "workflow_success",
+		fmt.Sprintf("workflow_id:%s, workflow_status:%s", workflowRes.Data.WorkflowID, workflowRes.Data.WorkFlowStatus)))
 }
 
 type InstanceForCreatingTask struct {
