@@ -1852,6 +1852,92 @@ func UnmarshalGraphQLResponse(body []byte, taskInfo *TaskInfo) error {
 	return nil
 }
 
+type ExecutionContextInfo struct {
+	ID             string  `json:"id"`
+	ProjectID      string  `json:"projectId"`
+	ConnectionID   string  `json:"connectionId"`
+	DefaultCatalog *string `json:"defaultCatalog"`
+	DefaultSchema  *string `json:"defaultSchema"`
+}
+
+type ExecutionContextListRes struct {
+	Contexts []ExecutionContextInfo `json:"contexts"`
+}
+
+func (cu *CloudbeaverUsecase) getContextSchema(c echo.Context, connectionId, contextId string) (string, error) {
+	if contextId == "" {
+		return "", nil
+	}
+
+	var cookies []*http.Cookie
+	for _, cookie := range c.Cookies() {
+		if cookie.Name == CloudbeaverCookieName {
+			cookies = append(cookies, cookie)
+		}
+	}
+
+	if len(cookies) == 0 {
+		return "", fmt.Errorf("no cloudbeaver session cookie found")
+	}
+
+	query := `
+query executionContextList($projectId: ID, $connectionId: ID, $contextId: ID) {
+  contexts: sqlListContexts(
+    projectId: $projectId
+    connectionId: $connectionId
+    contextId: $contextId
+  ) {
+    ...ExecutionContextInfo
+  }
+}
+
+fragment ExecutionContextInfo on SQLContextInfo {
+  id
+  projectId
+  connectionId
+  defaultCatalog
+  defaultSchema
+}
+`
+
+	variables := map[string]interface{}{
+		"projectId":    cloudbeaverProjectId,
+		"connectionId": connectionId,
+		"contextId":    contextId,
+	}
+
+	client := cloudbeaver.NewGraphQlClient(cu.getGraphQLServerURI(), cloudbeaver.WithCookie(cookies))
+	client.Log = func(s string) {
+		cu.log.Debugf("getContextSchema CB GraphQL: %s", s)
+	}
+	req := cloudbeaver.NewRequest(query, variables)
+	req.SetOperationName("executionContextList")
+
+	var res ExecutionContextListRes
+	if err := client.Run(c.Request().Context(), req, &res); err != nil {
+		cu.log.Errorf("query execution context failed: %v, connectionId: %s, contextId: %s", err, connectionId, contextId)
+		return "", fmt.Errorf("query execution context failed: %v", err)
+	}
+
+	cu.log.Debugf("execution context response: %+v", res)
+
+	if len(res.Contexts) == 0 {
+		cu.log.Warnf("no contexts found in response, connectionId: %s, contextId: %s", connectionId, contextId)
+		return "", nil
+	}
+
+	contextInfo := res.Contexts[0]
+	if contextInfo.DefaultSchema != nil && *contextInfo.DefaultSchema != "" {
+		return *contextInfo.DefaultSchema, nil
+	}
+
+	if contextInfo.DefaultCatalog != nil && *contextInfo.DefaultCatalog != "" {
+		return *contextInfo.DefaultCatalog, nil
+	}
+
+	return "", nil
+}
+
 func UnmarshalGraphQLResponseNavNodeChildren(body []byte, resp *cloudbeaver.NavNodeChildrenResponse) error {
 	var gqlResp GraphQLResponse
 	if err := json.Unmarshal(body, &gqlResp); err != nil {
