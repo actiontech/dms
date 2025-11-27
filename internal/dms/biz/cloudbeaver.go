@@ -1938,6 +1938,56 @@ fragment ExecutionContextInfo on SQLContextInfo {
 	return "", nil
 }
 
+// checkWorkflowPermission 校验用户是否有数据源上的"创建、审批、上线工单"的权限
+// 权限可以是项目级别的（项目管理员）或数据源级别的（直接针对数据源的工单权限）
+func (cu *CloudbeaverUsecase) checkWorkflowPermission(ctx context.Context, userUid string, dbService *DBService) (bool, error) {
+	if userUid == constant.UIDOfUserAdmin {
+		return true, nil
+	}
+	opPermissions, err := cu.opPermissionVerifyUsecase.GetUserOpPermissionInProject(ctx, userUid, dbService.ProjectUID)
+	if err != nil {
+		return false, fmt.Errorf("get user op permission in project err: %v", err)
+	}
+
+	// 需要检查的三个工单权限
+	requiredPermissions := map[string]struct{}{
+		constant.UIDOfOpPermissionCreateWorkflow:  {},
+		constant.UIDOfOpPermissionAuditWorkflow:   {},
+		constant.UIDOfOpPermissionExecuteWorkflow: {},
+	}
+
+	// 当前数据源已拥有的工单权限
+	dbServicePermissions := make(map[string]struct{})
+
+	for _, opPermission := range opPermissions {
+		// 项目管理员权限
+		if opPermission.OpRangeType == OpRangeTypeProject && opPermission.OpPermissionUID == constant.UIDOfOpPermissionProjectAdmin {
+			return true, nil
+		}
+
+		// 数据源级别的工单权限，只关注当前数据源
+		if opPermission.OpRangeType == OpRangeTypeDBService {
+			// 检查是否是必需的工单权限
+			if _, isRequired := requiredPermissions[opPermission.OpPermissionUID]; isRequired {
+				// 检查是否包含当前数据源
+				for _, rangeUid := range opPermission.RangeUIDs {
+					if rangeUid == dbService.UID {
+						dbServicePermissions[opPermission.OpPermissionUID] = struct{}{}
+						// 如果已收集到所有必需的权限，提前返回
+						if len(dbServicePermissions) == len(requiredPermissions) {
+							return true, nil
+						}
+						break
+					}
+				}
+			}
+		}
+	}
+
+	// 检查是否拥有所有必需的工单权限
+	return len(dbServicePermissions) == len(requiredPermissions), nil
+}
+
 func UnmarshalGraphQLResponseNavNodeChildren(body []byte, resp *cloudbeaver.NavNodeChildrenResponse) error {
 	var gqlResp GraphQLResponse
 	if err := json.Unmarshal(body, &gqlResp); err != nil {
