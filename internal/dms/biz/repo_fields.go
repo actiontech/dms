@@ -87,6 +87,7 @@ const (
 	CbOperationLogFieldExecResult        CbOperationLogField = "exec_result"
 	CbOperationLogFieldExecTotalSec      CbOperationLogField = "exec_total_sec"
 	CbOperationLogFieldResultSetRowCount CbOperationLogField = "result_set_row_count"
+	CbOperationLogFieldWorkflowID        CbOperationLogField = "workflow_id"
 )
 
 const (

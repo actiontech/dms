@@ -45,6 +45,7 @@ type CbOperationLog struct {
 	ExecResult        string
 	ExecTotalSec      int64
 	ResultSetRowCount int64
+	WorkflowID        *string
 
 	User      *User
 	DbService *DBService
