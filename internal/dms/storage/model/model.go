@@ -124,6 +124,7 @@ type SqlQueryConfig struct {
 	MaxPreQueryRows                  int    `json:"max_pre_query_rows"`
 	QueryTimeoutSecond               int    `json:"query_timeout_second"`
 	AuditEnabled                     bool   `json:"audit_enabled"`
+	WorkflowExecEnabled              bool   `json:"workflow_exec_enabled"`
 	AllowQueryWhenLessThanAuditLevel string `json:"allow_query_when_less_than_audit_level"`
 	RuleTemplateID                   string `json:"rule_template_id"`
 	RuleTemplateName                 string `json:"rule_template_name"`
@@ -673,6 +674,7 @@ type CbOperationLog struct {
 	ExecResult        string          `json:"exec_result" gorm:"type:text"`
 	ExecTotalSec      int64           `json:"exec_total_sec"`
 	ResultSetRowCount int64           `json:"result_set_row_count"`
+	WorkflowID        *string         `json:"workflow_id" gorm:"size:255"`
 
 	User      *User      `json:"user" gorm:"foreignKey:OpPersonUID"`
 	DbService *DBService `json:"db_service" gorm:"foreignKey:DBServiceUID"`
