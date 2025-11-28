@@ -1,8 +1,13 @@
 package sql_workbench
 
 import (
+	"bytes"
+	"compress/gzip"
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -13,9 +18,11 @@ import (
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/dms/storage"
+	dbmodel "github.com/actiontech/dms/internal/dms/storage/model"
 	"github.com/actiontech/dms/internal/sql_workbench/client"
 	config "github.com/actiontech/dms/internal/sql_workbench/config"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
+	_const "github.com/actiontech/dms/pkg/dms-common/pkg/const"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	"github.com/labstack/echo/v4"
@@ -1002,4 +1009,653 @@ func makeHttpRequest(ctx context.Context, url string, headers map[string]string,
 		return fmt.Errorf("HTTP request to %s failed: %w", url, err)
 	}
 	return nil
+}
+
+// intercept 拦截工作台odc请求进行加工
+func (sqlWorkbenchService *SqlWorkbenchService) Intercept() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			// 只拦截包含 /streamExecute 的请求
+			if !strings.Contains(c.Request().URL.Path, "/streamExecute") {
+				return next(c)
+			}
+
+			// 读取请求体
+			bodyBytes, err := io.ReadAll(c.Request().Body)
+			if err != nil {
+				sqlWorkbenchService.log.Errorf("Failed to read request body: %v", err)
+				return next(c)
+			}
+			// 恢复请求体，供后续处理使用
+			c.Request().Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+
+			// 解析请求体获取 SQL 和 datasource ID
+			sql, datasourceID, err := sqlWorkbenchService.parseStreamExecuteRequest(bodyBytes)
+			if err != nil {
+				sqlWorkbenchService.log.Debugf("Failed to parse streamExecute request, skipping audit: %v", err)
+				return next(c)
+			}
+
+			if sql == "" || datasourceID == "" {
+				sqlWorkbenchService.log.Debugf("SQL or datasource ID is empty, skipping audit")
+				return next(c)
+			}
+
+			// 获取当前用户 ID
+			dmsUserId, err := sqlWorkbenchService.getDMSUserIdFromRequest(c)
+			if err != nil {
+				sqlWorkbenchService.log.Errorf("Failed to get DMS user ID: %v", err)
+				return next(c)
+			}
+
+			// 从缓存表获取 dms_db_service_id
+			dmsDBServiceID, err := sqlWorkbenchService.getDMSDBServiceIDFromCache(c.Request().Context(), datasourceID, dmsUserId)
+			if err != nil {
+				sqlWorkbenchService.log.Errorf("Failed to get dms_db_service_id from cache: %v", err)
+				return next(c)
+			}
+
+			if dmsDBServiceID == "" {
+				sqlWorkbenchService.log.Debugf("dms_db_service_id not found in cache for datasource: %s", datasourceID)
+				return next(c)
+			}
+
+			// 获取 DBService 信息
+			dbService, err := sqlWorkbenchService.dbServiceUsecase.GetDBService(c.Request().Context(), dmsDBServiceID)
+			if err != nil {
+				sqlWorkbenchService.log.Errorf("Failed to get DBService: %v", err)
+				return next(c)
+			}
+
+			// 检查是否启用 SQL 审核
+			if !sqlWorkbenchService.isEnableSQLAudit(dbService) {
+				sqlWorkbenchService.log.Debugf("SQL audit is not enabled for DBService: %s", dmsDBServiceID)
+				return next(c)
+			}
+
+			// 调用 SQLE 审核接口
+			auditResult, err := sqlWorkbenchService.callSQLEAudit(c.Request().Context(), sql, dbService)
+			if err != nil {
+				sqlWorkbenchService.log.Errorf("Failed to call SQLE audit: %v", err)
+				return next(c)
+			}
+
+			// 拦截响应并添加审核结果
+			return sqlWorkbenchService.interceptAndAddAuditResult(c, next, auditResult, dbService)
+		}
+	}
+}
+
+// parseStreamExecuteRequest 解析 streamExecute 请求体，提取 SQL 和 datasource ID
+func (sqlWorkbenchService *SqlWorkbenchService) parseStreamExecuteRequest(bodyBytes []byte) (sql string, datasourceID string, err error) {
+	var requestBody map[string]interface{}
+	if err := json.Unmarshal(bodyBytes, &requestBody); err != nil {
+		return "", "", fmt.Errorf("failed to unmarshal request body: %v", err)
+	}
+
+	// 从 sql 字段获取 SQL
+	if sqlVal, ok := requestBody["sql"]; ok {
+		if sqlStr, ok := sqlVal.(string); ok {
+			sql = sqlStr
+		}
+	}
+
+	// 从 sid 字段解析 datasource ID
+	// sid 格式: sid:{base64编码的JSON}:d:dms
+	// base64 JSON 包含: {"dbId":623,"dsId":28,"from":"192.168.21.47","logicalSession":false,"realId":"ee9b8ab276"}
+	if sidVal, ok := requestBody["sid"]; ok {
+		if sidStr, ok := sidVal.(string); ok {
+			dsId, parseErr := sqlWorkbenchService.parseSidToDatasourceID(sidStr)
+			if parseErr != nil {
+				sqlWorkbenchService.log.Debugf("Failed to parse sid to datasource ID: %v", parseErr)
+			} else {
+				datasourceID = dsId
+			}
+		}
+	}
+
+	return sql, datasourceID, nil
+}
+
+// parseSidToDatasourceID 从 sid 字符串中解析出 datasource ID
+// sid 格式: sid:{base64编码的JSON}:d:dms
+func (sqlWorkbenchService *SqlWorkbenchService) parseSidToDatasourceID(sid string) (string, error) {
+	// 检查 sid 格式: sid:...:d:dms
+	if !strings.HasPrefix(sid, "sid:") {
+		return "", fmt.Errorf("invalid sid format, missing 'sid:' prefix")
+	}
+
+	// 移除 "sid:" 前缀
+	sid = strings.TrimPrefix(sid, "sid:")
+
+	// 查找最后一个 ":d:dms" 后缀并移除
+	if idx := strings.LastIndex(sid, ":d:dms"); idx != -1 {
+		sid = sid[:idx]
+	}
+
+	// 解码 base64
+	decodedBytes, err := base64.StdEncoding.DecodeString(sid)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode base64 sid: %v", err)
+	}
+
+	// 解析 JSON
+	var sidData struct {
+		DbId           int    `json:"dbId"`
+		DsId           int    `json:"dsId"`
+		From           string `json:"from"`
+		LogicalSession bool   `json:"logicalSession"`
+		RealId         string `json:"realId"`
+	}
+
+	if err := json.Unmarshal(decodedBytes, &sidData); err != nil {
+		return "", fmt.Errorf("failed to unmarshal sid JSON: %v", err)
+	}
+
+	// 返回 dsId 作为字符串
+	return fmt.Sprintf("%d", sidData.DsId), nil
+}
+
+// getDMSUserIdFromRequest 从请求中获取 DMS 用户 ID
+func (sqlWorkbenchService *SqlWorkbenchService) getDMSUserIdFromRequest(c echo.Context) (string, error) {
+	var dmsToken string
+	for _, cookie := range c.Cookies() {
+		if cookie.Name == pkgConst.DMSToken {
+			dmsToken = cookie.Value
+			break
+		}
+	}
+
+	if dmsToken == "" {
+		return "", fmt.Errorf("dms token is empty")
+	}
+
+	dmsUserId, err := jwt.ParseUidFromJwtTokenStr(dmsToken)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse dms user id from token: %v", err)
+	}
+
+	return dmsUserId, nil
+}
+
+// getDMSDBServiceIDFromCache 从 sql_workbench_datasource_caches 表获取 dms_db_service_id
+func (sqlWorkbenchService *SqlWorkbenchService) getDMSDBServiceIDFromCache(ctx context.Context, datasourceID, dmsUserID string) (string, error) {
+	// 尝试将 datasourceID 转换为 int64（ODC 的 datasource ID 通常是数字）
+	var sqlWorkbenchDatasourceID int64
+	if _, err := fmt.Sscanf(datasourceID, "%d", &sqlWorkbenchDatasourceID); err != nil {
+		// 如果转换失败，尝试直接使用字符串作为 datasource ID
+		sqlWorkbenchService.log.Debugf("Failed to convert datasourceID to int64, trying to find by string: %s", datasourceID)
+	}
+
+	// 从缓存表中查找，需要根据 sql_workbench_datasource_id 和 dms_user_id 查找
+	// 由于缓存表可能没有直接存储 sql_workbench_datasource_id，我们需要通过其他方式查找
+	// 这里先尝试通过用户 ID 获取所有数据源，然后匹配
+	datasources, err := sqlWorkbenchService.sqlWorkbenchDatasourceRepo.GetSqlWorkbenchDatasourcesByUserID(ctx, dmsUserID)
+	if err != nil {
+		return "", fmt.Errorf("failed to get datasources by user id: %v", err)
+	}
+
+	// 如果 datasourceID 是数字，尝试匹配 SqlWorkbenchDatasourceID
+	if sqlWorkbenchDatasourceID > 0 {
+		for _, ds := range datasources {
+			if ds.SqlWorkbenchDatasourceID == sqlWorkbenchDatasourceID {
+				return ds.DMSDBServiceID, nil
+			}
+		}
+	}
+
+	// 如果找不到，返回第一个匹配的数据源（临时方案，后续可能需要更精确的匹配逻辑）
+	if len(datasources) > 0 {
+		// 这里可以根据实际业务逻辑选择合适的数据源
+		// 暂时返回第一个数据源的 dms_db_service_id
+		return datasources[0].DMSDBServiceID, nil
+	}
+
+	return "", fmt.Errorf("no datasource found for datasourceID: %s, userID: %s", datasourceID, dmsUserID)
+}
+
+// isEnableSQLAudit 检查是否启用 SQL 审核
+func (sqlWorkbenchService *SqlWorkbenchService) isEnableSQLAudit(dbService *biz.DBService) bool {
+	if dbService.SQLEConfig == nil || dbService.SQLEConfig.SQLQueryConfig == nil {
+		return false
+	}
+	return dbService.SQLEConfig.AuditEnabled && dbService.SQLEConfig.SQLQueryConfig.AuditEnabled
+}
+
+// callSQLEAudit 调用 SQLE 直接审核接口
+func (sqlWorkbenchService *SqlWorkbenchService) callSQLEAudit(ctx context.Context, sql string, dbService *biz.DBService) (*auditSQLReply, error) {
+	// 获取 SQLE 服务地址
+	target, err := sqlWorkbenchService.proxyTargetRepo.GetProxyTargetByName(ctx, _const.SqleComponentName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get SQLE proxy target: %v", err)
+	}
+
+	sqleAddr := fmt.Sprintf("%s/v2/sql_audit", target.URL.String())
+
+	// 构建审核请求
+	auditReq := auditSQLReq{
+		InstanceType:     dbService.DBType,
+		SQLContent:       sql,
+		SQLType:          "sql",
+		ProjectId:        dbService.ProjectUID,
+		RuleTemplateName: dbService.SQLEConfig.SQLQueryConfig.RuleTemplateName,
+	}
+
+	// 设置请求头
+	header := map[string]string{
+		"Authorization": pkgHttp.DefaultDMSToken,
+	}
+
+	// 调用 SQLE 审核接口
+	reply := &auditSQLReply{}
+	if err := pkgHttp.POST(ctx, sqleAddr, header, auditReq, reply); err != nil {
+		return nil, fmt.Errorf("failed to call SQLE audit API: %v", err)
+	}
+
+	if reply.Code != 0 {
+		return nil, fmt.Errorf("SQLE audit API returned error code %v: %v", reply.Code, reply.Message)
+	}
+
+	return reply, nil
+}
+
+// interceptAndAddAuditResult 拦截响应并添加审核结果
+func (sqlWorkbenchService *SqlWorkbenchService) interceptAndAddAuditResult(c echo.Context, next echo.HandlerFunc, auditResult *auditSQLReply, dbService *biz.DBService) error {
+	// 创建响应拦截器
+	srw := newStreamExecuteResponseWriter(c)
+	cloudbeaverResBuf := srw.Buffer
+	c.Response().Writer = srw
+
+	defer func() {
+		// 在 defer 中处理响应
+		if srw.status != 0 {
+			srw.original.WriteHeader(srw.status)
+		}
+
+		// 读取响应内容
+		responseBytes := cloudbeaverResBuf.Bytes()
+		if len(responseBytes) == 0 {
+			return
+		}
+
+		// 如果是 gzip 压缩响应，先解压
+		responseBytes, wasGzip, err := sqlWorkbenchService.decodeResponseBody(cloudbeaverResBuf.Bytes(), srw.Header().Get("Content-Encoding"))
+		if err != nil {
+			sqlWorkbenchService.log.Debugf("Failed to decode response body, returning original response: %v", err)
+			srw.original.Write(cloudbeaverResBuf.Bytes())
+			return
+		}
+
+		// 如果解压过，先移除 Content-Encoding，后续根据需要重新设置
+		if wasGzip {
+			srw.original.Header().Del("Content-Encoding")
+		}
+
+		// 解析响应 JSON
+		var responseBody StreamExecuteResponse
+		if err := json.Unmarshal(responseBytes, &responseBody); err != nil {
+			sqlWorkbenchService.log.Debugf("Failed to unmarshal response, returning original response: %v", err)
+			// 如果解析失败，直接返回原始响应
+			srw.original.Write(cloudbeaverResBuf.Bytes())
+			return
+		}
+
+		// 添加审核结果到响应的 data 字段中
+		if auditResult != nil && auditResult.Data != nil && auditResult.Data.PassRate != 1 {
+			// 将 SQLE 审核结果整合到每个 SQL 条目中
+			sqlWorkbenchService.mergeSQLEAuditResults(&responseBody.Data, auditResult.Data, dbService)
+
+			// 在 data 级别添加汇总的审核结果信息
+			responseBody.Data.SQLEAuditResult = &SQLEAuditResultSummary{
+				AuditLevel: auditResult.Data.AuditLevel,
+				Score:      auditResult.Data.Score,
+				PassRate:   auditResult.Data.PassRate,
+			}
+		}
+
+		// 重新序列化响应
+		modifiedResponse, err := json.Marshal(responseBody)
+		if err != nil {
+			sqlWorkbenchService.log.Errorf("Failed to marshal modified response: %v", err)
+			srw.original.Write(cloudbeaverResBuf.Bytes())
+			return
+		}
+
+		finalResponse := modifiedResponse
+		if wasGzip {
+			encoded, err := sqlWorkbenchService.encodeResponseBody(modifiedResponse)
+			if err != nil {
+				sqlWorkbenchService.log.Errorf("Failed to re-encode gzip response: %v", err)
+				srw.original.Write(cloudbeaverResBuf.Bytes())
+				return
+			}
+			finalResponse = encoded
+			srw.original.Header().Set("Content-Encoding", "gzip")
+		}
+
+		// 更新 Content-Length
+		header := srw.original.Header()
+		header.Set("Content-Length", fmt.Sprintf("%d", len(finalResponse)))
+
+		// 如果拦截过程中未显式写入状态码，默认使用 200
+		statusCode := srw.status
+		if statusCode == 0 {
+			statusCode = http.StatusOK
+		}
+		srw.original.WriteHeader(statusCode)
+
+		// 写入修改后的响应
+		if _, err := srw.original.Write(finalResponse); err != nil {
+			sqlWorkbenchService.log.Errorf("Failed to write modified response: %v", err)
+		}
+	}()
+
+	// 执行下一个处理器
+	return next(c)
+}
+
+// decodeResponseBody 根据 Content-Encoding 判断是否需要解压
+func (sqlWorkbenchService *SqlWorkbenchService) decodeResponseBody(body []byte, contentEncoding string) ([]byte, bool, error) {
+	if len(body) == 0 {
+		return body, false, nil
+	}
+
+	encoding := strings.ToLower(contentEncoding)
+	isGzip := strings.Contains(encoding, "gzip") || (len(body) >= 2 && body[0] == 0x1f && body[1] == 0x8b)
+	if !isGzip {
+		return body, false, nil
+	}
+
+	gzipReader, err := gzip.NewReader(bytes.NewReader(body))
+	if err != nil {
+		return nil, true, fmt.Errorf("failed to create gzip reader: %w", err)
+	}
+	defer gzipReader.Close()
+
+	decompressed, err := io.ReadAll(gzipReader)
+	if err != nil {
+		return nil, true, fmt.Errorf("failed to decompress gzip body: %w", err)
+	}
+
+	return decompressed, true, nil
+}
+
+// encodeResponseBody 将响应体按照 gzip 编码
+func (sqlWorkbenchService *SqlWorkbenchService) encodeResponseBody(body []byte) ([]byte, error) {
+	var buf bytes.Buffer
+	gzipWriter := gzip.NewWriter(&buf)
+	if _, err := gzipWriter.Write(body); err != nil {
+		gzipWriter.Close()
+		return nil, fmt.Errorf("failed to gzip response body: %w", err)
+	}
+	if err := gzipWriter.Close(); err != nil {
+		return nil, fmt.Errorf("failed to finalize gzip response body: %w", err)
+	}
+	return buf.Bytes(), nil
+}
+
+// mergeSQLEAuditResults 将 SQLE 审核结果整合到 sqls 数组中
+func (sqlWorkbenchService *SqlWorkbenchService) mergeSQLEAuditResults(data *StreamExecuteData, auditData *auditResDataV2, dbService *biz.DBService) {
+	// 创建 SQL 到审核结果的映射
+	sqlAuditMap := make(map[string]*auditSQLResV2)
+	for i := range auditData.SQLResults {
+		sqlResult := &auditData.SQLResults[i]
+		// 使用 exec_sql 作为 key，去除首尾空格和分号
+		normalizedSQL := strings.TrimSpace(strings.TrimSuffix(sqlResult.ExecSQL, ";"))
+		sqlAuditMap[normalizedSQL] = sqlResult
+	}
+
+	// 获取数据源设置的审核放行等级
+	allowQueryWhenLessThanAuditLevel := dbService.GetAllowQueryWhenLessThanAuditLevel()
+
+	// 判断是否需要审批
+	needApproval := sqlWorkbenchService.shouldRequireApproval(auditData.SQLResults, allowQueryWhenLessThanAuditLevel)
+
+	// 设置 ApprovalRequired 字段
+	data.ApprovalRequired = needApproval
+
+	// 遍历 sqls 数组，为每个 SQL 条目添加 SQLE 审核结果
+	for i := range data.SQLs {
+		sqlItem := &data.SQLs[i]
+
+		// 尝试从 originalSql 或 executedSql 匹配审核结果
+		var matchedAuditResult *auditSQLResV2
+		normalizedSQL := strings.TrimSpace(strings.TrimSuffix(sqlItem.SQLTuple.OriginalSQL, ";"))
+		if auditResult, found := sqlAuditMap[normalizedSQL]; found {
+			matchedAuditResult = auditResult
+		}
+
+		if matchedAuditResult == nil {
+			normalizedSQL = strings.TrimSpace(strings.TrimSuffix(sqlItem.SQLTuple.ExecutedSQL, ";"))
+			if auditResult, found := sqlAuditMap[normalizedSQL]; found {
+				matchedAuditResult = auditResult
+			}
+		}
+
+		// 如果找到匹配的审核结果，将其转换为 violatedRules 格式并添加
+		if matchedAuditResult != nil {
+			sqleViolatedRules := sqlWorkbenchService.convertSQLEAuditToViolatedRules(matchedAuditResult)
+			if len(sqleViolatedRules) > 0 {
+				sqlItem.ViolatedRules = sqleViolatedRules
+			}
+		}
+	}
+}
+
+// shouldRequireApproval 根据审核放行等级判断是否需要审批
+func (sqlWorkbenchService *SqlWorkbenchService) shouldRequireApproval(sqlResults []auditSQLResV2, allowQueryWhenLessThanAuditLevel string) bool {
+	// 如果没有设置审核放行等级，默认需要审批
+	if allowQueryWhenLessThanAuditLevel == "" {
+		return true
+	}
+
+	// 遍历所有 SQL 审核结果
+	for _, sqlResult := range sqlResults {
+		// 检查是否有执行失败的审核项
+		for _, auditItem := range sqlResult.AuditResult {
+			if auditItem.ExecutionFailed {
+				return true
+			}
+		}
+
+		// 比较审核等级：如果 SQL 的审核等级大于允许的等级，则需要审批
+		// 使用 RuleLevel 的 LessOrEqual 方法进行比较
+		sqlAuditLevel := dbmodel.RuleLevel(sqlResult.AuditLevel)
+		allowedLevel := dbmodel.RuleLevel(allowQueryWhenLessThanAuditLevel)
+
+		// 如果 SQL 的审核等级大于允许的等级（即 !LessOrEqual），则需要审批
+		if !sqlAuditLevel.LessOrEqual(allowedLevel) {
+			return true
+		}
+	}
+
+	// 所有 SQL 的审核等级都小于等于允许的等级，不需要审批
+	return false
+}
+
+// convertSQLEAuditToViolatedRules 将 SQLE 审核结果转换为 violatedRules 格式
+func (sqlWorkbenchService *SqlWorkbenchService) convertSQLEAuditToViolatedRules(auditResult *auditSQLResV2) []StreamExecuteRule {
+	var violatedRules []StreamExecuteRule
+
+	// 将 SQLE 的 audit_result 转换为 violatedRules 格式
+	for _, auditItem := range auditResult.AuditResult {
+		// 映射 level 字符串到数字
+		levelNum := sqlWorkbenchService.mapAuditLevelToNumber(auditItem.Level)
+
+		violatedRule := StreamExecuteRule{
+			AppliedDialectTypes: nil,
+			CreateTime:          nil,
+			Enabled:             nil,
+			ID:                  nil,
+			Level:               levelNum,
+			Metadata:            nil,
+			OrganizationID:      nil,
+			Properties:          nil,
+			RulesetID:           nil,
+			UpdateTime:          nil,
+			Violation: StreamExecuteViolation{
+				Level:            levelNum,
+				LocalizedMessage: auditItem.Message,
+				Offset:           0, // SQLE 审核结果可能没有 offset 信息
+				Start:            0,
+				Stop:             0,
+				Text:             auditResult.ExecSQL,
+			},
+		}
+		violatedRules = append(violatedRules, violatedRule)
+	}
+
+	return violatedRules
+}
+
+// mapAuditLevelToNumber 将审核级别字符串映射到数字
+// normal=0, notice=1, warn=2, error=3
+func (sqlWorkbenchService *SqlWorkbenchService) mapAuditLevelToNumber(level string) int {
+	switch strings.ToLower(level) {
+	case "normal":
+		return 0
+	case "notice":
+		return 1
+	case "warn":
+		return 2
+	case "error":
+		return 3
+	default:
+		return 1 // 默认为 notice
+	}
+}
+
+// StreamExecuteResponse streamExecute 接口响应结构
+type StreamExecuteResponse struct {
+	Data           StreamExecuteData `json:"data"`
+	DurationMillis int64             `json:"durationMillis"`
+	HTTPStatus     string            `json:"httpStatus"`
+	RequestID      string            `json:"requestId"`
+	Server         string            `json:"server"`
+	Successful     bool              `json:"successful"`
+	Timestamp      float64           `json:"timestamp"`
+	TraceID        string            `json:"traceId"`
+}
+
+// StreamExecuteData streamExecute 响应中的 data 字段
+type StreamExecuteData struct {
+	ApprovalRequired        bool                    `json:"approvalRequired"`
+	LogicalSQL              bool                    `json:"logicalSql"`
+	RequestID               *string                 `json:"requestId"`
+	SQLs                    []StreamExecuteSQLItem  `json:"sqls"`
+	UnauthorizedDBResources interface{}             `json:"unauthorizedDBResources"`
+	ViolatedRules           []interface{}           `json:"violatedRules"`
+	SQLEAuditResult         *SQLEAuditResultSummary `json:"sqleAuditResult,omitempty"`
+}
+
+// StreamExecuteSQLItem SQL 条目
+type StreamExecuteSQLItem struct {
+	SQLTuple      StreamExecuteSQLTuple `json:"sqlTuple"`
+	ViolatedRules []StreamExecuteRule   `json:"violatedRules"`
+}
+
+// StreamExecuteSQLTuple SQL 元组
+type StreamExecuteSQLTuple struct {
+	ExecutedSQL string `json:"executedSql"`
+	Offset      int    `json:"offset"`
+	OriginalSQL string `json:"originalSql"`
+	SQLID       string `json:"sqlId"`
+}
+
+// StreamExecuteRule 违反的规则
+type StreamExecuteRule struct {
+	AppliedDialectTypes interface{}            `json:"appliedDialectTypes"`
+	CreateTime          interface{}            `json:"createTime"`
+	Enabled             interface{}            `json:"enabled"`
+	ID                  interface{}            `json:"id"`
+	Level               int                    `json:"level"`
+	Metadata            interface{}            `json:"metadata"`
+	OrganizationID      interface{}            `json:"organizationId"`
+	Properties          interface{}            `json:"properties"`
+	RulesetID           interface{}            `json:"rulesetId"`
+	UpdateTime          interface{}            `json:"updateTime"`
+	Violation           StreamExecuteViolation `json:"violation"`
+}
+
+// StreamExecuteViolation 违反详情
+type StreamExecuteViolation struct {
+	Level            int    `json:"level"`
+	LocalizedMessage string `json:"localizedMessage"`
+	Offset           int    `json:"offset"`
+	Start            int    `json:"start"`
+	Stop             int    `json:"stop"`
+	Text             string `json:"text"`
+}
+
+// SQLEAuditResultSummary SQLE 审核结果汇总
+type SQLEAuditResultSummary struct {
+	AuditLevel string  `json:"audit_level"`
+	Score      int32   `json:"score"`
+	PassRate   float64 `json:"pass_rate"`
+}
+
+// streamExecuteResponseWriter 响应拦截器，用于捕获响应内容
+type streamExecuteResponseWriter struct {
+	echo.Response
+	Buffer   *bytes.Buffer
+	original http.ResponseWriter
+	status   int
+}
+
+func newStreamExecuteResponseWriter(c echo.Context) *streamExecuteResponseWriter {
+	buf := new(bytes.Buffer)
+	return &streamExecuteResponseWriter{
+		Response: *c.Response(),
+		Buffer:   buf,
+		original: c.Response().Writer,
+	}
+}
+
+func (w *streamExecuteResponseWriter) Write(b []byte) (int, error) {
+	// 如果未设置状态码，则补默认值
+	if w.status == 0 {
+		w.WriteHeader(http.StatusOK)
+	}
+	// 写入 buffer，不立即写给客户端
+	return w.Buffer.Write(b)
+}
+
+func (w *streamExecuteResponseWriter) WriteHeader(code int) {
+	w.status = code
+}
+
+// auditSQLReq SQLE 审核请求结构
+type auditSQLReq struct {
+	InstanceType     string `json:"instance_type"`
+	SQLContent       string `json:"sql_content"`
+	SQLType          string `json:"sql_type"`
+	ProjectId        string `json:"project_id"`
+	RuleTemplateName string `json:"rule_template_name"`
+}
+
+// auditSQLReply SQLE 审核响应结构
+type auditSQLReply struct {
+	Code    int             `json:"code"`
+	Message string          `json:"message"`
+	Data    *auditResDataV2 `json:"data"`
+}
+
+// auditResDataV2 审核结果数据
+type auditResDataV2 struct {
+	AuditLevel string          `json:"audit_level"`
+	Score      int32           `json:"score"`
+	PassRate   float64         `json:"pass_rate"`
+	SQLResults []auditSQLResV2 `json:"sql_results"`
+}
+
+// auditSQLResV2 单个 SQL 审核结果
+type auditSQLResV2 struct {
+	Number      uint   `json:"number"`
+	ExecSQL     string `json:"exec_sql"`
+	AuditResult []struct {
+		Level           string `json:"level"`
+		Message         string `json:"message"`
+		ExecutionFailed bool   `json:"execution_failed"`
+	} `json:"audit_result"`
+	AuditLevel string `json:"audit_level"`
 }
