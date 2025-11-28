@@ -278,6 +278,7 @@ func (s *APIServer) initRouter() error {
 			}
 
 			sqlWorkbenchV1.Use(s.SqlWorkbenchController.SqlWorkbenchService.Login())
+			sqlWorkbenchV1.Use(s.SqlWorkbenchController.SqlWorkbenchService.Intercept())
 			sqlWorkbenchV1.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
 				Skipper:  middleware.DefaultSkipper,
 				Balancer: middleware.NewRandomBalancer(targets),
