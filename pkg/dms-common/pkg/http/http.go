@@ -50,14 +50,22 @@ func resetDefaultDMSToken(token string) {
 }
 
 func Get(ctx context.Context, url string, headers map[string]string, body, out interface{}) error {
-	return Call(ctx, http.MethodGet, url, headers, body, out)
+	bodyJson, err := json.Marshal(body)
+	if err != nil {
+		return fmt.Errorf("marshal error: %v", err)
+	}
+	return Call(ctx, http.MethodGet, url, headers, "application/json", bodyJson, out)
 }
 
 func POST(ctx context.Context, url string, headers map[string]string, body, out interface{}) error {
-	return Call(ctx, http.MethodPost, url, headers, body, out)
+	bodyJson, err := json.Marshal(body)
+	if err != nil {
+		return fmt.Errorf("marshal error: %v", err)
+	}
+	return Call(ctx, http.MethodPost, url, headers, "application/json", bodyJson, out)
 }
 
-func Call(ctx context.Context, method, url string, headers map[string]string, body, out interface{}) error {
+func Call(ctx context.Context, method, url string, headers map[string]string, contentType string, body []byte, out interface{}) error {
 	// 获取上下文中的超时值，并将其断言为 int64 类型
 	timeout, ok := ctx.Value(timeoutKey).(int64)
 	if !ok {
@@ -65,11 +73,7 @@ func Call(ctx context.Context, method, url string, headers map[string]string, bo
 	}
 	var bodyReader io.Reader
 	if body != nil {
-		bodyJson, err := json.Marshal(body)
-		if err != nil {
-			return fmt.Errorf("marshal error: %v", err)
-		}
-		bodyReader = bytes.NewReader(bodyJson)
+		bodyReader = bytes.NewReader(body)
 	}
 
 	req, err := http.NewRequestWithContext(ctx, method, url, bodyReader)
@@ -79,7 +83,9 @@ func Call(ctx context.Context, method, url string, headers map[string]string, bo
 	for k, v := range headers {
 		req.Header.Add(k, v)
 	}
-	req.Header.Set("Content-Type", "application/json")
+	if contentType != "" {
+		req.Header.Set("Content-Type", contentType)
+	}
 
 	client := http.Client{
 		Timeout: time.Second * time.Duration(timeout),

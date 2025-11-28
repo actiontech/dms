@@ -2193,36 +2193,13 @@ func (cu *CloudbeaverUsecase) AutoCreateAndExecuteWorkflow(ctx context.Context, 
 	}
 
 	url := fmt.Sprintf("%s/v1/projects/%s/workflows/auto_create_and_execute", sqleUrl, projectName)
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, url, &requestBody)
-	if err != nil {
-		return nil, fmt.Errorf("create request failed: %v", err)
-	}
-
-	httpReq.Header.Set("Content-Type", writer.FormDataContentType())
-	httpReq.Header.Set("Authorization", pkgHttp.DefaultDMSToken)
-
-	client := &http.Client{
-		Timeout: 30 * time.Minute,
-	}
-
-	resp, err := client.Do(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("request sqle failed: %v", err)
-	}
-	defer resp.Body.Close()
-
-	result, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("read response failed: %v", err)
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("sqle request failed with status %d: %s", resp.StatusCode, string(result))
+	headers := map[string]string{
+		"Authorization": pkgHttp.DefaultDMSToken,
 	}
 
 	var reply AutoCreateAndExecuteWorkflowRes
-	if err := json.Unmarshal(result, &reply); err != nil {
-		return nil, fmt.Errorf("unmarshal response failed: %v", err)
+	if err := pkgHttp.Call(ctx, http.MethodPost, url, headers, writer.FormDataContentType(), requestBody.Bytes(), &reply); err != nil {
+		return nil, fmt.Errorf("request sqle failed: %v", err)
 	}
 
 	if reply.Code != 0 {
