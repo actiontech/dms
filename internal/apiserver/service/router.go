@@ -11,6 +11,7 @@ import (
 	dmsMiddleware "github.com/actiontech/dms/internal/apiserver/middleware"
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/internal/pkg/locale"
+	sqlWorkbenchService "github.com/actiontech/dms/internal/sql_workbench/service"
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	dmsV2 "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
@@ -278,6 +279,14 @@ func (s *APIServer) initRouter() error {
 			}
 
 			sqlWorkbenchV1.Use(s.SqlWorkbenchController.SqlWorkbenchService.Login())
+
+			// 添加操作日志记录中间件
+			sqlWorkbenchV1.Use(sqlWorkbenchService.GetOperationLogBodyDumpMiddleware(sqlWorkbenchService.OperationLogMiddlewareConfig{
+				CbOperationLogUsecase: s.DMSController.DMS.CbOperationLogUsecase,
+				DBServiceUsecase:      s.DMSController.DMS.DBServiceUsecase,
+				SqlWorkbenchService:   s.SqlWorkbenchController.SqlWorkbenchService,
+			}))
+
 			sqlWorkbenchV1.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
 				Skipper:  middleware.DefaultSkipper,
 				Balancer: middleware.NewRandomBalancer(targets),
@@ -367,12 +376,20 @@ func (s *APIServer) installMiddleware() error {
 		"/v1/dms/configurations/sms/verify_code",
 		"/v1/dms/basic_info",
 	}
+	var notSkipJWTPaths = []string{
+		sqlWorkbenchService.SQL_WORKBENCH_URL,
+	}
 	s.echo.Use(dmsMiddleware.JWTTokenAdapter(), echojwt.WithConfig(echojwt.Config{
 		Skipper: middleware.Skipper(func(c echo.Context) bool {
 			uri := c.Request().RequestURI
 			for _, skipPath := range skipJWTPaths {
 				if strings.HasSuffix(uri, skipPath) || strings.HasPrefix(uri, skipPath) {
 					return true
+				}
+			}
+			for _, notSkipPath := range notSkipJWTPaths {
+				if strings.HasSuffix(uri, notSkipPath) || strings.HasPrefix(uri, notSkipPath) {
+					return false
 				}
 			}
 			// Non-DMS component's own uri
