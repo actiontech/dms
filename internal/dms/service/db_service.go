@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-
 	"time"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
@@ -78,6 +77,7 @@ func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV2.UpdateDBSer
 				MaxPreQueryRows:                  sqleConfig.SQLQueryConfig.MaxPreQueryRows,
 				QueryTimeoutSecond:               sqleConfig.SQLQueryConfig.QueryTimeoutSecond,
 				AuditEnabled:                     sqleConfig.SQLQueryConfig.AuditEnabled,
+				WorkflowExecEnabled:              sqleConfig.SQLQueryConfig.WorkflowExecEnabled,
 				AllowQueryWhenLessThanAuditLevel: string(sqleConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel),
 				RuleTemplateID:                   sqleConfig.SQLQueryConfig.RuleTemplateID,
 				RuleTemplateName:                 sqleConfig.SQLQueryConfig.RuleTemplateName,
@@ -288,6 +288,7 @@ func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceRe
 				MaxPreQueryRows:                  sqleConfig.SQLQueryConfig.MaxPreQueryRows,
 				QueryTimeoutSecond:               sqleConfig.SQLQueryConfig.QueryTimeoutSecond,
 				AuditEnabled:                     sqleConfig.SQLQueryConfig.AuditEnabled,
+				WorkflowExecEnabled:              sqleConfig.SQLQueryConfig.WorkflowExecEnabled,
 				AllowQueryWhenLessThanAuditLevel: string(sqleConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel),
 				RuleTemplateID:                   sqleConfig.SQLQueryConfig.RuleTemplateID,
 				RuleTemplateName:                 sqleConfig.SQLQueryConfig.RuleTemplateName,
@@ -354,6 +355,7 @@ func (d *DMSService) AddDBServiceV2(ctx context.Context, req *dmsV2.AddDBService
 				MaxPreQueryRows:                  sqleConfig.SQLQueryConfig.MaxPreQueryRows,
 				QueryTimeoutSecond:               sqleConfig.SQLQueryConfig.QueryTimeoutSecond,
 				AuditEnabled:                     sqleConfig.SQLQueryConfig.AuditEnabled,
+				WorkflowExecEnabled:              sqleConfig.SQLQueryConfig.WorkflowExecEnabled,
 				AllowQueryWhenLessThanAuditLevel: string(sqleConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel),
 				RuleTemplateID:                   sqleConfig.SQLQueryConfig.RuleTemplateID,
 				RuleTemplateName:                 sqleConfig.SQLQueryConfig.RuleTemplateName,
@@ -448,6 +450,7 @@ func (d *DMSService) convertBizDBServiceArgs2ImportDBService(dbs []*biz.BizDBSer
 				MaxPreQueryRows:                  u.SQLQueryConfig.MaxPreQueryRows,
 				QueryTimeoutSecond:               u.SQLQueryConfig.QueryTimeoutSecond,
 				AuditEnabled:                     u.SQLQueryConfig.AuditEnabled,
+				WorkflowExecEnabled:              u.SQLQueryConfig.WorkflowExecEnabled,
 				AllowQueryWhenLessThanAuditLevel: dmsCommonV1.SQLAllowQueryAuditLevel(u.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel),
 				RuleTemplateID:                   u.SQLQueryConfig.RuleTemplateID,
 				RuleTemplateName:                 u.SQLQueryConfig.RuleTemplateName,
@@ -510,6 +513,7 @@ func (d *DMSService) convertImportDBService2BizDBService(ctx context.Context, im
 			if u.SQLEConfig.SQLQueryConfig != nil {
 				sqlConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel = string(u.SQLEConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel)
 				sqlConfig.SQLQueryConfig.AuditEnabled = u.SQLEConfig.SQLQueryConfig.AuditEnabled
+				sqlConfig.SQLQueryConfig.WorkflowExecEnabled = u.SQLEConfig.SQLQueryConfig.WorkflowExecEnabled
 				sqlConfig.SQLQueryConfig.MaxPreQueryRows = u.SQLEConfig.SQLQueryConfig.MaxPreQueryRows
 				sqlConfig.SQLQueryConfig.QueryTimeoutSecond = u.SQLEConfig.SQLQueryConfig.QueryTimeoutSecond
 				sqlConfig.SQLQueryConfig.RuleTemplateID = u.SQLEConfig.SQLQueryConfig.RuleTemplateID
@@ -705,6 +709,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV2.ListDB
 			if u.SQLEConfig.SQLQueryConfig != nil {
 				sqlConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel = dmsCommonV1.SQLAllowQueryAuditLevel(u.SQLEConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel)
 				sqlConfig.SQLQueryConfig.AuditEnabled = u.SQLEConfig.SQLQueryConfig.AuditEnabled
+				sqlConfig.SQLQueryConfig.WorkflowExecEnabled = u.SQLEConfig.SQLQueryConfig.WorkflowExecEnabled
 				sqlConfig.SQLQueryConfig.MaxPreQueryRows = u.SQLEConfig.SQLQueryConfig.MaxPreQueryRows
 				sqlConfig.SQLQueryConfig.QueryTimeoutSecond = u.SQLEConfig.SQLQueryConfig.QueryTimeoutSecond
 				sqlConfig.SQLQueryConfig.RuleTemplateID = u.SQLEConfig.SQLQueryConfig.RuleTemplateID

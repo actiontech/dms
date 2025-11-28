@@ -23,6 +23,10 @@ func (cu *CloudbeaverUsecase) SaveCbOpLog(c echo.Context, dbService *DBService, 
 	return nil
 }
 
+func (cu *CloudbeaverUsecase) SaveCbOpLogForWorkflow(c echo.Context, dbService *DBService, params *graphql.RawParams, auditResult []cloudbeaver.AuditSQLResV2, isAuditPass bool, workflowID string, isExecFailed bool) error {
+	return nil
+}
+
 func (cu *CloudbeaverUsecase) SaveUiOp(c echo.Context, buf *bytes.Buffer, params *graphql.RawParams) error {
 	return nil
 }

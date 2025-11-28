@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net"
 	"net/http"
 	"path"
@@ -25,6 +26,7 @@ import (
 	"github.com/actiontech/dms/internal/pkg/locale"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	"github.com/actiontech/dms/pkg/dms-common/pkg/aes"
+	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	"github.com/labstack/echo/v4"
 )
@@ -620,6 +622,11 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 							return nil, c.JSON(http.StatusOK, convertToResp(ctx, resp))
 						}
 
+						// 判断是否需要通过工单执行（非 DQL 语句）
+						if cu.shouldExecuteByWorkflow(dbService, resp.Results) {
+							return cu.executeNonDQLByWorkflow(ctx, c, dbService, params, resp)
+						}
+
 						if err = next(c); err != nil {
 							return nil, err
 						}
@@ -786,6 +793,28 @@ func convertToResp(ctx context.Context, resp cloudbeaver.AuditResults) interface
 	}
 }
 
+func newResp(ctx context.Context, name, errCode, msg string) interface{} {
+	return struct {
+		Data struct {
+			TaskInfo model.AsyncTaskInfo `json:"taskInfo"`
+		} `json:"data"`
+	}{
+		struct {
+			TaskInfo model.AsyncTaskInfo `json:"taskInfo"`
+		}{
+			TaskInfo: model.AsyncTaskInfo{
+				Name:    &name,
+				Running: false,
+				Error: &model.ServerError{
+					Message:    &msg,
+					ErrorCode:  &errCode,
+					StackTrace: &msg,
+				},
+			},
+		},
+	}
+}
+
 // ResponseInterceptor 拦截HTTP响应，允许在响应发送到客户端之前进行修改或日志记录
 type ResponseInterceptor struct {
 	echo.Response
@@ -914,6 +943,13 @@ func (cu *CloudbeaverUsecase) isEnableSQLAudit(dbService *DBService) bool {
 		return false
 	}
 	return dbService.SQLEConfig.AuditEnabled && dbService.SQLEConfig.SQLQueryConfig.AuditEnabled
+}
+
+func (cu *CloudbeaverUsecase) isEnableWorkflowExec(dbService *DBService) bool {
+	if dbService.SQLEConfig == nil || dbService.SQLEConfig.SQLQueryConfig == nil {
+		return false
+	}
+	return dbService.SQLEConfig.AuditEnabled && dbService.SQLEConfig.SQLQueryConfig.WorkflowExecEnabled
 }
 
 func (cu *CloudbeaverUsecase) getDbService(ctx context.Context, params *graphql.RawParams) (*DBService, error) {
@@ -1850,6 +1886,327 @@ func UnmarshalGraphQLResponse(body []byte, taskInfo *TaskInfo) error {
 		return fmt.Errorf("GraphQL error: %v", gqlResp)
 	}
 	return nil
+}
+
+type ExecutionContextInfo struct {
+	ID             string  `json:"id"`
+	ProjectID      string  `json:"projectId"`
+	ConnectionID   string  `json:"connectionId"`
+	DefaultCatalog *string `json:"defaultCatalog"`
+	DefaultSchema  *string `json:"defaultSchema"`
+}
+
+type ExecutionContextListRes struct {
+	Contexts []ExecutionContextInfo `json:"contexts"`
+}
+
+func (cu *CloudbeaverUsecase) getContextSchema(c echo.Context, connectionId, contextId string) (string, error) {
+	if contextId == "" {
+		return "", nil
+	}
+
+	var cookies []*http.Cookie
+	for _, cookie := range c.Cookies() {
+		if cookie.Name == CloudbeaverCookieName {
+			cookies = append(cookies, cookie)
+		}
+	}
+
+	if len(cookies) == 0 {
+		return "", fmt.Errorf("no cloudbeaver session cookie found")
+	}
+
+	client := cloudbeaver.NewGraphQlClient(cu.getGraphQLServerURI(), cloudbeaver.WithCookie(cookies))
+	client.Log = func(s string) {
+		cu.log.Debugf("getContextSchema CB GraphQL: %s", s)
+	}
+	req := cloudbeaver.NewRequest(cu.graphQl.GetExecutionContextListQuery(), map[string]interface{}{
+		"projectId":    cloudbeaverProjectId,
+		"connectionId": connectionId,
+		"contextId":    contextId,
+	})
+	req.SetOperationName("executionContextList")
+
+	var res ExecutionContextListRes
+	if err := client.Run(c.Request().Context(), req, &res); err != nil {
+		cu.log.Errorf("query execution context failed: %v, connectionId: %s, contextId: %s", err, connectionId, contextId)
+		return "", fmt.Errorf("query execution context failed: %v", err)
+	}
+
+	cu.log.Debugf("execution context response: %+v", res)
+
+	if len(res.Contexts) == 0 {
+		cu.log.Warnf("no contexts found in response, connectionId: %s, contextId: %s", connectionId, contextId)
+		return "", nil
+	}
+
+	contextInfo := res.Contexts[0]
+	if contextInfo.DefaultSchema != nil && *contextInfo.DefaultSchema != "" {
+		return *contextInfo.DefaultSchema, nil
+	}
+
+	if contextInfo.DefaultCatalog != nil && *contextInfo.DefaultCatalog != "" {
+		return *contextInfo.DefaultCatalog, nil
+	}
+
+	return "", nil
+}
+
+// checkWorkflowPermission 校验用户是否有数据源上的"创建、审批、上线工单"的权限
+// 权限可以是项目级别的（项目管理员）或数据源级别的（直接针对数据源的工单权限）
+func (cu *CloudbeaverUsecase) checkWorkflowPermission(ctx context.Context, userUid string, dbService *DBService) (bool, error) {
+	if userUid == constant.UIDOfUserAdmin {
+		return true, nil
+	}
+	opPermissions, err := cu.opPermissionVerifyUsecase.GetUserOpPermissionInProject(ctx, userUid, dbService.ProjectUID)
+	if err != nil {
+		return false, fmt.Errorf("get user op permission in project err: %v", err)
+	}
+
+	// 需要检查的三个工单权限
+	requiredPermissions := map[string]struct{}{
+		constant.UIDOfOpPermissionCreateWorkflow:  {},
+		constant.UIDOfOpPermissionAuditWorkflow:   {},
+		constant.UIDOfOpPermissionExecuteWorkflow: {},
+	}
+
+	// 当前数据源已拥有的工单权限
+	dbServicePermissions := make(map[string]struct{})
+
+	for _, opPermission := range opPermissions {
+		// 项目管理员权限
+		if opPermission.OpRangeType == OpRangeTypeProject && opPermission.OpPermissionUID == constant.UIDOfOpPermissionProjectAdmin {
+			return true, nil
+		}
+
+		// 数据源级别的工单权限，只关注当前数据源
+		if opPermission.OpRangeType == OpRangeTypeDBService {
+			// 检查是否是必需的工单权限
+			if _, isRequired := requiredPermissions[opPermission.OpPermissionUID]; isRequired {
+				// 检查是否包含当前数据源
+				for _, rangeUid := range opPermission.RangeUIDs {
+					if rangeUid == dbService.UID {
+						dbServicePermissions[opPermission.OpPermissionUID] = struct{}{}
+						// 如果已收集到所有必需的权限，提前返回
+						if len(dbServicePermissions) == len(requiredPermissions) {
+							return true, nil
+						}
+						break
+					}
+				}
+			}
+		}
+	}
+
+	// 检查是否拥有所有必需的工单权限
+	return len(dbServicePermissions) == len(requiredPermissions), nil
+}
+
+// shouldExecuteByWorkflow 判断是否需要通过工单执行（非 DQL 语句）
+func (cu *CloudbeaverUsecase) shouldExecuteByWorkflow(dbService *DBService, auditResults []cloudbeaver.AuditSQLResV2) bool {
+	if !cu.isEnableSQLAudit(dbService) || !cu.isEnableWorkflowExec(dbService) {
+		return false
+	}
+
+	for _, result := range auditResults {
+		if result.SQLType != "" && result.SQLType != "dql" {
+			return true
+		}
+	}
+	return false
+}
+
+// workflowExecParams 工单执行所需的参数
+type workflowExecParams struct {
+	contextIdStr    string
+	connectionIdStr string
+	query           string
+	instanceSchema  string
+}
+
+// getWorkflowExecParams 从 GraphQL 参数中提取工单执行所需的参数
+func (cu *CloudbeaverUsecase) getWorkflowExecParams(c echo.Context, params *graphql.RawParams) (*workflowExecParams, error) {
+	contextIdStr, ok := params.Variables["contextId"].(string)
+	if !ok {
+		return nil, fmt.Errorf("missing contextId in params")
+	}
+
+	connectionIdStr, ok := params.Variables["connectionId"].(string)
+	if !ok {
+		return nil, fmt.Errorf("missing connectionId in params")
+	}
+
+	query, ok := params.Variables["query"].(string)
+	if !ok {
+		return nil, fmt.Errorf("missing query in params")
+	}
+
+	instanceSchema, err := cu.getContextSchema(c, connectionIdStr, contextIdStr)
+	if err != nil {
+		return nil, fmt.Errorf("get context schema failed: %v", err)
+	}
+
+	return &workflowExecParams{
+		contextIdStr:    contextIdStr,
+		connectionIdStr: connectionIdStr,
+		query:           query,
+		instanceSchema:  instanceSchema,
+	}, nil
+}
+
+// executeNonDQLByWorkflow 通过工单执行非 DQL 语句
+func (cu *CloudbeaverUsecase) executeNonDQLByWorkflow(ctx context.Context, c echo.Context, dbService *DBService, params *graphql.RawParams, auditResults cloudbeaver.AuditResults) ([]byte, error) {
+	// 1. 获取当前用户 ID
+	currentUserUid, _ := c.Get(dmsUserIdKey).(string)
+	if currentUserUid == "" {
+		return nil, c.JSON(http.StatusOK, newResp(ctx, "get dms user id", "failed", "get dms user id failed"))
+	}
+
+	// 2. 校验工单权限
+	hasPermission, err := cu.checkWorkflowPermission(ctx, currentUserUid, dbService)
+	if err != nil {
+		return nil, c.JSON(http.StatusOK, newResp(ctx, "check workflow permission", "failed", err.Error()))
+	}
+	if !hasPermission {
+		return nil, c.JSON(http.StatusOK, newResp(ctx, "check workflow permission", "failed", "用户没有数据源上的创建、审批、上线工单权限"))
+	}
+
+	// 3. 获取项目信息
+	project, err := cu.projectUsecase.GetProject(ctx, dbService.ProjectUID)
+	if err != nil {
+		return nil, c.JSON(http.StatusOK, newResp(ctx, "get project", "failed", err.Error()))
+	}
+
+	// 4. 提取工单执行参数
+	execParams, err := cu.getWorkflowExecParams(c, params)
+	if err != nil {
+		return nil, c.JSON(http.StatusOK, newResp(ctx, "get workflow exec params", "failed", err.Error()))
+	}
+
+	// 5. 执行工单上线流程
+	workflowRes, err := cu.AutoCreateAndExecuteWorkflow(ctx, project.Name, dbService, execParams.query, execParams.instanceSchema)
+	if err != nil {
+		err = fmt.Errorf("auto create and execute workflow failed: %w", err)
+		cu.log.Error(err)
+		return nil, c.JSON(http.StatusOK, newResp(ctx, "auto create and execute workflow", "failed", err.Error()))
+	}
+	cu.log.Infof("auto create and execute workflow, workflow_id: %s, status: %s", workflowRes.Data.WorkflowID, workflowRes.Data.WorkFlowStatus)
+
+	// 6. 判断执行结果
+	isExecFailed := !strings.Contains(workflowRes.Data.WorkFlowStatus, "finished")
+
+	// 7. 保存操作日志
+	if err := cu.SaveCbOpLogForWorkflow(c, dbService, params, auditResults.Results, auditResults.IsSuccess, workflowRes.Data.WorkflowID, isExecFailed); err != nil {
+		cu.log.Errorf("save cb operation log for workflow failed: %v", err)
+	}
+
+	// 8. 返回执行结果
+	if isExecFailed {
+		return nil, c.JSON(http.StatusOK, newResp(ctx, "auto create and execute workflow", "workflow_failed",
+			fmt.Sprintf("workflow_id:%s, workflow_status:%s", workflowRes.Data.WorkflowID, workflowRes.Data.WorkFlowStatus)))
+	}
+
+	return nil, c.JSON(http.StatusOK, newResp(ctx, "auto create and execute workflow", "workflow_success",
+		fmt.Sprintf("workflow_id:%s, workflow_status:%s", workflowRes.Data.WorkflowID, workflowRes.Data.WorkFlowStatus)))
+}
+
+type InstanceForCreatingTask struct {
+	InstanceName   string `json:"instance_name"`
+	InstanceSchema string `json:"instance_schema"`
+}
+
+type AutoCreateAndExecuteWorkflowReq struct {
+	Instances       []*InstanceForCreatingTask `json:"instances"`
+	ExecMode        string                     `json:"exec_mode"`
+	FileOrderMethod string                     `json:"file_order_method"`
+	Sql             string                     `json:"sql"`
+	Subject         string                     `json:"workflow_subject"`
+	Desc            string                     `json:"desc"`
+}
+
+type AutoCreateAndExecuteWorkflowRes struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    struct {
+		WorkflowID     string `json:"workflow_id"`
+		WorkFlowStatus string `json:"workflow_status"`
+	} `json:"data"`
+}
+
+func (cu *CloudbeaverUsecase) AutoCreateAndExecuteWorkflow(ctx context.Context, projectName string, dbService *DBService, sql string, instanceSchema string) (*AutoCreateAndExecuteWorkflowRes, error) {
+	sqleUrl, err := cu.getSQLEUrl(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("get sqle url failed: %v", err)
+	}
+
+	project, err := cu.projectUsecase.GetProject(ctx, dbService.ProjectUID)
+	if err != nil {
+		return nil, fmt.Errorf("get project failed: %v", err)
+	}
+
+	if projectName == "" {
+		projectName = project.Name
+	}
+
+	instances := []*InstanceForCreatingTask{
+		{
+			InstanceName:   dbService.Name,
+			InstanceSchema: instanceSchema,
+		},
+	}
+
+	req := AutoCreateAndExecuteWorkflowReq{
+		Instances:       instances,
+		ExecMode:        "sqls",
+		FileOrderMethod: "",
+		Sql:             sql,
+		Subject:         fmt.Sprintf("工作台工单_%s_%s", dbService.Name, time.Now().Format("20060102150405")),
+		Desc:            "通过工作台执行非DQL类型的SQL时，自动创建的工单",
+	}
+
+	instancesJSON, err := json.Marshal(req.Instances)
+	if err != nil {
+		return nil, fmt.Errorf("marshal instances failed: %v", err)
+	}
+
+	var requestBody bytes.Buffer
+	writer := multipart.NewWriter(&requestBody)
+
+	fields := map[string]string{
+		"instances":         string(instancesJSON),
+		"exec_mode":         req.ExecMode,
+		"file_order_method": req.FileOrderMethod,
+		"sql":               req.Sql,
+		"workflow_subject":  req.Subject,
+		"desc":              req.Desc,
+	}
+
+	for key, value := range fields {
+		if err := writer.WriteField(key, value); err != nil {
+			writer.Close()
+			return nil, fmt.Errorf("write field %s failed: %v", key, err)
+		}
+	}
+
+	if err := writer.Close(); err != nil {
+		return nil, fmt.Errorf("close multipart writer failed: %v", err)
+	}
+
+	url := fmt.Sprintf("%s/v1/projects/%s/workflows/auto_create_and_execute", sqleUrl, projectName)
+	headers := map[string]string{
+		"Authorization": pkgHttp.DefaultDMSToken,
+	}
+
+	var reply AutoCreateAndExecuteWorkflowRes
+	if err := pkgHttp.Call(ctx, http.MethodPost, url, headers, writer.FormDataContentType(), requestBody.Bytes(), &reply); err != nil {
+		return nil, fmt.Errorf("request sqle failed: %v", err)
+	}
+
+	if reply.Code != 0 {
+		return nil, fmt.Errorf("sqle returned error code %d: %s", reply.Code, reply.Message)
+	}
+
+	return &reply, nil
 }
 
 func UnmarshalGraphQLResponseNavNodeChildren(body []byte, resp *cloudbeaver.NavNodeChildrenResponse) error {
