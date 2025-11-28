@@ -1916,37 +1916,15 @@ func (cu *CloudbeaverUsecase) getContextSchema(c echo.Context, connectionId, con
 		return "", fmt.Errorf("no cloudbeaver session cookie found")
 	}
 
-	query := `
-query executionContextList($projectId: ID, $connectionId: ID, $contextId: ID) {
-  contexts: sqlListContexts(
-    projectId: $projectId
-    connectionId: $connectionId
-    contextId: $contextId
-  ) {
-    ...ExecutionContextInfo
-  }
-}
-
-fragment ExecutionContextInfo on SQLContextInfo {
-  id
-  projectId
-  connectionId
-  defaultCatalog
-  defaultSchema
-}
-`
-
-	variables := map[string]interface{}{
-		"projectId":    cloudbeaverProjectId,
-		"connectionId": connectionId,
-		"contextId":    contextId,
-	}
-
 	client := cloudbeaver.NewGraphQlClient(cu.getGraphQLServerURI(), cloudbeaver.WithCookie(cookies))
 	client.Log = func(s string) {
 		cu.log.Debugf("getContextSchema CB GraphQL: %s", s)
 	}
-	req := cloudbeaver.NewRequest(query, variables)
+	req := cloudbeaver.NewRequest(cu.graphQl.GetExecutionContextListQuery(), map[string]interface{}{
+		"projectId":    cloudbeaverProjectId,
+		"connectionId": connectionId,
+		"contextId":    contextId,
+	})
 	req.SetOperationName("executionContextList")
 
 	var res ExecutionContextListRes
