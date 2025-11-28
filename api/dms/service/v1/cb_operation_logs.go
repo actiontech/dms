@@ -47,6 +47,7 @@ type CBOperationLog struct {
 	ExecResult        string               `json:"exec_result"`
 	ExecTimeSecond    int                  `json:"exec_time_second"`
 	ResultSetRowCount int64                `json:"result_set_row_count"`
+	WorkflowID        *string              `json:"workflow_id"`
 }
 
 // swagger:enum CbOperationType

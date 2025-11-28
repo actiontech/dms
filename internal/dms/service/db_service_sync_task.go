@@ -46,6 +46,7 @@ func toBizDBServiceSyncTask(syncTask *v1.DBServiceSyncTask) *biz.DBServiceSyncTa
 				MaxPreQueryRows:                  syncTask.SQLEConfig.SQLQueryConfig.MaxPreQueryRows,
 				QueryTimeoutSecond:               syncTask.SQLEConfig.SQLQueryConfig.QueryTimeoutSecond,
 				AuditEnabled:                     syncTask.SQLEConfig.SQLQueryConfig.AuditEnabled,
+				WorkflowExecEnabled:              syncTask.SQLEConfig.SQLQueryConfig.WorkflowExecEnabled,
 				AllowQueryWhenLessThanAuditLevel: string(syncTask.SQLEConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel),
 				RuleTemplateID:                   syncTask.SQLEConfig.SQLQueryConfig.RuleTemplateID,
 				RuleTemplateName:                 syncTask.SQLEConfig.SQLQueryConfig.RuleTemplateName,
@@ -116,6 +117,7 @@ func (d *DMSService) buildReplySqleConfig(params *biz.SQLEConfig) *dmsCommonV1.S
 	if params.SQLQueryConfig != nil {
 		sqlConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel = dmsCommonV1.SQLAllowQueryAuditLevel(params.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel)
 		sqlConfig.SQLQueryConfig.AuditEnabled = params.SQLQueryConfig.AuditEnabled
+		sqlConfig.SQLQueryConfig.WorkflowExecEnabled = params.SQLQueryConfig.WorkflowExecEnabled
 		sqlConfig.SQLQueryConfig.MaxPreQueryRows = params.SQLQueryConfig.MaxPreQueryRows
 		sqlConfig.SQLQueryConfig.QueryTimeoutSecond = params.SQLQueryConfig.QueryTimeoutSecond
 		sqlConfig.SQLQueryConfig.RuleTemplateID = params.SQLQueryConfig.RuleTemplateID

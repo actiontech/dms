@@ -630,6 +630,9 @@ definitions:
             uid:
                 type: string
                 x-go-name: UID
+            workflow_id:
+                type: string
+                x-go-name: WorkflowID
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CBOperationLogTips:
@@ -1844,7 +1847,7 @@ definitions:
                 type: string
                 x-go-name: Message
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetOauth2ConfigurationResData:
         properties:
             access_token_tag:
@@ -3552,6 +3555,10 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: UnfinishedWorkflowNum
+            workflow_exec_enabled:
+                description: is enabled workflow exec
+                type: boolean
+                x-go-name: WorkflowExecEnabled
         required:
             - environment_tag
         type: object
@@ -3817,6 +3824,14 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberRoleWithOpRange:
         properties:
+            member_group:
+                $ref: '#/definitions/ProjectMemberGroup'
+            op_permissions:
+                description: member op permissions
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: OpPermissions
             op_range_type:
                 description: |-
                     op permission range type, only support db service now
@@ -3845,7 +3860,7 @@ definitions:
             role_uid:
                 $ref: '#/definitions/UidWithName'
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberTipsItem:
         properties:
             user_id:
@@ -5455,6 +5470,9 @@ definitions:
             rule_template_name:
                 type: string
                 x-go-name: RuleTemplateName
+            workflow_exec_enabled:
+                type: boolean
+                x-go-name: WorkflowExecEnabled
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     SendSmsCodeReply:

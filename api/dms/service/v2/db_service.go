@@ -268,6 +268,8 @@ type ListGlobalDBService struct {
 	ProjectName string `json:"project_name"`
 	// is enable audit
 	IsEnableAudit bool `json:"is_enable_audit"`
+	// is enabled workflow exec
+	WorkflowExecEnabled bool `json:"workflow_exec_enabled"`
 	// is enable masking
 	IsEnableMasking bool `json:"is_enable_masking"`
 	// db service unfinished workflow num
