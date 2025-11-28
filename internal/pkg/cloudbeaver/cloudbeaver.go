@@ -81,6 +81,7 @@ type GraphQLImpl interface {
 	GrantUserRoleQuery() string
 	LoginQuery() string
 	GetActiveUserQuery() string
+	GetExecutionContextListQuery() string
 }
 
 // TODO 暂时无法确定这套查询语句是兼容到22.1.5版本还是22.1.4版本, 因为虽然找到了22.1.4版本的镜像, 但没找到22.1.4版本的代码
@@ -232,6 +233,28 @@ func (CloudBeaverV2215) GetActiveUserQuery() string {
     		userId
   		}
 	}
+`
+}
+
+func (CloudBeaverV2215) GetExecutionContextListQuery() string {
+	return `
+query executionContextList($projectId: ID, $connectionId: ID, $contextId: ID) {
+  contexts: sqlListContexts(
+    projectId: $projectId
+    connectionId: $connectionId
+    contextId: $contextId
+  ) {
+    ...ExecutionContextInfo
+  }
+}
+
+fragment ExecutionContextInfo on SQLContextInfo {
+  id
+  projectId
+  connectionId
+  defaultCatalog
+  defaultSchema
+}
 `
 }
 
