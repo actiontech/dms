@@ -197,6 +197,27 @@ func gormPreload(ctx context.Context, db *gorm.DB, conditions []pkgConst.FilterC
 	return db
 }
 
+func extractPreloadConditions(opts pkgConst.FilterOptions) []pkgConst.FilterCondition {
+	var conditions []pkgConst.FilterCondition
+	for _, group := range opts.Groups {
+		for _, condition := range group.Conditions {
+			if condition.Table != "" {
+				conditions = append(conditions, condition)
+			}
+		}
+		for _, subGroup := range group.Groups {
+			subConditions := extractPreloadConditions(pkgConst.FilterOptions{Groups: []pkgConst.FilterConditionGroup{subGroup}})
+			conditions = append(conditions, subConditions...)
+		}
+	}
+	return conditions
+}
+
+func gormPreloadFromOptions(ctx context.Context, db *gorm.DB, opts pkgConst.FilterOptions) *gorm.DB {
+	conditions := extractPreloadConditions(opts)
+	return gormPreload(ctx, db, conditions)
+}
+
 func fixPageIndices(page_number uint32) int {
 	if page_number <= 0 {
 		page_number = 1

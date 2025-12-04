@@ -137,12 +137,17 @@ func (d *RoleRepo) ReplaceOpPermissionsInRole(ctx context.Context, roleUid strin
 func (d *RoleRepo) ListRoles(ctx context.Context, opt *biz.ListRolesOption) (roles []*biz.Role, total int64, err error) {
 	// 取出权限条件的值
 	opPermissionValue := ""
-	for i := 0; i < len(opt.FilterBy); {
-		if opt.FilterBy[i].Field == string(biz.RoleFieldOpPermission) {
-			opPermissionValue = opt.FilterBy[i].Value.(string)
-			opt.FilterBy = append(opt.FilterBy[:i], opt.FilterBy[i+1:]...)
-		} else {
-			i++
+	filterByOptionsWithoutOpPermission := opt.FilterByOptions
+
+	for _, group := range opt.FilterByOptions.Groups {
+		for i, condition := range group.Conditions {
+			if condition.Field == string(biz.RoleFieldOpPermission) {
+				opPermissionValue = condition.Value.(string)
+				// 从组中移除该条件
+				group.Conditions = append(group.Conditions[:i], group.Conditions[i+1:]...)
+				filterByOptionsWithoutOpPermission = opt.FilterByOptions
+				break
+			}
 		}
 	}
 
@@ -151,11 +156,7 @@ func (d *RoleRepo) ListRoles(ctx context.Context, opt *biz.ListRolesOption) (rol
 		// find models
 		{
 			db := tx.WithContext(ctx).Order(string(opt.OrderBy) + " DESC")
-			for _, f := range opt.FilterBy {
-				if f.Field != string(biz.RoleFieldOpPermission) {
-					db = gormWhere(db, f)
-				}
-			}
+			db = gormWheresWithOptions(ctx, db, filterByOptionsWithoutOpPermission)
 			if opPermissionValue != "" {
 				db = db.Joins("JOIN role_op_permissions on roles.uid = role_op_permissions.role_uid").
 					Joins("JOIN op_permissions ON op_permissions.uid = role_op_permissions.op_permission_uid").
@@ -171,11 +172,7 @@ func (d *RoleRepo) ListRoles(ctx context.Context, opt *biz.ListRolesOption) (rol
 		// find total
 		{
 			db := tx.WithContext(ctx).Model(&model.Role{})
-			for _, f := range opt.FilterBy {
-				if f.Field != string(biz.RoleFieldOpPermission) {
-					db = gormWhere(db, f)
-				}
-			}
+			db = gormWheresWithOptions(ctx, db, filterByOptionsWithoutOpPermission)
 			if opPermissionValue != "" {
 				db = db.Joins("JOIN role_op_permissions on roles.uid = role_op_permissions.role_uid").
 					Joins("JOIN op_permissions ON op_permissions.uid = role_op_permissions.op_permission_uid").

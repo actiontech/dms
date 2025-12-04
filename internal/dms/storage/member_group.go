@@ -31,9 +31,7 @@ func (d *MemberGroupRepo) ListMemberGroups(ctx context.Context, opt *biz.ListMem
 		// find models
 		{
 			db := tx.WithContext(ctx).Preload("RoleWithOpRanges").Preload("Users").Preload("OpPermissions").Order(opt.OrderBy)
-			for _, f := range opt.FilterBy {
-				db = gormWhere(db, f)
-			}
+			db = gormWheresWithOptions(ctx, db, opt.FilterByOptions)
 			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber)))))
 			if err = db.Find(&models).Error; err != nil {
 				return fmt.Errorf("failed to list member groups: %v", err)
@@ -43,9 +41,7 @@ func (d *MemberGroupRepo) ListMemberGroups(ctx context.Context, opt *biz.ListMem
 		// find total
 		{
 			db := tx.WithContext(ctx).Model(&model.MemberGroup{})
-			for _, f := range opt.FilterBy {
-				db = gormWhere(db, f)
-			}
+			db = gormWheresWithOptions(ctx, db, opt.FilterByOptions)
 			if err = db.Count(&total).Error; err != nil {
 				return fmt.Errorf("failed to count member groups: %v", err)
 			}
