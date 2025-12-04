@@ -1477,9 +1477,9 @@ func (sqlWorkbenchService *SqlWorkbenchService) mergeSQLEAuditResults(data *Stre
 
 // shouldRequireApproval 根据审核放行等级判断是否需要审批
 func (sqlWorkbenchService *SqlWorkbenchService) shouldRequireApproval(sqlResults []auditSQLResV2, allowQueryWhenLessThanAuditLevel string) bool {
-	// 如果没有设置审核放行等级，默认需要审批
+	// 如果没有设置审核放行等级，那么直接放行
 	if allowQueryWhenLessThanAuditLevel == "" {
-		return true
+		return false
 	}
 
 	// 遍历所有 SQL 审核结果
@@ -1548,13 +1548,13 @@ func (sqlWorkbenchService *SqlWorkbenchService) mapAuditLevelToNumber(level stri
 	case "normal":
 		return 0
 	case "notice":
-		return 1
-	case "warn":
-		return 2
-	case "error":
 		return 3
+	case "warn":
+		return 1
+	case "error":
+		return 2
 	default:
-		return 1 // 默认为 notice
+		return 0 // 默认为 notice
 	}
 }
 
