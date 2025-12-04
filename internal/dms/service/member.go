@@ -73,16 +73,19 @@ func (d *DMSService) ListMemberTips(ctx context.Context, projectId string) (repl
 
 func (d *DMSService) ListMemberGroupTips(ctx context.Context, projectId string) (reply *dmsV1.ListMemberGroupTipsReply, err error) {
 	orderBy := biz.MemberGroupFieldName
-	filterBy := []pkgConst.FilterCondition{{
-		Field:    string(biz.MemberGroupFieldProjectUID),
-		Operator: pkgConst.FilterOperatorEqual,
-		Value:    projectId,
-	}}
 	listOption := &biz.ListMemberGroupsOption{
 		PageNumber:   1,
 		LimitPerPage: 9999,
 		OrderBy:      orderBy,
-		FilterBy:     filterBy,
+		FilterByOptions: pkgConst.NewFilterOptions(pkgConst.FilterLogicAnd,
+			pkgConst.NewConditionGroup(pkgConst.FilterLogicAnd,
+				pkgConst.FilterCondition{
+					Field:    string(biz.MemberGroupFieldProjectUID),
+					Operator: pkgConst.FilterOperatorEqual,
+					Value:    projectId,
+				},
+			),
+		),
 	}
 	memberGroups, _, err := d.MemberGroupUsecase.ListMemberGroups(ctx, listOption, projectId)
 	if nil != err {
@@ -116,27 +119,33 @@ func (d *DMSService) ListMembers(ctx context.Context, req *dmsV1.ListMemberReq, 
 		orderBy = biz.MemberFieldUserUID
 	}
 
-	filterBy := make([]pkgConst.FilterCondition, 0)
+	filterByOptions := pkgConst.NewFilterOptions(pkgConst.FilterLogicAnd)
+
+	andConditions := make([]pkgConst.FilterCondition, 0)
 	if req.FilterByUserUid != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.MemberFieldUserUID),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByUserUid,
 		})
 	}
 	if req.ProjectUid != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.MemberFieldProjectUID),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.ProjectUid,
 		})
 	}
 
+	if len(andConditions) > 0 {
+		filterByOptions.Groups = append(filterByOptions.Groups, pkgConst.NewConditionGroup(pkgConst.FilterLogicAnd, andConditions...))
+	}
+
 	listOption := &biz.ListMembersOption{
-		PageNumber:   req.PageIndex,
-		LimitPerPage: req.PageSize,
-		OrderBy:      orderBy,
-		FilterBy:     filterBy,
+		PageNumber:      req.PageIndex,
+		LimitPerPage:    req.PageSize,
+		OrderBy:         orderBy,
+		FilterByOptions: filterByOptions,
 	}
 
 	members, total, err := d.MemberUsecase.ListMember(ctx, listOption, req.ProjectUid)

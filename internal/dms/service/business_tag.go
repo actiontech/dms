@@ -70,7 +70,7 @@ func (d *DMSService) DeleteBusinessTag(ctx context.Context, currentUserUid strin
 		},
 	}
 
-	_, total, err := d.ProjectUsecase.ListProject(ctx, &biz.ListProjectsOption{FilterBy: filterBy}, currentUserUid)
+	_, total, err := d.ProjectUsecase.ListProject(ctx, &biz.ListProjectsOption{FilterByOptions: pkgConst.ConditionsToFilterOptions(filterBy)}, currentUserUid)
 	if err != nil {
 		return fmt.Errorf("list project failed: %w", err)
 	}

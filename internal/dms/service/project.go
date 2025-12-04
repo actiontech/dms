@@ -24,23 +24,25 @@ func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV2.ListProj
 		orderBy = biz.ProjectFieldName
 	}
 
-	filterBy := make([]pkgConst.FilterCondition, 0)
+	filterByOptions := pkgConst.NewFilterOptions(pkgConst.FilterLogicAnd)
+
+	andConditions := make([]pkgConst.FilterCondition, 0)
 	if req.FilterByName != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.ProjectFieldName),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByName,
 		})
 	}
 	if req.FilterByUID != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.ProjectFieldUID),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByUID,
 		})
 	}
 	if req.FilterByProjectPriority != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.ProjectFieldPriority),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    dmsCommonV1.ToPriorityNum(req.FilterByProjectPriority),
@@ -48,27 +50,17 @@ func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV2.ListProj
 	}
 
 	if len(req.FilterByProjectUids) > 0 {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.ProjectFieldUID),
 			Operator: pkgConst.FilterOperatorIn,
 			Value:    req.FilterByProjectUids,
 		})
 	}
 	if req.FilterByDesc != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.ProjectFieldDesc),
 			Operator: pkgConst.FilterOperatorContains,
 			Value:    req.FilterByDesc,
-		})
-	}
-
-	// 添加模糊搜索条件
-	if req.FuzzyKeyword != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
-			Field:         string(biz.ProjectFieldName),
-			Operator:      pkgConst.FilterOperatorContains,
-			Value:         req.FuzzyKeyword,
-			KeywordSearch: true,
 		})
 	}
 
@@ -78,18 +70,34 @@ func (d *DMSService) ListProjects(ctx context.Context, req *dmsCommonV2.ListProj
 			d.log.Errorf("get business tag failed: %v", err)
 			return nil, err
 		}
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.ProjectFieldBusinessTagUID),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    businessTag.UID,
 		})
 	}
 
+	if len(andConditions) > 0 {
+		filterByOptions.Groups = append(filterByOptions.Groups, pkgConst.NewConditionGroup(pkgConst.FilterLogicAnd, andConditions...))
+	}
+
+	// 添加模糊搜索条件
+	if req.FuzzyKeyword != "" {
+		filterByOptions.Groups = append(filterByOptions.Groups, pkgConst.NewConditionGroup(
+			pkgConst.FilterLogicOr,
+			pkgConst.FilterCondition{
+				Field:    string(biz.ProjectFieldName),
+				Operator: pkgConst.FilterOperatorContains,
+				Value:    req.FuzzyKeyword,
+			},
+		))
+	}
+
 	listOption := &biz.ListProjectsOption{
-		PageNumber:   req.PageIndex,
-		LimitPerPage: req.PageSize,
-		OrderBy:      orderBy,
-		FilterBy:     filterBy,
+		PageNumber:      req.PageIndex,
+		LimitPerPage:    req.PageSize,
+		OrderBy:         orderBy,
+		FilterByOptions: filterByOptions,
 	}
 
 	projects, total, err := d.ProjectUsecase.ListProject(ctx, listOption, currentUserUid)

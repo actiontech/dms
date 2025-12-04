@@ -38,15 +38,17 @@ func (d *DMSService) ListDataExportWorkflow(ctx context.Context, req *dmsV1.List
 	// default order by
 	orderBy := biz.WorkflowFieldCreateTime
 
-	filterBy := make([]pkgConst.FilterCondition, 0)
-	filterBy = append(filterBy, pkgConst.FilterCondition{
+	filterByOptions := pkgConst.NewFilterOptions(pkgConst.FilterLogicAnd)
+
+	andConditions := make([]pkgConst.FilterCondition, 0)
+	andConditions = append(andConditions, pkgConst.FilterCondition{
 		Field:    string(biz.WorkflowFieldWorkflowType),
 		Operator: pkgConst.FilterOperatorEqual,
 		Value:    biz.DataExportWorkflowEventType.String(),
 	})
 
 	if req.FilterByCreateUserUid != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.WorkflowFieldCreateUserUID),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByCreateUserUid,
@@ -54,7 +56,7 @@ func (d *DMSService) ListDataExportWorkflow(ctx context.Context, req *dmsV1.List
 	}
 
 	if req.FilterCreateTimeFrom != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.WorkflowFieldCreateTime),
 			Operator: pkgConst.FilterOperatorGreaterThanOrEqual,
 			Value:    req.FilterCreateTimeFrom,
@@ -62,7 +64,7 @@ func (d *DMSService) ListDataExportWorkflow(ctx context.Context, req *dmsV1.List
 	}
 
 	if req.FilterCreateTimeTo != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.WorkflowFieldCreateTime),
 			Operator: pkgConst.FilterOperatorLessThanOrEqual,
 			Value:    req.FilterCreateTimeTo,
@@ -70,33 +72,38 @@ func (d *DMSService) ListDataExportWorkflow(ctx context.Context, req *dmsV1.List
 	}
 
 	if req.ProjectUid != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.WorkflowFieldProjectUID),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.ProjectUid,
 		})
 	}
 
+	if len(andConditions) > 0 {
+		filterByOptions.Groups = append(filterByOptions.Groups, pkgConst.NewConditionGroup(pkgConst.FilterLogicAnd, andConditions...))
+	}
+
 	if req.FuzzyKeyword != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
-			Field:         string(biz.WorkflowFieldName),
-			Operator:      pkgConst.FilterOperatorContains,
-			Value:         req.FuzzyKeyword,
-			KeywordSearch: true,
-		}, pkgConst.FilterCondition{
-			Field:         string(biz.WorkflowFieldUID),
-			Operator:      pkgConst.FilterOperatorContains,
-			Value:         req.FuzzyKeyword,
-			KeywordSearch: true,
-		},
-		)
+		filterByOptions.Groups = append(filterByOptions.Groups, pkgConst.NewConditionGroup(
+			pkgConst.FilterLogicOr,
+			pkgConst.FilterCondition{
+				Field:    string(biz.WorkflowFieldName),
+				Operator: pkgConst.FilterOperatorContains,
+				Value:    req.FuzzyKeyword,
+			},
+			pkgConst.FilterCondition{
+				Field:    string(biz.WorkflowFieldUID),
+				Operator: pkgConst.FilterOperatorContains,
+				Value:    req.FuzzyKeyword,
+			},
+		))
 	}
 
 	listOption := &biz.ListWorkflowsOption{
-		PageNumber:   req.PageIndex,
-		LimitPerPage: req.PageSize,
-		OrderBy:      orderBy,
-		FilterBy:     filterBy,
+		PageNumber:      req.PageIndex,
+		LimitPerPage:    req.PageSize,
+		OrderBy:         orderBy,
+		FilterByOptions: filterByOptions,
 	}
 
 	workflows, total, err := d.DataExportWorkflowUsecase.ListDataExportWorkflows(ctx, listOption, currentUserUid, req.FilterByDBServiceUid, req.FilterCurrentStepAssigneeUserUid, string(req.FilterByStatus), req.ProjectUid)
@@ -310,10 +317,10 @@ func (d *DMSService) ListDataExportTaskSQLs(ctx context.Context, req *dmsV1.List
 	}}
 
 	listOption := &biz.ListDataExportTaskRecordOption{
-		PageNumber:   req.PageIndex,
-		LimitPerPage: req.PageSize,
-		OrderBy:      orderBy,
-		FilterBy:     filterBy,
+		PageNumber:      req.PageIndex,
+		LimitPerPage:    req.PageSize,
+		OrderBy:         orderBy,
+		FilterByOptions: pkgConst.ConditionsToFilterOptions(filterBy),
 	}
 
 	taskRecords, total, err := d.DataExportWorkflowUsecase.ListDataExportTaskRecords(ctx, listOption, currentUserUid)
