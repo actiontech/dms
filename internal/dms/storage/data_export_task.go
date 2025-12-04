@@ -67,7 +67,7 @@ func (d *DataExportTaskRepo) ListDataExportTaskRecord(ctx context.Context, opt *
 		// find models
 		{
 			db := tx.WithContext(ctx).Order(opt.OrderBy)
-			db = gormWheres(ctx, db, opt.FilterBy)
+			db = gormWheresWithOptions(ctx, db, opt.FilterByOptions)
 			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber)))))
 			if err := db.Find(&models).Error; err != nil {
 				return fmt.Errorf("failed to list data export task records: %v", err)
@@ -77,7 +77,7 @@ func (d *DataExportTaskRepo) ListDataExportTaskRecord(ctx context.Context, opt *
 		// find total
 		{
 			db := tx.WithContext(ctx).Model(&model.DataExportTaskRecord{})
-			db = gormWheres(ctx, db, opt.FilterBy)
+			db = gormWheresWithOptions(ctx, db, opt.FilterByOptions)
 			if err := db.Count(&total).Error; err != nil {
 				return fmt.Errorf("failed to count data export task records: %v", err)
 			}
@@ -112,7 +112,7 @@ func (d *DataExportTaskRepo) ListDataExportTasks(ctx context.Context, opt *biz.L
 		// find models
 		{
 			db := tx.WithContext(ctx).Order(opt.OrderBy)
-			db = gormWheres(ctx, db, opt.FilterBy)
+			db = gormWheresWithOptions(ctx, db, opt.FilterByOptions)
 			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber)))))
 			if err := db.Find(&models).Error; err != nil {
 				return fmt.Errorf("failed to list data export task: %v", err)
@@ -122,7 +122,7 @@ func (d *DataExportTaskRepo) ListDataExportTasks(ctx context.Context, opt *biz.L
 		// find total
 		{
 			db := tx.WithContext(ctx).Model(&model.DataExportTask{})
-			db = gormWheres(ctx, db, opt.FilterBy)
+			db = gormWheresWithOptions(ctx, db, opt.FilterByOptions)
 			if err := db.Count(&total).Error; err != nil {
 				return fmt.Errorf("failed to count data export task: %v", err)
 			}

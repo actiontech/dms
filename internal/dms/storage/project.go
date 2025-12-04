@@ -63,9 +63,7 @@ func (d *ProjectRepo) ListProjects(ctx context.Context, opt *biz.ListProjectsOpt
 		// find models
 		{
 			db := tx.WithContext(ctx).Order(opt.OrderBy)
-			for _, f := range opt.FilterBy {
-				db = gormWhere(db, f)
-			}
+			db = gormWheresWithOptions(ctx, db, opt.FilterByOptions)
 			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber)))))
 			if err := db.Find(&models).Error; err != nil {
 				return fmt.Errorf("failed to list projects: %v", err)
@@ -75,9 +73,7 @@ func (d *ProjectRepo) ListProjects(ctx context.Context, opt *biz.ListProjectsOpt
 		// find total
 		{
 			db := tx.WithContext(ctx).Model(&model.Project{})
-			for _, f := range opt.FilterBy {
-				db = gormWhere(db, f)
-			}
+			db = gormWheresWithOptions(ctx, db, opt.FilterByOptions)
 			if err := db.Count(&total).Error; err != nil {
 				return fmt.Errorf("failed to count projects: %v", err)
 			}

@@ -67,8 +67,8 @@ func (d *WorkflowRepo) ListDataExportWorkflows(ctx context.Context, opt *biz.Lis
 		// find models
 		{
 			db := tx.WithContext(ctx).Order(fmt.Sprintf("%s DESC", opt.OrderBy))
-			db = gormPreload(ctx, db, opt.FilterBy)
-			db = gormWheres(ctx, db, opt.FilterBy)
+			db = gormPreloadFromOptions(ctx, db, opt.FilterByOptions)
+			db = gormWheresWithOptions(ctx, db, opt.FilterByOptions)
 			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber)))))
 			if err := db.Find(&models).Error; err != nil {
 				return fmt.Errorf("failed to list Workflows: %v", err)
@@ -78,8 +78,8 @@ func (d *WorkflowRepo) ListDataExportWorkflows(ctx context.Context, opt *biz.Lis
 		// find total
 		{
 			db := tx.WithContext(ctx).Model(&model.Workflow{})
-			db = gormPreload(ctx, db, opt.FilterBy)
-			db = gormWheres(ctx, db, opt.FilterBy)
+			db = gormPreloadFromOptions(ctx, db, opt.FilterByOptions)
+			db = gormWheresWithOptions(ctx, db, opt.FilterByOptions)
 			if err := db.Count(&total).Error; err != nil {
 				return fmt.Errorf("failed to count Workflows: %v", err)
 			}

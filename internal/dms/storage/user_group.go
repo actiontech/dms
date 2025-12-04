@@ -120,9 +120,7 @@ func (d *UserGroupRepo) ListUserGroups(ctx context.Context, opt *biz.ListUserGro
 		// find models
 		{
 			db := tx.WithContext(ctx).Order(opt.OrderBy)
-			for _, f := range opt.FilterBy {
-				db = gormWhere(db, f)
-			}
+			db = gormWheresWithOptions(ctx, db, opt.FilterByOptions)
 			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber)))))
 			if err := db.Find(&models).Error; err != nil {
 				return fmt.Errorf("failed to list user groups: %v", err)
@@ -132,9 +130,7 @@ func (d *UserGroupRepo) ListUserGroups(ctx context.Context, opt *biz.ListUserGro
 		// find total
 		{
 			db := tx.WithContext(ctx).Model(&model.UserGroup{})
-			for _, f := range opt.FilterBy {
-				db = gormWhere(db, f)
-			}
+			db = gormWheresWithOptions(ctx, db, opt.FilterByOptions)
 			if err := db.Count(&total).Error; err != nil {
 				return fmt.Errorf("failed to count user groups: %v", err)
 			}
