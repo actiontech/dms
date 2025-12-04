@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"strings"
 	"sync"
+	"time"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/apiserver/conf"
@@ -994,8 +995,8 @@ func makeHttpRequest(ctx context.Context, url string, headers map[string]string,
 	return nil
 }
 
-// intercept 拦截工作台odc请求进行加工
-func (sqlWorkbenchService *SqlWorkbenchService) Intercept() echo.MiddlewareFunc {
+// AuditMiddleware 拦截工作台odc请求进行加工
+func (sqlWorkbenchService *SqlWorkbenchService) AuditMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			// 只拦截包含 /streamExecute 的请求
@@ -1111,8 +1112,8 @@ func (sqlWorkbenchService *SqlWorkbenchService) parseSidToDatasourceID(sid strin
 	// 移除 "sid:" 前缀
 	sid = strings.TrimPrefix(sid, "sid:")
 
-	// 查找最后一个 ":d:dms" 后缀并移除
-	if idx := strings.LastIndex(sid, ":d:dms"); idx != -1 {
+	// 查找最后一个 ":d" 后缀并移除从 ":d" 开始的所有字符
+	if idx := strings.LastIndex(sid, ":d"); idx != -1 {
 		sid = sid[:idx]
 	}
 
@@ -1244,6 +1245,67 @@ func (sqlWorkbenchService *SqlWorkbenchService) callSQLEAudit(ctx context.Contex
 
 // interceptAndAddAuditResult 拦截响应并添加审核结果
 func (sqlWorkbenchService *SqlWorkbenchService) interceptAndAddAuditResult(c echo.Context, next echo.HandlerFunc, auditResult *auditSQLReply, dbService *biz.DBService) error {
+	// 判断是否需要审批
+	allowQueryWhenLessThanAuditLevel := dbService.GetAllowQueryWhenLessThanAuditLevel()
+	needApproval := sqlWorkbenchService.shouldRequireApproval(auditResult.Data.SQLResults, allowQueryWhenLessThanAuditLevel)
+
+	// 如果需要审批，直接返回审核结果，不请求真实的 streamExecute 接口
+	if needApproval {
+		return sqlWorkbenchService.buildAuditResponseWithoutExecution(c, auditResult, dbService)
+	}
+
+	// 不需要审批，执行真实请求并添加审核结果
+	return sqlWorkbenchService.executeAndAddAuditResult(c, next, auditResult, dbService)
+}
+
+// buildAuditResponseWithoutExecution 构造审核响应，不执行真实的 SQL
+func (sqlWorkbenchService *SqlWorkbenchService) buildAuditResponseWithoutExecution(c echo.Context, auditResult *auditSQLReply, dbService *biz.DBService) error {
+	// 构造 SQL 条目列表
+	sqlItems := make([]StreamExecuteSQLItem, 0, len(auditResult.Data.SQLResults))
+	for _, sqlResult := range auditResult.Data.SQLResults {
+		// 转换审核结果为 violatedRules 格式
+		violatedRules := sqlWorkbenchService.convertSQLEAuditToViolatedRules(&sqlResult)
+
+		sqlItem := StreamExecuteSQLItem{
+			SQLTuple: StreamExecuteSQLTuple{
+				ExecutedSQL: sqlResult.ExecSQL,
+				Offset:      int(sqlResult.Number),
+				OriginalSQL: sqlResult.ExecSQL,
+				SQLID:       fmt.Sprintf("sqle-audit-%d", sqlResult.Number),
+			},
+			ViolatedRules: violatedRules,
+		}
+		sqlItems = append(sqlItems, sqlItem)
+	}
+
+	// 构造响应数据
+	responseData := StreamExecuteData{
+		ApprovalRequired:        true, // 需要审批
+		LogicalSQL:              false,
+		RequestID:               nil,
+		SQLs:                    sqlItems,
+		UnauthorizedDBResources: nil,
+		ViolatedRules:           []interface{}{},
+	}
+
+	// 构造完整响应
+	response := StreamExecuteResponse{
+		Data:           responseData,
+		DurationMillis: 0,
+		HTTPStatus:     "OK",
+		RequestID:      fmt.Sprintf("dms-audit-%d", time.Now().UnixNano()),
+		Server:         "DMS",
+		Successful:     true,
+		Timestamp:      float64(time.Now().Unix()),
+		TraceID:        c.Response().Header().Get("X-Trace-ID"),
+	}
+
+	// 返回 JSON 响应
+	return c.JSON(http.StatusOK, response)
+}
+
+// executeAndAddAuditResult 执行真实请求并添加审核结果
+func (sqlWorkbenchService *SqlWorkbenchService) executeAndAddAuditResult(c echo.Context, next echo.HandlerFunc, auditResult *auditSQLReply, dbService *biz.DBService) error {
 	// 创建响应拦截器
 	srw := newStreamExecuteResponseWriter(c)
 	cloudbeaverResBuf := srw.Buffer
@@ -1287,13 +1349,6 @@ func (sqlWorkbenchService *SqlWorkbenchService) interceptAndAddAuditResult(c ech
 		if auditResult != nil && auditResult.Data != nil && auditResult.Data.PassRate != 1 {
 			// 将 SQLE 审核结果整合到每个 SQL 条目中
 			sqlWorkbenchService.mergeSQLEAuditResults(&responseBody.Data, auditResult.Data, dbService)
-
-			// 在 data 级别添加汇总的审核结果信息
-			responseBody.Data.SQLEAuditResult = &SQLEAuditResultSummary{
-				AuditLevel: auditResult.Data.AuditLevel,
-				Score:      auditResult.Data.Score,
-				PassRate:   auditResult.Data.PassRate,
-			}
 		}
 
 		// 重新序列化响应
@@ -1388,14 +1443,9 @@ func (sqlWorkbenchService *SqlWorkbenchService) mergeSQLEAuditResults(data *Stre
 		sqlAuditMap[normalizedSQL] = sqlResult
 	}
 
-	// 获取数据源设置的审核放行等级
-	allowQueryWhenLessThanAuditLevel := dbService.GetAllowQueryWhenLessThanAuditLevel()
-
-	// 判断是否需要审批
-	needApproval := sqlWorkbenchService.shouldRequireApproval(auditData.SQLResults, allowQueryWhenLessThanAuditLevel)
-
-	// 设置 ApprovalRequired 字段
-	data.ApprovalRequired = needApproval
+	// 设置 ApprovalRequired 为 false，表示已通过审核可以执行
+	// 注意：如果需要审批，在 interceptAndAddAuditResult 中已经拦截，不会执行到这里
+	data.ApprovalRequired = false
 
 	// 遍历 sqls 数组，为每个 SQL 条目添加 SQLE 审核结果
 	for i := range data.SQLs {
@@ -1522,13 +1572,12 @@ type StreamExecuteResponse struct {
 
 // StreamExecuteData streamExecute 响应中的 data 字段
 type StreamExecuteData struct {
-	ApprovalRequired        bool                    `json:"approvalRequired"`
-	LogicalSQL              bool                    `json:"logicalSql"`
-	RequestID               *string                 `json:"requestId"`
-	SQLs                    []StreamExecuteSQLItem  `json:"sqls"`
-	UnauthorizedDBResources interface{}             `json:"unauthorizedDBResources"`
-	ViolatedRules           []interface{}           `json:"violatedRules"`
-	SQLEAuditResult         *SQLEAuditResultSummary `json:"sqleAuditResult,omitempty"`
+	ApprovalRequired        bool                   `json:"approvalRequired"`
+	LogicalSQL              bool                   `json:"logicalSql"`
+	RequestID               *string                `json:"requestId"`
+	SQLs                    []StreamExecuteSQLItem `json:"sqls"`
+	UnauthorizedDBResources interface{}            `json:"unauthorizedDBResources"`
+	ViolatedRules           []interface{}          `json:"violatedRules"`
 }
 
 // StreamExecuteSQLItem SQL 条目
