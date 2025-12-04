@@ -224,4 +224,5 @@ var (
 	NotifyDataWorkflowBodyReport            = &i18n.Message{ID: "NotifyDataWorkflowBodyReport", Other: "⭐ 数据导出工单审核得分: %v"}
 	NotifyDataWorkflowBodyStartEnd          = &i18n.Message{ID: "NotifyDataWorkflowBodyStartEnd", Other: "▶️ 数据导出开始时间: %v\n◀️ 数据导出结束时间: %v"}
 	NotifyDataWorkflowBodyWorkFlowErr       = &i18n.Message{ID: "NotifyDataWorkflowBodyWorkFlowErr", Other: "❌ 读取工单任务内容失败，请通过SQLE界面确认工单状态"}
+	NotifyDataWorkflowBodyApprovalReminder  = &i18n.Message{ID: "NotifyDataWorkflowBodyApprovalReminder", Other: "⏰ 导出工单已审批通过，请在1天内完成导出，过期后将无法执行"}
 )

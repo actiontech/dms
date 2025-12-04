@@ -180,23 +180,6 @@ func (sqlWorkbenchService *SqlWorkbenchService) IsConfigured() bool {
 	return sqlWorkbenchService.cfg != nil && sqlWorkbenchService.cfg.Host != "" && sqlWorkbenchService.cfg.Port != ""
 }
 
-func (sqlWorkbenchService *SqlWorkbenchService) GetSqlWorkbenchConfiguration() (reply *dmsV1.GetSQLQueryConfigurationReply, err error) {
-	sqlWorkbenchService.log.Infof("GetSqlWorkbenchConfiguration")
-	defer func() {
-		sqlWorkbenchService.log.Infof("GetSqlWorkbenchConfiguration; reply=%v, error=%v", reply, err)
-	}()
-
-	return &dmsV1.GetSQLQueryConfigurationReply{
-		Data: struct {
-			EnableSQLQuery  bool   `json:"enable_sql_query"`
-			SQLQueryRootURI string `json:"sql_query_root_uri"`
-		}{
-			EnableSQLQuery:  sqlWorkbenchService.IsConfigured(),
-			SQLQueryRootURI: SQL_WORKBENCH_URL,
-		},
-	}, nil
-}
-
 func (sqlWorkbenchService *SqlWorkbenchService) GetOdcProxyTarget() ([]*middleware.ProxyTarget, error) {
 	cfg := sqlWorkbenchService.cfg
 	rawUrl, err := url.Parse(fmt.Sprintf("http://%v:%v", cfg.Host, cfg.Port))

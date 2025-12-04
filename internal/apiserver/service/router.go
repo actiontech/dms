@@ -1,16 +1,15 @@
 package service
 
 import (
-	"bytes"
-	"compress/gzip"
 	"fmt"
-	"io"
 	"net/http"
 	"strings"
 
 	dmsMiddleware "github.com/actiontech/dms/internal/apiserver/middleware"
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/internal/pkg/locale"
+	"github.com/actiontech/dms/internal/pkg/utils"
+	sqlWorkbenchService "github.com/actiontech/dms/internal/sql_workbench/service"
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	dmsV2 "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
@@ -278,6 +277,14 @@ func (s *APIServer) initRouter() error {
 			}
 
 			sqlWorkbenchV1.Use(s.SqlWorkbenchController.SqlWorkbenchService.Login())
+
+			// 添加操作日志记录中间件
+			sqlWorkbenchV1.Use(sqlWorkbenchService.GetOperationLogBodyDumpMiddleware(sqlWorkbenchService.OperationLogMiddlewareConfig{
+				CbOperationLogUsecase: s.DMSController.DMS.CbOperationLogUsecase,
+				DBServiceUsecase:      s.DMSController.DMS.DBServiceUsecase,
+				SqlWorkbenchService:   s.SqlWorkbenchController.SqlWorkbenchService,
+			}))
+
 			sqlWorkbenchV1.Use(s.SqlWorkbenchController.SqlWorkbenchService.Intercept())
 			sqlWorkbenchV1.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
 				Skipper:  middleware.DefaultSkipper,
@@ -318,24 +325,13 @@ func SwaggerMiddleWare(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-// 检查 reply 是否是 Gzip 数据
-func isGzip(data []byte) bool {
-	return len(data) >= 2 && data[0] == 0x1f && data[1] == 0x8b
-}
-
 // 解码 Gzip 数据
 func decodeGzip(data []byte) string {
-	reader, err := gzip.NewReader(bytes.NewReader(data))
+	gzipBytes, err := utils.DecodeGzipBytes(data)
 	if err != nil {
 		return fmt.Sprintf("Gzip decode error: %v", err)
 	}
-	defer reader.Close()
-
-	decoded, err := io.ReadAll(reader)
-	if err != nil {
-		return fmt.Sprintf("Read Gzip data error: %v", err)
-	}
-	return string(decoded)
+	return string(gzipBytes)
 }
 
 func (s *APIServer) installMiddleware() error {
@@ -368,12 +364,20 @@ func (s *APIServer) installMiddleware() error {
 		"/v1/dms/configurations/sms/verify_code",
 		"/v1/dms/basic_info",
 	}
+	var notSkipJWTPaths = []string{
+		sqlWorkbenchService.SQL_WORKBENCH_URL,
+	}
 	s.echo.Use(dmsMiddleware.JWTTokenAdapter(), echojwt.WithConfig(echojwt.Config{
 		Skipper: middleware.Skipper(func(c echo.Context) bool {
 			uri := c.Request().RequestURI
 			for _, skipPath := range skipJWTPaths {
 				if strings.HasSuffix(uri, skipPath) || strings.HasPrefix(uri, skipPath) {
 					return true
+				}
+			}
+			for _, notSkipPath := range notSkipJWTPaths {
+				if strings.HasSuffix(uri, notSkipPath) || strings.HasPrefix(uri, notSkipPath) {
+					return false
 				}
 			}
 			// Non-DMS component's own uri
@@ -401,7 +405,7 @@ func (s *APIServer) installMiddleware() error {
 			reqStr := string(req)
 			// 尝试解码 reply（gzip 格式）
 			var replyStr string
-			if isGzip(reply) {
+			if utils.IsGzip(reply) {
 				replyStr = decodeGzip(reply)
 			} else {
 				replyStr = string(reply)
