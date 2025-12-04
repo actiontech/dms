@@ -65,16 +65,16 @@ type DataExportTaskRecord struct {
 }
 
 type ListDataExportTaskRecordOption struct {
-	PageNumber   uint32
-	LimitPerPage uint32
-	OrderBy      DataExportTaskRecordField
-	FilterBy     []pkgConst.FilterCondition
+	PageNumber      uint32
+	LimitPerPage    uint32
+	OrderBy         DataExportTaskRecordField
+	FilterByOptions pkgConst.FilterOptions
 }
 type ListDataExportTaskOption struct {
-	PageNumber   uint32
-	LimitPerPage uint32
-	OrderBy      DataExportTaskField
-	FilterBy     []pkgConst.FilterCondition
+	PageNumber      uint32
+	LimitPerPage    uint32
+	OrderBy         DataExportTaskField
+	FilterByOptions pkgConst.FilterOptions
 }
 
 type DataExportTaskRepo interface {

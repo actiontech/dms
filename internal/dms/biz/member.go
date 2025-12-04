@@ -114,18 +114,20 @@ func (m *MemberUsecase) CreateMember(ctx context.Context, currentUserUid string,
 		if _, total, err := m.ListMember(ctx, &ListMembersOption{
 			PageNumber:   0,
 			LimitPerPage: 10,
-			FilterBy: []pkgConst.FilterCondition{
-				{
-					Field:    string(MemberFieldUserUID),
-					Operator: pkgConst.FilterOperatorEqual,
-					Value:    memberUserUid,
-				},
-				{
-					Field:    string(MemberFieldProjectUID),
-					Operator: pkgConst.FilterOperatorEqual,
-					Value:    projectUid,
-				},
-			},
+			FilterByOptions: pkgConst.NewFilterOptions(pkgConst.FilterLogicAnd,
+				pkgConst.NewConditionGroup(pkgConst.FilterLogicAnd,
+					pkgConst.FilterCondition{
+						Field:    string(MemberFieldUserUID),
+						Operator: pkgConst.FilterOperatorEqual,
+						Value:    memberUserUid,
+					},
+					pkgConst.FilterCondition{
+						Field:    string(MemberFieldProjectUID),
+						Operator: pkgConst.FilterOperatorEqual,
+						Value:    projectUid,
+					},
+				),
+			),
 		}, projectUid); err != nil {
 			return "", fmt.Errorf("check member exist failed: %v", err)
 		} else if total > 0 {
@@ -177,18 +179,20 @@ func (m *MemberUsecase) AddUserToProjectAdminMember(ctx context.Context, userUid
 		if _, total, err := m.ListMember(ctx, &ListMembersOption{
 			PageNumber:   0,
 			LimitPerPage: 10,
-			FilterBy: []pkgConst.FilterCondition{
-				{
+			FilterByOptions: pkgConst.NewFilterOptions(pkgConst.FilterLogicAnd,
+				pkgConst.NewConditionGroup(pkgConst.FilterLogicAnd,
+				pkgConst.FilterCondition{
 					Field:    string(MemberFieldUserUID),
 					Operator: pkgConst.FilterOperatorEqual,
 					Value:    userUid,
 				},
-				{
+				pkgConst.FilterCondition{
 					Field:    string(MemberFieldProjectUID),
 					Operator: pkgConst.FilterOperatorEqual,
 					Value:    projectUid,
 				},
-			},
+			),
+		),
 		}, projectUid); err != nil {
 			return "", fmt.Errorf("check member exist failed: %v", err)
 		} else if total > 0 {
@@ -283,10 +287,10 @@ func (m *MemberUsecase) GetMemberRoleWithOpRange(ctx context.Context, memberUid 
 }
 
 type ListMembersOption struct {
-	PageNumber   uint32
-	LimitPerPage uint32
-	OrderBy      MemberField
-	FilterBy     []pkgConst.FilterCondition
+	PageNumber      uint32
+	LimitPerPage    uint32
+	OrderBy         MemberField
+	FilterByOptions pkgConst.FilterOptions
 }
 
 func (m *MemberUsecase) ListMember(ctx context.Context, option *ListMembersOption, projectUid string) (members []*Member, total int64, err error) {
