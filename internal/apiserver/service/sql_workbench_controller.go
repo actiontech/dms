@@ -2,10 +2,11 @@ package service
 
 import (
 	"fmt"
+
+	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	sql_workbench "github.com/actiontech/dms/internal/sql_workbench/service"
 
 	"github.com/actiontech/dms/internal/apiserver/conf"
-	apiError "github.com/actiontech/dms/internal/apiserver/pkg/error"
 	"github.com/actiontech/dms/internal/dms/service"
 
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
@@ -51,16 +52,18 @@ func (cc *SqlWorkbenchController) Shutdown() error {
 //	  200: body:GetSQLQueryConfigurationReply
 //	  default: body:GenericResp
 func (cc *SqlWorkbenchController) GetSQLQueryConfiguration(c echo.Context) error {
-	reply, err := cc.CloudbeaverService.GetCloudbeaverConfiguration(c.Request().Context())
-	if err != nil {
-		return NewErrResp(c, err, apiError.APIServerErr)
-	}
-	getSQLQueryConfigurationReply, err := cc.SqlWorkbenchService.GetSqlWorkbenchConfiguration()
-	if err != nil {
-		return NewErrResp(c, err, apiError.APIServerErr)
-	}
-	if getSQLQueryConfigurationReply.Data.EnableSQLQuery {
-		return NewOkRespWithReply(c, getSQLQueryConfigurationReply)
+	reply := &dmsV1.GetSQLQueryConfigurationReply{
+		Data: struct {
+			EnableSQLQuery  bool   `json:"enable_sql_query"`
+			SQLQueryRootURI string `json:"sql_query_root_uri"`
+			EnableOdcQuery  bool   `json:"enable_odc_query"`
+			OdcQueryRootURI string `json:"odc_query_root_uri"`
+		}{
+			EnableSQLQuery:  cc.CloudbeaverService.CloudbeaverUsecase.IsCloudbeaverConfigured(),
+			SQLQueryRootURI: cc.CloudbeaverService.CloudbeaverUsecase.GetRootUri() + "/", // 确保URL以斜杠结尾，防止DMS开启HTTPS时，Web服务器重定向到HTTP根路径导致访问错误
+			EnableOdcQuery:  cc.SqlWorkbenchService.IsConfigured(),
+			OdcQueryRootURI: cc.SqlWorkbenchService.GetRootUri(),
+		},
 	}
 	return NewOkRespWithReply(c, reply)
 }
