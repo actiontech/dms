@@ -7,6 +7,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/actiontech/dms/internal/pkg/cloudbeaver"
+	"github.com/actiontech/dms/internal/pkg/utils"
 	"io"
 	"net/http"
 	"net/url"
@@ -1007,8 +1009,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) AuditMiddleware() echo.Middlewar
 			// 读取请求体
 			bodyBytes, err := io.ReadAll(c.Request().Body)
 			if err != nil {
-				sqlWorkbenchService.log.Errorf("Failed to read request body: %v", err)
-				return next(c)
+				return fmt.Errorf("failed to read request body: %w", err)
 			}
 			// 恢复请求体，供后续处理使用
 			c.Request().Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
@@ -1016,52 +1017,44 @@ func (sqlWorkbenchService *SqlWorkbenchService) AuditMiddleware() echo.Middlewar
 			// 解析请求体获取 SQL 和 datasource ID
 			sql, datasourceID, err := sqlWorkbenchService.parseStreamExecuteRequest(bodyBytes)
 			if err != nil {
-				sqlWorkbenchService.log.Debugf("Failed to parse streamExecute request, skipping audit: %v", err)
-				return next(c)
+				return fmt.Errorf("failed to parse streamExecute request, skipping audit: %v", err)
 			}
 
 			if sql == "" || datasourceID == "" {
-				sqlWorkbenchService.log.Debugf("SQL or datasource ID is empty, skipping audit")
-				return next(c)
+				return fmt.Errorf("SQL or datasource ID is empty, skipping audit")
 			}
 
 			// 获取当前用户 ID
 			dmsUserId, err := sqlWorkbenchService.getDMSUserIdFromRequest(c)
 			if err != nil {
-				sqlWorkbenchService.log.Errorf("Failed to get DMS user ID: %v", err)
-				return next(c)
+				return fmt.Errorf("failed to get DMS user ID: %v", err)
 			}
 
 			// 从缓存表获取 dms_db_service_id
 			dmsDBServiceID, err := sqlWorkbenchService.getDMSDBServiceIDFromCache(c.Request().Context(), datasourceID, dmsUserId)
 			if err != nil {
-				sqlWorkbenchService.log.Errorf("Failed to get dms_db_service_id from cache: %v", err)
-				return next(c)
+				return fmt.Errorf("failed to get dms_db_service_id from cache: %v", err)
 			}
 
 			if dmsDBServiceID == "" {
-				sqlWorkbenchService.log.Debugf("dms_db_service_id not found in cache for datasource: %s", datasourceID)
-				return next(c)
+				return fmt.Errorf("dms_db_service_id not found in cache for datasource: %s", datasourceID)
 			}
 
 			// 获取 DBService 信息
 			dbService, err := sqlWorkbenchService.dbServiceUsecase.GetDBService(c.Request().Context(), dmsDBServiceID)
 			if err != nil {
-				sqlWorkbenchService.log.Errorf("Failed to get DBService: %v", err)
-				return next(c)
+				return fmt.Errorf("failed to get DBService: %v", err)
 			}
 
 			// 检查是否启用 SQL 审核
 			if !sqlWorkbenchService.isEnableSQLAudit(dbService) {
-				sqlWorkbenchService.log.Debugf("SQL audit is not enabled for DBService: %s", dmsDBServiceID)
-				return next(c)
+				return fmt.Errorf("SQL audit is not enabled for DBService: %s", dmsDBServiceID)
 			}
 
 			// 调用 SQLE 审核接口
 			auditResult, err := sqlWorkbenchService.callSQLEAudit(c.Request().Context(), sql, dbService)
 			if err != nil {
-				sqlWorkbenchService.log.Errorf("Failed to call SQLE audit: %v", err)
-				return next(c)
+				return fmt.Errorf("call SQLE audit failed: %v", err)
 			}
 
 			// 拦截响应并添加审核结果
@@ -1217,7 +1210,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) callSQLEAudit(ctx context.Contex
 	sqleAddr := fmt.Sprintf("%s/v2/sql_audit", target.URL.String())
 
 	// 构建审核请求
-	auditReq := auditSQLReq{
+	auditReq := cloudbeaver.AuditSQLReq{
 		InstanceType:     dbService.DBType,
 		SQLContent:       sql,
 		SQLType:          "sql",
@@ -1397,9 +1390,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) decodeResponseBody(body []byte, 
 	if len(body) == 0 {
 		return body, false, nil
 	}
-
-	encoding := strings.ToLower(contentEncoding)
-	isGzip := strings.Contains(encoding, "gzip") || (len(body) >= 2 && body[0] == 0x1f && body[1] == 0x8b)
+	isGzip := utils.IsGzip(body)
 	if !isGzip {
 		return body, false, nil
 	}
@@ -1542,7 +1533,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) convertSQLEAuditToViolatedRules(
 }
 
 // mapAuditLevelToNumber 将审核级别字符串映射到数字
-// normal=0, notice=1, warn=2, error=3
+// normal=0, notice=3, warn=1, error=2
 func (sqlWorkbenchService *SqlWorkbenchService) mapAuditLevelToNumber(level string) int {
 	switch strings.ToLower(level) {
 	case "normal":
@@ -1554,7 +1545,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) mapAuditLevelToNumber(level stri
 	case "error":
 		return 2
 	default:
-		return 0 // 默认为 notice
+		return 0 // 默认为 normal
 	}
 }
 
@@ -1654,15 +1645,6 @@ func (w *streamExecuteResponseWriter) Write(b []byte) (int, error) {
 
 func (w *streamExecuteResponseWriter) WriteHeader(code int) {
 	w.status = code
-}
-
-// auditSQLReq SQLE 审核请求结构
-type auditSQLReq struct {
-	InstanceType     string `json:"instance_type"`
-	SQLContent       string `json:"sql_content"`
-	SQLType          string `json:"sql_type"`
-	ProjectId        string `json:"project_id"`
-	RuleTemplateName string `json:"rule_template_name"`
 }
 
 // auditSQLReply SQLE 审核响应结构
