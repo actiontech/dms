@@ -7,14 +7,15 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/actiontech/dms/internal/pkg/cloudbeaver"
-	"github.com/actiontech/dms/internal/pkg/utils"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/actiontech/dms/internal/pkg/cloudbeaver"
+	"github.com/actiontech/dms/internal/pkg/utils"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/apiserver/conf"
@@ -25,11 +26,14 @@ import (
 	"github.com/actiontech/dms/internal/sql_workbench/client"
 	config "github.com/actiontech/dms/internal/sql_workbench/config"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
+	"github.com/actiontech/dms/pkg/dms-common/i18nPkg"
 	_const "github.com/actiontech/dms/pkg/dms-common/pkg/const"
 	pkgHttp "github.com/actiontech/dms/pkg/dms-common/pkg/http"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
+	pkgRand "github.com/actiontech/dms/pkg/rand"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"golang.org/x/text/language"
 )
 
 const SQL_WORKBENCH_URL = "/odc_query"
@@ -95,6 +99,7 @@ type SqlWorkbenchService struct {
 	sqlWorkbenchUserRepo       biz.SqlWorkbenchUserRepo
 	sqlWorkbenchDatasourceRepo biz.SqlWorkbenchDatasourceRepo
 	proxyTargetRepo            biz.ProxyTargetRepo
+	cbOperationLogUsecase      *biz.CbOperationLogUsecase
 }
 
 func NewAndInitSqlWorkbenchService(logger utilLog.Logger, opts *conf.DMSOptions) (*SqlWorkbenchService, error) {
@@ -162,6 +167,10 @@ func NewAndInitSqlWorkbenchService(logger utilLog.Logger, opts *conf.DMSOptions)
 	sqlWorkbenchUserRepo := storage.NewSqlWorkbenchRepo(logger, st)
 	sqlWorkbenchDatasourceRepo := storage.NewSqlWorkbenchDatasourceRepo(logger, st)
 
+	// 初始化操作日志相关
+	cbOperationLogRepo := storage.NewCbOperationLogRepo(logger, st)
+	cbOperationLogUsecase := biz.NewCbOperationLogUsecase(logger, cbOperationLogRepo, opPermissionVerifyUsecase, proxyTargetRepo, biz.NewSystemVariableUsecase(logger, storage.NewSystemVariableRepo(logger, st)))
+
 	return &SqlWorkbenchService{
 		cfg:                        opts.SqlWorkBenchOpts,
 		log:                        utilLog.NewHelper(logger, utilLog.WithMessageKey("sql_workbench.service")),
@@ -173,6 +182,7 @@ func NewAndInitSqlWorkbenchService(logger utilLog.Logger, opts *conf.DMSOptions)
 		sqlWorkbenchUserRepo:       sqlWorkbenchUserRepo,
 		sqlWorkbenchDatasourceRepo: sqlWorkbenchDatasourceRepo,
 		proxyTargetRepo:            proxyTargetRepo,
+		cbOperationLogUsecase:      cbOperationLogUsecase,
 	}, nil
 }
 
@@ -1058,7 +1068,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) AuditMiddleware() echo.Middlewar
 			}
 
 			// 拦截响应并添加审核结果
-			return sqlWorkbenchService.interceptAndAddAuditResult(c, next, auditResult, dbService)
+			return sqlWorkbenchService.interceptAndAddAuditResult(c, next, dmsUserId, auditResult, dbService)
 		}
 	}
 }
@@ -1237,14 +1247,14 @@ func (sqlWorkbenchService *SqlWorkbenchService) callSQLEAudit(ctx context.Contex
 }
 
 // interceptAndAddAuditResult 拦截响应并添加审核结果
-func (sqlWorkbenchService *SqlWorkbenchService) interceptAndAddAuditResult(c echo.Context, next echo.HandlerFunc, auditResult *auditSQLReply, dbService *biz.DBService) error {
+func (sqlWorkbenchService *SqlWorkbenchService) interceptAndAddAuditResult(c echo.Context, next echo.HandlerFunc, userId string, auditResult *auditSQLReply, dbService *biz.DBService) error {
 	// 判断是否需要审批
 	allowQueryWhenLessThanAuditLevel := dbService.GetAllowQueryWhenLessThanAuditLevel()
 	needApproval := sqlWorkbenchService.shouldRequireApproval(auditResult.Data.SQLResults, allowQueryWhenLessThanAuditLevel)
 
 	// 如果需要审批，直接返回审核结果，不请求真实的 streamExecute 接口
 	if needApproval {
-		return sqlWorkbenchService.buildAuditResponseWithoutExecution(c, auditResult, dbService)
+		return sqlWorkbenchService.buildAuditResponseWithoutExecution(c, userId, auditResult, dbService)
 	}
 
 	// 不需要审批，执行真实请求并添加审核结果
@@ -1252,7 +1262,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) interceptAndAddAuditResult(c ech
 }
 
 // buildAuditResponseWithoutExecution 构造审核响应，不执行真实的 SQL
-func (sqlWorkbenchService *SqlWorkbenchService) buildAuditResponseWithoutExecution(c echo.Context, auditResult *auditSQLReply, dbService *biz.DBService) error {
+func (sqlWorkbenchService *SqlWorkbenchService) buildAuditResponseWithoutExecution(c echo.Context, userId string, auditResult *auditSQLReply, dbService *biz.DBService) error {
 	// 构造 SQL 条目列表
 	sqlItems := make([]StreamExecuteSQLItem, 0, len(auditResult.Data.SQLResults))
 	for _, sqlResult := range auditResult.Data.SQLResults {
@@ -1293,8 +1303,106 @@ func (sqlWorkbenchService *SqlWorkbenchService) buildAuditResponseWithoutExecuti
 		TraceID:        c.Response().Header().Get("X-Trace-ID"),
 	}
 
+	// 记录审核拦截的操作日志
+	if err := sqlWorkbenchService.saveAuditBlockedLog(c, userId, auditResult, dbService); err != nil {
+		sqlWorkbenchService.log.Errorf("failed to save audit blocked log: %v", err)
+		// 日志记录失败不影响响应返回
+	}
+
 	// 返回 JSON 响应
 	return c.JSON(http.StatusOK, response)
+}
+
+// saveAuditBlockedLog 记录审核拦截的操作日志
+func (sqlWorkbenchService *SqlWorkbenchService) saveAuditBlockedLog(c echo.Context, userId string, auditResult *auditSQLReply, dbService *biz.DBService) error {
+	ctx := context.Background()
+
+	// 提取 session ID
+	sessionID := extractSessionID(c.Request().URL.Path)
+
+	// 对每个被拦截的 SQL 记录日志
+	for _, sqlResult := range auditResult.Data.SQLResults {
+		// 生成 UID
+		uid, err := pkgRand.GenStrUid()
+		if err != nil {
+			sqlWorkbenchService.log.Errorf("failed to generate UID: %v", err)
+			continue
+		}
+
+		// 获取 SQL 内容
+		sql := sqlResult.ExecSQL
+
+		// 构建操作详情
+		opDetail := i18nPkg.ConvertStr2I18nAsDefaultLang(sql)
+
+		// 转换审核结果
+		auditResults := sqlWorkbenchService.convertToAuditResults(&sqlResult)
+
+		// 判断是否审核通过
+		isAuditPass := false // 被拦截的 SQL 默认未通过审核
+
+		// 创建操作日志 - 标记为审核失败（被拦截）
+		now := time.Now()
+		cbOperationLog := biz.CbOperationLog{
+			UID:               uid,
+			OpPersonUID:       userId,
+			OpTime:            &now,
+			DBServiceUID:      dbService.UID,
+			OpType:            biz.CbOperationLogTypeSql,
+			I18nOpDetail:      opDetail,
+			OpSessionID:       &sessionID,
+			ProjectID:         dbService.ProjectUID,
+			OpHost:            c.RealIP(),
+			AuditResults:      auditResults,
+			IsAuditPass:       &isAuditPass,
+			ExecResult:        "",
+			ExecTotalSec:      0,
+			ResultSetRowCount: 0,
+		}
+
+		// 保存操作日志
+		if err := sqlWorkbenchService.cbOperationLogUsecase.SaveCbOperationLog(ctx, &cbOperationLog); err != nil {
+			sqlWorkbenchService.log.Errorf("failed to save operation log: %v", err)
+			// 继续处理其他 SQL
+		}
+	}
+
+	return nil
+}
+
+// convertToAuditResults 将审核结果转换为 model.AuditResults 格式
+func (sqlWorkbenchService *SqlWorkbenchService) convertToAuditResults(sqlResult *auditSQLResV2) dbmodel.AuditResults {
+	var auditResults dbmodel.AuditResults
+	for _, result := range sqlResult.AuditResult {
+		auditResult := dbmodel.AuditResult{
+			Level:           result.Level,
+			RuleName:        "", // SQLE 返回的审核结果中没有 RuleName，如果需要可以从 Message 中提取
+			ExecutionFailed: result.ExecutionFailed,
+			I18nAuditResultInfo: dbmodel.I18nAuditResultInfo{
+				language.Chinese: dbmodel.AuditResultInfo{
+					Message:   result.Message,
+					ErrorInfo: "",
+				},
+			},
+		}
+		auditResults = append(auditResults, auditResult)
+	}
+	return auditResults
+}
+
+// extractSessionID 从路径中提取 session ID
+func extractSessionID(path string) string {
+	// 匹配类似: /api/v2/datasource/sessions/sid:{sessionId}/sqls/getMoreResults
+	parts := strings.Split(path, "/")
+	for i, part := range parts {
+		if strings.HasPrefix(part, "sid:") {
+			return part
+		}
+		if i < len(parts)-1 && part == "sessions" && strings.HasPrefix(parts[i+1], "sid:") {
+			return parts[i+1]
+		}
+	}
+	return ""
 }
 
 // executeAndAddAuditResult 执行真实请求并添加审核结果
