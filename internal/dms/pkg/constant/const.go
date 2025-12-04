@@ -287,6 +287,49 @@ const (
 	FilterOperatorIn                 FilterOperator = "in"
 )
 
+type FilterLogic string
+
+const (
+	FilterLogicAnd FilterLogic = "AND"
+	FilterLogicOr  FilterLogic = "OR"
+)
+
+type FilterConditionGroup struct {
+	Logic      FilterLogic
+	Conditions []FilterCondition
+	Groups     []FilterConditionGroup
+}
+
+type FilterOptions struct {
+	Logic  FilterLogic
+	Groups []FilterConditionGroup
+}
+
+func NewFilterOptions(logic FilterLogic, groups ...FilterConditionGroup) FilterOptions {
+	return FilterOptions{
+		Logic:  logic,
+		Groups: groups,
+	}
+}
+
+func NewConditionGroup(logic FilterLogic, conditions ...FilterCondition) FilterConditionGroup {
+	return FilterConditionGroup{
+		Logic:      logic,
+		Conditions: conditions,
+	}
+}
+
+func ConditionsToFilterOptions(conditions []FilterCondition) FilterOptions {
+	if len(conditions) == 0 {
+		return FilterOptions{}
+	}
+
+	return FilterOptions{
+		Logic:  FilterLogicAnd,
+		Groups: []FilterConditionGroup{NewConditionGroup(FilterLogicAnd, conditions...)},
+	}
+}
+
 type DBServiceSourceName string
 
 const (
