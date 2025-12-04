@@ -90,10 +90,10 @@ func (c CbOperationLog) GetDbServiceName() string {
 
 // ListCbOperationLogOption 用于查询操作日志的选项
 type ListCbOperationLogOption struct {
-	PageNumber   uint32
-	LimitPerPage uint32
-	OrderBy      string
-	FilterBy     []constant.FilterCondition
+	PageNumber      uint32
+	LimitPerPage    uint32
+	OrderBy         string
+	FilterByOptions constant.FilterOptions
 }
 
 // CbOperationLogUsecase 定义操作日志的业务逻辑
