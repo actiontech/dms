@@ -69,10 +69,10 @@ func NewMemberGroupUsecase(log utilLog.Logger, tx TransactionGenerator, repo Mem
 }
 
 type ListMemberGroupsOption struct {
-	PageNumber   uint32
-	LimitPerPage uint32
-	OrderBy      MemberGroupField
-	FilterBy     []pkgConst.FilterCondition
+	PageNumber      uint32
+	LimitPerPage    uint32
+	OrderBy         MemberGroupField
+	FilterByOptions pkgConst.FilterOptions
 }
 
 func (m *MemberGroupUsecase) ListMemberGroups(ctx context.Context, option *ListMemberGroupsOption, projectUid string) ([]*MemberGroup, int64, error) {

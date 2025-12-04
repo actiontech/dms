@@ -167,10 +167,10 @@ func (u *User) GetUID() string {
 }
 
 type ListUsersOption struct {
-	PageNumber   uint32
-	LimitPerPage uint32
-	OrderBy      UserField
-	FilterBy     []pkgConst.FilterCondition
+	PageNumber      uint32
+	LimitPerPage    uint32
+	OrderBy         UserField
+	FilterByOptions pkgConst.FilterOptions
 }
 
 type UserRepo interface {

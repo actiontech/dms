@@ -85,10 +85,10 @@ func initRole() []*Role {
 }
 
 type ListRolesOption struct {
-	PageNumber   uint32
-	LimitPerPage uint32
-	OrderBy      RoleField
-	FilterBy     []pkgConst.FilterCondition
+	PageNumber      uint32
+	LimitPerPage    uint32
+	OrderBy         RoleField
+	FilterByOptions pkgConst.FilterOptions
 }
 
 type RoleRepo interface {
@@ -279,11 +279,14 @@ func (d *RoleUsecase) InsureOpPermissionsToRole(ctx context.Context, opPermissio
 
 func (d *RoleUsecase) ListRole(ctx context.Context, option *ListRolesOption) (roles []*Role, total int64, err error) {
 	// DMS-125：项目管理员为内置角色，不对外展示
-	option.FilterBy = append(option.FilterBy, pkgConst.FilterCondition{
-		Field:    string(RoleFieldUID),
-		Operator: pkgConst.FilterOperatorNotEqual,
-		Value:    pkgConst.UIDOfRoleProjectAdmin,
-	})
+	option.FilterByOptions.Groups = append(option.FilterByOptions.Groups, pkgConst.NewConditionGroup(
+		pkgConst.FilterLogicAnd,
+		pkgConst.FilterCondition{
+			Field:    string(RoleFieldUID),
+			Operator: pkgConst.FilterOperatorNotEqual,
+			Value:    pkgConst.UIDOfRoleProjectAdmin,
+		},
+	))
 	roles, total, err = d.repo.ListRoles(ctx, option)
 	if err != nil {
 		return nil, 0, fmt.Errorf("list roles failed: %v", err)

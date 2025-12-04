@@ -150,8 +150,8 @@ func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator
 }
 
 type ListWorkflowsOption struct {
-	PageNumber   uint32
-	LimitPerPage uint32
-	OrderBy      WorkflowField
-	FilterBy     []pkgConst.FilterCondition
+	PageNumber      uint32
+	LimitPerPage    uint32
+	OrderBy         WorkflowField
+	FilterByOptions pkgConst.FilterOptions
 }

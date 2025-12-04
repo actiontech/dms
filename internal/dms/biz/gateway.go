@@ -24,8 +24,8 @@ type Gateway struct {
 }
 
 type ListGatewaysOption struct {
-	PageNumber   uint32
-	LimitPerPage uint32
-	OrderBy      MemberField
-	FilterBy     []pkgConst.FilterCondition
+	PageNumber      uint32
+	LimitPerPage    uint32
+	OrderBy         MemberField
+	FilterByOptions pkgConst.FilterOptions
 }
