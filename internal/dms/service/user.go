@@ -181,9 +181,11 @@ func (d *DMSService) ListUsers(ctx context.Context, req *dmsCommonV1.ListUserReq
 		orderBy = biz.UserFieldName
 	}
 
-	filterBy := make([]pkgConst.FilterCondition, 0)
+	filterByOptions := pkgConst.NewFilterOptions(pkgConst.FilterLogicAnd)
+
+	andConditions := make([]pkgConst.FilterCondition, 0)
 	if req.FilterByName != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.UserFieldName),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByName,
@@ -191,37 +193,43 @@ func (d *DMSService) ListUsers(ctx context.Context, req *dmsCommonV1.ListUserReq
 	}
 
 	if req.FilterByUids != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.UserFieldUID),
 			Operator: pkgConst.FilterOperatorIn,
 			Value:    strings.Split(req.FilterByUids, ","),
 		})
 	}
 
-	// 添加模糊搜索条件
-	if req.FuzzyKeyword != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
-			Field:         string(biz.UserFieldName),
-			Operator:      pkgConst.FilterOperatorContains,
-			Value:         req.FuzzyKeyword,
-			KeywordSearch: true,
-		})
-	}
-
 	// 默认为false,不展示已删除用户
 	if !req.FilterDeletedUser {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.UserFieldDeletedAt),
 			Operator: pkgConst.FilterOperatorIsNull,
 			Value:    nil,
 		})
 	}
 
+	if len(andConditions) > 0 {
+		filterByOptions.Groups = append(filterByOptions.Groups, pkgConst.NewConditionGroup(pkgConst.FilterLogicAnd, andConditions...))
+	}
+
+	// 添加模糊搜索条件
+	if req.FuzzyKeyword != "" {
+		filterByOptions.Groups = append(filterByOptions.Groups, pkgConst.NewConditionGroup(
+			pkgConst.FilterLogicOr,
+			pkgConst.FilterCondition{
+				Field:    string(biz.UserFieldName),
+				Operator: pkgConst.FilterOperatorContains,
+				Value:    req.FuzzyKeyword,
+			},
+		))
+	}
+
 	listOption := &biz.ListUsersOption{
-		PageNumber:   req.PageIndex,
-		LimitPerPage: req.PageSize,
-		OrderBy:      orderBy,
-		FilterBy:     filterBy,
+		PageNumber:      req.PageIndex,
+		LimitPerPage:    req.PageSize,
+		OrderBy:         orderBy,
+		FilterByOptions: filterByOptions,
 	}
 
 	users, total, err := d.UserUsecase.ListUser(ctx, listOption)
@@ -357,20 +365,24 @@ func (d *DMSService) ListUserGroups(ctx context.Context, req *dmsV1.ListUserGrou
 		orderBy = biz.UserGroupFieldName
 	}
 
-	filterBy := make([]pkgConst.FilterCondition, 0)
+	filterByOptions := pkgConst.NewFilterOptions(pkgConst.FilterLogicAnd)
+
 	if req.FilterByName != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
-			Field:    string(biz.UserGroupFieldName),
-			Operator: pkgConst.FilterOperatorEqual,
-			Value:    req.FilterByName,
-		})
+		filterByOptions.Groups = append(filterByOptions.Groups, pkgConst.NewConditionGroup(
+			pkgConst.FilterLogicAnd,
+			pkgConst.FilterCondition{
+				Field:    string(biz.UserGroupFieldName),
+				Operator: pkgConst.FilterOperatorEqual,
+				Value:    req.FilterByName,
+			},
+		))
 	}
 
 	listOption := &biz.ListUserGroupsOption{
-		PageNumber:   req.PageIndex,
-		LimitPerPage: req.PageSize,
-		OrderBy:      orderBy,
-		FilterBy:     filterBy,
+		PageNumber:      req.PageIndex,
+		LimitPerPage:    req.PageSize,
+		OrderBy:         orderBy,
+		FilterByOptions: filterByOptions,
 	}
 
 	groups, total, err := d.UserGroupUsecase.ListUserGroup(ctx, listOption)

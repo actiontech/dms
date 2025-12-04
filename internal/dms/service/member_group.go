@@ -27,27 +27,33 @@ func (d *DMSService) ListMemberGroups(ctx context.Context, req *dmsV1.ListMember
 		orderBy = biz.MemberGroupFieldName
 	}
 
-	filterBy := make([]pkgConst.FilterCondition, 0)
+	filterByOptions := pkgConst.NewFilterOptions(pkgConst.FilterLogicAnd)
+
+	andConditions := make([]pkgConst.FilterCondition, 0)
 	if req.FilterByName != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.MemberGroupFieldName),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByName,
 		})
 	}
 	if req.ProjectUid != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.MemberGroupFieldProjectUID),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.ProjectUid,
 		})
 	}
 
+	if len(andConditions) > 0 {
+		filterByOptions.Groups = append(filterByOptions.Groups, pkgConst.NewConditionGroup(pkgConst.FilterLogicAnd, andConditions...))
+	}
+
 	listOption := &biz.ListMemberGroupsOption{
-		PageNumber:   req.PageIndex,
-		LimitPerPage: req.PageSize,
-		OrderBy:      orderBy,
-		FilterBy:     filterBy,
+		PageNumber:      req.PageIndex,
+		LimitPerPage:    req.PageSize,
+		OrderBy:         orderBy,
+		FilterByOptions: filterByOptions,
 	}
 
 	memberGroups, total, err := d.MemberGroupUsecase.ListMemberGroups(ctx, listOption, req.ProjectUid)

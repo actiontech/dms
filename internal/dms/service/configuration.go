@@ -529,14 +529,16 @@ func (d *DMSService) NotifyMessage(ctx context.Context, req *dmsCommonV1.Notific
 	}()
 
 	users, _, err := d.UserUsecase.ListUser(ctx, &biz.ListUsersOption{
-		FilterBy: []pkgConst.FilterCondition{
-			{
-				Field:    string(biz.UserFieldUID),
-				Operator: pkgConst.FilterOperatorIn,
-				Value:    req.Notification.UserUids,
-			},
-		},
-		OrderBy:      biz.UserFieldName,
+		FilterByOptions: pkgConst.NewFilterOptions(pkgConst.FilterLogicAnd,
+			pkgConst.NewConditionGroup(pkgConst.FilterLogicAnd,
+				pkgConst.FilterCondition{
+					Field:    string(biz.UserFieldUID),
+					Operator: pkgConst.FilterOperatorIn,
+					Value:    req.Notification.UserUids,
+				},
+			),
+		),
+		OrderBy: biz.UserFieldName,
 		PageNumber:   1,
 		LimitPerPage: uint32(len(req.Notification.UserUids)),
 	})

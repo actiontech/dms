@@ -88,29 +88,37 @@ func (d *DMSService) ListRoles(ctx context.Context, req *dmsV1.ListRoleReq) (rep
 		orderBy = biz.RoleFieldCreatedAt
 	}
 
-	filterBy := make([]pkgConst.FilterCondition, 0)
+	filterByOptions := pkgConst.NewFilterOptions(pkgConst.FilterLogicAnd)
+
+	andConditions := make([]pkgConst.FilterCondition, 0)
 	if req.FilterByName != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.RoleFieldName),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByName,
 		})
 	}
 
+	if len(andConditions) > 0 {
+		filterByOptions.Groups = append(filterByOptions.Groups, pkgConst.NewConditionGroup(pkgConst.FilterLogicAnd, andConditions...))
+	}
+
 	if req.FuzzyKeyword != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
-			Field:         string(biz.RoleFieldOpPermission),
-			Operator:      pkgConst.FilterOperatorContains,
-			Value:         req.FuzzyKeyword,
-			KeywordSearch: true,
-		})
+		filterByOptions.Groups = append(filterByOptions.Groups, pkgConst.NewConditionGroup(
+			pkgConst.FilterLogicOr,
+			pkgConst.FilterCondition{
+				Field:    string(biz.RoleFieldOpPermission),
+				Operator: pkgConst.FilterOperatorContains,
+				Value:    req.FuzzyKeyword,
+			},
+		))
 	}
 
 	listOption := &biz.ListRolesOption{
-		PageNumber:   req.PageIndex,
-		LimitPerPage: req.PageSize,
-		OrderBy:      orderBy,
-		FilterBy:     filterBy,
+		PageNumber:      req.PageIndex,
+		LimitPerPage:    req.PageSize,
+		OrderBy:         orderBy,
+		FilterByOptions: filterByOptions,
 	}
 
 	roles, total, err := d.RoleUsecase.ListRole(ctx, listOption)
