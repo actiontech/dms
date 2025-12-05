@@ -148,7 +148,7 @@ type AuditResDataV2 struct {
 	SQLResults []AuditSQLResV2 `json:"sql_results"`
 }
 
-type auditSQLReply struct {
+type AuditSQLReply struct {
 	Code    int             `json:"code" example:"0"`
 	Message string          `json:"message" example:"ok"`
 	Data    *AuditResDataV2 `json:"data"`
@@ -180,7 +180,7 @@ func (r *MutationResolverImpl) AuditSQL(ctx context.Context, sql string, connect
 		SchemaName:       directAuditParams.SchemaName,
 	}
 
-	reply := &auditSQLReply{}
+	reply := &AuditSQLReply{}
 	if err = pkgHttp.POST(ctx, directAuditParams.SQLEAddr, header, req, reply); err != nil {
 		return false, nil, err
 	}
