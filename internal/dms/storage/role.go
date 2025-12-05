@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/actiontech/dms/internal/dms/biz"
+	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	"github.com/actiontech/dms/internal/dms/storage/model"
 
@@ -137,17 +138,30 @@ func (d *RoleRepo) ReplaceOpPermissionsInRole(ctx context.Context, roleUid strin
 func (d *RoleRepo) ListRoles(ctx context.Context, opt *biz.ListRolesOption) (roles []*biz.Role, total int64, err error) {
 	// 取出权限条件的值
 	opPermissionValue := ""
-	filterByOptionsWithoutOpPermission := opt.FilterByOptions
+	filterByOptionsWithoutOpPermission := pkgConst.FilterOptions{
+		Logic:  opt.FilterByOptions.Logic,
+		Groups: make([]pkgConst.FilterConditionGroup, 0, len(opt.FilterByOptions.Groups)),
+	}
 
 	for _, group := range opt.FilterByOptions.Groups {
-		for i, condition := range group.Conditions {
+		newGroup := pkgConst.FilterConditionGroup{
+			Logic:      group.Logic,
+			Conditions: make([]pkgConst.FilterCondition, 0, len(group.Conditions)),
+			Groups:     group.Groups,
+		}
+
+		for _, condition := range group.Conditions {
 			if condition.Field == string(biz.RoleFieldOpPermission) {
-				opPermissionValue = condition.Value.(string)
-				// 从组中移除该条件
-				group.Conditions = append(group.Conditions[:i], group.Conditions[i+1:]...)
-				filterByOptionsWithoutOpPermission = opt.FilterByOptions
-				break
+				if opPermissionValue == "" {
+					opPermissionValue = condition.Value.(string)
+				}
+				continue
 			}
+			newGroup.Conditions = append(newGroup.Conditions, condition)
+		}
+
+		if len(newGroup.Conditions) > 0 || len(newGroup.Groups) > 0 {
+			filterByOptionsWithoutOpPermission.Groups = append(filterByOptionsWithoutOpPermission.Groups, newGroup)
 		}
 	}
 
