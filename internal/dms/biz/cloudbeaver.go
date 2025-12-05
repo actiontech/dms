@@ -486,12 +486,18 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						return err
 					}
 
+					execParams, err := cu.getWorkflowExecParams(c, params)
+					if err != nil {
+						return err
+					}
 					// 构建直接审计请求参数
 					directAuditReq := cloudbeaver.DirectAuditParams{
 						AuditSQLReq: cloudbeaver.AuditSQLReq{
 							InstanceType:     dbService.DBType,
 							ProjectId:        dbService.ProjectUID,
 							RuleTemplateName: dbService.SQLEConfig.SQLQueryConfig.RuleTemplateName,
+							InstanceName:     dbService.Name,
+							SchemaName:       execParams.instanceSchema,
 						},
 						SQLEAddr:                         fmt.Sprintf("%s/v2/sql_audit", sqleUrl),
 						AllowQueryWhenLessThanAuditLevel: dbService.GetAllowQueryWhenLessThanAuditLevel(),
@@ -1941,12 +1947,11 @@ func (cu *CloudbeaverUsecase) getContextSchema(c echo.Context, connectionId, con
 	}
 
 	contextInfo := res.Contexts[0]
-	if contextInfo.DefaultSchema != nil && *contextInfo.DefaultSchema != "" {
-		return *contextInfo.DefaultSchema, nil
-	}
-
 	if contextInfo.DefaultCatalog != nil && *contextInfo.DefaultCatalog != "" {
 		return *contextInfo.DefaultCatalog, nil
+	}
+	if contextInfo.DefaultSchema != nil && *contextInfo.DefaultSchema != "" {
+		return *contextInfo.DefaultSchema, nil
 	}
 
 	return "", nil

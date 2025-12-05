@@ -123,6 +123,8 @@ type AuditSQLReq struct {
 	SQLType          string `json:"sql_type" form:"sql_type" example:"sql" enums:"sql,mybatis," valid:"omitempty,oneof=sql mybatis"`
 	ProjectId        string `json:"project_id" form:"project_id" example:"700300" valid:"required"`
 	RuleTemplateName string `json:"rule_template_name" form:"rule_template_name" example:"default" valid:"required"`
+	InstanceName     string `json:"instance_name" form:"instance_name" example:"instance1"`
+	SchemaName       string `json:"schema_name" form:"schema_name" example:"schema1"`
 }
 
 type DirectAuditParams struct {
@@ -174,6 +176,8 @@ func (r *MutationResolverImpl) AuditSQL(ctx context.Context, sql string, connect
 		SQLType:          "sql",
 		ProjectId:        directAuditParams.ProjectId,
 		RuleTemplateName: directAuditParams.RuleTemplateName,
+		InstanceName:     directAuditParams.InstanceName,
+		SchemaName:       directAuditParams.SchemaName,
 	}
 
 	reply := &auditSQLReply{}
