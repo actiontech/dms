@@ -116,10 +116,10 @@ func NewProjectUsecase(log utilLog.Logger, tx TransactionGenerator, repo Project
 }
 
 type ListProjectsOption struct {
-	PageNumber   uint32
-	LimitPerPage uint32
-	OrderBy      ProjectField
-	FilterBy     []pkgConst.FilterCondition
+	PageNumber      uint32
+	LimitPerPage    uint32
+	OrderBy         ProjectField
+	FilterByOptions pkgConst.FilterOptions
 }
 
 func (d *ProjectUsecase) ListProject(ctx context.Context, option *ListProjectsOption, currentUserUid string) (projects []*Project, total int64, err error) {
@@ -139,11 +139,14 @@ func (d *ProjectUsecase) ListProject(ctx context.Context, option *ListProjectsOp
 		for _, project := range projects {
 			canViewableId = append(canViewableId, project.UID)
 		}
-		option.FilterBy = append(option.FilterBy, pkgConst.FilterCondition{
-			Field:    string(ProjectFieldUID),
-			Operator: pkgConst.FilterOperatorIn,
-			Value:    canViewableId,
-		})
+		option.FilterByOptions.Groups = append(option.FilterByOptions.Groups, pkgConst.NewConditionGroup(
+			pkgConst.FilterLogicAnd,
+			pkgConst.FilterCondition{
+				Field:    string(ProjectFieldUID),
+				Operator: pkgConst.FilterOperatorIn,
+				Value:    canViewableId,
+			},
+		))
 
 	}
 

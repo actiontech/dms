@@ -116,7 +116,7 @@ func (r *GatewayRepo) ListGateways(ctx context.Context, opt *biz.ListGatewaysOpt
 		// 查询网关列表
 		{
 			db := tx.WithContext(ctx).Order(string(opt.OrderBy))
-			db = gormWheres(ctx, db, opt.FilterBy)
+			db = gormWheresWithOptions(ctx, db, opt.FilterByOptions)
 			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber))))).Find(&gateways)
 			if err := db.Error; err != nil {
 				return fmt.Errorf("failed to list gateways: %v", err)
@@ -126,7 +126,7 @@ func (r *GatewayRepo) ListGateways(ctx context.Context, opt *biz.ListGatewaysOpt
 		// 查询总数
 		{
 			db := tx.WithContext(ctx).Model(&model.Gateway{})
-			db = gormWheres(ctx, db, opt.FilterBy)
+			db = gormWheresWithOptions(ctx, db, opt.FilterByOptions)
 			if err := db.Count(&total).Error; err != nil {
 				return fmt.Errorf("failed to count gateways: %v", err)
 			}

@@ -204,10 +204,10 @@ func (d *DMSService) CheckDBServiceIsConnectableByIds(ctx context.Context, proje
 	})
 
 	listOption := &biz.ListDBServicesOption{
-		PageNumber:   1,
-		LimitPerPage: uint32(len(dbServiceList)),
-		OrderBy:      biz.DBServiceFieldName,
-		FilterBy:     filterBy,
+		PageNumber:      1,
+		LimitPerPage:    uint32(len(dbServiceList)),
+		OrderBy:         biz.DBServiceFieldName,
+		FilterByOptions: pkgConst.ConditionsToFilterOptions(filterBy),
 	}
 
 	DBServiceList, _, err := d.DBServiceUsecase.ListDBService(ctx, listOption, projectUID, currentUserUid)
@@ -534,10 +534,11 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV2.ListDB
 		orderBy = biz.DBServiceFieldName
 	}
 
-	filterBy := make([]pkgConst.FilterCondition, 0)
+	filterByOptions := pkgConst.NewFilterOptions(pkgConst.FilterLogicAnd)
 
+	andConditions := make([]pkgConst.FilterCondition, 0)
 	if req.FilterByEnvironmentTagUID != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldEnvironmentTagUID),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByEnvironmentTagUID,
@@ -545,7 +546,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV2.ListDB
 	}
 
 	if req.FilterByHost != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldHost),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByHost,
@@ -553,7 +554,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV2.ListDB
 	}
 
 	if req.FilterByUID != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldUID),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByUID,
@@ -561,7 +562,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV2.ListDB
 	}
 
 	if biz.IsDMS() && req.IsEnableMasking != nil {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldIsEnableMasking),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    *req.IsEnableMasking,
@@ -569,7 +570,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV2.ListDB
 	}
 
 	if req.FilterByName != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldName),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByName,
@@ -577,7 +578,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV2.ListDB
 	}
 
 	if req.FilterByPort != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldPort),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByPort,
@@ -585,7 +586,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV2.ListDB
 	}
 
 	if req.FilterByDBType != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldDBType),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByDBType,
@@ -593,46 +594,52 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV2.ListDB
 	}
 
 	if req.ProjectUid != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldProjectUID),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.ProjectUid,
 		})
 	}
 	if req.FilterLastConnectionTestStatus != nil {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldLastConnectionStatus),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    *req.FilterLastConnectionTestStatus,
 		})
 	}
 	if len(req.FilterByDBServiceIds) > 0 {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
+		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldUID),
 			Operator: pkgConst.FilterOperatorIn,
 			Value:    req.FilterByDBServiceIds,
 		})
 	}
+
+	if len(andConditions) > 0 {
+		filterByOptions.Groups = append(filterByOptions.Groups, pkgConst.NewConditionGroup(pkgConst.FilterLogicAnd, andConditions...))
+	}
+
 	if req.FuzzyKeyword != "" {
-		filterBy = append(filterBy, pkgConst.FilterCondition{
-			Field:         string(biz.DBServiceFieldPort),
-			Operator:      pkgConst.FilterOperatorContains,
-			Value:         req.FuzzyKeyword,
-			KeywordSearch: true,
-		}, pkgConst.FilterCondition{
-			Field:         string(biz.DBServiceFieldHost),
-			Operator:      pkgConst.FilterOperatorContains,
-			Value:         req.FuzzyKeyword,
-			KeywordSearch: true,
-		},
-		)
+		filterByOptions.Groups = append(filterByOptions.Groups, pkgConst.NewConditionGroup(
+			pkgConst.FilterLogicOr,
+			pkgConst.FilterCondition{
+				Field:    string(biz.DBServiceFieldPort),
+				Operator: pkgConst.FilterOperatorContains,
+				Value:    req.FuzzyKeyword,
+			},
+			pkgConst.FilterCondition{
+				Field:    string(biz.DBServiceFieldHost),
+				Operator: pkgConst.FilterOperatorContains,
+				Value:    req.FuzzyKeyword,
+			},
+		))
 	}
 
 	listOption := &biz.ListDBServicesOption{
-		PageNumber:   req.PageIndex,
-		LimitPerPage: req.PageSize,
-		OrderBy:      orderBy,
-		FilterBy:     filterBy,
+		PageNumber:      req.PageIndex,
+		LimitPerPage:    req.PageSize,
+		OrderBy:         orderBy,
+		FilterByOptions: filterByOptions,
 	}
 
 	hasPermission, err := d.OpPermissionVerifyUsecase.HasViewPermission(ctx, currentUserUid, req.ProjectUid, pkgConst.UIdOfOpPermissionManageProjectDataSource)

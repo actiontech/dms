@@ -282,10 +282,10 @@ func (d *DBServiceUsecase) createDBService(ctx context.Context, dbService *DBSer
 }
 
 type ListDBServicesOption struct {
-	PageNumber   uint32
-	LimitPerPage uint32
-	OrderBy      DBServiceField
-	FilterBy     []pkgConst.FilterCondition
+	PageNumber      uint32
+	LimitPerPage    uint32
+	OrderBy         DBServiceField
+	FilterByOptions pkgConst.FilterOptions
 }
 
 func (d *DBServiceUsecase) ListDBService(ctx context.Context, option *ListDBServicesOption, projectUid, currentUserUid string) (dbServices []*DBService, total int64, err error) {

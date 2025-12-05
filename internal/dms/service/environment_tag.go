@@ -50,7 +50,7 @@ func (d *DMSService) DeleteEnvironmentTag(ctx context.Context, projectUid, curre
 		},
 	}
 
-	_, total, err := d.DBServiceUsecase.ListDBService(ctx, &biz.ListDBServicesOption{FilterBy: filterBy}, projectUid, currentUserUid)
+	_, total, err := d.DBServiceUsecase.ListDBService(ctx, &biz.ListDBServicesOption{FilterByOptions: pkgConst.ConditionsToFilterOptions(filterBy)}, projectUid, currentUserUid)
 	if err != nil {
 		return fmt.Errorf("list project failed: %w", err)
 	}

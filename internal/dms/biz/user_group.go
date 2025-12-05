@@ -61,10 +61,10 @@ func (u *UserGroup) GetUID() string {
 }
 
 type ListUserGroupsOption struct {
-	PageNumber   uint32
-	LimitPerPage uint32
-	OrderBy      UserGroupField
-	FilterBy     []pkgConst.FilterCondition
+	PageNumber      uint32
+	LimitPerPage    uint32
+	OrderBy         UserGroupField
+	FilterByOptions pkgConst.FilterOptions
 }
 
 type UserGroupRepo interface {
