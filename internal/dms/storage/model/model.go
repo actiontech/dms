@@ -569,6 +569,7 @@ type AuditResult struct {
 	RuleName            string              `json:"rule_name"`
 	ExecutionFailed     bool                `json:"execution_failed"`
 	I18nAuditResultInfo I18nAuditResultInfo `json:"i18n_audit_result_info"`
+	Message             string              `json:"message"`
 }
 
 type RuleLevel string
