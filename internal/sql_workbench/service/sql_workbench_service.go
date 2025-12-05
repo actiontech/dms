@@ -1210,7 +1210,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) isEnableSQLAudit(dbService *biz.
 }
 
 // callSQLEAudit 调用 SQLE 直接审核接口
-func (sqlWorkbenchService *SqlWorkbenchService) callSQLEAudit(ctx context.Context, sql string, dbService *biz.DBService) (*auditSQLReply, error) {
+func (sqlWorkbenchService *SqlWorkbenchService) callSQLEAudit(ctx context.Context, sql string, dbService *biz.DBService) (*cloudbeaver.AuditSQLReply, error) {
 	// 获取 SQLE 服务地址
 	target, err := sqlWorkbenchService.proxyTargetRepo.GetProxyTargetByName(ctx, _const.SqleComponentName)
 	if err != nil {
@@ -1234,7 +1234,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) callSQLEAudit(ctx context.Contex
 	}
 
 	// 调用 SQLE 审核接口
-	reply := &auditSQLReply{}
+	reply := &cloudbeaver.AuditSQLReply{}
 	if err := pkgHttp.POST(ctx, sqleAddr, header, auditReq, reply); err != nil {
 		return nil, fmt.Errorf("failed to call SQLE audit API: %v", err)
 	}
@@ -1247,7 +1247,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) callSQLEAudit(ctx context.Contex
 }
 
 // interceptAndAddAuditResult 拦截响应并添加审核结果
-func (sqlWorkbenchService *SqlWorkbenchService) interceptAndAddAuditResult(c echo.Context, next echo.HandlerFunc, userId string, auditResult *auditSQLReply, dbService *biz.DBService) error {
+func (sqlWorkbenchService *SqlWorkbenchService) interceptAndAddAuditResult(c echo.Context, next echo.HandlerFunc, userId string, auditResult *cloudbeaver.AuditSQLReply, dbService *biz.DBService) error {
 	// 判断是否需要审批
 	allowQueryWhenLessThanAuditLevel := dbService.GetAllowQueryWhenLessThanAuditLevel()
 	needApproval := sqlWorkbenchService.shouldRequireApproval(auditResult.Data.SQLResults, allowQueryWhenLessThanAuditLevel)
@@ -1262,7 +1262,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) interceptAndAddAuditResult(c ech
 }
 
 // buildAuditResponseWithoutExecution 构造审核响应，不执行真实的 SQL
-func (sqlWorkbenchService *SqlWorkbenchService) buildAuditResponseWithoutExecution(c echo.Context, userId string, auditResult *auditSQLReply, dbService *biz.DBService) error {
+func (sqlWorkbenchService *SqlWorkbenchService) buildAuditResponseWithoutExecution(c echo.Context, userId string, auditResult *cloudbeaver.AuditSQLReply, dbService *biz.DBService) error {
 	// 构造 SQL 条目列表
 	sqlItems := make([]StreamExecuteSQLItem, 0, len(auditResult.Data.SQLResults))
 	for _, sqlResult := range auditResult.Data.SQLResults {
@@ -1314,7 +1314,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) buildAuditResponseWithoutExecuti
 }
 
 // saveAuditBlockedLog 记录审核拦截的操作日志
-func (sqlWorkbenchService *SqlWorkbenchService) saveAuditBlockedLog(c echo.Context, userId string, auditResult *auditSQLReply, dbService *biz.DBService) error {
+func (sqlWorkbenchService *SqlWorkbenchService) saveAuditBlockedLog(c echo.Context, userId string, auditResult *cloudbeaver.AuditSQLReply, dbService *biz.DBService) error {
 	ctx := context.Background()
 
 	// 提取 session ID
@@ -1371,7 +1371,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) saveAuditBlockedLog(c echo.Conte
 }
 
 // convertToAuditResults 将审核结果转换为 model.AuditResults 格式
-func (sqlWorkbenchService *SqlWorkbenchService) convertToAuditResults(sqlResult *auditSQLResV2) dbmodel.AuditResults {
+func (sqlWorkbenchService *SqlWorkbenchService) convertToAuditResults(sqlResult *cloudbeaver.AuditSQLResV2) dbmodel.AuditResults {
 	var auditResults dbmodel.AuditResults
 	for _, result := range sqlResult.AuditResult {
 		auditResult := dbmodel.AuditResult{
@@ -1406,7 +1406,7 @@ func extractSessionID(path string) string {
 }
 
 // executeAndAddAuditResult 执行真实请求并添加审核结果
-func (sqlWorkbenchService *SqlWorkbenchService) executeAndAddAuditResult(c echo.Context, next echo.HandlerFunc, auditResult *auditSQLReply, dbService *biz.DBService) error {
+func (sqlWorkbenchService *SqlWorkbenchService) executeAndAddAuditResult(c echo.Context, next echo.HandlerFunc, auditResult *cloudbeaver.AuditSQLReply, dbService *biz.DBService) error {
 	// 创建响应拦截器
 	srw := newStreamExecuteResponseWriter(c)
 	cloudbeaverResBuf := srw.Buffer
@@ -1502,19 +1502,11 @@ func (sqlWorkbenchService *SqlWorkbenchService) decodeResponseBody(body []byte, 
 	if !isGzip {
 		return body, false, nil
 	}
-
-	gzipReader, err := gzip.NewReader(bytes.NewReader(body))
+	gzipBytes, err := utils.DecodeGzipBytes(body)
 	if err != nil {
-		return nil, true, fmt.Errorf("failed to create gzip reader: %w", err)
+		return nil, true, fmt.Errorf("Gzip decode error: %v", err)
 	}
-	defer gzipReader.Close()
-
-	decompressed, err := io.ReadAll(gzipReader)
-	if err != nil {
-		return nil, true, fmt.Errorf("failed to decompress gzip body: %w", err)
-	}
-
-	return decompressed, true, nil
+	return gzipBytes, true, nil
 }
 
 // encodeResponseBody 将响应体按照 gzip 编码
@@ -1532,9 +1524,9 @@ func (sqlWorkbenchService *SqlWorkbenchService) encodeResponseBody(body []byte) 
 }
 
 // mergeSQLEAuditResults 将 SQLE 审核结果整合到 sqls 数组中
-func (sqlWorkbenchService *SqlWorkbenchService) mergeSQLEAuditResults(data *StreamExecuteData, auditData *auditResDataV2, dbService *biz.DBService) {
+func (sqlWorkbenchService *SqlWorkbenchService) mergeSQLEAuditResults(data *StreamExecuteData, auditData *cloudbeaver.AuditResDataV2, dbService *biz.DBService) {
 	// 创建 SQL 到审核结果的映射
-	sqlAuditMap := make(map[string]*auditSQLResV2)
+	sqlAuditMap := make(map[string]*cloudbeaver.AuditSQLResV2)
 	for i := range auditData.SQLResults {
 		sqlResult := &auditData.SQLResults[i]
 		// 使用 exec_sql 作为 key，去除首尾空格和分号
@@ -1551,7 +1543,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) mergeSQLEAuditResults(data *Stre
 		sqlItem := &data.SQLs[i]
 
 		// 尝试从 originalSql 或 executedSql 匹配审核结果
-		var matchedAuditResult *auditSQLResV2
+		var matchedAuditResult *cloudbeaver.AuditSQLResV2
 		normalizedSQL := strings.TrimSpace(strings.TrimSuffix(sqlItem.SQLTuple.OriginalSQL, ";"))
 		if auditResult, found := sqlAuditMap[normalizedSQL]; found {
 			matchedAuditResult = auditResult
@@ -1575,7 +1567,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) mergeSQLEAuditResults(data *Stre
 }
 
 // shouldRequireApproval 根据审核放行等级判断是否需要审批
-func (sqlWorkbenchService *SqlWorkbenchService) shouldRequireApproval(sqlResults []auditSQLResV2, allowQueryWhenLessThanAuditLevel string) bool {
+func (sqlWorkbenchService *SqlWorkbenchService) shouldRequireApproval(sqlResults []cloudbeaver.AuditSQLResV2, allowQueryWhenLessThanAuditLevel string) bool {
 	// 如果没有设置审核放行等级，那么直接放行
 	if allowQueryWhenLessThanAuditLevel == "" {
 		return false
@@ -1606,7 +1598,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) shouldRequireApproval(sqlResults
 }
 
 // convertSQLEAuditToViolatedRules 将 SQLE 审核结果转换为 violatedRules 格式
-func (sqlWorkbenchService *SqlWorkbenchService) convertSQLEAuditToViolatedRules(auditResult *auditSQLResV2) []StreamExecuteRule {
+func (sqlWorkbenchService *SqlWorkbenchService) convertSQLEAuditToViolatedRules(auditResult *cloudbeaver.AuditSQLResV2) []StreamExecuteRule {
 	var violatedRules []StreamExecuteRule
 
 	// 将 SQLE 的 audit_result 转换为 violatedRules 格式
@@ -1755,29 +1747,4 @@ func (w *streamExecuteResponseWriter) WriteHeader(code int) {
 	w.status = code
 }
 
-// auditSQLReply SQLE 审核响应结构
-type auditSQLReply struct {
-	Code    int             `json:"code"`
-	Message string          `json:"message"`
-	Data    *auditResDataV2 `json:"data"`
-}
 
-// auditResDataV2 审核结果数据
-type auditResDataV2 struct {
-	AuditLevel string          `json:"audit_level"`
-	Score      int32           `json:"score"`
-	PassRate   float64         `json:"pass_rate"`
-	SQLResults []auditSQLResV2 `json:"sql_results"`
-}
-
-// auditSQLResV2 单个 SQL 审核结果
-type auditSQLResV2 struct {
-	Number      uint   `json:"number"`
-	ExecSQL     string `json:"exec_sql"`
-	AuditResult []struct {
-		Level           string `json:"level"`
-		Message         string `json:"message"`
-		ExecutionFailed bool   `json:"execution_failed"`
-	} `json:"audit_result"`
-	AuditLevel string `json:"audit_level"`
-}
