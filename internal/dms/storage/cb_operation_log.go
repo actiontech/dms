@@ -73,7 +73,7 @@ func (d *CbOperationLogRepo) ListCbOperationLogs(ctx context.Context, opt *biz.L
 			if opt.OrderBy != "" {
 				db = db.Order(fmt.Sprintf("%s DESC", opt.OrderBy))
 			}
-			db = gormWheres(ctx, db, opt.FilterBy)
+			db = gormWheresWithOptions(ctx, db, opt.FilterByOptions)
 			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber)))))
 			if err := db.Find(&models).Error; err != nil {
 				return fmt.Errorf("failed to list cb operation logs: %v", err)
@@ -83,7 +83,7 @@ func (d *CbOperationLogRepo) ListCbOperationLogs(ctx context.Context, opt *biz.L
 		// find total
 		{
 			db := tx.WithContext(ctx).Model(&model.CbOperationLog{})
-			db = gormWheres(ctx, db, opt.FilterBy)
+			db = gormWheresWithOptions(ctx, db, opt.FilterByOptions)
 			if err := db.Count(&total).Error; err != nil {
 				return fmt.Errorf("failed to count cb operation logs: %v", err)
 			}
@@ -119,9 +119,10 @@ func (d *CbOperationLogRepo) CleanCbOperationLogOpTimeBefore(ctx context.Context
 
 func (d *CbOperationLogRepo) CountOperationLogs(ctx context.Context, opt *biz.ListCbOperationLogOption) (int64, error) {
 	var total int64
+
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		db := tx.WithContext(ctx).Model(&model.CbOperationLog{})
-		db = gormWheres(ctx, db, opt.FilterBy)
+		db = gormWheresWithOptions(ctx, db, opt.FilterByOptions)
 		if err := db.Count(&total).Error; err != nil {
 			return fmt.Errorf("failed to count cb operation logs: %v", err)
 		}

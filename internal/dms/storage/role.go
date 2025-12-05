@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/actiontech/dms/internal/dms/biz"
+	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgErr "github.com/actiontech/dms/internal/dms/pkg/errors"
 	"github.com/actiontech/dms/internal/dms/storage/model"
 
@@ -137,12 +138,30 @@ func (d *RoleRepo) ReplaceOpPermissionsInRole(ctx context.Context, roleUid strin
 func (d *RoleRepo) ListRoles(ctx context.Context, opt *biz.ListRolesOption) (roles []*biz.Role, total int64, err error) {
 	// 取出权限条件的值
 	opPermissionValue := ""
-	for i := 0; i < len(opt.FilterBy); {
-		if opt.FilterBy[i].Field == string(biz.RoleFieldOpPermission) {
-			opPermissionValue = opt.FilterBy[i].Value.(string)
-			opt.FilterBy = append(opt.FilterBy[:i], opt.FilterBy[i+1:]...)
-		} else {
-			i++
+	filterByOptionsWithoutOpPermission := pkgConst.FilterOptions{
+		Logic:  opt.FilterByOptions.Logic,
+		Groups: make([]pkgConst.FilterConditionGroup, 0, len(opt.FilterByOptions.Groups)),
+	}
+
+	for _, group := range opt.FilterByOptions.Groups {
+		newGroup := pkgConst.FilterConditionGroup{
+			Logic:      group.Logic,
+			Conditions: make([]pkgConst.FilterCondition, 0, len(group.Conditions)),
+			Groups:     group.Groups,
+		}
+
+		for _, condition := range group.Conditions {
+			if condition.Field == string(biz.RoleFieldOpPermission) {
+				if opPermissionValue == "" {
+					opPermissionValue = condition.Value.(string)
+				}
+				continue
+			}
+			newGroup.Conditions = append(newGroup.Conditions, condition)
+		}
+
+		if len(newGroup.Conditions) > 0 || len(newGroup.Groups) > 0 {
+			filterByOptionsWithoutOpPermission.Groups = append(filterByOptionsWithoutOpPermission.Groups, newGroup)
 		}
 	}
 
@@ -151,11 +170,7 @@ func (d *RoleRepo) ListRoles(ctx context.Context, opt *biz.ListRolesOption) (rol
 		// find models
 		{
 			db := tx.WithContext(ctx).Order(string(opt.OrderBy) + " DESC")
-			for _, f := range opt.FilterBy {
-				if f.Field != string(biz.RoleFieldOpPermission) {
-					db = gormWhere(db, f)
-				}
-			}
+			db = gormWheresWithOptions(ctx, db, filterByOptionsWithoutOpPermission)
 			if opPermissionValue != "" {
 				db = db.Joins("JOIN role_op_permissions on roles.uid = role_op_permissions.role_uid").
 					Joins("JOIN op_permissions ON op_permissions.uid = role_op_permissions.op_permission_uid").
@@ -171,11 +186,7 @@ func (d *RoleRepo) ListRoles(ctx context.Context, opt *biz.ListRolesOption) (rol
 		// find total
 		{
 			db := tx.WithContext(ctx).Model(&model.Role{})
-			for _, f := range opt.FilterBy {
-				if f.Field != string(biz.RoleFieldOpPermission) {
-					db = gormWhere(db, f)
-				}
-			}
+			db = gormWheresWithOptions(ctx, db, filterByOptionsWithoutOpPermission)
 			if opPermissionValue != "" {
 				db = db.Joins("JOIN role_op_permissions on roles.uid = role_op_permissions.role_uid").
 					Joins("JOIN op_permissions ON op_permissions.uid = role_op_permissions.op_permission_uid").

@@ -57,7 +57,7 @@ func (d *DBServiceRepo) ListDBServices(ctx context.Context, opt *biz.ListDBServi
 		// find models
 		{
 			db := tx.WithContext(ctx).Order(string(opt.OrderBy))
-			db = gormWheres(ctx, db, opt.FilterBy)
+			db = gormWheresWithOptions(ctx, db, opt.FilterByOptions)
 			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber))))).Preload("EnvironmentTag").Find(&models)
 			if err := db.Error; err != nil {
 				return fmt.Errorf("failed to list db service: %v", err)
@@ -67,7 +67,7 @@ func (d *DBServiceRepo) ListDBServices(ctx context.Context, opt *biz.ListDBServi
 		// find total
 		{
 			db := tx.WithContext(ctx).Model(&model.DBService{})
-			db = gormWheres(ctx, db, opt.FilterBy)
+			db = gormWheresWithOptions(ctx, db, opt.FilterByOptions)
 			if err := db.Count(&total).Error; err != nil {
 				return fmt.Errorf("failed to count db service: %v", err)
 			}

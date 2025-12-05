@@ -112,23 +112,73 @@ func gormWhereCondition(condition pkgConst.FilterCondition) (string, interface{}
 	return fmt.Sprintf("%s %s ?", condition.Field, condition.Operator), condition.Value
 }
 
-func gormWheres(ctx context.Context, db *gorm.DB, conditions []pkgConst.FilterCondition) *gorm.DB {
-	fuzzyWhere := db.WithContext(ctx)
-	singleWhere := db.WithContext(ctx)
+func gormWheresWithOptions(ctx context.Context, db *gorm.DB, opts pkgConst.FilterOptions) *gorm.DB {
+	if len(opts.Groups) == 0 {
+		return db.WithContext(ctx)
+	}
 
-	for _, condition := range conditions {
+	db = db.WithContext(ctx)
+	groupQueries := make([]*gorm.DB, 0, len(opts.Groups))
+
+	for _, group := range opts.Groups {
+		groupQuery := buildConditionGroup(db, group)
+		if groupQuery != nil {
+			groupQueries = append(groupQueries, groupQuery)
+		}
+	}
+
+	if len(groupQueries) == 0 {
+		return db
+	}
+
+	result := groupQueries[0]
+	for i := 1; i < len(groupQueries); i++ {
+		if opts.Logic == pkgConst.FilterLogicOr {
+			result = db.Where(result).Or(groupQueries[i])
+		} else {
+			result = db.Where(result).Where(groupQueries[i])
+		}
+	}
+
+	return db.Where(result)
+}
+
+func buildConditionGroup(db *gorm.DB, group pkgConst.FilterConditionGroup) *gorm.DB {
+	if len(group.Conditions) == 0 && len(group.Groups) == 0 {
+		return nil
+	}
+
+	var result *gorm.DB
+
+	for i, condition := range group.Conditions {
 		if condition.Table != "" {
 			continue
 		}
-		if condition.KeywordSearch {
-			// 模糊查询字段
-			fuzzyWhere = fuzzyWhere.Or(gormWhere(singleWhere, condition))
+		condQuery := gormWhere(db, condition)
+		if i == 0 || result == nil {
+			result = condQuery
+		} else if group.Logic == pkgConst.FilterLogicOr {
+			result = db.Where(result).Or(condQuery)
 		} else {
-			db = gormWhere(db, condition)
+			result = db.Where(result).Where(condQuery)
 		}
 	}
-	db = db.Where(fuzzyWhere)
-	return db
+
+	for _, subGroup := range group.Groups {
+		subQuery := buildConditionGroup(db, subGroup)
+		if subQuery == nil {
+			continue
+		}
+		if result == nil {
+			result = subQuery
+		} else if group.Logic == pkgConst.FilterLogicOr {
+			result = db.Where(result).Or(subQuery)
+		} else {
+			result = db.Where(result).Where(subQuery)
+		}
+	}
+
+	return result
 }
 
 func gormPreload(ctx context.Context, db *gorm.DB, conditions []pkgConst.FilterCondition) *gorm.DB {
@@ -145,6 +195,27 @@ func gormPreload(ctx context.Context, db *gorm.DB, conditions []pkgConst.FilterC
 		}
 	}
 	return db
+}
+
+func extractPreloadConditions(opts pkgConst.FilterOptions) []pkgConst.FilterCondition {
+	var conditions []pkgConst.FilterCondition
+	for _, group := range opts.Groups {
+		for _, condition := range group.Conditions {
+			if condition.Table != "" {
+				conditions = append(conditions, condition)
+			}
+		}
+		for _, subGroup := range group.Groups {
+			subConditions := extractPreloadConditions(pkgConst.FilterOptions{Groups: []pkgConst.FilterConditionGroup{subGroup}})
+			conditions = append(conditions, subConditions...)
+		}
+	}
+	return conditions
+}
+
+func gormPreloadFromOptions(ctx context.Context, db *gorm.DB, opts pkgConst.FilterOptions) *gorm.DB {
+	conditions := extractPreloadConditions(opts)
+	return gormPreload(ctx, db, conditions)
 }
 
 func fixPageIndices(page_number uint32) int {

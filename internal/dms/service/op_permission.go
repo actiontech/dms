@@ -84,15 +84,12 @@ func (d *DMSService) ListOpPermissions(ctx context.Context, req *dmsV1.ListOpPer
 		orderBy = biz.OpPermissionFieldName
 	}
 
-	listOption := &biz.ListOpPermissionsOption{
-		PageNumber:   req.PageIndex,
-		LimitPerPage: req.PageSize,
-		OrderBy:      orderBy,
-	}
+	filterByOptions := pkgConst.NewFilterOptions(pkgConst.FilterLogicAnd)
 
+	andConditions := make([]pkgConst.FilterCondition, 0)
 	// 不支持智能调优时，隐藏相关权限
 	if !conf.IsOptimizationEnabled() {
-		listOption.FilterBy = append(listOption.FilterBy,
+		andConditions = append(andConditions,
 			pkgConst.FilterCondition{
 				Field:    string(biz.OpPermissionFieldUID),
 				Operator: pkgConst.FilterOperatorNotEqual,
@@ -106,7 +103,7 @@ func (d *DMSService) ListOpPermissions(ctx context.Context, req *dmsV1.ListOpPer
 	}
 
 	if req.Service != nil {
-		listOption.FilterBy = append(listOption.FilterBy,
+		andConditions = append(andConditions,
 			pkgConst.FilterCondition{
 				Field:    string(biz.OpPermissionFieldService),
 				Operator: pkgConst.FilterOperatorEqual,
@@ -114,16 +111,30 @@ func (d *DMSService) ListOpPermissions(ctx context.Context, req *dmsV1.ListOpPer
 			})
 	}
 
+	if len(andConditions) > 0 {
+		filterByOptions.Groups = append(filterByOptions.Groups, pkgConst.NewConditionGroup(pkgConst.FilterLogicAnd, andConditions...))
+	}
+
+	listOption := &biz.ListOpPermissionsOption{
+		PageNumber:      req.PageIndex,
+		LimitPerPage:    req.PageSize,
+		OrderBy:         orderBy,
+		FilterByOptions: filterByOptions,
+	}
+
 	var ops []*biz.OpPermission
 	var total int64
 	switch req.FilterByTarget {
 	case dmsV1.OpPermissionTargetAll:
-		listOption.FilterBy = append(listOption.FilterBy,
+		andConditions = append(andConditions,
 			pkgConst.FilterCondition{
 				Field:    string(biz.OpPermissionFieldRangeType),
 				Operator: pkgConst.FilterOperatorNotEqual,
 				Value:    biz.OpRangeTypeGlobal,
 			})
+		if len(andConditions) > 0 {
+			listOption.FilterByOptions.Groups = append(listOption.FilterByOptions.Groups, pkgConst.NewConditionGroup(pkgConst.FilterLogicAnd, andConditions...))
+		}
 		ops, total, err = d.OpPermissionUsecase.ListOpPermissions(ctx, listOption)
 		if nil != err {
 			return nil, err

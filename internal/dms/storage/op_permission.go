@@ -89,9 +89,7 @@ func (d *OpPermissionRepo) ListOpPermissions(ctx context.Context, opt *biz.ListO
 		// find models
 		{
 			db := tx.WithContext(ctx).Order(opt.OrderBy)
-			for _, f := range opt.FilterBy {
-				db = gormWhere(db, f)
-			}
+			db = gormWheresWithOptions(ctx, db, opt.FilterByOptions)
 			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber)))))
 			if err := db.Find(&models).Error; err != nil {
 				return fmt.Errorf("failed to list opPermissions: %v", err)
@@ -101,9 +99,7 @@ func (d *OpPermissionRepo) ListOpPermissions(ctx context.Context, opt *biz.ListO
 		// find total
 		{
 			db := tx.WithContext(ctx).Model(&model.OpPermission{})
-			for _, f := range opt.FilterBy {
-				db = gormWhere(db, f)
-			}
+			db = gormWheresWithOptions(ctx, db, opt.FilterByOptions)
 			if err := db.Count(&total).Error; err != nil {
 				return fmt.Errorf("failed to count opPermissions: %v", err)
 			}

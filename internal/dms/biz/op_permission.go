@@ -349,10 +349,10 @@ func GetProxyOpPermission() map[string][]*OpPermission {
 }
 
 type ListOpPermissionsOption struct {
-	PageNumber   uint32
-	LimitPerPage uint32
-	OrderBy      OpPermissionField
-	FilterBy     []pkgConst.FilterCondition
+	PageNumber      uint32
+	LimitPerPage    uint32
+	OrderBy         OpPermissionField
+	FilterByOptions pkgConst.FilterOptions
 }
 
 type OpPermissionRepo interface {
@@ -432,11 +432,14 @@ func (d *OpPermissionUsecase) ListOpPermissions(ctx context.Context, opt *ListOp
 
 func (d *OpPermissionUsecase) ListUserOpPermissions(ctx context.Context, opt *ListOpPermissionsOption) (ops []*OpPermission, total int64, err error) {
 	// 用户只能被赋予全局权限
-	opt.FilterBy = append(opt.FilterBy, pkgConst.FilterCondition{
-		Field:    string(OpPermissionFieldRangeType),
-		Operator: pkgConst.FilterOperatorEqual,
-		Value:    OpRangeTypeGlobal,
-	})
+	opt.FilterByOptions.Groups = append(opt.FilterByOptions.Groups, pkgConst.NewConditionGroup(
+		pkgConst.FilterLogicAnd,
+		pkgConst.FilterCondition{
+			Field:    string(OpPermissionFieldRangeType),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    OpRangeTypeGlobal,
+		},
+	))
 
 	ops, total, err = d.repo.ListOpPermissions(ctx, opt)
 	if err != nil {
@@ -447,18 +450,24 @@ func (d *OpPermissionUsecase) ListUserOpPermissions(ctx context.Context, opt *Li
 
 func (d *OpPermissionUsecase) ListMemberOpPermissions(ctx context.Context, opt *ListOpPermissionsOption) (ops []*OpPermission, total int64, err error) {
 	// 成员属于项目，只能被赋予非全局权限
-	opt.FilterBy = append(opt.FilterBy, pkgConst.FilterCondition{
-		Field:    string(OpPermissionFieldRangeType),
-		Operator: pkgConst.FilterOperatorNotEqual,
-		Value:    OpRangeTypeGlobal,
-	})
+	opt.FilterByOptions.Groups = append(opt.FilterByOptions.Groups, pkgConst.NewConditionGroup(
+		pkgConst.FilterLogicAnd,
+		pkgConst.FilterCondition{
+			Field:    string(OpPermissionFieldRangeType),
+			Operator: pkgConst.FilterOperatorNotEqual,
+			Value:    OpRangeTypeGlobal,
+		},
+	))
 
 	// 设置成员权限时，有单独的“项目管理权限”选项代表项目权限，所以这里不返回项目权限
-	opt.FilterBy = append(opt.FilterBy, pkgConst.FilterCondition{
-		Field:    string(OpPermissionFieldRangeType),
-		Operator: pkgConst.FilterOperatorNotEqual,
-		Value:    OpRangeTypeProject,
-	})
+	opt.FilterByOptions.Groups = append(opt.FilterByOptions.Groups, pkgConst.NewConditionGroup(
+		pkgConst.FilterLogicAnd,
+		pkgConst.FilterCondition{
+			Field:    string(OpPermissionFieldRangeType),
+			Operator: pkgConst.FilterOperatorNotEqual,
+			Value:    OpRangeTypeProject,
+		},
+	))
 
 	ops, total, err = d.repo.ListOpPermissions(ctx, opt)
 	if err != nil {
@@ -469,17 +478,19 @@ func (d *OpPermissionUsecase) ListMemberOpPermissions(ctx context.Context, opt *
 }
 
 func (d *OpPermissionUsecase) ListProjectOpPermissions(ctx context.Context, opt *ListOpPermissionsOption) (ops []*OpPermission, total int64, err error) {
-	opt.FilterBy = append(opt.FilterBy, pkgConst.FilterCondition{
-		Field:    string(OpPermissionFieldRangeType),
-		Operator: pkgConst.FilterOperatorEqual,
-		Value:    OpRangeTypeProject,
-	})
-
-	opt.FilterBy = append(opt.FilterBy, pkgConst.FilterCondition{
-		Field:    string(OpPermissionFieldUID),
-		Operator: pkgConst.FilterOperatorNotEqual,
-		Value:    pkgConst.UIDOfOpPermissionProjectAdmin,
-	})
+	opt.FilterByOptions.Groups = append(opt.FilterByOptions.Groups, pkgConst.NewConditionGroup(
+		pkgConst.FilterLogicAnd,
+		pkgConst.FilterCondition{
+			Field:    string(OpPermissionFieldRangeType),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    OpRangeTypeProject,
+		},
+		pkgConst.FilterCondition{
+			Field:    string(OpPermissionFieldUID),
+			Operator: pkgConst.FilterOperatorNotEqual,
+			Value:    pkgConst.UIDOfOpPermissionProjectAdmin,
+		},
+	))
 
 	ops, total, err = d.repo.ListOpPermissions(ctx, opt)
 	if err != nil {
