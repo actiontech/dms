@@ -917,8 +917,8 @@ func (sqlWorkbenchService *SqlWorkbenchService) convertDBType(dmsDBType string) 
 		return "POSTGRESQL"
 	case "Oracle":
 		return "ORACLE"
-	case "SQLServer":
-		return "SQLSERVER"
+	case "SQL Server":
+		return "SQL_SERVER"
 	case "OceanBase For Oracle":
 		return "OB_ORACLE"
 	case "OceanBase For MySQL":
