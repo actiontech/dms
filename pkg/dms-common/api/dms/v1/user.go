@@ -389,6 +389,8 @@ type ListUserReq struct {
 	FilterDeletedUser bool `query:"filter_del_user" json:"filter_del_user"`
 	// fuzzy keyword
 	// in:query
+	// fuzzy keyword, search in name, uid, email, phone fields (OR relationship)
+	// in:query
 	FuzzyKeyword string `query:"fuzzy_keyword" json:"fuzzy_keyword"`
 	// filter the user email
 	// in:query

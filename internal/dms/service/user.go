@@ -267,6 +267,21 @@ func (d *DMSService) ListUsers(ctx context.Context, req *dmsCommonV1.ListUserReq
 				Operator: pkgConst.FilterOperatorContains,
 				Value:    req.FuzzyKeyword,
 			},
+			pkgConst.FilterCondition{
+				Field:    string(biz.UserFieldUID),
+				Operator: pkgConst.FilterOperatorContains,
+				Value:    req.FuzzyKeyword,
+			},
+			pkgConst.FilterCondition{
+				Field:    string(biz.UserFieldEmail),
+				Operator: pkgConst.FilterOperatorContains,
+				Value:    req.FuzzyKeyword,
+			},
+			pkgConst.FilterCondition{
+				Field:    string(biz.UserFieldPhone),
+				Operator: pkgConst.FilterOperatorContains,
+				Value:    req.FuzzyKeyword,
+			},
 		))
 	}
 
