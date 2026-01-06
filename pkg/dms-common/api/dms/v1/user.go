@@ -390,6 +390,21 @@ type ListUserReq struct {
 	// fuzzy keyword
 	// in:query
 	FuzzyKeyword string `query:"fuzzy_keyword" json:"fuzzy_keyword"`
+	// filter the user email
+	// in:query
+	FilterByEmail string `query:"filter_by_email" json:"filter_by_email"`
+	// filter the user phone
+	// in:query
+	FilterByPhone string `query:"filter_by_phone" json:"filter_by_phone"`
+	// filter the user stat (0: normal, 1: disabled)
+	// in:query
+	FilterByStat *uint `query:"filter_by_stat" json:"filter_by_stat"`
+	// filter the user authentication type (ldap, dms, oauth2)
+	// in:query
+	FilterByAuthenticationType UserAuthenticationType `query:"filter_by_authentication_type" json:"filter_by_authentication_type"`
+	// filter the user system (WORKBENCH, MANAGEMENT)
+	// in:query
+	FilterBySystem UserSystem `query:"filter_by_system" json:"filter_by_system"`
 }
 
 // swagger:enum UserOrderByField

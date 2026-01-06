@@ -209,6 +209,51 @@ func (d *DMSService) ListUsers(ctx context.Context, req *dmsCommonV1.ListUserReq
 		})
 	}
 
+	// 按邮箱过滤
+	if req.FilterByEmail != "" {
+		andConditions = append(andConditions, pkgConst.FilterCondition{
+			Field:    string(biz.UserFieldEmail),
+			Operator: pkgConst.FilterOperatorContains,
+			Value:    req.FilterByEmail,
+		})
+	}
+
+	// 按手机号过滤
+	if req.FilterByPhone != "" {
+		andConditions = append(andConditions, pkgConst.FilterCondition{
+			Field:    string(biz.UserFieldPhone),
+			Operator: pkgConst.FilterOperatorContains,
+			Value:    req.FilterByPhone,
+		})
+	}
+
+	// 按用户状态过滤
+	if req.FilterByStat != nil {
+		andConditions = append(andConditions, pkgConst.FilterCondition{
+			Field:    string(biz.UserFieldStat),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    *req.FilterByStat,
+		})
+	}
+
+	// 按认证类型过滤
+	if req.FilterByAuthenticationType != "" {
+		andConditions = append(andConditions, pkgConst.FilterCondition{
+			Field:    string(biz.UserFieldUserAuthenticationType),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    string(req.FilterByAuthenticationType),
+		})
+	}
+
+	// 按用户系统过滤
+	if req.FilterBySystem != "" {
+		andConditions = append(andConditions, pkgConst.FilterCondition{
+			Field:    "system",
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    string(req.FilterBySystem),
+		})
+	}
+
 	if len(andConditions) > 0 {
 		filterByOptions.Groups = append(filterByOptions.Groups, pkgConst.NewConditionGroup(pkgConst.FilterLogicAnd, andConditions...))
 	}
