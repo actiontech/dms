@@ -36,6 +36,9 @@ type ListOperationRecordOption struct {
 	FuzzySearchOperateUserName string
 	FilterOperateTypeName      string
 	FilterOperateAction        string
+	// 权限相关字段
+	CanViewGlobal              bool     // 是否有全局查看权限（admin/sys/全局权限）
+	AccessibleProjectNames     []string // 可访问的项目名称列表（项目管理员）
 }
 
 type OperationRecordUsecase struct {
