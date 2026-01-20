@@ -27,6 +27,7 @@ import (
 
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
+	i18nPkg "github.com/actiontech/dms/pkg/dms-common/i18nPkg"
 
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 
@@ -716,6 +717,29 @@ func (ctl *DMSController) AddSession(c echo.Context) error {
 		Expires: time.Now().Add(jwt.DefaultDmsRefreshTokenExpHours * time.Hour),
 	})
 
+	// 记录登入操作
+	user, err := ctl.DMS.UserUsecase.GetUser(c.Request().Context(), reply.Data.UserUid)
+	if err == nil {
+		recordReq := &aV1.AddOperationRecordReq{
+			OperationRecord: &aV1.OperationRecord{
+				OperationTime:        time.Now(),
+				OperationUserName:    user.Name,
+				OperationReqIP:       c.RealIP(),
+				OperationUserAgent:   c.Request().UserAgent(),
+				OperationTypeName:    "user",
+				OperationAction:      "login",
+				OperationProjectName:  "",
+				OperationStatus:      "succeeded",
+				OperationI18nContent: i18nPkg.ConvertStr2I18nAsDefaultLang(fmt.Sprintf("用户 %s 登入系统", user.Name)),
+			},
+		}
+		_, err = ctl.DMS.AddOperationRecord(c.Request().Context(), recordReq)
+		if err != nil {
+			ctl.log.Errorf("failed to save login operation record: %v, operation_record: user_name=%s, ip=%s, user_agent=%s, action=login",
+				err, user.Name, c.RealIP(), c.Request().UserAgent())
+		}
+	}
+
 	return NewOkRespWithReply(c, &aV1.AddSessionReply{
 		Data: struct {
 			Token string `json:"token"`
@@ -752,6 +776,7 @@ func (ctl *DMSController) DelSession(c echo.Context) error {
 		}
 	}
 
+	var userUid string
 	cookie, err := c.Cookie(constant.DMSToken)
 	if err != nil {
 		ctl.log.Warnf("DelSession get dms token cookie failed: %v", err)
@@ -761,6 +786,36 @@ func (ctl *DMSController) DelSession(c echo.Context) error {
 		cookie.Path = "/"
 		c.SetCookie(cookie)
 		ctl.CloudbeaverService.Logout(cookie.Value)
+		
+		// 从token中获取用户uid
+		if uid, err := jwt.ParseUidFromJwtTokenStr(cookie.Value); err == nil {
+			userUid = uid
+		}
+	}
+
+	// 记录登出操作
+	if userUid != "" {
+		user, err := ctl.DMS.UserUsecase.GetUser(c.Request().Context(), userUid)
+		if err == nil {
+			recordReq := &aV1.AddOperationRecordReq{
+				OperationRecord: &aV1.OperationRecord{
+					OperationTime:        time.Now(),
+					OperationUserName:    user.Name,
+					OperationReqIP:       c.RealIP(),
+					OperationUserAgent:   c.Request().UserAgent(),
+					OperationTypeName:    "user",
+					OperationAction:      "logout",
+					OperationProjectName:  "",
+					OperationStatus:      "succeeded",
+					OperationI18nContent: i18nPkg.ConvertStr2I18nAsDefaultLang(fmt.Sprintf("用户 %s 登出系统", user.Name)),
+				},
+			}
+			_, err = ctl.DMS.AddOperationRecord(c.Request().Context(), recordReq)
+			if err != nil {
+				ctl.log.Errorf("failed to save logout operation record: %v, operation_record: user_name=%s, ip=%s, user_agent=%s, action=logout",
+					err, user.Name, c.RealIP(), c.Request().UserAgent())
+			}
+		}
 	}
 
 	reply := &aV1.DelSessionReply{Data: struct {
@@ -4790,4 +4845,157 @@ func (ctl *DMSController) UpdateSystemVariables(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 	return NewOkResp(c)
+}
+
+// swagger:operation POST /v1/dms/operation_records OperationRecord AddOperationRecord
+//
+// Add operation record.
+//
+// ---
+// parameters:
+//   - name: operation_record
+//     in: body
+//     required: true
+//     description: Add new operation record
+//     schema:
+//       "$ref": "#/definitions/AddOperationRecordReq"
+// responses:
+//   '200':
+//     description: AddOperationRecordReply
+//     schema:
+//       "$ref": "#/definitions/AddOperationRecordReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) AddOperationRecord(c echo.Context) error {
+	req := new(aV1.AddOperationRecordReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	reply, err := ctl.DMS.AddOperationRecord(c.Request().Context(), req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:operation GET /v1/dms/operation_records OperationRecord GetOperationRecordList
+//
+// Get operation record list.
+//
+// ---
+// parameters:
+//   - name: filter_operate_time_from
+//     in: query
+//     type: string
+//   - name: filter_operate_time_to
+//     in: query
+//     type: string
+//   - name: filter_operate_project_name
+//     in: query
+//     type: string
+//   - name: fuzzy_search_operate_user_name
+//     in: query
+//     type: string
+//   - name: filter_operate_type_name
+//     in: query
+//     type: string
+//   - name: filter_operate_action
+//     in: query
+//     type: string
+//   - name: page_index
+//     in: query
+//     required: true
+//     type: integer
+//   - name: page_size
+//     in: query
+//     required: true
+//     type: integer
+// responses:
+//   '200':
+//     description: GetOperationRecordListReply
+//     schema:
+//       "$ref": "#/definitions/GetOperationRecordListReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) GetOperationRecordList(c echo.Context) error {
+	req := new(aV1.GetOperationRecordListReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, err := ctl.DMS.GetOperationRecordList(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:operation GET /v1/dms/operation_records/exports OperationRecord ExportOperationRecordList
+//
+// Export operation record list.
+//
+// ---
+// parameters:
+//   - name: filter_operate_time_from
+//     in: query
+//     type: string
+//   - name: filter_operate_time_to
+//     in: query
+//     type: string
+//   - name: filter_operate_project_name
+//     in: query
+//     type: string
+//   - name: fuzzy_search_operate_user_name
+//     in: query
+//     type: string
+//   - name: filter_operate_type_name
+//     in: query
+//     type: string
+//   - name: filter_operate_action
+//     in: query
+//     type: string
+// responses:
+//   '200':
+//     description: ExportOperationRecordListReply
+//     schema:
+//       type: file
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) ExportOperationRecordList(c echo.Context) error {
+	req := new(aV1.ExportOperationRecordListReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	fileData, err := ctl.DMS.ExportOperationRecordList(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	fileName := fmt.Sprintf("%s_operation_record.csv", time.Now().Format("20060102150405"))
+	c.Response().Header().Set(echo.HeaderContentDisposition, mime.FormatMediaType("attachment", map[string]string{
+		"filename": fileName,
+	}))
+
+	return c.Blob(http.StatusOK, "text/csv", fileData)
 }
