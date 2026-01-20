@@ -59,6 +59,7 @@ var AutoMigrateList = []interface{}{
 	EnvironmentTag{},
 	Gateway{},
 	SystemVariable{},
+	OperationRecord{},
 }
 
 type Model struct {
@@ -709,4 +710,22 @@ type Gateway struct {
 type SystemVariable struct {
 	Key   string `gorm:"primary_key"`
 	Value string `gorm:"not null;type:text"`
+}
+
+type OperationRecord struct {
+	ID                   uint            `json:"id" gorm:"primary_key" example:"1"`
+	CreatedAt            time.Time       `json:"created_at" gorm:"default:current_timestamp(3)" example:"2018-10-21T16:40:23+08:00"`
+	OperationTime        time.Time       `gorm:"column:operation_time;type:datetime;" json:"operation_time"`
+	OperationUserName    string          `gorm:"column:operation_user_name;type:varchar(255);not null" json:"operation_user_name"`
+	OperationReqIP       string          `gorm:"column:operation_req_ip;type:varchar(255)" json:"operation_req_ip"`
+	OperationUserAgent   string          `gorm:"column:operation_user_agent;type:varchar(512)" json:"operation_user_agent"`
+	OperationTypeName    string          `gorm:"column:operation_type_name;type:varchar(255)" json:"operation_type_name"`
+	OperationAction      string          `gorm:"column:operation_action;type:varchar(255)" json:"operation_action"`
+	OperationProjectName string          `gorm:"column:operation_project_name;type:varchar(255)" json:"operation_project_name"`
+	OperationStatus      string          `gorm:"column:operation_status;type:varchar(255)" json:"operation_status"`
+	OperationI18nContent i18nPkg.I18nStr `gorm:"column:operation_i18n_content;type:json" json:"operation_i18n_content"`
+}
+
+func (OperationRecord) TableName() string {
+	return "operation_records"
 }
