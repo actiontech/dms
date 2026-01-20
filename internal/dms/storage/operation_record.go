@@ -36,6 +36,36 @@ func (d *operationRecordRepo) SaveOperationRecord(ctx context.Context, record *b
 	return nil
 }
 
+func applyOperationRecordFilters(db *gorm.DB, opt *biz.ListOperationRecordOption) *gorm.DB {
+	if opt.FilterOperateTimeFrom != "" {
+		db = db.Where("operation_time > ?", opt.FilterOperateTimeFrom)
+	}
+	if opt.FilterOperateTimeTo != "" {
+		db = db.Where("operation_time < ?", opt.FilterOperateTimeTo)
+	}
+	// 项目过滤：如果指定了项目，已经通过权限校验，直接使用该过滤条件
+	if opt.FilterOperateProjectName != nil {
+		db = db.Where("operation_project_name = ?", *opt.FilterOperateProjectName)
+	} else {
+		// 如果没指定项目，根据权限过滤
+		if !opt.CanViewGlobal && len(opt.AccessibleProjectNames) > 0 {
+			// 项目管理员只能查看对应项目下的操作记录
+			db = db.Where("operation_project_name IN ?", opt.AccessibleProjectNames)
+		}
+		// 如果 CanViewGlobal 为 true，不添加项目过滤（可以查看所有项目，包括空字符串）
+	}
+	if opt.FuzzySearchOperateUserName != "" {
+		db = db.Where("operation_user_name LIKE ?", "%"+opt.FuzzySearchOperateUserName+"%")
+	}
+	if opt.FilterOperateTypeName != "" {
+		db = db.Where("operation_type_name = ?", opt.FilterOperateTypeName)
+	}
+	if opt.FilterOperateAction != "" {
+		db = db.Where("operation_action = ?", opt.FilterOperateAction)
+	}
+	return db
+}
+
 func (d *operationRecordRepo) ListOperationRecords(ctx context.Context, opt *biz.ListOperationRecordOption) ([]*biz.OperationRecord, uint64, error) {
 	var models []*model.OperationRecord
 	var total int64
@@ -44,26 +74,7 @@ func (d *operationRecordRepo) ListOperationRecords(ctx context.Context, opt *biz
 		// find models
 		{
 			db := tx.WithContext(ctx).Model(&model.OperationRecord{})
-
-			// Apply filters
-			if opt.FilterOperateTimeFrom != "" {
-				db = db.Where("operation_time > ?", opt.FilterOperateTimeFrom)
-			}
-			if opt.FilterOperateTimeTo != "" {
-				db = db.Where("operation_time < ?", opt.FilterOperateTimeTo)
-			}
-			if opt.FilterOperateProjectName != nil {
-				db = db.Where("operation_project_name = ?", *opt.FilterOperateProjectName)
-			}
-			if opt.FuzzySearchOperateUserName != "" {
-				db = db.Where("operation_user_name LIKE ?", "%"+opt.FuzzySearchOperateUserName+"%")
-			}
-			if opt.FilterOperateTypeName != "" {
-				db = db.Where("operation_type_name = ?", opt.FilterOperateTypeName)
-			}
-			if opt.FilterOperateAction != "" {
-				db = db.Where("operation_action = ?", opt.FilterOperateAction)
-			}
+			db = applyOperationRecordFilters(db, opt)
 
 			// Order and pagination
 			db = db.Order("operation_time DESC")
@@ -78,26 +89,7 @@ func (d *operationRecordRepo) ListOperationRecords(ctx context.Context, opt *biz
 		// find total
 		{
 			db := tx.WithContext(ctx).Model(&model.OperationRecord{})
-
-			// Apply same filters
-			if opt.FilterOperateTimeFrom != "" {
-				db = db.Where("operation_time > ?", opt.FilterOperateTimeFrom)
-			}
-			if opt.FilterOperateTimeTo != "" {
-				db = db.Where("operation_time < ?", opt.FilterOperateTimeTo)
-			}
-			if opt.FilterOperateProjectName != nil {
-				db = db.Where("operation_project_name = ?", *opt.FilterOperateProjectName)
-			}
-			if opt.FuzzySearchOperateUserName != "" {
-				db = db.Where("operation_user_name LIKE ?", "%"+opt.FuzzySearchOperateUserName+"%")
-			}
-			if opt.FilterOperateTypeName != "" {
-				db = db.Where("operation_type_name = ?", opt.FilterOperateTypeName)
-			}
-			if opt.FilterOperateAction != "" {
-				db = db.Where("operation_action = ?", opt.FilterOperateAction)
-			}
+			db = applyOperationRecordFilters(db, opt)
 
 			if err := db.Count(&total).Error; err != nil {
 				return fmt.Errorf("failed to count operation records: %v", err)
@@ -122,26 +114,7 @@ func (d *operationRecordRepo) ExportOperationRecords(ctx context.Context, opt *b
 
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		db := tx.WithContext(ctx).Model(&model.OperationRecord{})
-
-		// Apply filters (same as ListOperationRecords)
-		if opt.FilterOperateTimeFrom != "" {
-			db = db.Where("operation_time > ?", opt.FilterOperateTimeFrom)
-		}
-		if opt.FilterOperateTimeTo != "" {
-			db = db.Where("operation_time < ?", opt.FilterOperateTimeTo)
-		}
-		if opt.FilterOperateProjectName != nil {
-			db = db.Where("operation_project_name = ?", *opt.FilterOperateProjectName)
-		}
-		if opt.FuzzySearchOperateUserName != "" {
-			db = db.Where("operation_user_name LIKE ?", "%"+opt.FuzzySearchOperateUserName+"%")
-		}
-		if opt.FilterOperateTypeName != "" {
-			db = db.Where("operation_type_name = ?", opt.FilterOperateTypeName)
-		}
-		if opt.FilterOperateAction != "" {
-			db = db.Where("operation_action = ?", opt.FilterOperateAction)
-		}
+		db = applyOperationRecordFilters(db, opt)
 
 		// Order by time DESC, no pagination for export
 		db = db.Order("operation_time DESC")
