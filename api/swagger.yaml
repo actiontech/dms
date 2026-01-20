@@ -214,6 +214,25 @@ definitions:
                 $ref: '#/definitions/Member'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddOperationRecordReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddOperationRecordReq:
+        properties:
+            operation_record:
+                $ref: '#/definitions/OperationRecord'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddProjectReply:
         properties:
             code:
@@ -1832,7 +1851,7 @@ definitions:
                 type: array
                 x-go-name: Users
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetMemberGroupReply:
         properties:
             code:
@@ -1950,6 +1969,28 @@ definitions:
             login_tip:
                 type: string
                 x-go-name: LoginTip
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetOperationRecordListReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/OperationRecordListItem'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                format: uint64
+                type: integer
+                x-go-name: TotalNums
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetProjectTipsReply:
@@ -4826,6 +4867,82 @@ definitions:
                 type: string
                 x-go-enum-desc: SQL CbOperationTypeSQL
                 x-go-name: OperationType
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    OperationRecord:
+        properties:
+            operation_action:
+                type: string
+                x-go-name: OperationAction
+            operation_i18n_content:
+                $ref: '#/definitions/I18nStr'
+            operation_project_name:
+                type: string
+                x-go-name: OperationProjectName
+            operation_req_ip:
+                type: string
+                x-go-name: OperationReqIP
+            operation_status:
+                type: string
+                x-go-name: OperationStatus
+            operation_time:
+                format: date-time
+                type: string
+                x-go-name: OperationTime
+            operation_type_name:
+                type: string
+                x-go-name: OperationTypeName
+            operation_user_agent:
+                type: string
+                x-go-name: OperationUserAgent
+            operation_user_name:
+                type: string
+                x-go-name: OperationUserName
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    OperationRecordListItem:
+        properties:
+            id:
+                format: uint64
+                type: integer
+                x-go-name: ID
+            operation_action:
+                type: string
+                x-go-name: OperationAction
+            operation_content:
+                type: string
+                x-go-name: OperationContent
+            operation_time:
+                format: date-time
+                type: string
+                x-go-name: OperationTime
+            operation_type_name:
+                type: string
+                x-go-name: OperationTypeName
+            operation_user:
+                $ref: '#/definitions/OperationUser'
+            operation_user_agent:
+                type: string
+                x-go-name: OperationUserAgent
+            project_name:
+                type: string
+                x-go-name: ProjectName
+            status:
+                enum:
+                    - succeeded
+                    - failed
+                type: string
+                x-go-name: Status
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    OperationUser:
+        properties:
+            ip:
+                type: string
+                x-go-name: IP
+            user_name:
+                type: string
+                x-go-name: UserName
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     Param:
@@ -7981,6 +8098,119 @@ paths:
             summary: List op permission.
             tags:
                 - OpPermission
+    /v1/dms/operation_records:
+        get:
+            operationId: GetOperationRecordList
+            parameters:
+                - in: query
+                  name: filter_operate_time_from
+                  type: string
+                  x-go-name: FilterOperateTimeFrom
+                - in: query
+                  name: filter_operate_time_to
+                  type: string
+                  x-go-name: FilterOperateTimeTo
+                - in: query
+                  name: filter_operate_project_name
+                  type: string
+                  x-go-name: FilterOperateProjectName
+                - in: query
+                  name: fuzzy_search_operate_user_name
+                  type: string
+                  x-go-name: FuzzySearchOperateUserName
+                - in: query
+                  name: filter_operate_type_name
+                  type: string
+                  x-go-name: FilterOperateTypeName
+                - in: query
+                  name: filter_operate_action
+                  type: string
+                  x-go-name: FilterOperateAction
+                - format: uint32
+                  in: query
+                  name: page_index
+                  required: true
+                  type: integer
+                  x-go-name: PageIndex
+                - format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+            responses:
+                "200":
+                    description: GetOperationRecordListReply
+                    schema:
+                        $ref: '#/definitions/GetOperationRecordListReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get operation record list.
+            tags:
+                - OperationRecord
+        post:
+            operationId: AddOperationRecord
+            parameters:
+                - description: Add new operation record
+                  in: body
+                  name: operation_record
+                  required: true
+                  schema:
+                    $ref: '#/definitions/AddOperationRecordReq'
+            responses:
+                "200":
+                    description: AddOperationRecordReply
+                    schema:
+                        $ref: '#/definitions/AddOperationRecordReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Add operation record.
+            tags:
+                - OperationRecord
+    /v1/dms/operation_records/exports:
+        get:
+            operationId: ExportOperationRecordList
+            parameters:
+                - in: query
+                  name: filter_operate_time_from
+                  type: string
+                  x-go-name: FilterOperateTimeFrom
+                - in: query
+                  name: filter_operate_time_to
+                  type: string
+                  x-go-name: FilterOperateTimeTo
+                - in: query
+                  name: filter_operate_project_name
+                  type: string
+                  x-go-name: FilterOperateProjectName
+                - in: query
+                  name: fuzzy_search_operate_user_name
+                  type: string
+                  x-go-name: FuzzySearchOperateUserName
+                - in: query
+                  name: filter_operate_type_name
+                  type: string
+                  x-go-name: FilterOperateTypeName
+                - in: query
+                  name: filter_operate_action
+                  type: string
+                  x-go-name: FilterOperateAction
+            responses:
+                "200":
+                    description: ExportOperationRecordListReply
+                    schema:
+                        type: file
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Export operation record list.
+            tags:
+                - OperationRecord
     /v1/dms/personalization:
         post:
             operationId: Personalization
@@ -11347,6 +11577,10 @@ responses:
         schema:
             type: file
     ExportCBOperationLogsReply:
+        description: ""
+        schema:
+            type: file
+    ExportOperationRecordListReply:
         description: ""
         schema:
             type: file
