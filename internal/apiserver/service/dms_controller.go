@@ -4875,6 +4875,21 @@ func (ctl *DMSController) AddOperationRecord(c echo.Context) error {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
+	// get current user id
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	// check if user is admin/sys
+	isAdmin, err := ctl.DMS.OpPermissionVerifyUsecase.IsUserDMSAdmin(c.Request().Context(), currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	if !isAdmin {
+		return NewErrResp(c, errors.New("insufficient permission"), apiError.UnauthorizedErr)
+	}
+
 	reply, err := ctl.DMS.AddOperationRecord(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
