@@ -2762,6 +2762,31 @@ func (ctl *DMSController) oauth2Callback(c echo.Context) error {
 			SameSite:  http.SameSiteStrictMode, // cookie只会在同站请求中发送。
 			Expires: time.Now().Add(dmsRefreshCookieExp),
 		})
+
+		// 记录登入操作
+		if claims != nil && claims.UserId != "" {
+			user, err := ctl.DMS.UserUsecase.GetUser(c.Request().Context(), claims.UserId)
+			if err == nil {
+				recordReq := &aV1.AddOperationRecordReq{
+					OperationRecord: &aV1.OperationRecord{
+						OperationTime:        time.Now(),
+						OperationUserName:    user.Name,
+						OperationReqIP:       c.RealIP(),
+						OperationUserAgent:   c.Request().UserAgent(),
+						OperationTypeName:    "user",
+						OperationAction:      "login",
+						OperationProjectName: "",
+						OperationStatus:      "succeeded",
+						OperationI18nContent: i18nPkg.ConvertStr2I18nAsDefaultLang(fmt.Sprintf("用户 %s 通过OAuth2登入系统", user.Name)),
+					},
+				}
+				_, err = ctl.DMS.AddOperationRecord(c.Request().Context(), recordReq)
+				if err != nil {
+					ctl.log.Errorf("failed to save OAuth2 login operation record: %v, operation_record: user_name=%s, ip=%s, user_agent=%s, action=login",
+						err, user.Name, c.RealIP(), c.Request().UserAgent())
+				}
+			}
+		}
 	}
 
 
@@ -2822,6 +2847,31 @@ func (ctl *DMSController) BindOauth2User(c echo.Context) error {
 		SameSite:  http.SameSiteStrictMode, // cookie只会在同站请求中发送。
 		Expires: time.Now().Add(dmsRefreshCookieExp),
 	})
+
+	// 记录登入操作
+	if claims != nil && claims.UserId != "" {
+		user, err := ctl.DMS.UserUsecase.GetUser(c.Request().Context(), claims.UserId)
+		if err == nil {
+			recordReq := &aV1.AddOperationRecordReq{
+				OperationRecord: &aV1.OperationRecord{
+					OperationTime:        time.Now(),
+					OperationUserName:    user.Name,
+					OperationReqIP:       c.RealIP(),
+					OperationUserAgent:   c.Request().UserAgent(),
+					OperationTypeName:    "user",
+					OperationAction:      "login",
+					OperationProjectName: "",
+					OperationStatus:      "succeeded",
+					OperationI18nContent: i18nPkg.ConvertStr2I18nAsDefaultLang(fmt.Sprintf("用户 %s 通过OAuth2绑定登入系统", user.Name)),
+				},
+			}
+			_, err = ctl.DMS.AddOperationRecord(c.Request().Context(), recordReq)
+			if err != nil {
+				ctl.log.Errorf("failed to save OAuth2 bind login operation record: %v, operation_record: user_name=%s, ip=%s, user_agent=%s, action=login",
+					err, user.Name, c.RealIP(), c.Request().UserAgent())
+			}
+		}
+	}
 		
 	return NewOkRespWithReply(c, &aV1.BindOauth2UserReply{
 		Data:aV1.BindOauth2UserResData{Token: dmsToken},
