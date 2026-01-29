@@ -1793,6 +1793,176 @@
         }
       }
     },
+    "/v1/dms/operation_records": {
+      "get": {
+        "tags": [
+          "OperationRecord"
+        ],
+        "summary": "Get operation record list.",
+        "operationId": "GetOperationRecordList",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "FilterOperateTimeFrom",
+            "name": "filter_operate_time_from",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterOperateTimeTo",
+            "name": "filter_operate_time_to",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterOperateProjectName",
+            "name": "filter_operate_project_name",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FuzzySearchOperateUserName",
+            "name": "fuzzy_search_operate_user_name",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterOperateTypeName",
+            "name": "filter_operate_type_name",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterOperateAction",
+            "name": "filter_operate_action",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "name": "page_index",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GetOperationRecordListReply",
+            "schema": {
+              "$ref": "#/definitions/GetOperationRecordListReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "OperationRecord"
+        ],
+        "summary": "Add operation record.",
+        "operationId": "AddOperationRecord",
+        "parameters": [
+          {
+            "description": "Add new operation record",
+            "name": "operation_record",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddOperationRecordReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AddOperationRecordReply",
+            "schema": {
+              "$ref": "#/definitions/AddOperationRecordReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/operation_records/exports": {
+      "get": {
+        "tags": [
+          "OperationRecord"
+        ],
+        "summary": "Export operation record list.",
+        "operationId": "ExportOperationRecordList",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "FilterOperateTimeFrom",
+            "name": "filter_operate_time_from",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterOperateTimeTo",
+            "name": "filter_operate_time_to",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterOperateProjectName",
+            "name": "filter_operate_project_name",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FuzzySearchOperateUserName",
+            "name": "fuzzy_search_operate_user_name",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterOperateTypeName",
+            "name": "filter_operate_type_name",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterOperateAction",
+            "name": "filter_operate_action",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ExportOperationRecordListReply",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/personalization": {
       "post": {
         "tags": [
@@ -6921,6 +7091,32 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "AddOperationRecordReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddOperationRecordReq": {
+      "type": "object",
+      "properties": {
+        "operation_record": {
+          "$ref": "#/definitions/OperationRecord"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "AddProjectReply": {
       "type": "object",
       "properties": {
@@ -9075,7 +9271,7 @@
           "x-go-name": "Message"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "GetOauth2ConfigurationResData": {
       "type": "object",
@@ -9213,6 +9409,35 @@
         "login_tip": {
           "type": "string",
           "x-go-name": "LoginTip"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetOperationRecordListReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OperationRecordListItem"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "TotalNums"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -12646,6 +12871,109 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "OperationRecord": {
+      "type": "object",
+      "properties": {
+        "operation_action": {
+          "type": "string",
+          "x-go-name": "OperationAction"
+        },
+        "operation_i18n_content": {
+          "$ref": "#/definitions/I18nStr"
+        },
+        "operation_project_name": {
+          "type": "string",
+          "x-go-name": "OperationProjectName"
+        },
+        "operation_req_ip": {
+          "type": "string",
+          "x-go-name": "OperationReqIP"
+        },
+        "operation_status": {
+          "type": "string",
+          "x-go-name": "OperationStatus"
+        },
+        "operation_time": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "OperationTime"
+        },
+        "operation_type_name": {
+          "type": "string",
+          "x-go-name": "OperationTypeName"
+        },
+        "operation_user_agent": {
+          "type": "string",
+          "x-go-name": "OperationUserAgent"
+        },
+        "operation_user_name": {
+          "type": "string",
+          "x-go-name": "OperationUserName"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "OperationRecordListItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "ID"
+        },
+        "operation_action": {
+          "type": "string",
+          "x-go-name": "OperationAction"
+        },
+        "operation_content": {
+          "type": "string",
+          "x-go-name": "OperationContent"
+        },
+        "operation_time": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "OperationTime"
+        },
+        "operation_type_name": {
+          "type": "string",
+          "x-go-name": "OperationTypeName"
+        },
+        "operation_user": {
+          "$ref": "#/definitions/OperationUser"
+        },
+        "operation_user_agent": {
+          "type": "string",
+          "x-go-name": "OperationUserAgent"
+        },
+        "project_name": {
+          "type": "string",
+          "x-go-name": "ProjectName"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "succeeded",
+            "failed"
+          ],
+          "x-go-name": "Status"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "OperationUser": {
+      "type": "object",
+      "properties": {
+        "ip": {
+          "type": "string",
+          "x-go-name": "IP"
+        },
+        "user_name": {
+          "type": "string",
+          "x-go-name": "UserName"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "Param": {
       "type": "object",
       "properties": {
@@ -15204,6 +15532,12 @@
       }
     },
     "ExportCBOperationLogsReply": {
+      "description": "",
+      "schema": {
+        "type": "file"
+      }
+    },
+    "ExportOperationRecordListReply": {
       "description": "",
       "schema": {
         "type": "file"
