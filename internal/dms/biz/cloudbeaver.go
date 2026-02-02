@@ -774,8 +774,8 @@ func convertToResp(ctx context.Context, resp cloudbeaver.AuditResults) interface
 		}
 	}
 
-	messageStr := strings.Join(messages, ",")
-	executionFailedMessageStr := strings.Join(executionFailedMessage, ",")
+	messageStr := "审核未通过：" + strings.Join(messages, "；")
+	executionFailedMessageStr := strings.Join(executionFailedMessage, "；")
 	name := "SQL Audit Failed"
 
 	return struct {
