@@ -1705,6 +1705,9 @@ func (cu *CloudbeaverUsecase) GenerateCloudbeaverConnectionParams(dbService *DBS
 		err = cu.fillGoldenDBParams(config)
 	case constant.DBTypeHive:
 		err = cu.fillHive4Params(config)
+	case constant.DBTypeDM:
+		err = cu.fillDMParams(config)
+
 	default:
 		return nil, fmt.Errorf("temporarily unsupported instance types")
 	}
@@ -1803,6 +1806,11 @@ func (cu *CloudbeaverUsecase) fillGoldenDBParams(config map[string]interface{}) 
 
 func (cu *CloudbeaverUsecase) fillHive4Params(config map[string]interface{}) error {
 	config["driverId"] = "hive:apache_hive4"
+	return nil
+}
+
+func (cu *CloudbeaverUsecase) fillDMParams(config map[string]interface{}) error {
+	config["driverId"] = "generic:dameng_jdbc"
 	return nil
 }
 
