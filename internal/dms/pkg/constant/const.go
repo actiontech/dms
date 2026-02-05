@@ -241,6 +241,8 @@ func ParseDBType(s string) (DBType, error) {
 		return DBTypeTBase, nil
 	case "Hive":
 		return DBTypeHive, nil
+	case "DM":
+		return DBTypeDM, nil
 	default:
 		return "", fmt.Errorf("invalid db type: %s", s)
 	}
@@ -258,6 +260,7 @@ const (
 	DBTypeGoldenDB       DBType = "GoldenDB"
 	DBTypeTBase          DBType = "TBase"
 	DBTypeHive           DBType = "Hive"
+	DBTypeDM             DBType = "达梦(DM)"
 )
 
 var SupportedDataExportDBTypes = map[DBType]struct{}{
