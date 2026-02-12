@@ -1707,6 +1707,8 @@ func (cu *CloudbeaverUsecase) GenerateCloudbeaverConnectionParams(dbService *DBS
 		err = cu.fillHive4Params(config)
 	case constant.DBTypeDM:
 		err = cu.fillDMParams(config)
+	case constant.DBTypeGaussDB:
+		err = cu.fillGaussDBParams(config)
 
 	default:
 		return nil, fmt.Errorf("temporarily unsupported instance types")
@@ -1811,6 +1813,11 @@ func (cu *CloudbeaverUsecase) fillHive4Params(config map[string]interface{}) err
 
 func (cu *CloudbeaverUsecase) fillDMParams(config map[string]interface{}) error {
 	config["driverId"] = "generic:dameng_jdbc"
+	return nil
+}
+
+func (cu *CloudbeaverUsecase) fillGaussDBParams(config map[string]interface{}) error {
+	config["driverId"] = "generic:gaussdb_jdbc"
 	return nil
 }
 
