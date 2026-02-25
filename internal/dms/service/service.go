@@ -144,7 +144,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	swaggerUseCase := biz.NewSwaggerUseCase(logger, dmsProxyUsecase)
 	systemVariableUsecase := biz.NewSystemVariableUsecase(logger, storage.NewSystemVariableRepo(logger, st))
 	operationRecordRepo := storage.NewOperationRecordRepo(logger, st)
-	operationRecordUsecase := biz.NewOperationRecordUsecase(logger, operationRecordRepo)
+	operationRecordUsecase := biz.NewOperationRecordUsecase(logger, operationRecordRepo, systemVariableUsecase)
 	cbOperationRepo := storage.NewCbOperationLogRepo(logger, st)
 	CbOperationLogUsecase := biz.NewCbOperationLogUsecase(logger, cbOperationRepo, opPermissionVerifyUsecase, dmsProxyTargetRepo, systemVariableUsecase)
 	workflowRepo := storage.NewWorkflowRepo(logger, st)
@@ -156,7 +156,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	}
 	dataMaskingUsecase := biz.NewMaskingUsecase(logger, dataMasking)
 
-	cronTask := biz.NewCronTaskUsecase(logger, DataExportWorkflowUsecase, CbOperationLogUsecase, oauth2SessionUsecase)
+	cronTask := biz.NewCronTaskUsecase(logger, DataExportWorkflowUsecase, CbOperationLogUsecase, operationRecordUsecase, oauth2SessionUsecase)
 	err = cronTask.InitialTask()
 	if err != nil {
 		return nil, fmt.Errorf("failed to new cron task: %v", err)
