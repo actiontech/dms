@@ -100,3 +100,7 @@ func (u *OperationRecordUsecase) DoClean() {
 	}
 	u.log.Infof("OperationRecord regular cleaned rows: %d operation time before: %s", rowsAffected, cleanTime.Format("2006-01-02 15:04:05"))
 }
+
+func (u *OperationRecordUsecase) GetLog() *utilLog.Helper {
+	return u.log
+}
