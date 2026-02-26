@@ -98,6 +98,7 @@ type RoleRepo interface {
 	CheckRoleExistByRoleName(ctx context.Context, roleName string) (exists bool, err error)
 	ListRoles(ctx context.Context, opt *ListRolesOption) (roles []*Role, total int64, err error)
 	DelRole(ctx context.Context, roleUid string) error
+	DelRoleFromAllMemberGroups(ctx context.Context, roleUid string) error
 	GetRole(ctx context.Context, roleUid string) (*Role, error)
 	AddOpPermissionToRole(ctx context.Context, OpPermissionUid string, roleUid string) error
 	ReplaceOpPermissionsInRole(ctx context.Context, roleUid string, OpPermissionUids []string) error
@@ -313,6 +314,10 @@ func (d *RoleUsecase) DelRole(ctx context.Context, currentUserUid, roleUid strin
 
 	if err := d.memberRepo.DelRoleFromAllMembers(tx, roleUid); nil != err {
 		return fmt.Errorf("delete role from all members error: %v", err)
+	}
+
+	if err := d.repo.DelRoleFromAllMemberGroups(tx, roleUid); nil != err {
+		return fmt.Errorf("delete role from all member groups error: %v", err)
 	}
 
 	if err := d.repo.DelAllOpPermissionsFromRole(tx, roleUid); nil != err {
