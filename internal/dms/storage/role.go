@@ -222,6 +222,15 @@ func (d *RoleRepo) DelRole(ctx context.Context, roleUid string) error {
 	})
 }
 
+func (d *RoleRepo) DelRoleFromAllMemberGroups(ctx context.Context, roleUid string) error {
+	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Where("role_uid = ?", roleUid).Delete(&model.MemberGroupRoleOpRange{}).Error; err != nil {
+			return fmt.Errorf("failed to delete role from all member groups: %v", err)
+		}
+		return nil
+	})
+}
+
 func (d *RoleRepo) GetRole(ctx context.Context, roleUid string) (*biz.Role, error) {
 	var role *model.Role
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
