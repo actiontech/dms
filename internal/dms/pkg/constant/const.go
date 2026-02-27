@@ -273,6 +273,8 @@ var SupportedDataExportDBTypes = map[DBType]struct{}{
 	DBTypeOracle:         {},
 	DBTypeSQLServer:      {},
 	DBTypeOceanBaseMySQL: {},
+	DBTypeHive:           {},
+	DBTypeDM:             {},
 }
 
 type FilterCondition struct {
