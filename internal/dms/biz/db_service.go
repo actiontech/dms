@@ -484,8 +484,7 @@ func filterExportSupportedDb(dbServices []*DBService, opPermissionType dmsCommon
 	}
 	ret := make([]*DBService, 0)
 	for _, item := range dbServices {
-		_, ok := pkgConst.SupportedDataExportDBTypes[pkgConst.DBType(item.DBType)]
-		if ok {
+		if pkgConst.CheckDBTypeIfDataExportSupported(item.DBType) {
 			ret = append(ret, item)
 		}
 	}
