@@ -619,7 +619,8 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 				if !cloudbeaverHandle.NeedModifyRemoteRes {
 					cloudbeaverNext = func(c echo.Context) ([]byte, error) {
 						resp, ok = c.Get(cloudbeaver.AuditResultKey).(cloudbeaver.AuditResults)
-						if ok && !resp.IsSuccess {
+						isExecuteAnyway := cu.isExecuteAnyway(params) // 是否为“仍要执行”触发
+						if ok && !resp.IsSuccess && !isExecuteAnyway {
 							err = cu.SaveCbOpLog(c, dbService, params, resp.Results, resp.IsSuccess, nil)
 							if err != nil {
 								cu.log.Errorf("save cb operation log err: %v", err)
@@ -773,8 +774,8 @@ func convertToResp(ctx context.Context, resp cloudbeaver.AuditResults) interface
 		}
 	}
 
-	messageStr := strings.Join(messages, ",")
-	executionFailedMessageStr := strings.Join(executionFailedMessage, ",")
+	messageStr := "审核未通过：" + strings.Join(messages, "；")
+	executionFailedMessageStr := strings.Join(executionFailedMessage, "；")
 	name := "SQL Audit Failed"
 
 	return struct {
@@ -956,6 +957,29 @@ func (cu *CloudbeaverUsecase) isEnableWorkflowExec(dbService *DBService) bool {
 		return false
 	}
 	return dbService.SQLEConfig.AuditEnabled && dbService.SQLEConfig.SQLQueryConfig.WorkflowExecEnabled
+}
+
+func (cu *CloudbeaverUsecase) isExecuteAnyway(params *graphql.RawParams) bool {
+	if params == nil || params.Variables == nil {
+		return false
+	}
+
+	v, exist := params.Variables["isExecuteAnyway"]
+	if !exist || v == nil {
+		return false
+	}
+
+	switch val := v.(type) {
+	case bool:
+		return val
+	case string:
+		b, err := strconv.ParseBool(val)
+		if err == nil {
+			return b
+		}
+	}
+
+	return false
 }
 
 func (cu *CloudbeaverUsecase) getDbService(ctx context.Context, params *graphql.RawParams) (*DBService, error) {
