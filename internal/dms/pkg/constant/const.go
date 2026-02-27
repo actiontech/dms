@@ -267,12 +267,23 @@ const (
 	DBTypeGaussDB        DBType = "GaussDB / openGauss"
 )
 
-var SupportedDataExportDBTypes = map[DBType]struct{}{
+var supportedDataExportDBTypes = map[DBType]struct{}{
 	DBTypeMySQL:          {},
 	DBTypePostgreSQL:     {},
 	DBTypeOracle:         {},
 	DBTypeSQLServer:      {},
 	DBTypeOceanBaseMySQL: {},
+	DBTypeHive:           {},
+	DBTypeDM:             {},
+}
+
+func CheckDBTypeIfDataExportSupported(dbtype string) bool {
+	dbType, err := ParseDBType(dbtype)
+	if err != nil {
+		return false
+	}
+	_, ok := supportedDataExportDBTypes[dbType]
+	return ok
 }
 
 type FilterCondition struct {
