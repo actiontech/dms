@@ -226,3 +226,42 @@ var (
 	NotifyDataWorkflowBodyWorkFlowErr       = &i18n.Message{ID: "NotifyDataWorkflowBodyWorkFlowErr", Other: "❌ 读取工单任务内容失败，请通过SQLE界面确认工单状态"}
 	NotifyDataWorkflowBodyApprovalReminder  = &i18n.Message{ID: "NotifyDataWorkflowBodyApprovalReminder", Other: "⏰ 导出工单已审批通过，请在1天内完成导出，过期后将无法执行"}
 )
+
+// Operation Record
+var (
+	OpRecordUserCreate                = &i18n.Message{ID: "OpRecordUserCreate", Other: "创建用户"}
+	OpRecordUserCreateWithName        = &i18n.Message{ID: "OpRecordUserCreateWithName", Other: "创建用户 %s"}
+	OpRecordUserUpdate                = &i18n.Message{ID: "OpRecordUserUpdate", Other: "更新用户 %s"}
+	OpRecordUserDelete                = &i18n.Message{ID: "OpRecordUserDelete", Other: "删除用户 %s"}
+	OpRecordMemberCreate              = &i18n.Message{ID: "OpRecordMemberCreate", Other: "添加成员"}
+	OpRecordMemberCreateWithName      = &i18n.Message{ID: "OpRecordMemberCreateWithName", Other: "添加成员 %s"}
+	OpRecordMemberUpdate              = &i18n.Message{ID: "OpRecordMemberUpdate", Other: "更新成员 %s"}
+	OpRecordMemberDelete              = &i18n.Message{ID: "OpRecordMemberDelete", Other: "删除成员 %s"}
+	OpRecordProjectCreate             = &i18n.Message{ID: "OpRecordProjectCreate", Other: "创建项目"}
+	OpRecordProjectCreateWithName     = &i18n.Message{ID: "OpRecordProjectCreateWithName", Other: "创建项目 %s"}
+	OpRecordProjectUpdate             = &i18n.Message{ID: "OpRecordProjectUpdate", Other: "更新项目 %s"}
+	OpRecordProjectDelete             = &i18n.Message{ID: "OpRecordProjectDelete", Other: "删除项目 %s"}
+	OpRecordProjectArchive            = &i18n.Message{ID: "OpRecordProjectArchive", Other: "归档项目 %s"}
+	OpRecordProjectUnarchive          = &i18n.Message{ID: "OpRecordProjectUnarchive", Other: "取消归档项目 %s"}
+	OpRecordDBServiceCreate           = &i18n.Message{ID: "OpRecordDBServiceCreate", Other: "创建数据源"}
+	OpRecordDBServiceCreateWithName   = &i18n.Message{ID: "OpRecordDBServiceCreateWithName", Other: "创建数据源 %s"}
+	OpRecordDBServiceUpdate           = &i18n.Message{ID: "OpRecordDBServiceUpdate", Other: "更新数据源 %s"}
+	OpRecordDBServiceDelete           = &i18n.Message{ID: "OpRecordDBServiceDelete", Other: "删除数据源 %s"}
+	OpRecordDBServiceImport           = &i18n.Message{ID: "OpRecordDBServiceImport", Other: "导入数据源"}
+	OpRecordConfigLogin               = &i18n.Message{ID: "OpRecordConfigLogin", Other: "更新登录配置"}
+	OpRecordConfigOAuth2              = &i18n.Message{ID: "OpRecordConfigOAuth2", Other: "更新OAuth2配置"}
+	OpRecordConfigLDAP                = &i18n.Message{ID: "OpRecordConfigLDAP", Other: "更新LDAP配置"}
+	OpRecordConfigSMTP                = &i18n.Message{ID: "OpRecordConfigSMTP", Other: "更新SMTP配置"}
+	OpRecordConfigWechat              = &i18n.Message{ID: "OpRecordConfigWechat", Other: "更新企业微信配置"}
+	OpRecordConfigFeishu              = &i18n.Message{ID: "OpRecordConfigFeishu", Other: "更新飞书配置"}
+	OpRecordConfigWebhook             = &i18n.Message{ID: "OpRecordConfigWebhook", Other: "更新Webhook配置"}
+	OpRecordConfigSms                 = &i18n.Message{ID: "OpRecordConfigSms", Other: "更新短信配置"}
+	OpRecordConfigSystemVariables     = &i18n.Message{ID: "OpRecordConfigSystemVariables", Other: "更新系统变量配置"}
+	OpRecordDataExportCreate          = &i18n.Message{ID: "OpRecordDataExportCreate", Other: "创建数据导出工单"}
+	OpRecordDataExportCreateWithName  = &i18n.Message{ID: "OpRecordDataExportCreateWithName", Other: "创建数据导出工单 %s"}
+	OpRecordDataExportApproveWithName = &i18n.Message{ID: "OpRecordDataExportApproveWithName", Other: "审批通过数据导出工单 %s"}
+	OpRecordDataExportRejectWithName  = &i18n.Message{ID: "OpRecordDataExportRejectWithName", Other: "驳回数据导出工单 %s"}
+	OpRecordDataExportExportWithName  = &i18n.Message{ID: "OpRecordDataExportExportWithName", Other: "执行数据导出 %s"}
+	OpRecordDataExportCancel          = &i18n.Message{ID: "OpRecordDataExportCancel", Other: "取消数据导出工单"}
+	OpRecordDataExportCancelWithName  = &i18n.Message{ID: "OpRecordDataExportCancelWithName", Other: "取消数据导出工单 %s"}
+)
