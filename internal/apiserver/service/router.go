@@ -248,6 +248,20 @@ func (s *APIServer) initRouter() error {
 
 		maskingV1 := v1.Group("/dms/masking")
 		maskingV1.GET("/rules", s.DMSController.ListMaskingRules)
+		maskingV1.GET("/templates", s.DMSController.ListMaskingTemplates)
+		maskingV1.POST("/templates", s.DMSController.AddMaskingTemplate)
+		maskingV1.PUT("/templates/:template_id", s.DMSController.UpdateMaskingTemplate)
+		maskingV1.DELETE("/templates/:template_id", s.DMSController.DeleteMaskingTemplate)
+		maskingV1.GET("/sensitive-data-discovery-tasks", s.DMSController.ListSensitiveDataDiscoveryTasks)
+		maskingV1.POST("/sensitive-data-discovery-tasks", s.DMSController.AddSensitiveDataDiscoveryTask)
+		maskingV1.PUT("/sensitive-data-discovery-tasks/:task_id", s.DMSController.UpdateSensitiveDataDiscoveryTask)
+		maskingV1.GET("/sensitive-data-discovery-tasks/:task_id/histories", s.DMSController.ListSensitiveDataDiscoveryTaskHistories)
+		maskingV1.PUT("/rule-configs", s.DMSController.ConfigureMaskingRules)
+		maskingV1.GET("/overview", s.DMSController.GetMaskingOverviewTree)
+		maskingV1.GET("/tables/:table_id/column-masking-details", s.DMSController.GetTableColumnMaskingDetails)
+		maskingV1.GET("/approval-requests/pending", s.DMSController.ListPendingApprovalRequests)
+		maskingV1.GET("/approval-requests/:request_id", s.DMSController.GetPlaintextAccessRequestDetail)
+		maskingV1.POST("/approval-requests/:request_id/decisions", s.DMSController.ProcessApprovalRequest)
 
 		gatewayV1 := v1.Group("/dms/gateways")
 
