@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/internal/dms/storage/model"
@@ -134,6 +135,18 @@ func (d *operationRecordRepo) ExportOperationRecords(ctx context.Context, opt *b
 	}
 
 	return ret, nil
+}
+
+func (d *operationRecordRepo) CleanOperationRecordOpTimeBefore(ctx context.Context, t time.Time) (rowsAffected int64, err error) {
+	err = transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		result := tx.WithContext(ctx).Unscoped().Delete(&model.OperationRecord{}, "operation_time < ?", t)
+		if err := result.Error; err != nil {
+			return err
+		}
+		rowsAffected = result.RowsAffected
+		return nil
+	})
+	return
 }
 
 func convertBizOperationRecord(src *biz.OperationRecord) *model.OperationRecord {

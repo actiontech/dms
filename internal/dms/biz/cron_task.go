@@ -6,28 +6,27 @@ import (
 )
 
 type CronTaskUsecase struct {
-	log                   *utilLog.Helper
-	cronTask              *cronTask
-	workflowUsecase       *DataExportWorkflowUsecase
-	cbOperationLogUsecase *CbOperationLogUsecase
-	licenseUsecase        *LicenseUsecase
-	oauth2SessionUsecase  *OAuth2SessionUsecase
+	log                    *utilLog.Helper
+	cronTask               *cronTask
+	workflowUsecase        *DataExportWorkflowUsecase
+	cbOperationLogUsecase  *CbOperationLogUsecase
+	operationRecordUsecase *OperationRecordUsecase
+	licenseUsecase         *LicenseUsecase
+	oauth2SessionUsecase   *OAuth2SessionUsecase
 }
 type cronTask struct {
 	cron *cron.Cron
 }
 
-func NewCronTaskUsecase(log utilLog.Logger, wu *DataExportWorkflowUsecase, cu *CbOperationLogUsecase, os *OAuth2SessionUsecase) *CronTaskUsecase {
+func NewCronTaskUsecase(log utilLog.Logger, wu *DataExportWorkflowUsecase, cu *CbOperationLogUsecase, oru *OperationRecordUsecase, os *OAuth2SessionUsecase) *CronTaskUsecase {
 	ctu := &CronTaskUsecase{
-		log: utilLog.NewHelper(log, utilLog.WithMessageKey("biz.cronTask")),
-		cronTask: &cronTask{
-			cron: cron.New(),
-		},
-		workflowUsecase:       wu,
-		cbOperationLogUsecase: cu,
-		oauth2SessionUsecase:  os,
+		log:                    utilLog.NewHelper(log, utilLog.WithMessageKey("biz.cronTask")),
+		cronTask:               &cronTask{cron: cron.New()},
+		workflowUsecase:        wu,
+		cbOperationLogUsecase:  cu,
+		operationRecordUsecase: oru,
+		oauth2SessionUsecase:   os,
 	}
-
 	return ctu
 }
 
@@ -45,6 +44,10 @@ func (ctu *CronTaskUsecase) InitialTask() error {
 	}
 
 	if _, err := ctu.cronTask.cron.AddFunc("@hourly", ctu.cbOperationLogUsecase.DoClean); err != nil {
+		return err
+	}
+
+	if _, err := ctu.cronTask.cron.AddFunc("@hourly", ctu.operationRecordUsecase.DoClean); err != nil {
 		return err
 	}
 

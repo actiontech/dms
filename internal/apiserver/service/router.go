@@ -466,6 +466,8 @@ func (s *APIServer) installMiddleware() error {
 		i18nPkg.GetLangByAcceptLanguage,
 	))
 
+	s.echo.Use(dmsMiddleware.OperationRecordMiddleware(s.DMSController.DMS))
+
 	return nil
 }
 
