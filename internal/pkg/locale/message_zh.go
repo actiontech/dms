@@ -231,12 +231,21 @@ var (
 var (
 	OpRecordUserCreate                = &i18n.Message{ID: "OpRecordUserCreate", Other: "创建用户"}
 	OpRecordUserCreateWithName        = &i18n.Message{ID: "OpRecordUserCreateWithName", Other: "创建用户 %s"}
+	OpRecordCurrentUserUpdate         = &i18n.Message{ID: "OpRecordCurrentUserUpdate", Other: "更新个人中心账号基本信息"}
 	OpRecordUserUpdate                = &i18n.Message{ID: "OpRecordUserUpdate", Other: "更新用户 %s"}
 	OpRecordUserDelete                = &i18n.Message{ID: "OpRecordUserDelete", Other: "删除用户 %s"}
 	OpRecordMemberCreate              = &i18n.Message{ID: "OpRecordMemberCreate", Other: "添加成员"}
 	OpRecordMemberCreateWithName      = &i18n.Message{ID: "OpRecordMemberCreateWithName", Other: "添加成员 %s"}
 	OpRecordMemberUpdate              = &i18n.Message{ID: "OpRecordMemberUpdate", Other: "更新成员 %s"}
 	OpRecordMemberDelete              = &i18n.Message{ID: "OpRecordMemberDelete", Other: "删除成员 %s"}
+	OpRecordMemberGroupCreate         = &i18n.Message{ID: "OpRecordMemberGroupCreate", Other: "添加成员组"}
+	OpRecordMemberGroupCreateWithName = &i18n.Message{ID: "OpRecordMemberGroupCreateWithName", Other: "添加成员组 %s"}
+	OpRecordMemberGroupUpdate         = &i18n.Message{ID: "OpRecordMemberGroupUpdate", Other: "更新成员组 %s"}
+	OpRecordMemberGroupDelete         = &i18n.Message{ID: "OpRecordMemberGroupDelete", Other: "删除成员组 %s"}
+	OpRecordRoleCreate                = &i18n.Message{ID: "OpRecordRoleCreate", Other: "创建角色"}
+	OpRecordRoleCreateWithName        = &i18n.Message{ID: "OpRecordRoleCreateWithName", Other: "创建角色 %s"}
+	OpRecordRoleUpdate                = &i18n.Message{ID: "OpRecordRoleUpdate", Other: "更新角色 %s"}
+	OpRecordRoleDelete                = &i18n.Message{ID: "OpRecordRoleDelete", Other: "删除角色 %s"}
 	OpRecordProjectCreate             = &i18n.Message{ID: "OpRecordProjectCreate", Other: "创建项目"}
 	OpRecordProjectCreateWithName     = &i18n.Message{ID: "OpRecordProjectCreateWithName", Other: "创建项目 %s"}
 	OpRecordProjectUpdate             = &i18n.Message{ID: "OpRecordProjectUpdate", Other: "更新项目 %s"}
@@ -257,6 +266,7 @@ var (
 	OpRecordConfigWebhook             = &i18n.Message{ID: "OpRecordConfigWebhook", Other: "更新Webhook配置"}
 	OpRecordConfigSms                 = &i18n.Message{ID: "OpRecordConfigSms", Other: "更新短信配置"}
 	OpRecordConfigSystemVariables     = &i18n.Message{ID: "OpRecordConfigSystemVariables", Other: "更新系统变量配置"}
+	OpRecordConfigCompanyNotice       = &i18n.Message{ID: "OpRecordConfigCompanyNotice", Other: "更新系统公告"}
 	OpRecordDataExportCreate          = &i18n.Message{ID: "OpRecordDataExportCreate", Other: "创建数据导出工单"}
 	OpRecordDataExportCreateWithName  = &i18n.Message{ID: "OpRecordDataExportCreateWithName", Other: "创建数据导出工单 %s"}
 	OpRecordDataExportApproveWithName = &i18n.Message{ID: "OpRecordDataExportApproveWithName", Other: "审批通过数据导出工单 %s"}
