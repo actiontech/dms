@@ -44,6 +44,21 @@ func (d *WorkflowRepo) SaveWorkflow(ctx context.Context, dataExportWorkflow *biz
 	return nil
 }
 
+func (d *WorkflowRepo) IsDataExportWorkflowNameDuplicate(ctx context.Context, projectUID, workflowName string) (bool, error) {
+	var count int64
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Model(&model.Workflow{}).
+			Where("project_uid = ? AND name = ?", projectUID, workflowName).
+			Count(&count).Error; err != nil {
+			return fmt.Errorf("failed to check workflow name duplicate: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
 func (w *WorkflowRepo) UpdateWorkflowRecord(ctx context.Context, dataExportWorkflowRecord *biz.WorkflowRecord) error {
 	model := convertBizWorkflowRecord(dataExportWorkflowRecord)
 

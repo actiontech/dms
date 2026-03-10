@@ -36,6 +36,7 @@ DBServiceSQLQueryRuleTemplateName = "工作台操作审核规则模板(需要先
 DBServiceSyncExpand = "数据源同步扩展服务"
 DBServiceSyncVersion = "版本(支持DMP5.23.04.0及以上版本)"
 DBServiceUser = "数据源连接用户"
+DataExportWorkflowNameDuplicateErr = "工单名称重复了，请您修改工单名称后重新提交工单。"
 DataWorkflowDefault = "❓数据导出工单未知请求"
 DataWorkflowExportFailed = "⚠️ 数据导出失败"
 DataWorkflowExportSuccess = "✅ 数据导出成功"

@@ -210,6 +210,7 @@ var (
 
 // Data Export Workflow
 var (
+	DataExportWorkflowNameDuplicateErr      = &i18n.Message{ID: "DataExportWorkflowNameDuplicateErr", Other: "工单名称重复了，请您修改工单名称后重新提交工单。"}
 	DataWorkflowDefault                     = &i18n.Message{ID: "DataWorkflowDefault", Other: "❓数据导出工单未知请求"}
 	DataWorkflowExportFailed                = &i18n.Message{ID: "DataWorkflowExportFailed", Other: "⚠️ 数据导出失败"}
 	DataWorkflowExportSuccess               = &i18n.Message{ID: "DataWorkflowExportSuccess", Other: "✅ 数据导出成功"}
