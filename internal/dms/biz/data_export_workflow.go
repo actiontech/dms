@@ -2,12 +2,15 @@ package biz
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 )
+
+var ErrDataExportWorkflowNameDuplicate = errors.New("data export workflow name duplicate")
 
 type DataExportWorkflowStatus string
 
@@ -98,6 +101,7 @@ type WorkflowStep struct {
 
 type WorkflowRepo interface {
 	SaveWorkflow(ctx context.Context, dataExportWorkflow *Workflow) error
+	IsDataExportWorkflowNameDuplicate(ctx context.Context, projectUID, workflowName string) (bool, error)
 	ListDataExportWorkflows(ctx context.Context, opt *ListWorkflowsOption) ([]*Workflow, int64, error)
 	GetDataExportWorkflow(ctx context.Context, dataExportWorkflowUid string) (*Workflow, error)
 	UpdateWorkflowStatusById(ctx context.Context, dataExportWorkflowUid string, status DataExportWorkflowStatus) error

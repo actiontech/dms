@@ -25,7 +25,7 @@ func (d *DMSService) AddDataExportWorkflow(ctx context.Context, req *dmsV1.AddDa
 	}
 	uid, err := d.DataExportWorkflowUsecase.AddDataExportWorkflow(ctx, currentUserUid, args)
 	if err != nil {
-		return nil, fmt.Errorf("add data export workflow failed: %v", err)
+		return nil, fmt.Errorf("add data export workflow failed: %w", err)
 	}
 
 	return &dmsV1.AddDataExportWorkflowReply{
