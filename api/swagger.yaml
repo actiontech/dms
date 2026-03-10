@@ -158,6 +158,51 @@ definitions:
                 $ref: '#/definitions/Gateway'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddMaskingTemplate:
+        properties:
+            name:
+                description: masking template name
+                example: '"New Template"'
+                type: string
+                x-go-name: Name
+            rule_ids:
+                description: masking rule id list
+                example:
+                    - 1
+                    - 2
+                    - 3
+                items:
+                    format: int64
+                    type: integer
+                minLength: 1
+                type: array
+                x-go-name: RuleIDs
+        required:
+            - name
+            - rule_ids
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddMaskingTemplateReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddMaskingTemplateReq:
+        properties:
+            masking_template:
+                $ref: '#/definitions/AddMaskingTemplate'
+        required:
+            - masking_template
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddMemberGroupReply:
         properties:
             code:
@@ -317,6 +362,89 @@ definitions:
         properties:
             role:
                 $ref: '#/definitions/Role'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddSensitiveDataDiscoveryTask:
+        properties:
+            cron_expression:
+                description: cron expression, required when execution_plan is PERIODIC
+                example: '"0 0 * * *"'
+                type: string
+                x-go-name: CronExpression
+            db_service_id:
+                description: database instance id
+                example: 1
+                format: int64
+                type: integer
+                x-go-name: DBServiceID
+            execution_plan:
+                description: |-
+                    execution plan
+                    IMMEDIATE SensitiveDataDiscoveryExecutionPlanImmediate
+                    PERIODIC SensitiveDataDiscoveryExecutionPlanPeriodic
+                enum:
+                    - '[IMMEDIATE'
+                    - ' PERIODIC]'
+                example: '"IMMEDIATE"'
+                type: string
+                x-go-enum-desc: |-
+                    IMMEDIATE SensitiveDataDiscoveryExecutionPlanImmediate
+                    PERIODIC SensitiveDataDiscoveryExecutionPlanPeriodic
+                x-go-name: ExecutionPlan
+            identification_method:
+                description: |-
+                    sensitive data identification method
+                    BY_FIELD_NAME SensitiveDataIdentificationMethodByFieldName
+                    BY_SAMPLE_DATA SensitiveDataIdentificationMethodBySampleData
+                enum:
+                    - '[BY_FIELD_NAME'
+                    - ' BY_SAMPLE_DATA]'
+                example: '"BY_FIELD_NAME"'
+                type: string
+                x-go-enum-desc: |-
+                    BY_FIELD_NAME SensitiveDataIdentificationMethodByFieldName
+                    BY_SAMPLE_DATA SensitiveDataIdentificationMethodBySampleData
+                x-go-name: IdentificationMethod
+            masking_template_id:
+                description: masking template id
+                example: 1
+                format: int64
+                type: integer
+                x-go-name: MaskingTemplateID
+        required:
+            - db_service_id
+            - masking_template_id
+            - identification_method
+            - execution_plan
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddSensitiveDataDiscoveryTaskData:
+        properties:
+            suspected_sensitive_fields_tree:
+                $ref: '#/definitions/SuspectedSensitiveFieldsTree'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddSensitiveDataDiscoveryTaskReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/AddSensitiveDataDiscoveryTaskData'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddSensitiveDataDiscoveryTaskReq:
+        properties:
+            task:
+                $ref: '#/definitions/AddSensitiveDataDiscoveryTask'
+        required:
+            - task
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddSession:
@@ -921,6 +1049,32 @@ definitions:
                 x-go-name: Version
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ConfigureMaskingRulesReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ConfigureMaskingRulesReq:
+        properties:
+            masking_rule_configs:
+                description: masking rule configurations for batch create or update
+                items:
+                    $ref: '#/definitions/MaskingRuleConfig'
+                minLength: 1
+                type: array
+                x-go-name: MaskingRuleConfigs
+        required:
+            - masking_rule_configs
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CreateBusinessTagReq:
         properties:
             business_tag:
@@ -1417,6 +1571,19 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DeleteMaskingTemplateReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     EnvironmentTag:
         properties:
             name:
@@ -1825,6 +1992,33 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetMaskingOverviewTreeData:
+        properties:
+            dashboard:
+                $ref: '#/definitions/MaskingOverviewDashboard'
+            databases:
+                additionalProperties:
+                    $ref: '#/definitions/MaskingOverviewDatabaseNode'
+                description: database_name -> database node
+                type: object
+                x-go-name: Databases
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetMaskingOverviewTreeReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/GetMaskingOverviewTreeData'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetMemberGroup:
         properties:
             is_project_admin:
@@ -1851,7 +2045,7 @@ definitions:
                 type: array
                 x-go-name: Users
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetMemberGroupReply:
         properties:
             code:
@@ -1993,6 +2187,36 @@ definitions:
                 x-go-name: TotalNums
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetPlaintextAccessRequestDetailReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: plaintext access request detail reply
+                properties:
+                    masking_preview:
+                        $ref: '#/definitions/MaskingPreviewData'
+                    query_sql:
+                        description: query sql statement
+                        example: '"SELECT * FROM users"'
+                        type: string
+                        x-go-name: QuerySQL
+                    reason:
+                        description: application reason
+                        example: '"troubleshooting"'
+                        type: string
+                        x-go-name: Reason
+                type: object
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetProjectTipsReply:
         properties:
             code:
@@ -2104,6 +2328,25 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    GetTableColumnMaskingDetailsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: table column masking details reply
+                items:
+                    $ref: '#/definitions/TableColumnMaskingDetail'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetUser:
         description: A dms user
         properties:
@@ -3676,19 +3919,28 @@ definitions:
     ListMaskingRulesData:
         properties:
             description:
+                description: description
+                example: '"mask digits"'
                 type: string
                 x-go-name: Description
             effect:
+                description: effect
+                example: '"******"'
                 type: string
                 x-go-name: Effect
             id:
+                description: masking rule id
+                example: 1
                 format: int64
                 type: integer
                 x-go-name: Id
             masking_type:
+                description: masking type
+                example: '"MASK_DIGIT"'
                 type: string
                 x-go-name: MaskingType
             reference_fields:
+                description: reference fields
                 items:
                     type: string
                 type: array
@@ -3712,6 +3964,58 @@ definitions:
                 description: message
                 type: string
                 x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListMaskingTemplatesData:
+        properties:
+            id:
+                description: masking template id
+                example: 1
+                format: int64
+                type: integer
+                x-go-name: Id
+            name:
+                description: masking template name
+                example: '"Standard Template"'
+                type: string
+                x-go-name: Name
+            rule_count:
+                description: count of rules in the template
+                example: 5
+                format: int64
+                type: integer
+                x-go-name: RuleCount
+            rule_names:
+                description: preview of rule name in the template, up to 3 items
+                items:
+                    type: string
+                type: array
+                x-go-name: RuleNames
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListMaskingTemplatesReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: list masking templates reply
+                items:
+                    $ref: '#/definitions/ListMaskingTemplatesData'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                description: total count of masking templates
+                example: 100
+                format: int64
+                type: integer
+                x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMember:
@@ -3871,6 +4175,14 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberRoleWithOpRange:
         properties:
+            member_group:
+                $ref: '#/definitions/ProjectMemberGroup'
+            op_permissions:
+                description: member op permissions
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: OpPermissions
             op_range_type:
                 description: |-
                     op permission range type, only support db service now
@@ -3899,7 +4211,7 @@ definitions:
             role_uid:
                 $ref: '#/definitions/UidWithName'
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberTipsItem:
         properties:
             user_id:
@@ -4022,6 +4334,31 @@ definitions:
                 type: string
                 x-go-name: Message
             total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListPendingApprovalRequestsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: pending approval requests reply
+                items:
+                    $ref: '#/definitions/PendingApprovalRequestData'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                description: total count of pending approval requests
+                example: 100
                 format: int64
                 type: integer
                 x-go-name: Total
@@ -4259,6 +4596,153 @@ definitions:
                 type: string
                 x-go-name: Message
             total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListSensitiveDataDiscoveryTaskHistoriesData:
+        properties:
+            executed_at:
+                description: |-
+                    execution time in RFC3339 format
+                    Format: date-time (RFC3339)
+                example: '"2024-01-15T10:30:00Z"'
+                type: string
+                x-go-name: ExecutedAt
+            new_sensitive_field_count:
+                description: newly discovered sensitive field count
+                example: 10
+                format: int64
+                type: integer
+                x-go-name: NewSensitiveFieldCount
+            remark:
+                description: remark
+                example: '"scan completed successfully"'
+                type: string
+                x-go-name: Remark
+            status:
+                description: |-
+                    execution status
+                    PENDING_CHANGE_CONFIRM SensitiveDataDiscoveryTaskStatusPendingChangeConfirm
+                    NORMAL SensitiveDataDiscoveryTaskStatusNormal
+                    COMPLETED SensitiveDataDiscoveryTaskStatusCompleted
+                enum:
+                    - '[PENDING_CHANGE_CONFIRM'
+                    - ' NORMAL'
+                    - ' COMPLETED]'
+                example: '"NORMAL"'
+                type: string
+                x-go-enum-desc: |-
+                    PENDING_CHANGE_CONFIRM SensitiveDataDiscoveryTaskStatusPendingChangeConfirm
+                    NORMAL SensitiveDataDiscoveryTaskStatusNormal
+                    COMPLETED SensitiveDataDiscoveryTaskStatusCompleted
+                x-go-name: Status
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListSensitiveDataDiscoveryTaskHistoriesReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: sensitive data discovery task histories reply
+                items:
+                    $ref: '#/definitions/ListSensitiveDataDiscoveryTaskHistoriesData'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                description: total count of sensitive data discovery task histories
+                example: 100
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListSensitiveDataDiscoveryTasksData:
+        properties:
+            db_service_name:
+                description: database instance name
+                example: '"mysql-01"'
+                type: string
+                x-go-name: DBServiceName
+            id:
+                description: sensitive data discovery task id
+                example: 1
+                format: int64
+                type: integer
+                x-go-name: ID
+            masking_template_name:
+                description: related masking template name
+                example: '"Standard Template"'
+                type: string
+                x-go-name: MaskingTemplateName
+            next_execution_at:
+                description: |-
+                    next run time, periodic task returns RFC3339 time, one-time task returns N/A
+                    Format: date-time (RFC3339)
+                example: '"2024-01-15T10:30:00Z"'
+                type: string
+                x-go-name: NextExecutionAt
+            status:
+                description: |-
+                    task status
+                    PENDING_CHANGE_CONFIRM SensitiveDataDiscoveryTaskStatusPendingChangeConfirm
+                    NORMAL SensitiveDataDiscoveryTaskStatusNormal
+                    COMPLETED SensitiveDataDiscoveryTaskStatusCompleted
+                enum:
+                    - '[PENDING_CHANGE_CONFIRM'
+                    - ' NORMAL'
+                    - ' COMPLETED]'
+                example: '"NORMAL"'
+                type: string
+                x-go-enum-desc: |-
+                    PENDING_CHANGE_CONFIRM SensitiveDataDiscoveryTaskStatusPendingChangeConfirm
+                    NORMAL SensitiveDataDiscoveryTaskStatusNormal
+                    COMPLETED SensitiveDataDiscoveryTaskStatusCompleted
+                x-go-name: Status
+            task_type:
+                description: |-
+                    task type
+                    PERIODIC SensitiveDataDiscoveryTaskTypePeriodic
+                    ONE_TIME SensitiveDataDiscoveryTaskTypeOneTime
+                enum:
+                    - '[PERIODIC'
+                    - ' ONE_TIME]'
+                example: '"PERIODIC"'
+                type: string
+                x-go-enum-desc: |-
+                    PERIODIC SensitiveDataDiscoveryTaskTypePeriodic
+                    ONE_TIME SensitiveDataDiscoveryTaskTypeOneTime
+                x-go-name: TaskType
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListSensitiveDataDiscoveryTasksReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: sensitive data discovery tasks list reply
+                items:
+                    $ref: '#/definitions/ListSensitiveDataDiscoveryTasksData'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                description: total count of sensitive data discovery tasks
+                example: 100
                 format: int64
                 type: integer
                 x-go-name: Total
@@ -4504,6 +4988,126 @@ definitions:
                 $ref: '#/definitions/Time'
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    MaskingOverviewDashboard:
+        properties:
+            configured_masking_columns:
+                description: total count of columns with configured masking
+                example: 120
+                format: int64
+                type: integer
+                x-go-name: ConfiguredMaskingColumns
+            pending_confirm_masking_columns:
+                description: total count of columns pending masking confirmation
+                example: 5
+                format: int64
+                type: integer
+                x-go-name: PendingConfirmMaskingColumns
+            total_sensitive_tables:
+                description: total count of tables that contain sensitive data
+                example: 50
+                format: int64
+                type: integer
+                x-go-name: TotalSensitiveTables
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    MaskingOverviewDatabaseNode:
+        properties:
+            tables:
+                additionalProperties:
+                    $ref: '#/definitions/MaskingOverviewTableData'
+                description: table_name -> table overview data
+                type: object
+                x-go-name: Tables
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    MaskingOverviewTableData:
+        properties:
+            configured_masking_columns:
+                description: configured masking column count for this table
+                example: 3
+                format: int64
+                type: integer
+                x-go-name: ConfiguredMaskingColumns
+            pending_confirm_masking_columns:
+                description: pending masking confirmation column count for this table
+                example: 1
+                format: int64
+                type: integer
+                x-go-name: PendingConfirmMaskingColumns
+            table_id:
+                description: table id
+                example: 1
+                format: int64
+                type: integer
+                x-go-name: TableID
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    MaskingPreviewData:
+        properties:
+            columns:
+                description: preview columns
+                example:
+                    - id
+                    - name
+                    - email
+                items:
+                    type: string
+                type: array
+                x-go-name: Columns
+            rows:
+                description: preview rows
+                example:
+                    - - "1"
+                      - John
+                      - j***@example.com
+                    - - "2"
+                      - Alice
+                      - a***@example.com
+                items:
+                    items:
+                        type: string
+                    type: array
+                type: array
+                x-go-name: Rows
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    MaskingRuleConfig:
+        properties:
+            column_name:
+                description: column name
+                example: '"email"'
+                type: string
+                x-go-name: ColumnName
+            db_service_id:
+                description: data source id
+                example: 1
+                format: int64
+                type: integer
+                x-go-name: DBServiceID
+            is_masking_enabled:
+                description: whether to enable masking for this column
+                example: true
+                type: boolean
+                x-go-name: IsMaskingEnabled
+            masking_rule_id:
+                description: masking rule id
+                example: 1
+                format: int64
+                type: integer
+                x-go-name: MaskingRuleID
+            table_name:
+                description: table name
+                example: '"users"'
+                type: string
+                x-go-name: TableName
+        required:
+            - db_service_id
+            - table_name
+            - column_name
+            - masking_rule_id
+            - is_masking_enabled
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     Member:
         description: A member
         properties:
@@ -4968,6 +5572,38 @@ definitions:
             $ref: '#/definitions/Param'
         type: array
         x-go-package: github.com/actiontech/dms/pkg/params
+    PendingApprovalRequestData:
+        properties:
+            applicant_name:
+                description: applicant name
+                example: '"admin"'
+                type: string
+                x-go-name: ApplicantName
+            applied_at:
+                description: |-
+                    application time in RFC3339 format
+                    Format: date-time (RFC3339)
+                example: '"2024-01-15T10:30:00Z"'
+                type: string
+                x-go-name: AppliedAt
+            data_scope:
+                description: data scope
+                example: '"database ''db1'', table ''users''"'
+                type: string
+                x-go-name: DataScope
+            id:
+                description: approval request id
+                example: 1
+                format: int64
+                type: integer
+                x-go-name: ID
+            reason:
+                description: application reason
+                example: '"data analysis"'
+                type: string
+                x-go-name: Reason
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     PersonalizationReq:
         properties:
             file:
@@ -5071,6 +5707,49 @@ definitions:
         type: object
         x-go-name: PreviewImportProjects
         x-go-package: github.com/actiontech/dms/api/dms/service/v2
+    ProcessApprovalRequestReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ProcessApprovalRequestReq:
+        properties:
+            action:
+                description: |-
+                    process action
+                    APPROVE ApprovalActionApprove
+                    REJECT ApprovalActionReject
+                enum:
+                    - '[APPROVE'
+                    - ' REJECT]'
+                example: '"APPROVE"'
+                type: string
+                x-go-enum-desc: |-
+                    APPROVE ApprovalActionApprove
+                    REJECT ApprovalActionReject
+                x-go-name: Action
+            approve_remark:
+                description: approval remark, optional when action is APPROVE
+                example: '"approved for one-time access"'
+                type: string
+                x-go-name: ApproveRemark
+            reject_reason:
+                description: reject reason, required when action is REJECT
+                example: '"insufficient reason"'
+                type: string
+                x-go-name: RejectReason
+        required:
+            - action
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ProjectInfo:
         properties:
             project_name:
@@ -5622,6 +6301,50 @@ definitions:
                 x-go-name: Username
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    SensitiveFieldScanResult:
+        properties:
+            recommended_masking_rule_name:
+                description: recommended masking rules
+                example: '"Email Masking"'
+                type: string
+                x-go-name: RecommendedMaskingRuleName
+            scan_info:
+                description: scan information for the field
+                example: '"matched by field name ''email''"'
+                type: string
+                x-go-name: ScanInfo
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    SuspectedSensitiveDatabaseNode:
+        properties:
+            tables:
+                additionalProperties:
+                    $ref: '#/definitions/SuspectedSensitiveTableNode'
+                description: table_name -> table node
+                type: object
+                x-go-name: Tables
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    SuspectedSensitiveFieldsTree:
+        properties:
+            databases:
+                additionalProperties:
+                    $ref: '#/definitions/SuspectedSensitiveDatabaseNode'
+                description: database_name -> database node
+                type: object
+                x-go-name: Databases
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    SuspectedSensitiveTableNode:
+        properties:
+            fields:
+                additionalProperties:
+                    $ref: '#/definitions/SensitiveFieldScanResult'
+                description: field_name -> scan result
+                type: object
+                x-go-name: Fields
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     SyncGatewayReq:
         properties:
             gateways:
@@ -5657,6 +6380,20 @@ definitions:
                 x-go-name: Url
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    TableColumnMaskingDetail:
+        properties:
+            column_name:
+                description: column name
+                example: '"email"'
+                type: string
+                x-go-name: ColumnName
+            masking_rule_name:
+                description: current masking rule name
+                example: '"Email Masking"'
+                type: string
+                x-go-name: MaskingRuleName
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     Task:
         properties:
             task_uid:
@@ -5900,7 +6637,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateBusinessTagReq:
         properties:
             business_tag:
@@ -6218,6 +6955,53 @@ definitions:
                 $ref: '#/definitions/LoginConfiguration'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateMaskingTemplate:
+        properties:
+            rule_ids:
+                description: masking rule id list
+                example:
+                    - 1
+                    - 2
+                items:
+                    format: int64
+                    type: integer
+                minLength: 1
+                type: array
+                x-go-name: RuleIDs
+        required:
+            - rule_ids
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateMaskingTemplateReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateMaskingTemplateReq:
+        properties:
+            masking_template:
+                $ref: '#/definitions/UpdateMaskingTemplate'
+            template_id:
+                description: |-
+                    masking template id
+                    in: path
+                example: 1
+                format: int64
+                type: integer
+                x-go-name: TemplateID
+        required:
+            - template_id
+            - masking_template
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateMember:
         properties:
             is_project_admin:
@@ -6408,6 +7192,91 @@ definitions:
         properties:
             smtp_configuration:
                 $ref: '#/definitions/UpdateSMTPConfiguration'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateSensitiveDataDiscoveryTask:
+        properties:
+            cron_expression:
+                description: cron expression, required when execution_plan is PERIODIC
+                example: '"0 0 * * *"'
+                type: string
+                x-go-name: CronExpression
+            execution_plan:
+                description: |-
+                    execution plan
+                    IMMEDIATE SensitiveDataDiscoveryExecutionPlanImmediate
+                    PERIODIC SensitiveDataDiscoveryExecutionPlanPeriodic
+                enum:
+                    - '[IMMEDIATE'
+                    - ' PERIODIC]'
+                example: '"PERIODIC"'
+                type: string
+                x-go-enum-desc: |-
+                    IMMEDIATE SensitiveDataDiscoveryExecutionPlanImmediate
+                    PERIODIC SensitiveDataDiscoveryExecutionPlanPeriodic
+                x-go-name: ExecutionPlan
+            identification_method:
+                description: |-
+                    sensitive data identification method
+                    BY_FIELD_NAME SensitiveDataIdentificationMethodByFieldName
+                    BY_SAMPLE_DATA SensitiveDataIdentificationMethodBySampleData
+                enum:
+                    - '[BY_FIELD_NAME'
+                    - ' BY_SAMPLE_DATA]'
+                example: '"BY_FIELD_NAME"'
+                type: string
+                x-go-enum-desc: |-
+                    BY_FIELD_NAME SensitiveDataIdentificationMethodByFieldName
+                    BY_SAMPLE_DATA SensitiveDataIdentificationMethodBySampleData
+                x-go-name: IdentificationMethod
+            masking_template_id:
+                description: masking template id
+                example: 1
+                format: int64
+                type: integer
+                x-go-name: MaskingTemplateID
+        required:
+            - masking_template_id
+            - identification_method
+            - execution_plan
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateSensitiveDataDiscoveryTaskData:
+        properties:
+            suspected_sensitive_fields_tree:
+                $ref: '#/definitions/SuspectedSensitiveFieldsTree'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateSensitiveDataDiscoveryTaskReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/UpdateSensitiveDataDiscoveryTaskData'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateSensitiveDataDiscoveryTaskReq:
+        properties:
+            task:
+                $ref: '#/definitions/UpdateSensitiveDataDiscoveryTask'
+            task_id:
+                description: |-
+                    sensitive data discovery task id
+                    in: path
+                example: 1
+                format: int64
+                type: integer
+                x-go-name: TaskID
+        required:
+            - task_id
+            - task
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateSmsConfiguration:
@@ -7946,6 +8815,162 @@ paths:
             summary: Get gateway tips.
             tags:
                 - Gateway
+    /v1/dms/masking/approval-requests/{request_id}:
+        get:
+            operationId: GetPlaintextAccessRequestDetail
+            parameters:
+                - description: approval request id
+                  example: 1
+                  format: int64
+                  in: path
+                  name: request_id
+                  required: true
+                  type: integer
+                  x-go-name: RequestID
+            responses:
+                "200":
+                    description: Get plaintext access request detail successfully
+                    schema:
+                        $ref: '#/definitions/GetPlaintextAccessRequestDetailReply'
+                default:
+                    description: Generic error response
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get plaintext access request detail.
+            tags:
+                - Masking
+    /v1/dms/masking/approval-requests/{request_id}/decisions:
+        post:
+            operationId: ProcessApprovalRequest
+            parameters:
+                - description: approval request id
+                  in: path
+                  name: request_id
+                  required: true
+                  type: integer
+                - description: process action info
+                  in: body
+                  name: action
+                  required: true
+                  schema:
+                    $ref: '#/definitions/ProcessApprovalRequestReq'
+            responses:
+                "200":
+                    description: Process approval request successfully
+                    schema:
+                        $ref: '#/definitions/ProcessApprovalRequestReply'
+                default:
+                    description: Generic error response
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Process approval request.
+            tags:
+                - Masking
+    /v1/dms/masking/approval-requests/pending:
+        get:
+            operationId: ListPendingApprovalRequests
+            parameters:
+                - description: the maximum count of requests to be returned, default is 20
+                  example: "20"
+                  format: uint32
+                  in: query
+                  name: page_size
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of requests to be returned, default is 0
+                  example: "0"
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+            responses:
+                "200":
+                    description: List pending approval requests successfully
+                    schema:
+                        $ref: '#/definitions/ListPendingApprovalRequestsReply'
+                default:
+                    description: Generic error response
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List pending approval requests.
+            tags:
+                - Masking
+    /v1/dms/masking/overview:
+        get:
+            operationId: GetMaskingOverviewTree
+            parameters:
+                - description: project id
+                  example: 1
+                  format: int64
+                  in: query
+                  name: project_id
+                  required: true
+                  type: integer
+                  x-go-name: ProjectID
+                - description: data source id
+                  example: 1
+                  format: int64
+                  in: query
+                  name: db_service_id
+                  required: true
+                  type: integer
+                  x-go-name: DBServiceID
+                - description: fuzzy search keyword for database name, table name, and column name
+                  example: '"user"'
+                  in: query
+                  name: search
+                  type: string
+                  x-go-name: Search
+                - description: 'masking config status filters, enum: CONFIGURED/PENDING_CONFIRM'
+                  enum:
+                    - '[CONFIGURED'
+                    - ' PENDING_CONFIRM]'
+                  in: query
+                  items:
+                    type: string
+                  name: masking_config_statuses
+                  type: array
+                  x-go-name: MaskingConfigStatuses
+            responses:
+                "200":
+                    description: Get masking overview tree successfully
+                    schema:
+                        $ref: '#/definitions/GetMaskingOverviewTreeReply'
+                default:
+                    description: Generic error response
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get masking overview tree.
+            tags:
+                - Masking
+    /v1/dms/masking/rule-configs:
+        put:
+            operationId: ConfigureMaskingRules
+            parameters:
+                - description: masking rule configurations
+                  in: body
+                  name: masking_rule_configs
+                  required: true
+                  schema:
+                    properties:
+                        masking_rule_configs:
+                            items:
+                                $ref: '#/definitions/MaskingRuleConfig'
+                            type: array
+                    type: object
+            responses:
+                "200":
+                    description: Configure masking rules successfully
+                    schema:
+                        $ref: '#/definitions/ConfigureMaskingRulesReply'
+                default:
+                    description: Generic error response
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Configure masking rules in batch.
+            tags:
+                - Masking
     /v1/dms/masking/rules:
         get:
             operationId: ListMaskingRules
@@ -7959,6 +8984,245 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: List masking rules.
+            tags:
+                - Masking
+    /v1/dms/masking/sensitive-data-discovery-tasks:
+        get:
+            operationId: ListSensitiveDataDiscoveryTasks
+            parameters:
+                - description: the maximum count of tasks to be returned, default is 20
+                  example: "20"
+                  format: uint32
+                  in: query
+                  name: page_size
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of tasks to be returned, default is 0
+                  example: "0"
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+            responses:
+                "200":
+                    description: List sensitive data discovery tasks successfully
+                    schema:
+                        $ref: '#/definitions/ListSensitiveDataDiscoveryTasksReply'
+                default:
+                    description: Generic error response
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List sensitive data discovery tasks.
+            tags:
+                - Masking
+        post:
+            operationId: AddSensitiveDataDiscoveryTask
+            parameters:
+                - description: sensitive data discovery task info
+                  in: body
+                  name: task
+                  required: true
+                  schema:
+                    $ref: '#/definitions/AddSensitiveDataDiscoveryTask'
+            responses:
+                "200":
+                    description: Add sensitive data discovery task successfully
+                    schema:
+                        $ref: '#/definitions/AddSensitiveDataDiscoveryTaskReply'
+                default:
+                    description: Generic error response
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Add sensitive data discovery task.
+            tags:
+                - Masking
+    /v1/dms/masking/sensitive-data-discovery-tasks/{task_id}:
+        put:
+            operationId: UpdateSensitiveDataDiscoveryTask
+            parameters:
+                - description: sensitive data discovery task id
+                  in: path
+                  name: task_id
+                  required: true
+                  type: integer
+                - description: sensitive data discovery task info
+                  in: body
+                  name: task
+                  required: true
+                  schema:
+                    $ref: '#/definitions/UpdateSensitiveDataDiscoveryTask'
+            responses:
+                "200":
+                    description: Update sensitive data discovery task successfully
+                    schema:
+                        $ref: '#/definitions/UpdateSensitiveDataDiscoveryTaskReply'
+                default:
+                    description: Generic error response
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Update sensitive data discovery task.
+            tags:
+                - Masking
+    /v1/dms/masking/sensitive-data-discovery-tasks/{task_id}/histories:
+        get:
+            operationId: ListSensitiveDataDiscoveryTaskHistories
+            parameters:
+                - description: sensitive data discovery task id
+                  example: 1
+                  format: int64
+                  in: path
+                  name: task_id
+                  required: true
+                  type: integer
+                  x-go-name: TaskID
+                - description: the maximum count of histories to be returned, default is 20
+                  example: "20"
+                  format: uint32
+                  in: query
+                  name: page_size
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of histories to be returned, default is 0
+                  example: "0"
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+            responses:
+                "200":
+                    description: List sensitive data discovery task histories successfully
+                    schema:
+                        $ref: '#/definitions/ListSensitiveDataDiscoveryTaskHistoriesReply'
+                default:
+                    description: Generic error response
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List sensitive data discovery task histories.
+            tags:
+                - Masking
+    /v1/dms/masking/tables/{table_id}/column-masking-details:
+        get:
+            operationId: GetTableColumnMaskingDetails
+            parameters:
+                - description: table id from masking overview tree
+                  example: 1
+                  format: int64
+                  in: path
+                  name: table_id
+                  required: true
+                  type: integer
+                  x-go-name: TableID
+            responses:
+                "200":
+                    description: Get table column masking details successfully
+                    schema:
+                        $ref: '#/definitions/GetTableColumnMaskingDetailsReply'
+                default:
+                    description: Generic error response
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get table column masking details.
+            tags:
+                - Masking
+    /v1/dms/masking/templates:
+        get:
+            operationId: ListMaskingTemplates
+            parameters:
+                - description: the maximum count of masking templates to be returned, default is 20
+                  format: uint32
+                  in: query
+                  name: page_size
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of masking templates to be returned, default is 0
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+            responses:
+                "200":
+                    description: List masking templates successfully
+                    schema:
+                        $ref: '#/definitions/ListMaskingTemplatesReply'
+                default:
+                    description: Generic error response
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List masking templates.
+            tags:
+                - Masking
+        post:
+            operationId: AddMaskingTemplate
+            parameters:
+                - description: masking template info
+                  in: body
+                  name: masking_template
+                  required: true
+                  schema:
+                    $ref: '#/definitions/AddMaskingTemplate'
+            responses:
+                "200":
+                    description: Add masking template successfully
+                    schema:
+                        $ref: '#/definitions/AddMaskingTemplateReply'
+                default:
+                    description: Generic error response
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Add masking template.
+            tags:
+                - Masking
+    /v1/dms/masking/templates/{template_id}:
+        delete:
+            operationId: DeleteMaskingTemplate
+            parameters:
+                - description: masking template id
+                  example: 1
+                  format: int64
+                  in: path
+                  name: template_id
+                  required: true
+                  type: integer
+                  x-go-name: TemplateID
+            responses:
+                "200":
+                    description: Delete masking template successfully
+                    schema:
+                        $ref: '#/definitions/DeleteMaskingTemplateReply'
+                default:
+                    description: Generic error response
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Delete masking template.
+            tags:
+                - Masking
+        put:
+            operationId: UpdateMaskingTemplate
+            parameters:
+                - description: masking template id
+                  in: path
+                  name: template_id
+                  required: true
+                  type: integer
+                - description: masking template info
+                  in: body
+                  name: masking_template
+                  required: true
+                  schema:
+                    $ref: '#/definitions/UpdateMaskingTemplate'
+            responses:
+                "200":
+                    description: Update masking template successfully
+                    schema:
+                        $ref: '#/definitions/UpdateMaskingTemplateReply'
+                default:
+                    description: Generic error response
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Update masking template.
             tags:
                 - Masking
     /v1/dms/notifications:
