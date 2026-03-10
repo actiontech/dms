@@ -19,9 +19,11 @@ import (
 	aV1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/apiserver/conf"
 	apiError "github.com/actiontech/dms/internal/apiserver/pkg/error"
+	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/dms/service"
+	"github.com/actiontech/dms/internal/pkg/locale"
 	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
 
@@ -3692,6 +3694,9 @@ func (ctl *DMSController) AddDataExportWorkflow(c echo.Context) error {
 
 	reply, err := ctl.DMS.AddDataExportWorkflow(c.Request().Context(), req, currentUserUid)
 	if nil != err {
+		if errors.Is(err, biz.ErrDataExportWorkflowNameDuplicate) {
+			return NewErrResp(c, errors.New(locale.Bundle.LocalizeMsgByCtx(c.Request().Context(), locale.DataExportWorkflowNameDuplicateErr)), apiError.BadRequestErr)
+		}
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 	return NewOkRespWithReply(c, reply)

@@ -36,6 +36,7 @@ DBServiceSQLQueryRuleTemplateName = "SQL Workbench audit rule template (need to 
 DBServiceSyncExpand = "DB instance synchronization expansion service"
 DBServiceSyncVersion = "Version (Supports DMP5.23.04.0 and above)"
 DBServiceUser = "DB instance connection user"
+DataExportWorkflowNameDuplicateErr = "Duplicate workflow name, please modify the workflow name and resubmit."
 DataWorkflowDefault = "❓ Data Export Workflow Unknown Requests"
 DataWorkflowExportFailed = "⚠️ Data Export Workflow Execute Failed"
 DataWorkflowExportSuccess = "✅ Data Export Workflow Execute Succeeded"
