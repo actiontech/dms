@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -22,6 +23,7 @@ import (
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/dms/storage"
+	"github.com/actiontech/dms/internal/pkg/locale"
 	dbmodel "github.com/actiontech/dms/internal/dms/storage/model"
 	"github.com/actiontech/dms/internal/sql_workbench/client"
 	config "github.com/actiontech/dms/internal/sql_workbench/config"
@@ -1020,7 +1022,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) AuditMiddleware() echo.Middlewar
 			bodyBytes, err := io.ReadAll(c.Request().Body)
 			if err != nil {
 				sqlWorkbenchService.log.Errorf("failed to read request body: %v", err)
-				return fmt.Errorf("failed to read request body: %w", err)
+				return errors.New(locale.Bundle.LocalizeMsgByCtx(c.Request().Context(), locale.SqlWorkbenchAuditReadReqBodyErr))
 			}
 			// 恢复请求体，供后续处理使用
 			c.Request().Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
@@ -1029,51 +1031,51 @@ func (sqlWorkbenchService *SqlWorkbenchService) AuditMiddleware() echo.Middlewar
 			sql, datasourceID, err := sqlWorkbenchService.parseStreamExecuteRequest(bodyBytes)
 			if err != nil {
 				sqlWorkbenchService.log.Errorf("failed to parse streamExecute request, skipping audit: %v", err)
-				return fmt.Errorf("failed to parse streamExecute request, skipping audit: %v", err)
+				return errors.New(locale.Bundle.LocalizeMsgByCtx(c.Request().Context(), locale.SqlWorkbenchAuditParseReqErr))
 			}
 
 			if sql == "" || datasourceID == "" {
 				sqlWorkbenchService.log.Debugf("SQL or datasource ID is empty, skipping audit")
-				return fmt.Errorf("SQL or datasource ID is empty, skipping audit")
+				return errors.New(locale.Bundle.LocalizeMsgByCtx(c.Request().Context(), locale.SqlWorkbenchAuditMissingSQLOrDatasourceErr))
 			}
 
 			// 获取当前用户 ID
 			dmsUserId, err := sqlWorkbenchService.getDMSUserIdFromRequest(c)
 			if err != nil {
 				sqlWorkbenchService.log.Errorf("failed to get DMS user ID: %v", err)
-				return fmt.Errorf("failed to get DMS user ID: %v", err)
+				return errors.New(locale.Bundle.LocalizeMsgByCtx(c.Request().Context(), locale.SqlWorkbenchAuditGetDMSUserErr))
 			}
 
 			// 从缓存表获取 dms_db_service_id
 			dmsDBServiceID, err := sqlWorkbenchService.getDMSDBServiceIDFromCache(c.Request().Context(), datasourceID, dmsUserId)
 			if err != nil {
 				sqlWorkbenchService.log.Errorf("failed to get dms_db_service_id from cache: %v", err)
-				return fmt.Errorf("failed to get dms_db_service_id from cache: %v", err)
+				return errors.New(locale.Bundle.LocalizeMsgByCtx(c.Request().Context(), locale.SqlWorkbenchAuditGetDBServiceMappingErr))
 			}
 
 			if dmsDBServiceID == "" {
 				sqlWorkbenchService.log.Debugf("dms_db_service_id not found in cache for datasource: %s", datasourceID)
-				return fmt.Errorf("dms_db_service_id not found in cache for datasource: %s", datasourceID)
+				return errors.New(locale.Bundle.LocalizeMsgByCtx(c.Request().Context(), locale.SqlWorkbenchAuditDBServiceMappingNotFoundErr))
 			}
 
 			// 获取 DBService 信息
 			dbService, err := sqlWorkbenchService.dbServiceUsecase.GetDBService(c.Request().Context(), dmsDBServiceID)
 			if err != nil {
 				sqlWorkbenchService.log.Errorf("failed to get DBService: %v", err)
-				return fmt.Errorf("failed to get DBService: %v", err)
+				return errors.New(locale.Bundle.LocalizeMsgByCtx(c.Request().Context(), locale.SqlWorkbenchAuditGetDBServiceErr))
 			}
 
 			// 检查是否启用 SQL 审核
 			if !sqlWorkbenchService.isEnableSQLAudit(dbService) {
 				sqlWorkbenchService.log.Debugf("SQL audit is not enabled for DBService: %s", dmsDBServiceID)
-				return fmt.Errorf("SQL audit is not enabled for DBService: %s", dmsDBServiceID)
+				return errors.New(locale.Bundle.LocalizeMsgByCtx(c.Request().Context(), locale.SqlWorkbenchAuditNotEnabledErr))
 			}
 
 			// 调用 SQLE 审核接口
 			auditResult, err := sqlWorkbenchService.callSQLEAudit(c.Request().Context(), sql, dbService)
 			if err != nil {
 				sqlWorkbenchService.log.Errorf("call SQLE audit failed: %v", err)
-				return fmt.Errorf("call SQLE audit failed: %v", err)
+				return errors.New(locale.Bundle.LocalizeMsgByCtx(c.Request().Context(), locale.SqlWorkbenchAuditCallSQLEErr))
 			}
 
 			// 拦截响应并添加审核结果
