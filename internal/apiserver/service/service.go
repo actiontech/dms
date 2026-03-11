@@ -52,6 +52,23 @@ func NewAPIServer(logger utilLog.Logger, opts *conf.DMSOptions) (*APIServer, err
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
+	e.HTTPErrorHandler = func(err error, c echo.Context) {
+		if c.Response().Committed {
+			return
+		}
+
+		message := err.Error()
+		if httpErr, ok := err.(*echo.HTTPError); ok {
+			if msg, ok := httpErr.Message.(string); ok && msg != "" {
+				message = msg
+			}
+		}
+
+		_ = c.JSON(http.StatusBadRequest, bV1.GenericResp{
+			Code:    int(apiError.BadRequestErr),
+			Message: message,
+		})
+	}
 	return &APIServer{
 		logger: logger,
 		opts:   opts,
