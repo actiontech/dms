@@ -182,6 +182,19 @@ var (
 	CbOpResultRowCount  = &i18n.Message{ID: "CbOpResultRowCount", Other: "结果集返回行数"}
 )
 
+// SQL Workbench
+var (
+	SqlWorkbenchAuditReadReqBodyErr              = &i18n.Message{ID: "SqlWorkbenchAuditReadReqBodyErr", Other: "请求内容获取失败，可能网络不稳定，请稍后重试。"}
+	SqlWorkbenchAuditParseReqErr                 = &i18n.Message{ID: "SqlWorkbenchAuditParseReqErr", Other: "请求内容解析失败，请稍后重试。"}
+	SqlWorkbenchAuditMissingSQLOrDatasourceErr   = &i18n.Message{ID: "SqlWorkbenchAuditMissingSQLOrDatasourceErr", Other: "未检测到 SQL 或数据源，请确认已选择数据源并输入 SQL 后重试。"}
+	SqlWorkbenchAuditGetDMSUserErr               = &i18n.Message{ID: "SqlWorkbenchAuditGetDMSUserErr", Other: "当前登录状态可能已过期，请重新登录后再试。"}
+	SqlWorkbenchAuditGetDBServiceMappingErr      = &i18n.Message{ID: "SqlWorkbenchAuditGetDBServiceMappingErr", Other: "当前数据源信息获取失败，请重新选择数据源后重试。"}
+	SqlWorkbenchAuditDBServiceMappingNotFoundErr = &i18n.Message{ID: "SqlWorkbenchAuditDBServiceMappingNotFoundErr", Other: "未找到当前数据源，请确认数据源存在并重新选择后重试。"}
+	SqlWorkbenchAuditGetDBServiceErr             = &i18n.Message{ID: "SqlWorkbenchAuditGetDBServiceErr", Other: "未找到当前数据源配置，请确认数据源存在后重试。"}
+	SqlWorkbenchAuditNotEnabledErr               = &i18n.Message{ID: "SqlWorkbenchAuditNotEnabledErr", Other: "该数据源尚未开启 SQL 审核，请先在数据源配置中开启“SQL 审核”后再执行。"}
+	SqlWorkbenchAuditCallSQLEErr                 = &i18n.Message{ID: "SqlWorkbenchAuditCallSQLEErr", Other: "审核服务当前繁忙或不可用，请稍后重试。"}
+)
+
 // DB Service Sync Task
 var (
 	DBServiceSyncVersion = &i18n.Message{ID: "DBServiceSyncVersion", Other: "版本(支持DMP5.23.04.0及以上版本)"}
