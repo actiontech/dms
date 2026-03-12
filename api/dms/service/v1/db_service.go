@@ -264,7 +264,7 @@ type ListDBServiceTipsReq struct {
 	// in:query
 	FilterDBType string `json:"filter_db_type" query:"filter_db_type"`
 	// Required: false
-	// enum: save_audit_plan,create_workflow,create_export_task
+	// enum: ["save_audit_plan","create_workflow","create_export_task"]
 	// in:query
 	FunctionalModule string `json:"functional_module" query:"functional_module" validate:"omitempty,oneof=save_audit_plan create_workflow create_export_task"`
 }
@@ -360,7 +360,7 @@ type ListGlobalDBServicesReq struct {
 	// in:query
 	OrderBy dmsCommonV1.DBServiceOrderByField `query:"order_by" json:"order_by"`
 	// the db service connection
-	// enum: connect_success,connect_failed
+	// enum: ["connect_success","connect_failed"]
 	// in:query
 	FilterLastConnectionTestStatus *string `query:"filter_last_connection_test_status" json:"filter_last_connection_test_status" validate:"omitempty,oneof=connect_success connect_failed"`
 	// TODO This parameter is deprecated and will be removed soon.

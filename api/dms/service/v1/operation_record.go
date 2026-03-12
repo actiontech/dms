@@ -67,7 +67,7 @@ type OperationRecordListItem struct {
 	OperationAction    string        `json:"operation_action"`
 	OperationContent   string        `json:"operation_content"`
 	ProjectName        string        `json:"project_name"`
-	// enum: succeeded,failed
+	// enum: ["succeeded","failed"]
 	Status string `json:"status"`
 }
 
