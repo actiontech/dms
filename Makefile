@@ -192,9 +192,41 @@ gen_repo_fields:
 docker_gen_swag:
 	$(DOCKER) run -v $(shell pwd):/universe --rm $(DMS_GO_COMPILER_IMAGE) sh -c "cd /universe &&make gen_swag"
 
-gen_swag:
+gen_swag: check_swag_version
 	./internal/apiserver/cmd/swag/swagger_${HOST_OS}_${HOST_ARCH} generate spec -m -w ./internal/apiserver/cmd/server/ -o ./api/swagger.yaml
 	./internal/apiserver/cmd/swag/swagger_${HOST_OS}_${HOST_ARCH} generate spec -i ./api/swagger.yaml -o ./api/swagger.json
+
+check_swag_version:
+	@SWAG_BIN=./internal/apiserver/cmd/swag/swagger_${HOST_OS}_${HOST_ARCH}; \
+	SWAG_VER=$$($$SWAG_BIN version | grep 'version:' | awk '{print $$2}'); \
+	MATCHING_GO_VER="unknown"; \
+	MAPPINGS="v0.33.1:1.24.0 v0.31.0:1.22 v0.30.4:1.19 v0.29.0:1.18"; \
+	for m in $$MAPPINGS; do \
+		v=$${m%%:*}; g=$${m#*:}; \
+		if [ "$$v" = "$$SWAG_VER" ]; then MATCHING_GO_VER="$$g"; break; fi; \
+	done; \
+	if [ "$$MATCHING_GO_VER" = "unknown" ]; then \
+		echo "Fetching Go version for $$SWAG_VER from GitHub..."; \
+		MATCHING_GO_VER=$$(curl -sL --connect-timeout 2 https://raw.githubusercontent.com/go-swagger/go-swagger/$$SWAG_VER/go.mod | grep "^go " | awk '{print $$2}' 2>/dev/null); \
+		if [ -z "$$MATCHING_GO_VER" ]; then MATCHING_GO_VER="unknown"; fi; \
+	fi; \
+	PROJECT_GO_VER=$$(grep "^go " go.mod | awk '{print $$2}'); \
+	SYSTEM_GO_VER=$$(go version | awk '{print $$3}' | sed 's/go//'); \
+	echo "Project go.mod Version: $$PROJECT_GO_VER"; \
+	echo "Swagger Version: $$SWAG_VER (Expected Go: $$MATCHING_GO_VER)"; \
+	echo "System Go Version: $$SYSTEM_GO_VER"; \
+	if [ "$$MATCHING_GO_VER" != "unknown" ]; then \
+		PROJECT_GO_MAJOR=$$(echo $$PROJECT_GO_VER | cut -d. -f1,2); \
+		MATCH_GO_VER_MAJOR=$$(echo $$MATCHING_GO_VER | cut -d. -f1,2); \
+		SYSTEM_GO_MAJOR=$$(echo $$SYSTEM_GO_VER | cut -d. -f1,2); \
+		if [ "$$PROJECT_GO_MAJOR" != "$$MATCH_GO_VER_MAJOR" ]; then \
+			echo "Warning: Current Swagger generator ($$SWAG_VER, Go $$MATCHING_GO_VER) does not match project's go.mod ($$PROJECT_GO_VER)."; \
+			echo "Please update the Swagger generator to match the project Go version."; \
+		fi; \
+		if [ "$$PROJECT_GO_MAJOR" != "$$SYSTEM_GO_MAJOR" ]; then \
+			echo "Warning: Your system Go version ($$SYSTEM_GO_VER) does not match project's go.mod ($$PROJECT_GO_VER)."; \
+		fi; \
+	fi
 
 open_swag_server:
 	./internal/apiserver/cmd/swag/swagger_${HOST_OS}_${HOST_ARCH} serve --no-open -F=swagger --port 36666 ./api/swagger.yaml
