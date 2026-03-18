@@ -16,6 +16,7 @@ func (d *DMSService) GetCompanyNotice(ctx context.Context, currentUserUid string
 	}
 	if companyNotice != nil {
 		data.NoticeStr = companyNotice.NoticeStr
+		data.StartTime = companyNotice.StartTime
 		data.ExpireTime = companyNotice.EndTime
 	}
 	return &dmsV1.GetCompanyNoticeReply{

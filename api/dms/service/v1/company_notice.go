@@ -11,6 +11,8 @@ type CompanyNotice struct {
 	NoticeStr string `json:"notice_str"`
 	// current user has been read
 	ReadByCurrentUser bool `json:"read_by_current_user"`
+	// notice show start time
+	StartTime *time.Time `json:"start_time,omitempty"`
 	// notice expire time
 	ExpireTime *time.Time `json:"expire_time,omitempty"`
 }
