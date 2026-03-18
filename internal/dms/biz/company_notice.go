@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"time"
 
 	pkgRand "github.com/actiontech/dms/pkg/rand"
 
@@ -14,6 +15,8 @@ type CompanyNotice struct {
 	UID         string
 	NoticeStr   string
 	ReadUserIds []string
+	StartTime   *time.Time
+	EndTime     *time.Time
 }
 
 func initCompanyNotice() (*CompanyNotice, error) {
