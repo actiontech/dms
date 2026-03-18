@@ -990,6 +990,8 @@ func convertBizCompanyNotice(b *biz.CompanyNotice) (*model.CompanyNotice, error)
 		},
 		NoticeStr:   b.NoticeStr,
 		ReadUserIds: b.ReadUserIds,
+		StartTime:   b.StartTime,
+		EndTime:     b.EndTime,
 	}, nil
 }
 
@@ -999,6 +1001,8 @@ func convertModelCompanyNotice(m *model.CompanyNotice) (*biz.CompanyNotice, erro
 		UID:         m.UID,
 		NoticeStr:   m.NoticeStr,
 		ReadUserIds: m.ReadUserIds,
+		StartTime:   m.StartTime,
+		EndTime:     m.EndTime,
 	}
 
 	return p, nil

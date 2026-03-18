@@ -440,6 +440,8 @@ type CompanyNotice struct {
 	Model
 	NoticeStr   string    `gorm:"type:mediumtext;comment:'企业公告'" json:"notice_str"`
 	ReadUserIds ReadUsers `gorm:"type:longtext" json:"read_user_ids"`
+	StartTime   *time.Time `json:"start_time" gorm:"column:start_time;comment:'公告开始时间'"`
+	EndTime     *time.Time `json:"end_time" gorm:"column:end_time;comment:'公告结束时间'"`
 }
 
 type ReadUsers []string
