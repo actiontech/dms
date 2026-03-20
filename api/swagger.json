@@ -5723,10 +5723,14 @@
             "in": "query"
           },
           {
-            "type": "integer",
-            "format": "uint64",
+            "enum": [
+              "Normal",
+              "Disabled"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "Normal UserStatFilterNormal\nDisabled UserStatFilterDisabled",
             "x-go-name": "FilterByStat",
-            "description": "filter the user stat (0: normal, 1: disabled)",
+            "description": "filter the user stat (0: normal, 1: disabled)\nNormal UserStatFilterNormal\nDisabled UserStatFilterDisabled",
             "name": "filter_by_stat",
             "in": "query"
           },
@@ -9305,7 +9309,7 @@
           "x-go-name": "Users"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetMemberGroupReply": {
       "type": "object",
@@ -11861,6 +11865,17 @@
     "ListMemberRoleWithOpRange": {
       "type": "object",
       "properties": {
+        "member_group": {
+          "$ref": "#/definitions/ProjectMemberGroup"
+        },
+        "op_permissions": {
+          "description": "member op permissions",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "OpPermissions"
+        },
         "op_range_type": {
           "description": "op permission range type, only support db service now\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "type": "string",
@@ -11885,7 +11900,7 @@
           "$ref": "#/definitions/UidWithName"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ListMemberTipsItem": {
       "type": "object",

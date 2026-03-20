@@ -1860,7 +1860,7 @@ definitions:
                 type: array
                 x-go-name: Users
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetMemberGroupReply:
         properties:
             code:
@@ -3877,6 +3877,14 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberRoleWithOpRange:
         properties:
+            member_group:
+                $ref: '#/definitions/ProjectMemberGroup'
+            op_permissions:
+                description: member op permissions
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: OpPermissions
             op_range_type:
                 description: |-
                     op permission range type, only support db service now
@@ -3905,7 +3913,7 @@ definitions:
             role_uid:
                 $ref: '#/definitions/UidWithName'
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberTipsItem:
         properties:
             user_id:
@@ -10822,11 +10830,19 @@ paths:
                   name: filter_by_phone
                   type: string
                   x-go-name: FilterByPhone
-                - description: 'filter the user stat (0: normal, 1: disabled)'
-                  format: uint64
+                - description: |-
+                    filter the user stat (0: normal, 1: disabled)
+                    Normal UserStatFilterNormal
+                    Disabled UserStatFilterDisabled
+                  enum:
+                    - Normal
+                    - Disabled
                   in: query
                   name: filter_by_stat
-                  type: integer
+                  type: string
+                  x-go-enum-desc: |-
+                    Normal UserStatFilterNormal
+                    Disabled UserStatFilterDisabled
                   x-go-name: FilterByStat
                 - description: |-
                     filter the user authentication type (ldap, dms, oauth2)
