@@ -438,6 +438,7 @@ type BasicConfig struct {
 
 type CompanyNotice struct {
 	Model
+	CreateUserUID string    `json:"create_user_uid" gorm:"column:create_user_uid;size:32;comment:'创建人uid'"`
 	NoticeStr   string    `gorm:"type:mediumtext;comment:'企业公告'" json:"notice_str"`
 	ReadUserIds ReadUsers `gorm:"type:longtext" json:"read_user_ids"`
 	StartTime   *time.Time `json:"start_time" gorm:"column:start_time;comment:'公告开始时间'"`
