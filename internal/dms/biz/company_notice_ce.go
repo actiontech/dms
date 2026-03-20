@@ -5,15 +5,16 @@ package biz
 import (
 	"context"
 	"errors"
+	"time"
 )
 
 var errNotSupportCompanyNotice = errors.New("company notice related functions are enterprise version functions")
 
-func (d *CompanyNoticeUsecase) UpdateCompanyNotice(ctx context.Context, noticeStr *string) error {
+func (d *CompanyNoticeUsecase) UpdateCompanyNotice(ctx context.Context, currentUserUID string, noticeStr *string, startTime, endTime *time.Time) error {
 
 	return errNotSupportCompanyNotice
 }
 
-func (d *CompanyNoticeUsecase) GetCompanyNotice(ctx context.Context, userId string) (notice *CompanyNotice, exist bool, err error) {
-	return nil, false, errNotSupportCompanyNotice
+func (d *CompanyNoticeUsecase) GetCompanyNotice(ctx context.Context, userId string, includeLatestOutsidePeriod bool) (notice *CompanyNotice, err error) {
+	return nil, errNotSupportCompanyNotice
 }
