@@ -47,6 +47,15 @@
           "CompanyNotice"
         ],
         "operationId": "GetCompanyNotice",
+        "parameters": [
+          {
+            "type": "boolean",
+            "x-go-name": "IncludeLatestOutsidePeriod",
+            "description": "when true, return the latest notice regardless of display window (for admin edit)",
+            "name": "include_latest_outside_period",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "GetCompanyNoticeReply",
@@ -8017,6 +8026,12 @@
       "description": "A companynotice",
       "type": "object",
       "properties": {
+        "expire_time": {
+          "description": "notice expire time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "ExpireTime"
+        },
         "notice_str": {
           "description": "companynotice info",
           "type": "string",
@@ -8026,6 +8041,12 @@
           "description": "current user has been read",
           "type": "boolean",
           "x-go-name": "ReadByCurrentUser"
+        },
+        "start_time": {
+          "description": "notice show start time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "StartTime"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -9257,7 +9278,7 @@
           "x-go-name": "Users"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetMemberGroupReply": {
       "type": "object",
@@ -14222,7 +14243,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateBusinessTagReq": {
       "type": "object",
@@ -14237,10 +14258,22 @@
       "description": "A companynotice",
       "type": "object",
       "properties": {
+        "end_time": {
+          "description": "notice show end time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "EndTime"
+        },
         "notice_str": {
           "description": "companynotice info",
           "type": "string",
           "x-go-name": "NoticeStr"
+        },
+        "start_time": {
+          "description": "notice show start time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "StartTime"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
