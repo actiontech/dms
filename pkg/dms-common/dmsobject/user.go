@@ -127,8 +127,8 @@ func ListUsers(ctx context.Context, dmsAddr string, req dmsV1.ListUserReq) (ret 
 	if req.FilterByPhone != "" {
 		params.Set("filter_by_phone", req.FilterByPhone)
 	}
-	if req.FilterByStat != nil {
-		params.Set("filter_by_stat", strconv.FormatUint(uint64(*req.FilterByStat), 10))
+	if req.FilterByStat != "" {
+		params.Set("filter_by_stat", string(req.FilterByStat))
 	}
 	if req.FilterByAuthenticationType != "" {
 		params.Set("filter_by_authentication_type", string(req.FilterByAuthenticationType))

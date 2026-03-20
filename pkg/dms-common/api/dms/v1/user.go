@@ -95,6 +95,14 @@ const (
 	UserSystemManagement UserSystem = "MANAGEMENT"
 )
 
+// swagger:enum UserStatFilter
+type UserStatFilter string
+
+const (
+	UserStatFilterNormal   UserStatFilter = "Normal"   // normal
+	UserStatFilterDisabled UserStatFilter = "Disabled" // disabled
+)
+
 // swagger:model GetUserReply
 type GetUserReply struct {
 	// Get user reply
@@ -400,7 +408,7 @@ type ListUserReq struct {
 	FilterByPhone string `query:"filter_by_phone" json:"filter_by_phone"`
 	// filter the user stat (0: normal, 1: disabled)
 	// in:query
-	FilterByStat *uint `query:"filter_by_stat" json:"filter_by_stat"`
+	FilterByStat UserStatFilter `query:"filter_by_stat" json:"filter_by_stat"`
 	// filter the user authentication type (ldap, dms, oauth2)
 	// in:query
 	FilterByAuthenticationType UserAuthenticationType `query:"filter_by_authentication_type" json:"filter_by_authentication_type"`
