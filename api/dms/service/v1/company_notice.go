@@ -5,6 +5,13 @@ import (
 	"time"
 )
 
+// swagger:parameters GetCompanyNotice
+type GetCompanyNoticeReq struct {
+	// When true, return the latest notice record regardless of the display time window (e.g. expired or not yet started); intended for admin edit forms.
+	// in: query
+	IncludeLatestOutsidePeriod bool `query:"include_latest_outside_period" json:"include_latest_outside_period"`
+}
+
 // A companynotice
 type CompanyNotice struct {
 	// companynotice info

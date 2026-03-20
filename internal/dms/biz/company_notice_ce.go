@@ -15,6 +15,6 @@ func (d *CompanyNoticeUsecase) UpdateCompanyNotice(ctx context.Context, noticeSt
 	return errNotSupportCompanyNotice
 }
 
-func (d *CompanyNoticeUsecase) GetCompanyNotice(ctx context.Context, userId string) (notice *CompanyNotice, err error) {
+func (d *CompanyNoticeUsecase) GetCompanyNotice(ctx context.Context, userId string, includeLatestOutsidePeriod bool) (notice *CompanyNotice, err error) {
 	return nil, errNotSupportCompanyNotice
 }

@@ -6,8 +6,8 @@ import (
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
 )
 
-func (d *DMSService) GetCompanyNotice(ctx context.Context, currentUserUid string) (reply *dmsV1.GetCompanyNoticeReply, err error) {
-	companyNotice, err := d.CompanyNoticeUsecase.GetCompanyNotice(ctx, currentUserUid)
+func (d *DMSService) GetCompanyNotice(ctx context.Context, currentUserUid string, includeLatestOutsidePeriod bool) (reply *dmsV1.GetCompanyNoticeReply, err error) {
+	companyNotice, err := d.CompanyNoticeUsecase.GetCompanyNotice(ctx, currentUserUid, includeLatestOutsidePeriod)
 	if err != nil {
 		return nil, err
 	}
