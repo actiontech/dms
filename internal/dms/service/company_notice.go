@@ -16,6 +16,12 @@ func (d *DMSService) GetCompanyNotice(ctx context.Context, currentUserUid string
 	}
 	if companyNotice != nil {
 		data.NoticeStr = companyNotice.NoticeStr
+		if companyNotice.CreateUserUID != "" {
+			users := d.UserUsecase.GetBizUserWithNameByUids(ctx, []string{companyNotice.CreateUserUID})
+			if len(users) > 0 {
+				data.CreateUserName = users[0].Name
+			}
+		}
 		data.StartTime = companyNotice.StartTime
 		data.ExpireTime = companyNotice.EndTime
 	}
