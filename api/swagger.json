@@ -5707,6 +5707,58 @@
             "description": "fuzzy keyword",
             "name": "fuzzy_keyword",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByEmail",
+            "description": "filter the user email",
+            "name": "filter_by_email",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByPhone",
+            "description": "filter the user phone",
+            "name": "filter_by_phone",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "Normal",
+              "Disabled"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "Normal UserStatFilterNormal\nDisabled UserStatFilterDisabled",
+            "x-go-name": "FilterByStat",
+            "description": "filter the user stat (0: normal, 1: disabled)\nNormal UserStatFilterNormal\nDisabled UserStatFilterDisabled",
+            "name": "filter_by_stat",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "ldap",
+              "dms",
+              "oauth2",
+              "unknown"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "ldap UserAuthenticationTypeLDAP\ndms UserAuthenticationTypeDMS\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
+            "x-go-name": "FilterByAuthenticationType",
+            "description": "filter the user authentication type (ldap, dms, oauth2)\nldap UserAuthenticationTypeLDAP\ndms UserAuthenticationTypeDMS\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
+            "name": "filter_by_authentication_type",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "WORKBENCH",
+              "MANAGEMENT"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "WORKBENCH UserSystemWorkbench\nMANAGEMENT UserSystemManagement",
+            "x-go-name": "FilterBySystem",
+            "description": "filter the user system (WORKBENCH, MANAGEMENT)\nWORKBENCH UserSystemWorkbench\nMANAGEMENT UserSystemManagement",
+            "name": "filter_by_system",
+            "in": "query"
           }
         ],
         "responses": {
@@ -9257,7 +9309,7 @@
           "x-go-name": "Users"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetMemberGroupReply": {
       "type": "object",
@@ -9277,7 +9329,7 @@
           "x-go-name": "Message"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetOauth2ConfigurationResData": {
       "type": "object",
@@ -11813,6 +11865,17 @@
     "ListMemberRoleWithOpRange": {
       "type": "object",
       "properties": {
+        "member_group": {
+          "$ref": "#/definitions/ProjectMemberGroup"
+        },
+        "op_permissions": {
+          "description": "member op permissions",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "OpPermissions"
+        },
         "op_range_type": {
           "description": "op permission range type, only support db service now\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "type": "string",
@@ -11837,7 +11900,7 @@
           "$ref": "#/definitions/UidWithName"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ListMemberTipsItem": {
       "type": "object",
