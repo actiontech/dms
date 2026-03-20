@@ -228,11 +228,21 @@ func (d *DMSService) ListUsers(ctx context.Context, req *dmsCommonV1.ListUserReq
 	}
 
 	// 按用户状态过滤
-	if req.FilterByStat != nil {
+	if req.FilterByStat != "" {
+		// 将字符串枚举转换为 uint
+		var statValue uint
+		switch req.FilterByStat {
+		case dmsCommonV1.UserStatFilterNormal:
+			statValue = 0
+		case dmsCommonV1.UserStatFilterDisabled:
+			statValue = 1
+		default:
+			return nil, fmt.Errorf("invalid user stat filter: %s", req.FilterByStat)
+		}
 		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.UserFieldStat),
 			Operator: pkgConst.FilterOperatorEqual,
-			Value:    *req.FilterByStat,
+			Value:    statValue,
 		})
 	}
 
