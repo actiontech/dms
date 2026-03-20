@@ -3470,20 +3470,36 @@ func (ctl *DMSController) WebHookSendMessage(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/company_notice CompanyNotice GetCompanyNotice
+// swagger:operation GET /v1/dms/company_notice CompanyNotice GetCompanyNotice
 //
 // get company notice info
 //
-//	responses:
-//	  200: body:GetCompanyNoticeReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: include_latest_outside_period
+//     description: when true, return the latest notice regardless of display window (for admin edit)
+//     in: query
+//     required: false
+//     type: boolean
+// responses:
+//   '200':
+//     description: GetCompanyNoticeReply
+//     schema:
+//       "$ref": "#/definitions/GetCompanyNoticeReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (ctl *DMSController) GetCompanyNotice(c echo.Context) error {
-	// get current user id
+	var req aV1.GetCompanyNoticeReq
+	if err := bindAndValidateReq(c, &req); err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
 	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	reply, err := ctl.DMS.GetCompanyNotice(c.Request().Context(), currentUserUid)
+	reply, err := ctl.DMS.GetCompanyNotice(c.Request().Context(), currentUserUid, req.IncludeLatestOutsidePeriod)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -3517,7 +3533,11 @@ func (ctl *DMSController) UpdateCompanyNotice(c echo.Context) error {
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	err = ctl.DMS.UpdateCompanyNotice(c.Request().Context(), req)
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	err = ctl.DMS.UpdateCompanyNotice(c.Request().Context(), currentUserUid, req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
