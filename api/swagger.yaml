@@ -901,6 +901,15 @@ definitions:
     CompanyNotice:
         description: A companynotice
         properties:
+            create_user_name:
+                description: companynotice creator name
+                type: string
+                x-go-name: CreateUserName
+            expire_time:
+                description: notice expire time
+                format: date-time
+                type: string
+                x-go-name: ExpireTime
             notice_str:
                 description: companynotice info
                 type: string
@@ -909,6 +918,11 @@ definitions:
                 description: current user has been read
                 type: boolean
                 x-go-name: ReadByCurrentUser
+            start_time:
+                description: notice show start time
+                format: date-time
+                type: string
+                x-go-name: StartTime
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ComponentNameWithVersion:
@@ -5924,10 +5938,20 @@ definitions:
     UpdateCompanyNotice:
         description: A companynotice
         properties:
+            end_time:
+                description: notice show end time
+                format: date-time
+                type: string
+                x-go-name: EndTime
             notice_str:
                 description: companynotice info
                 type: string
                 x-go-name: NoticeStr
+            start_time:
+                description: notice show start time
+                format: date-time
+                type: string
+                x-go-name: StartTime
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateCompanyNoticeReq:
@@ -6937,6 +6961,12 @@ paths:
         get:
             description: get company notice info
             operationId: GetCompanyNotice
+            parameters:
+                - description: when true, return the latest notice regardless of display window (for admin edit)
+                  in: query
+                  name: include_latest_outside_period
+                  type: boolean
+                  x-go-name: IncludeLatestOutsidePeriod
             responses:
                 "200":
                     description: GetCompanyNoticeReply
