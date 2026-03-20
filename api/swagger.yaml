@@ -1860,7 +1860,7 @@ definitions:
                 type: array
                 x-go-name: Users
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetMemberGroupReply:
         properties:
             code:
@@ -1875,7 +1875,7 @@ definitions:
                 type: string
                 x-go-name: Message
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetOauth2ConfigurationResData:
         properties:
             access_token_tag:
@@ -3877,6 +3877,14 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberRoleWithOpRange:
         properties:
+            member_group:
+                $ref: '#/definitions/ProjectMemberGroup'
+            op_permissions:
+                description: member op permissions
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: OpPermissions
             op_range_type:
                 description: |-
                     op permission range type, only support db service now
@@ -3905,7 +3913,7 @@ definitions:
             role_uid:
                 $ref: '#/definitions/UidWithName'
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberTipsItem:
         properties:
             user_id:
@@ -10812,6 +10820,64 @@ paths:
                   name: fuzzy_keyword
                   type: string
                   x-go-name: FuzzyKeyword
+                - description: filter the user email
+                  in: query
+                  name: filter_by_email
+                  type: string
+                  x-go-name: FilterByEmail
+                - description: filter the user phone
+                  in: query
+                  name: filter_by_phone
+                  type: string
+                  x-go-name: FilterByPhone
+                - description: |-
+                    filter the user stat (0: normal, 1: disabled)
+                    Normal UserStatFilterNormal
+                    Disabled UserStatFilterDisabled
+                  enum:
+                    - Normal
+                    - Disabled
+                  in: query
+                  name: filter_by_stat
+                  type: string
+                  x-go-enum-desc: |-
+                    Normal UserStatFilterNormal
+                    Disabled UserStatFilterDisabled
+                  x-go-name: FilterByStat
+                - description: |-
+                    filter the user authentication type (ldap, dms, oauth2)
+                    ldap UserAuthenticationTypeLDAP
+                    dms UserAuthenticationTypeDMS
+                    oauth2 UserAuthenticationTypeOAUTH2
+                    unknown UserAuthenticationTypeUnknown
+                  enum:
+                    - ldap
+                    - dms
+                    - oauth2
+                    - unknown
+                  in: query
+                  name: filter_by_authentication_type
+                  type: string
+                  x-go-enum-desc: |-
+                    ldap UserAuthenticationTypeLDAP
+                    dms UserAuthenticationTypeDMS
+                    oauth2 UserAuthenticationTypeOAUTH2
+                    unknown UserAuthenticationTypeUnknown
+                  x-go-name: FilterByAuthenticationType
+                - description: |-
+                    filter the user system (WORKBENCH, MANAGEMENT)
+                    WORKBENCH UserSystemWorkbench
+                    MANAGEMENT UserSystemManagement
+                  enum:
+                    - WORKBENCH
+                    - MANAGEMENT
+                  in: query
+                  name: filter_by_system
+                  type: string
+                  x-go-enum-desc: |-
+                    WORKBENCH UserSystemWorkbench
+                    MANAGEMENT UserSystemManagement
+                  x-go-name: FilterBySystem
             responses:
                 "200":
                     description: ListUserReply
