@@ -76,7 +76,13 @@ func newCloudbeaverSQLResultMasker(_ utilLog.Logger, _ *storage.Storage, _ biz.P
 	return nil, nil
 }
 
-type dataMaskingUsecase struct{}
+type dataMaskingDiscoveryTaskUsecase interface {
+	ListMaskingTaskStatus(ctx context.Context, dbServiceUIDs []string) (map[string]bool, error)
+}
+
+type dataMaskingUsecase struct {
+	DiscoveryTaskUsecase dataMaskingDiscoveryTaskUsecase
+}
 
 func initDataExportMaskingConfigRepo(_ utilLog.Logger, _ *storage.Storage) biz.DataExportMaskingConfigRepo {
 	return nil
