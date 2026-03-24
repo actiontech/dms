@@ -10308,7 +10308,7 @@
           "x-go-name": "Users"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "GetMemberGroupReply": {
       "type": "object",
@@ -13001,17 +13001,6 @@
     "ListMemberRoleWithOpRange": {
       "type": "object",
       "properties": {
-        "member_group": {
-          "$ref": "#/definitions/ProjectMemberGroup"
-        },
-        "op_permissions": {
-          "description": "member op permissions",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/UidWithName"
-          },
-          "x-go-name": "OpPermissions"
-        },
         "op_range_type": {
           "description": "op permission range type, only support db service now\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "type": "string",
@@ -13036,7 +13025,7 @@
           "$ref": "#/definitions/UidWithName"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "ListMemberTipsItem": {
       "type": "object",
@@ -13569,11 +13558,23 @@
     "ListSensitiveDataDiscoveryTasksData": {
       "type": "object",
       "properties": {
+        "db_service_host": {
+          "description": "database instance host",
+          "type": "string",
+          "x-go-name": "DBServiceHost",
+          "example": "\"10.10.10.10\""
+        },
         "db_service_name": {
           "description": "database instance name",
           "type": "string",
           "x-go-name": "DBServiceName",
           "example": "\"mysql-01\""
+        },
+        "db_service_port": {
+          "description": "database instance port",
+          "type": "string",
+          "x-go-name": "DBServicePort",
+          "example": "\"3306\""
         },
         "db_service_uid": {
           "description": "database instance id",
