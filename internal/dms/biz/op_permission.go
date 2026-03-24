@@ -324,7 +324,14 @@ func initOpPermission() []*OpPermission {
 		},
 		{
 			UID:       pkgConst.UIdOfOpPermissionDesensitization,
-			Name:      "脱敏规则配置权限",
+			Name:      "配置脱敏任务",
+			RangeType: OpRangeTypeProject,
+			Module:    DesensitizationRule,
+			Service:   v1.ServiceDMS,
+		},
+		{
+			UID:       pkgConst.UIdOfOpPermissionMaskingAudit,
+			Name:      "脱敏审核",
 			RangeType: OpRangeTypeProject,
 			Module:    DesensitizationRule,
 			Service:   v1.ServiceDMS,
