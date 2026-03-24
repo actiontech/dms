@@ -4157,26 +4157,6 @@ func (ctl *DMSController) proxyDownloadDataExportTask(c echo.Context, reportHost
 	return
 }
 
-// swagger:route GET /v1/dms/masking/rules Masking ListMaskingRules
-//
-// List masking rules.
-//
-//	responses:
-//	  200: body:ListMaskingRulesReply
-//	  default: body:GenericResp
-func (ctl *DMSController) ListMaskingRules(c echo.Context) error {
-	req := &aV1.ListMaskingRulesReq{}
-	err := bindAndValidateReq(c, req)
-	if nil != err {
-		return NewErrResp(c, err, apiError.BadRequestErr)
-	}
-
-	reply, err := ctl.DMS.ListMaskingRules(c.Request().Context())
-	if nil != err {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-	return NewOkRespWithReply(c, reply)
-}
 
 // swagger:route GET /v1/dms/projects/{project_uid}/cb_operation_logs CBOperationLogs ListCBOperationLogs
 //
