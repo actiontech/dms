@@ -209,6 +209,12 @@ type ListSensitiveDataDiscoveryTasksData struct {
 	// database instance name
 	// Example: "mysql-01"
 	DBServiceName string `json:"db_service_name"`
+	// database instance host
+	// Example: "10.10.10.10"
+	DBServiceHost string `json:"db_service_host"`
+	// database instance port
+	// Example: "3306"
+	DBServicePort string `json:"db_service_port"`
 	// task type
 	// Example: "PERIODIC"
 	TaskType SensitiveDataDiscoveryTaskType `json:"task_type"`
