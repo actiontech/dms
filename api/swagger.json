@@ -1610,13 +1610,13 @@
         "operationId": "ListMaskingRules",
         "responses": {
           "200": {
-            "description": "ListMaskingRulesReply",
+            "description": "List masking rules successfully",
             "schema": {
               "$ref": "#/definitions/ListMaskingRulesReply"
             }
           },
           "default": {
-            "description": "GenericResp",
+            "description": "Generic error response",
             "schema": {
               "$ref": "#/definitions/GenericResp"
             }
@@ -4362,6 +4362,729 @@
         }
       }
     },
+    "/v1/dms/projects/{project_uid}/masking/approval-requests/pending": {
+      "get": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "List pending approval requests.",
+        "operationId": "ListPendingApprovalRequests",
+        "parameters": [
+          {
+            "type": "string",
+            "example": "\"project_uid\"",
+            "x-go-name": "ProjectUid",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "example": "20",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of requests to be returned, default is 20",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "example": "0",
+            "x-go-name": "PageIndex",
+            "description": "the offset of requests to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List pending approval requests successfully",
+            "schema": {
+              "$ref": "#/definitions/ListPendingApprovalRequestsReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/masking/approval-requests/{request_id}": {
+      "get": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Get plaintext access request detail.",
+        "operationId": "GetPlaintextAccessRequestDetail",
+        "parameters": [
+          {
+            "type": "string",
+            "example": "\"project_uid\"",
+            "x-go-name": "ProjectUid",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "example": 1,
+            "x-go-name": "RequestID",
+            "description": "approval request id",
+            "name": "request_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get plaintext access request detail successfully",
+            "schema": {
+              "$ref": "#/definitions/GetPlaintextAccessRequestDetailReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/masking/approval-requests/{request_id}/decisions": {
+      "post": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Process approval request.",
+        "operationId": "ProcessApprovalRequest",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "approval request id",
+            "name": "request_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "process action info",
+            "name": "action",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ProcessApprovalRequestReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Process approval request successfully",
+            "schema": {
+              "$ref": "#/definitions/ProcessApprovalRequestReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/masking/overview": {
+      "get": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Get masking overview tree.",
+        "operationId": "GetMaskingOverviewTree",
+        "parameters": [
+          {
+            "type": "string",
+            "example": "\"project_uid\"",
+            "x-go-name": "ProjectUid",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "example": "\"1\"",
+            "x-go-name": "DBServiceUID",
+            "description": "data source id",
+            "name": "db_service_uid",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "example": "\"user\"",
+            "x-go-name": "Keywords",
+            "description": "fuzzy search keyword for database name, table name, and column name",
+            "name": "keywords",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "CONFIGURED",
+              "PENDING_CONFIRM",
+              "SYSTEM_CONFIRMED"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "CONFIGURED MaskingConfigStatusConfigured\nPENDING_CONFIRM MaskingConfigStatusPendingConfirm\nSYSTEM_CONFIRMED MaskingConfigStatusSystemConfirmed",
+            "x-go-name": "MaskingConfigStatus",
+            "description": "masking config status filters, enum: CONFIGURED/PENDING_CONFIRM",
+            "name": "masking_config_statuses",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get masking overview tree successfully",
+            "schema": {
+              "$ref": "#/definitions/GetMaskingOverviewTreeReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/masking/rule-configs": {
+      "put": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Configure masking rules in batch.",
+        "operationId": "ConfigureMaskingRules",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "masking rule configurations for batch create or update",
+            "name": "masking_rule_configs_req",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ConfigureMaskingRulesReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Configure masking rules successfully",
+            "schema": {
+              "$ref": "#/definitions/ConfigureMaskingRulesReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks": {
+      "get": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "List sensitive data discovery tasks.",
+        "operationId": "ListSensitiveDataDiscoveryTasks",
+        "parameters": [
+          {
+            "type": "string",
+            "example": "\"project_uid\"",
+            "x-go-name": "ProjectUid",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "example": "20",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of tasks to be returned, default is 20",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "example": "0",
+            "x-go-name": "PageIndex",
+            "description": "the offset of tasks to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List sensitive data discovery tasks successfully",
+            "schema": {
+              "$ref": "#/definitions/ListSensitiveDataDiscoveryTasksReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Add sensitive data discovery task.",
+        "operationId": "AddSensitiveDataDiscoveryTask",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "sensitive data discovery task info",
+            "name": "task",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddSensitiveDataDiscoveryTaskReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Add sensitive data discovery task successfully",
+            "schema": {
+              "$ref": "#/definitions/AddSensitiveDataDiscoveryTaskReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks/{task_id}": {
+      "put": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Update sensitive data discovery task.",
+        "operationId": "UpdateSensitiveDataDiscoveryTask",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "sensitive data discovery task id",
+            "name": "task_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "sensitive data discovery task info",
+            "name": "task",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateSensitiveDataDiscoveryTaskReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Update sensitive data discovery task successfully",
+            "schema": {
+              "$ref": "#/definitions/UpdateSensitiveDataDiscoveryTaskReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Delete sensitive data discovery task.",
+        "operationId": "DeleteSensitiveDataDiscoveryTask",
+        "parameters": [
+          {
+            "type": "string",
+            "example": "\"project_uid\"",
+            "x-go-name": "ProjectUid",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "example": 1,
+            "x-go-name": "TaskID",
+            "description": "sensitive data discovery task id",
+            "name": "task_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delete sensitive data discovery task successfully",
+            "schema": {
+              "$ref": "#/definitions/DeleteSensitiveDataDiscoveryTaskReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks/{task_id}/histories": {
+      "get": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "List sensitive data discovery task histories.",
+        "operationId": "ListSensitiveDataDiscoveryTaskHistories",
+        "parameters": [
+          {
+            "type": "string",
+            "example": "\"project_uid\"",
+            "x-go-name": "ProjectUid",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "example": 1,
+            "x-go-name": "TaskID",
+            "description": "sensitive data discovery task id",
+            "name": "task_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "example": "20",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of histories to be returned, default is 20",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "example": "0",
+            "x-go-name": "PageIndex",
+            "description": "the offset of histories to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List sensitive data discovery task histories successfully",
+            "schema": {
+              "$ref": "#/definitions/ListSensitiveDataDiscoveryTaskHistoriesReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/masking/tables/{table_id}/column-masking-details": {
+      "get": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Get table column masking details.",
+        "operationId": "GetTableColumnMaskingDetails",
+        "parameters": [
+          {
+            "type": "string",
+            "example": "\"project_uid\"",
+            "x-go-name": "ProjectUid",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "example": 1,
+            "x-go-name": "TableID",
+            "description": "table id from masking overview tree",
+            "name": "table_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "example": "\"phone\"",
+            "x-go-name": "Keywords",
+            "description": "fuzzy search keyword for column name",
+            "name": "keywords",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get table column masking details successfully",
+            "schema": {
+              "$ref": "#/definitions/GetTableColumnMaskingDetailsReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/masking/templates": {
+      "get": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "List masking templates.",
+        "operationId": "ListMaskingTemplates",
+        "parameters": [
+          {
+            "type": "string",
+            "example": "\"project_uid\"",
+            "x-go-name": "ProjectUid",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of masking templates to be returned, default is 20",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of masking templates to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List masking templates successfully",
+            "schema": {
+              "$ref": "#/definitions/ListMaskingTemplatesReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Add masking template.",
+        "operationId": "AddMaskingTemplate",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "masking template info",
+            "name": "masking_template",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddMaskingTemplateReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Add masking template successfully",
+            "schema": {
+              "$ref": "#/definitions/AddMaskingTemplateReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/masking/templates/{template_id}": {
+      "put": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Update masking template.",
+        "operationId": "UpdateMaskingTemplate",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "masking template id",
+            "name": "template_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "masking template info",
+            "name": "masking_template",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMaskingTemplateReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Update masking template successfully",
+            "schema": {
+              "$ref": "#/definitions/UpdateMaskingTemplateReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Delete masking template.",
+        "operationId": "DeleteMaskingTemplate",
+        "parameters": [
+          {
+            "type": "string",
+            "example": "\"project_uid\"",
+            "x-go-name": "ProjectUid",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "example": 1,
+            "x-go-name": "TemplateID",
+            "description": "masking template id",
+            "name": "template_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delete masking template successfully",
+            "schema": {
+              "$ref": "#/definitions/DeleteMaskingTemplateReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/projects/{project_uid}/member_groups": {
       "get": {
         "tags": [
@@ -7076,6 +7799,66 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "AddMaskingTemplate": {
+      "type": "object",
+      "required": [
+        "name",
+        "rule_ids"
+      ],
+      "properties": {
+        "name": {
+          "description": "masking template name",
+          "type": "string",
+          "x-go-name": "Name",
+          "example": "\"New Template\""
+        },
+        "rule_ids": {
+          "description": "masking rule id list",
+          "type": "array",
+          "minLength": 1,
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "x-go-name": "RuleIDs",
+          "example": [
+            1,
+            2,
+            3
+          ]
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddMaskingTemplateReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddMaskingTemplateReq": {
+      "type": "object",
+      "required": [
+        "masking_template"
+      ],
+      "properties": {
+        "masking_template": {
+          "$ref": "#/definitions/AddMaskingTemplate"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "AddMemberGroupReply": {
       "type": "object",
       "properties": {
@@ -7290,6 +8073,106 @@
       "properties": {
         "role": {
           "$ref": "#/definitions/Role"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddSensitiveDataDiscoveryTask": {
+      "type": "object",
+      "required": [
+        "db_service_uid",
+        "masking_template_id",
+        "identification_method",
+        "execution_plan"
+      ],
+      "properties": {
+        "cron_expression": {
+          "description": "cron expression, required when execution_plan is PERIODIC",
+          "type": "string",
+          "x-go-name": "CronExpression",
+          "example": "\"0 0 * * *\""
+        },
+        "db_service_uid": {
+          "description": "database instance id",
+          "type": "string",
+          "x-go-name": "DBServiceUID",
+          "example": "\"1\""
+        },
+        "execution_plan": {
+          "description": "execution plan\nPERIODIC SensitiveDataDiscoveryTaskTypePeriodic\nONE_TIME SensitiveDataDiscoveryTaskTypeOneTime",
+          "type": "string",
+          "enum": [
+            "PERIODIC",
+            "ONE_TIME"
+          ],
+          "x-go-enum-desc": "PERIODIC SensitiveDataDiscoveryTaskTypePeriodic\nONE_TIME SensitiveDataDiscoveryTaskTypeOneTime",
+          "x-go-name": "ExecutionPlan",
+          "example": "\"ONE_TIME\""
+        },
+        "identification_method": {
+          "description": "sensitive data identification method\nBY_FIELD_NAME SensitiveDataIdentificationMethodByFieldName\nBY_SAMPLE_DATA SensitiveDataIdentificationMethodBySampleData",
+          "type": "string",
+          "enum": [
+            "BY_FIELD_NAME",
+            "BY_SAMPLE_DATA"
+          ],
+          "x-go-enum-desc": "BY_FIELD_NAME SensitiveDataIdentificationMethodByFieldName\nBY_SAMPLE_DATA SensitiveDataIdentificationMethodBySampleData",
+          "x-go-name": "IdentificationMethod",
+          "example": "\"BY_FIELD_NAME\""
+        },
+        "is_periodic_scan_enabled": {
+          "description": "whether periodic scanning is enabled, default is true",
+          "type": "boolean",
+          "x-go-name": "IsPeriodicScanEnabled",
+          "example": true
+        },
+        "masking_template_id": {
+          "description": "masking template id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "MaskingTemplateID",
+          "example": 1
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddSensitiveDataDiscoveryTaskData": {
+      "type": "object",
+      "properties": {
+        "suspected_sensitive_fields_tree": {
+          "$ref": "#/definitions/SuspectedSensitiveFieldsTree"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddSensitiveDataDiscoveryTaskReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/AddSensitiveDataDiscoveryTaskData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddSensitiveDataDiscoveryTaskReq": {
+      "type": "object",
+      "required": [
+        "task"
+      ],
+      "properties": {
+        "task": {
+          "$ref": "#/definitions/AddSensitiveDataDiscoveryTask"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -8122,6 +9005,41 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "ConfigureMaskingRulesReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ConfigureMaskingRulesReq": {
+      "type": "object",
+      "required": [
+        "masking_rule_configs"
+      ],
+      "properties": {
+        "masking_rule_configs": {
+          "description": "masking rule configurations for batch create or update",
+          "type": "array",
+          "minLength": 1,
+          "items": {
+            "$ref": "#/definitions/MaskingRuleConfig"
+          },
+          "x-go-name": "MaskingRuleConfigs"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "CreateBusinessTagReq": {
       "type": "object",
       "properties": {
@@ -8210,11 +9128,6 @@
           "description": "DB Service Host",
           "type": "string",
           "x-go-name": "Host"
-        },
-        "is_enable_masking": {
-          "description": "data masking switch",
-          "type": "boolean",
-          "x-go-name": "IsEnableMasking"
         },
         "maintenance_times": {
           "description": "DB Service maintenance time\nempty value means that maintenance time is unlimited",
@@ -8430,11 +9343,6 @@
           "description": "DB Service Host",
           "type": "string",
           "x-go-name": "Host"
-        },
-        "is_enable_masking": {
-          "description": "data masking switch",
-          "type": "boolean",
-          "x-go-name": "IsEnableMasking"
         },
         "maintenance_times": {
           "description": "DB Service maintenance time\nempty value means that maintenance time is unlimited",
@@ -8742,6 +9650,40 @@
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "DeleteGatewayReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DeleteMaskingTemplateReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DeleteSensitiveDataDiscoveryTaskReply": {
       "type": "object",
       "properties": {
         "code": {
@@ -9295,6 +10237,43 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "GetMaskingOverviewTreeData": {
+      "type": "object",
+      "properties": {
+        "dashboard": {
+          "$ref": "#/definitions/MaskingOverviewDashboard"
+        },
+        "databases": {
+          "description": "database_name -\u003e database node",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/MaskingOverviewDatabaseNode"
+          },
+          "x-go-name": "Databases"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetMaskingOverviewTreeReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/GetMaskingOverviewTreeData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "GetMemberGroup": {
       "type": "object",
       "properties": {
@@ -9520,6 +10499,45 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "GetPlaintextAccessRequestDetailReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "plaintext access request detail reply",
+          "type": "object",
+          "properties": {
+            "masking_preview": {
+              "$ref": "#/definitions/MaskingPreviewData"
+            },
+            "query_sql": {
+              "description": "query sql statement",
+              "type": "string",
+              "x-go-name": "QuerySQL",
+              "example": "\"SELECT * FROM users\""
+            },
+            "reason": {
+              "description": "application reason",
+              "type": "string",
+              "x-go-name": "Reason",
+              "example": "\"troubleshooting\""
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "GetProjectTipsReply": {
       "type": "object",
       "properties": {
@@ -9668,6 +10686,31 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "GetTableColumnMaskingDetailsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "table column masking details reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TableColumnMaskingDetail"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetUser": {
       "description": "A dms user",
@@ -10037,11 +11080,6 @@
           "type": "string",
           "x-go-name": "Host"
         },
-        "is_enable_masking": {
-          "description": "is enable masking",
-          "type": "boolean",
-          "x-go-name": "IsEnableMasking"
-        },
         "maintenance_times": {
           "description": "DB Service maintenance time",
           "type": "array",
@@ -10119,11 +11157,6 @@
           "description": "db service host",
           "type": "string",
           "x-go-name": "Host"
-        },
-        "is_enable_masking": {
-          "description": "is enable masking",
-          "type": "boolean",
-          "x-go-name": "IsEnableMasking"
         },
         "maintenance_times": {
           "description": "DB Service maintenance time",
@@ -11630,28 +12663,41 @@
       "type": "object",
       "properties": {
         "description": {
+          "description": "description",
           "type": "string",
-          "x-go-name": "Description"
+          "x-go-name": "Description",
+          "example": "\"mask digits\""
         },
         "effect": {
+          "description": "effect description for users",
           "type": "string",
-          "x-go-name": "Effect"
+          "x-go-name": "Effect",
+          "example": "\"保留开头2位和结尾2位，中间字符替换为*\""
+        },
+        "effect_example_after": {
+          "description": "effect example after masking",
+          "type": "string",
+          "x-go-name": "EffectExampleAfter",
+          "example": "\"138******78\""
+        },
+        "effect_example_before": {
+          "description": "effect example before masking",
+          "type": "string",
+          "x-go-name": "EffectExampleBefore",
+          "example": "\"13812345678\""
         },
         "id": {
+          "description": "masking rule id",
           "type": "integer",
           "format": "int64",
-          "x-go-name": "Id"
+          "x-go-name": "Id",
+          "example": 1
         },
         "masking_type": {
+          "description": "masking type",
           "type": "string",
-          "x-go-name": "MaskingType"
-        },
-        "reference_fields": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "x-go-name": "ReferenceFields"
+          "x-go-name": "MaskingType",
+          "example": "\"MASK_DIGIT\""
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -11677,6 +12723,72 @@
           "description": "message",
           "type": "string",
           "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListMaskingTemplatesData": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "masking template id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Id",
+          "example": 1
+        },
+        "name": {
+          "description": "masking template name",
+          "type": "string",
+          "x-go-name": "Name",
+          "example": "\"Standard Template\""
+        },
+        "rule_count": {
+          "description": "count of rules in the template",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RuleCount",
+          "example": 5
+        },
+        "rule_names": {
+          "description": "preview of rule name in the template, up to 3 items",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "RuleNames"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListMaskingTemplatesReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "list masking templates reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListMaskingTemplatesData"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "description": "total count of masking templates",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total",
+          "example": 100
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -11889,6 +13001,17 @@
     "ListMemberRoleWithOpRange": {
       "type": "object",
       "properties": {
+        "member_group": {
+          "$ref": "#/definitions/ProjectMemberGroup"
+        },
+        "op_permissions": {
+          "description": "member op permissions",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "OpPermissions"
+        },
         "op_range_type": {
           "description": "op permission range type, only support db service now\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "type": "string",
@@ -11913,7 +13036,7 @@
           "$ref": "#/definitions/UidWithName"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ListMemberTipsItem": {
       "type": "object",
@@ -12071,6 +13194,38 @@
           "type": "integer",
           "format": "int64",
           "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListPendingApprovalRequestsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "pending approval requests reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PendingApprovalRequestData"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "description": "total count of pending approval requests",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total",
+          "example": 100
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -12340,6 +13495,212 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "ListSensitiveDataDiscoveryTaskHistoriesData": {
+      "type": "object",
+      "properties": {
+        "executed_at": {
+          "description": "execution time in RFC3339 format\nFormat: date-time (RFC3339)",
+          "type": "string",
+          "x-go-name": "ExecutedAt",
+          "example": "\"2024-01-15T10:30:00Z\""
+        },
+        "new_sensitive_field_count": {
+          "description": "newly discovered sensitive field count",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "NewSensitiveFieldCount",
+          "example": 10
+        },
+        "remark": {
+          "description": "remark",
+          "type": "string",
+          "x-go-name": "Remark",
+          "example": "\"scan completed successfully\""
+        },
+        "status": {
+          "description": "execution status\nPENDING_CONFIRM SensitiveDataDiscoveryTaskStatusPendingChangeConfirm\nNORMAL SensitiveDataDiscoveryTaskStatusNormal\nCOMPLETED SensitiveDataDiscoveryTaskStatusCompleted\nRUNNING SensitiveDataDiscoveryTaskStatusRunning\nFAILED SensitiveDataDiscoveryTaskStatusFailed",
+          "type": "string",
+          "enum": [
+            "PENDING_CONFIRM",
+            "NORMAL",
+            "COMPLETED",
+            "RUNNING",
+            "FAILED"
+          ],
+          "x-go-enum-desc": "PENDING_CONFIRM SensitiveDataDiscoveryTaskStatusPendingChangeConfirm\nNORMAL SensitiveDataDiscoveryTaskStatusNormal\nCOMPLETED SensitiveDataDiscoveryTaskStatusCompleted\nRUNNING SensitiveDataDiscoveryTaskStatusRunning\nFAILED SensitiveDataDiscoveryTaskStatusFailed",
+          "x-go-name": "Status",
+          "example": "\"NORMAL\""
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListSensitiveDataDiscoveryTaskHistoriesReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "sensitive data discovery task histories reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListSensitiveDataDiscoveryTaskHistoriesData"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "description": "total count of sensitive data discovery task histories",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total",
+          "example": 100
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListSensitiveDataDiscoveryTasksData": {
+      "type": "object",
+      "properties": {
+        "db_service_name": {
+          "description": "database instance name",
+          "type": "string",
+          "x-go-name": "DBServiceName",
+          "example": "\"mysql-01\""
+        },
+        "db_service_uid": {
+          "description": "database instance id",
+          "type": "string",
+          "x-go-name": "DBServiceUID",
+          "example": "\"db_service_uid_1\""
+        },
+        "execution_frequency": {
+          "description": "cron expression of execution frequency, periodic task returns cron, one-time task returns empty",
+          "type": "string",
+          "x-go-name": "ExecutionFrequency",
+          "example": "\"0 2 * * *\""
+        },
+        "execution_plan": {
+          "description": "execution plan\nPERIODIC SensitiveDataDiscoveryTaskTypePeriodic\nONE_TIME SensitiveDataDiscoveryTaskTypeOneTime",
+          "type": "string",
+          "enum": [
+            "PERIODIC",
+            "ONE_TIME"
+          ],
+          "x-go-enum-desc": "PERIODIC SensitiveDataDiscoveryTaskTypePeriodic\nONE_TIME SensitiveDataDiscoveryTaskTypeOneTime",
+          "x-go-name": "ExecutionPlan",
+          "example": "\"ONE_TIME\""
+        },
+        "id": {
+          "description": "sensitive data discovery task id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID",
+          "example": 1
+        },
+        "identification_method": {
+          "description": "sensitive data identification method\nBY_FIELD_NAME SensitiveDataIdentificationMethodByFieldName\nBY_SAMPLE_DATA SensitiveDataIdentificationMethodBySampleData",
+          "type": "string",
+          "enum": [
+            "BY_FIELD_NAME",
+            "BY_SAMPLE_DATA"
+          ],
+          "x-go-enum-desc": "BY_FIELD_NAME SensitiveDataIdentificationMethodByFieldName\nBY_SAMPLE_DATA SensitiveDataIdentificationMethodBySampleData",
+          "x-go-name": "IdentificationMethod",
+          "example": "\"BY_FIELD_NAME\""
+        },
+        "is_periodic_scan_enabled": {
+          "description": "whether periodic scanning is enabled",
+          "type": "boolean",
+          "x-go-name": "IsPeriodicScanEnabled",
+          "example": true
+        },
+        "masking_template_id": {
+          "description": "related masking template id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "MaskingTemplateID",
+          "example": 1
+        },
+        "masking_template_name": {
+          "description": "related masking template name",
+          "type": "string",
+          "x-go-name": "MaskingTemplateName",
+          "example": "\"Standard Template\""
+        },
+        "next_execution_at": {
+          "description": "next run time, periodic task returns RFC3339 time, one-time task returns null\nFormat: date-time (RFC3339)",
+          "type": "string",
+          "x-go-name": "NextExecutionAt",
+          "example": "\"2024-01-15T10:30:00Z\""
+        },
+        "status": {
+          "description": "task status\nPENDING_CONFIRM SensitiveDataDiscoveryTaskStatusPendingChangeConfirm\nNORMAL SensitiveDataDiscoveryTaskStatusNormal\nCOMPLETED SensitiveDataDiscoveryTaskStatusCompleted\nRUNNING SensitiveDataDiscoveryTaskStatusRunning\nFAILED SensitiveDataDiscoveryTaskStatusFailed",
+          "type": "string",
+          "enum": [
+            "PENDING_CONFIRM",
+            "NORMAL",
+            "COMPLETED",
+            "RUNNING",
+            "FAILED"
+          ],
+          "x-go-enum-desc": "PENDING_CONFIRM SensitiveDataDiscoveryTaskStatusPendingChangeConfirm\nNORMAL SensitiveDataDiscoveryTaskStatusNormal\nCOMPLETED SensitiveDataDiscoveryTaskStatusCompleted\nRUNNING SensitiveDataDiscoveryTaskStatusRunning\nFAILED SensitiveDataDiscoveryTaskStatusFailed",
+          "x-go-name": "Status",
+          "example": "\"NORMAL\""
+        },
+        "task_type": {
+          "description": "task type\nPERIODIC SensitiveDataDiscoveryTaskTypePeriodic\nONE_TIME SensitiveDataDiscoveryTaskTypeOneTime",
+          "type": "string",
+          "enum": [
+            "PERIODIC",
+            "ONE_TIME"
+          ],
+          "x-go-enum-desc": "PERIODIC SensitiveDataDiscoveryTaskTypePeriodic\nONE_TIME SensitiveDataDiscoveryTaskTypeOneTime",
+          "x-go-name": "TaskType",
+          "example": "\"PERIODIC\""
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListSensitiveDataDiscoveryTasksReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "sensitive data discovery tasks list reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListSensitiveDataDiscoveryTasksData"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "description": "total count of sensitive data discovery tasks",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total",
+          "example": 100
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "ListUser": {
       "description": "A dms user",
       "type": "object",
@@ -12597,6 +13958,167 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "MaskingOverviewDashboard": {
+      "type": "object",
+      "properties": {
+        "configured_masking_columns": {
+          "description": "total count of columns with configured masking",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ConfiguredMaskingColumns",
+          "example": 120
+        },
+        "pending_confirm_masking_columns": {
+          "description": "total count of columns pending masking confirmation",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "PendingConfirmMaskingColumns",
+          "example": 5
+        },
+        "total_sensitive_tables": {
+          "description": "total count of tables that contain sensitive data",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "TotalSensitiveTables",
+          "example": 50
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "MaskingOverviewDatabaseNode": {
+      "type": "object",
+      "properties": {
+        "tables": {
+          "description": "table_name -\u003e table overview data",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/MaskingOverviewTableData"
+          },
+          "x-go-name": "Tables"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "MaskingOverviewTableData": {
+      "type": "object",
+      "properties": {
+        "configured_masking_columns": {
+          "description": "configured masking column count for this table",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ConfiguredMaskingColumns",
+          "example": 3
+        },
+        "pending_confirm_masking_columns": {
+          "description": "pending masking confirmation column count for this table",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "PendingConfirmMaskingColumns",
+          "example": 1
+        },
+        "table_id": {
+          "description": "table id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "TableID",
+          "example": 1
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "MaskingPreviewData": {
+      "type": "object",
+      "properties": {
+        "columns": {
+          "description": "preview columns",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Columns",
+          "example": [
+            "id",
+            "name",
+            "email"
+          ]
+        },
+        "rows": {
+          "description": "preview rows",
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "x-go-name": "Rows",
+          "example": [
+            [
+              "1",
+              "John",
+              "j***@example.com"
+            ],
+            [
+              "2",
+              "Alice",
+              "a***@example.com"
+            ]
+          ]
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "MaskingRuleConfig": {
+      "type": "object",
+      "required": [
+        "db_service_uid",
+        "schema_name",
+        "table_name",
+        "column_name",
+        "masking_rule_id",
+        "is_masking_enabled"
+      ],
+      "properties": {
+        "column_name": {
+          "description": "column name",
+          "type": "string",
+          "x-go-name": "ColumnName",
+          "example": "\"email\""
+        },
+        "db_service_uid": {
+          "description": "data source id",
+          "type": "string",
+          "x-go-name": "DBServiceUID",
+          "example": "\"1\""
+        },
+        "is_masking_enabled": {
+          "description": "whether to enable masking for this column",
+          "type": "boolean",
+          "x-go-name": "IsMaskingEnabled",
+          "example": true
+        },
+        "masking_rule_id": {
+          "description": "masking rule id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "MaskingRuleID",
+          "example": 1
+        },
+        "schema_name": {
+          "description": "schema name",
+          "type": "string",
+          "x-go-name": "SchemaName",
+          "example": "\"db1\""
+        },
+        "table_name": {
+          "description": "table name",
+          "type": "string",
+          "x-go-name": "TableName",
+          "example": "\"users\""
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "Member": {
       "description": "A member",
       "type": "object",
@@ -12847,7 +14369,7 @@
       "type": "object",
       "properties": {
         "op_permission_type": {
-          "description": "op permission type\nunknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nglobal_view OpPermissionTypeGlobalView  项目管理；拥有该权限的用户可以管理项目下的所有资源\nglobal_management OpPermissionTypeGlobalManagement  全局浏览；拥有该权限的用户可以浏览全局的资源\nproject_admin OpPermissionTypeProjectAdmin  全局管理；拥有该权限的用户可以浏览和管理全局的资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  账号管理；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nview_sql_insight OpPermissionTypeViewSQLInsight  查看SQL洞察权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单\ncreate_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优\nview_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优\ncreate_pipeline OpPermissionTypeCreatePipeline  配置流水线\nview_operation_record OpPermissionViewOperationRecord  SQL工作台;查看所有操作记录\nview_export_task OpPermissionViewExportTask  数据导出;查看所有导出任务\nview_quick_audit_record OpPermissionViewQuickAuditRecord  快捷审核;查看所有快捷审核记录\nview_ide_audit_record OpPermissionViewIDEAuditRecord  IDE审核;查看所有IDE审核记录\nview_optimization_record OpPermissionViewOptimizationRecord  SQL优化;查看所有优化记录\nview_version_manage OpPermissionViewVersionManage  版本管理;查看他人创建的版本记录\nversion_manage OpPermissionVersionManage  版本管理;配置版本\nview_pipeline OpPermissionViewPipeline  CI/CD集成;查看所有流水线\nmanage_project_data_source OpPermissionManageProjectDataSource  数据源管理;管理项目数据源管理\nmanage_audit_rule_template OpPermissionManageAuditRuleTemplate  审核规则模版;管理审核规则模版\nmanage_approval_template OpPermissionManageApprovalTemplate  审批流程模版;管理审批流程模版\nmanage_member OpPermissionManageMember  成员与权限;管理成员与权限\nmanage_push_rule OpPermissionPushRule  推送规则;管理推送规则\nmanage_audit_sql_white_list OpPermissionMangeAuditSQLWhiteList  审核SQL例外;管理审核SQL例外\nmanage_sql_mange_white_list OpPermissionManageSQLMangeWhiteList  管控SQL例外;管理管控SQL例外\nmanage_role_mange OpPermissionManageRoleMange  角色管理;角色管理权限\ndesensitization OpPermissionDesensitization  脱敏规则;脱敏规则配置权限\nnone OpPermissionTypeNone  无任何权限",
+          "description": "op permission type\nunknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nglobal_view OpPermissionTypeGlobalView  项目管理；拥有该权限的用户可以管理项目下的所有资源\nglobal_management OpPermissionTypeGlobalManagement  全局浏览；拥有该权限的用户可以浏览全局的资源\nproject_admin OpPermissionTypeProjectAdmin  全局管理；拥有该权限的用户可以浏览和管理全局的资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  账号管理；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nview_sql_insight OpPermissionTypeViewSQLInsight  查看SQL洞察权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单\ncreate_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优\nview_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优\ncreate_pipeline OpPermissionTypeCreatePipeline  配置流水线\nview_operation_record OpPermissionViewOperationRecord  SQL工作台;查看所有操作记录\nview_export_task OpPermissionViewExportTask  数据导出;查看所有导出任务\nview_quick_audit_record OpPermissionViewQuickAuditRecord  快捷审核;查看所有快捷审核记录\nview_ide_audit_record OpPermissionViewIDEAuditRecord  IDE审核;查看所有IDE审核记录\nview_optimization_record OpPermissionViewOptimizationRecord  SQL优化;查看所有优化记录\nview_version_manage OpPermissionViewVersionManage  版本管理;查看他人创建的版本记录\nversion_manage OpPermissionVersionManage  版本管理;配置版本\nview_pipeline OpPermissionViewPipeline  CI/CD集成;查看所有流水线\nmanage_project_data_source OpPermissionManageProjectDataSource  数据源管理;管理项目数据源管理\nmanage_audit_rule_template OpPermissionManageAuditRuleTemplate  审核规则模版;管理审核规则模版\nmanage_approval_template OpPermissionManageApprovalTemplate  审批流程模版;管理审批流程模版\nmanage_member OpPermissionManageMember  成员与权限;管理成员与权限\nmanage_push_rule OpPermissionPushRule  推送规则;管理推送规则\nmanage_audit_sql_white_list OpPermissionMangeAuditSQLWhiteList  审核SQL例外;管理审核SQL例外\nmanage_sql_mange_white_list OpPermissionManageSQLMangeWhiteList  管控SQL例外;管理管控SQL例外\nmanage_role_mange OpPermissionManageRoleMange  角色管理;角色管理权限\ndesensitization OpPermissionDesensitization  脱敏规则;脱敏规则配置权限\nmasking_audit OpPermissionMaskingAudit  脱敏审核;拥有该权限的用户可以查看和处理脱敏审批请求\nnone OpPermissionTypeNone  无任何权限",
           "type": "string",
           "enum": [
             "unknown",
@@ -12886,9 +14408,10 @@
             "manage_sql_mange_white_list",
             "manage_role_mange",
             "desensitization",
+            "masking_audit",
             "none"
           ],
-          "x-go-enum-desc": "unknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nglobal_view OpPermissionTypeGlobalView  项目管理；拥有该权限的用户可以管理项目下的所有资源\nglobal_management OpPermissionTypeGlobalManagement  全局浏览；拥有该权限的用户可以浏览全局的资源\nproject_admin OpPermissionTypeProjectAdmin  全局管理；拥有该权限的用户可以浏览和管理全局的资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  账号管理；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nview_sql_insight OpPermissionTypeViewSQLInsight  查看SQL洞察权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单\ncreate_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优\nview_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优\ncreate_pipeline OpPermissionTypeCreatePipeline  配置流水线\nview_operation_record OpPermissionViewOperationRecord  SQL工作台;查看所有操作记录\nview_export_task OpPermissionViewExportTask  数据导出;查看所有导出任务\nview_quick_audit_record OpPermissionViewQuickAuditRecord  快捷审核;查看所有快捷审核记录\nview_ide_audit_record OpPermissionViewIDEAuditRecord  IDE审核;查看所有IDE审核记录\nview_optimization_record OpPermissionViewOptimizationRecord  SQL优化;查看所有优化记录\nview_version_manage OpPermissionViewVersionManage  版本管理;查看他人创建的版本记录\nversion_manage OpPermissionVersionManage  版本管理;配置版本\nview_pipeline OpPermissionViewPipeline  CI/CD集成;查看所有流水线\nmanage_project_data_source OpPermissionManageProjectDataSource  数据源管理;管理项目数据源管理\nmanage_audit_rule_template OpPermissionManageAuditRuleTemplate  审核规则模版;管理审核规则模版\nmanage_approval_template OpPermissionManageApprovalTemplate  审批流程模版;管理审批流程模版\nmanage_member OpPermissionManageMember  成员与权限;管理成员与权限\nmanage_push_rule OpPermissionPushRule  推送规则;管理推送规则\nmanage_audit_sql_white_list OpPermissionMangeAuditSQLWhiteList  审核SQL例外;管理审核SQL例外\nmanage_sql_mange_white_list OpPermissionManageSQLMangeWhiteList  管控SQL例外;管理管控SQL例外\nmanage_role_mange OpPermissionManageRoleMange  角色管理;角色管理权限\ndesensitization OpPermissionDesensitization  脱敏规则;脱敏规则配置权限\nnone OpPermissionTypeNone  无任何权限",
+          "x-go-enum-desc": "unknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nglobal_view OpPermissionTypeGlobalView  项目管理；拥有该权限的用户可以管理项目下的所有资源\nglobal_management OpPermissionTypeGlobalManagement  全局浏览；拥有该权限的用户可以浏览全局的资源\nproject_admin OpPermissionTypeProjectAdmin  全局管理；拥有该权限的用户可以浏览和管理全局的资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  账号管理；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nview_sql_insight OpPermissionTypeViewSQLInsight  查看SQL洞察权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单\ncreate_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优\nview_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优\ncreate_pipeline OpPermissionTypeCreatePipeline  配置流水线\nview_operation_record OpPermissionViewOperationRecord  SQL工作台;查看所有操作记录\nview_export_task OpPermissionViewExportTask  数据导出;查看所有导出任务\nview_quick_audit_record OpPermissionViewQuickAuditRecord  快捷审核;查看所有快捷审核记录\nview_ide_audit_record OpPermissionViewIDEAuditRecord  IDE审核;查看所有IDE审核记录\nview_optimization_record OpPermissionViewOptimizationRecord  SQL优化;查看所有优化记录\nview_version_manage OpPermissionViewVersionManage  版本管理;查看他人创建的版本记录\nversion_manage OpPermissionVersionManage  版本管理;配置版本\nview_pipeline OpPermissionViewPipeline  CI/CD集成;查看所有流水线\nmanage_project_data_source OpPermissionManageProjectDataSource  数据源管理;管理项目数据源管理\nmanage_audit_rule_template OpPermissionManageAuditRuleTemplate  审核规则模版;管理审核规则模版\nmanage_approval_template OpPermissionManageApprovalTemplate  审批流程模版;管理审批流程模版\nmanage_member OpPermissionManageMember  成员与权限;管理成员与权限\nmanage_push_rule OpPermissionPushRule  推送规则;管理推送规则\nmanage_audit_sql_white_list OpPermissionMangeAuditSQLWhiteList  审核SQL例外;管理审核SQL例外\nmanage_sql_mange_white_list OpPermissionManageSQLMangeWhiteList  管控SQL例外;管理管控SQL例外\nmanage_role_mange OpPermissionManageRoleMange  角色管理;角色管理权限\ndesensitization OpPermissionDesensitization  脱敏规则;脱敏规则配置权限\nmasking_audit OpPermissionMaskingAudit  脱敏审核;拥有该权限的用户可以查看和处理脱敏审批请求\nnone OpPermissionTypeNone  无任何权限",
           "x-go-name": "OpPermissionType"
         },
         "range_type": {
@@ -13084,6 +14607,43 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/params"
     },
+    "PendingApprovalRequestData": {
+      "type": "object",
+      "properties": {
+        "applicant_name": {
+          "description": "applicant name",
+          "type": "string",
+          "x-go-name": "ApplicantName",
+          "example": "\"admin\""
+        },
+        "applied_at": {
+          "description": "application time in RFC3339 format\nFormat: date-time (RFC3339)",
+          "type": "string",
+          "x-go-name": "AppliedAt",
+          "example": "\"2024-01-15T10:30:00Z\""
+        },
+        "data_scope": {
+          "description": "data scope",
+          "type": "string",
+          "x-go-name": "DataScope",
+          "example": "\"database 'db1', table 'users'\""
+        },
+        "id": {
+          "description": "approval request id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID",
+          "example": 1
+        },
+        "reason": {
+          "description": "application reason",
+          "type": "string",
+          "x-go-name": "Reason",
+          "example": "\"data analysis\""
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "PersonalizationReq": {
       "type": "object",
       "properties": {
@@ -13215,6 +14775,55 @@
       },
       "x-go-name": "PreviewImportProjects",
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
+    "ProcessApprovalRequestReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ProcessApprovalRequestReq": {
+      "type": "object",
+      "required": [
+        "action"
+      ],
+      "properties": {
+        "action": {
+          "description": "process action\nAPPROVE ApprovalActionApprove\nREJECT ApprovalActionReject",
+          "type": "string",
+          "enum": [
+            "APPROVE",
+            "REJECT"
+          ],
+          "x-go-enum-desc": "APPROVE ApprovalActionApprove\nREJECT ApprovalActionReject",
+          "x-go-name": "Action",
+          "example": "\"APPROVE\""
+        },
+        "approve_remark": {
+          "description": "approval remark, optional when action is APPROVE",
+          "type": "string",
+          "x-go-name": "ApproveRemark",
+          "example": "\"approved for one-time access\""
+        },
+        "reject_reason": {
+          "description": "reject reason, required when action is REJECT",
+          "type": "string",
+          "x-go-name": "RejectReason",
+          "example": "\"insufficient reason\""
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ProjectInfo": {
       "type": "object",
@@ -13925,6 +15534,85 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "SensitiveFieldScanResult": {
+      "type": "object",
+      "properties": {
+        "confidence": {
+          "description": "confidence level\nHIGH ConfidenceHigh\nMEDIUM ConfidenceMedium\nLOW ConfidenceLow",
+          "type": "string",
+          "enum": [
+            "HIGH",
+            "MEDIUM",
+            "LOW"
+          ],
+          "x-go-enum-desc": "HIGH ConfidenceHigh\nMEDIUM ConfidenceMedium\nLOW ConfidenceLow",
+          "x-go-name": "Confidence",
+          "example": "\"High\""
+        },
+        "recommended_masking_rule_id": {
+          "description": "recommended masking rule id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RecommendedMaskingRuleID",
+          "example": 1
+        },
+        "recommended_masking_rule_name": {
+          "description": "recommended masking rule name",
+          "type": "string",
+          "x-go-name": "RecommendedMaskingRuleName",
+          "example": "\"Email Masking\""
+        },
+        "scan_info": {
+          "description": "scan information for the field",
+          "type": "string",
+          "x-go-name": "ScanInfo",
+          "example": "\"matched by field name 'email'\""
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "SuspectedSensitiveDatabaseNode": {
+      "type": "object",
+      "properties": {
+        "tables": {
+          "description": "table_name -\u003e table node",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/SuspectedSensitiveTableNode"
+          },
+          "x-go-name": "Tables"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "SuspectedSensitiveFieldsTree": {
+      "type": "object",
+      "properties": {
+        "databases": {
+          "description": "database_name -\u003e database node",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/SuspectedSensitiveDatabaseNode"
+          },
+          "x-go-name": "Databases"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "SuspectedSensitiveTableNode": {
+      "type": "object",
+      "properties": {
+        "fields": {
+          "description": "field_name -\u003e scan result",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/SensitiveFieldScanResult"
+          },
+          "x-go-name": "Fields"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "SyncGatewayReq": {
       "type": "object",
       "properties": {
@@ -13971,6 +15659,54 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "TableColumnMaskingDetail": {
+      "type": "object",
+      "properties": {
+        "column_name": {
+          "description": "column name",
+          "type": "string",
+          "x-go-name": "ColumnName",
+          "example": "\"email\""
+        },
+        "confidence": {
+          "description": "confidence level of masking recommendation，null if no masking rule is applied\nHIGH ConfidenceHigh\nMEDIUM ConfidenceMedium\nLOW ConfidenceLow",
+          "type": "string",
+          "enum": [
+            "HIGH",
+            "MEDIUM",
+            "LOW"
+          ],
+          "x-go-enum-desc": "HIGH ConfidenceHigh\nMEDIUM ConfidenceMedium\nLOW ConfidenceLow",
+          "x-go-name": "Confidence",
+          "example": "2"
+        },
+        "masking_rule_id": {
+          "description": "current masking rule id, null if no masking rule is applied",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "MaskingRuleID",
+          "example": 1
+        },
+        "masking_rule_name": {
+          "description": "current masking rule name, null if no masking rule is applied",
+          "type": "string",
+          "x-go-name": "MaskingRuleName",
+          "example": "\"Email Masking\""
+        },
+        "status": {
+          "description": "current masking config status\nCONFIGURED MaskingConfigStatusConfigured\nPENDING_CONFIRM MaskingConfigStatusPendingConfirm\nSYSTEM_CONFIRMED MaskingConfigStatusSystemConfirmed",
+          "type": "string",
+          "enum": [
+            "CONFIGURED",
+            "PENDING_CONFIRM",
+            "SYSTEM_CONFIRMED"
+          ],
+          "x-go-enum-desc": "CONFIGURED MaskingConfigStatusConfigured\nPENDING_CONFIRM MaskingConfigStatusPendingConfirm\nSYSTEM_CONFIRMED MaskingConfigStatusSystemConfirmed",
+          "x-go-name": "Status"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "Task": {
       "type": "object",
@@ -14460,11 +16196,6 @@
           "type": "string",
           "x-go-name": "Host"
         },
-        "is_enable_masking": {
-          "description": "data masking switch",
-          "type": "boolean",
-          "x-go-name": "IsEnableMasking"
-        },
         "maintenance_times": {
           "description": "DB Service maintenance time",
           "type": "array",
@@ -14601,11 +16332,6 @@
           "type": "string",
           "x-go-name": "Host"
         },
-        "is_enable_masking": {
-          "description": "data masking switch",
-          "type": "boolean",
-          "x-go-name": "IsEnableMasking"
-        },
         "maintenance_times": {
           "description": "DB Service maintenance time",
           "type": "array",
@@ -14731,6 +16457,58 @@
       "properties": {
         "login": {
           "$ref": "#/definitions/LoginConfiguration"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateMaskingTemplate": {
+      "type": "object",
+      "required": [
+        "rule_ids"
+      ],
+      "properties": {
+        "rule_ids": {
+          "description": "masking rule id list",
+          "type": "array",
+          "minLength": 1,
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "x-go-name": "RuleIDs",
+          "example": [
+            1,
+            2
+          ]
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateMaskingTemplateReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateMaskingTemplateReq": {
+      "type": "object",
+      "required": [
+        "masking_template"
+      ],
+      "properties": {
+        "masking_template": {
+          "$ref": "#/definitions/UpdateMaskingTemplate"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -14968,6 +16746,99 @@
       "properties": {
         "smtp_configuration": {
           "$ref": "#/definitions/UpdateSMTPConfiguration"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateSensitiveDataDiscoveryTask": {
+      "type": "object",
+      "required": [
+        "masking_template_id",
+        "identification_method",
+        "execution_plan"
+      ],
+      "properties": {
+        "cron_expression": {
+          "description": "cron expression, required when execution_plan is PERIODIC",
+          "type": "string",
+          "x-go-name": "CronExpression",
+          "example": "\"0 0 * * *\""
+        },
+        "execution_plan": {
+          "description": "execution plan\nPERIODIC SensitiveDataDiscoveryTaskTypePeriodic\nONE_TIME SensitiveDataDiscoveryTaskTypeOneTime",
+          "type": "string",
+          "enum": [
+            "PERIODIC",
+            "ONE_TIME"
+          ],
+          "x-go-enum-desc": "PERIODIC SensitiveDataDiscoveryTaskTypePeriodic\nONE_TIME SensitiveDataDiscoveryTaskTypeOneTime",
+          "x-go-name": "ExecutionPlan",
+          "example": "\"PERIODIC\""
+        },
+        "identification_method": {
+          "description": "sensitive data identification method\nBY_FIELD_NAME SensitiveDataIdentificationMethodByFieldName\nBY_SAMPLE_DATA SensitiveDataIdentificationMethodBySampleData",
+          "type": "string",
+          "enum": [
+            "BY_FIELD_NAME",
+            "BY_SAMPLE_DATA"
+          ],
+          "x-go-enum-desc": "BY_FIELD_NAME SensitiveDataIdentificationMethodByFieldName\nBY_SAMPLE_DATA SensitiveDataIdentificationMethodBySampleData",
+          "x-go-name": "IdentificationMethod",
+          "example": "\"BY_FIELD_NAME\""
+        },
+        "is_periodic_scan_enabled": {
+          "description": "whether periodic scanning is enabled",
+          "type": "boolean",
+          "x-go-name": "IsPeriodicScanEnabled",
+          "example": true
+        },
+        "masking_template_id": {
+          "description": "masking template id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "MaskingTemplateID",
+          "example": 1
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateSensitiveDataDiscoveryTaskData": {
+      "type": "object",
+      "properties": {
+        "suspected_sensitive_fields_tree": {
+          "$ref": "#/definitions/SuspectedSensitiveFieldsTree"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateSensitiveDataDiscoveryTaskReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/UpdateSensitiveDataDiscoveryTaskData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateSensitiveDataDiscoveryTaskReq": {
+      "type": "object",
+      "required": [
+        "task"
+      ],
+      "properties": {
+        "task": {
+          "$ref": "#/definitions/UpdateSensitiveDataDiscoveryTask"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
