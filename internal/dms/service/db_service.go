@@ -61,10 +61,6 @@ func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV2.UpdateDBSer
 		AdditionalParams:  additionalParams,
 	}
 
-	if biz.IsDMS() {
-		args.IsMaskingSwitch = req.DBService.IsEnableMasking
-	}
-
 	sqleConfig := req.DBService.SQLEConfig
 	if sqleConfig != nil {
 		args.AuditEnabled = sqleConfig.AuditEnabled
@@ -264,10 +260,6 @@ func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceRe
 		BackupMaxRows:     autoChooseBackupMaxRows(req.DBService.EnableBackup, req.DBService.BackupMaxRows),
 	}
 
-	if biz.IsDMS() {
-		args.IsMaskingSwitch = req.DBService.IsEnableMasking
-	}
-
 	sqleConfig := req.DBService.SQLEConfig
 	if sqleConfig != nil {
 		args.AuditEnabled = sqleConfig.AuditEnabled
@@ -321,10 +313,6 @@ func (d *DMSService) AddDBServiceV2(ctx context.Context, req *dmsV2.AddDBService
 		AdditionalParams:  additionalParams,
 		EnableBackup:      req.DBService.EnableBackup,
 		BackupMaxRows:     autoChooseBackupMaxRows(req.DBService.EnableBackup, req.DBService.BackupMaxRows),
-	}
-
-	if biz.IsDMS() {
-		args.IsMaskingSwitch = req.DBService.IsEnableMasking
 	}
 
 	sqleConfig := req.DBService.SQLEConfig
@@ -435,7 +423,6 @@ func (d *DMSService) convertBizDBServiceArgs2ImportDBService(dbs []*biz.BizDBSer
 				SQLQueryConfig:             nil,
 			},
 			AdditionalParams:   nil,
-			IsEnableMasking:    false,
 			EnvironmentTagName: u.EnvironmentTagName,
 		}
 
@@ -478,7 +465,6 @@ func (d *DMSService) convertImportDBService2BizDBService(ctx context.Context, im
 			MaintenancePeriod: d.convertMaintenanceTimeToPeriod(u.MaintenanceTimes),
 			Source:            u.Source,
 			SQLEConfig:        nil,
-			IsMaskingSwitch:   u.IsEnableMasking,
 			AccountPurpose:    "",
 		}
 		tag, err := d.EnvironmentTagUsecase.GetOrCreateEnvironmentTag(ctx, u.ProjectUID, u.EnvironmentTagName)
@@ -551,14 +537,6 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV2.ListDB
 			Field:    string(biz.DBServiceFieldUID),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.FilterByUID,
-		})
-	}
-
-	if biz.IsDMS() && req.IsEnableMasking != nil {
-		andConditions = append(andConditions, pkgConst.FilterCondition{
-			Field:    string(biz.DBServiceFieldIsEnableMasking),
-			Operator: pkgConst.FilterOperatorEqual,
-			Value:    *req.IsEnableMasking,
 		})
 	}
 
@@ -648,6 +626,15 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV2.ListDB
 		return nil, err
 	}
 
+	var dbServiceUids []string
+	for _, u := range service {
+		dbServiceUids = append(dbServiceUids, u.UID)
+	}
+	maskingTaskStatusMap := make(map[string]bool)
+	if d.DataMaskingUsecase != nil && d.DataMaskingUsecase.DiscoveryTaskUsecase != nil {
+		maskingTaskStatusMap, _ = d.DataMaskingUsecase.DiscoveryTaskUsecase.ListMaskingTaskStatus(ctx, dbServiceUids)
+	}
+
 	ret := make([]*dmsCommonV2.ListDBService, len(service))
 	for i, u := range service {
 		password, err := pkgAes.AesEncrypt(u.Password)
@@ -667,7 +654,7 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV2.ListDB
 			Desc:                u.Desc,
 			Source:              u.Source,
 			ProjectUID:          u.ProjectUID,
-			IsEnableMasking:     u.IsMaskingSwitch,
+			IsEnableMasking:     maskingTaskStatusMap[u.UID],
 			InstanceAuditPlanID: u.InstanceAuditPlanID,
 			AuditPlanTypes:      u.AuditPlanTypes,
 			EnableBackup:        u.EnableBackup,

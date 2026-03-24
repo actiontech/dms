@@ -71,8 +71,7 @@ type DBService struct {
 	LastConnectionErrorMsg *string               `json:"last_connection_error_msg"`
 
 	// sqle config
-	SQLEConfig      *SQLEConfig `json:"sqle_config"`
-	IsMaskingSwitch bool        `json:"is_masking_switch"`
+	SQLEConfig *SQLEConfig `json:"sqle_config"`
 	// PROV config
 	AccountPurpose string `json:"account_purpose"`
 	// audit plan types
@@ -132,7 +131,6 @@ func newDBService(args *BizDBServiceArgs) (*DBService, error) {
 		Source:            args.Source,
 		MaintenancePeriod: args.MaintenancePeriod,
 		SQLEConfig:        &SQLEConfig{},
-		IsMaskingSwitch:   args.IsMaskingSwitch,
 		EnableBackup:      args.EnableBackup,
 		BackupMaxRows:     args.BackupMaxRows,
 	}
@@ -173,8 +171,14 @@ type DBServiceRepo interface {
 	GetFieldDistinctValue(ctx context.Context, field DBServiceField, results interface{}) error
 }
 
+type MaskingTaskRepo interface {
+	CheckMaskingTaskExist(ctx context.Context, dbServiceUID string) (bool, error)
+	ListMaskingTaskStatus(ctx context.Context, dbServiceUIDs []string) (map[string]bool, error)
+}
+
 type DBServiceUsecase struct {
 	repo                      DBServiceRepo
+	maskingTaskRepo           MaskingTaskRepo
 	dmsProxyTargetRepo        ProxyTargetRepo
 	pluginUsecase             *PluginUsecase
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
@@ -183,10 +187,11 @@ type DBServiceUsecase struct {
 	log                       *utilLog.Helper
 }
 
-func NewDBServiceUsecase(log utilLog.Logger, repo DBServiceRepo, pluginUsecase *PluginUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase,
+func NewDBServiceUsecase(log utilLog.Logger, repo DBServiceRepo, maskingTaskRepo MaskingTaskRepo, pluginUsecase *PluginUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase,
 	projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, environmentTagUsecase *EnvironmentTagUsecase) *DBServiceUsecase {
 	return &DBServiceUsecase{
 		repo:                      repo,
+		maskingTaskRepo:           maskingTaskRepo,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 		pluginUsecase:             pluginUsecase,
 		projectUsecase:            projectUsecase,
@@ -217,7 +222,6 @@ type BizDBServiceArgs struct {
 	DataExportRuleTemplateName string
 	DataExportRuleTemplateID   string
 	SQLQueryConfig             *SQLQueryConfig
-	IsMaskingSwitch            bool
 	EnableBackup               bool
 	BackupMaxRows              uint64
 }
@@ -721,7 +725,6 @@ func (d *DBServiceUsecase) UpdateDBServiceByArgs(ctx context.Context, dbServiceU
 		ds.User = updateDBService.User
 		ds.AdditionalParams = updateDBService.AdditionalParams
 		ds.MaintenancePeriod = updateDBService.MaintenancePeriod
-		ds.IsMaskingSwitch = updateDBService.IsMaskingSwitch
 		ds.EnableBackup = updateDBService.EnableBackup
 		ds.BackupMaxRows = updateDBService.BackupMaxRows
 		ds.SQLEConfig = &SQLEConfig{}
