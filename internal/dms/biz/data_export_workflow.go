@@ -124,6 +124,7 @@ type DataExportWorkflowUsecase struct {
 	repo                      WorkflowRepo
 	dbServiceRepo             DBServiceRepo
 	dataExportTaskRepo        DataExportTaskRepo
+	maskingConfigRepo         DataExportMaskingConfigRepo
 	dmsProxyTargetRepo        ProxyTargetRepo
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	projectUsecase            *ProjectUsecase
@@ -131,15 +132,17 @@ type DataExportWorkflowUsecase struct {
 	webhookUsecase            *WebHookConfigurationUsecase
 	userUsecase               *UserUsecase
 	systemVariableUsecase     *SystemVariableUsecase
+	maskingTaskRepo           MaskingTaskRepo
 	log                       *utilLog.Helper
 	reportHost                string
 }
 
-func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator, repo WorkflowRepo, dataExportTaskRepo DataExportTaskRepo, dbServiceRepo DBServiceRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, clusterUseCase *ClusterUsecase, webhookUsecase *WebHookConfigurationUsecase, userUsecase *UserUsecase, systemVariableUsecase *SystemVariableUsecase, reportHost string) *DataExportWorkflowUsecase {
+func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator, repo WorkflowRepo, dataExportTaskRepo DataExportTaskRepo, dbServiceRepo DBServiceRepo, maskingConfigRepo DataExportMaskingConfigRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, clusterUseCase *ClusterUsecase, webhookUsecase *WebHookConfigurationUsecase, userUsecase *UserUsecase, systemVariableUsecase *SystemVariableUsecase, maskingTaskRepo MaskingTaskRepo, reportHost string) *DataExportWorkflowUsecase {
 	return &DataExportWorkflowUsecase{
 		tx:                        tx,
 		repo:                      repo,
 		dbServiceRepo:             dbServiceRepo,
+		maskingConfigRepo:         maskingConfigRepo,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 		projectUsecase:            projectUsecase,
 		dmsProxyTargetRepo:        proxyTargetRepo,
@@ -148,6 +151,7 @@ func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator
 		webhookUsecase:            webhookUsecase,
 		userUsecase:               userUsecase,
 		systemVariableUsecase:     systemVariableUsecase,
+		maskingTaskRepo:           maskingTaskRepo,
 		log:                       utilLog.NewHelper(logger, utilLog.WithMessageKey("biz.dataExportWorkflow")),
 		reportHost:                reportHost,
 	}
