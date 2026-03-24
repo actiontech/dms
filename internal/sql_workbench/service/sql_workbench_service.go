@@ -163,7 +163,8 @@ func NewAndInitSqlWorkbenchService(logger utilLog.Logger, opts *conf.DMSOptions)
 	dbServiceRepo := storage.NewDBServiceRepo(logger, st)
 	environmentTagUsecase = *biz.NewEnvironmentTagUsecase(storage.NewEnvironmentTagRepo(logger, st), logger, projectUsecase, opPermissionVerifyUsecase)
 	proxyTargetRepo := storage.NewProxyTargetRepo(logger, st)
-	dbServiceUsecase := biz.NewDBServiceUsecase(logger, dbServiceRepo, pluginUsecase, opPermissionVerifyUsecase, projectUsecase, proxyTargetRepo, &environmentTagUsecase)
+	discoveryTaskRepo := storage.NewSensitiveDataDiscoveryTaskRepo(logger, st)
+	dbServiceUsecase := biz.NewDBServiceUsecase(logger, dbServiceRepo, discoveryTaskRepo, pluginUsecase, opPermissionVerifyUsecase, projectUsecase, proxyTargetRepo, &environmentTagUsecase)
 
 	// 初始化SqlWorkbench相关的存储层
 	sqlWorkbenchUserRepo := storage.NewSqlWorkbenchRepo(logger, st)
