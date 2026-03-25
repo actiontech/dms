@@ -2068,7 +2068,7 @@ definitions:
                 type: array
                 x-go-name: Users
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GetMemberGroupReply:
         properties:
             code:
@@ -2083,7 +2083,7 @@ definitions:
                 type: string
                 x-go-name: Message
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GetOauth2ConfigurationResData:
         properties:
             access_token_tag:
@@ -4698,12 +4698,14 @@ definitions:
                     COMPLETED SensitiveDataDiscoveryTaskStatusCompleted
                     RUNNING SensitiveDataDiscoveryTaskStatusRunning
                     FAILED SensitiveDataDiscoveryTaskStatusFailed
+                    STOPPED SensitiveDataDiscoveryTaskStatusStopped
                 enum:
                     - PENDING_CONFIRM
                     - NORMAL
                     - COMPLETED
                     - RUNNING
                     - FAILED
+                    - STOPPED
                 example: '"NORMAL"'
                 type: string
                 x-go-enum-desc: |-
@@ -4712,6 +4714,7 @@ definitions:
                     COMPLETED SensitiveDataDiscoveryTaskStatusCompleted
                     RUNNING SensitiveDataDiscoveryTaskStatusRunning
                     FAILED SensitiveDataDiscoveryTaskStatusFailed
+                    STOPPED SensitiveDataDiscoveryTaskStatusStopped
                 x-go-name: Status
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
@@ -4832,12 +4835,14 @@ definitions:
                     COMPLETED SensitiveDataDiscoveryTaskStatusCompleted
                     RUNNING SensitiveDataDiscoveryTaskStatusRunning
                     FAILED SensitiveDataDiscoveryTaskStatusFailed
+                    STOPPED SensitiveDataDiscoveryTaskStatusStopped
                 enum:
                     - PENDING_CONFIRM
                     - NORMAL
                     - COMPLETED
                     - RUNNING
                     - FAILED
+                    - STOPPED
                 example: '"NORMAL"'
                 type: string
                 x-go-enum-desc: |-
@@ -4846,6 +4851,7 @@ definitions:
                     COMPLETED SensitiveDataDiscoveryTaskStatusCompleted
                     RUNNING SensitiveDataDiscoveryTaskStatusRunning
                     FAILED SensitiveDataDiscoveryTaskStatusFailed
+                    STOPPED SensitiveDataDiscoveryTaskStatusStopped
                 x-go-name: Status
             task_type:
                 description: |-
@@ -6852,7 +6858,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateBusinessTagReq:
         properties:
             business_tag:
