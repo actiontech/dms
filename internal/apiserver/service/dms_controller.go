@@ -333,11 +333,17 @@ func (ctl *DMSController) ListGlobalDBServices(c echo.Context) error {
 //	  200: body:ListGlobalDBServicesTipsReply
 //	  default: body:GenericResp
 func (ctl *DMSController) ListGlobalDBServicesTips(c echo.Context) error {
+	req := new(aV1.ListGlobalDBServicesTipsReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
 	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	reply, err := ctl.DMS.ListGlobalDBServicesTips(c.Request().Context(), currentUserUid)
+	reply, err := ctl.DMS.ListGlobalDBServicesTips(c.Request().Context(), req, currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}

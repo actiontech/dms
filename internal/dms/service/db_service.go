@@ -752,8 +752,8 @@ func (d *DMSService) ListGlobalDBServices(ctx context.Context, req *dmsV2.ListGl
 	return d.listGlobalDBServices(ctx, req, currentUserUid)
 }
 
-func (d *DMSService) ListGlobalDBServicesTips(ctx context.Context, currentUserUid string) (reply *dmsV1.ListGlobalDBServicesTipsReply, err error) {
-	return d.listGlobalDBServicesTips(ctx, currentUserUid)
+func (d *DMSService) ListGlobalDBServicesTips(ctx context.Context, req *dmsV1.ListGlobalDBServicesTipsReq, currentUserUid string) (reply *dmsV1.ListGlobalDBServicesTipsReply, err error) {
+	return d.listGlobalDBServicesTips(ctx, req, currentUserUid)
 }
 
 func (d *DMSService) ImportDBServicesOfOneProjectCheck(ctx context.Context, userUid, projectUid, fileContent string) (*dmsV2.ImportDBServicesCheckReply, []byte, error) {
