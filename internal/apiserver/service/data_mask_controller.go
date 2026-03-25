@@ -513,7 +513,12 @@ func (ctl *DMSController) ConfigureMaskingRules(c echo.Context) error {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
 
-	if err := ctl.DMS.ConfigureMaskingRules(c.Request().Context(), req); err != nil {
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	if err := ctl.DMS.ConfigureMaskingRules(c.Request().Context(), req, currentUserUid); err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 

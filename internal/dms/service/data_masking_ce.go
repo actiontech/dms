@@ -17,7 +17,7 @@ import (
 
 var errNotSupportDataMasking = errors.New("DataMasking related functions are dms version functions")
 
-func (d *DMSService) ConfigureMaskingRules(ctx context.Context, req *v1.ConfigureMaskingRulesReq) error {
+func (d *DMSService) ConfigureMaskingRules(ctx context.Context, req *v1.ConfigureMaskingRulesReq, currentUserUid string) error {
 	return errNotSupportDataMasking
 }
 
