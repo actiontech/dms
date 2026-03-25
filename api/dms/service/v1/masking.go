@@ -196,6 +196,7 @@ const (
 	SensitiveDataDiscoveryTaskStatusCompleted            SensitiveDataDiscoveryTaskStatus = "COMPLETED"
 	SensitiveDataDiscoveryTaskStatusRunning              SensitiveDataDiscoveryTaskStatus = "RUNNING"
 	SensitiveDataDiscoveryTaskStatusFailed               SensitiveDataDiscoveryTaskStatus = "FAILED"
+	SensitiveDataDiscoveryTaskStatusStopped              SensitiveDataDiscoveryTaskStatus = "STOPPED"
 )
 
 // swagger:model ListSensitiveDataDiscoveryTasksData

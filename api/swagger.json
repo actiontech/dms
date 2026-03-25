@@ -10382,7 +10382,7 @@
           "x-go-name": "Users"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "GetMemberGroupReply": {
       "type": "object",
@@ -10402,7 +10402,7 @@
           "x-go-name": "Message"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "GetOauth2ConfigurationResData": {
       "type": "object",
@@ -13650,16 +13650,17 @@
           "example": "\"scan completed successfully\""
         },
         "status": {
-          "description": "execution status\nPENDING_CONFIRM SensitiveDataDiscoveryTaskStatusPendingChangeConfirm\nNORMAL SensitiveDataDiscoveryTaskStatusNormal\nCOMPLETED SensitiveDataDiscoveryTaskStatusCompleted\nRUNNING SensitiveDataDiscoveryTaskStatusRunning\nFAILED SensitiveDataDiscoveryTaskStatusFailed",
+          "description": "execution status\nPENDING_CONFIRM SensitiveDataDiscoveryTaskStatusPendingChangeConfirm\nNORMAL SensitiveDataDiscoveryTaskStatusNormal\nCOMPLETED SensitiveDataDiscoveryTaskStatusCompleted\nRUNNING SensitiveDataDiscoveryTaskStatusRunning\nFAILED SensitiveDataDiscoveryTaskStatusFailed\nSTOPPED SensitiveDataDiscoveryTaskStatusStopped",
           "type": "string",
           "enum": [
             "PENDING_CONFIRM",
             "NORMAL",
             "COMPLETED",
             "RUNNING",
-            "FAILED"
+            "FAILED",
+            "STOPPED"
           ],
-          "x-go-enum-desc": "PENDING_CONFIRM SensitiveDataDiscoveryTaskStatusPendingChangeConfirm\nNORMAL SensitiveDataDiscoveryTaskStatusNormal\nCOMPLETED SensitiveDataDiscoveryTaskStatusCompleted\nRUNNING SensitiveDataDiscoveryTaskStatusRunning\nFAILED SensitiveDataDiscoveryTaskStatusFailed",
+          "x-go-enum-desc": "PENDING_CONFIRM SensitiveDataDiscoveryTaskStatusPendingChangeConfirm\nNORMAL SensitiveDataDiscoveryTaskStatusNormal\nCOMPLETED SensitiveDataDiscoveryTaskStatusCompleted\nRUNNING SensitiveDataDiscoveryTaskStatusRunning\nFAILED SensitiveDataDiscoveryTaskStatusFailed\nSTOPPED SensitiveDataDiscoveryTaskStatusStopped",
           "x-go-name": "Status",
           "example": "\"NORMAL\""
         }
@@ -13786,16 +13787,17 @@
           "example": "\"2024-01-15T10:30:00Z\""
         },
         "status": {
-          "description": "task status\nPENDING_CONFIRM SensitiveDataDiscoveryTaskStatusPendingChangeConfirm\nNORMAL SensitiveDataDiscoveryTaskStatusNormal\nCOMPLETED SensitiveDataDiscoveryTaskStatusCompleted\nRUNNING SensitiveDataDiscoveryTaskStatusRunning\nFAILED SensitiveDataDiscoveryTaskStatusFailed",
+          "description": "task status\nPENDING_CONFIRM SensitiveDataDiscoveryTaskStatusPendingChangeConfirm\nNORMAL SensitiveDataDiscoveryTaskStatusNormal\nCOMPLETED SensitiveDataDiscoveryTaskStatusCompleted\nRUNNING SensitiveDataDiscoveryTaskStatusRunning\nFAILED SensitiveDataDiscoveryTaskStatusFailed\nSTOPPED SensitiveDataDiscoveryTaskStatusStopped",
           "type": "string",
           "enum": [
             "PENDING_CONFIRM",
             "NORMAL",
             "COMPLETED",
             "RUNNING",
-            "FAILED"
+            "FAILED",
+            "STOPPED"
           ],
-          "x-go-enum-desc": "PENDING_CONFIRM SensitiveDataDiscoveryTaskStatusPendingChangeConfirm\nNORMAL SensitiveDataDiscoveryTaskStatusNormal\nCOMPLETED SensitiveDataDiscoveryTaskStatusCompleted\nRUNNING SensitiveDataDiscoveryTaskStatusRunning\nFAILED SensitiveDataDiscoveryTaskStatusFailed",
+          "x-go-enum-desc": "PENDING_CONFIRM SensitiveDataDiscoveryTaskStatusPendingChangeConfirm\nNORMAL SensitiveDataDiscoveryTaskStatusNormal\nCOMPLETED SensitiveDataDiscoveryTaskStatusCompleted\nRUNNING SensitiveDataDiscoveryTaskStatusRunning\nFAILED SensitiveDataDiscoveryTaskStatusFailed\nSTOPPED SensitiveDataDiscoveryTaskStatusStopped",
           "x-go-name": "Status",
           "example": "\"NORMAL\""
         },
@@ -16185,7 +16187,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateBusinessTagReq": {
       "type": "object",
