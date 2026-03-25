@@ -8,6 +8,7 @@ import (
 
 	v1 "github.com/actiontech/dms/api/dms/service/v1"
 	"github.com/actiontech/dms/internal/dms/biz"
+	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/dms/storage"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 
@@ -68,6 +69,10 @@ func (d *DMSService) DeleteMaskingTemplate(ctx context.Context, req *dmsV1.Delet
 	return errNotSupportDataMasking
 }
 
+func (d *DMSService) ListCreatableDBServicesForMaskingTask(ctx context.Context, req *v1.ListCreatableDBServicesForMaskingTaskReq, currentUserUid string) (*v1.ListCreatableDBServicesForMaskingTaskReply, error) {
+	return nil, errNotSupportDataMasking
+}
+
 func initDataMaskingUsecase(_ utilLog.Logger, _ *storage.Storage, _ *biz.DBServiceUsecase, _ *biz.ClusterUsecase, _ biz.ProxyTargetRepo) (*dataMaskingUsecase, func(), error) {
 	return nil, func() {}, nil
 }
@@ -78,6 +83,8 @@ func newCloudbeaverSQLResultMasker(_ utilLog.Logger, _ *storage.Storage, _ biz.P
 
 type dataMaskingDiscoveryTaskUsecase interface {
 	ListMaskingTaskStatus(ctx context.Context, dbServiceUIDs []string) (map[string]bool, error)
+	
+	GetSupportedDBTypesForDiscovery() []pkgConst.DBType
 }
 
 type dataMaskingUsecase struct {
@@ -86,4 +93,9 @@ type dataMaskingUsecase struct {
 
 func initDataExportMaskingConfigRepo(_ utilLog.Logger, _ *storage.Storage) biz.DataExportMaskingConfigRepo {
 	return nil
+}
+
+// registerFunctionProvidersToRegistry 在 CE 版本中为空实现
+func registerFunctionProvidersToRegistry(_ *biz.FunctionSupportRegistry, _ *dataMaskingUsecase) {
+	// CE 版本无功能提供者需要注册
 }

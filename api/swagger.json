@@ -1389,6 +1389,20 @@
           "DBService"
         ],
         "operationId": "ListGlobalDBServicesTips",
+        "parameters": [
+          {
+            "enum": [
+              "[data_masking]"
+            ],
+            "type": "string",
+            "example": "data_masking",
+            "x-go-enum-desc": "data_masking FunctionSupportTypeDataMasking  FunctionSupportTypeDataMasking 数据脱敏功能",
+            "x-go-name": "FunctionSupport",
+            "description": "function support filter, when specified, returns the db types supported by the function\ndata_masking FunctionSupportTypeDataMasking  FunctionSupportTypeDataMasking 数据脱敏功能",
+            "name": "function_support",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "ListGlobalDBServicesTipsReply",
@@ -4691,6 +4705,66 @@
             "description": "Add sensitive data discovery task successfully",
             "schema": {
               "$ref": "#/definitions/AddSensitiveDataDiscoveryTaskReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks/creatable-db-services": {
+      "get": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "List db services that can create sensitive data discovery task.",
+        "operationId": "ListCreatableDBServicesForMaskingTask",
+        "parameters": [
+          {
+            "type": "string",
+            "example": "\"project_uid\"",
+            "x-go-name": "ProjectUid",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "example": "100",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of db services to be returned, default is 100",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "example": "0",
+            "x-go-name": "PageIndex",
+            "description": "the offset of db services to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "example": "\"mysql\"",
+            "x-go-name": "Keywords",
+            "description": "fuzzy search keywords for db service name",
+            "name": "keywords",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List creatable db services for masking task successfully",
+            "schema": {
+              "$ref": "#/definitions/ListCreatableDBServicesForMaskingTaskReply"
             }
           },
           "default": {
@@ -10308,7 +10382,7 @@
           "x-go-name": "Users"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetMemberGroupReply": {
       "type": "object",
@@ -10328,7 +10402,7 @@
           "x-go-name": "Message"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetOauth2ConfigurationResData": {
       "type": "object",
@@ -11604,6 +11678,74 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "ListCreatableDBServicesForMaskingTaskData": {
+      "type": "object",
+      "properties": {
+        "db_service_host": {
+          "description": "database instance host",
+          "type": "string",
+          "x-go-name": "DBServiceHost",
+          "example": "\"10.10.10.10\""
+        },
+        "db_service_name": {
+          "description": "database instance name",
+          "type": "string",
+          "x-go-name": "DBServiceName",
+          "example": "\"mysql-01\""
+        },
+        "db_service_port": {
+          "description": "database instance port",
+          "type": "string",
+          "x-go-name": "DBServicePort",
+          "example": "\"3306\""
+        },
+        "db_service_uid": {
+          "description": "database instance uid",
+          "type": "string",
+          "x-go-name": "DBServiceUID",
+          "example": "\"db_service_uid_1\""
+        },
+        "db_type": {
+          "description": "database type",
+          "type": "string",
+          "x-go-name": "DBType",
+          "example": "\"MySQL\""
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListCreatableDBServicesForMaskingTaskReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "list of db services that can create masking discovery task",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListCreatableDBServicesForMaskingTaskData"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "description": "total count of db services",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total",
+          "example": 10
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "ListDBService": {
       "description": "A dms db Service",
       "type": "object",
@@ -12450,6 +12592,7 @@
       "type": "object",
       "properties": {
         "db_type": {
+          "description": "DBType 数据库类型列表\n当请求参数 function_support 为空时，返回所有数据库类型\n当请求参数 function_support 有效时，仅返回支持该功能的数据库类型",
           "type": "array",
           "items": {
             "type": "string"
@@ -16042,7 +16185,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateBusinessTagReq": {
       "type": "object",

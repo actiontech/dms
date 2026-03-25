@@ -43,6 +43,7 @@ type DMSService struct {
 	DataExportWorkflowUsecase   *biz.DataExportWorkflowUsecase
 	CbOperationLogUsecase       *biz.CbOperationLogUsecase
 	DataMaskingUsecase          *dataMaskingUsecase
+	FunctionSupportRegistry     *biz.FunctionSupportRegistry
 	AuthAccessTokenUseCase      *biz.AuthAccessTokenUsecase
 	SwaggerUseCase              *biz.SwaggerUseCase
 	GatewayUsecase              *biz.GatewayUsecase
@@ -157,6 +158,11 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		return nil, fmt.Errorf("failed to initialize data masking usecase: %v", err)
 	}
 
+	// 初始化功能支持注册中心
+	functionSupportRegistry := biz.NewFunctionSupportRegistry()
+	// 在 DMS 版本中注册功能提供者（通过条件编译函数）
+	registerFunctionProvidersToRegistry(functionSupportRegistry, dataMaskingUsecase)
+
 	authAccessTokenUsecase := biz.NewAuthAccessTokenUsecase(logger, userUsecase)
 
 	cronTask := biz.NewCronTaskUsecase(logger, DataExportWorkflowUsecase, CbOperationLogUsecase, operationRecordUsecase, oauth2SessionUsecase)
@@ -197,6 +203,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		DataExportWorkflowUsecase:   DataExportWorkflowUsecase,
 		CbOperationLogUsecase:       CbOperationLogUsecase,
 		DataMaskingUsecase:          dataMaskingUsecase,
+		FunctionSupportRegistry:     functionSupportRegistry,
 		AuthAccessTokenUseCase:      authAccessTokenUsecase,
 		SwaggerUseCase:              swaggerUseCase,
 		GatewayUsecase:              gatewayUsecase,

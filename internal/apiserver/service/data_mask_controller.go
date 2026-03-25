@@ -205,6 +205,62 @@ func (ctl *DMSController) DeleteMaskingTemplate(c echo.Context) error {
 	return NewOkRespWithReply(c, &aV1.DeleteMaskingTemplateReply{})
 }
 
+// swagger:operation GET /v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks/creatable-db-services Masking ListCreatableDBServicesForMaskingTask
+//
+// List db services that can create sensitive data discovery task.
+//
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project uid
+//     in: path
+//     required: true
+//     type: string
+//   - name: page_size
+//     description: the maximum count of db services to be returned, default is 100
+//     in: query
+//     required: false
+//     type: integer
+//     format: uint32
+//   - name: page_index
+//     description: the offset of db services to be returned, default is 0
+//     in: query
+//     required: false
+//     type: integer
+//     format: uint32
+//   - name: keywords
+//     description: fuzzy search keywords for db service name
+//     in: query
+//     required: false
+//     type: string
+//
+// responses:
+//   '200':
+//     description: List creatable db services for masking task successfully
+//     schema:
+//       "$ref": "#/definitions/ListCreatableDBServicesForMaskingTaskReply"
+//   default:
+//     description: Generic error response
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) ListCreatableDBServicesForMaskingTask(c echo.Context) error {
+	req := &aV1.ListCreatableDBServicesForMaskingTaskReq{}
+	if err := bindAndValidateReq(c, req); err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, err := ctl.DMS.ListCreatableDBServicesForMaskingTask(c.Request().Context(), req, currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
 // swagger:operation GET /v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks Masking ListSensitiveDataDiscoveryTasks
 //
 // List sensitive data discovery tasks.

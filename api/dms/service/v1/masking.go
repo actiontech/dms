@@ -784,3 +784,56 @@ type GetPlaintextAccessRequestDetailReply struct {
 
 	base.GenericResp
 }
+
+// swagger:parameters ListCreatableDBServicesForMaskingTask
+// 用于获取可以创建敏感数据扫描任务的数据源列表
+type ListCreatableDBServicesForMaskingTaskReq struct {
+	// project uid
+	// in: path
+	// Required: true
+	// Example: "project_uid"
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	// the maximum count of db services to be returned, default is 100
+	// in: query
+	// Example: 100
+	PageSize uint32 `query:"page_size" json:"page_size"`
+	// the offset of db services to be returned, default is 0
+	// in: query
+	// Example: 0
+	PageIndex uint32 `query:"page_index" json:"page_index"`
+	// fuzzy search keywords for db service name
+	// in: query
+	// Example: "mysql"
+	Keywords string `query:"keywords" json:"keywords"`
+}
+
+// swagger:model ListCreatableDBServicesForMaskingTaskData
+// 可创建扫描任务的数据源数据
+type ListCreatableDBServicesForMaskingTaskData struct {
+	// database instance uid
+	// Example: "db_service_uid_1"
+	DBServiceUID string `json:"db_service_uid"`
+	// database instance name
+	// Example: "mysql-01"
+	DBServiceName string `json:"db_service_name"`
+	// database type
+	// Example: "MySQL"
+	DBType string `json:"db_type"`
+	// database instance host
+	// Example: "10.10.10.10"
+	DBServiceHost string `json:"db_service_host"`
+	// database instance port
+	// Example: "3306"
+	DBServicePort string `json:"db_service_port"`
+}
+
+// swagger:model ListCreatableDBServicesForMaskingTaskReply
+type ListCreatableDBServicesForMaskingTaskReply struct {
+	// list of db services that can create masking discovery task
+	Data []ListCreatableDBServicesForMaskingTaskData `json:"data"`
+	// total count of db services
+	// Example: 10
+	Total int64 `json:"total_nums"`
+
+	base.GenericResp
+}
