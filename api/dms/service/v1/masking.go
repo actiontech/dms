@@ -361,6 +361,15 @@ type AddSensitiveDataDiscoveryTaskReply struct {
 	base.GenericResp
 }
 
+// swagger:enum SensitiveDataDiscoveryTaskAction
+type SensitiveDataDiscoveryTaskAction string
+
+const (
+	SensitiveDataDiscoveryTaskActionEnable    SensitiveDataDiscoveryTaskAction = "ENABLE"
+	SensitiveDataDiscoveryTaskActionTerminate SensitiveDataDiscoveryTaskAction = "TERMINATE"
+	SensitiveDataDiscoveryTaskActionUpdate    SensitiveDataDiscoveryTaskAction = "UPDATE"
+)
+
 // swagger:model UpdateSensitiveDataDiscoveryTaskReq
 type UpdateSensitiveDataDiscoveryTaskReq struct {
 	// project uid
@@ -375,29 +384,26 @@ type UpdateSensitiveDataDiscoveryTaskReq struct {
 	// Required: true
 	// Example: 1
 	TaskID int `param:"task_id" json:"task_id" validate:"required"`
-	// sensitive data discovery task
+	// action type: ENABLE(启用周期扫描), TERMINATE(终止周期扫描), UPDATE(更新配置)
 	// Required: true
-	Task *UpdateSensitiveDataDiscoveryTask `json:"task" validate:"required"`
+	// Example: "ENABLE"
+	Action SensitiveDataDiscoveryTaskAction `json:"action" validate:"required,oneof=ENABLE TERMINATE UPDATE"`
+	// task update data, required when action is UPDATE
+	Task *UpdateSensitiveDataDiscoveryTask `json:"task"`
 }
 
 // swagger:model UpdateSensitiveDataDiscoveryTask
 type UpdateSensitiveDataDiscoveryTask struct {
 	// masking template id
-	// Required: true
 	// Example: 1
 	MaskingTemplateID int `json:"masking_template_id"`
 	// sensitive data identification method
-	// Required: true
 	// Example: "BY_FIELD_NAME"
-	IdentificationMethod SensitiveDataIdentificationMethod `json:"identification_method" validate:"required,oneof=BY_FIELD_NAME BY_SAMPLE_DATA"`
+	IdentificationMethod SensitiveDataIdentificationMethod `json:"identification_method" validate:"oneof=BY_FIELD_NAME BY_SAMPLE_DATA"`
 	// execution plan
-	// Required: true
 	// Example: "PERIODIC"
-	ExecutionPlan SensitiveDataDiscoveryTaskType `json:"execution_plan" validate:"required,oneof=PERIODIC ONE_TIME"`
-	// whether periodic scanning is enabled
-	// Example: true
-	IsPeriodicScanEnabled *bool `json:"is_periodic_scan_enabled"`
-	// cron expression, required when execution_plan is PERIODIC
+	ExecutionPlan SensitiveDataDiscoveryTaskType `json:"execution_plan" validate:"oneof=PERIODIC ONE_TIME"`
+	// cron expression, only used when execution_plan is PERIODIC
 	// Example: "0 0 * * *"
 	CronExpression string `json:"cron_expression"`
 }
