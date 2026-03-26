@@ -2068,7 +2068,7 @@ definitions:
                 type: array
                 x-go-name: Users
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetMemberGroupReply:
         properties:
             code:
@@ -2083,7 +2083,7 @@ definitions:
                 type: string
                 x-go-name: Message
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetOauth2ConfigurationResData:
         properties:
             access_token_tag:
@@ -4252,6 +4252,14 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberRoleWithOpRange:
         properties:
+            member_group:
+                $ref: '#/definitions/ProjectMemberGroup'
+            op_permissions:
+                description: member op permissions
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: OpPermissions
             op_range_type:
                 description: |-
                     op permission range type, only support db service now
@@ -4280,7 +4288,7 @@ definitions:
             role_uid:
                 $ref: '#/definitions/UidWithName'
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberTipsItem:
         properties:
             user_id:
@@ -7411,7 +7419,7 @@ definitions:
     UpdateSensitiveDataDiscoveryTask:
         properties:
             cron_expression:
-                description: cron expression, required when execution_plan is PERIODIC
+                description: cron expression, only used when execution_plan is PERIODIC
                 example: '"0 0 * * *"'
                 type: string
                 x-go-name: CronExpression
@@ -7443,21 +7451,12 @@ definitions:
                     BY_FIELD_NAME SensitiveDataIdentificationMethodByFieldName
                     BY_SAMPLE_DATA SensitiveDataIdentificationMethodBySampleData
                 x-go-name: IdentificationMethod
-            is_periodic_scan_enabled:
-                description: whether periodic scanning is enabled
-                example: true
-                type: boolean
-                x-go-name: IsPeriodicScanEnabled
             masking_template_id:
                 description: masking template id
                 example: 1
                 format: int64
                 type: integer
                 x-go-name: MaskingTemplateID
-        required:
-            - masking_template_id
-            - identification_method
-            - execution_plan
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateSensitiveDataDiscoveryTaskData:
@@ -7483,10 +7482,27 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateSensitiveDataDiscoveryTaskReq:
         properties:
+            action:
+                description: |-
+                    action type: ENABLE(启用周期扫描), TERMINATE(终止周期扫描), UPDATE(更新配置)
+                    ENABLE SensitiveDataDiscoveryTaskActionEnable
+                    TERMINATE SensitiveDataDiscoveryTaskActionTerminate
+                    UPDATE SensitiveDataDiscoveryTaskActionUpdate
+                enum:
+                    - ENABLE
+                    - TERMINATE
+                    - UPDATE
+                example: '"ENABLE"'
+                type: string
+                x-go-enum-desc: |-
+                    ENABLE SensitiveDataDiscoveryTaskActionEnable
+                    TERMINATE SensitiveDataDiscoveryTaskActionTerminate
+                    UPDATE SensitiveDataDiscoveryTaskActionUpdate
+                x-go-name: Action
             task:
                 $ref: '#/definitions/UpdateSensitiveDataDiscoveryTask'
         required:
-            - task
+            - action
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateSmsConfiguration:
@@ -8895,7 +8911,7 @@ paths:
                     function support filter, when specified, returns the db types supported by the function
                     data_masking FunctionSupportTypeDataMasking  FunctionSupportTypeDataMasking 数据脱敏功能
                   enum:
-                    - '[data_masking]'
+                    - data_masking
                   example: data_masking
                   in: query
                   name: function_support

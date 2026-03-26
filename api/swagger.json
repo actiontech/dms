@@ -1392,7 +1392,7 @@
         "parameters": [
           {
             "enum": [
-              "[data_masking]"
+              "data_masking"
             ],
             "type": "string",
             "example": "data_masking",
@@ -10382,7 +10382,7 @@
           "x-go-name": "Users"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetMemberGroupReply": {
       "type": "object",
@@ -10402,7 +10402,7 @@
           "x-go-name": "Message"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetOauth2ConfigurationResData": {
       "type": "object",
@@ -13144,6 +13144,17 @@
     "ListMemberRoleWithOpRange": {
       "type": "object",
       "properties": {
+        "member_group": {
+          "$ref": "#/definitions/ProjectMemberGroup"
+        },
+        "op_permissions": {
+          "description": "member op permissions",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "OpPermissions"
+        },
         "op_range_type": {
           "description": "op permission range type, only support db service now\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "type": "string",
@@ -13168,7 +13179,7 @@
           "$ref": "#/definitions/UidWithName"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ListMemberTipsItem": {
       "type": "object",
@@ -16898,14 +16909,9 @@
     },
     "UpdateSensitiveDataDiscoveryTask": {
       "type": "object",
-      "required": [
-        "masking_template_id",
-        "identification_method",
-        "execution_plan"
-      ],
       "properties": {
         "cron_expression": {
-          "description": "cron expression, required when execution_plan is PERIODIC",
+          "description": "cron expression, only used when execution_plan is PERIODIC",
           "type": "string",
           "x-go-name": "CronExpression",
           "example": "\"0 0 * * *\""
@@ -16931,12 +16937,6 @@
           "x-go-enum-desc": "BY_FIELD_NAME SensitiveDataIdentificationMethodByFieldName\nBY_SAMPLE_DATA SensitiveDataIdentificationMethodBySampleData",
           "x-go-name": "IdentificationMethod",
           "example": "\"BY_FIELD_NAME\""
-        },
-        "is_periodic_scan_enabled": {
-          "description": "whether periodic scanning is enabled",
-          "type": "boolean",
-          "x-go-name": "IsPeriodicScanEnabled",
-          "example": true
         },
         "masking_template_id": {
           "description": "masking template id",
@@ -16980,9 +16980,21 @@
     "UpdateSensitiveDataDiscoveryTaskReq": {
       "type": "object",
       "required": [
-        "task"
+        "action"
       ],
       "properties": {
+        "action": {
+          "description": "action type: ENABLE(启用周期扫描), TERMINATE(终止周期扫描), UPDATE(更新配置)\nENABLE SensitiveDataDiscoveryTaskActionEnable\nTERMINATE SensitiveDataDiscoveryTaskActionTerminate\nUPDATE SensitiveDataDiscoveryTaskActionUpdate",
+          "type": "string",
+          "enum": [
+            "ENABLE",
+            "TERMINATE",
+            "UPDATE"
+          ],
+          "x-go-enum-desc": "ENABLE SensitiveDataDiscoveryTaskActionEnable\nTERMINATE SensitiveDataDiscoveryTaskActionTerminate\nUPDATE SensitiveDataDiscoveryTaskActionUpdate",
+          "x-go-name": "Action",
+          "example": "\"ENABLE\""
+        },
         "task": {
           "$ref": "#/definitions/UpdateSensitiveDataDiscoveryTask"
         }

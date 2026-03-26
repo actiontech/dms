@@ -454,7 +454,7 @@ const (
 type ListGlobalDBServicesTipsReq struct {
 	// function support filter, when specified, returns the db types supported by the function
 	// in: query
-	// enum: [data_masking]
+	// enum: data_masking
 	// Example: data_masking
 	FunctionSupport FunctionSupportType `query:"function_support" json:"function_support" validate:"omitempty,oneof=data_masking"`
 }
