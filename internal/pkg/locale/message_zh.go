@@ -195,6 +195,11 @@ var (
 	SqlWorkbenchAuditCallSQLEErr                 = &i18n.Message{ID: "SqlWorkbenchAuditCallSQLEErr", Other: "审核服务当前繁忙或不可用，请稍后重试。"}
 )
 
+// SQL Workbench Maintenance Time
+var (
+	SqlWorkbenchMaintenanceTimeBlocked = &i18n.Message{ID: "SqlWorkbenchMaintenanceTimeBlocked", Other: "当前处于非运维时间（运维时间：%s），禁止执行非查询类操作。请在运维时间内操作或提交上线工单。"}
+)
+
 // DB Service Sync Task
 var (
 	DBServiceSyncVersion = &i18n.Message{ID: "DBServiceSyncVersion", Other: "版本(支持DMP5.23.04.0及以上版本)"}
