@@ -10,7 +10,7 @@ import (
 )
 
 func (d *DMSService) AddDBServiceSyncTask(ctx context.Context, req *v1.AddDBServiceSyncTaskReq, currentUserId string) (reply *v1.AddDBServiceSyncTaskReply, err error) {
-	syncTask := toBizDBServiceSyncTask(&req.DBServiceSyncTask)
+	syncTask := d.toBizDBServiceSyncTask(&req.DBServiceSyncTask)
 
 	uid, err := d.DBServiceSyncTaskUsecase.AddDBServiceSyncTask(ctx, syncTask, currentUserId)
 	if err != nil {
@@ -24,7 +24,7 @@ func (d *DMSService) AddDBServiceSyncTask(ctx context.Context, req *v1.AddDBServ
 	}, nil
 }
 
-func toBizDBServiceSyncTask(syncTask *v1.DBServiceSyncTask) *biz.DBServiceSyncTask {
+func (d *DMSService) toBizDBServiceSyncTask(syncTask *v1.DBServiceSyncTask) *biz.DBServiceSyncTask {
 	ret := &biz.DBServiceSyncTask{
 		Name:            syncTask.Name,
 		Source:          syncTask.Source,
@@ -42,15 +42,7 @@ func toBizDBServiceSyncTask(syncTask *v1.DBServiceSyncTask) *biz.DBServiceSyncTa
 			DataExportRuleTemplateID:   syncTask.SQLEConfig.DataExportRuleTemplateID,
 		}
 		if syncTask.SQLEConfig.SQLQueryConfig != nil {
-			ret.SQLEConfig.SQLQueryConfig = &biz.SQLQueryConfig{
-				MaxPreQueryRows:                  syncTask.SQLEConfig.SQLQueryConfig.MaxPreQueryRows,
-				QueryTimeoutSecond:               syncTask.SQLEConfig.SQLQueryConfig.QueryTimeoutSecond,
-				AuditEnabled:                     syncTask.SQLEConfig.SQLQueryConfig.AuditEnabled,
-				WorkflowExecEnabled:              syncTask.SQLEConfig.SQLQueryConfig.WorkflowExecEnabled,
-				AllowQueryWhenLessThanAuditLevel: string(syncTask.SQLEConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel),
-				RuleTemplateID:                   syncTask.SQLEConfig.SQLQueryConfig.RuleTemplateID,
-				RuleTemplateName:                 syncTask.SQLEConfig.SQLQueryConfig.RuleTemplateName,
-			}
+			ret.SQLEConfig.SQLQueryConfig = d.bizSQLQueryConfigFromAPI(syncTask.SQLEConfig.SQLQueryConfig)
 		}
 	}
 	if syncTask.AdditionalParam != nil {
@@ -60,7 +52,7 @@ func toBizDBServiceSyncTask(syncTask *v1.DBServiceSyncTask) *biz.DBServiceSyncTa
 }
 
 func (svc *DMSService) UpdateDBServiceSyncTask(ctx context.Context, req *v1.UpdateDBServiceSyncTaskReq, currentUserId string) error {
-	syncTask := toBizDBServiceSyncTask(&req.DBServiceSyncTask)
+	syncTask := svc.toBizDBServiceSyncTask(&req.DBServiceSyncTask)
 	err := svc.DBServiceSyncTaskUsecase.UpdateDBServiceSyncTask(ctx, req.DBServiceSyncTaskUid, syncTask, currentUserId)
 	if err != nil {
 		return fmt.Errorf("update db_service_sync_task failed: %w", err)
@@ -115,13 +107,7 @@ func (d *DMSService) buildReplySqleConfig(params *biz.SQLEConfig) *dmsCommonV1.S
 		SQLQueryConfig:             &dmsCommonV1.SQLQueryConfig{},
 	}
 	if params.SQLQueryConfig != nil {
-		sqlConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel = dmsCommonV1.SQLAllowQueryAuditLevel(params.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel)
-		sqlConfig.SQLQueryConfig.AuditEnabled = params.SQLQueryConfig.AuditEnabled
-		sqlConfig.SQLQueryConfig.WorkflowExecEnabled = params.SQLQueryConfig.WorkflowExecEnabled
-		sqlConfig.SQLQueryConfig.MaxPreQueryRows = params.SQLQueryConfig.MaxPreQueryRows
-		sqlConfig.SQLQueryConfig.QueryTimeoutSecond = params.SQLQueryConfig.QueryTimeoutSecond
-		sqlConfig.SQLQueryConfig.RuleTemplateID = params.SQLQueryConfig.RuleTemplateID
-		sqlConfig.SQLQueryConfig.RuleTemplateName = params.SQLQueryConfig.RuleTemplateName
+		d.fillAPISQLQueryConfig(sqlConfig.SQLQueryConfig, params.SQLQueryConfig)
 	}
 
 	return sqlConfig
