@@ -89,9 +89,10 @@ type CloudbeaverUsecase struct {
 	projectUsecase            *ProjectUsecase
 	repo                      CloudbeaverRepo
 	proxyTargetRepo           ProxyTargetRepo
+	maintenanceTimeUsecase    *MaintenanceTimeUsecase
 }
 
-func NewCloudbeaverUsecase(log utilLog.Logger, cfg *CloudbeaverCfg, userUsecase *UserUsecase, dbServiceUsecase *DBServiceUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, dmsConfigUseCase *DMSConfigUseCase, dataMaskingUseCase *DataMaskingUsecase, cloudbeaverRepo CloudbeaverRepo, proxyTargetRepo ProxyTargetRepo, cbOperationUseDase *CbOperationLogUsecase, projectUsecase *ProjectUsecase) (cu *CloudbeaverUsecase) {
+func NewCloudbeaverUsecase(log utilLog.Logger, cfg *CloudbeaverCfg, userUsecase *UserUsecase, dbServiceUsecase *DBServiceUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, dmsConfigUseCase *DMSConfigUseCase, dataMaskingUseCase *DataMaskingUsecase, cloudbeaverRepo CloudbeaverRepo, proxyTargetRepo ProxyTargetRepo, cbOperationUseDase *CbOperationLogUsecase, projectUsecase *ProjectUsecase, maintenanceTimeUsecase *MaintenanceTimeUsecase) (cu *CloudbeaverUsecase) {
 	cu = &CloudbeaverUsecase{
 		repo:                      cloudbeaverRepo,
 		proxyTargetRepo:           proxyTargetRepo,
@@ -104,6 +105,7 @@ func NewCloudbeaverUsecase(log utilLog.Logger, cfg *CloudbeaverCfg, userUsecase 
 		projectUsecase:            projectUsecase,
 		cloudbeaverCfg:            cfg,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.cloudbeaver")),
+		maintenanceTimeUsecase:    maintenanceTimeUsecase,
 	}
 
 	// 启动缓存清理协程
@@ -627,6 +629,11 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 							}
 
 							return nil, c.JSON(http.StatusOK, convertToResp(ctx, resp))
+						}
+
+						// [运维时间管控检查] 在审核通过后、工单判断前检查运维时间管控
+						if blocked, err := cu.checkMaintenanceTime(c, resp.Results, dbService); blocked || err != nil {
+							return nil, err
 						}
 
 						// 判断是否需要通过工单执行（非 DQL 语句）
@@ -2065,6 +2072,46 @@ func (cu *CloudbeaverUsecase) shouldExecuteByWorkflow(dbService *DBService, audi
 		}
 	}
 	return false
+}
+
+// checkMaintenanceTime 检查运维时间管控（CloudBeaver工作台）
+// 返回 blocked=true 表示已构造拦截响应，调用方应立即返回
+func (cu *CloudbeaverUsecase) checkMaintenanceTime(c echo.Context, auditResults []cloudbeaver.AuditSQLResV2, dbService *DBService) (blocked bool, err error) {
+	if cu.maintenanceTimeUsecase == nil {
+		return false, fmt.Errorf("maintenance time usecase is nil")
+	}
+
+	currentUserUid, _ := c.Get(dmsUserIdKey).(string)
+	if currentUserUid == "" {
+		return false, fmt.Errorf("current user uid is empty")
+	}
+
+	sqlTypes := make([]string, 0, len(auditResults))
+	for _, r := range auditResults {
+		sqlTypes = append(sqlTypes, r.SQLType)
+	}
+
+	var sqlQueryConfig *SQLQueryConfig
+	if dbService != nil && dbService.SQLEConfig != nil {
+		sqlQueryConfig = dbService.SQLEConfig.SQLQueryConfig
+	}
+
+	allowed, message, checkErr := cu.maintenanceTimeUsecase.CheckSQLExecutionAllowed(
+		c.Request().Context(),
+		currentUserUid,
+		sqlTypes,
+		time.Now(),
+		sqlQueryConfig,
+	)
+	if checkErr != nil {
+		cu.log.Errorf("check maintenance time failed: %v", checkErr)
+		return false, checkErr
+	}
+	if !allowed {
+		return true, c.JSON(http.StatusOK,
+			newResp(c.Request().Context(), "Maintenance Time Blocked", CBErrorCode, message))
+	}
+	return false, nil
 }
 
 // workflowExecParams 工单执行所需的参数

@@ -49,6 +49,7 @@ type DMSService struct {
 	GatewayUsecase              *biz.GatewayUsecase
 	SystemVariableUsecase       *biz.SystemVariableUsecase
 	OperationRecordUsecase      *biz.OperationRecordUsecase
+	MaintenanceTimeUsecase      *biz.MaintenanceTimeUsecase
 	log                         *utilLog.Helper
 	shutdownCallback            func() error
 }
@@ -143,6 +144,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 
 	swaggerUseCase := biz.NewSwaggerUseCase(logger, dmsProxyUsecase)
 	systemVariableUsecase := biz.NewSystemVariableUsecase(logger, storage.NewSystemVariableRepo(logger, st))
+	maintenanceTimeUsecase := biz.NewMaintenanceTimeUsecase(logger, opPermissionVerifyUsecase)
 	operationRecordRepo := storage.NewOperationRecordRepo(logger, st)
 	operationRecordUsecase := biz.NewOperationRecordUsecase(logger, operationRecordRepo, systemVariableUsecase)
 	cbOperationRepo := storage.NewCbOperationLogRepo(logger, st)
@@ -199,6 +201,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		GatewayUsecase:              gatewayUsecase,
 		SystemVariableUsecase:       systemVariableUsecase,
 		OperationRecordUsecase:      operationRecordUsecase,
+		MaintenanceTimeUsecase:      maintenanceTimeUsecase,
 		log:                         utilLog.NewHelper(logger, utilLog.WithMessageKey("dms.service")),
 		shutdownCallback: func() error {
 			if err := st.Close(); nil != err {

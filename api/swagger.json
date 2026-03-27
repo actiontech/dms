@@ -8702,12 +8702,6 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
-    "DateTime": {
-      "description": "DateTime is a time but it serializes to ISO8601 format with millis\nIt knows how to read 3 different variations of a RFC3339 date time.\nMost APIs we encounter want either millisecond or second precision times.\nThis just tries to make it worry-free.",
-      "type": "string",
-      "format": "date-time",
-      "x-go-package": "github.com/go-openapi/strfmt"
-    },
     "DbServiceConnections": {
       "type": "object",
       "properties": {
@@ -9355,7 +9349,7 @@
           "x-go-name": "Message"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "GetOauth2ConfigurationResData": {
       "type": "object",
@@ -10006,6 +10000,10 @@
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "I18nStr": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/i18nPkg"
     },
     "ImportDBService": {
@@ -11891,17 +11889,6 @@
     "ListMemberRoleWithOpRange": {
       "type": "object",
       "properties": {
-        "member_group": {
-          "$ref": "#/definitions/ProjectMemberGroup"
-        },
-        "op_permissions": {
-          "description": "member op permissions",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/UidWithName"
-          },
-          "x-go-name": "OpPermissions"
-        },
         "op_range_type": {
           "description": "op permission range type, only support db service now\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "type": "string",
@@ -11926,7 +11913,7 @@
           "$ref": "#/definitions/UidWithName"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "ListMemberTipsItem": {
       "type": "object",
@@ -13862,6 +13849,13 @@
           "type": "boolean",
           "x-go-name": "AuditEnabled"
         },
+        "maintenance_times": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MaintenanceTime"
+          },
+          "x-go-name": "MaintenanceTimes"
+        },
         "max_pre_query_rows": {
           "type": "integer",
           "format": "int64",
@@ -14311,7 +14305,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateBusinessTagReq": {
       "type": "object",
