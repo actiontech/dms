@@ -83,6 +83,7 @@ func convertBizDBService(ds *biz.DBService) (*model.DBService, error) {
 					QueryTimeoutSecond:               sqleQueryConfig.QueryTimeoutSecond,
 					RuleTemplateName:                 sqleQueryConfig.RuleTemplateName,
 					RuleTemplateID:                   sqleQueryConfig.RuleTemplateID,
+					MaintenancePeriods:               sqleQueryConfig.MaintenancePeriods,
 				}
 			}
 		}
@@ -154,6 +155,7 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 					QueryTimeoutSecond:               sqleQueryConfig.QueryTimeoutSecond,
 					RuleTemplateName:                 sqleQueryConfig.RuleTemplateName,
 					RuleTemplateID:                   sqleQueryConfig.RuleTemplateID,
+					MaintenancePeriods:               sqleQueryConfig.MaintenancePeriods,
 				}
 				dbService.SQLEConfig.SQLQueryConfig = sqc
 			}
@@ -989,22 +991,22 @@ func convertBizCompanyNotice(b *biz.CompanyNotice) (*model.CompanyNotice, error)
 			UID: b.UID,
 		},
 		CreateUserUID: b.CreateUserUID,
-		NoticeStr:   b.NoticeStr,
-		ReadUserIds: b.ReadUserIds,
-		StartTime:   b.StartTime,
-		EndTime:     b.EndTime,
+		NoticeStr:     b.NoticeStr,
+		ReadUserIds:   b.ReadUserIds,
+		StartTime:     b.StartTime,
+		EndTime:       b.EndTime,
 	}, nil
 }
 
 func convertModelCompanyNotice(m *model.CompanyNotice) (*biz.CompanyNotice, error) {
 	p := &biz.CompanyNotice{
-		Base:        convertBase(m.Model),
-		UID:         m.UID,
-		CreateUserUID:     m.CreateUserUID,
-		NoticeStr:   m.NoticeStr,
-		ReadUserIds: m.ReadUserIds,
-		StartTime:   m.StartTime,
-		EndTime:     m.EndTime,
+		Base:          convertBase(m.Model),
+		UID:           m.UID,
+		CreateUserUID: m.CreateUserUID,
+		NoticeStr:     m.NoticeStr,
+		ReadUserIds:   m.ReadUserIds,
+		StartTime:     m.StartTime,
+		EndTime:       m.EndTime,
 	}
 
 	return p, nil
@@ -1331,6 +1333,7 @@ func toModelDBServiceSyncTask(u *biz.DBServiceSyncTask) *model.DBServiceSyncTask
 				AllowQueryWhenLessThanAuditLevel: u.SQLEConfig.SQLQueryConfig.AllowQueryWhenLessThanAuditLevel,
 				RuleTemplateName:                 u.SQLEConfig.SQLQueryConfig.RuleTemplateName,
 				RuleTemplateID:                   u.SQLEConfig.SQLQueryConfig.RuleTemplateID,
+				MaintenancePeriods:               u.SQLEConfig.SQLQueryConfig.MaintenancePeriods,
 			}
 		}
 	}
@@ -1370,6 +1373,7 @@ func toBizDBServiceSyncTask(m *model.DBServiceSyncTask) *biz.DBServiceSyncTask {
 				AllowQueryWhenLessThanAuditLevel: m.ExtraParameters.SqleConfig.SqlQueryConfig.AllowQueryWhenLessThanAuditLevel,
 				RuleTemplateName:                 m.ExtraParameters.SqleConfig.SqlQueryConfig.RuleTemplateName,
 				RuleTemplateID:                   m.ExtraParameters.SqleConfig.SqlQueryConfig.RuleTemplateID,
+				MaintenancePeriods:               m.ExtraParameters.SqleConfig.SqlQueryConfig.MaintenancePeriods,
 			}
 		}
 	}

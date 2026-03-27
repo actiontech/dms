@@ -122,13 +122,14 @@ type SQLEConfig struct {
 	SqlQueryConfig             *SqlQueryConfig `json:"sql_query_config"`
 }
 type SqlQueryConfig struct {
-	MaxPreQueryRows                  int    `json:"max_pre_query_rows"`
-	QueryTimeoutSecond               int    `json:"query_timeout_second"`
-	AuditEnabled                     bool   `json:"audit_enabled"`
-	WorkflowExecEnabled              bool   `json:"workflow_exec_enabled"`
-	AllowQueryWhenLessThanAuditLevel string `json:"allow_query_when_less_than_audit_level"`
-	RuleTemplateID                   string `json:"rule_template_id"`
-	RuleTemplateName                 string `json:"rule_template_name"`
+	MaxPreQueryRows                  int             `json:"max_pre_query_rows"`
+	QueryTimeoutSecond               int             `json:"query_timeout_second"`
+	AuditEnabled                     bool            `json:"audit_enabled"`
+	WorkflowExecEnabled              bool            `json:"workflow_exec_enabled"`
+	AllowQueryWhenLessThanAuditLevel string          `json:"allow_query_when_less_than_audit_level"`
+	RuleTemplateID                   string          `json:"rule_template_id"`
+	RuleTemplateName                 string          `json:"rule_template_name"`
+	MaintenancePeriods               periods.Periods `json:"maintenance_periods"`
 }
 
 type User struct {
@@ -438,11 +439,11 @@ type BasicConfig struct {
 
 type CompanyNotice struct {
 	Model
-	CreateUserUID string    `json:"create_user_uid" gorm:"column:create_user_uid;size:32;comment:'创建人uid'"`
-	NoticeStr   string    `gorm:"type:mediumtext;comment:'企业公告'" json:"notice_str"`
-	ReadUserIds ReadUsers `gorm:"type:longtext" json:"read_user_ids"`
-	StartTime   *time.Time `json:"start_time" gorm:"column:start_time;comment:'公告开始时间'"`
-	EndTime     *time.Time `json:"end_time" gorm:"column:end_time;comment:'公告结束时间'"`
+	CreateUserUID string     `json:"create_user_uid" gorm:"column:create_user_uid;size:32;comment:'创建人uid'"`
+	NoticeStr     string     `gorm:"type:mediumtext;comment:'企业公告'" json:"notice_str"`
+	ReadUserIds   ReadUsers  `gorm:"type:longtext" json:"read_user_ids"`
+	StartTime     *time.Time `json:"start_time" gorm:"column:start_time;comment:'公告开始时间'"`
+	EndTime       *time.Time `json:"end_time" gorm:"column:end_time;comment:'公告结束时间'"`
 }
 
 type ReadUsers []string
