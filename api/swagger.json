@@ -1601,6 +1601,234 @@
         }
       }
     },
+    "/v1/dms/masking/approval-requests/pending": {
+      "get": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "List pending approval requests.",
+        "operationId": "ListPendingApprovalRequests",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "example": "20",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of requests to be returned, default is 20",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "example": "0",
+            "x-go-name": "PageIndex",
+            "description": "the offset of requests to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List pending approval requests successfully",
+            "schema": {
+              "$ref": "#/definitions/ListPendingApprovalRequestsReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/masking/approval-requests/{request_id}": {
+      "get": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Get plaintext access request detail.",
+        "operationId": "GetPlaintextAccessRequestDetail",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "example": 1,
+            "x-go-name": "RequestID",
+            "description": "approval request id",
+            "name": "request_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get plaintext access request detail successfully",
+            "schema": {
+              "$ref": "#/definitions/GetPlaintextAccessRequestDetailReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/masking/approval-requests/{request_id}/decisions": {
+      "post": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Process approval request.",
+        "operationId": "ProcessApprovalRequest",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "approval request id",
+            "name": "request_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "process action info",
+            "name": "action",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ProcessApprovalRequestReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Process approval request successfully",
+            "schema": {
+              "$ref": "#/definitions/ProcessApprovalRequestReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/masking/overview": {
+      "get": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Get masking overview tree.",
+        "operationId": "GetMaskingOverviewTree",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "example": 1,
+            "x-go-name": "ProjectID",
+            "description": "project id",
+            "name": "project_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "example": 1,
+            "x-go-name": "DBServiceID",
+            "description": "data source id",
+            "name": "db_service_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "example": "\"user\"",
+            "x-go-name": "Search",
+            "description": "fuzzy search keyword for database name, table name, and column name",
+            "name": "search",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "[CONFIGURED",
+              " PENDING_CONFIRM]"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "x-go-name": "MaskingConfigStatuses",
+            "description": "masking config status filters, enum: CONFIGURED/PENDING_CONFIRM",
+            "name": "masking_config_statuses",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get masking overview tree successfully",
+            "schema": {
+              "$ref": "#/definitions/GetMaskingOverviewTreeReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/masking/rule-configs": {
+      "put": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Configure masking rules in batch.",
+        "operationId": "ConfigureMaskingRules",
+        "parameters": [
+          {
+            "description": "masking rule configurations",
+            "name": "masking_rule_configs",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "masking_rule_configs": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/MaskingRuleConfig"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Configure masking rules successfully",
+            "schema": {
+              "$ref": "#/definitions/ConfigureMaskingRulesReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/masking/rules": {
       "get": {
         "tags": [
@@ -1617,6 +1845,357 @@
           },
           "default": {
             "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/masking/sensitive-data-discovery-tasks": {
+      "get": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "List sensitive data discovery tasks.",
+        "operationId": "ListSensitiveDataDiscoveryTasks",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "example": "20",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of tasks to be returned, default is 20",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "example": "0",
+            "x-go-name": "PageIndex",
+            "description": "the offset of tasks to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List sensitive data discovery tasks successfully",
+            "schema": {
+              "$ref": "#/definitions/ListSensitiveDataDiscoveryTasksReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Add sensitive data discovery task.",
+        "operationId": "AddSensitiveDataDiscoveryTask",
+        "parameters": [
+          {
+            "description": "sensitive data discovery task info",
+            "name": "task",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddSensitiveDataDiscoveryTask"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Add sensitive data discovery task successfully",
+            "schema": {
+              "$ref": "#/definitions/AddSensitiveDataDiscoveryTaskReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/masking/sensitive-data-discovery-tasks/{task_id}": {
+      "put": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Update sensitive data discovery task.",
+        "operationId": "UpdateSensitiveDataDiscoveryTask",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "sensitive data discovery task id",
+            "name": "task_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "sensitive data discovery task info",
+            "name": "task",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateSensitiveDataDiscoveryTask"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Update sensitive data discovery task successfully",
+            "schema": {
+              "$ref": "#/definitions/UpdateSensitiveDataDiscoveryTaskReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/masking/sensitive-data-discovery-tasks/{task_id}/histories": {
+      "get": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "List sensitive data discovery task histories.",
+        "operationId": "ListSensitiveDataDiscoveryTaskHistories",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "example": 1,
+            "x-go-name": "TaskID",
+            "description": "sensitive data discovery task id",
+            "name": "task_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "example": "20",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of histories to be returned, default is 20",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "example": "0",
+            "x-go-name": "PageIndex",
+            "description": "the offset of histories to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List sensitive data discovery task histories successfully",
+            "schema": {
+              "$ref": "#/definitions/ListSensitiveDataDiscoveryTaskHistoriesReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/masking/tables/{table_id}/column-masking-details": {
+      "get": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Get table column masking details.",
+        "operationId": "GetTableColumnMaskingDetails",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "example": 1,
+            "x-go-name": "TableID",
+            "description": "table id from masking overview tree",
+            "name": "table_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get table column masking details successfully",
+            "schema": {
+              "$ref": "#/definitions/GetTableColumnMaskingDetailsReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/masking/templates": {
+      "get": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "List masking templates.",
+        "operationId": "ListMaskingTemplates",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of masking templates to be returned, default is 20",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of masking templates to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List masking templates successfully",
+            "schema": {
+              "$ref": "#/definitions/ListMaskingTemplatesReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Add masking template.",
+        "operationId": "AddMaskingTemplate",
+        "parameters": [
+          {
+            "description": "masking template info",
+            "name": "masking_template",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddMaskingTemplate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Add masking template successfully",
+            "schema": {
+              "$ref": "#/definitions/AddMaskingTemplateReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/masking/templates/{template_id}": {
+      "put": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Update masking template.",
+        "operationId": "UpdateMaskingTemplate",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "masking template id",
+            "name": "template_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "masking template info",
+            "name": "masking_template",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMaskingTemplate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Update masking template successfully",
+            "schema": {
+              "$ref": "#/definitions/UpdateMaskingTemplateReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Delete masking template.",
+        "operationId": "DeleteMaskingTemplate",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "example": 1,
+            "x-go-name": "TemplateID",
+            "description": "masking template id",
+            "name": "template_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delete masking template successfully",
+            "schema": {
+              "$ref": "#/definitions/DeleteMaskingTemplateReply"
+            }
+          },
+          "default": {
+            "description": "Generic error response",
             "schema": {
               "$ref": "#/definitions/GenericResp"
             }
@@ -7076,6 +7655,66 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "AddMaskingTemplate": {
+      "type": "object",
+      "required": [
+        "name",
+        "rule_ids"
+      ],
+      "properties": {
+        "name": {
+          "description": "masking template name",
+          "type": "string",
+          "x-go-name": "Name",
+          "example": "\"New Template\""
+        },
+        "rule_ids": {
+          "description": "masking rule id list",
+          "type": "array",
+          "minLength": 1,
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "x-go-name": "RuleIDs",
+          "example": [
+            1,
+            2,
+            3
+          ]
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddMaskingTemplateReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddMaskingTemplateReq": {
+      "type": "object",
+      "required": [
+        "masking_template"
+      ],
+      "properties": {
+        "masking_template": {
+          "$ref": "#/definitions/AddMaskingTemplate"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "AddMemberGroupReply": {
       "type": "object",
       "properties": {
@@ -7290,6 +7929,101 @@
       "properties": {
         "role": {
           "$ref": "#/definitions/Role"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddSensitiveDataDiscoveryTask": {
+      "type": "object",
+      "required": [
+        "db_service_id",
+        "masking_template_id",
+        "identification_method",
+        "execution_plan"
+      ],
+      "properties": {
+        "cron_expression": {
+          "description": "cron expression, required when execution_plan is PERIODIC",
+          "type": "string",
+          "x-go-name": "CronExpression",
+          "example": "\"0 0 * * *\""
+        },
+        "db_service_id": {
+          "description": "database instance id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "DBServiceID",
+          "example": 1
+        },
+        "execution_plan": {
+          "description": "execution plan\nIMMEDIATE SensitiveDataDiscoveryExecutionPlanImmediate\nPERIODIC SensitiveDataDiscoveryExecutionPlanPeriodic",
+          "type": "string",
+          "enum": [
+            "[IMMEDIATE",
+            " PERIODIC]"
+          ],
+          "x-go-enum-desc": "IMMEDIATE SensitiveDataDiscoveryExecutionPlanImmediate\nPERIODIC SensitiveDataDiscoveryExecutionPlanPeriodic",
+          "x-go-name": "ExecutionPlan",
+          "example": "\"IMMEDIATE\""
+        },
+        "identification_method": {
+          "description": "sensitive data identification method\nBY_FIELD_NAME SensitiveDataIdentificationMethodByFieldName\nBY_SAMPLE_DATA SensitiveDataIdentificationMethodBySampleData",
+          "type": "string",
+          "enum": [
+            "[BY_FIELD_NAME",
+            " BY_SAMPLE_DATA]"
+          ],
+          "x-go-enum-desc": "BY_FIELD_NAME SensitiveDataIdentificationMethodByFieldName\nBY_SAMPLE_DATA SensitiveDataIdentificationMethodBySampleData",
+          "x-go-name": "IdentificationMethod",
+          "example": "\"BY_FIELD_NAME\""
+        },
+        "masking_template_id": {
+          "description": "masking template id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "MaskingTemplateID",
+          "example": 1
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddSensitiveDataDiscoveryTaskData": {
+      "type": "object",
+      "properties": {
+        "suspected_sensitive_fields_tree": {
+          "$ref": "#/definitions/SuspectedSensitiveFieldsTree"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddSensitiveDataDiscoveryTaskReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/AddSensitiveDataDiscoveryTaskData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AddSensitiveDataDiscoveryTaskReq": {
+      "type": "object",
+      "required": [
+        "task"
+      ],
+      "properties": {
+        "task": {
+          "$ref": "#/definitions/AddSensitiveDataDiscoveryTask"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -8122,6 +8856,41 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "ConfigureMaskingRulesReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ConfigureMaskingRulesReq": {
+      "type": "object",
+      "required": [
+        "masking_rule_configs"
+      ],
+      "properties": {
+        "masking_rule_configs": {
+          "description": "masking rule configurations for batch create or update",
+          "type": "array",
+          "minLength": 1,
+          "items": {
+            "$ref": "#/definitions/MaskingRuleConfig"
+          },
+          "x-go-name": "MaskingRuleConfigs"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "CreateBusinessTagReq": {
       "type": "object",
       "properties": {
@@ -8758,6 +9527,23 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "DeleteMaskingTemplateReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "EnvironmentTag": {
       "type": "object",
       "properties": {
@@ -9295,6 +10081,43 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "GetMaskingOverviewTreeData": {
+      "type": "object",
+      "properties": {
+        "dashboard": {
+          "$ref": "#/definitions/MaskingOverviewDashboard"
+        },
+        "databases": {
+          "description": "database_name -\u003e database node",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/MaskingOverviewDatabaseNode"
+          },
+          "x-go-name": "Databases"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetMaskingOverviewTreeReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/GetMaskingOverviewTreeData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "GetMemberGroup": {
       "type": "object",
       "properties": {
@@ -9520,6 +10343,45 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "GetPlaintextAccessRequestDetailReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "plaintext access request detail reply",
+          "type": "object",
+          "properties": {
+            "masking_preview": {
+              "$ref": "#/definitions/MaskingPreviewData"
+            },
+            "query_sql": {
+              "description": "query sql statement",
+              "type": "string",
+              "x-go-name": "QuerySQL",
+              "example": "\"SELECT * FROM users\""
+            },
+            "reason": {
+              "description": "application reason",
+              "type": "string",
+              "x-go-name": "Reason",
+              "example": "\"troubleshooting\""
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "GetProjectTipsReply": {
       "type": "object",
       "properties": {
@@ -9668,6 +10530,31 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "GetTableColumnMaskingDetailsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "table column masking details reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TableColumnMaskingDetail"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetUser": {
       "description": "A dms user",
@@ -11630,23 +12517,32 @@
       "type": "object",
       "properties": {
         "description": {
+          "description": "description",
           "type": "string",
-          "x-go-name": "Description"
+          "x-go-name": "Description",
+          "example": "\"mask digits\""
         },
         "effect": {
+          "description": "effect",
           "type": "string",
-          "x-go-name": "Effect"
+          "x-go-name": "Effect",
+          "example": "\"******\""
         },
         "id": {
+          "description": "masking rule id",
           "type": "integer",
           "format": "int64",
-          "x-go-name": "Id"
+          "x-go-name": "Id",
+          "example": 1
         },
         "masking_type": {
+          "description": "masking type",
           "type": "string",
-          "x-go-name": "MaskingType"
+          "x-go-name": "MaskingType",
+          "example": "\"MASK_DIGIT\""
         },
         "reference_fields": {
+          "description": "reference fields",
           "type": "array",
           "items": {
             "type": "string"
@@ -11677,6 +12573,72 @@
           "description": "message",
           "type": "string",
           "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListMaskingTemplatesData": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "masking template id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Id",
+          "example": 1
+        },
+        "name": {
+          "description": "masking template name",
+          "type": "string",
+          "x-go-name": "Name",
+          "example": "\"Standard Template\""
+        },
+        "rule_count": {
+          "description": "count of rules in the template",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RuleCount",
+          "example": 5
+        },
+        "rule_names": {
+          "description": "preview of rule name in the template, up to 3 items",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "RuleNames"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListMaskingTemplatesReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "list masking templates reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListMaskingTemplatesData"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "description": "total count of masking templates",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total",
+          "example": 100
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -11889,6 +12851,17 @@
     "ListMemberRoleWithOpRange": {
       "type": "object",
       "properties": {
+        "member_group": {
+          "$ref": "#/definitions/ProjectMemberGroup"
+        },
+        "op_permissions": {
+          "description": "member op permissions",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "OpPermissions"
+        },
         "op_range_type": {
           "description": "op permission range type, only support db service now\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "type": "string",
@@ -11913,7 +12886,7 @@
           "$ref": "#/definitions/UidWithName"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ListMemberTipsItem": {
       "type": "object",
@@ -12071,6 +13044,38 @@
           "type": "integer",
           "format": "int64",
           "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListPendingApprovalRequestsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "pending approval requests reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PendingApprovalRequestData"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "description": "total count of pending approval requests",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total",
+          "example": 100
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -12340,6 +13345,161 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "ListSensitiveDataDiscoveryTaskHistoriesData": {
+      "type": "object",
+      "properties": {
+        "executed_at": {
+          "description": "execution time in RFC3339 format\nFormat: date-time (RFC3339)",
+          "type": "string",
+          "x-go-name": "ExecutedAt",
+          "example": "\"2024-01-15T10:30:00Z\""
+        },
+        "new_sensitive_field_count": {
+          "description": "newly discovered sensitive field count",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "NewSensitiveFieldCount",
+          "example": 10
+        },
+        "remark": {
+          "description": "remark",
+          "type": "string",
+          "x-go-name": "Remark",
+          "example": "\"scan completed successfully\""
+        },
+        "status": {
+          "description": "execution status\nPENDING_CHANGE_CONFIRM SensitiveDataDiscoveryTaskStatusPendingChangeConfirm\nNORMAL SensitiveDataDiscoveryTaskStatusNormal\nCOMPLETED SensitiveDataDiscoveryTaskStatusCompleted",
+          "type": "string",
+          "enum": [
+            "[PENDING_CHANGE_CONFIRM",
+            " NORMAL",
+            " COMPLETED]"
+          ],
+          "x-go-enum-desc": "PENDING_CHANGE_CONFIRM SensitiveDataDiscoveryTaskStatusPendingChangeConfirm\nNORMAL SensitiveDataDiscoveryTaskStatusNormal\nCOMPLETED SensitiveDataDiscoveryTaskStatusCompleted",
+          "x-go-name": "Status",
+          "example": "\"NORMAL\""
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListSensitiveDataDiscoveryTaskHistoriesReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "sensitive data discovery task histories reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListSensitiveDataDiscoveryTaskHistoriesData"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "description": "total count of sensitive data discovery task histories",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total",
+          "example": 100
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListSensitiveDataDiscoveryTasksData": {
+      "type": "object",
+      "properties": {
+        "db_service_name": {
+          "description": "database instance name",
+          "type": "string",
+          "x-go-name": "DBServiceName",
+          "example": "\"mysql-01\""
+        },
+        "id": {
+          "description": "sensitive data discovery task id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID",
+          "example": 1
+        },
+        "masking_template_name": {
+          "description": "related masking template name",
+          "type": "string",
+          "x-go-name": "MaskingTemplateName",
+          "example": "\"Standard Template\""
+        },
+        "next_execution_at": {
+          "description": "next run time, periodic task returns RFC3339 time, one-time task returns N/A\nFormat: date-time (RFC3339)",
+          "type": "string",
+          "x-go-name": "NextExecutionAt",
+          "example": "\"2024-01-15T10:30:00Z\""
+        },
+        "status": {
+          "description": "task status\nPENDING_CHANGE_CONFIRM SensitiveDataDiscoveryTaskStatusPendingChangeConfirm\nNORMAL SensitiveDataDiscoveryTaskStatusNormal\nCOMPLETED SensitiveDataDiscoveryTaskStatusCompleted",
+          "type": "string",
+          "enum": [
+            "[PENDING_CHANGE_CONFIRM",
+            " NORMAL",
+            " COMPLETED]"
+          ],
+          "x-go-enum-desc": "PENDING_CHANGE_CONFIRM SensitiveDataDiscoveryTaskStatusPendingChangeConfirm\nNORMAL SensitiveDataDiscoveryTaskStatusNormal\nCOMPLETED SensitiveDataDiscoveryTaskStatusCompleted",
+          "x-go-name": "Status",
+          "example": "\"NORMAL\""
+        },
+        "task_type": {
+          "description": "task type\nPERIODIC SensitiveDataDiscoveryTaskTypePeriodic\nONE_TIME SensitiveDataDiscoveryTaskTypeOneTime",
+          "type": "string",
+          "enum": [
+            "[PERIODIC",
+            " ONE_TIME]"
+          ],
+          "x-go-enum-desc": "PERIODIC SensitiveDataDiscoveryTaskTypePeriodic\nONE_TIME SensitiveDataDiscoveryTaskTypeOneTime",
+          "x-go-name": "TaskType",
+          "example": "\"PERIODIC\""
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListSensitiveDataDiscoveryTasksReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "sensitive data discovery tasks list reply",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListSensitiveDataDiscoveryTasksData"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "description": "total count of sensitive data discovery tasks",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total",
+          "example": 100
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "ListUser": {
       "description": "A dms user",
       "type": "object",
@@ -12596,6 +13756,161 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "MaskingOverviewDashboard": {
+      "type": "object",
+      "properties": {
+        "configured_masking_columns": {
+          "description": "total count of columns with configured masking",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ConfiguredMaskingColumns",
+          "example": 120
+        },
+        "pending_confirm_masking_columns": {
+          "description": "total count of columns pending masking confirmation",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "PendingConfirmMaskingColumns",
+          "example": 5
+        },
+        "total_sensitive_tables": {
+          "description": "total count of tables that contain sensitive data",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "TotalSensitiveTables",
+          "example": 50
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "MaskingOverviewDatabaseNode": {
+      "type": "object",
+      "properties": {
+        "tables": {
+          "description": "table_name -\u003e table overview data",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/MaskingOverviewTableData"
+          },
+          "x-go-name": "Tables"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "MaskingOverviewTableData": {
+      "type": "object",
+      "properties": {
+        "configured_masking_columns": {
+          "description": "configured masking column count for this table",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ConfiguredMaskingColumns",
+          "example": 3
+        },
+        "pending_confirm_masking_columns": {
+          "description": "pending masking confirmation column count for this table",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "PendingConfirmMaskingColumns",
+          "example": 1
+        },
+        "table_id": {
+          "description": "table id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "TableID",
+          "example": 1
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "MaskingPreviewData": {
+      "type": "object",
+      "properties": {
+        "columns": {
+          "description": "preview columns",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Columns",
+          "example": [
+            "id",
+            "name",
+            "email"
+          ]
+        },
+        "rows": {
+          "description": "preview rows",
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "x-go-name": "Rows",
+          "example": [
+            [
+              "1",
+              "John",
+              "j***@example.com"
+            ],
+            [
+              "2",
+              "Alice",
+              "a***@example.com"
+            ]
+          ]
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "MaskingRuleConfig": {
+      "type": "object",
+      "required": [
+        "db_service_id",
+        "table_name",
+        "column_name",
+        "masking_rule_id",
+        "is_masking_enabled"
+      ],
+      "properties": {
+        "column_name": {
+          "description": "column name",
+          "type": "string",
+          "x-go-name": "ColumnName",
+          "example": "\"email\""
+        },
+        "db_service_id": {
+          "description": "data source id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "DBServiceID",
+          "example": 1
+        },
+        "is_masking_enabled": {
+          "description": "whether to enable masking for this column",
+          "type": "boolean",
+          "x-go-name": "IsMaskingEnabled",
+          "example": true
+        },
+        "masking_rule_id": {
+          "description": "masking rule id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "MaskingRuleID",
+          "example": 1
+        },
+        "table_name": {
+          "description": "table name",
+          "type": "string",
+          "x-go-name": "TableName",
+          "example": "\"users\""
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "Member": {
       "description": "A member",
@@ -13084,6 +14399,43 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/params"
     },
+    "PendingApprovalRequestData": {
+      "type": "object",
+      "properties": {
+        "applicant_name": {
+          "description": "applicant name",
+          "type": "string",
+          "x-go-name": "ApplicantName",
+          "example": "\"admin\""
+        },
+        "applied_at": {
+          "description": "application time in RFC3339 format\nFormat: date-time (RFC3339)",
+          "type": "string",
+          "x-go-name": "AppliedAt",
+          "example": "\"2024-01-15T10:30:00Z\""
+        },
+        "data_scope": {
+          "description": "data scope",
+          "type": "string",
+          "x-go-name": "DataScope",
+          "example": "\"database 'db1', table 'users'\""
+        },
+        "id": {
+          "description": "approval request id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID",
+          "example": 1
+        },
+        "reason": {
+          "description": "application reason",
+          "type": "string",
+          "x-go-name": "Reason",
+          "example": "\"data analysis\""
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "PersonalizationReq": {
       "type": "object",
       "properties": {
@@ -13215,6 +14567,55 @@
       },
       "x-go-name": "PreviewImportProjects",
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v2"
+    },
+    "ProcessApprovalRequestReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ProcessApprovalRequestReq": {
+      "type": "object",
+      "required": [
+        "action"
+      ],
+      "properties": {
+        "action": {
+          "description": "process action\nAPPROVE ApprovalActionApprove\nREJECT ApprovalActionReject",
+          "type": "string",
+          "enum": [
+            "[APPROVE",
+            " REJECT]"
+          ],
+          "x-go-enum-desc": "APPROVE ApprovalActionApprove\nREJECT ApprovalActionReject",
+          "x-go-name": "Action",
+          "example": "\"APPROVE\""
+        },
+        "approve_remark": {
+          "description": "approval remark, optional when action is APPROVE",
+          "type": "string",
+          "x-go-name": "ApproveRemark",
+          "example": "\"approved for one-time access\""
+        },
+        "reject_reason": {
+          "description": "reject reason, required when action is REJECT",
+          "type": "string",
+          "x-go-name": "RejectReason",
+          "example": "\"insufficient reason\""
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ProjectInfo": {
       "type": "object",
@@ -13925,6 +15326,66 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "SensitiveFieldScanResult": {
+      "type": "object",
+      "properties": {
+        "recommended_masking_rule_name": {
+          "description": "recommended masking rules",
+          "type": "string",
+          "x-go-name": "RecommendedMaskingRuleName",
+          "example": "\"Email Masking\""
+        },
+        "scan_info": {
+          "description": "scan information for the field",
+          "type": "string",
+          "x-go-name": "ScanInfo",
+          "example": "\"matched by field name 'email'\""
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "SuspectedSensitiveDatabaseNode": {
+      "type": "object",
+      "properties": {
+        "tables": {
+          "description": "table_name -\u003e table node",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/SuspectedSensitiveTableNode"
+          },
+          "x-go-name": "Tables"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "SuspectedSensitiveFieldsTree": {
+      "type": "object",
+      "properties": {
+        "databases": {
+          "description": "database_name -\u003e database node",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/SuspectedSensitiveDatabaseNode"
+          },
+          "x-go-name": "Databases"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "SuspectedSensitiveTableNode": {
+      "type": "object",
+      "properties": {
+        "fields": {
+          "description": "field_name -\u003e scan result",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/SensitiveFieldScanResult"
+          },
+          "x-go-name": "Fields"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "SyncGatewayReq": {
       "type": "object",
       "properties": {
@@ -13971,6 +15432,24 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "TableColumnMaskingDetail": {
+      "type": "object",
+      "properties": {
+        "column_name": {
+          "description": "column name",
+          "type": "string",
+          "x-go-name": "ColumnName",
+          "example": "\"email\""
+        },
+        "masking_rule_name": {
+          "description": "current masking rule name",
+          "type": "string",
+          "x-go-name": "MaskingRuleName",
+          "example": "\"Email Masking\""
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "Task": {
       "type": "object",
@@ -14735,6 +16214,66 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "UpdateMaskingTemplate": {
+      "type": "object",
+      "required": [
+        "rule_ids"
+      ],
+      "properties": {
+        "rule_ids": {
+          "description": "masking rule id list",
+          "type": "array",
+          "minLength": 1,
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "x-go-name": "RuleIDs",
+          "example": [
+            1,
+            2
+          ]
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateMaskingTemplateReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateMaskingTemplateReq": {
+      "type": "object",
+      "required": [
+        "template_id",
+        "masking_template"
+      ],
+      "properties": {
+        "masking_template": {
+          "$ref": "#/definitions/UpdateMaskingTemplate"
+        },
+        "template_id": {
+          "description": "masking template id\nin: path",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "TemplateID",
+          "example": 1
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "UpdateMember": {
       "type": "object",
       "properties": {
@@ -14968,6 +16507,101 @@
       "properties": {
         "smtp_configuration": {
           "$ref": "#/definitions/UpdateSMTPConfiguration"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateSensitiveDataDiscoveryTask": {
+      "type": "object",
+      "required": [
+        "masking_template_id",
+        "identification_method",
+        "execution_plan"
+      ],
+      "properties": {
+        "cron_expression": {
+          "description": "cron expression, required when execution_plan is PERIODIC",
+          "type": "string",
+          "x-go-name": "CronExpression",
+          "example": "\"0 0 * * *\""
+        },
+        "execution_plan": {
+          "description": "execution plan\nIMMEDIATE SensitiveDataDiscoveryExecutionPlanImmediate\nPERIODIC SensitiveDataDiscoveryExecutionPlanPeriodic",
+          "type": "string",
+          "enum": [
+            "[IMMEDIATE",
+            " PERIODIC]"
+          ],
+          "x-go-enum-desc": "IMMEDIATE SensitiveDataDiscoveryExecutionPlanImmediate\nPERIODIC SensitiveDataDiscoveryExecutionPlanPeriodic",
+          "x-go-name": "ExecutionPlan",
+          "example": "\"PERIODIC\""
+        },
+        "identification_method": {
+          "description": "sensitive data identification method\nBY_FIELD_NAME SensitiveDataIdentificationMethodByFieldName\nBY_SAMPLE_DATA SensitiveDataIdentificationMethodBySampleData",
+          "type": "string",
+          "enum": [
+            "[BY_FIELD_NAME",
+            " BY_SAMPLE_DATA]"
+          ],
+          "x-go-enum-desc": "BY_FIELD_NAME SensitiveDataIdentificationMethodByFieldName\nBY_SAMPLE_DATA SensitiveDataIdentificationMethodBySampleData",
+          "x-go-name": "IdentificationMethod",
+          "example": "\"BY_FIELD_NAME\""
+        },
+        "masking_template_id": {
+          "description": "masking template id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "MaskingTemplateID",
+          "example": 1
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateSensitiveDataDiscoveryTaskData": {
+      "type": "object",
+      "properties": {
+        "suspected_sensitive_fields_tree": {
+          "$ref": "#/definitions/SuspectedSensitiveFieldsTree"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateSensitiveDataDiscoveryTaskReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/UpdateSensitiveDataDiscoveryTaskData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateSensitiveDataDiscoveryTaskReq": {
+      "type": "object",
+      "required": [
+        "task_id",
+        "task"
+      ],
+      "properties": {
+        "task": {
+          "$ref": "#/definitions/UpdateSensitiveDataDiscoveryTask"
+        },
+        "task_id": {
+          "description": "sensitive data discovery task id\nin: path",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "TaskID",
+          "example": 1
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
