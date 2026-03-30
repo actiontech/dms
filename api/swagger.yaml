@@ -1539,6 +1539,15 @@ definitions:
                 x-go-name: Params
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DateTime:
+        description: |-
+            DateTime is a time but it serializes to ISO8601 format with millis
+            It knows how to read 3 different variations of a RFC3339 date time.
+            Most APIs we encounter want either millisecond or second precision times.
+            This just tries to make it worry-free.
+        format: date-time
+        type: string
+        x-go-package: github.com/go-openapi/strfmt
     DbServiceConnections:
         properties:
             db_service_uid:
@@ -2068,7 +2077,7 @@ definitions:
                 type: array
                 x-go-name: Users
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GetMemberGroupReply:
         properties:
             code:
@@ -2083,7 +2092,7 @@ definitions:
                 type: string
                 x-go-name: Message
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GetOauth2ConfigurationResData:
         properties:
             access_token_tag:
@@ -2660,9 +2669,6 @@ definitions:
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     I18nStr:
-        additionalProperties:
-            type: string
-        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/i18nPkg
     ImportDBService:
         properties:
