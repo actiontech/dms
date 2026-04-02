@@ -124,9 +124,6 @@ type DBService struct {
 	Desc string `json:"desc"`
 	// SQLE config
 	SQLEConfig *dmsCommonV1.SQLEConfig `json:"sqle_config"`
-	// data masking switch
-	// Required: false
-	IsEnableMasking bool `json:"is_enable_masking"`
 	// backup switch
 	// Required: false
 	EnableBackup bool `json:"enable_backup"`
@@ -180,9 +177,6 @@ type UpdateDBService struct {
 	Desc *string `json:"desc"`
 	// SQLE config
 	SQLEConfig *dmsCommonV1.SQLEConfig `json:"sqle_config"`
-	// data masking switch
-	// Required: false
-	IsEnableMasking bool `json:"is_enable_masking"`
 	// backup switch
 	// Required: false
 	EnableBackup bool `json:"enable_backup"`
@@ -227,8 +221,6 @@ type ImportDBService struct {
 	SQLEConfig *dmsCommonV1.SQLEConfig `json:"sqle_config"`
 	// DB Service Custom connection parameters
 	AdditionalParams []*dmsCommonV1.AdditionalParam `json:"additional_params"`
-	// is enable masking
-	IsEnableMasking bool `json:"is_enable_masking"`
 }
 
 // swagger:model ListGlobalDBServicesReplyV2

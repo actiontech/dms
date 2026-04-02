@@ -24,6 +24,13 @@ type ProxyTargetRepo interface {
 	GetProxyTargetByName(ctx context.Context, name string) (*ProxyTarget, error)
 }
 
+func (p *ProxyTarget) GetURL() string {
+	if p.URL == nil {
+		return ""
+	}
+	return p.URL.String()
+}
+
 type ProxyTarget struct {
 	middleware.ProxyTarget
 	Version  string

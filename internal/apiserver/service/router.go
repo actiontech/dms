@@ -24,6 +24,9 @@ func (s *APIServer) initRouter() error {
 	s.echo.GET("/swagger/*", s.DMSController.SwaggerHandler, SwaggerMiddleWare)
 
 	v1 := s.echo.Group(dmsV1.CurrentGroupVersion)
+	if err := s.initRouterDMS(v1); err != nil {
+		return err
+	}
 	v2 := s.echo.Group(dmsV2.CurrentGroupVersion)
 	// DMS RESTful resource
 	{
@@ -245,9 +248,6 @@ func (s *APIServer) initRouter() error {
 		operationRecordV1.POST("", s.DMSController.AddOperationRecord)
 		operationRecordV1.GET("", s.DMSController.GetOperationRecordList)
 		operationRecordV1.GET("/exports", s.DMSController.ExportOperationRecordList)
-
-		maskingV1 := v1.Group("/dms/masking")
-		maskingV1.GET("/rules", s.DMSController.ListMaskingRules)
 
 		gatewayV1 := v1.Group("/dms/gateways")
 

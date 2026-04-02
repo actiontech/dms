@@ -25,6 +25,6 @@ func (d *DMSService) listGlobalDBServices(ctx context.Context, req *dmsV2.ListGl
 	return nil, errNotSupportGlobalDBServices
 }
 
-func (d *DMSService) listGlobalDBServicesTips(ctx context.Context, currentUserUid string) (reply *dmsV1.ListGlobalDBServicesTipsReply, err error) {
+func (d *DMSService) listGlobalDBServicesTips(ctx context.Context, req *dmsV1.ListGlobalDBServicesTipsReq, currentUserUid string) (reply *dmsV1.ListGlobalDBServicesTipsReply, err error) {
 	return nil, errNotSupportGlobalDBServices
 }
