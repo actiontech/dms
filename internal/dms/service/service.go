@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/actiontech/dms/internal/apiserver/conf"
-	maskingBiz "github.com/actiontech/dms/internal/data_masking/biz"
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/internal/dms/storage"
 
@@ -43,7 +42,8 @@ type DMSService struct {
 	ClusterUsecase              *biz.ClusterUsecase
 	DataExportWorkflowUsecase   *biz.DataExportWorkflowUsecase
 	CbOperationLogUsecase       *biz.CbOperationLogUsecase
-	DataMaskingUsecase          *biz.DataMaskingUsecase
+	DataMaskingUsecase          *dataMaskingUsecase
+	FunctionSupportRegistry     *biz.FunctionSupportRegistry
 	AuthAccessTokenUseCase      *biz.AuthAccessTokenUsecase
 	SwaggerUseCase              *biz.SwaggerUseCase
 	GatewayUsecase              *biz.GatewayUsecase
@@ -86,7 +86,8 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	dmsProxyTargetRepo := storage.NewProxyTargetRepo(logger, st)
 	resourceOverviewUsecase := biz.NewResourceOverviewUsecase(logger, projectRepo, dbServiceRepo, *opPermissionVerifyUsecase, storage.NewResourceOverviewRepo(logger, st), dmsProxyTargetRepo)
 	environmentTagUsecase = *biz.NewEnvironmentTagUsecase(storage.NewEnvironmentTagRepo(logger, st), logger, projectUsecase, opPermissionVerifyUsecase)
-	dbServiceUseCase := biz.NewDBServiceUsecase(logger, dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, &environmentTagUsecase)
+	discoveryTaskRepo := storage.NewSensitiveDataDiscoveryTaskRepo(logger, st)
+	dbServiceUseCase := biz.NewDBServiceUsecase(logger, dbServiceRepo, discoveryTaskRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, &environmentTagUsecase)
 	dbServiceTaskRepo := storage.NewDBServiceSyncTaskRepo(logger, st)
 	dbServiceTaskUsecase := biz.NewDBServiceSyncTaskUsecase(logger, dbServiceTaskRepo, opPermissionVerifyUsecase, projectUsecase, dbServiceUseCase, &environmentTagUsecase)
 	ldapConfigurationRepo := storage.NewLDAPConfigurationRepo(logger, st)
@@ -150,13 +151,19 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	cbOperationRepo := storage.NewCbOperationLogRepo(logger, st)
 	CbOperationLogUsecase := biz.NewCbOperationLogUsecase(logger, cbOperationRepo, opPermissionVerifyUsecase, dmsProxyTargetRepo, systemVariableUsecase)
 	workflowRepo := storage.NewWorkflowRepo(logger, st)
-	DataExportWorkflowUsecase := biz.NewDataExportWorkflowUsecase(logger, tx, workflowRepo, dataExportTaskRepo, dbServiceRepo, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, clusterUsecase, webhookConfigurationUsecase, userUsecase, systemVariableUsecase, fmt.Sprintf("%s:%d", opts.ReportHost, opts.APIServiceOpts.Port))
-	dataMasking, err := maskingBiz.NewDataMaskingUseCase(logger)
-	authAccessTokenUsecase := biz.NewAuthAccessTokenUsecase(logger, userUsecase)
+	dataExportMaskingConfigRepo := initDataExportMaskingConfigRepo(logger, st)
+	DataExportWorkflowUsecase := biz.NewDataExportWorkflowUsecase(logger, tx, workflowRepo, dataExportTaskRepo, dbServiceRepo, dataExportMaskingConfigRepo, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, clusterUsecase, webhookConfigurationUsecase, userUsecase, systemVariableUsecase, discoveryTaskRepo, fmt.Sprintf("%s:%d", opts.ReportHost, opts.APIServiceOpts.Port))
+	dataMaskingUsecase, stopDataMaskingScheduler, err := initDataMaskingUsecase(logger, st, dbServiceUseCase, clusterUsecase, dmsProxyTargetRepo)
 	if err != nil {
-		return nil, fmt.Errorf("failed to new data masking use case: %v", err)
+		return nil, fmt.Errorf("failed to initialize data masking usecase: %v", err)
 	}
-	dataMaskingUsecase := biz.NewMaskingUsecase(logger, dataMasking)
+
+	// 初始化功能支持注册中心
+	functionSupportRegistry := biz.NewFunctionSupportRegistry()
+	// 在 DMS 版本中注册功能提供者（通过条件编译函数）
+	registerFunctionProvidersToRegistry(functionSupportRegistry, dataMaskingUsecase)
+
+	authAccessTokenUsecase := biz.NewAuthAccessTokenUsecase(logger, userUsecase)
 
 	cronTask := biz.NewCronTaskUsecase(logger, DataExportWorkflowUsecase, CbOperationLogUsecase, operationRecordUsecase, oauth2SessionUsecase)
 	err = cronTask.InitialTask()
@@ -196,6 +203,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		DataExportWorkflowUsecase:   DataExportWorkflowUsecase,
 		CbOperationLogUsecase:       CbOperationLogUsecase,
 		DataMaskingUsecase:          dataMaskingUsecase,
+		FunctionSupportRegistry:     functionSupportRegistry,
 		AuthAccessTokenUseCase:      authAccessTokenUsecase,
 		SwaggerUseCase:              swaggerUseCase,
 		GatewayUsecase:              gatewayUsecase,
@@ -204,6 +212,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		MaintenanceTimeUsecase:      maintenanceTimeUsecase,
 		log:                         utilLog.NewHelper(logger, utilLog.WithMessageKey("dms.service")),
 		shutdownCallback: func() error {
+			stopDataMaskingScheduler()
 			if err := st.Close(); nil != err {
 				return fmt.Errorf("failed to close storage: %v", err)
 			}

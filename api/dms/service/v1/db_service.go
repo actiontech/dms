@@ -45,9 +45,6 @@ type DBService struct {
 	Desc string `json:"desc"`
 	// SQLE config
 	SQLEConfig *dmsCommonV1.SQLEConfig `json:"sqle_config"`
-	// data masking switch
-	// Required: false
-	IsEnableMasking bool `json:"is_enable_masking"`
 	// backup switch
 	// Required: false
 	EnableBackup bool `json:"enable_backup"`
@@ -202,9 +199,6 @@ type UpdateDBService struct {
 	Desc *string `json:"desc"`
 	// SQLE config
 	SQLEConfig *dmsCommonV1.SQLEConfig `json:"sqle_config"`
-	// data masking switch
-	// Required: false
-	IsEnableMasking bool `json:"is_enable_masking"`
 	// backup switch
 	// Required: false
 	EnableBackup bool `json:"enable_backup"`
@@ -328,8 +322,6 @@ type ImportDBService struct {
 	SQLEConfig *dmsCommonV1.SQLEConfig `json:"sqle_config"`
 	// DB Service Custom connection parameters
 	AdditionalParams []*dmsCommonV1.AdditionalParam `json:"additional_params"`
-	// is enable masking
-	IsEnableMasking bool `json:"is_enable_masking"`
 }
 
 // swagger:model
@@ -450,6 +442,23 @@ type ListGlobalDBService struct {
 	LastConnectionTestErrorMessage string `json:"last_connection_test_error_message,omitempty"`
 }
 
+// swagger:enum FunctionSupportType
+type FunctionSupportType string
+
+const (
+	// FunctionSupportTypeDataMasking 数据脱敏功能
+	FunctionSupportTypeDataMasking FunctionSupportType = "data_masking"
+)
+
+// swagger:parameters ListGlobalDBServicesTips
+type ListGlobalDBServicesTipsReq struct {
+	// function support filter, when specified, returns the db types supported by the function
+	// in: query
+	// enum: data_masking
+	// Example: data_masking
+	FunctionSupport FunctionSupportType `query:"function_support" json:"function_support" validate:"omitempty,oneof=data_masking"`
+}
+
 // swagger:model ListGlobalDBServicesTipsReply
 type ListGlobalDBServicesTipsReply struct {
 	// List global db service tips reply
@@ -460,5 +469,8 @@ type ListGlobalDBServicesTipsReply struct {
 }
 
 type ListGlobalDBServiceTips struct {
+	// DBType 数据库类型列表
+	// 当请求参数 function_support 为空时，返回所有数据库类型
+	// 当请求参数 function_support 有效时，仅返回支持该功能的数据库类型
 	DBType []string `json:"db_type"`
 }

@@ -51,12 +51,24 @@ func (d *DBServiceRepo) SaveDBServices(ctx context.Context, ds []*biz.DBService)
 }
 
 func (d *DBServiceRepo) ListDBServices(ctx context.Context, opt *biz.ListDBServicesOption) (services []*biz.DBService, total int64, err error) {
+	if opt == nil {
+		opt = &biz.ListDBServicesOption{
+			PageNumber:   1,
+			LimitPerPage: 20,
+		}
+	}
+	if opt.LimitPerPage == 0 {
+		opt.LimitPerPage = 20
+	}
 
 	var models []*model.DBService
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		// find models
 		{
-			db := tx.WithContext(ctx).Order(string(opt.OrderBy))
+			db := tx.WithContext(ctx)
+			if opt.OrderBy != "" {
+				db = db.Order(string(opt.OrderBy))
+			}
 			db = gormWheresWithOptions(ctx, db, opt.FilterByOptions)
 			db = db.Limit(int(opt.LimitPerPage)).Offset(int(opt.LimitPerPage * (uint32(fixPageIndices(opt.PageNumber))))).Preload("EnvironmentTag").Find(&models)
 			if err := db.Error; err != nil {

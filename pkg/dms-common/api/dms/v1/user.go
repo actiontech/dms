@@ -254,6 +254,8 @@ const (
 	OpPermissionManageRoleMange OpPermissionType = "manage_role_mange"
 	// 脱敏规则;脱敏规则配置权限
 	OpPermissionDesensitization OpPermissionType = "desensitization"
+	// 脱敏审核;拥有该权限的用户可以查看和处理脱敏审批请求
+	OpPermissionMaskingAudit OpPermissionType = "masking_audit"
 	// 无任何权限
 	OpPermissionTypeNone OpPermissionType = "none"
 )
@@ -330,6 +332,8 @@ func ParseOpPermissionType(typ string) (OpPermissionType, error) {
 		return OpPermissionManageRoleMange, nil
 	case string(OpPermissionDesensitization):
 		return OpPermissionDesensitization, nil
+	case string(OpPermissionMaskingAudit):
+		return OpPermissionMaskingAudit, nil
 	case string(OpPermissionTypeNone):
 		return OpPermissionTypeNone, nil
 	default:
@@ -369,6 +373,8 @@ func GetOperationTypeDesc(opType OpPermissionType) string {
 		return "查看他人创建的智能调优"
 	case OpPermissionTypeCreatePipeline:
 		return "配置流水线"
+	case OpPermissionMaskingAudit:
+		return "脱敏审核"
 	default:
 		return "未知操作类型"
 	}

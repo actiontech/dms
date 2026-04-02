@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/actiontech/dms/internal/apiserver/conf"
-	maskingBiz "github.com/actiontech/dms/internal/data_masking/biz"
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/internal/dms/storage"
 
@@ -49,7 +48,8 @@ func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) 
 	projectUsecase := biz.NewProjectUsecase(logger, tx, projectRepo, memberUsecase, opPermissionVerifyUsecase, pluginUseCase, businessTagUsecase, &environmentTagUsecase)
 	dbServiceRepo := storage.NewDBServiceRepo(logger, st)
 	environmentTagUsecase = *biz.NewEnvironmentTagUsecase(storage.NewEnvironmentTagRepo(logger, st), logger, projectUsecase, opPermissionVerifyUsecase)
-	dbServiceUseCase := biz.NewDBServiceUsecase(logger, dbServiceRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, &environmentTagUsecase)
+	discoveryTaskRepo := storage.NewSensitiveDataDiscoveryTaskRepo(logger, st)
+	dbServiceUseCase := biz.NewDBServiceUsecase(logger, dbServiceRepo, discoveryTaskRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, &environmentTagUsecase)
 
 	ldapConfigurationRepo := storage.NewLDAPConfigurationRepo(logger, st)
 	ldapConfigurationUsecase := biz.NewLDAPConfigurationUsecase(logger, tx, ldapConfigurationRepo)
@@ -61,11 +61,10 @@ func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) 
 	loginConfigurationRepo := storage.NewLoginConfigurationRepo(logger, st)
 	loginConfigurationUsecase := biz.NewLoginConfigurationUsecase(logger, tx, loginConfigurationRepo)
 	userUsecase := biz.NewUserUsecase(logger, tx, userRepo, userGroupRepo, pluginUseCase, opPermissionUsecase, opPermissionVerifyUsecase, loginConfigurationUsecase, ldapConfigurationUsecase, cloudbeaverRepo, nil)
-	dataMasking, err := maskingBiz.NewDataMaskingUseCase(logger)
+	sqlResultMasker, err := newCloudbeaverSQLResultMasker(logger, st, dmsProxyTargetRepo)
 	if err != nil {
-		return nil, fmt.Errorf("failed to new data masking use case: %v", err)
+		return nil, err
 	}
-	dataMaskingUsecase := biz.NewMaskingUsecase(logger, dataMasking)
 	dmsConfigRepo := storage.NewDMSConfigRepo(logger, st)
 	dmsConfigUseCase := biz.NewDMSConfigUseCase(logger, dmsConfigRepo)
 	cbOperationLogUsecase := biz.NewCbOperationLogUsecase(logger, storage.NewCbOperationLogRepo(logger, st), opPermissionVerifyUsecase, dmsProxyTargetRepo, biz.NewSystemVariableUsecase(logger, storage.NewSystemVariableRepo(logger, st)))
@@ -83,7 +82,7 @@ func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) 
 		}
 	}
 
-	cloudbeaverUsecase := biz.NewCloudbeaverUsecase(logger, cfg, userUsecase, dbServiceUseCase, opPermissionVerifyUsecase, dmsConfigUseCase, dataMaskingUsecase, cloudbeaverRepo, dmsProxyTargetRepo, cbOperationLogUsecase, projectUsecase, maintenanceTimeUsecase)
+	cloudbeaverUsecase := biz.NewCloudbeaverUsecase(logger, cfg, userUsecase, dbServiceUseCase, opPermissionVerifyUsecase, dmsConfigUseCase, sqlResultMasker, cloudbeaverRepo, dmsProxyTargetRepo, cbOperationLogUsecase, projectUsecase, discoveryTaskRepo, maintenanceTimeUsecase)
 	proxyUsecase := biz.NewCloudbeaverProxyUsecase(logger, cloudbeaverUsecase)
 
 	return &CloudbeaverService{
