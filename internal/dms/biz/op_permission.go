@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	v1 "github.com/actiontech/dms/api/dms/service/v1"
 
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
@@ -79,21 +80,21 @@ func ParseOpRangeType(t string) (OpRangeType, error) {
 func initOpPermission() []*OpPermission {
 	return []*OpPermission{
 		{
-			UID:       pkgConst.UIDOfOpPermissionGlobalView,
-			Name:      "审计管理员",
+			UID:       pkgConst.UIDOfOpPermissionOperationAudit,
+			Name:      "操作审计",
 			RangeType: OpRangeTypeGlobal,
 			Desc:      "负责系统操作审计、数据合规检查等工作",
 			Service:   v1.ServiceSQLE,
 		},
 		{
-			UID:       pkgConst.UIDOfOpPermissionGlobalManagement,
-			Name:      "系统管理员",
+			UID:       pkgConst.UIDOfOpPermissionPlatformConfigure,
+			Name:      "系统配置",
 			RangeType: OpRangeTypeGlobal,
-			Desc:      "具备系统最高权限，可进行系统配置、用户管理等操作",
+			Desc:      "具备系统配置权限，可进行系统配置、用户管理等操作",
 			Service:   v1.ServiceSQLE,
 		},
 		{
-			UID:       pkgConst.UIDOfOpPermissionCreateProject,
+			UID:       pkgConst.UIDOfOpPermissionProjectDirector,
 			Name:      "项目总监", // todo i18n 返回时会根据uid国际化，name、desc已弃用；数据库name字段是唯一键，故暂时保留
 			RangeType: OpRangeTypeGlobal,
 			Desc:      "创建项目、配置项目资源",

@@ -1323,7 +1323,7 @@ func (cu *CloudbeaverUsecase) connectManagement(ctx context.Context, cloudbeaver
 		return cu.clearConnection(ctx)
 	}
 
-	hasGlobalOpPermission, err := cu.opPermissionVerifyUsecase.CanOpGlobal(ctx, dmsUser.UID)
+	hasGlobalOpPermission, err := cu.opPermissionVerifyUsecase.IsUserProjectDirector(ctx, dmsUser.UID)
 	if err != nil {
 		return err
 	}

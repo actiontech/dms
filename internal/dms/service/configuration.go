@@ -36,7 +36,7 @@ func (d *DMSService) UpdateLoginConfiguration(ctx context.Context, userId string
 	}()
 
 	// 权限校验
-	if canGlobalOp, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, userId); err != nil {
+	if canGlobalOp, err := d.OpPermissionVerifyUsecase.IsUserPlatformConfigure(ctx, userId); err != nil {
 		return fmt.Errorf("check user op permission failed: %v", err)
 	} else if !canGlobalOp {
 		return fmt.Errorf("user is not project admin or golobal op permission user")
@@ -538,7 +538,7 @@ func (d *DMSService) NotifyMessage(ctx context.Context, req *dmsCommonV1.Notific
 				},
 			),
 		),
-		OrderBy: biz.UserFieldName,
+		OrderBy:      biz.UserFieldName,
 		PageNumber:   1,
 		LimitPerPage: uint32(len(req.Notification.UserUids)),
 	})
@@ -622,7 +622,7 @@ func (d *DMSService) UpdateSystemVariables(ctx context.Context, req *dmsCommonV1
 		d.log.Infof("UpdateSystemVariables.req=%v;error=%v", req, err)
 	}()
 
-	canOpGlobal, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid)
+	canOpGlobal, err := d.OpPermissionVerifyUsecase.IsUserPlatformConfigure(ctx, currentUserUid)
 	if err != nil {
 		return fmt.Errorf("failed to check user can op global")
 	}

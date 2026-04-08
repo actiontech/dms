@@ -13,7 +13,8 @@ func EnvPrepare(ctx context.Context, logger utilLog.Logger,
 	opPermissionUsecase *OpPermissionUsecase,
 	userUsecase *UserUsecase,
 	roleUsecase *RoleUsecase,
-	projectUsecase *ProjectUsecase) (err error) {
+	projectUsecase *ProjectUsecase,
+	adminSuperModeEnabled bool) (err error) {
 	log := utilLog.NewHelper(logger, utilLog.WithMessageKey("biz.prepare"))
 	// 开启事务
 	tx := transaction.BeginTX(ctx)
@@ -41,7 +42,7 @@ func EnvPrepare(ctx context.Context, logger utilLog.Logger,
 			}
 		}
 		if dmsConfig.NeedInitUsers {
-			if err := userUsecase.InitUsers(tx); nil != err {
+			if err := userUsecase.InitUsers(tx, adminSuperModeEnabled); nil != err {
 				return err
 			}
 			dmsConfig.NeedInitUsers = false

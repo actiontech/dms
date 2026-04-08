@@ -40,12 +40,63 @@ func NewOpPermissionVerifyUsecase(log utilLog.Logger, tx TransactionGenerator, r
 	}
 }
 
-func (o *OpPermissionVerifyUsecase) IsUserProjectAdmin(ctx context.Context, userUid, projectUid string) (bool, error) {
-	// 内置用户admin和sys拥有所有权限
-	switch userUid {
-	case pkgConst.UIDOfUserAdmin, pkgConst.UIDOfUserSys:
+func (o *OpPermissionVerifyUsecase) IsUserPlatformConfigure(ctx context.Context, userUid string) (bool, error) {
+	if userUid == pkgConst.UIDOfUserSys {
 		return true, nil
-	default:
+	}
+
+	ops, err := o.repo.GetUserGlobalOpPermission(ctx, userUid)
+	if err != nil {
+		return false, err
+	}
+	for _, op := range ops {
+		if op.UID == pkgConst.UIDOfOpPermissionPlatformConfigure {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func (o *OpPermissionVerifyUsecase) IsUserProjectDirector(ctx context.Context, userUid string) (bool, error) {
+	if userUid == pkgConst.UIDOfUserSys {
+		return true, nil
+	}
+
+	ops, err := o.repo.GetUserGlobalOpPermission(ctx, userUid)
+	if err != nil {
+		return false, err
+	}
+	for _, op := range ops {
+		if op.UID == pkgConst.UIDOfOpPermissionProjectDirector {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func (o *OpPermissionVerifyUsecase) IsUserOperationAudit(ctx context.Context, userUid string) (bool, error) {
+	if userUid == pkgConst.UIDOfUserSys {
+		return true, nil
+	}
+	ops, err := o.repo.GetUserGlobalOpPermission(ctx, userUid)
+	if err != nil {
+		return false, err
+	}
+	for _, op := range ops {
+		if op.UID == pkgConst.UIDOfOpPermissionOperationAudit {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func (o *OpPermissionVerifyUsecase) IsUserProjectAdmin(ctx context.Context, userUid, projectUid string) (bool, error) {
+	isDirector, err := o.IsUserProjectDirector(ctx, userUid)
+	if err != nil {
+		return false, err
+	}
+	if isDirector {
+		return true, nil
 	}
 	has, err := o.repo.IsUserHasOpPermissionInProject(ctx, userUid, projectUid, pkgConst.UIDOfOpPermissionProjectAdmin)
 	if err != nil {
@@ -54,60 +105,12 @@ func (o *OpPermissionVerifyUsecase) IsUserProjectAdmin(ctx context.Context, user
 	return has, nil
 }
 
-func (o *OpPermissionVerifyUsecase) IsUserDMSAdmin(ctx context.Context, userUid string) (bool, error) {
-	// 暂且只有内置用户admin和sys拥有平台管理权限
-	switch userUid {
-	case pkgConst.UIDOfUserAdmin, pkgConst.UIDOfUserSys:
-		return true, nil
-	default:
-		return false, nil
-	}
-}
-
-func (o *OpPermissionVerifyUsecase) HasGlobalManagementOrViewPermission(ctx context.Context, userUid string) (bool, error) {
-	ops, err := o.GetUserGlobalOpPermission(ctx, userUid)
-	if err != nil {
-		return false, err
-	}
-
-	for _, op := range ops {
-		if op.OpPermissionUID == pkgConst.UIDOfOpPermissionGlobalManagement || op.OpPermissionUID == pkgConst.UIDOfOpPermissionGlobalView {
-			return true, nil
-		}
-	}
-
-	return false, nil
-}
-
-func (o *OpPermissionVerifyUsecase) CanOpGlobal(ctx context.Context, userUid string) (bool, error) {
-	isUserDMSAdmin, err := o.IsUserDMSAdmin(ctx, userUid)
-	if err != nil {
-		return false, err
-	}
-	if isUserDMSAdmin {
-		return true, nil
-	}
-
-	ops, err := o.repo.GetUserGlobalOpPermission(ctx, userUid)
-	if err != nil {
-		return false, err
-	}
-
-	for _, op := range ops {
-		if op.UID == pkgConst.UIDOfOpPermissionGlobalManagement {
-			return true, nil
-		}
-	}
-
-	return false, nil
-}
-
 func (o *OpPermissionVerifyUsecase) CanOpProject(ctx context.Context, userUid, projectUid string) (bool, error) {
-	canGlobalOp, err := o.CanOpGlobal(ctx, userUid)
+	isDirector, err := o.IsUserProjectDirector(ctx, userUid)
 	if err != nil {
 		return false, err
 	}
-	if canGlobalOp {
+	if isDirector {
 		return true, nil
 	}
 
@@ -185,11 +188,7 @@ func (o *OpPermissionVerifyUsecase) HasOpPermissionInProject(ctx context.Context
 }
 
 func (o *OpPermissionVerifyUsecase) CanViewGlobal(ctx context.Context, userUid string) (bool, error) {
-	isUserDMSAdmin, err := o.IsUserDMSAdmin(ctx, userUid)
-	if err != nil {
-		return false, err
-	}
-	if isUserDMSAdmin {
+	if userUid == pkgConst.UIDOfUserSys {
 		return true, nil
 	}
 
@@ -199,7 +198,10 @@ func (o *OpPermissionVerifyUsecase) CanViewGlobal(ctx context.Context, userUid s
 	}
 
 	for _, op := range ops {
-		if op.UID == pkgConst.UIDOfOpPermissionGlobalManagement || op.UID == pkgConst.UIDOfOpPermissionGlobalView {
+		// todo isolation permission
+		if op.UID == pkgConst.UIDOfOpPermissionPlatformConfigure ||
+			op.UID == pkgConst.UIDOfOpPermissionOperationAudit ||
+			op.UID == pkgConst.UIDOfOpPermissionProjectDirector {
 			return true, nil
 		}
 	}
@@ -310,29 +312,6 @@ func (o *OpPermissionVerifyUsecase) GetUserManagerProject(ctx context.Context, p
 	}
 
 	return userBindProjects
-}
-
-func (o *OpPermissionVerifyUsecase) CanCreateProject(ctx context.Context, userUid string) (bool, error) {
-	// user admin has all op permission
-	hasGlobalOpPermission, err := o.CanOpGlobal(ctx, userUid)
-	if err != nil {
-		return false, err
-	}
-	if hasGlobalOpPermission {
-		return true, nil
-	}
-
-	opPermissions, err := o.repo.GetUserGlobalOpPermission(ctx, userUid)
-	if err != nil {
-		return false, fmt.Errorf("failed to get user global op permission : %v", err)
-	}
-	for _, opPermission := range opPermissions {
-		if opPermission.UID == pkgConst.UIDOfOpPermissionCreateProject {
-			return true, nil
-		}
-	}
-
-	return false, nil
 }
 
 type ListMembersOpPermissionOption struct {

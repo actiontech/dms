@@ -152,7 +152,7 @@ func (d *DMSService) AddProject(ctx context.Context, currentUserUid string, req 
 	// check
 	{
 		// check current user has enough permission
-		if canCreateProject, err := d.OpPermissionVerifyUsecase.CanCreateProject(ctx, currentUserUid); err != nil {
+		if canCreateProject, err := d.OpPermissionVerifyUsecase.IsUserProjectDirector(ctx, currentUserUid); err != nil {
 			return nil, err
 		} else if !canCreateProject {
 			return nil, fmt.Errorf("current user can't create project")

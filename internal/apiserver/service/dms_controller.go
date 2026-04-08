@@ -4942,8 +4942,8 @@ func (ctl *DMSController) AddOperationRecord(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	// check if user is admin/sys
-	isAdmin, err := ctl.DMS.OpPermissionVerifyUsecase.IsUserDMSAdmin(c.Request().Context(), currentUserUid)
+	// check if user is ProjectDirector
+	isAdmin, err := ctl.DMS.OpPermissionVerifyUsecase.IsUserProjectDirector(c.Request().Context(), currentUserUid)
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}

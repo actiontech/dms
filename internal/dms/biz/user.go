@@ -125,6 +125,30 @@ func initUsers() []*User {
 			UserAuthenticationType: UserAuthenticationTypeDMS,
 			Stat:                   UserStatOK,
 		},
+		{
+			UID:                    pkgConst.UIDOfUserPlatConfigurer,
+			Name:                   "plat",
+			Password:               "plat",
+			Desc:                   "built-in platform domain user",
+			UserAuthenticationType: UserAuthenticationTypeDMS,
+			Stat:                   UserStatOK,
+		},
+		{
+			UID:                    pkgConst.UIDOfUserAuditViewer,
+			Name:                   "audit",
+			Password:               "audit",
+			Desc:                   "built-in audit domain user",
+			UserAuthenticationType: UserAuthenticationTypeDMS,
+			Stat:                   UserStatOK,
+		},
+		{
+			UID:                    pkgConst.UIDOfUserDirector,
+			Name:                   "director",
+			Password:               "director",
+			Desc:                   "built-in project domain user",
+			UserAuthenticationType: UserAuthenticationTypeDMS,
+			Stat:                   UserStatOK,
+		},
 	}
 }
 
@@ -271,7 +295,7 @@ func (d *UserUsecase) UserLogin(ctx context.Context, name string, password strin
 		return "", twoFactorEnabled, phone, err
 	}
 	if loginC.DisableUserPwdLogin {
-		isDmsAdmin, err := d.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, userUid)
+		isDmsAdmin, err := d.OpPermissionVerifyUsecase.IsUserPlatformConfigure(ctx, userUid)
 		if err != nil {
 			return "", twoFactorEnabled, phone, err
 		}
@@ -501,26 +525,12 @@ type CreateUserArgs struct {
 func (d *UserUsecase) AddUser(ctx context.Context, currentUserUid string, args *CreateUserArgs) (uid string, err error) {
 	// check
 	{
-		isUserDMSAdmin, err := d.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, currentUserUid)
-		if err != nil {
+		if err := d.validateCreateUserOperator(ctx, currentUserUid, args.OpPermissionUIDs); err != nil {
 			return "", err
 		}
 
-		var hasGlobalViewOrManagementPermission bool
-		for _, permissionUID := range args.OpPermissionUIDs {
-			if permissionUID == pkgConst.UIDOfOpPermissionGlobalView || permissionUID == pkgConst.UIDOfOpPermissionGlobalManagement {
-				hasGlobalViewOrManagementPermission = true
-			}
-		}
-
-		if !isUserDMSAdmin && hasGlobalViewOrManagementPermission {
-			return "", fmt.Errorf("only admin can create user with global view or management permission")
-		}
-
-		if canGlobalOp, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid); err != nil {
-			return "", fmt.Errorf("check user is admin or global management permission : %v", err)
-		} else if !canGlobalOp {
-			return "", fmt.Errorf("user is not admin or global management permission")
+		if err := d.validateUpdatedUserPlatformRoleInOperatorDomain(ctx, currentUserUid, args.OpPermissionUIDs); err != nil {
+			return "", err
 		}
 
 		user, err := d.repo.GetUserByName(ctx, args.Name)
@@ -573,7 +583,7 @@ func (d *UserUsecase) CreateUser(ctx context.Context, currentUserUid string, arg
 	return uid, nil
 }
 
-func (d *UserUsecase) InitUsers(ctx context.Context) (err error) {
+func (d *UserUsecase) InitUsers(ctx context.Context, adminSuperModeEnabled bool) (err error) {
 	for _, u := range initUsers() {
 
 		_, err := d.repo.GetUser(ctx, u.GetUID())
@@ -591,9 +601,42 @@ func (d *UserUsecase) InitUsers(ctx context.Context) (err error) {
 		if err := d.repo.SaveUser(ctx, u); err != nil {
 			return fmt.Errorf("failed to init user permission: %w", err)
 		}
-
 	}
+
+	if err := d.initDomainUserPermissions(ctx, adminSuperModeEnabled); err != nil {
+		return fmt.Errorf("failed to init domain user permissions: %w", err)
+	}
+
 	d.log.Debug("init users success")
+	return nil
+}
+
+func (d *UserUsecase) initDomainUserPermissions(ctx context.Context, adminSuperModeEnabled bool) error {
+	domainUserPermissions := map[string][]string{
+		pkgConst.UIDOfUserPlatConfigurer: {pkgConst.UIDOfOpPermissionPlatformConfigure},
+		pkgConst.UIDOfUserAuditViewer:    {pkgConst.UIDOfOpPermissionOperationAudit},
+		pkgConst.UIDOfUserDirector:       {pkgConst.UIDOfOpPermissionProjectDirector},
+	}
+	for userUID, permUIDs := range domainUserPermissions {
+		if err := d.repo.ReplaceOpPermissionsInUser(ctx, userUID, permUIDs); err != nil {
+			return fmt.Errorf("failed to assign permissions to domain user %s: %v", userUID, err)
+		}
+	}
+
+	var adminPermUIDs []string
+	if adminSuperModeEnabled {
+		adminPermUIDs = []string{
+			pkgConst.UIDOfOpPermissionProjectDirector,
+			pkgConst.UIDOfOpPermissionPlatformConfigure,
+			pkgConst.UIDOfOpPermissionOperationAudit,
+		}
+	} else {
+		adminPermUIDs = []string{pkgConst.UIDOfOpPermissionProjectDirector}
+	}
+	if err := d.repo.ReplaceOpPermissionsInUser(ctx, pkgConst.UIDOfUserAdmin, adminPermUIDs); err != nil {
+		return fmt.Errorf("failed to assign permissions to admin: %v", err)
+	}
+
 	return nil
 }
 
@@ -631,10 +674,120 @@ func (d *UserUsecase) InsureOpPermissionsInUser(ctx context.Context, opPermissio
 		}
 	}
 
+	if err := validateDomainExclusivity(opPermissionUids); err != nil {
+		return err
+	}
+
 	if err := d.repo.ReplaceOpPermissionsInUser(ctx, userUid, opPermissionUids); err != nil {
 		return fmt.Errorf("replace op permissions in user failed: %v", err)
 	}
 
+	return nil
+}
+
+func validateDomainExclusivity(opPermissionUids []string) error {
+	domains := make(map[pkgConst.PermissionDomain]bool)
+	for _, uid := range opPermissionUids {
+		domain := pkgConst.GetDomainByOpPermissionUID(uid)
+		if domain != "" {
+			domains[domain] = true
+		}
+	}
+	if len(domains) > 1 {
+		return fmt.Errorf("cross-domain permission assignment is not allowed: a user can only hold platform roles from a single domain")
+	}
+	return nil
+}
+
+func (d *UserUsecase) validateUpdatedUserPlatformRoleInOperatorDomain(ctx context.Context, currentUserUid string, targetOpPermissionUIDs []string) error {
+	if currentUserUid == pkgConst.UIDOfUserSys || currentUserUid == pkgConst.UIDOfUserAdmin {
+		return nil
+	}
+
+	var targetDomain pkgConst.PermissionDomain
+	for _, uid := range targetOpPermissionUIDs {
+		domain := pkgConst.GetDomainByOpPermissionUID(uid)
+		if domain != "" {
+			targetDomain = domain
+			break
+		}
+	}
+	if targetDomain == "" {
+		return nil
+	}
+
+	currentOps, err := d.OpPermissionVerifyUsecase.GetUserGlobalOpPermission(ctx, currentUserUid)
+	if err != nil {
+		return fmt.Errorf("failed to get current user permissions: %v", err)
+	}
+	for _, op := range currentOps {
+		currentDomain := pkgConst.GetDomainByOpPermissionUID(op.OpPermissionUID)
+		if currentDomain == targetDomain {
+			return nil
+		}
+	}
+	return fmt.Errorf("domain transfer restricted: operator and target user platform role domain must match")
+}
+
+func getPermissionDomainFromUIDs(opPermissionUIDs []string) pkgConst.PermissionDomain {
+	for _, uid := range opPermissionUIDs {
+		domain := pkgConst.GetDomainByOpPermissionUID(uid)
+		if domain != "" {
+			return domain
+		}
+	}
+	return ""
+}
+
+func (d *UserUsecase) getUserPlatformDomains(ctx context.Context, userUID string) (map[pkgConst.PermissionDomain]bool, error) {
+	domains := make(map[pkgConst.PermissionDomain]bool)
+	if userUID == pkgConst.UIDOfUserSys {
+		return domains, nil
+	}
+	currentOps, err := d.OpPermissionVerifyUsecase.GetUserGlobalOpPermission(ctx, userUID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get current user permissions: %v", err)
+	}
+	for _, op := range currentOps {
+		domain := pkgConst.GetDomainByOpPermissionUID(op.OpPermissionUID)
+		if domain != "" {
+			domains[domain] = true
+		}
+	}
+	return domains, nil
+}
+
+func (d *UserUsecase) validateCreateUserOperator(ctx context.Context, currentUserUid string, targetOpPermissionUIDs []string) error {
+	if currentUserUid == pkgConst.UIDOfUserSys {
+		return nil
+	}
+
+	domains, err := d.getUserPlatformDomains(ctx, currentUserUid)
+	if err != nil {
+		return err
+	}
+	if !domains[pkgConst.DomainPlatform] {
+		return fmt.Errorf("only system configure role or sys user can create user")
+	}
+
+	targetDomain := getPermissionDomainFromUIDs(targetOpPermissionUIDs)
+	if targetDomain != "" && targetDomain != pkgConst.DomainPlatform {
+		return fmt.Errorf("create user can not assign other domain role")
+	}
+	return nil
+}
+
+func (d *UserUsecase) validateUpdateUserOperator(ctx context.Context, currentUserUid string) error {
+	if currentUserUid == pkgConst.UIDOfUserSys {
+		return nil
+	}
+	domains, err := d.getUserPlatformDomains(ctx, currentUserUid)
+	if err != nil {
+		return err
+	}
+	if len(domains) == 0 {
+		return fmt.Errorf("only platform role user or sys user can update user")
+	}
 	return nil
 }
 
@@ -649,35 +802,17 @@ func (d *UserUsecase) ListUser(ctx context.Context, option *ListUsersOption) (us
 func (d *UserUsecase) DelUser(ctx context.Context, currentUserUid, UserUid string) (err error) {
 	// check
 	{
-		if UserUid == pkgConst.UIDOfUserAdmin || UserUid == pkgConst.UIDOfUserSys {
-			return fmt.Errorf("can not delete user admin or sys")
+		if UserUid == pkgConst.UIDOfUserAdmin || UserUid == pkgConst.UIDOfUserSys || pkgConst.IsBuiltInDomainUser(UserUid) {
+			return fmt.Errorf("can not delete built-in user")
 		}
 
-		isUserDMSAdmin, err := d.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, currentUserUid)
+		isUserPlatformConfigure, err := d.OpPermissionVerifyUsecase.IsUserPlatformConfigure(ctx, currentUserUid)
 		if err != nil {
 			return err
 		}
 
-		permissionList, err := d.OpPermissionVerifyUsecase.GetUserOpPermission(ctx, UserUid)
-		if err != nil {
-			return err
-		}
-
-		var hasGlobalViewOrManagementPermission bool
-		for _, permission := range permissionList {
-			if permission.OpPermissionUID == pkgConst.UIDOfOpPermissionGlobalView || permission.OpPermissionUID == pkgConst.UIDOfOpPermissionGlobalManagement {
-				hasGlobalViewOrManagementPermission = true
-			}
-		}
-
-		if hasGlobalViewOrManagementPermission && !isUserDMSAdmin {
-			return fmt.Errorf("only admin can delete user with global view or management permission")
-		}
-
-		if canGlobalOp, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid); err != nil {
-			return fmt.Errorf("check user is admin or global management permission : %v", err)
-		} else if !canGlobalOp {
-			return fmt.Errorf("user is not admin or global management permission")
+		if !isUserPlatformConfigure {
+			return fmt.Errorf("only platform configure role can delete user")
 		}
 	}
 
@@ -761,54 +896,22 @@ type UpdateUserArgs struct {
 func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid string, args *UpdateUserArgs) (err error) {
 	// checks
 	{
-		isAdmin, err := d.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, currentUserUid)
-		if err != nil {
-			return err
+		if args.UserUID == pkgConst.UIDOfUserAdmin || args.UserUID == pkgConst.UIDOfUserSys || pkgConst.IsBuiltInDomainUser(args.UserUID) {
+			return fmt.Errorf("can not update built-in user")
 		}
 
-		updateUserIsAdmin, err := d.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, args.UserUID)
-		if err != nil {
+		if err := d.validateUpdateUserOperator(ctx, currentUserUid); err != nil {
 			return err
-		}
-
-		if !isAdmin && updateUserIsAdmin {
-			return fmt.Errorf("only admin can update admin user")
 		}
 
 		if args.IsDisabled {
 			if currentUserUid == args.UserUID {
 				return fmt.Errorf("can not disable current user")
 			}
-			if pkgConst.UIDOfUserAdmin == args.UserUID {
-				return fmt.Errorf("can not disable admin user")
-			}
-			if pkgConst.UIDOfUserSys == args.UserUID {
-				return fmt.Errorf("can not disable sys user")
-			}
 		}
 
-		hasGlobalManagementOrViewPermission, err := d.OpPermissionVerifyUsecase.HasGlobalManagementOrViewPermission(ctx, args.UserUID)
-		if err != nil {
+		if err := d.validateUpdatedUserPlatformRoleInOperatorDomain(ctx, currentUserUid, args.OpPermissionUIDs); err != nil {
 			return err
-		}
-
-		var updateGlobalViewOrManagementPermission bool
-		for _, permission := range args.OpPermissionUIDs {
-			if permission == pkgConst.UIDOfOpPermissionGlobalView || permission == pkgConst.UIDOfOpPermissionGlobalManagement {
-				updateGlobalViewOrManagementPermission = true
-			}
-		}
-
-		// 1. 只有管理员才能更新拥有全局管理权限的用户,拥有全局管理权限的用户相互之间不能更新
-		// 2. 拥有全局管理权限的用户不能更新普通用户为全局管理,全局统计权限
-		if (hasGlobalManagementOrViewPermission || updateGlobalViewOrManagementPermission) && !isAdmin {
-			return fmt.Errorf("only admin can manage user with global manage or view permission")
-		}
-
-		if canGlobalOp, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid); err != nil {
-			return fmt.Errorf("check user is admin or global management permission : %v", err)
-		} else if !canGlobalOp {
-			return fmt.Errorf("user is not admin or global management permission")
 		}
 	}
 

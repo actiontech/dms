@@ -627,14 +627,18 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 			Name: locale.Bundle.LocalizeMsgByCtx(ctx, OpPermissionNameByUID[op.GetUID()]),
 		})
 	}
-	isAdmin, err := d.UserUsecase.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, u.GetUID())
-	if err != nil {
-		return nil, fmt.Errorf("failed to check user is dms admin")
-	}
-
-	canViewGlobal, err := d.UserUsecase.OpPermissionVerifyUsecase.CanViewGlobal(ctx, u.GetUID())
-	if err != nil {
-		return nil, fmt.Errorf("failed to check user can view global")
+	var isPlatformAdmin bool
+	var isAuditViewer bool
+	var isProjectDirector bool
+	for _, op := range ops {
+		switch op.GetUID() {
+		case pkgConst.UIDOfOpPermissionPlatformConfigure:
+			isPlatformAdmin = true
+		case pkgConst.UIDOfOpPermissionOperationAudit:
+			isAuditViewer = true
+		case pkgConst.UIDOfOpPermissionProjectDirector:
+			isProjectDirector = true
+		}
 	}
 
 	getGlobalProjectList := func() ([]*biz.Project, error) {
@@ -656,10 +660,14 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 		return d.OpPermissionVerifyUsecase.GetUserManagerProject(ctx, projectWithOpPermissions), nil
 	}
 
-	dmsCommonUser.IsAdmin = isAdmin
+	// 临时兼容：前端依赖该字段做页面展示控制，先固定返回 true
+	dmsCommonUser.IsAdmin = true
+	dmsCommonUser.IsPlatformAdmin = isPlatformAdmin
+	dmsCommonUser.IsAuditViewer = isAuditViewer
+	dmsCommonUser.IsProjectDirector = isProjectDirector
 	// 获取管理项目
 	userBindProjects := make([]dmsCommonV1.UserBindProject, 0)
-	if isAdmin {
+	if isProjectDirector {
 		projects, err := getGlobalProjectList()
 		if err != nil {
 			return nil, err
@@ -667,27 +675,6 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 
 		for _, project := range projects {
 			userBindProjects = append(userBindProjects, dmsCommonV1.UserBindProject{ProjectID: project.UID, ProjectName: project.Name, IsManager: true})
-		}
-	} else if canViewGlobal {
-		projects, err := getGlobalProjectList()
-		if err != nil {
-			return nil, err
-		}
-
-		bindProjects, err := getUserBindProjectList()
-		if err != nil {
-			return nil, fmt.Errorf("failed to get user project with op permission")
-		}
-
-		for _, project := range projects {
-			var isManager bool
-			for _, bindProject := range bindProjects {
-				if bindProject.IsManager && project.UID == bindProject.ProjectID {
-					isManager = true
-				}
-			}
-
-			userBindProjects = append(userBindProjects, dmsCommonV1.UserBindProject{ProjectID: project.UID, ProjectName: project.Name, IsManager: isManager})
 		}
 	} else {
 		userBindProjects, err = getUserBindProjectList()
@@ -753,12 +740,12 @@ func convertBizOpPermission(opPermissionUid string) (apiOpPermissionTyp dmsCommo
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeAuthDBServiceData
 	case pkgConst.UIDOfOpPermissionProjectAdmin:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeProjectAdmin
-	case pkgConst.UIDOfOpPermissionCreateProject:
-		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeCreateProject
-	case pkgConst.UIDOfOpPermissionGlobalView:
-		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeGlobalView
-	case pkgConst.UIDOfOpPermissionGlobalManagement:
-		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeGlobalManagement
+	case pkgConst.UIDOfOpPermissionProjectDirector:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeProjectDirector
+	case pkgConst.UIDOfOpPermissionOperationAudit:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeOperationAudit
+	case pkgConst.UIDOfOpPermissionPlatformConfigure:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypePlatformConfigure
 	case pkgConst.UIDOfOpPermissionExecuteWorkflow:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeExecuteWorkflow
 	case pkgConst.UIDOfOpPermissionViewOthersWorkflow:

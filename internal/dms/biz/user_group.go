@@ -109,7 +109,7 @@ type CreateUserGroupArgs struct {
 func (d *UserGroupUsecase) CreateUserGroup(ctx context.Context, currentUserUid string, args *CreateUserGroupArgs) (uid string, err error) {
 	// check
 	{
-		if canGlobalOp, err := d.opPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid); err != nil {
+		if canGlobalOp, err := d.opPermissionVerifyUsecase.IsUserPlatformConfigure(ctx, currentUserUid); err != nil {
 			return "", fmt.Errorf("check user is admin or global management permission : %v", err)
 		} else if !canGlobalOp {
 			return "", fmt.Errorf("user is not admin or global management permission")
@@ -165,7 +165,7 @@ func (d *UserGroupUsecase) DelUserGroup(ctx context.Context, currentUserUid, Use
 
 	// check
 	{
-		if canGlobalOp, err := d.opPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid); err != nil {
+		if canGlobalOp, err := d.opPermissionVerifyUsecase.IsUserPlatformConfigure(ctx, currentUserUid); err != nil {
 			return fmt.Errorf("check user is admin or global management permission : %v", err)
 		} else if !canGlobalOp {
 			return fmt.Errorf("user is not admin or global management permission")
@@ -203,7 +203,7 @@ func (d *UserGroupUsecase) GetUserGroup(ctx context.Context, userGroupUid string
 func (d *UserGroupUsecase) UpdateUserGroup(ctx context.Context, currentUserUid, updateUserGroupUid string, isDisabled bool, desc *string, userUids []string) error {
 	// check
 	{
-		if canGlobalOp, err := d.opPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid); err != nil {
+		if canGlobalOp, err := d.opPermissionVerifyUsecase.IsUserPlatformConfigure(ctx, currentUserUid); err != nil {
 			return fmt.Errorf("check user is admin or global management permission : %v", err)
 		} else if !canGlobalOp {
 			return fmt.Errorf("user is not admin or global management permission")

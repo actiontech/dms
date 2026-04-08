@@ -8,7 +8,9 @@ import (
 
 // internel build-in uid
 const (
-	UIDOfOpPermissionCreateProject          = "700001"
+	UIDOfOpPermissionProjectDirector = "700001" // 项目总监（项目域平台角色）
+	// Deprecated: use UIDOfOpPermissionProjectDirector instead.
+	UIDOfOpPermissionCreateProject          = UIDOfOpPermissionProjectDirector
 	UIDOfOpPermissionProjectAdmin           = "700002"
 	UIDOfOpPermissionCreateWorkflow         = "700003"
 	UIDOfOpPermissionAuditWorkflow          = "700004"
@@ -23,11 +25,12 @@ const (
 	UIDOfOpPermissionCreateOptimization     = "700013"
 	UIDOfOpPermissionViewOthersOptimization = "700014"
 	UIDOfOpPermissionCreatePipeline         = "700015"
-	// UIDOfOpPermissionGlobalView 可以查看全局资源,但是不能修改资源
-	UIDOfOpPermissionGlobalView = "700016"
-	// UIDOfOpPermissionGlobalManagement 可以操作和查看全局资源,但是权限级别低于admin,admin可以修改全局资源权限,全局资源权限不能修改admin
-	// 拥有全局资源权限用户不能同级权限用户
-	UIDOfOpPermissionGlobalManagement        = "700017"
+	UIDOfOpPermissionOperationAudit         = "700016" // 操作审计（审计域平台角色）
+	// Deprecated: use UIDOfOpPermissionOperationAudit instead.
+	UIDOfOpPermissionGlobalView        = UIDOfOpPermissionOperationAudit
+	UIDOfOpPermissionPlatformConfigure = "700017" // 系统配置（平台域平台角色）
+	// Deprecated: use UIDOfOpPermissionPlatformConfigure instead.
+	UIDOfOpPermissionGlobalManagement        = UIDOfOpPermissionPlatformConfigure
 	UIDOfOrdinaryUser                        = "700018"
 	UIDOfOpPermissionViewOperationRecord     = "700019"
 	UIDOfOpPermissionViewExportTask          = "700020"
@@ -51,8 +54,11 @@ const (
 
 	UIDOfDMSConfig = "700100"
 
-	UIDOfUserAdmin = "700200"
-	UIDOfUserSys   = "700201"
+	UIDOfUserAdmin          = "700200"
+	UIDOfUserSys            = "700201"
+	UIDOfUserPlatConfigurer = "700202"
+	UIDOfUserAuditViewer    = "700203"
+	UIDOfUserDirector       = "700204"
 
 	UIDOfProjectDefault = "700300"
 
@@ -61,6 +67,36 @@ const (
 	UIDOfRoleDevManager   = "700404"
 	UIDOfRoleOpsEngineer  = "700405"
 )
+
+type PermissionDomain string
+
+const (
+	DomainPlatform PermissionDomain = "platform"
+	DomainAudit    PermissionDomain = "audit"
+	DomainProject  PermissionDomain = "project"
+)
+
+func GetDomainByOpPermissionUID(uid string) PermissionDomain {
+	switch uid {
+	case UIDOfOpPermissionPlatformConfigure:
+		return DomainPlatform
+	case UIDOfOpPermissionOperationAudit:
+		return DomainAudit
+	case UIDOfOpPermissionProjectDirector:
+		return DomainProject
+	default:
+		return ""
+	}
+}
+
+func IsBuiltInDomainUser(uid string) bool {
+	switch uid {
+	case UIDOfUserPlatConfigurer, UIDOfUserAuditViewer, UIDOfUserDirector:
+		return true
+	default:
+		return false
+	}
+}
 
 func ConvertPermissionIdToType(opPermissionUid string) (apiOpPermissionTyp dmsCommonV1.OpPermissionType, err error) {
 	switch opPermissionUid {
@@ -72,7 +108,7 @@ func ConvertPermissionIdToType(opPermissionUid string) (apiOpPermissionTyp dmsCo
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeAuthDBServiceData
 	case UIDOfOpPermissionProjectAdmin:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeProjectAdmin
-	case UIDOfOpPermissionCreateProject:
+	case UIDOfOpPermissionProjectDirector:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeCreateProject
 	case UIDOfOpPermissionExecuteWorkflow:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeExecuteWorkflow
@@ -148,11 +184,11 @@ func ConvertPermissionTypeToId(opPermissionType dmsCommonV1.OpPermissionType) (p
 	case dmsCommonV1.OpPermissionTypeProjectAdmin:
 		permissionId = UIDOfOpPermissionProjectAdmin
 	case dmsCommonV1.OpPermissionTypeCreateProject:
-		permissionId = UIDOfOpPermissionCreateProject
+		permissionId = UIDOfOpPermissionProjectDirector
 	case dmsCommonV1.OpPermissionTypeGlobalManagement:
-		permissionId = UIDOfOpPermissionGlobalManagement
+		permissionId = UIDOfOpPermissionPlatformConfigure
 	case dmsCommonV1.OpPermissionTypeGlobalView:
-		permissionId = UIDOfOpPermissionGlobalView
+		permissionId = UIDOfOpPermissionOperationAudit
 	case dmsCommonV1.OpPermissionTypeExecuteWorkflow:
 		permissionId = UIDOfOpPermissionExecuteWorkflow
 	case dmsCommonV1.OpPermissionTypeViewOthersWorkflow:

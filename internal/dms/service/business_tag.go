@@ -16,10 +16,10 @@ func (d *DMSService) CreateBusinessTag(ctx context.Context, currentUserUid strin
 	}()
 
 	// 权限校验
-	if canGlobalOp, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid); err != nil {
+	if canGlobalOp, err := d.OpPermissionVerifyUsecase.IsUserProjectDirector(ctx, currentUserUid); err != nil {
 		return fmt.Errorf("check user op permission failed: %v", err)
 	} else if !canGlobalOp {
-		return fmt.Errorf("user is not project admin or global op permission user")
+		return fmt.Errorf("user is not ProjectDirector")
 	}
 
 	if err := d.BusinessTagUsecase.CreateBusinessTag(ctx, businessTag.Name); err != nil {
@@ -36,10 +36,10 @@ func (d *DMSService) UpdateBusinessTag(ctx context.Context, currentUserUid strin
 	}()
 
 	// 权限校验
-	if canGlobalOp, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid); err != nil {
+	if canGlobalOp, err := d.OpPermissionVerifyUsecase.IsUserPlatformConfigure(ctx, currentUserUid); err != nil {
 		return fmt.Errorf("check user op permission failed: %v", err)
 	} else if !canGlobalOp {
-		return fmt.Errorf("user is not project admin or global op permission user")
+		return fmt.Errorf("user is not ProjectDirector")
 	}
 
 	if err := d.BusinessTagUsecase.UpdateBusinessTag(ctx, businessTagUID, businessTagForUpdate.Name); err != nil {
@@ -55,10 +55,10 @@ func (d *DMSService) DeleteBusinessTag(ctx context.Context, currentUserUid strin
 	}()
 
 	// 权限校验
-	if canGlobalOp, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid); err != nil {
+	if canGlobalOp, err := d.OpPermissionVerifyUsecase.IsUserProjectDirector(ctx, currentUserUid); err != nil {
 		return fmt.Errorf("check user op permission failed: %v", err)
 	} else if !canGlobalOp {
-		return fmt.Errorf("user is not project admin or global op permission user")
+		return fmt.Errorf("user is not ProjectDirector")
 	}
 
 	// 业务标签被项目关联时，不允许删除

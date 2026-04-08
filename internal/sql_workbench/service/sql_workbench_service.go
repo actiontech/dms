@@ -23,8 +23,8 @@ import (
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/dms/storage"
-	"github.com/actiontech/dms/internal/pkg/locale"
 	dbmodel "github.com/actiontech/dms/internal/dms/storage/model"
+	"github.com/actiontech/dms/internal/pkg/locale"
 	"github.com/actiontech/dms/internal/sql_workbench/client"
 	config "github.com/actiontech/dms/internal/sql_workbench/config"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
@@ -526,8 +526,8 @@ func (sqlWorkbenchService *SqlWorkbenchService) getUserAccessibleDBServices(ctx 
 		return nil, fmt.Errorf("failed to get active db services: %v", err)
 	}
 
-	// 检查用户是否有全局权限
-	hasGlobalOpPermission, err := sqlWorkbenchService.opPermissionVerifyUsecase.CanOpGlobal(ctx, dmsUser.UID)
+	// 检查用户是项目经理
+	hasGlobalOpPermission, err := sqlWorkbenchService.opPermissionVerifyUsecase.IsUserProjectDirector(ctx, dmsUser.UID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to check global op permission: %v", err)
 	}
@@ -1759,5 +1759,3 @@ func (w *streamExecuteResponseWriter) Write(b []byte) (int, error) {
 func (w *streamExecuteResponseWriter) WriteHeader(code int) {
 	w.status = code
 }
-
-
