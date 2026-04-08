@@ -146,10 +146,10 @@ func (d *DMSService) ListDataExportWorkflow(ctx context.Context, req *dmsV1.List
 		if len(creater) > 0 {
 			ret[i].Creater = creater[0]
 		}
-		if w.WorkflowRecord.WorkflowSteps[w.WorkflowRecord.CurrentWorkflowStepId-1].State == "init" {
+		// 结束时不显示当前步骤操作人，其他状态显示当前步骤操作人
+		if w.Status != string(dmsV1.StatusFinish) {
 			ret[i].CurrentStepAssigneeUsers = convertBizUidWithName(d.UserUsecase.GetBizUserIncludeDeletedWithNameByUids(ctx, w.WorkflowRecord.WorkflowSteps[w.WorkflowRecord.CurrentWorkflowStepId-1].Assignees))
 		}
-
 	}
 
 	return &dmsV1.ListDataExportWorkflowsReply{
@@ -191,7 +191,8 @@ func (d *DMSService) GetGlobalWorkflowsList(ctx context.Context, req *dmsV1.Filt
 		if len(creater) > 0 {
 			ret[i].Creater = creater[0]
 		}
-		if w.WorkflowRecord.WorkflowSteps[w.WorkflowRecord.CurrentWorkflowStepId-1].State == "init" {
+		// 结束时不显示当前步骤操作人，其他状态显示当前步骤操作人
+		if w.Status != string(dmsV1.StatusFinish) {
 			ret[i].CurrentStepAssigneeUsers = convertBizUidWithName(d.UserUsecase.GetBizUserIncludeDeletedWithNameByUids(ctx, w.WorkflowRecord.WorkflowSteps[w.WorkflowRecord.CurrentWorkflowStepId-1].Assignees))
 		}
 	}

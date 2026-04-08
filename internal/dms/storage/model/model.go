@@ -502,7 +502,18 @@ type WorkflowRecord struct {
 type Strings []string
 
 func (t *Strings) Scan(value interface{}) error {
-	bytesValue, _ := value.([]byte)
+	if value == nil {
+		return nil
+	}
+	var bytesValue []byte
+	switch v := value.(type) {
+	case []byte:
+		bytesValue = v
+	case string:
+		bytesValue = []byte(v)
+	default:
+		return fmt.Errorf("failed to scan Strings: expected []byte or string, got %T", value)
+	}
 	return json.Unmarshal(bytesValue, t)
 }
 

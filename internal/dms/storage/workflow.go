@@ -384,7 +384,7 @@ SELECT
        w.create_user_uid,
 	   CAST("" AS DATETIME)											 AS create_user_deleted_at,
        w.created_at                                                  AS create_time,
-       curr_ws.assignees											 AS current_step_assignee_user_id_list,
+       IF(wr.status = 'rejected', JSON_ARRAY(w.create_user_uid), curr_ws.assignees) AS current_step_assignee_user_id_list,
        curr_ws.state												 AS current_step_state,
        wr.status,
        wr.current_workflow_step_id									 AS current_workflow_step_id,
@@ -413,7 +413,8 @@ w.workflow_type='data_export'
 {{- if .check_user_can_access }}
 AND (
 w.create_user_uid = :current_user_id 
-OR curr_ws.assignees REGEXP :current_user_id
+OR (wr.status != 'rejected' AND curr_ws.assignees REGEXP :current_user_id)
+OR (wr.status = 'rejected' AND w.create_user_uid = :current_user_id)
 
 
 {{- if .viewable_db_service_uids }} 
@@ -440,7 +441,7 @@ AND wr.status IN (:filter_status)
 {{- end }}
 
 {{- if .filter_current_step_assignee_user_id }}
-AND curr_ws.assignees REGEXP :filter_current_step_assignee_user_id
+AND ((wr.status != 'rejected' AND curr_ws.assignees REGEXP :filter_current_step_assignee_user_id) OR (wr.status = 'rejected' AND w.create_user_uid = :filter_current_step_assignee_user_id))
 {{- end }}
 
 {{- if .filter_db_service_uid }}
@@ -573,10 +574,27 @@ func (d *WorkflowRepo) GetGlobalWorkflowsByParameterMap(ctx context.Context, dat
 		}
 
 		// Set the current step data
-		if result.CurrentWorkflowStepId > 0 {
-			currentStepIndex := result.CurrentWorkflowStepId - 1
+		if result.CurrentWorkflowStepId > 0 || result.Status == "rejected" {
+			currentStepIndex := int64(result.CurrentWorkflowStepId) - 1
+			if currentStepIndex < 0 {
+				currentStepIndex = 0
+			}
+			// Ensure WorkflowSteps has enough capacity
+			if len(workflow.WorkflowRecord.WorkflowSteps) <= int(currentStepIndex) {
+				newSteps := make([]*biz.WorkflowStep, currentStepIndex+1)
+				copy(newSteps, workflow.WorkflowRecord.WorkflowSteps)
+				for i := len(workflow.WorkflowRecord.WorkflowSteps); i <= int(currentStepIndex); i++ {
+					newSteps[i] = &biz.WorkflowStep{
+						StepId:            uint64(i + 1),
+						WorkflowRecordUid: result.WorkflowRecordUID,
+						Assignees:         []string{},
+					}
+				}
+				workflow.WorkflowRecord.WorkflowSteps = newSteps
+			}
+
 			workflow.WorkflowRecord.WorkflowSteps[currentStepIndex] = &biz.WorkflowStep{
-				StepId:            result.CurrentWorkflowStepId,
+				StepId:            uint64(currentStepIndex + 1),
 				WorkflowRecordUid: result.WorkflowRecordUID,
 				State:             result.CurrentStepState,
 				Assignees:         result.CurrentStepAssigneeUserIDList,
