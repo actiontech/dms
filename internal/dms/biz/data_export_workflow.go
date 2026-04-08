@@ -108,6 +108,7 @@ type WorkflowRepo interface {
 	GetDataExportWorkflowsByIds(ctx context.Context, dataExportWorkflowUid []string) ([]*Workflow, error)
 	CancelWorkflow(ctx context.Context, workflowRecordIds []string, workflowSteps []*WorkflowStep, operateId string) error
 	AuditWorkflow(ctx context.Context, dataExportWorkflowUid string, status DataExportWorkflowStatus, step *WorkflowStep, operateId, reason string) error
+	AdvanceWorkflowStep(ctx context.Context, dataExportWorkflowUid string, currentStep *WorkflowStep, nextStepId uint64, operateId string) error
 	GetDataExportWorkflowsForView(ctx context.Context, userUid string) ([]string, error)
 	GetProjectDataExportWorkflowsForView(ctx context.Context, projectUid string) ([]string, error)
 	GetDataExportWorkflowsByStatus(ctx context.Context, status string) ([]string, error)
