@@ -285,6 +285,25 @@ func (d *WorkflowRepo) AuditWorkflow(ctx context.Context, dataExportWorkflowUid 
 	})
 }
 
+// AdvanceWorkflowStep 推进工单审批到下一步骤：标记当前步骤为 approved 并更新 CurrentWorkflowStepId，工单状态保持 wait_for_approve
+func (d *WorkflowRepo) AdvanceWorkflowStep(ctx context.Context, dataExportWorkflowUid string, currentStep *biz.WorkflowStep, nextStepId uint64, operateId string) error {
+	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		// 更新当前步骤状态为 approved
+		operateTime := time.Now()
+		stepFields := map[string]interface{}{"operation_user_uid": operateId, "operate_at": operateTime, "state": currentStep.State}
+		if err := tx.WithContext(ctx).Model(&model.WorkflowStep{}).Where("step_id = ? and workflow_record_uid = ?", currentStep.StepId, currentStep.WorkflowRecordUid).Updates(stepFields).Error; err != nil {
+			return fmt.Errorf("failed to update current workflow step, err: %v", err)
+		}
+
+		// 推进 CurrentWorkflowStepId 到下一步
+		if err := tx.WithContext(ctx).Model(&model.WorkflowRecord{}).Where("uid = ?", dataExportWorkflowUid).Update("current_workflow_step_id", nextStepId).Error; err != nil {
+			return fmt.Errorf("failed to advance workflow step, err: %v", err)
+		}
+
+		return nil
+	})
+}
+
 func (d *WorkflowRepo) UpdateWorkflowStatusById(ctx context.Context, dataExportWorkflowUid string, status biz.DataExportWorkflowStatus) error {
 	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Model(&model.WorkflowRecord{}).Where("uid = ?", dataExportWorkflowUid).Update("status", status).Error; err != nil {
