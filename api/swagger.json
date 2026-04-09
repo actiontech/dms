@@ -9684,12 +9684,6 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
-    "DateTime": {
-      "description": "DateTime is a time but it serializes to ISO8601 format with millis\nIt knows how to read 3 different variations of a RFC3339 date time.\nMost APIs we encounter want either millisecond or second precision times.\nThis just tries to make it worry-free.",
-      "type": "string",
-      "format": "date-time",
-      "x-go-package": "github.com/go-openapi/strfmt"
-    },
     "DbServiceConnections": {
       "type": "object",
       "properties": {
@@ -10817,9 +10811,24 @@
           "x-go-name": "Email"
         },
         "is_admin": {
-          "description": "is admin",
+          "description": "Deprecated",
           "type": "boolean",
           "x-go-name": "IsAdmin"
+        },
+        "is_operation_audit": {
+          "description": "has audit domain role",
+          "type": "boolean",
+          "x-go-name": "IsOperationAudit"
+        },
+        "is_platform_configure": {
+          "description": "has platform domain role",
+          "type": "boolean",
+          "x-go-name": "IsPlatformConfigure"
+        },
+        "is_project_director": {
+          "description": "has project domain role",
+          "type": "boolean",
+          "x-go-name": "IsProjectDirector"
         },
         "language": {
           "description": "user language",
@@ -11123,6 +11132,10 @@
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "I18nStr": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/i18nPkg"
     },
     "ImportDBService": {
@@ -13146,17 +13159,6 @@
     "ListMemberRoleWithOpRange": {
       "type": "object",
       "properties": {
-        "member_group": {
-          "$ref": "#/definitions/ProjectMemberGroup"
-        },
-        "op_permissions": {
-          "description": "member op permissions",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/UidWithName"
-          },
-          "x-go-name": "OpPermissions"
-        },
         "op_range_type": {
           "description": "op permission range type, only support db service now\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "type": "string",
@@ -13181,7 +13183,7 @@
           "$ref": "#/definitions/UidWithName"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "ListMemberTipsItem": {
       "type": "object",
@@ -14528,7 +14530,7 @@
       "type": "object",
       "properties": {
         "op_permission_type": {
-          "description": "op permission type\nunknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nglobal_view OpPermissionTypeGlobalView  项目管理；拥有该权限的用户可以管理项目下的所有资源\nglobal_management OpPermissionTypeGlobalManagement  全局浏览；拥有该权限的用户可以浏览全局的资源\nproject_admin OpPermissionTypeProjectAdmin  全局管理；拥有该权限的用户可以浏览和管理全局的资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  账号管理；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nview_sql_insight OpPermissionTypeViewSQLInsight  查看SQL洞察权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单\ncreate_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优\nview_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优\ncreate_pipeline OpPermissionTypeCreatePipeline  配置流水线\nview_operation_record OpPermissionViewOperationRecord  SQL工作台;查看所有操作记录\nview_export_task OpPermissionViewExportTask  数据导出;查看所有导出任务\nview_quick_audit_record OpPermissionViewQuickAuditRecord  快捷审核;查看所有快捷审核记录\nview_ide_audit_record OpPermissionViewIDEAuditRecord  IDE审核;查看所有IDE审核记录\nview_optimization_record OpPermissionViewOptimizationRecord  SQL优化;查看所有优化记录\nview_version_manage OpPermissionViewVersionManage  版本管理;查看他人创建的版本记录\nversion_manage OpPermissionVersionManage  版本管理;配置版本\nview_pipeline OpPermissionViewPipeline  CI/CD集成;查看所有流水线\nmanage_project_data_source OpPermissionManageProjectDataSource  数据源管理;管理项目数据源管理\nmanage_audit_rule_template OpPermissionManageAuditRuleTemplate  审核规则模版;管理审核规则模版\nmanage_approval_template OpPermissionManageApprovalTemplate  审批流程模版;管理审批流程模版\nmanage_member OpPermissionManageMember  成员与权限;管理成员与权限\nmanage_push_rule OpPermissionPushRule  推送规则;管理推送规则\nmanage_audit_sql_white_list OpPermissionMangeAuditSQLWhiteList  审核SQL例外;管理审核SQL例外\nmanage_sql_mange_white_list OpPermissionManageSQLMangeWhiteList  管控SQL例外;管理管控SQL例外\nmanage_role_mange OpPermissionManageRoleMange  角色管理;角色管理权限\ndesensitization OpPermissionDesensitization  脱敏规则;脱敏规则配置权限\nmasking_audit OpPermissionMaskingAudit  脱敏审核;拥有该权限的用户可以查看和处理脱敏审批请求\nnone OpPermissionTypeNone  无任何权限",
+          "description": "op permission type\nunknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeProjectDirector  项目总监；拥有该权限的用户可在权限判定中通过项目域平台角色校验\nglobal_view OpPermissionTypeOperationAudit  操作审计；拥有该权限的用户可以浏览全局操作审计资源\nglobal_management OpPermissionTypePlatformConfigure  系统配置；拥有该权限的用户可以浏览和管理全局配置资源\nproject_admin OpPermissionTypeProjectAdmin  全局管理；拥有该权限的用户可以浏览和管理全局的资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  账号管理；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nview_sql_insight OpPermissionTypeViewSQLInsight  查看SQL洞察权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单\ncreate_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优\nview_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优\ncreate_pipeline OpPermissionTypeCreatePipeline  配置流水线\nview_operation_record OpPermissionViewOperationRecord  SQL工作台;查看所有操作记录\nview_export_task OpPermissionViewExportTask  数据导出;查看所有导出任务\nview_quick_audit_record OpPermissionViewQuickAuditRecord  快捷审核;查看所有快捷审核记录\nview_ide_audit_record OpPermissionViewIDEAuditRecord  IDE审核;查看所有IDE审核记录\nview_optimization_record OpPermissionViewOptimizationRecord  SQL优化;查看所有优化记录\nview_version_manage OpPermissionViewVersionManage  版本管理;查看他人创建的版本记录\nversion_manage OpPermissionVersionManage  版本管理;配置版本\nview_pipeline OpPermissionViewPipeline  CI/CD集成;查看所有流水线\nmanage_project_data_source OpPermissionManageProjectDataSource  数据源管理;管理项目数据源管理\nmanage_audit_rule_template OpPermissionManageAuditRuleTemplate  审核规则模版;管理审核规则模版\nmanage_approval_template OpPermissionManageApprovalTemplate  审批流程模版;管理审批流程模版\nmanage_member OpPermissionManageMember  成员与权限;管理成员与权限\nmanage_push_rule OpPermissionPushRule  推送规则;管理推送规则\nmanage_audit_sql_white_list OpPermissionMangeAuditSQLWhiteList  审核SQL例外;管理审核SQL例外\nmanage_sql_mange_white_list OpPermissionManageSQLMangeWhiteList  管控SQL例外;管理管控SQL例外\nmanage_role_mange OpPermissionManageRoleMange  角色管理;角色管理权限\ndesensitization OpPermissionDesensitization  脱敏规则;脱敏规则配置权限\nmasking_audit OpPermissionMaskingAudit  脱敏审核;拥有该权限的用户可以查看和处理脱敏审批请求\nnone OpPermissionTypeNone  无任何权限",
           "type": "string",
           "enum": [
             "unknown",
@@ -14570,7 +14572,7 @@
             "masking_audit",
             "none"
           ],
-          "x-go-enum-desc": "unknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限\nglobal_view OpPermissionTypeGlobalView  项目管理；拥有该权限的用户可以管理项目下的所有资源\nglobal_management OpPermissionTypeGlobalManagement  全局浏览；拥有该权限的用户可以浏览全局的资源\nproject_admin OpPermissionTypeProjectAdmin  全局管理；拥有该权限的用户可以浏览和管理全局的资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  账号管理；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nview_sql_insight OpPermissionTypeViewSQLInsight  查看SQL洞察权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单\ncreate_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优\nview_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优\ncreate_pipeline OpPermissionTypeCreatePipeline  配置流水线\nview_operation_record OpPermissionViewOperationRecord  SQL工作台;查看所有操作记录\nview_export_task OpPermissionViewExportTask  数据导出;查看所有导出任务\nview_quick_audit_record OpPermissionViewQuickAuditRecord  快捷审核;查看所有快捷审核记录\nview_ide_audit_record OpPermissionViewIDEAuditRecord  IDE审核;查看所有IDE审核记录\nview_optimization_record OpPermissionViewOptimizationRecord  SQL优化;查看所有优化记录\nview_version_manage OpPermissionViewVersionManage  版本管理;查看他人创建的版本记录\nversion_manage OpPermissionVersionManage  版本管理;配置版本\nview_pipeline OpPermissionViewPipeline  CI/CD集成;查看所有流水线\nmanage_project_data_source OpPermissionManageProjectDataSource  数据源管理;管理项目数据源管理\nmanage_audit_rule_template OpPermissionManageAuditRuleTemplate  审核规则模版;管理审核规则模版\nmanage_approval_template OpPermissionManageApprovalTemplate  审批流程模版;管理审批流程模版\nmanage_member OpPermissionManageMember  成员与权限;管理成员与权限\nmanage_push_rule OpPermissionPushRule  推送规则;管理推送规则\nmanage_audit_sql_white_list OpPermissionMangeAuditSQLWhiteList  审核SQL例外;管理审核SQL例外\nmanage_sql_mange_white_list OpPermissionManageSQLMangeWhiteList  管控SQL例外;管理管控SQL例外\nmanage_role_mange OpPermissionManageRoleMange  角色管理;角色管理权限\ndesensitization OpPermissionDesensitization  脱敏规则;脱敏规则配置权限\nmasking_audit OpPermissionMaskingAudit  脱敏审核;拥有该权限的用户可以查看和处理脱敏审批请求\nnone OpPermissionTypeNone  无任何权限",
+          "x-go-enum-desc": "unknown OpPermissionTypeUnknown\ncreate_project OpPermissionTypeProjectDirector  项目总监；拥有该权限的用户可在权限判定中通过项目域平台角色校验\nglobal_view OpPermissionTypeOperationAudit  操作审计；拥有该权限的用户可以浏览全局操作审计资源\nglobal_management OpPermissionTypePlatformConfigure  系统配置；拥有该权限的用户可以浏览和管理全局配置资源\nproject_admin OpPermissionTypeProjectAdmin  全局管理；拥有该权限的用户可以浏览和管理全局的资源\ncreate_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单\naudit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单\nauth_db_service_data OpPermissionTypeAuthDBServiceData  账号管理；拥有该权限的用户可以授权数据源数据权限\nview_others_workflow OpPermissionTypeViewOthersWorkflow  查看其他工单权限\nexecute_workflow OpPermissionTypeExecuteWorkflow  上线工单；拥有该权限的用户可以上线工单\nview_other_audit_plan OpPermissionTypeViewOtherAuditPlan  查看其他扫描任务权限\nview_sql_insight OpPermissionTypeViewSQLInsight  查看SQL洞察权限\nsave_audit_plan OpPermissionTypeSaveAuditPlan  创建扫描任务权限；拥有该权限的用户可以创建/更新扫描任务\nsql_query OpPermissionTypeSQLQuery SQL查询；SQL查询权限\ncreate_export_task OpPermissionTypeExportCreate  创建数据导出任务；拥有该权限的用户可以创建数据导出任务或者工单\naudit_export_workflow OpPermissionTypeAuditExportWorkflow  审核/驳回数据导出工单；拥有该权限的用户可以审核/驳回数据导出工单\ncreate_optimization OpPermissionTypeCreateOptimization  创建智能调优；拥有该权限的用户可以创建智能调优\nview_others_optimization OpPermissionTypeViewOthersOptimization  查看他人创建的智能调优\ncreate_pipeline OpPermissionTypeCreatePipeline  配置流水线\nview_operation_record OpPermissionViewOperationRecord  SQL工作台;查看所有操作记录\nview_export_task OpPermissionViewExportTask  数据导出;查看所有导出任务\nview_quick_audit_record OpPermissionViewQuickAuditRecord  快捷审核;查看所有快捷审核记录\nview_ide_audit_record OpPermissionViewIDEAuditRecord  IDE审核;查看所有IDE审核记录\nview_optimization_record OpPermissionViewOptimizationRecord  SQL优化;查看所有优化记录\nview_version_manage OpPermissionViewVersionManage  版本管理;查看他人创建的版本记录\nversion_manage OpPermissionVersionManage  版本管理;配置版本\nview_pipeline OpPermissionViewPipeline  CI/CD集成;查看所有流水线\nmanage_project_data_source OpPermissionManageProjectDataSource  数据源管理;管理项目数据源管理\nmanage_audit_rule_template OpPermissionManageAuditRuleTemplate  审核规则模版;管理审核规则模版\nmanage_approval_template OpPermissionManageApprovalTemplate  审批流程模版;管理审批流程模版\nmanage_member OpPermissionManageMember  成员与权限;管理成员与权限\nmanage_push_rule OpPermissionPushRule  推送规则;管理推送规则\nmanage_audit_sql_white_list OpPermissionMangeAuditSQLWhiteList  审核SQL例外;管理审核SQL例外\nmanage_sql_mange_white_list OpPermissionManageSQLMangeWhiteList  管控SQL例外;管理管控SQL例外\nmanage_role_mange OpPermissionManageRoleMange  角色管理;角色管理权限\ndesensitization OpPermissionDesensitization  脱敏规则;脱敏规则配置权限\nmasking_audit OpPermissionMaskingAudit  脱敏审核;拥有该权限的用户可以查看和处理脱敏审批请求\nnone OpPermissionTypeNone  无任何权限",
           "x-go-name": "OpPermissionType"
         },
         "range_type": {
@@ -16200,7 +16202,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateBusinessTagReq": {
       "type": "object",

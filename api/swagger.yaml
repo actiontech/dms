@@ -1539,15 +1539,6 @@ definitions:
                 x-go-name: Params
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    DateTime:
-        description: |-
-            DateTime is a time but it serializes to ISO8601 format with millis
-            It knows how to read 3 different variations of a RFC3339 date time.
-            Most APIs we encounter want either millisecond or second precision times.
-            This just tries to make it worry-free.
-        format: date-time
-        type: string
-        x-go-package: github.com/go-openapi/strfmt
     DbServiceConnections:
         properties:
             db_service_uid:
@@ -2408,9 +2399,21 @@ definitions:
                 type: string
                 x-go-name: Email
             is_admin:
-                description: is admin
+                description: Deprecated
                 type: boolean
                 x-go-name: IsAdmin
+            is_operation_audit:
+                description: has audit domain role
+                type: boolean
+                x-go-name: IsOperationAudit
+            is_platform_configure:
+                description: has platform domain role
+                type: boolean
+                x-go-name: IsPlatformConfigure
+            is_project_director:
+                description: has project domain role
+                type: boolean
+                x-go-name: IsProjectDirector
             language:
                 description: user language
                 type: string
@@ -2669,6 +2672,9 @@ definitions:
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     I18nStr:
+        additionalProperties:
+            type: string
+        type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/i18nPkg
     ImportDBService:
         properties:
@@ -4258,14 +4264,6 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberRoleWithOpRange:
         properties:
-            member_group:
-                $ref: '#/definitions/ProjectMemberGroup'
-            op_permissions:
-                description: member op permissions
-                items:
-                    $ref: '#/definitions/UidWithName'
-                type: array
-                x-go-name: OpPermissions
             op_range_type:
                 description: |-
                     op permission range type, only support db service now
@@ -4294,7 +4292,7 @@ definitions:
             role_uid:
                 $ref: '#/definitions/UidWithName'
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ListMemberTipsItem:
         properties:
             user_id:
@@ -5471,9 +5469,9 @@ definitions:
                 description: |-
                     op permission type
                     unknown OpPermissionTypeUnknown
-                    create_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限
-                    global_view OpPermissionTypeGlobalView  项目管理；拥有该权限的用户可以管理项目下的所有资源
-                    global_management OpPermissionTypeGlobalManagement  全局浏览；拥有该权限的用户可以浏览全局的资源
+                    create_project OpPermissionTypeProjectDirector  项目总监；拥有该权限的用户可在权限判定中通过项目域平台角色校验
+                    global_view OpPermissionTypeOperationAudit  操作审计；拥有该权限的用户可以浏览全局操作审计资源
+                    global_management OpPermissionTypePlatformConfigure  系统配置；拥有该权限的用户可以浏览和管理全局配置资源
                     project_admin OpPermissionTypeProjectAdmin  全局管理；拥有该权限的用户可以浏览和管理全局的资源
                     create_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单
                     audit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单
@@ -5550,9 +5548,9 @@ definitions:
                 type: string
                 x-go-enum-desc: |-
                     unknown OpPermissionTypeUnknown
-                    create_project OpPermissionTypeCreateProject  创建项目；创建项目的用户自动拥有该项目管理权限
-                    global_view OpPermissionTypeGlobalView  项目管理；拥有该权限的用户可以管理项目下的所有资源
-                    global_management OpPermissionTypeGlobalManagement  全局浏览；拥有该权限的用户可以浏览全局的资源
+                    create_project OpPermissionTypeProjectDirector  项目总监；拥有该权限的用户可在权限判定中通过项目域平台角色校验
+                    global_view OpPermissionTypeOperationAudit  操作审计；拥有该权限的用户可以浏览全局操作审计资源
+                    global_management OpPermissionTypePlatformConfigure  系统配置；拥有该权限的用户可以浏览和管理全局配置资源
                     project_admin OpPermissionTypeProjectAdmin  全局管理；拥有该权限的用户可以浏览和管理全局的资源
                     create_workflow OpPermissionTypeCreateWorkflow  创建/编辑工单；拥有该权限的用户可以创建/编辑工单
                     audit_workflow OpPermissionTypeAuditWorkflow  审核/驳回工单；拥有该权限的用户可以审核/驳回工单
@@ -6872,7 +6870,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateBusinessTagReq:
         properties:
             business_tag:
