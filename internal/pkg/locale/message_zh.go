@@ -24,7 +24,7 @@ var (
 
 // OpPermission
 var (
-	NameOpPermissionCreateProject           = &i18n.Message{ID: "NameOpPermissionCreateProject", Other: "项目总监"}
+	NameOpPermissionProjectDirector         = &i18n.Message{ID: "NameOpPermissionProjectDirector", Other: "项目总监"}
 	NameOpPermissionProjectAdmin            = &i18n.Message{ID: "NameOpPermissionProjectAdmin", Other: "项目管理"}
 	NameOpPermissionCreateWorkflow          = &i18n.Message{ID: "NameOpPermissionCreateWorkflow", Other: "创建上线工单"}
 	NameOpPermissionAuditWorkflow           = &i18n.Message{ID: "NameOpPermissionAuditWorkflow", Other: "审批上线工单"}
@@ -38,8 +38,8 @@ var (
 	NameOpPermissionExportApprovalReject    = &i18n.Message{ID: "NameOpPermissionExportApprovalReject", Other: "审批导出工单"}
 	NameOpPermissionExportCreate            = &i18n.Message{ID: "NameOpPermissionExportCreate", Other: "创建导出工单"}
 	NameOpPermissionCreateOptimization      = &i18n.Message{ID: "NameOpPermissionCreateOptimization", Other: "创建智能调优"}
-	NameOpPermissionGlobalManagement        = &i18n.Message{ID: "NameOpPermissionGlobalManagement", Other: "系统管理员"}
-	NameOpPermissionGlobalView              = &i18n.Message{ID: "NameOpPermissionGlobalView", Other: "审计管理员"}
+	NameOpPermissionPlatformConfigure       = &i18n.Message{ID: "NameOpPermissionPlatformConfigure", Other: "系统配置"}
+	NameOpPermissionOperationAudit          = &i18n.Message{ID: "NameOpPermissionOperationAudit", Other: "操作审计"}
 	NameOpPermissionViewOthersOptimization  = &i18n.Message{ID: "NameOpPermissionViewOthersOptimization", Other: "查看他人创建的智能调优"}
 	NameOpPermissionCreatePipeline          = &i18n.Message{ID: "NameOpPermissionCreatePipeline", Other: "流水线增删改"}
 	NameOpPermissionOrdinaryUser            = &i18n.Message{ID: "NameOpPermissionOrdinaryUser", Other: "普通用户"}
@@ -62,9 +62,9 @@ var (
 	NameOpPermissionDesensitization         = &i18n.Message{ID: "NameOpPermissionDesensitization", Other: "配置脱敏任务"}
 	NameOpPermissionMaskingAudit            = &i18n.Message{ID: "NameOpPermissionMaskingAudit", Other: "脱敏审核"}
 
-	DescOpPermissionGlobalManagement        = &i18n.Message{ID: "DescOpPermissionGlobalManagement", Other: "具备系统最高权限，可进行系统配置、用户管理等操作"}
-	DescOpPermissionGlobalView              = &i18n.Message{ID: "DescOpPermissionGlobalView", Other: "负责系统操作审计、数据合规检查等工作"}
-	DescOpPermissionCreateProject           = &i18n.Message{ID: "DescOpPermissionCreateProject", Other: "创建项目、配置项目资源"}
+	DescOpPermissionPlatformConfigure       = &i18n.Message{ID: "DescOpPermissionPlatformConfigure", Other: "具备系统配置权限，可进行系统配置、用户创建等操作"}
+	DescOpPermissionOperationAudit          = &i18n.Message{ID: "DescOpPermissionOperationAudit", Other: "负责系统操作审计、数据合规检查等工作"}
+	DescOpPermissionProjectDirector         = &i18n.Message{ID: "DescOpPermissionProjectDirector", Other: "创建项目、管理项目资源"}
 	DescOpPermissionProjectAdmin            = &i18n.Message{ID: "DescOpPermissionProjectAdmin", Other: "项目管理；拥有该权限的用户可以管理项目下的所有资源"}
 	DescOpPermissionCreateWorkflow          = &i18n.Message{ID: "DescOpPermissionCreateWorkflow", Other: "创建/编辑工单；拥有该权限的用户可以创建/编辑工单"}
 	DescOpPermissionOrdinaryUser            = &i18n.Message{ID: "DescOpPermissionOrdinaryUser", Other: "基础功能操作权限，可进行日常业务操作"}

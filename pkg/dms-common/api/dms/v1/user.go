@@ -37,8 +37,14 @@ type GetUser struct {
 	UserGroups []UidWithName `json:"user_groups"`
 	// user operation permissions
 	OpPermissions []UidWithName `json:"op_permissions"`
-	// is admin
+	// Deprecated
 	IsAdmin bool `json:"is_admin"`
+	// has platform domain role
+	IsPlatformConfigure bool `json:"is_platform_configure"`
+	// has audit domain role
+	IsOperationAudit bool `json:"is_operation_audit"`
+	// has project domain role
+	IsProjectDirector bool `json:"is_project_director"`
 	// user bind name space
 	UserBindProjects   []UserBindProject `json:"user_bind_projects"`
 	ThirdPartyUserInfo string            `json:"third_party_user_info"`
@@ -184,12 +190,18 @@ type OpPermissionType string
 
 const (
 	OpPermissionTypeUnknown OpPermissionType = "unknown"
-	// 创建项目；创建项目的用户自动拥有该项目管理权限
-	OpPermissionTypeCreateProject OpPermissionType = "create_project"
-	// 项目管理；拥有该权限的用户可以管理项目下的所有资源
-	OpPermissionTypeGlobalView OpPermissionType = "global_view"
-	// 全局浏览；拥有该权限的用户可以浏览全局的资源
-	OpPermissionTypeGlobalManagement OpPermissionType = "global_management"
+	// 项目总监；拥有该权限的用户可在权限判定中通过项目域平台角色校验
+	OpPermissionTypeProjectDirector OpPermissionType = "create_project"
+	// 操作审计；拥有该权限的用户可以浏览全局操作审计资源
+	OpPermissionTypeOperationAudit OpPermissionType = "global_view"
+	// 系统配置；拥有该权限的用户可以浏览和管理全局配置资源
+	OpPermissionTypePlatformConfigure OpPermissionType = "global_management"
+	// Deprecated: use OpPermissionTypeProjectDirector instead.
+	OpPermissionTypeCreateProject OpPermissionType = OpPermissionTypeProjectDirector
+	// Deprecated: use OpPermissionTypeOperationAudit instead.
+	OpPermissionTypeGlobalView OpPermissionType = OpPermissionTypeOperationAudit
+	// Deprecated: use OpPermissionTypePlatformConfigure instead.
+	OpPermissionTypeGlobalManagement OpPermissionType = OpPermissionTypePlatformConfigure
 	// 全局管理；拥有该权限的用户可以浏览和管理全局的资源
 	OpPermissionTypeProjectAdmin OpPermissionType = "project_admin"
 	// 创建/编辑工单；拥有该权限的用户可以创建/编辑工单
@@ -262,12 +274,12 @@ const (
 
 func ParseOpPermissionType(typ string) (OpPermissionType, error) {
 	switch typ {
-	case string(OpPermissionTypeGlobalView):
-		return OpPermissionTypeGlobalView, nil
-	case string(OpPermissionTypeGlobalManagement):
-		return OpPermissionTypeGlobalManagement, nil
-	case string(OpPermissionTypeCreateProject):
-		return OpPermissionTypeCreateProject, nil
+	case string(OpPermissionTypeOperationAudit):
+		return OpPermissionTypeOperationAudit, nil
+	case string(OpPermissionTypePlatformConfigure):
+		return OpPermissionTypePlatformConfigure, nil
+	case string(OpPermissionTypeProjectDirector):
+		return OpPermissionTypeProjectDirector, nil
 	case string(OpPermissionTypeProjectAdmin):
 		return OpPermissionTypeProjectAdmin, nil
 	case string(OpPermissionTypeCreateWorkflow):

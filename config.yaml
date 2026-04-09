@@ -22,6 +22,7 @@ dms:
     port: 8978
     admin_user: administrator
     admin_password: 123456
+  admin_super_mode_enabled: true
   secret_key:
   server_id:
   enable_cluster_mode: false

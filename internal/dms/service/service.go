@@ -223,7 +223,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	// init notification
 	biz.Init(smtpConfigurationUsecase, wechatConfigurationUsecase, imConfigurationUsecase)
 	// init env
-	if err := biz.EnvPrepare(context.TODO(), logger, tx, dmsConfigUsecase, opPermissionUsecase, userUsecase, roleUsecase, projectUsecase); nil != err {
+	if err := biz.EnvPrepare(context.TODO(), logger, tx, dmsConfigUsecase, opPermissionUsecase, userUsecase, roleUsecase, projectUsecase, conf.IsAdminSuperModeEnabled()); nil != err {
 		return nil, fmt.Errorf("failed to prepare env: %v", err)
 	}
 	s.log.Debug("env prepared")

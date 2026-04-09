@@ -13,7 +13,8 @@ func EnvPrepare(ctx context.Context, logger utilLog.Logger,
 	opPermissionUsecase *OpPermissionUsecase,
 	userUsecase *UserUsecase,
 	roleUsecase *RoleUsecase,
-	projectUsecase *ProjectUsecase) (err error) {
+	projectUsecase *ProjectUsecase,
+	adminSuperModeEnabled bool) (err error) {
 	log := utilLog.NewHelper(logger, utilLog.WithMessageKey("biz.prepare"))
 	// 开启事务
 	tx := transaction.BeginTX(ctx)
@@ -41,13 +42,17 @@ func EnvPrepare(ctx context.Context, logger utilLog.Logger,
 			}
 		}
 		if dmsConfig.NeedInitUsers {
-			if err := userUsecase.InitUsers(tx); nil != err {
+			if err := userUsecase.InitUsers(tx, adminSuperModeEnabled); nil != err {
 				return err
 			}
 			dmsConfig.NeedInitUsers = false
 			if err := config.UpdateDMSConfig(tx, dmsConfig); nil != err {
 				return fmt.Errorf("failed to update dms config: %v", err)
 			}
+		}
+		// 每次启动都根据开关刷新 admin 平台角色权限，避免仅初始化时生效
+		if err := userUsecase.refreshAdminPlatformRolePermissions(tx, adminSuperModeEnabled); nil != err {
+			return err
 		}
 		if dmsConfig.NeedInitRoles {
 			if err := roleUsecase.InitRoles(tx); nil != err {

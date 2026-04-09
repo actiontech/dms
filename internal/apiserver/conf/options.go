@@ -21,9 +21,10 @@ type SQLEOptions struct {
 
 type DMSOptions struct {
 	dmsCommonConf.BaseOptions `yaml:",inline"`
-	CloudbeaverOpts           *CloudbeaverOpts `yaml:"cloudbeaver"`
+	CloudbeaverOpts           *CloudbeaverOpts            `yaml:"cloudbeaver"`
 	SqlWorkBenchOpts          *workbench.SqlWorkbenchOpts `yaml:"sql_workbench"`
-	ServiceOpts               *ServiceOptions  `yaml:"service"`
+	ServiceOpts               *ServiceOptions             `yaml:"service"`
+	AdminSuperModeEnabled     bool                        `yaml:"admin_super_mode_enabled"`
 }
 
 type CloudbeaverOpts struct {
@@ -53,9 +54,14 @@ type ServiceOptions struct {
 }
 
 var optimizationEnabled bool
+var adminSuperModeEnabled = true
 
 func IsOptimizationEnabled() bool {
 	return optimizationEnabled
+}
+
+func IsAdminSuperModeEnabled() bool {
+	return adminSuperModeEnabled
 }
 
 func ReadOptions(log utilLog.Logger, path string) (*DMSOptions, error) {
@@ -64,5 +70,6 @@ func ReadOptions(log utilLog.Logger, path string) (*DMSOptions, error) {
 		return nil, err
 	}
 	optimizationEnabled = getOptimizationEnabled(&opts)
+	adminSuperModeEnabled = opts.DMS.AdminSuperModeEnabled
 	return &opts.DMS, nil
 }

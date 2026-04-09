@@ -87,12 +87,12 @@ func (m *MaintenanceTimeUsecase) CheckSQLExecutionAllowed(
 	}
 
 	// 4. 检查用户是否为管理员
-	isAdmin, err := m.opPermissionVerifyUsecase.CanOpGlobal(ctx, userUid)
+	isAdmin, err := m.opPermissionVerifyUsecase.IsUserProjectDirector(ctx, userUid)
 	if err != nil {
-		return false, "", fmt.Errorf("failed to check user admin permission: %v", err)
+		return false, "", fmt.Errorf("failed to check user permission: %v", err)
 	}
 	if isAdmin {
-		m.log.Warnf("user %s is admin, skip cloudbeaver maintenance time check", userUid)
+		m.log.Warnf("user %s is ProjectDirector, skip cloudbeaver maintenance time check", userUid)
 		return true, "", nil
 	}
 
