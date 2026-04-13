@@ -280,6 +280,13 @@ var supportedDataExportDBTypes = map[DBType]struct{}{
 	DBTypeOceanBaseMySQL: {},
 	DBTypeHive:           {},
 	DBTypeDM:             {},
+	// 新增数据源 (Issue #593)
+	DBTypeTiDB:           {},
+	DBTypeTDSQLForInnoDB: {},
+	DBTypeGoldenDB:       {},
+	DBTypeTBase:          {},
+	DBTypeGaussDB:        {},
+	DBTypeDB2:            {},
 }
 
 func CheckDBTypeIfDataExportSupported(dbtype string) bool {
