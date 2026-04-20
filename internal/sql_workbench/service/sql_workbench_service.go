@@ -926,13 +926,15 @@ func (sqlWorkbenchService *SqlWorkbenchService) convertDBType(dmsDBType string) 
 		return "OB_ORACLE"
 	case "OceanBase For MySQL":
 		return "OB_MYSQL"
+	case "达梦(DM)":
+		return "DM"
 	default:
 		return dmsDBType
 	}
 }
 
 func (sqlWorkbenchService *SqlWorkbenchService) SupportDBType(dbType pkgConst.DBType) bool {
-	return dbType == pkgConst.DBTypeMySQL || dbType == pkgConst.DBTypeOracle || dbType == pkgConst.DBTypeOceanBaseMySQL
+	return dbType == pkgConst.DBTypeMySQL || dbType == pkgConst.DBTypeOracle || dbType == pkgConst.DBTypeOceanBaseMySQL || dbType == pkgConst.DBTypeDM
 }
 
 // buildDatabaseUser 当是ob-mysql时需要给账号管理的账号附加租户名集群名等字符: root@oms_mysql#oms_resource_4250
