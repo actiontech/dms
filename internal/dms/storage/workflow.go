@@ -384,7 +384,11 @@ SELECT
        w.create_user_uid,
 	   CAST("" AS DATETIME)											 AS create_user_deleted_at,
        w.created_at                                                  AS create_time,
-       IF(wr.status = 'rejected', JSON_ARRAY(w.create_user_uid), curr_ws.assignees) AS current_step_assignee_user_id_list,
+       CASE
+         WHEN wr.status IN ('finish', 'cancel') THEN JSON_ARRAY()
+         WHEN wr.status IN ('rejected', 'wait_for_export', 'failed') THEN JSON_ARRAY(w.create_user_uid)
+         ELSE curr_ws.assignees
+       END AS current_step_assignee_user_id_list,
        curr_ws.state												 AS current_step_state,
        wr.status,
        wr.current_workflow_step_id									 AS current_workflow_step_id,
@@ -441,7 +445,7 @@ AND wr.status IN (:filter_status)
 {{- end }}
 
 {{- if .filter_current_step_assignee_user_id }}
-AND ((wr.status != 'rejected' AND curr_ws.assignees REGEXP :filter_current_step_assignee_user_id) OR (wr.status = 'rejected' AND w.create_user_uid = :filter_current_step_assignee_user_id))
+AND ((wr.status NOT IN ('rejected', 'wait_for_export', 'failed') AND curr_ws.assignees REGEXP :filter_current_step_assignee_user_id) OR (wr.status IN ('rejected', 'wait_for_export', 'failed') AND w.create_user_uid = :filter_current_step_assignee_user_id))
 {{- end }}
 
 {{- if .filter_db_service_uid }}

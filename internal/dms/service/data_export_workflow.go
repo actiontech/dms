@@ -146,9 +146,8 @@ func (d *DMSService) ListDataExportWorkflow(ctx context.Context, req *dmsV1.List
 		if len(creater) > 0 {
 			ret[i].Creater = creater[0]
 		}
-		// 结束时不显示当前步骤操作人，其他状态显示当前步骤操作人
-		if w.Status != string(dmsV1.StatusFinish) {
-			ret[i].CurrentStepAssigneeUsers = convertBizUidWithName(d.UserUsecase.GetBizUserIncludeDeletedWithNameByUids(ctx, w.WorkflowRecord.WorkflowSteps[w.WorkflowRecord.CurrentWorkflowStepId-1].Assignees))
+		if uids := currentStepAssigneeUIDsForList(w); len(uids) > 0 {
+			ret[i].CurrentStepAssigneeUsers = convertBizUidWithName(d.UserUsecase.GetBizUserIncludeDeletedWithNameByUids(ctx, uids))
 		}
 	}
 
@@ -191,9 +190,8 @@ func (d *DMSService) GetGlobalWorkflowsList(ctx context.Context, req *dmsV1.Filt
 		if len(creater) > 0 {
 			ret[i].Creater = creater[0]
 		}
-		// 结束时不显示当前步骤操作人，其他状态显示当前步骤操作人
-		if w.Status != string(dmsV1.StatusFinish) {
-			ret[i].CurrentStepAssigneeUsers = convertBizUidWithName(d.UserUsecase.GetBizUserIncludeDeletedWithNameByUids(ctx, w.WorkflowRecord.WorkflowSteps[w.WorkflowRecord.CurrentWorkflowStepId-1].Assignees))
+		if uids := currentStepAssigneeUIDsForList(w); len(uids) > 0 {
+			ret[i].CurrentStepAssigneeUsers = convertBizUidWithName(d.UserUsecase.GetBizUserIncludeDeletedWithNameByUids(ctx, uids))
 		}
 	}
 
@@ -375,4 +373,28 @@ func (d *DMSService) DownloadDataExportTask(ctx context.Context, req *dmsV1.Down
 
 func (d *DMSService) DownloadDataExportTaskSQLs(ctx context.Context, req *dmsV1.DownloadDataExportTaskSQLsReq, userId string) (string, []byte, error) {
 	return d.DataExportWorkflowUsecase.DownloadDataExportTaskSQLs(ctx, req, userId)
+}
+
+func currentStepAssigneeUIDsForList(w *biz.Workflow) []string {
+	if w == nil || w.WorkflowRecord == nil {
+		return nil
+	}
+	switch w.WorkflowRecord.Status {
+	case biz.DataExportWorkflowStatusFinish, biz.DataExportWorkflowStatusCancel:
+		return nil
+	case biz.DataExportWorkflowStatusWaitForExport, biz.DataExportWorkflowStatusRejected, biz.DataExportWorkflowStatusFailed:
+		if w.CreateUserUID == "" {
+			return nil
+		}
+		return []string{w.CreateUserUID}
+	default:
+		if w.WorkflowRecord.CurrentWorkflowStepId == 0 {
+			return nil
+		}
+		idx := w.WorkflowRecord.CurrentWorkflowStepId - 1
+		if int(idx) >= len(w.WorkflowRecord.WorkflowSteps) {
+			return nil
+		}
+		return w.WorkflowRecord.WorkflowSteps[idx].Assignees
+	}
 }
