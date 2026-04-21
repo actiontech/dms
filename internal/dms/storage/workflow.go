@@ -285,6 +285,24 @@ func (d *WorkflowRepo) AuditWorkflow(ctx context.Context, dataExportWorkflowUid 
 	})
 }
 
+func (d *WorkflowRepo) AuditWorkflowAndAdvanceStep(ctx context.Context, workflowRecordUid string, step *biz.WorkflowStep, nextStepId uint64, operateId, reason string) error {
+	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		// update current step state
+		operateTime := time.Now()
+		fields := map[string]interface{}{"operation_user_uid": operateId, "operate_at": operateTime, "reason": reason, "state": step.State}
+		if err := tx.WithContext(ctx).Model(&model.WorkflowStep{}).Where("step_id = ? and workflow_record_uid = ?", step.StepId, step.WorkflowRecordUid).Updates(fields).Error; err != nil {
+			return fmt.Errorf("failed to update current workflow step, err: %v", err)
+		}
+
+		// advance CurrentWorkflowStepId to next step
+		if err := tx.WithContext(ctx).Model(&model.WorkflowRecord{}).Where("uid = ?", workflowRecordUid).Update("current_workflow_step_id", nextStepId).Error; err != nil {
+			return fmt.Errorf("failed to advance workflow step, err: %v", err)
+		}
+
+		return nil
+	})
+}
+
 func (d *WorkflowRepo) UpdateWorkflowStatusById(ctx context.Context, dataExportWorkflowUid string, status biz.DataExportWorkflowStatus) error {
 	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Model(&model.WorkflowRecord{}).Where("uid = ?", dataExportWorkflowUid).Update("status", status).Error; err != nil {

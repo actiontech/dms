@@ -117,6 +117,7 @@ type WorkflowRepo interface {
 	GetDataExportWorkflowsByDBServices(ctx context.Context, dbUid []string) ([]string, error)
 	DeleteDataExportWorkflowsByIds(ctx context.Context, dataExportWorkflowUid []string) error
 	GetGlobalWorkflowsByParameterMap(ctx context.Context, data map[string]interface{}) ([]*Workflow, int64, error)
+	AuditWorkflowAndAdvanceStep(ctx context.Context, workflowRecordUid string, step *WorkflowStep, nextStepId uint64, operateId, reason string) error
 }
 
 type DataExportWorkflowUsecase struct {
