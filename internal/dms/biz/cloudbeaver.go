@@ -65,7 +65,7 @@ func (c CloudbeaverConnection) PrimaryKey() string {
 }
 
 type SQLResultMasker interface {
-	MaskSQLResults(ctx context.Context, result *model.SQLExecuteInfo, dbServiceUID, schemaName string) error
+	MaskSQLResults(ctx context.Context, result *model.SQLExecuteInfo, dbServiceUID, schemaName, projectUID string) error
 }
 
 type CloudbeaverRepo interface {
@@ -339,6 +339,7 @@ type taskMaskingContext struct {
 	Enabled      bool
 	DBServiceUID string
 	SchemaName   string
+	ProjectUID   string
 }
 
 var (
@@ -471,6 +472,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					return cu.buildTaskIdAssocDataMasking(cloudbeaverResBuf.Bytes(), taskMaskingContext{
 						Enabled:      isMaskingEnabled,
 						DBServiceUID: dbService.UID,
+						ProjectUID:   dbService.ProjectUID,
 					})
 				}
 
@@ -499,6 +501,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						maskCtx := taskMaskingContext{
 							Enabled:      isMaskingEnabled,
 							DBServiceUID: dbService.UID,
+							ProjectUID:   dbService.ProjectUID,
 						}
 						if ep, epErr := cu.getWorkflowExecParams(c, params); epErr == nil {
 							maskCtx.SchemaName = ep.instanceSchema
@@ -569,6 +572,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					return cu.buildTaskIdAssocDataMasking(cloudbeaverResBuf.Bytes(), taskMaskingContext{
 						Enabled:      isMaskingEnabled,
 						DBServiceUID: dbService.UID,
+						ProjectUID:   dbService.ProjectUID,
 					})
 				}
 
@@ -703,6 +707,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 								Enabled:      isMaskingEnabled,
 								DBServiceUID: dbService.UID,
 								SchemaName:   maskingSchemaName,
+								ProjectUID:   dbService.ProjectUID,
 							}); err != nil {
 								return nil, err
 							}
@@ -754,7 +759,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					if cu.sqlResultMasker == nil {
 						return nil
 					}
-					return cu.sqlResultMasker.MaskSQLResults(ctx, result, maskingCtx.DBServiceUID, maskingCtx.SchemaName)
+					return cu.sqlResultMasker.MaskSQLResults(ctx, result, maskingCtx.DBServiceUID, maskingCtx.SchemaName, maskingCtx.ProjectUID)
 				}
 
 				// 创建GraphQL可执行schema
