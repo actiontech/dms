@@ -31,7 +31,13 @@ type ListMaskingRulesData struct {
 	// whether the sensitive type is user-created
 	// Example: false
 	IsCustomType bool `json:"is_custom_type"`
-	// masking algorithm type: CHAR, TAG, REPLACE, ALGO
+	// builtin sensitive type identifier (for edit form pre-fill)
+	// Example: "phone"
+	BuiltinSensitiveType string `json:"builtin_sensitive_type,omitempty"`
+	// custom sensitive type ID (for edit form pre-fill)
+	// Example: 1
+	CustomSensitiveTypeID *uint `json:"custom_sensitive_type_id,omitempty"`
+	// masking algorithm type: CHAR, TAG, REPLACE, HASH
 	// Example: "CHAR"
 	AlgorithmType string `json:"algorithm_type"`
 	// description
