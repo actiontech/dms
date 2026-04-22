@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/actiontech/dms/internal/apiserver/conf"
+	maskingBiz "github.com/actiontech/dms/internal/data_masking/biz"
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/internal/dms/storage"
 
@@ -43,6 +44,7 @@ type DMSService struct {
 	DataExportWorkflowUsecase   *biz.DataExportWorkflowUsecase
 	CbOperationLogUsecase       *biz.CbOperationLogUsecase
 	DataMaskingUsecase          *dataMaskingUsecase
+	UnmaskingWorkflowUsecase    *maskingBiz.UnmaskingWorkflowUsecase
 	FunctionSupportRegistry     *biz.FunctionSupportRegistry
 	AuthAccessTokenUseCase      *biz.AuthAccessTokenUsecase
 	SwaggerUseCase              *biz.SwaggerUseCase
@@ -153,7 +155,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	workflowRepo := storage.NewWorkflowRepo(logger, st)
 	dataExportMaskingConfigRepo := initDataExportMaskingConfigRepo(logger, st)
 	dataExportMaskingRuleRepo := initDataExportMaskingRuleRepo(logger, st)
-	DataExportWorkflowUsecase := biz.NewDataExportWorkflowUsecase(logger, tx, workflowRepo, dataExportTaskRepo, dbServiceRepo, dataExportMaskingConfigRepo, dataExportMaskingRuleRepo, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, clusterUsecase, webhookConfigurationUsecase, userUsecase, systemVariableUsecase, discoveryTaskRepo, fmt.Sprintf("%s:%d", opts.ReportHost, opts.APIServiceOpts.Port))
+	DataExportWorkflowUsecase := biz.NewDataExportWorkflowUsecase(logger, tx, workflowRepo, dataExportTaskRepo, dbServiceRepo, dataExportMaskingConfigRepo, dataExportMaskingRuleRepo, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, clusterUsecase, webhookConfigurationUsecase, userUsecase, systemVariableUsecase, discoveryTaskRepo, nil, fmt.Sprintf("%s:%d", opts.ReportHost, opts.APIServiceOpts.Port))
 	dataMaskingUsecase, stopDataMaskingScheduler, err := initDataMaskingUsecase(logger, st, dbServiceUseCase, clusterUsecase, dmsProxyTargetRepo)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize data masking usecase: %v", err)

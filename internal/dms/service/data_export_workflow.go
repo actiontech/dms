@@ -248,6 +248,8 @@ func (d *DMSService) GetDataExportWorkflow(ctx context.Context, req *dmsV1.GetDa
 		data.WorkflowRecord.Steps = append(data.WorkflowRecord.Steps, step)
 	}
 
+	d.fillGetDataExportUnmaskingWorkflowSummary(ctx, req.DataExportWorkflowUid, data)
+
 	return &dmsV1.GetDataExportWorkflowReply{
 		Data: data,
 	}, nil
@@ -337,6 +339,12 @@ func (d *DMSService) ListDataExportTaskSQLs(ctx context.Context, req *dmsV1.List
 		return nil, err
 	}
 
+	tasks, err := d.DataExportWorkflowUsecase.BatchGetDataExportTask(ctx, []string{req.DataExportTaskUid})
+	if err != nil || len(tasks) == 0 {
+		return nil, fmt.Errorf("failed to get data export task: %w", err)
+	}
+	task := tasks[0]
+
 	ret := make([]*dmsV1.ListDataExportTaskSQL, len(taskRecords))
 	for i, w := range taskRecords {
 		ret[i] = &dmsV1.ListDataExportTaskSQL{
@@ -345,6 +353,11 @@ func (d *DMSService) ListDataExportTaskSQLs(ctx context.Context, req *dmsV1.List
 			AuditLevel:    w.AuditLevel,
 			ExportResult:  w.ExportResult,
 			ExportSQLType: w.ExportSQLType,
+		}
+		if d.UnmaskingWorkflowUsecase != nil {
+			lineage, snapshot := d.UnmaskingWorkflowUsecase.AnalyzeLineageAndBuildMaskingSnapshot(ctx, req.ProjectUid, task.DBServiceUid, task.DatabaseName, w.ExportSQL)
+			ret[i].LineageAnalysisSnapshot = lineage
+			ret[i].MaskingConfigSnapshot = snapshot
 		}
 		if w.AuditSQLResults != nil {
 			for _, result := range w.AuditSQLResults {

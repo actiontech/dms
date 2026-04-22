@@ -1,8 +1,11 @@
 package service
 
 import (
+	"errors"
+
 	aV1 "github.com/actiontech/dms/api/dms/service/v1"
 	apiError "github.com/actiontech/dms/internal/apiserver/pkg/error"
+	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	"github.com/labstack/echo/v4"
 )
@@ -42,6 +45,35 @@ func (ctl *DMSController) ListMaskingTemplates(c echo.Context) error {
 	}
 
 	reply, err := ctl.DMS.ListMaskingTemplates(c.Request().Context(), req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route GET /v1/dms/projects/{project_uid}/db_services/{db_service_uid}/schemas/{schema_name}/tables/{table_name}/columns DBStructure ListTableColumns
+//
+// List table columns (internal API for lineage analysis).
+//
+//	responses:
+//	  200: body:ListTableColumnsReply
+//	  default: body:GenericResp
+func (ctl *DMSController) ListTableColumns(c echo.Context) error {
+	// 内部接口，仅允许sys/admin用户访问
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	if currentUserUid != pkgConst.UIDOfUserSys && currentUserUid != pkgConst.UIDOfUserAdmin {
+		return NewErrResp(c, errors.New("insufficient permission"), apiError.UnauthorizedErr)
+	}
+
+	req := new(aV1.ListTableColumnsReq)
+	if err := bindAndValidateReq(c, req); err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	reply, err := ctl.DMS.ListTableColumns(c.Request().Context(), req)
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -468,75 +500,317 @@ func (ctl *DMSController) GetTableColumnMaskingDetails(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/masking/approval-requests/pending Masking ListPendingApprovalRequests
+// swagger:operation POST /v1/dms/projects/{project_uid}/masking/unmasking-workflows Masking CreateUnmaskingWorkflow
 //
-// 查询待审批申请列表。
-//
-//	responses:
-//	  200: body:ListPendingApprovalRequestsReply
-//	  default: body:GenericResp
-func (ctl *DMSController) ListPendingApprovalRequests(c echo.Context) error {
-	req := &aV1.ListPendingApprovalRequestsReq{}
-	if err := bindAndValidateReq(c, req); err != nil {
-		return NewErrResp(c, err, apiError.BadRequestErr)
-	}
-	return NewOkRespWithReply(c, &aV1.ListPendingApprovalRequestsReply{})
-}
-
-// swagger:route GET /v1/dms/projects/{project_uid}/masking/approval-requests/{request_id} Masking GetPlaintextAccessRequestDetail
-//
-// 获取明文访问申请详情。
-//
-//	responses:
-//	  200: body:GetPlaintextAccessRequestDetailReply
-//	  default: body:GenericResp
-func (ctl *DMSController) GetPlaintextAccessRequestDetail(c echo.Context) error {
-	req := &aV1.GetPlaintextAccessRequestDetailReq{}
-	if err := bindAndValidateReq(c, req); err != nil {
-		return NewErrResp(c, err, apiError.BadRequestErr)
-	}
-	return NewOkRespWithReply(c, &aV1.GetPlaintextAccessRequestDetailReply{})
-}
-
-// swagger:operation POST /v1/dms/projects/{project_uid}/masking/approval-requests/{request_id}/decisions Masking ProcessApprovalRequest
-//
-// 处理审批申请。
+// Create unmasking workflow.
 //
 // ---
 // parameters:
 //   - name: project_uid
-//     description: 项目 UID
+//     description: project id
 //     in: path
 //     required: true
 //     type: string
-//   - name: request_id
-//     description: 审批申请 ID
-//     in: path
-//     required: true
-//     type: integer
-//   - name: action
-//     description: 处理动作信息
+//   - name: unmasking_workflow
+//     description: unmasking workflow info
 //     in: body
 //     required: true
 //     schema:
-//       "$ref": "#/definitions/ProcessApprovalRequestReq"
+//     "$ref": "#/definitions/CreateUnmaskingWorkflowReq"
 //
 // responses:
 //
-//   '200':
-//     description: 成功处理审批申请
-//     schema:
-//       "$ref": "#/definitions/ProcessApprovalRequestReply"
-//   default:
-//     description: 通用错误响应
-//     schema:
-//       "$ref": "#/definitions/GenericResp"
-func (ctl *DMSController) ProcessApprovalRequest(c echo.Context) error {
-	req := &aV1.ProcessApprovalRequestReq{}
+//	'200':
+//	  description: Create unmasking workflow successfully
+//	  schema:
+//	    "$ref": "#/definitions/CreateUnmaskingWorkflowReply"
+//	default:
+//	  description: Generic error response
+//	  schema:
+//	    "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) CreateUnmaskingWorkflow(c echo.Context) error {
+	req := &aV1.CreateUnmaskingWorkflowReq{}
 	if err := bindAndValidateReq(c, req); err != nil {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	return NewOkRespWithReply(c, &aV1.ProcessApprovalRequestReply{})
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.UnauthorizedErr)
+	}
+
+	reply, err := ctl.DMS.CreateUnmaskingWorkflow(c.Request().Context(), req, currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:operation GET /v1/dms/projects/{project_uid}/masking/unmasking-workflows Masking ListUnmaskingWorkflows
+//
+// List unmasking workflows.
+//
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: page_size
+//     description: the maximum count of workflows to be returned
+//     in: query
+//     required: true
+//     type: integer
+//     format: uint32
+//   - name: page_index
+//     description: the offset of workflows to be returned, default is 0
+//     in: query
+//     required: false
+//     type: integer
+//     format: uint32
+//   - name: filter_by_approval_status
+//     description: filter the approval status
+//     in: query
+//     required: false
+//     type: string
+//     enum: [pending, approved, rejected, cancelled]
+//   - name: filter_by_usage_status
+//     description: filter the usage status
+//     in: query
+//     required: false
+//     type: string
+//     enum: [unviewed, viewed]
+//   - name: filter_by_db_service_uid
+//     description: filter db_service id
+//     in: query
+//     required: false
+//     type: string
+//
+// responses:
+//
+//	'200':
+//	  description: List unmasking workflows successfully
+//	  schema:
+//	    "$ref": "#/definitions/ListUnmaskingWorkflowsReply"
+//	default:
+//	  description: Generic error response
+//	  schema:
+//	    "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) ListUnmaskingWorkflows(c echo.Context) error {
+	req := &aV1.ListUnmaskingWorkflowsReq{}
+	if err := bindAndValidateReq(c, req); err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.UnauthorizedErr)
+	}
+
+	reply, err := ctl.DMS.ListUnmaskingWorkflows(c.Request().Context(), req, currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:operation GET /v1/dms/projects/{project_uid}/masking/unmasking-workflows/{workflow_id} Masking GetUnmaskingWorkflow
+//
+// Get unmasking workflow detail.
+//
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: workflow_id
+//     description: workflow id
+//     in: path
+//     required: true
+//     type: string
+//
+// responses:
+//
+//	'200':
+//	  description: Get unmasking workflow detail successfully
+//	  schema:
+//	    "$ref": "#/definitions/GetUnmaskingWorkflowReply"
+//	default:
+//	  description: Generic error response
+//	  schema:
+//	    "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) GetUnmaskingWorkflow(c echo.Context) error {
+	req := &aV1.GetUnmaskingWorkflowReq{}
+	if err := bindAndValidateReq(c, req); err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.UnauthorizedErr)
+	}
+
+	reply, err := ctl.DMS.GetUnmaskingWorkflow(c.Request().Context(), req, currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:operation POST /v1/dms/projects/{project_uid}/masking/unmasking-workflows/{workflow_id}/approve Masking ApproveUnmaskingWorkflow
+//
+// Approve unmasking workflow.
+//
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: workflow_id
+//     description: workflow id
+//     in: path
+//     required: true
+//     type: string
+//   - name: approve_unmasking_workflow
+//     description: approve unmasking workflow info
+//     in: body
+//     required: true
+//     schema:
+//     "$ref": "#/definitions/ApproveUnmaskingWorkflow"
+//
+// responses:
+//
+//	'200':
+//	  description: Approve unmasking workflow successfully
+//	  schema:
+//	    "$ref": "#/definitions/ApproveUnmaskingWorkflowReply"
+//	default:
+//	  description: Generic error response
+//	  schema:
+//	    "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) ApproveUnmaskingWorkflow(c echo.Context) error {
+	req := &aV1.ApproveUnmaskingWorkflowReq{}
+	if err := bindAndValidateReq(c, req); err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.UnauthorizedErr)
+	}
+
+	err = ctl.DMS.ApproveUnmaskingWorkflow(c.Request().Context(), req, currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkRespWithReply(c, &aV1.ApproveUnmaskingWorkflowReply{})
+}
+
+// swagger:operation POST /v1/dms/projects/{project_uid}/masking/unmasking-workflows/{workflow_id}/reject Masking RejectUnmaskingWorkflow
+//
+// Reject unmasking workflow.
+//
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: workflow_id
+//     description: workflow id
+//     in: path
+//     required: true
+//     type: string
+//   - name: reject_unmasking_workflow
+//     description: reject unmasking workflow info
+//     in: body
+//     required: true
+//     schema:
+//     "$ref": "#/definitions/RejectUnmaskingWorkflow"
+//
+// responses:
+//
+//	'200':
+//	  description: Reject unmasking workflow successfully
+//	  schema:
+//	    "$ref": "#/definitions/RejectUnmaskingWorkflowReply"
+//	default:
+//	  description: Generic error response
+//	  schema:
+//	    "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) RejectUnmaskingWorkflow(c echo.Context) error {
+	req := &aV1.RejectUnmaskingWorkflowReq{}
+	if err := bindAndValidateReq(c, req); err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.UnauthorizedErr)
+	}
+
+	err = ctl.DMS.RejectUnmaskingWorkflow(c.Request().Context(), req, currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkRespWithReply(c, &aV1.RejectUnmaskingWorkflowReply{})
+}
+
+// swagger:operation POST /v1/dms/projects/{project_uid}/masking/unmasking-workflows/{workflow_id}/cancel Masking CancelUnmaskingWorkflow
+//
+// Cancel unmasking workflow.
+//
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project id
+//     in: path
+//     required: true
+//     type: string
+//   - name: workflow_id
+//     description: workflow id
+//     in: path
+//     required: true
+//     type: string
+//
+// responses:
+//
+//	'200':
+//	  description: Cancel unmasking workflow successfully
+//	  schema:
+//	    "$ref": "#/definitions/CancelUnmaskingWorkflowReply"
+//	default:
+//	  description: Generic error response
+//	  schema:
+//	    "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) CancelUnmaskingWorkflow(c echo.Context) error {
+	req := &aV1.CancelUnmaskingWorkflowReq{}
+	if err := bindAndValidateReq(c, req); err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.UnauthorizedErr)
+	}
+
+	err = ctl.DMS.CancelUnmaskingWorkflow(c.Request().Context(), req, currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	return NewOkRespWithReply(c, &aV1.CancelUnmaskingWorkflowReply{})
 }
 
 // swagger:route GET /v1/dms/projects/{project_uid}/masking/rules/{rule_id} Masking GetMaskingRuleDetail
