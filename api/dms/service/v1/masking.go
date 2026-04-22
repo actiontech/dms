@@ -116,17 +116,31 @@ type AddMaskingTemplateReq struct {
 	MaskingTemplate *AddMaskingTemplate `json:"masking_template" validate:"required"`
 }
 
+// swagger:model MaskingRuleRef
+type MaskingRuleRef struct {
+	// rule id
+	// Required: true
+	// Example: 1
+	RuleID int `json:"rule_id" validate:"required"`
+	// rule source: "builtin" or "custom"
+	// Required: true
+	// Example: "builtin"
+	RuleSource string `json:"rule_source" validate:"required,oneof=builtin custom"`
+}
+
 // swagger:model AddMaskingTemplate
 type AddMaskingTemplate struct {
 	// masking template name
 	// Required: true
 	// Example: "New Template"
 	Name string `json:"name" validate:"required"`
-	// masking rule id list
-	// Required: true
-	// MinLength: 1
+	// masking rule references with source info (preferred over rule_ids)
+	// Example: [{"rule_id": 1, "rule_source": "builtin"}, {"rule_id": 2, "rule_source": "custom"}]
+	RuleRefs []MaskingRuleRef `json:"rule_refs"`
+	// masking rule id list (deprecated: use rule_refs instead; kept for backward compatibility)
+	// When rule_refs is provided, rule_ids is ignored.
 	// Example: [1, 2, 3]
-	RuleIDs []int `json:"rule_ids" validate:"required,min=1"`
+	RuleIDs []int `json:"rule_ids"`
 }
 
 // swagger:model AddMaskingTemplateReply
@@ -155,11 +169,13 @@ type UpdateMaskingTemplateReq struct {
 
 // swagger:model UpdateMaskingTemplate
 type UpdateMaskingTemplate struct {
-	// masking rule id list
-	// Required: true
-	// MinLength: 1
+	// masking rule references with source info (preferred over rule_ids)
+	// Example: [{"rule_id": 1, "rule_source": "builtin"}, {"rule_id": 2, "rule_source": "custom"}]
+	RuleRefs []MaskingRuleRef `json:"rule_refs"`
+	// masking rule id list (deprecated: use rule_refs instead; kept for backward compatibility)
+	// When rule_refs is provided, rule_ids is ignored.
 	// Example: [1, 2]
-	RuleIDs []int `json:"rule_ids" validate:"required,min=1"`
+	RuleIDs []int `json:"rule_ids"`
 }
 
 // swagger:model UpdateMaskingTemplateReply
@@ -348,6 +364,9 @@ type SensitiveFieldScanResult struct {
 	// recommended masking rule id
 	// Example: 1
 	RecommendedMaskingRuleID int `json:"recommended_masking_rule_id"`
+	// recommended masking rule source: "builtin" or "custom"
+	// Example: "builtin"
+	RecommendedMaskingRuleSource string `json:"recommended_masking_rule_source,omitempty"`
 	// recommended masking rule name
 	// Example: "Email Masking"
 	RecommendedMaskingRuleName string `json:"recommended_masking_rule_name"`
@@ -551,6 +570,9 @@ type MaskingRuleConfig struct {
 	// Required: true
 	// Example: 1
 	MaskingRuleID int `json:"masking_rule_id" validate:"required"`
+	// masking rule source: "builtin" or "custom", default is "builtin"
+	// Example: "builtin"
+	MaskingRuleSource string `json:"masking_rule_source"`
 	// whether to enable masking for this column
 	// Required: true
 	// Example: true
@@ -668,6 +690,10 @@ type TableColumnMaskingDetail struct {
 	//
 	// Example: 1
 	MaskingRuleID *int `json:"masking_rule_id"`
+	// current masking rule source: "builtin" or "custom"
+	//
+	// Example: "builtin"
+	MaskingRuleSource string `json:"masking_rule_source,omitempty"`
 	// current masking rule name, null if no masking rule is applied
 	//
 	// Example: "Email Masking"
