@@ -73,6 +73,30 @@ func (d *DMSService) ListCreatableDBServicesForMaskingTask(ctx context.Context, 
 	return nil, errNotSupportDataMasking
 }
 
+func (d *DMSService) ListMaskingRulesV2(ctx context.Context, req *dmsV1.ListMaskingRulesV2Req) (*dmsV1.ListMaskingRulesV2Reply, error) {
+	return nil, errNotSupportDataMasking
+}
+
+func (d *DMSService) AddCustomMaskingRule(ctx context.Context, req *dmsV1.AddCustomMaskingRuleReq) (*dmsV1.AddCustomMaskingRuleReply, error) {
+	return nil, errNotSupportDataMasking
+}
+
+func (d *DMSService) UpdateCustomMaskingRule(ctx context.Context, req *dmsV1.UpdateCustomMaskingRuleReq) (*dmsV1.UpdateCustomMaskingRuleReply, error) {
+	return nil, errNotSupportDataMasking
+}
+
+func (d *DMSService) DeleteCustomMaskingRule(ctx context.Context, req *dmsV1.DeleteCustomMaskingRuleReq) error {
+	return errNotSupportDataMasking
+}
+
+func (d *DMSService) ListSensitiveTypes(ctx context.Context, req *dmsV1.ListSensitiveTypesReq) (*dmsV1.ListSensitiveTypesReply, error) {
+	return nil, errNotSupportDataMasking
+}
+
+func (d *DMSService) PreviewMaskingEffect(ctx context.Context, req *dmsV1.PreviewMaskingEffectReq) (*dmsV1.PreviewMaskingEffectReply, error) {
+	return nil, errNotSupportDataMasking
+}
+
 func initDataMaskingUsecase(_ utilLog.Logger, _ *storage.Storage, _ *biz.DBServiceUsecase, _ *biz.ClusterUsecase, _ biz.ProxyTargetRepo) (*dataMaskingUsecase, func(), error) {
 	return nil, func() {}, nil
 }

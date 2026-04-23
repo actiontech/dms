@@ -10,9 +10,36 @@ type ListMaskingRulesReq struct {
 
 // swagger:model ListMaskingRulesData
 type ListMaskingRulesData struct {
+	// masking rule id
+	// Example: 1
+	Id int `json:"id"`
+	// rule name
+	// Example: "手机号脱敏"
+	Name string `json:"name"`
+	// rule source: "builtin" or "custom"
+	// Example: "builtin"
+	Source string `json:"source"`
 	// masking type
 	// Example: "MASK_DIGIT"
 	MaskingType string `json:"masking_type"`
+	// sensitive type display name
+	// Example: "手机号"
+	SensitiveTypeName string `json:"sensitive_type_name"`
+	// sensitive type identification info summary
+	// Example: "字段关键词: phone, mobile"
+	SensitiveTypeInfo string `json:"sensitive_type_info"`
+	// whether the sensitive type is user-created
+	// Example: false
+	IsCustomType bool `json:"is_custom_type"`
+	// builtin sensitive type identifier (for edit form pre-fill)
+	// Example: "phone"
+	BuiltinSensitiveType string `json:"builtin_sensitive_type,omitempty"`
+	// custom sensitive type ID (for edit form pre-fill)
+	// Example: 1
+	CustomSensitiveTypeID *uint `json:"custom_sensitive_type_id,omitempty"`
+	// masking algorithm type: CHAR, TAG, REPLACE, HASH
+	// Example: "CHAR"
+	AlgorithmType string `json:"algorithm_type"`
 	// description
 	// Example: "mask digits"
 	Description string `json:"description"`
@@ -25,9 +52,6 @@ type ListMaskingRulesData struct {
 	// effect example after masking
 	// Example: "138******78"
 	EffectExampleAfter string `json:"effect_example_after"`
-	// masking rule id
-	// Example: 1
-	Id int `json:"id"`
 }
 
 // swagger:model ListMaskingRulesReply
@@ -92,17 +116,31 @@ type AddMaskingTemplateReq struct {
 	MaskingTemplate *AddMaskingTemplate `json:"masking_template" validate:"required"`
 }
 
+// swagger:model MaskingRuleRef
+type MaskingRuleRef struct {
+	// rule id
+	// Required: true
+	// Example: 1
+	RuleID int `json:"rule_id" validate:"required"`
+	// rule source: "builtin" or "custom"
+	// Required: true
+	// Example: "builtin"
+	RuleSource string `json:"rule_source" validate:"required,oneof=builtin custom"`
+}
+
 // swagger:model AddMaskingTemplate
 type AddMaskingTemplate struct {
 	// masking template name
 	// Required: true
 	// Example: "New Template"
 	Name string `json:"name" validate:"required"`
-	// masking rule id list
-	// Required: true
-	// MinLength: 1
+	// masking rule references with source info (preferred over rule_ids)
+	// Example: [{"rule_id": 1, "rule_source": "builtin"}, {"rule_id": 2, "rule_source": "custom"}]
+	RuleRefs []MaskingRuleRef `json:"rule_refs"`
+	// masking rule id list (deprecated: use rule_refs instead; kept for backward compatibility)
+	// When rule_refs is provided, rule_ids is ignored.
 	// Example: [1, 2, 3]
-	RuleIDs []int `json:"rule_ids" validate:"required,min=1"`
+	RuleIDs []int `json:"rule_ids"`
 }
 
 // swagger:model AddMaskingTemplateReply
@@ -131,11 +169,13 @@ type UpdateMaskingTemplateReq struct {
 
 // swagger:model UpdateMaskingTemplate
 type UpdateMaskingTemplate struct {
-	// masking rule id list
-	// Required: true
-	// MinLength: 1
+	// masking rule references with source info (preferred over rule_ids)
+	// Example: [{"rule_id": 1, "rule_source": "builtin"}, {"rule_id": 2, "rule_source": "custom"}]
+	RuleRefs []MaskingRuleRef `json:"rule_refs"`
+	// masking rule id list (deprecated: use rule_refs instead; kept for backward compatibility)
+	// When rule_refs is provided, rule_ids is ignored.
 	// Example: [1, 2]
-	RuleIDs []int `json:"rule_ids" validate:"required,min=1"`
+	RuleIDs []int `json:"rule_ids"`
 }
 
 // swagger:model UpdateMaskingTemplateReply
@@ -324,6 +364,9 @@ type SensitiveFieldScanResult struct {
 	// recommended masking rule id
 	// Example: 1
 	RecommendedMaskingRuleID int `json:"recommended_masking_rule_id"`
+	// recommended masking rule source: "builtin" or "custom"
+	// Example: "builtin"
+	RecommendedMaskingRuleSource string `json:"recommended_masking_rule_source,omitempty"`
 	// recommended masking rule name
 	// Example: "Email Masking"
 	RecommendedMaskingRuleName string `json:"recommended_masking_rule_name"`
@@ -527,6 +570,9 @@ type MaskingRuleConfig struct {
 	// Required: true
 	// Example: 1
 	MaskingRuleID int `json:"masking_rule_id" validate:"required"`
+	// masking rule source: "builtin" or "custom", default is "builtin"
+	// Example: "builtin"
+	MaskingRuleSource string `json:"masking_rule_source"`
 	// whether to enable masking for this column
 	// Required: true
 	// Example: true
@@ -644,6 +690,10 @@ type TableColumnMaskingDetail struct {
 	//
 	// Example: 1
 	MaskingRuleID *int `json:"masking_rule_id"`
+	// current masking rule source: "builtin" or "custom"
+	//
+	// Example: "builtin"
+	MaskingRuleSource string `json:"masking_rule_source,omitempty"`
 	// current masking rule name, null if no masking rule is applied
 	//
 	// Example: "Email Masking"
@@ -841,6 +891,273 @@ type ListCreatableDBServicesForMaskingTaskReply struct {
 	// total count of db services
 	// Example: 10
 	Total int64 `json:"total_nums"`
+
+	base.GenericResp
+}
+
+// ===== 自定义脱敏规则 API 结构体 =====
+
+// swagger:parameters ListMaskingRulesV2
+type ListMaskingRulesV2Req struct {
+	// project uid
+	// in: path
+	// Required: true
+	// Example: "project_uid"
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	// filter by source: "builtin" or "custom", empty returns all
+	// in: query
+	Source string `query:"source" json:"source"`
+	// fuzzy search by rule name
+	// in: query
+	Keywords string `query:"keywords" json:"keywords"`
+	// the maximum count of rules to be returned, default is 20
+	// in: query
+	PageSize uint32 `query:"page_size" json:"page_size"`
+	// the offset of rules to be returned, default is 0
+	// in: query
+	PageIndex uint32 `query:"page_index" json:"page_index"`
+}
+
+// swagger:model ListMaskingRulesV2Reply
+type ListMaskingRulesV2Reply struct {
+	// list masking rules reply
+	Data []ListMaskingRulesData `json:"data"`
+	// total count of masking rules
+	// Example: 100
+	Total int64 `json:"total_nums"`
+
+	base.GenericResp
+}
+
+// swagger:model AddCustomMaskingRuleReq
+type AddCustomMaskingRuleReq struct {
+	// project uid
+	// in: path
+	// swagger:ignore
+	// Required: true
+	// Example: "project_uid"
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	// custom masking rule
+	// Required: true
+	Rule *AddCustomMaskingRule `json:"rule" validate:"required"`
+}
+
+// swagger:model AddCustomMaskingRule
+type AddCustomMaskingRule struct {
+	// rule name
+	// Required: true
+	// Example: "自定义手机号脱敏"
+	Name string `json:"name" validate:"required"`
+	// rule description
+	// Example: "对手机号进行脱敏处理"
+	Description string `json:"description"`
+	// sensitive type configuration
+	// Required: true
+	SensitiveType *CustomRuleSensitiveType `json:"sensitive_type" validate:"required"`
+	// masking algorithm configuration
+	// Required: true
+	MaskingAlgorithm *CustomRuleMaskingAlgorithm `json:"masking_algorithm" validate:"required"`
+}
+
+// swagger:model CustomRuleSensitiveType
+type CustomRuleSensitiveType struct {
+	// sensitive type source: "builtin" or "custom"
+	// Required: true
+	// Example: "custom"
+	Source string `json:"source" validate:"required,oneof=builtin custom"`
+	// builtin sensitive type identifier, required when source is "builtin"
+	// Example: "PHONE"
+	BuiltinType string `json:"builtin_type"`
+	// existing custom type ID, used when source is "custom" and reusing existing type
+	// Example: 1
+	CustomTypeID *uint `json:"custom_type_id"`
+	// new custom sensitive type definition, used when source is "custom" and creating new type
+	NewCustomType *NewCustomSensitiveType `json:"new_custom_type"`
+}
+
+// swagger:model NewCustomSensitiveType
+type NewCustomSensitiveType struct {
+	// chinese display name
+	// Required: true
+	// Example: "自定义手机号"
+	CnName string `json:"cn_name" validate:"required"`
+	// english identifier, only allows [a-z0-9_]
+	// Required: true
+	// Example: "custom_phone"
+	EnIdentifier string `json:"en_identifier" validate:"required"`
+	// field name keywords for identification
+	// Example: ["phone", "mobile"]
+	FieldKeywords []string `json:"field_keywords"`
+	// sample data regex pattern for identification
+	// Example: "^1[3-9]\\d{9}$"
+	SampleDataRegex string `json:"sample_data_regex"`
+}
+
+// swagger:model CustomRuleMaskingAlgorithm
+type CustomRuleMaskingAlgorithm struct {
+	// masking type: CHAR, TAG, REPLACE, ALGO
+	// Required: true
+	// Example: "CHAR"
+	MaskType string `json:"mask_type" validate:"required,oneof=CHAR TAG REPLACE ALGO"`
+	// masking value (replacement char for CHAR, tag text for TAG, replacement text for REPLACE, algorithm name for ALGO)
+	// Example: "*"
+	Value string `json:"value"`
+	// offset from the beginning for CHAR masking
+	// Example: 3
+	Offset int32 `json:"offset"`
+	// padding from the end for CHAR masking
+	// Example: 4
+	Padding int32 `json:"padding"`
+	// mask length for CHAR masking, 0 means mask all
+	// Example: 0
+	Length int32 `json:"length"`
+	// whether to mask from the end for CHAR masking
+	// Example: false
+	Reverse bool `json:"reverse"`
+	// characters to ignore during CHAR masking
+	// Example: "-"
+	IgnoreCharSet string `json:"ignore_char_set"`
+}
+
+// swagger:model AddCustomMaskingRuleReply
+type AddCustomMaskingRuleReply struct {
+	// add custom masking rule reply
+	Data struct {
+		// new rule id
+		// Example: 10001
+		RuleID uint `json:"rule_id"`
+	} `json:"data"`
+
+	base.GenericResp
+}
+
+// swagger:model UpdateCustomMaskingRuleReq
+type UpdateCustomMaskingRuleReq struct {
+	// project uid
+	// in: path
+	// swagger:ignore
+	// Required: true
+	// Example: "project_uid"
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	// rule id
+	// in: path
+	// swagger:ignore
+	// Required: true
+	// Example: 10001
+	RuleID uint `param:"rule_id" json:"rule_id" validate:"required"`
+	// custom masking rule update
+	// Required: true
+	Rule *UpdateCustomMaskingRule `json:"rule" validate:"required"`
+}
+
+// swagger:model UpdateCustomMaskingRule
+type UpdateCustomMaskingRule struct {
+	// rule name
+	// Required: true
+	// Example: "自定义手机号脱敏"
+	Name string `json:"name" validate:"required"`
+	// rule description
+	// Example: "对手机号进行脱敏处理"
+	Description string `json:"description"`
+	// masking algorithm configuration
+	// Required: true
+	MaskingAlgorithm *CustomRuleMaskingAlgorithm `json:"masking_algorithm" validate:"required"`
+	// custom sensitive type update (only allowed when the type is exclusively used by this rule)
+	CustomTypeUpdate *UpdateCustomSensitiveType `json:"custom_type_update"`
+}
+
+// swagger:model UpdateCustomSensitiveType
+type UpdateCustomSensitiveType struct {
+	// field name keywords for identification
+	// Example: ["phone", "mobile"]
+	FieldKeywords []string `json:"field_keywords"`
+	// sample data regex pattern for identification
+	// Example: "^1[3-9]\\d{9}$"
+	SampleDataRegex string `json:"sample_data_regex"`
+}
+
+// swagger:model UpdateCustomMaskingRuleReply
+type UpdateCustomMaskingRuleReply struct {
+	base.GenericResp
+}
+
+// swagger:parameters DeleteCustomMaskingRule
+type DeleteCustomMaskingRuleReq struct {
+	// project uid
+	// in: path
+	// Required: true
+	// Example: "project_uid"
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	// rule id
+	// in: path
+	// Required: true
+	// Example: 10001
+	RuleID uint `param:"rule_id" json:"rule_id" validate:"required"`
+}
+
+// swagger:model DeleteCustomMaskingRuleReply
+type DeleteCustomMaskingRuleReply struct {
+	base.GenericResp
+}
+
+// swagger:parameters ListSensitiveTypes
+type ListSensitiveTypesReq struct {
+	// project uid
+	// in: path
+	// Required: true
+	// Example: "project_uid"
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+}
+
+// swagger:model SensitiveTypeData
+type SensitiveTypeData struct {
+	// sensitive type source: "builtin" or "custom"
+	// Example: "builtin"
+	Source string `json:"source"`
+	// type identifier (builtin: enum value; custom: CUSTOM_ + en_identifier)
+	// Example: "PHONE"
+	TypeIdentifier string `json:"type_identifier"`
+	// chinese display name
+	// Example: "手机号"
+	CnName string `json:"cn_name"`
+	// custom type ID, only for custom types
+	// Example: 1
+	CustomTypeID *uint `json:"custom_type_id"`
+	// field name keywords for identification
+	// Example: ["phone", "mobile"]
+	FieldKeywords []string `json:"field_keywords"`
+	// sample data regex pattern
+	// Example: "^1[3-9]\\d{9}$"
+	SampleDataRegex string `json:"sample_data_regex"`
+}
+
+// swagger:model ListSensitiveTypesReply
+type ListSensitiveTypesReply struct {
+	// sensitive types list
+	Data []SensitiveTypeData `json:"data"`
+
+	base.GenericResp
+}
+
+// swagger:model PreviewMaskingEffectReq
+type PreviewMaskingEffectReq struct {
+	// sample input text for masking preview
+	// Required: true
+	// Example: "13812345678"
+	SampleInput string `json:"sample_input" validate:"required"`
+	// masking algorithm configuration
+	// Required: true
+	MaskingAlgorithm *CustomRuleMaskingAlgorithm `json:"masking_algorithm" validate:"required"`
+}
+
+// swagger:model PreviewMaskingEffectReply
+type PreviewMaskingEffectReply struct {
+	// masking effect preview reply
+	Data struct {
+		// masked output text
+		// Example: "138******78"
+		MaskedOutput string `json:"masked_output"`
+	} `json:"data"`
 
 	base.GenericResp
 }

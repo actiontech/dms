@@ -737,3 +737,257 @@ func (ctl *DMSController) ProcessApprovalRequest(c echo.Context) error {
 	}
 	return NewOkRespWithReply(c, &aV1.ProcessApprovalRequestReply{})
 }
+
+// swagger:operation GET /v1/dms/projects/{project_uid}/masking/rules Masking ListMaskingRulesV2
+//
+// List masking rules (V2, includes custom rules).
+//
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project uid
+//     in: path
+//     required: true
+//     type: string
+//   - name: source
+//     description: "filter by source: builtin or custom, empty returns all"
+//     in: query
+//     required: false
+//     type: string
+//   - name: keywords
+//     description: fuzzy search by rule name
+//     in: query
+//     required: false
+//     type: string
+//   - name: page_size
+//     description: the maximum count of rules to be returned, default is 20
+//     in: query
+//     required: false
+//     type: integer
+//     format: uint32
+//   - name: page_index
+//     description: the offset of rules to be returned, default is 0
+//     in: query
+//     required: false
+//     type: integer
+//     format: uint32
+//
+// responses:
+//
+//	'200':
+//	  description: List masking rules successfully
+//	  schema:
+//	    "$ref": "#/definitions/ListMaskingRulesV2Reply"
+//	default:
+//	  description: Generic error response
+//	  schema:
+//	    "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) ListMaskingRulesV2(c echo.Context) error {
+	req := &aV1.ListMaskingRulesV2Req{}
+	if err := bindAndValidateReq(c, req); err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	reply, err := ctl.DMS.ListMaskingRulesV2(c.Request().Context(), req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:operation POST /v1/dms/projects/{project_uid}/masking/rules Masking AddCustomMaskingRule
+//
+// Add custom masking rule.
+//
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project uid
+//     in: path
+//     required: true
+//     type: string
+//   - name: rule
+//     description: custom masking rule info
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/AddCustomMaskingRuleReq"
+//
+// responses:
+//
+//	'200':
+//	  description: Add custom masking rule successfully
+//	  schema:
+//	    "$ref": "#/definitions/AddCustomMaskingRuleReply"
+//	default:
+//	  description: Generic error response
+//	  schema:
+//	    "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) AddCustomMaskingRule(c echo.Context) error {
+	req := &aV1.AddCustomMaskingRuleReq{}
+	if err := bindAndValidateReq(c, req); err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	reply, err := ctl.DMS.AddCustomMaskingRule(c.Request().Context(), req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:operation PUT /v1/dms/projects/{project_uid}/masking/rules/{rule_id} Masking UpdateCustomMaskingRule
+//
+// Update custom masking rule.
+//
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project uid
+//     in: path
+//     required: true
+//     type: string
+//   - name: rule_id
+//     description: custom masking rule id
+//     in: path
+//     required: true
+//     type: integer
+//   - name: rule
+//     description: custom masking rule update info
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/UpdateCustomMaskingRuleReq"
+//
+// responses:
+//
+//	'200':
+//	  description: Update custom masking rule successfully
+//	  schema:
+//	    "$ref": "#/definitions/UpdateCustomMaskingRuleReply"
+//	default:
+//	  description: Generic error response
+//	  schema:
+//	    "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) UpdateCustomMaskingRule(c echo.Context) error {
+	req := &aV1.UpdateCustomMaskingRuleReq{}
+	if err := bindAndValidateReq(c, req); err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	reply, err := ctl.DMS.UpdateCustomMaskingRule(c.Request().Context(), req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:operation DELETE /v1/dms/projects/{project_uid}/masking/rules/{rule_id} Masking DeleteCustomMaskingRule
+//
+// Delete custom masking rule.
+//
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project uid
+//     in: path
+//     required: true
+//     type: string
+//   - name: rule_id
+//     description: custom masking rule id
+//     in: path
+//     required: true
+//     type: integer
+//
+// responses:
+//
+//	'200':
+//	  description: Delete custom masking rule successfully
+//	  schema:
+//	    "$ref": "#/definitions/DeleteCustomMaskingRuleReply"
+//	default:
+//	  description: Generic error response
+//	  schema:
+//	    "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) DeleteCustomMaskingRule(c echo.Context) error {
+	req := &aV1.DeleteCustomMaskingRuleReq{}
+	if err := bindAndValidateReq(c, req); err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	if err := ctl.DMS.DeleteCustomMaskingRule(c.Request().Context(), req); err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, &aV1.DeleteCustomMaskingRuleReply{})
+}
+
+// swagger:operation GET /v1/dms/projects/{project_uid}/masking/sensitive-types Masking ListSensitiveTypes
+//
+// List sensitive types (builtin + custom).
+//
+// ---
+// parameters:
+//   - name: project_uid
+//     description: project uid
+//     in: path
+//     required: true
+//     type: string
+//
+// responses:
+//
+//	'200':
+//	  description: List sensitive types successfully
+//	  schema:
+//	    "$ref": "#/definitions/ListSensitiveTypesReply"
+//	default:
+//	  description: Generic error response
+//	  schema:
+//	    "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) ListSensitiveTypes(c echo.Context) error {
+	req := &aV1.ListSensitiveTypesReq{}
+	if err := bindAndValidateReq(c, req); err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	reply, err := ctl.DMS.ListSensitiveTypes(c.Request().Context(), req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:operation POST /v1/dms/masking/preview Masking PreviewMaskingEffect
+//
+// Preview masking effect.
+//
+// ---
+// parameters:
+//   - name: preview_req
+//     description: masking effect preview request
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/PreviewMaskingEffectReq"
+//
+// responses:
+//
+//	'200':
+//	  description: Preview masking effect successfully
+//	  schema:
+//	    "$ref": "#/definitions/PreviewMaskingEffectReply"
+//	default:
+//	  description: Generic error response
+//	  schema:
+//	    "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) PreviewMaskingEffect(c echo.Context) error {
+	req := &aV1.PreviewMaskingEffectReq{}
+	if err := bindAndValidateReq(c, req); err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	reply, err := ctl.DMS.PreviewMaskingEffect(c.Request().Context(), req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
