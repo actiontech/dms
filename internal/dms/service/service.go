@@ -152,7 +152,8 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	CbOperationLogUsecase := biz.NewCbOperationLogUsecase(logger, cbOperationRepo, opPermissionVerifyUsecase, dmsProxyTargetRepo, systemVariableUsecase)
 	workflowRepo := storage.NewWorkflowRepo(logger, st)
 	dataExportMaskingConfigRepo := initDataExportMaskingConfigRepo(logger, st)
-	DataExportWorkflowUsecase := biz.NewDataExportWorkflowUsecase(logger, tx, workflowRepo, dataExportTaskRepo, dbServiceRepo, dataExportMaskingConfigRepo, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, clusterUsecase, webhookConfigurationUsecase, userUsecase, systemVariableUsecase, discoveryTaskRepo, fmt.Sprintf("%s:%d", opts.ReportHost, opts.APIServiceOpts.Port))
+	dataExportMaskingRuleRepo := initDataExportMaskingRuleRepo(logger, st)
+	DataExportWorkflowUsecase := biz.NewDataExportWorkflowUsecase(logger, tx, workflowRepo, dataExportTaskRepo, dbServiceRepo, dataExportMaskingConfigRepo, dataExportMaskingRuleRepo, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, clusterUsecase, webhookConfigurationUsecase, userUsecase, systemVariableUsecase, discoveryTaskRepo, fmt.Sprintf("%s:%d", opts.ReportHost, opts.APIServiceOpts.Port))
 	dataMaskingUsecase, stopDataMaskingScheduler, err := initDataMaskingUsecase(logger, st, dbServiceUseCase, clusterUsecase, dmsProxyTargetRepo)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize data masking usecase: %v", err)
