@@ -19,6 +19,14 @@ type FilterGlobalDataExportWorkflowReq struct {
 	FilterCurrentStepAssigneeUserUid string                     `json:"filter_current_step_assignee_user_uid" query:"filter_current_step_assignee_user_uid"`
 	FilterByDBServiceUid             string                     `json:"filter_by_db_service_uid" query:"filter_by_db_service_uid"`
 	FuzzyKeyword                     string                     `json:"fuzzy_keyword" query:"fuzzy_keyword"`
+
+	// CheckUserCanAccess enables OR-based self-relevant filtering:
+	// (creator OR current assignee OR viewable db_service). When true,
+	// CurrentUserID must be set. This replaces the broken AND approach of
+	// setting both FilterByCreateUserUid and FilterCurrentStepAssigneeUserId.
+	CheckUserCanAccess    bool     `json:"check_user_can_access" query:"check_user_can_access"`
+	CurrentUserID         string   `json:"current_user_id" query:"current_user_id"`
+	ViewableDBServiceUids []string `json:"viewable_db_service_uids" query:"viewable_db_service_uids"`
 }
 
 type DataExportWorkflowStatus string

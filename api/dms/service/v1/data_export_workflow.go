@@ -116,6 +116,15 @@ type FilterGlobalDataExportWorkflowReq struct {
 	// filter fuzzy key word for id/name
 	// in:query
 	FuzzyKeyword string `json:"fuzzy_keyword" query:"fuzzy_keyword"`
+	// enable OR-based self-relevant filtering (creator OR assignee OR viewable db_service)
+	// in:query
+	CheckUserCanAccess bool `json:"check_user_can_access" query:"check_user_can_access"`
+	// current user id for check_user_can_access filter
+	// in:query
+	CurrentUserID string `json:"current_user_id" query:"current_user_id"`
+	// db_service UIDs with view_others_workflow permission for check_user_can_access
+	// in:query
+	ViewableDBServiceUids []string `json:"viewable_db_service_uids" query:"viewable_db_service_uids"`
 }
 
 // swagger:model GetGlobalDataExportWorkflowsReply
