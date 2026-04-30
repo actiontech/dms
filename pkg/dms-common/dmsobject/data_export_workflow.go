@@ -58,6 +58,26 @@ func GetGlobalDataExportWorkflowsList(ctx context.Context, dmsAddr string, req d
 		query.Set("filter_current_step_assignee_user_id", req.FilterCurrentStepAssigneeUserId)
 	}
 
+	if req.FuzzyKeyword != "" {
+		query.Set("fuzzy_keyword", req.FuzzyKeyword)
+	}
+
+	if req.CheckUserCanAccess {
+		query.Set("check_user_can_access", "true")
+	}
+
+	if req.CurrentUserID != "" {
+		query.Set("current_user_id", req.CurrentUserID)
+	}
+
+	if len(req.ViewableDBServiceUids) > 0 {
+		for _, v := range req.ViewableDBServiceUids {
+			if v != "" {
+				query.Add("viewable_db_service_uids", v)
+			}
+		}
+	}
+
 	// 将查询参数附加到 URL
 	baseURL.RawQuery = query.Encode()
 
