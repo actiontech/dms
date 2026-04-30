@@ -158,6 +158,63 @@ definitions:
                 $ref: '#/definitions/Gateway'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddMaskingRule:
+        properties:
+            description:
+                description: 规则说明
+                example: '"对手机号进行脱敏处理"'
+                type: string
+                x-go-name: Description
+            masking_algorithm_config:
+                $ref: '#/definitions/MaskingAlgorithmConfig'
+            name:
+                description: 规则名称
+                example: '"自定义手机号脱敏"'
+                type: string
+                x-go-name: Name
+            sensitive_data_type_uid:
+                description: 敏感数据类型记录uid
+                example: '"20260409170256090"'
+                type: string
+                x-go-name: SensitiveDataTypeUID
+        required:
+            - name
+            - sensitive_data_type_uid
+            - masking_algorithm_config
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddMaskingRuleReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: 添加脱敏规则响应
+                properties:
+                    rule_id:
+                        description: 新建规则 id
+                        example: 10001
+                        format: uint64
+                        type: integer
+                        x-go-name: RuleID
+                type: object
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddMaskingRuleReq:
+        properties:
+            rule:
+                $ref: '#/definitions/AddMaskingRule'
+        required:
+            - rule
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddMaskingTemplate:
         properties:
             name:
@@ -449,6 +506,37 @@ definitions:
                 $ref: '#/definitions/AddSensitiveDataDiscoveryTask'
         required:
             - task
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddSensitiveDataTypeReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                properties:
+                    sensitive_data_type_id:
+                        description: 新建敏感数据类型 id
+                        example: 1
+                        format: uint64
+                        type: integer
+                        x-go-name: SensitiveDataTypeID
+                type: object
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AddSensitiveDataTypeReq:
+        properties:
+            type:
+                $ref: '#/definitions/NewCustomSensitiveType'
+        required:
+            - type
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddSession:
@@ -1590,6 +1678,19 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DeleteMaskingRuleReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DeleteMaskingTemplateReply:
         properties:
             code:
@@ -1604,6 +1705,19 @@ definitions:
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DeleteSensitiveDataDiscoveryTaskReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DeleteSensitiveDataTypeReply:
         properties:
             code:
                 description: code
@@ -2051,6 +2165,45 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetMaskingRuleDetailData:
+        properties:
+            description:
+                description: 规则说明
+                example: '"对手机号进行脱敏处理"'
+                type: string
+                x-go-name: Description
+            masking_algorithm_config:
+                $ref: '#/definitions/MaskingAlgorithmConfig'
+            name:
+                description: 规则名称
+                example: '"自定义手机号脱敏"'
+                type: string
+                x-go-name: Name
+            rule_id:
+                description: 规则 id
+                example: 10001
+                format: uint64
+                type: integer
+                x-go-name: RuleID
+            sensitive_data_type:
+                $ref: '#/definitions/SensitiveTypeData'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetMaskingRuleDetailReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/GetMaskingRuleDetailData'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetMemberGroup:
         properties:
             is_project_admin:
@@ -2092,7 +2245,7 @@ definitions:
                 type: string
                 x-go-name: Message
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetOauth2ConfigurationResData:
         properties:
             access_token_tag:
@@ -4002,32 +4155,102 @@ definitions:
                 example: '"mask digits"'
                 type: string
                 x-go-name: Description
+            detection_method_keyword_match_list:
+                description: 识别方式-关键字匹配（如字段名关键词等）
+                example:
+                    - phone
+                    - mobile
+                items:
+                    type: string
+                type: array
+                x-go-name: DetectionMethodKeywordMatchList
+            detection_method_regex_list:
+                description: 识别方式-正则表达式
+                example:
+                    - ^1[3-9]\d{9}$
+                items:
+                    type: string
+                type: array
+                x-go-name: DetectionMethodRegexList
             effect:
-                description: effect description for users
+                description: 脱敏效果
                 example: '"保留开头2位和结尾2位，中间字符替换为*"'
                 type: string
                 x-go-name: Effect
             effect_example_after:
-                description: effect example after masking
+                description: 脱敏后示例
                 example: '"138******78"'
                 type: string
                 x-go-name: EffectExampleAfter
             effect_example_before:
-                description: effect example before masking
+                description: 脱敏前示例
                 example: '"13812345678"'
                 type: string
                 x-go-name: EffectExampleBefore
             id:
-                description: masking rule id
+                description: 脱敏规则ID
                 example: 1
                 format: int64
                 type: integer
                 x-go-name: Id
-            masking_type:
-                description: masking type
-                example: '"MASK_DIGIT"'
+            masking_algorithm:
+                description: |-
+                    脱敏算法名称: CHAR, TAG, REPLACE, HASH
+                    CHAR MaskingAlgorithmDisplayNameCHAR
+                    TAG MaskingAlgorithmDisplayNameTAG
+                    REPLACE MaskingAlgorithmDisplayNameREPLACE
+                    HASH MaskingAlgorithmDisplayNameHASH
+                enum:
+                    - CHAR
+                    - TAG
+                    - REPLACE
+                    - HASH
+                example: '"CHAR"'
                 type: string
-                x-go-name: MaskingType
+                x-go-enum-desc: |-
+                    CHAR MaskingAlgorithmDisplayNameCHAR
+                    TAG MaskingAlgorithmDisplayNameTAG
+                    REPLACE MaskingAlgorithmDisplayNameREPLACE
+                    HASH MaskingAlgorithmDisplayNameHASH
+                x-go-name: MaskingAlgorithm
+            name:
+                description: 脱敏规则名称
+                example: '"手机号脱敏"'
+                type: string
+                x-go-name: Name
+            rule_source:
+                description: |-
+                    规则来源: 系统内置或自定义
+                    builtin MaskingRuleSourceBuiltin
+                    custom MaskingRuleSourceCustom
+                enum:
+                    - builtin
+                    - custom
+                example: '"builtin"'
+                type: string
+                x-go-enum-desc: |-
+                    builtin MaskingRuleSourceBuiltin
+                    custom MaskingRuleSourceCustom
+                x-go-name: RuleSource
+            sensitive_data_type_name:
+                description: 敏感数据类型
+                example: '"phone"'
+                type: string
+                x-go-name: SensitiveDataTypeName
+            sensitive_data_type_source:
+                description: |-
+                    敏感数据类型来源: 系统内置或自定义
+                    builtin SensitiveDataTypeSourceBuiltin
+                    custom SensitiveDataTypeSourceCustom
+                enum:
+                    - builtin
+                    - custom
+                example: '"builtin"'
+                type: string
+                x-go-enum-desc: |-
+                    builtin SensitiveDataTypeSourceBuiltin
+                    custom SensitiveDataTypeSourceCustom
+                x-go-name: SensitiveDataTypeSource
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMaskingRulesReply:
@@ -4908,6 +5131,25 @@ definitions:
                 x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListSensitiveTypesReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: 敏感数据类型列表
+                items:
+                    $ref: '#/definitions/SensitiveTypeData'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListUser:
         description: A dms user
         properties:
@@ -5148,6 +5390,74 @@ definitions:
                 $ref: '#/definitions/Time'
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    MaskingAlgorithmConfig:
+        properties:
+            ignore_char_set:
+                description: CHAR 方式脱敏时需忽略的字符集合
+                example: '"-"'
+                type: string
+                x-go-name: IgnoreCharSet
+            length:
+                description: CHAR 方式时中间需脱敏的字符长度，0 表示中间全部脱敏
+                example: 0
+                format: int32
+                type: integer
+                x-go-name: Length
+            mask_type:
+                description: |-
+                    脱敏方式：CHAR（按字符掩码）、TAG（标签）、REPLACE（整体替换）、ALGO（算法）
+                    CHAR MaskingAlgorithmMaskTypeCHAR
+                    TAG MaskingAlgorithmMaskTypeTAG
+                    REPLACE MaskingAlgorithmMaskTypeREPLACE
+                    ALGO MaskingAlgorithmMaskTypeALGO
+                enum:
+                    - CHAR
+                    - TAG
+                    - REPLACE
+                    - ALGO
+                example: '"CHAR"'
+                type: string
+                x-go-enum-desc: |-
+                    CHAR MaskingAlgorithmMaskTypeCHAR
+                    TAG MaskingAlgorithmMaskTypeTAG
+                    REPLACE MaskingAlgorithmMaskTypeREPLACE
+                    ALGO MaskingAlgorithmMaskTypeALGO
+                x-go-name: MaskType
+            offset:
+                description: CHAR 方式时从开头起保留的字符数（偏移量）
+                example: 3
+                format: int32
+                type: integer
+                x-go-name: Offset
+            padding:
+                description: CHAR 方式时从末尾起保留的字符数
+                example: 4
+                format: int32
+                type: integer
+                x-go-name: Padding
+            reverse:
+                description: CHAR 方式时是否从字符串末尾起计算脱敏区域
+                example: false
+                type: boolean
+                x-go-name: Reverse
+            sample_data_list:
+                description: 示例数据
+                example:
+                    - "13812345678"
+                    - "13812345679"
+                items:
+                    type: string
+                type: array
+                x-go-name: SampleDataList
+            value:
+                description: 脱敏取值：CHAR 时为替换字符，TAG 时为标签文案，REPLACE 时为替换全文，ALGO 时为算法名称
+                example: '"*"'
+                type: string
+                x-go-name: Value
+        required:
+            - mask_type
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     MaskingOverviewDashboard:
         properties:
             configured_masking_columns:
@@ -5364,6 +5674,48 @@ definitions:
                 description: role uid
                 type: string
                 x-go-name: RoleUID
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    NewCustomSensitiveType:
+        properties:
+            cn_name:
+                description: 中文名称
+                example: '"自定义手机号"'
+                type: string
+                x-go-name: CnName
+            en_identifier:
+                description: 英文标识, 仅允许 [a-z0-9_]
+                example: '"custom_phone"'
+                type: string
+                x-go-name: EnIdentifier
+            field_keywords:
+                description: 字段名关键词
+                example:
+                    - phone
+                    - mobile
+                items:
+                    type: string
+                type: array
+                x-go-name: FieldKeywords
+            sample_data_list:
+                description: 示例数据，当填写了抽样数据正则表达式时，必填
+                example:
+                    - John
+                    - j***@example.com
+                items:
+                    type: string
+                type: array
+                x-go-name: SampleDataList
+            sample_data_regex_list:
+                description: 抽样数据正则表达式
+                example: '"^1[3-9]\\d{9}$"'
+                items:
+                    type: string
+                type: array
+                x-go-name: SampleDataRegexList
+        required:
+            - cn_name
+            - en_identifier
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     Notification:
@@ -5875,6 +6227,47 @@ definitions:
         type: object
         x-go-name: PreviewImportProjects
         x-go-package: github.com/actiontech/dms/api/dms/service/v2
+    PreviewMaskingEffectReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                description: 脱敏效果预览响应
+                properties:
+                    masked_output_list:
+                        description: 脱敏结果列表
+                        example: '"138******78"'
+                        items:
+                            type: string
+                        type: array
+                        x-go-name: MaskedOutputList
+                type: object
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    PreviewMaskingEffectReq:
+        properties:
+            masking_algorithm_config:
+                $ref: '#/definitions/MaskingAlgorithmConfig'
+            sample_input_list:
+                description: 示例数据列表
+                example: '"13812345678"'
+                items:
+                    type: string
+                type: array
+                x-go-name: SampleInputList
+        required:
+            - sample_input_list
+            - masking_algorithm_config
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ProcessApprovalRequestReply:
         properties:
             code:
@@ -6474,6 +6867,19 @@ definitions:
                 x-go-name: Username
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    SensitiveDataTypeMatchResult:
+        properties:
+            matched:
+                description: 是否判定为匹配该敏感数据类型
+                type: boolean
+                x-go-name: Matched
+            value:
+                description: 样例值（与请求项对应）
+                example: '"13812345678"'
+                type: string
+                x-go-name: Value
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     SensitiveFieldScanResult:
         properties:
             confidence:
@@ -6504,11 +6910,86 @@ definitions:
                 example: '"Email Masking"'
                 type: string
                 x-go-name: RecommendedMaskingRuleName
+            rule_source:
+                description: |-
+                    规则来源: 系统内置或自定义
+                    builtin MaskingRuleSourceBuiltin
+                    custom MaskingRuleSourceCustom
+                enum:
+                    - builtin
+                    - custom
+                example: '"builtin"'
+                type: string
+                x-go-enum-desc: |-
+                    builtin MaskingRuleSourceBuiltin
+                    custom MaskingRuleSourceCustom
+                x-go-name: RuleSource
             scan_info:
                 description: scan information for the field
                 example: '"matched by field name ''email''"'
                 type: string
                 x-go-name: ScanInfo
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    SensitiveTypeData:
+        properties:
+            cn_name:
+                description: 中文展示名称
+                example: '"手机号"'
+                type: string
+                x-go-name: CnName
+            en_identifier:
+                description: 英文标识, 仅允许 [a-z0-9_]
+                example: '"custom_phone"'
+                type: string
+                x-go-name: EnIdentifier
+            field_keywords:
+                description: 字段名关键词
+                example:
+                    - phone
+                    - mobile
+                items:
+                    type: string
+                type: array
+                x-go-name: FieldKeywords
+            id:
+                description: ID
+                example: 1
+                format: uint64
+                type: integer
+                x-go-name: ID
+            sample_data_list:
+                description: 示例数据，当填写了抽样数据正则表达式列表或字段名关键词时，必填
+                example:
+                    - John
+                    - j***@example.com
+                items:
+                    type: string
+                type: array
+                x-go-name: SampleDataList
+            sample_data_regex_list:
+                description: 抽样数据正则表达式
+                example: '"^1[3-9]\\d{9}$"'
+                items:
+                    type: string
+                type: array
+                x-go-name: SampleDataRegexList
+            sensitive_data_type_source:
+                description: |-
+                    敏感数据类型来源: 系统内置或自定义
+                    builtin SensitiveDataTypeSourceBuiltin
+                    custom SensitiveDataTypeSourceCustom
+                enum:
+                    - builtin
+                    - custom
+                example: '"builtin"'
+                type: string
+                x-go-enum-desc: |-
+                    builtin SensitiveDataTypeSourceBuiltin
+                    custom SensitiveDataTypeSourceCustom
+                x-go-name: SensitiveDataTypeSource
+        required:
+            - en_identifier
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     SuspectedSensitiveDatabaseNode:
@@ -6611,6 +7092,20 @@ definitions:
                 example: '"Email Masking"'
                 type: string
                 x-go-name: MaskingRuleName
+            masking_rule_source:
+                description: |-
+                    current masking rule source: "builtin" or "custom"
+                    builtin MaskingRuleSourceBuiltin
+                    custom MaskingRuleSourceCustom
+                enum:
+                    - builtin
+                    - custom
+                example: '"builtin"'
+                type: string
+                x-go-enum-desc: |-
+                    builtin MaskingRuleSourceBuiltin
+                    custom MaskingRuleSourceCustom
+                x-go-name: MaskingRuleSource
             status:
                 description: |-
                     current masking config status
@@ -6735,6 +7230,66 @@ definitions:
             send_error_message:
                 type: string
                 x-go-name: SendErrorMessage
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TestSensitiveDataTypeMatchData:
+        properties:
+            results:
+                description: 与请求顺序一一对应的匹配结果
+                items:
+                    $ref: '#/definitions/SensitiveDataTypeMatchResult'
+                type: array
+                x-go-name: Results
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TestSensitiveDataTypeMatchReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/TestSensitiveDataTypeMatchData'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TestSensitiveDataTypeMatchReq:
+        properties:
+            field_keywords:
+                description: 字段名关键词（内联测试用）
+                example:
+                    - phone
+                    - mobile
+                items:
+                    type: string
+                type: array
+                x-go-name: FieldKeywords
+            sample_data_regex_list:
+                description: 抽样数据正则表达式列表（内联测试用）
+                example:
+                    - ^1[3-9]\d{9}$
+                items:
+                    type: string
+                type: array
+                x-go-name: SampleDataRegexList
+            sample_values:
+                description: 待匹配的样例值列表
+                items:
+                    type: string
+                type: array
+                x-go-name: SampleValues
+            sensitive_data_type_id:
+                description: 已存在的自定义敏感数据类型 id；与下方内联识别条件二选一或组合（由实现约定）
+                example: 1
+                format: uint64
+                type: integer
+                x-go-name: SensitiveDataTypeID
+        required:
+            - sample_values
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     TestSmsConfiguration:
@@ -7192,6 +7747,45 @@ definitions:
                 $ref: '#/definitions/LoginConfiguration'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateMaskingRule:
+        properties:
+            description:
+                description: 规则说明
+                example: '"对手机号进行脱敏处理"'
+                type: string
+                x-go-name: Description
+            masking_algorithm_config:
+                $ref: '#/definitions/MaskingAlgorithmConfig'
+            name:
+                description: 规则名称
+                example: '"自定义手机号脱敏"'
+                type: string
+                x-go-name: Name
+        required:
+            - name
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateMaskingRuleReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateMaskingRuleReq:
+        properties:
+            rule:
+                $ref: '#/definitions/UpdateMaskingRule'
+        required:
+            - rule
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateMaskingTemplate:
         properties:
             rule_ids:
@@ -7509,6 +8103,48 @@ definitions:
                 $ref: '#/definitions/UpdateSensitiveDataDiscoveryTask'
         required:
             - action
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateSensitiveDataType:
+        properties:
+            field_keywords:
+                description: 字段名关键词
+                example:
+                    - phone
+                    - mobile
+                items:
+                    type: string
+                type: array
+                x-go-name: FieldKeywords
+            sample_data_list:
+                description: 示例数据，当填写了抽样数据正则表达式列表或字段名关键词时，必填
+                example:
+                    - John
+                    - j***@example.com
+                items:
+                    type: string
+                type: array
+                x-go-name: SampleDataList
+            sample_data_regex_list:
+                description: 抽样数据正则表达式
+                example: '"^1[3-9]\\d{9}$"'
+                items:
+                    type: string
+                type: array
+                x-go-name: SampleDataRegexList
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateSensitiveDataTypeReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            message:
+                description: message
+                type: string
+                x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateSmsConfiguration:
@@ -9065,21 +9701,6 @@ paths:
             summary: Get gateway tips.
             tags:
                 - Gateway
-    /v1/dms/masking/rules:
-        get:
-            operationId: ListMaskingRules
-            responses:
-                "200":
-                    description: List masking rules successfully
-                    schema:
-                        $ref: '#/definitions/ListMaskingRulesReply'
-                default:
-                    description: Generic error response
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: List masking rules.
-            tags:
-                - Masking
     /v1/dms/notifications:
         post:
             operationId: Notification
@@ -10566,14 +11187,14 @@ paths:
         get:
             operationId: GetPlaintextAccessRequestDetail
             parameters:
-                - description: project uid
+                - description: 项目 UID
                   example: '"project_uid"'
                   in: path
                   name: project_uid
                   required: true
                   type: string
                   x-go-name: ProjectUid
-                - description: approval request id
+                - description: 审批申请 ID
                   example: 1
                   format: int64
                   in: path
@@ -10583,31 +11204,31 @@ paths:
                   x-go-name: RequestID
             responses:
                 "200":
-                    description: Get plaintext access request detail successfully
+                    description: 成功返回明文访问申请详情
                     schema:
                         $ref: '#/definitions/GetPlaintextAccessRequestDetailReply'
                 default:
-                    description: Generic error response
+                    description: 通用错误响应
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: Get plaintext access request detail.
+            summary: 获取明文访问申请详情。
             tags:
                 - Masking
     /v1/dms/projects/{project_uid}/masking/approval-requests/{request_id}/decisions:
         post:
             operationId: ProcessApprovalRequest
             parameters:
-                - description: project uid
+                - description: 项目 UID
                   in: path
                   name: project_uid
                   required: true
                   type: string
-                - description: approval request id
+                - description: 审批申请 ID
                   in: path
                   name: request_id
                   required: true
                   type: integer
-                - description: process action info
+                - description: 处理动作信息
                   in: body
                   name: action
                   required: true
@@ -10615,35 +11236,35 @@ paths:
                     $ref: '#/definitions/ProcessApprovalRequestReq'
             responses:
                 "200":
-                    description: Process approval request successfully
+                    description: 成功处理审批申请
                     schema:
                         $ref: '#/definitions/ProcessApprovalRequestReply'
                 default:
-                    description: Generic error response
+                    description: 通用错误响应
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: Process approval request.
+            summary: 处理审批申请。
             tags:
                 - Masking
     /v1/dms/projects/{project_uid}/masking/approval-requests/pending:
         get:
             operationId: ListPendingApprovalRequests
             parameters:
-                - description: project uid
+                - description: 项目 UID
                   example: '"project_uid"'
                   in: path
                   name: project_uid
                   required: true
                   type: string
                   x-go-name: ProjectUid
-                - description: the maximum count of requests to be returned, default is 20
+                - description: 单次返回的申请数量上限，默认 20
                   example: "20"
                   format: uint32
                   in: query
                   name: page_size
                   type: integer
                   x-go-name: PageSize
-                - description: the offset of requests to be returned, default is 0
+                - description: 申请列表的偏移量，默认 0
                   example: "0"
                   format: uint32
                   in: query
@@ -10652,41 +11273,41 @@ paths:
                   x-go-name: PageIndex
             responses:
                 "200":
-                    description: List pending approval requests successfully
+                    description: 成功返回待审批申请列表
                     schema:
                         $ref: '#/definitions/ListPendingApprovalRequestsReply'
                 default:
-                    description: Generic error response
+                    description: 通用错误响应
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: List pending approval requests.
+            summary: 查询待审批申请列表。
             tags:
                 - Masking
     /v1/dms/projects/{project_uid}/masking/overview:
         get:
             operationId: GetMaskingOverviewTree
             parameters:
-                - description: project uid
+                - description: 项目 UID
                   example: '"project_uid"'
                   in: path
                   name: project_uid
                   required: true
                   type: string
                   x-go-name: ProjectUid
-                - description: data source id
+                - description: 数据源 UID
                   example: '"1"'
                   in: query
                   name: db_service_uid
                   required: true
                   type: string
                   x-go-name: DBServiceUID
-                - description: fuzzy search keyword for database name, table name, and column name
+                - description: 按库名、表名、列名模糊搜索的关键词
                   example: '"user"'
                   in: query
                   name: keywords
                   type: string
                   x-go-name: Keywords
-                - description: 'masking config status filters, enum: CONFIGURED/PENDING_CONFIRM'
+                - description: 脱敏配置状态过滤，枚举：CONFIGURED/PENDING_CONFIRM
                   enum:
                     - CONFIGURED
                     - PENDING_CONFIRM
@@ -10701,26 +11322,53 @@ paths:
                   x-go-name: MaskingConfigStatus
             responses:
                 "200":
-                    description: Get masking overview tree successfully
+                    description: 成功返回脱敏概览树
                     schema:
                         $ref: '#/definitions/GetMaskingOverviewTreeReply'
                 default:
-                    description: Generic error response
+                    description: 通用错误响应
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: Get masking overview tree.
+            summary: 获取脱敏概览树。
+            tags:
+                - Masking
+    /v1/dms/projects/{project_uid}/masking/preview:
+        post:
+            operationId: PreviewMaskingEffect
+            parameters:
+                - description: 项目 UID
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                - description: 脱敏效果预览请求体
+                  in: body
+                  name: preview_req
+                  required: true
+                  schema:
+                    $ref: '#/definitions/PreviewMaskingEffectReq'
+            responses:
+                "200":
+                    description: 成功返回脱敏效果预览
+                    schema:
+                        $ref: '#/definitions/PreviewMaskingEffectReply'
+                default:
+                    description: 通用错误响应
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: 预览脱敏效果。
             tags:
                 - Masking
     /v1/dms/projects/{project_uid}/masking/rule-configs:
         put:
             operationId: ConfigureMaskingRules
             parameters:
-                - description: project uid
+                - description: 项目 UID
                   in: path
                   name: project_uid
                   required: true
                   type: string
-                - description: masking rule configurations for batch create or update
+                - description: 批量创建或更新脱敏规则的配置
                   in: body
                   name: masking_rule_configs_req
                   required: true
@@ -10728,35 +11376,176 @@ paths:
                     $ref: '#/definitions/ConfigureMaskingRulesReq'
             responses:
                 "200":
-                    description: Configure masking rules successfully
+                    description: 成功批量配置脱敏规则
                     schema:
                         $ref: '#/definitions/ConfigureMaskingRulesReply'
                 default:
-                    description: Generic error response
+                    description: 通用错误响应
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: Configure masking rules in batch.
+            summary: 批量配置脱敏规则。
             tags:
                 - Masking
-    /v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks:
+    /v1/dms/projects/{project_uid}/masking/rules:
         get:
-            operationId: ListSensitiveDataDiscoveryTasks
+            operationId: ListMaskingRules
             parameters:
-                - description: project uid
+                - description: 项目 UID
                   example: '"project_uid"'
                   in: path
                   name: project_uid
                   required: true
                   type: string
                   x-go-name: ProjectUid
-                - description: the maximum count of tasks to be returned, default is 20
+            responses:
+                "200":
+                    description: 成功返回脱敏规则列表
+                    schema:
+                        $ref: '#/definitions/ListMaskingRulesReply'
+                default:
+                    description: 通用错误响应
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: 查询项目下的脱敏规则列表（内置与自定义）。
+            tags:
+                - Masking
+        post:
+            operationId: AddMaskingRule
+            parameters:
+                - description: 项目 UID
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                - description: 脱敏规则信息
+                  in: body
+                  name: rule
+                  required: true
+                  schema:
+                    $ref: '#/definitions/AddMaskingRuleReq'
+            responses:
+                "200":
+                    description: 成功新增脱敏规则
+                    schema:
+                        $ref: '#/definitions/AddMaskingRuleReply'
+                default:
+                    description: 通用错误响应
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: 新增脱敏规则。
+            tags:
+                - Masking
+    /v1/dms/projects/{project_uid}/masking/rules/{rule_id}:
+        delete:
+            operationId: DeleteMaskingRule
+            parameters:
+                - description: 项目 UID
+                  example: '"project_uid"'
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: 脱敏规则 ID
+                  example: "10001"
+                  format: uint64
+                  in: path
+                  name: rule_id
+                  required: true
+                  type: integer
+                  x-go-name: RuleID
+            responses:
+                "200":
+                    description: 成功删除脱敏规则
+                    schema:
+                        $ref: '#/definitions/DeleteMaskingRuleReply'
+                default:
+                    description: 通用错误响应
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: 删除脱敏规则。
+            tags:
+                - Masking
+        get:
+            operationId: GetMaskingRuleDetail
+            parameters:
+                - description: 项目 UID
+                  example: '"project_uid"'
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: 脱敏规则 ID
+                  example: "10001"
+                  format: uint64
+                  in: path
+                  name: rule_id
+                  required: true
+                  type: integer
+                  x-go-name: RuleID
+            responses:
+                "200":
+                    description: 成功返回脱敏规则详情
+                    schema:
+                        $ref: '#/definitions/GetMaskingRuleDetailReply'
+                default:
+                    description: 通用错误响应
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: 获取脱敏规则详情。
+            tags:
+                - Masking
+        put:
+            operationId: UpdateMaskingRule
+            parameters:
+                - description: 项目 UID
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                - description: 脱敏规则 ID
+                  in: path
+                  name: rule_id
+                  required: true
+                  type: integer
+                - description: 脱敏规则更新信息
+                  in: body
+                  name: rule
+                  required: true
+                  schema:
+                    $ref: '#/definitions/UpdateMaskingRuleReq'
+            responses:
+                "200":
+                    description: 成功更新脱敏规则
+                    schema:
+                        $ref: '#/definitions/UpdateMaskingRuleReply'
+                default:
+                    description: 通用错误响应
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: 更新脱敏规则。
+            tags:
+                - Masking
+    /v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks:
+        get:
+            operationId: ListSensitiveDataDiscoveryTasks
+            parameters:
+                - description: 项目 UID
+                  example: '"project_uid"'
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: 单次返回的任务数量上限，默认 20
                   example: "20"
                   format: uint32
                   in: query
                   name: page_size
                   type: integer
                   x-go-name: PageSize
-                - description: the offset of tasks to be returned, default is 0
+                - description: 任务列表的偏移量，默认 0
                   example: "0"
                   format: uint32
                   in: query
@@ -10765,25 +11554,25 @@ paths:
                   x-go-name: PageIndex
             responses:
                 "200":
-                    description: List sensitive data discovery tasks successfully
+                    description: 成功返回敏感数据发现任务列表
                     schema:
                         $ref: '#/definitions/ListSensitiveDataDiscoveryTasksReply'
                 default:
-                    description: Generic error response
+                    description: 通用错误响应
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: List sensitive data discovery tasks.
+            summary: 查询敏感数据发现任务列表。
             tags:
                 - Masking
         post:
             operationId: AddSensitiveDataDiscoveryTask
             parameters:
-                - description: project uid
+                - description: 项目 UID
                   in: path
                   name: project_uid
                   required: true
                   type: string
-                - description: sensitive data discovery task info
+                - description: 敏感数据发现任务信息
                   in: body
                   name: task
                   required: true
@@ -10791,28 +11580,28 @@ paths:
                     $ref: '#/definitions/AddSensitiveDataDiscoveryTaskReq'
             responses:
                 "200":
-                    description: Add sensitive data discovery task successfully
+                    description: 成功新增敏感数据发现任务
                     schema:
                         $ref: '#/definitions/AddSensitiveDataDiscoveryTaskReply'
                 default:
-                    description: Generic error response
+                    description: 通用错误响应
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: Add sensitive data discovery task.
+            summary: 新增敏感数据发现任务。
             tags:
                 - Masking
     /v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks/{task_id}:
         delete:
             operationId: DeleteSensitiveDataDiscoveryTask
             parameters:
-                - description: project uid
+                - description: 项目 UID
                   example: '"project_uid"'
                   in: path
                   name: project_uid
                   required: true
                   type: string
                   x-go-name: ProjectUid
-                - description: sensitive data discovery task id
+                - description: 敏感数据发现任务 ID
                   example: 1
                   format: int64
                   in: path
@@ -10822,30 +11611,30 @@ paths:
                   x-go-name: TaskID
             responses:
                 "200":
-                    description: Delete sensitive data discovery task successfully
+                    description: 成功删除敏感数据发现任务
                     schema:
                         $ref: '#/definitions/DeleteSensitiveDataDiscoveryTaskReply'
                 default:
-                    description: Generic error response
+                    description: 通用错误响应
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: Delete sensitive data discovery task.
+            summary: 删除敏感数据发现任务。
             tags:
                 - Masking
         put:
             operationId: UpdateSensitiveDataDiscoveryTask
             parameters:
-                - description: project uid
+                - description: 项目 UID
                   in: path
                   name: project_uid
                   required: true
                   type: string
-                - description: sensitive data discovery task id
+                - description: 敏感数据发现任务 ID
                   in: path
                   name: task_id
                   required: true
                   type: integer
-                - description: sensitive data discovery task info
+                - description: 敏感数据发现任务信息
                   in: body
                   name: task
                   required: true
@@ -10853,28 +11642,28 @@ paths:
                     $ref: '#/definitions/UpdateSensitiveDataDiscoveryTaskReq'
             responses:
                 "200":
-                    description: Update sensitive data discovery task successfully
+                    description: 成功更新敏感数据发现任务
                     schema:
                         $ref: '#/definitions/UpdateSensitiveDataDiscoveryTaskReply'
                 default:
-                    description: Generic error response
+                    description: 通用错误响应
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: Update sensitive data discovery task.
+            summary: 更新敏感数据发现任务。
             tags:
                 - Masking
     /v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks/{task_id}/histories:
         get:
             operationId: ListSensitiveDataDiscoveryTaskHistories
             parameters:
-                - description: project uid
+                - description: 项目 UID
                   example: '"project_uid"'
                   in: path
                   name: project_uid
                   required: true
                   type: string
                   x-go-name: ProjectUid
-                - description: sensitive data discovery task id
+                - description: 敏感数据发现任务 ID
                   example: 1
                   format: int64
                   in: path
@@ -10882,14 +11671,14 @@ paths:
                   required: true
                   type: integer
                   x-go-name: TaskID
-                - description: the maximum count of histories to be returned, default is 20
+                - description: 单次返回的历史记录数量上限，默认 20
                   example: "20"
                   format: uint32
                   in: query
                   name: page_size
                   type: integer
                   x-go-name: PageSize
-                - description: the offset of histories to be returned, default is 0
+                - description: 历史记录的偏移量，默认 0
                   example: "0"
                   format: uint32
                   in: query
@@ -10898,42 +11687,42 @@ paths:
                   x-go-name: PageIndex
             responses:
                 "200":
-                    description: List sensitive data discovery task histories successfully
+                    description: 成功返回敏感数据发现任务执行历史
                     schema:
                         $ref: '#/definitions/ListSensitiveDataDiscoveryTaskHistoriesReply'
                 default:
-                    description: Generic error response
+                    description: 通用错误响应
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: List sensitive data discovery task histories.
+            summary: 查询敏感数据发现任务执行历史。
             tags:
                 - Masking
     /v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks/creatable-db-services:
         get:
             operationId: ListCreatableDBServicesForMaskingTask
             parameters:
-                - description: project uid
+                - description: 项目 UID
                   example: '"project_uid"'
                   in: path
                   name: project_uid
                   required: true
                   type: string
                   x-go-name: ProjectUid
-                - description: the maximum count of db services to be returned, default is 100
+                - description: 单次返回的数据源数量上限，默认 100
                   example: "100"
                   format: uint32
                   in: query
                   name: page_size
                   type: integer
                   x-go-name: PageSize
-                - description: the offset of db services to be returned, default is 0
+                - description: 数据源列表的偏移量，默认 0
                   example: "0"
                   format: uint32
                   in: query
                   name: page_index
                   type: integer
                   x-go-name: PageIndex
-                - description: fuzzy search keywords for db service name
+                - description: 按数据源名称模糊搜索的关键词
                   example: '"mysql"'
                   in: query
                   name: keywords
@@ -10941,28 +11730,168 @@ paths:
                   x-go-name: Keywords
             responses:
                 "200":
-                    description: List creatable db services for masking task successfully
+                    description: 成功返回可创建敏感数据发现任务的数据源列表
                     schema:
                         $ref: '#/definitions/ListCreatableDBServicesForMaskingTaskReply'
                 default:
-                    description: Generic error response
+                    description: 通用错误响应
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: List db services that can create sensitive data discovery task.
+            summary: 查询可用于创建敏感数据发现任务的数据源列表。
             tags:
                 - Masking
-    /v1/dms/projects/{project_uid}/masking/tables/{table_id}/column-masking-details:
+    /v1/dms/projects/{project_uid}/masking/sensitive-types:
         get:
-            operationId: GetTableColumnMaskingDetails
+            operationId: ListSensitiveTypes
             parameters:
-                - description: project uid
+                - description: 项目 UID
                   example: '"project_uid"'
                   in: path
                   name: project_uid
                   required: true
                   type: string
                   x-go-name: ProjectUid
-                - description: table id from masking overview tree
+            responses:
+                "200":
+                    description: 成功返回敏感数据类型列表
+                    schema:
+                        $ref: '#/definitions/ListSensitiveTypesReply'
+                default:
+                    description: 通用错误响应
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: 查询敏感数据类型列表（内置与自定义）。
+            tags:
+                - Masking
+        post:
+            operationId: AddSensitiveDataType
+            parameters:
+                - description: 项目 UID
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                - description: 敏感数据类型定义
+                  in: body
+                  name: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/AddSensitiveDataTypeReq'
+            responses:
+                "200":
+                    description: 成功创建敏感数据类型
+                    schema:
+                        $ref: '#/definitions/AddSensitiveDataTypeReply'
+                default:
+                    description: 通用错误响应
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: 创建自定义敏感数据类型（不创建脱敏规则）。
+            tags:
+                - Masking
+    /v1/dms/projects/{project_uid}/masking/sensitive-types/{sensitive_data_type_id}:
+        delete:
+            operationId: DeleteSensitiveDataType
+            parameters:
+                - description: 项目 UID
+                  example: '"project_uid"'
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: 敏感数据类型 ID（自定义类型的主键）
+                  example: "1"
+                  format: uint64
+                  in: path
+                  name: sensitive_data_type_id
+                  required: true
+                  type: integer
+                  x-go-name: SensitiveDataTypeID
+            responses:
+                "200":
+                    description: 成功删除敏感数据类型
+                    schema:
+                        $ref: '#/definitions/DeleteSensitiveDataTypeReply'
+                default:
+                    description: 通用错误响应
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: 删除自定义敏感数据类型（未被任何脱敏规则引用时方可删除）。
+            tags:
+                - Masking
+        put:
+            operationId: UpdateSensitiveDataType
+            parameters:
+                - $ref: '#/definitions/UpdateSensitiveDataType'
+                  description: 项目 UID
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: Type
+                - description: 敏感数据类型 ID（自定义类型的主键）
+                  in: path
+                  name: sensitive_data_type_id
+                  required: true
+                  type: integer
+                - description: 更新内容
+                  in: body
+                  name: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/UpdateSensitiveDataTypeReq'
+            responses:
+                "200":
+                    description: 成功更新敏感数据类型
+                    schema:
+                        $ref: '#/definitions/UpdateSensitiveDataTypeReply'
+                default:
+                    description: 通用错误响应
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: 更新自定义敏感数据类型的识别条件（字段关键词、抽样正则、示例数据）。
+            tags:
+                - Masking
+    /v1/dms/projects/{project_uid}/masking/sensitive-types/match-test:
+        post:
+            operationId: TestSensitiveDataTypeMatch
+            parameters:
+                - description: 项目 UID
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                - description: 匹配测试请求体
+                  in: body
+                  name: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/TestSensitiveDataTypeMatchReq'
+            responses:
+                "200":
+                    description: 匹配测试完成
+                    schema:
+                        $ref: '#/definitions/TestSensitiveDataTypeMatchReply'
+                default:
+                    description: 通用错误响应
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: 测试样例值是否匹配敏感数据类型规则（关键词与/或样例正则）。
+            tags:
+                - Masking
+    /v1/dms/projects/{project_uid}/masking/tables/{table_id}/column-masking-details:
+        get:
+            operationId: GetTableColumnMaskingDetails
+            parameters:
+                - description: 项目 UID
+                  example: '"project_uid"'
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: 脱敏概览树中的表 ID
                   example: 1
                   format: int64
                   in: path
@@ -10970,7 +11899,7 @@ paths:
                   required: true
                   type: integer
                   x-go-name: TableID
-                - description: fuzzy search keyword for column name
+                - description: 按列名模糊搜索的关键词
                   example: '"phone"'
                   in: query
                   name: keywords
@@ -10978,34 +11907,34 @@ paths:
                   x-go-name: Keywords
             responses:
                 "200":
-                    description: Get table column masking details successfully
+                    description: 成功返回表字段脱敏详情
                     schema:
                         $ref: '#/definitions/GetTableColumnMaskingDetailsReply'
                 default:
-                    description: Generic error response
+                    description: 通用错误响应
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: Get table column masking details.
+            summary: 获取表字段脱敏详情。
             tags:
                 - Masking
     /v1/dms/projects/{project_uid}/masking/templates:
         get:
             operationId: ListMaskingTemplates
             parameters:
-                - description: project uid
+                - description: 项目 UID
                   example: '"project_uid"'
                   in: path
                   name: project_uid
                   required: true
                   type: string
                   x-go-name: ProjectUid
-                - description: the maximum count of masking templates to be returned, default is 20
+                - description: 单次返回的脱敏模板数量上限，默认 20
                   format: uint32
                   in: query
                   name: page_size
                   type: integer
                   x-go-name: PageSize
-                - description: the offset of masking templates to be returned, default is 0
+                - description: 返回结果的偏移量，默认 0
                   format: uint32
                   in: query
                   name: page_index
@@ -11013,25 +11942,25 @@ paths:
                   x-go-name: PageIndex
             responses:
                 "200":
-                    description: List masking templates successfully
+                    description: 成功返回脱敏模板列表
                     schema:
                         $ref: '#/definitions/ListMaskingTemplatesReply'
                 default:
-                    description: Generic error response
+                    description: 通用错误响应
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: List masking templates.
+            summary: 查询脱敏模板列表。
             tags:
                 - Masking
         post:
             operationId: AddMaskingTemplate
             parameters:
-                - description: project uid
+                - description: 项目 UID
                   in: path
                   name: project_uid
                   required: true
                   type: string
-                - description: masking template info
+                - description: 脱敏模板信息
                   in: body
                   name: masking_template
                   required: true
@@ -11039,28 +11968,28 @@ paths:
                     $ref: '#/definitions/AddMaskingTemplateReq'
             responses:
                 "200":
-                    description: Add masking template successfully
+                    description: 成功新增脱敏模板
                     schema:
                         $ref: '#/definitions/AddMaskingTemplateReply'
                 default:
-                    description: Generic error response
+                    description: 通用错误响应
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: Add masking template.
+            summary: 新增脱敏模板。
             tags:
                 - Masking
     /v1/dms/projects/{project_uid}/masking/templates/{template_id}:
         delete:
             operationId: DeleteMaskingTemplate
             parameters:
-                - description: project uid
+                - description: 项目 UID
                   example: '"project_uid"'
                   in: path
                   name: project_uid
                   required: true
                   type: string
                   x-go-name: ProjectUid
-                - description: masking template id
+                - description: 脱敏模板 ID
                   example: 1
                   format: int64
                   in: path
@@ -11070,30 +11999,30 @@ paths:
                   x-go-name: TemplateID
             responses:
                 "200":
-                    description: Delete masking template successfully
+                    description: 成功删除脱敏模板
                     schema:
                         $ref: '#/definitions/DeleteMaskingTemplateReply'
                 default:
-                    description: Generic error response
+                    description: 通用错误响应
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: Delete masking template.
+            summary: 删除脱敏模板。
             tags:
                 - Masking
         put:
             operationId: UpdateMaskingTemplate
             parameters:
-                - description: project uid
+                - description: 项目 UID
                   in: path
                   name: project_uid
                   required: true
                   type: string
-                - description: masking template id
+                - description: 脱敏模板 ID
                   in: path
                   name: template_id
                   required: true
                   type: integer
-                - description: masking template info
+                - description: 脱敏模板信息
                   in: body
                   name: masking_template
                   required: true
@@ -11101,14 +12030,14 @@ paths:
                     $ref: '#/definitions/UpdateMaskingTemplateReq'
             responses:
                 "200":
-                    description: Update masking template successfully
+                    description: 成功更新脱敏模板
                     schema:
                         $ref: '#/definitions/UpdateMaskingTemplateReply'
                 default:
-                    description: Generic error response
+                    description: 通用错误响应
                     schema:
                         $ref: '#/definitions/GenericResp'
-            summary: Update masking template.
+            summary: 更新脱敏模板。
             tags:
                 - Masking
     /v1/dms/projects/{project_uid}/member_groups:
