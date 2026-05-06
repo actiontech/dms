@@ -1143,7 +1143,7 @@ type UpdateMaskingRule struct {
 	MaskingAlgorithmConfig *MaskingAlgorithmConfig `json:"masking_algorithm_config"`
 }
 
-// swagger:model UpdateSensitiveDataType
+// swagger:model UpdateSensitiveDataTypePayload
 type UpdateSensitiveDataType struct {
 	// 字段名关键词
 	// Example: ["phone", "mobile"]
@@ -1156,7 +1156,7 @@ type UpdateSensitiveDataType struct {
 	SampleDataList []string `json:"sample_data_list"`
 }
 
-// swagger:parameters UpdateSensitiveDataType
+// swagger:model UpdateSensitiveDataTypeReq
 type UpdateSensitiveDataTypeReq struct {
 	// 项目 UID
 	// in: path
