@@ -49,7 +49,7 @@ func (d *DMSService) ListSensitiveDataDiscoveryTaskHistories(ctx context.Context
 	return nil, errNotSupportDataMasking
 }
 
-func (d *DMSService) ListMaskingRules(ctx context.Context) (reply *dmsV1.ListMaskingRulesReply, err error) {
+func (d *DMSService) ListMaskingRules(ctx context.Context, req *v1.ListMaskingRulesReq) (reply *dmsV1.ListMaskingRulesReply, err error) {
 	return nil, errNotSupportDataMasking
 }
 
@@ -73,6 +73,54 @@ func (d *DMSService) ListCreatableDBServicesForMaskingTask(ctx context.Context, 
 	return nil, errNotSupportDataMasking
 }
 
+func (d *DMSService) GetMaskingRuleDetail(ctx context.Context, req *v1.GetMaskingRuleDetailReq) (*v1.GetMaskingRuleDetailReply, error) {
+	return nil, errNotSupportDataMasking
+}
+
+func (d *DMSService) AddMaskingRule(ctx context.Context, req *v1.AddMaskingRuleReq) (*v1.AddMaskingRuleReply, error) {
+	return nil, errNotSupportDataMasking
+}
+
+func (d *DMSService) UpdateMaskingRule(ctx context.Context, req *v1.UpdateMaskingRuleReq) (*v1.UpdateMaskingRuleReply, error) {
+	return nil, errNotSupportDataMasking
+}
+
+func (d *DMSService) UpdateSensitiveDataType(ctx context.Context, req *v1.UpdateSensitiveDataTypeReq) (*v1.UpdateSensitiveDataTypeReply, error) {
+	return nil, errNotSupportDataMasking
+}
+
+func (d *DMSService) DeleteMaskingRule(ctx context.Context, req *v1.DeleteMaskingRuleReq) error {
+	return errNotSupportDataMasking
+}
+
+func (d *DMSService) ListSensitiveTypes(ctx context.Context, req *v1.ListSensitiveTypesReq) (*v1.ListSensitiveTypesReply, error) {
+	return nil, errNotSupportDataMasking
+}
+
+func (d *DMSService) AddSensitiveDataType(ctx context.Context, req *v1.AddSensitiveDataTypeReq) (*v1.AddSensitiveDataTypeReply, error) {
+	return nil, errNotSupportDataMasking
+}
+
+func (d *DMSService) DeleteSensitiveDataType(ctx context.Context, req *v1.DeleteSensitiveDataTypeReq) error {
+	return errNotSupportDataMasking
+}
+
+func (d *DMSService) TestSensitiveDataTypeMatch(ctx context.Context, req *v1.TestSensitiveDataTypeMatchReq) (*v1.TestSensitiveDataTypeMatchReply, error) {
+	return nil, errNotSupportDataMasking
+}
+
+func (d *DMSService) PreviewMaskingEffect(ctx context.Context, req *v1.PreviewMaskingEffectReq) (*v1.PreviewMaskingEffectReply, error) {
+	return nil, errNotSupportDataMasking
+}
+
+func (d *DMSService) ListDBServiceSchemasForMaskingTask(ctx context.Context, req *v1.ListDBServiceSchemasForMaskingTaskReq) (*v1.ListDBServiceSchemasForMaskingTaskReply, error) {
+	return nil, errNotSupportDataMasking
+}
+
+func (d *DMSService) ListDBServiceTablesForMaskingTask(ctx context.Context, req *v1.ListDBServiceTablesForMaskingTaskReq) (*v1.ListDBServiceTablesForMaskingTaskReply, error) {
+	return nil, errNotSupportDataMasking
+}
+
 func initDataMaskingUsecase(_ utilLog.Logger, _ *storage.Storage, _ *biz.DBServiceUsecase, _ *biz.ClusterUsecase, _ biz.ProxyTargetRepo) (*dataMaskingUsecase, func(), error) {
 	return nil, func() {}, nil
 }
@@ -92,6 +140,10 @@ type dataMaskingUsecase struct {
 }
 
 func initDataExportMaskingConfigRepo(_ utilLog.Logger, _ *storage.Storage) biz.DataExportMaskingConfigRepo {
+	return nil
+}
+
+func initDataExportMaskingRuleRepo(_ utilLog.Logger, _ *storage.Storage) biz.DataExportMaskingRuleRepo {
 	return nil
 }
 

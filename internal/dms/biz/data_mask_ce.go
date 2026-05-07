@@ -3,3 +3,5 @@
 package biz
 
 type DataExportMaskingConfigRepo interface{}
+
+type DataExportMaskingRuleRepo interface{}

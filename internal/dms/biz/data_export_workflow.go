@@ -126,6 +126,7 @@ type DataExportWorkflowUsecase struct {
 	dbServiceRepo             DBServiceRepo
 	dataExportTaskRepo        DataExportTaskRepo
 	maskingConfigRepo         DataExportMaskingConfigRepo
+	maskingRuleRepo           DataExportMaskingRuleRepo
 	dmsProxyTargetRepo        ProxyTargetRepo
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	projectUsecase            *ProjectUsecase
@@ -138,12 +139,13 @@ type DataExportWorkflowUsecase struct {
 	reportHost                string
 }
 
-func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator, repo WorkflowRepo, dataExportTaskRepo DataExportTaskRepo, dbServiceRepo DBServiceRepo, maskingConfigRepo DataExportMaskingConfigRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, clusterUseCase *ClusterUsecase, webhookUsecase *WebHookConfigurationUsecase, userUsecase *UserUsecase, systemVariableUsecase *SystemVariableUsecase, maskingTaskRepo MaskingTaskRepo, reportHost string) *DataExportWorkflowUsecase {
+func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator, repo WorkflowRepo, dataExportTaskRepo DataExportTaskRepo, dbServiceRepo DBServiceRepo, maskingConfigRepo DataExportMaskingConfigRepo, maskingRuleRepo DataExportMaskingRuleRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, clusterUseCase *ClusterUsecase, webhookUsecase *WebHookConfigurationUsecase, userUsecase *UserUsecase, systemVariableUsecase *SystemVariableUsecase, maskingTaskRepo MaskingTaskRepo, reportHost string) *DataExportWorkflowUsecase {
 	return &DataExportWorkflowUsecase{
 		tx:                        tx,
 		repo:                      repo,
 		dbServiceRepo:             dbServiceRepo,
 		maskingConfigRepo:         maskingConfigRepo,
+		maskingRuleRepo:           maskingRuleRepo,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 		projectUsecase:            projectUsecase,
 		dmsProxyTargetRepo:        proxyTargetRepo,
