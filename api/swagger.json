@@ -4999,6 +4999,96 @@
         }
       }
     },
+    "/v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks/db-service-schemas": {
+      "get": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "查询指定数据源下可用于配置敏感数据发现任务的 schema（数据库）列表。",
+        "operationId": "ListDBServiceSchemasForMaskingTask",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "项目 UID",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "DBServiceUID",
+            "description": "数据源 UID",
+            "name": "db_service_uid",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功返回 schema（数据库）列表",
+            "schema": {
+              "$ref": "#/definitions/ListDBServiceSchemasForMaskingTaskReply"
+            }
+          },
+          "default": {
+            "description": "通用错误响应",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks/db-service-tables": {
+      "get": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "查询指定数据源与 schema 下可用于配置敏感数据发现任务的表列表。",
+        "operationId": "ListDBServiceTablesForMaskingTask",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "项目 UID",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "DBServiceUID",
+            "description": "数据源 UID",
+            "name": "db_service_uid",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "SchemaName",
+            "description": "schema（数据库）名称",
+            "name": "schema_name",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功返回表列表",
+            "schema": {
+              "$ref": "#/definitions/ListDBServiceTablesForMaskingTaskReply"
+            }
+          },
+          "default": {
+            "description": "通用错误响应",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks/{task_id}": {
       "put": {
         "tags": [
@@ -11097,7 +11187,7 @@
           "x-go-name": "Message"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "GetOauth2ConfigurationResData": {
       "type": "object",
@@ -13929,6 +14019,17 @@
     "ListMemberRoleWithOpRange": {
       "type": "object",
       "properties": {
+        "member_group": {
+          "$ref": "#/definitions/ProjectMemberGroup"
+        },
+        "op_permissions": {
+          "description": "member op permissions",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UidWithName"
+          },
+          "x-go-name": "OpPermissions"
+        },
         "op_range_type": {
           "description": "op permission range type, only support db service now\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "type": "string",
@@ -13953,7 +14054,7 @@
           "$ref": "#/definitions/UidWithName"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ListMemberTipsItem": {
       "type": "object",
