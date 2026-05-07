@@ -436,6 +436,9 @@ func (s *APIServer) installMiddleware() error {
 			if strings.HasPrefix(c.Request().URL.Path, s.SqlWorkbenchController.CloudbeaverService.CloudbeaverUsecase.GetRootUri()) {
 				return true
 			}
+			if strings.HasPrefix(c.Request().URL.Path, s.SqlWorkbenchController.SqlWorkbenchService.GetRootUri()) {
+				return true
+			}
 			if strings.HasPrefix(c.Request().URL.Path, "/provision/v") ||
 				strings.HasPrefix(c.Request().URL.Path, "/sqle/v") {
 				return true
