@@ -1178,6 +1178,33 @@ func (ctl *DMSController) PreviewMaskingEffect(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
+// swagger:operation GET /v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks/db-service-schemas Masking ListDBServiceSchemasForMaskingTask
+//
+// 查询指定数据源下可用于配置敏感数据发现任务的 schema（数据库）列表。
+//
+// ---
+// parameters:
+//   - name: project_uid
+//     description: 项目 UID
+//     in: path
+//     required: true
+//     type: string
+//   - name: db_service_uid
+//     description: 数据源 UID
+//     in: query
+//     required: true
+//     type: string
+//
+// responses:
+//
+//   '200':
+//     description: 成功返回 schema（数据库）列表
+//     schema:
+//       "$ref": "#/definitions/ListDBServiceSchemasForMaskingTaskReply"
+//   default:
+//     description: 通用错误响应
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (ctl *DMSController) ListDBServiceSchemasForMaskingTask(c echo.Context) error {
 	req := &aV1.ListDBServiceSchemasForMaskingTaskReq{}
 	if err := bindAndValidateReq(c, req); err != nil {
@@ -1191,6 +1218,38 @@ func (ctl *DMSController) ListDBServiceSchemasForMaskingTask(c echo.Context) err
 	return NewOkRespWithReply(c, reply)
 }
 
+// swagger:operation GET /v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks/db-service-tables Masking ListDBServiceTablesForMaskingTask
+//
+// 查询指定数据源与 schema 下可用于配置敏感数据发现任务的表列表。
+//
+// ---
+// parameters:
+//   - name: project_uid
+//     description: 项目 UID
+//     in: path
+//     required: true
+//     type: string
+//   - name: db_service_uid
+//     description: 数据源 UID
+//     in: query
+//     required: true
+//     type: string
+//   - name: schema_name
+//     description: schema（数据库）名称
+//     in: query
+//     required: true
+//     type: string
+//
+// responses:
+//
+//   '200':
+//     description: 成功返回表列表
+//     schema:
+//       "$ref": "#/definitions/ListDBServiceTablesForMaskingTaskReply"
+//   default:
+//     description: 通用错误响应
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (ctl *DMSController) ListDBServiceTablesForMaskingTask(c echo.Context) error {
 	req := &aV1.ListDBServiceTablesForMaskingTaskReq{}
 	if err := bindAndValidateReq(c, req); err != nil {

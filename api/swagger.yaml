@@ -2288,7 +2288,7 @@ definitions:
                 type: string
                 x-go-name: Message
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GetOauth2ConfigurationResData:
         properties:
             access_token_tag:
@@ -4533,6 +4533,14 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberRoleWithOpRange:
         properties:
+            member_group:
+                $ref: '#/definitions/ProjectMemberGroup'
+            op_permissions:
+                description: member op permissions
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: OpPermissions
             op_range_type:
                 description: |-
                     op permission range type, only support db service now
@@ -4561,7 +4569,7 @@ definitions:
             role_uid:
                 $ref: '#/definitions/UidWithName'
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberTipsItem:
         properties:
             user_id:
@@ -11863,6 +11871,68 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: 查询可用于创建敏感数据发现任务的数据源列表。
+            tags:
+                - Masking
+    /v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks/db-service-schemas:
+        get:
+            operationId: ListDBServiceSchemasForMaskingTask
+            parameters:
+                - description: 项目 UID
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: 数据源 UID
+                  in: query
+                  name: db_service_uid
+                  required: true
+                  type: string
+                  x-go-name: DBServiceUID
+            responses:
+                "200":
+                    description: 成功返回 schema（数据库）列表
+                    schema:
+                        $ref: '#/definitions/ListDBServiceSchemasForMaskingTaskReply'
+                default:
+                    description: 通用错误响应
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: 查询指定数据源下可用于配置敏感数据发现任务的 schema（数据库）列表。
+            tags:
+                - Masking
+    /v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks/db-service-tables:
+        get:
+            operationId: ListDBServiceTablesForMaskingTask
+            parameters:
+                - description: 项目 UID
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: 数据源 UID
+                  in: query
+                  name: db_service_uid
+                  required: true
+                  type: string
+                  x-go-name: DBServiceUID
+                - description: schema（数据库）名称
+                  in: query
+                  name: schema_name
+                  required: true
+                  type: string
+                  x-go-name: SchemaName
+            responses:
+                "200":
+                    description: 成功返回表列表
+                    schema:
+                        $ref: '#/definitions/ListDBServiceTablesForMaskingTaskReply'
+                default:
+                    description: 通用错误响应
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: 查询指定数据源与 schema 下可用于配置敏感数据发现任务的表列表。
             tags:
                 - Masking
     /v1/dms/projects/{project_uid}/masking/sensitive-types:
