@@ -5274,9 +5274,7 @@
         "operationId": "UpdateSensitiveDataType",
         "parameters": [
           {
-            "$ref": "#/definitions/UpdateSensitiveDataType",
             "type": "string",
-            "x-go-name": "Type",
             "description": "项目 UID",
             "name": "project_uid",
             "in": "path",
@@ -8380,8 +8378,7 @@
     "AddMaskingTemplate": {
       "type": "object",
       "required": [
-        "name",
-        "rule_ids"
+        "name"
       ],
       "properties": {
         "name": {
@@ -8391,9 +8388,8 @@
           "example": "\"New Template\""
         },
         "rule_ids": {
-          "description": "masking rule id list",
+          "description": "masking rule id list (deprecated, use rule_refs instead)",
           "type": "array",
-          "minLength": 1,
           "items": {
             "type": "integer",
             "format": "int64"
@@ -8403,6 +8399,20 @@
             1,
             2,
             3
+          ]
+        },
+        "rule_refs": {
+          "description": "masking rule references with source info",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MaskingTemplateRuleRef"
+          },
+          "x-go-name": "RuleRefs",
+          "example": [
+            {
+              "rule_id": 1,
+              "rule_source": "builtin"
+            }
           ]
         }
       },
@@ -8710,6 +8720,30 @@
           "format": "int64",
           "x-go-name": "MaskingTemplateID",
           "example": 1
+        },
+        "schema_names": {
+          "description": "scan scope - database (schema) names, empty means all databases",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "SchemaNames",
+          "example": [
+            "db1",
+            "db2"
+          ]
+        },
+        "table_names": {
+          "description": "scan scope - table names, empty means all tables",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "TableNames",
+          "example": [
+            "users",
+            "orders"
+          ]
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -9824,6 +9858,18 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "DBServiceSchemaData": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "schema (database) name",
+          "type": "string",
+          "x-go-name": "Name",
+          "example": "\"mydb\""
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "DBServiceSourceName": {
       "type": "string",
       "x-go-package": "github.com/actiontech/dms/internal/dms/pkg/constant"
@@ -9896,6 +9942,18 @@
         },
         "service_source_name": {
           "$ref": "#/definitions/DBServiceSourceName"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "DBServiceTableData": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "table name",
+          "type": "string",
+          "x-go-name": "Name",
+          "example": "\"users\""
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -11019,7 +11077,7 @@
           "x-go-name": "Users"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetMemberGroupReply": {
       "type": "object",
@@ -12343,6 +12401,11 @@
           "type": "string",
           "x-go-name": "DBType",
           "example": "\"MySQL\""
+        },
+        "has_task": {
+          "description": "whether this db service already has a masking task created",
+          "type": "boolean",
+          "x-go-name": "HasTask"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -12597,6 +12660,30 @@
       "x-go-name": "ListDBServiceReply",
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
     },
+    "ListDBServiceSchemasForMaskingTaskReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DBServiceSchemaData"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "ListDBServiceSyncTask": {
       "type": "object",
       "required": [
@@ -12697,6 +12784,30 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/ListDBServiceSyncTask"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListDBServiceTablesForMaskingTaskReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DBServiceTableData"
           },
           "x-go-name": "Data"
         },
@@ -13438,34 +13549,17 @@
     "ListMaskingRulesData": {
       "type": "object",
       "properties": {
+        "algorithm_type": {
+          "description": "脱敏算法类型: CHAR, TAG, REPLACE, HASH",
+          "type": "string",
+          "x-go-name": "AlgorithmType",
+          "example": "\"CHAR\""
+        },
         "description": {
           "description": "description",
           "type": "string",
           "x-go-name": "Description",
           "example": "\"mask digits\""
-        },
-        "detection_method_keyword_match_list": {
-          "description": "识别方式-关键字匹配（如字段名关键词等）",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "x-go-name": "DetectionMethodKeywordMatchList",
-          "example": [
-            "phone",
-            "mobile"
-          ]
-        },
-        "detection_method_regex_list": {
-          "description": "识别方式-正则表达式",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "x-go-name": "DetectionMethodRegexList",
-          "example": [
-            "^1[3-9]\\d{9}$"
-          ]
         },
         "effect": {
           "description": "脱敏效果",
@@ -13492,18 +13586,11 @@
           "x-go-name": "Id",
           "example": 1
         },
-        "masking_algorithm": {
-          "description": "脱敏算法名称: CHAR, TAG, REPLACE, HASH\nCHAR MaskingAlgorithmDisplayNameCHAR\nTAG MaskingAlgorithmDisplayNameTAG\nREPLACE MaskingAlgorithmDisplayNameREPLACE\nHASH MaskingAlgorithmDisplayNameHASH",
-          "type": "string",
-          "enum": [
-            "CHAR",
-            "TAG",
-            "REPLACE",
-            "HASH"
-          ],
-          "x-go-enum-desc": "CHAR MaskingAlgorithmDisplayNameCHAR\nTAG MaskingAlgorithmDisplayNameTAG\nREPLACE MaskingAlgorithmDisplayNameREPLACE\nHASH MaskingAlgorithmDisplayNameHASH",
-          "x-go-name": "MaskingAlgorithm",
-          "example": "\"CHAR\""
+        "is_custom_type": {
+          "description": "是否为自定义敏感类型",
+          "type": "boolean",
+          "x-go-name": "IsCustomType",
+          "example": false
         },
         "name": {
           "description": "脱敏规则名称",
@@ -13511,7 +13598,19 @@
           "x-go-name": "Name",
           "example": "\"手机号脱敏\""
         },
-        "rule_source": {
+        "sensitive_type_info": {
+          "description": "敏感数据类型描述信息",
+          "type": "string",
+          "x-go-name": "SensitiveTypeInfo",
+          "example": "\"属于账户联系信息，泄露会带来账户安全风险\""
+        },
+        "sensitive_type_name": {
+          "description": "敏感数据类型名称",
+          "type": "string",
+          "x-go-name": "SensitiveDataTypeName",
+          "example": "\"电子邮箱\""
+        },
+        "source": {
           "description": "规则来源: 系统内置或自定义\nbuiltin MaskingRuleSourceBuiltin\ncustom MaskingRuleSourceCustom",
           "type": "string",
           "enum": [
@@ -13520,23 +13619,6 @@
           ],
           "x-go-enum-desc": "builtin MaskingRuleSourceBuiltin\ncustom MaskingRuleSourceCustom",
           "x-go-name": "RuleSource",
-          "example": "\"builtin\""
-        },
-        "sensitive_data_type_name": {
-          "description": "敏感数据类型",
-          "type": "string",
-          "x-go-name": "SensitiveDataTypeName",
-          "example": "\"phone\""
-        },
-        "sensitive_data_type_source": {
-          "description": "敏感数据类型来源: 系统内置或自定义\nbuiltin SensitiveDataTypeSourceBuiltin\ncustom SensitiveDataTypeSourceCustom",
-          "type": "string",
-          "enum": [
-            "builtin",
-            "custom"
-          ],
-          "x-go-enum-desc": "builtin SensitiveDataTypeSourceBuiltin\ncustom SensitiveDataTypeSourceCustom",
-          "x-go-name": "SensitiveDataTypeSource",
           "example": "\"builtin\""
         }
       },
@@ -13563,6 +13645,12 @@
           "description": "message",
           "type": "string",
           "x-go-name": "Message"
+        },
+        "total_nums": {
+          "description": "total count of masking rules",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -13841,17 +13929,6 @@
     "ListMemberRoleWithOpRange": {
       "type": "object",
       "properties": {
-        "member_group": {
-          "$ref": "#/definitions/ProjectMemberGroup"
-        },
-        "op_permissions": {
-          "description": "member op permissions",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/UidWithName"
-          },
-          "x-go-name": "OpPermissions"
-        },
         "op_range_type": {
           "description": "op permission range type, only support db service now\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "type": "string",
@@ -13876,7 +13953,7 @@
           "$ref": "#/definitions/UidWithName"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "ListMemberTipsItem": {
       "type": "object",
@@ -14494,6 +14571,18 @@
           "x-go-name": "NextExecutionAt",
           "example": "\"2024-01-15T10:30:00Z\""
         },
+        "schema_names": {
+          "description": "scan scope - database (schema) names, empty means all databases",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "SchemaNames",
+          "example": [
+            "db1",
+            "db2"
+          ]
+        },
         "status": {
           "description": "task status\nPENDING_CONFIRM SensitiveDataDiscoveryTaskStatusPendingChangeConfirm\nNORMAL SensitiveDataDiscoveryTaskStatusNormal\nCOMPLETED SensitiveDataDiscoveryTaskStatusCompleted\nRUNNING SensitiveDataDiscoveryTaskStatusRunning\nFAILED SensitiveDataDiscoveryTaskStatusFailed\nSTOPPED SensitiveDataDiscoveryTaskStatusStopped",
           "type": "string",
@@ -14508,6 +14597,18 @@
           "x-go-enum-desc": "PENDING_CONFIRM SensitiveDataDiscoveryTaskStatusPendingChangeConfirm\nNORMAL SensitiveDataDiscoveryTaskStatusNormal\nCOMPLETED SensitiveDataDiscoveryTaskStatusCompleted\nRUNNING SensitiveDataDiscoveryTaskStatusRunning\nFAILED SensitiveDataDiscoveryTaskStatusFailed\nSTOPPED SensitiveDataDiscoveryTaskStatusStopped",
           "x-go-name": "Status",
           "example": "\"NORMAL\""
+        },
+        "table_names": {
+          "description": "scan scope - table names, empty means all tables",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "TableNames",
+          "example": [
+            "users",
+            "orders"
+          ]
         },
         "task_type": {
           "description": "task type\nPERIODIC SensitiveDataDiscoveryTaskTypePeriodic\nONE_TIME SensitiveDataDiscoveryTaskTypeOneTime",
@@ -14840,6 +14941,7 @@
     "MaskingAlgorithmConfig": {
       "type": "object",
       "required": [
+        "masking_algorithm_name",
         "mask_type"
       ],
       "properties": {
@@ -14868,6 +14970,12 @@
           "x-go-enum-desc": "CHAR MaskingAlgorithmMaskTypeCHAR\nTAG MaskingAlgorithmMaskTypeTAG\nREPLACE MaskingAlgorithmMaskTypeREPLACE\nALGO MaskingAlgorithmMaskTypeALGO",
           "x-go-name": "MaskType",
           "example": "\"CHAR\""
+        },
+        "masking_algorithm_name": {
+          "description": "脱敏算法名称，对应已注册的算法标识（如 \"FULL_MASK\"、\"GODLP\" 等），由前端从算法列表中选择后传入",
+          "type": "string",
+          "x-go-name": "MaskingAlgorithmName",
+          "example": "\"FULL_MASK\""
         },
         "offset": {
           "description": "CHAR 方式时从开头起保留的字符数（偏移量）",
@@ -15027,8 +15135,7 @@
         "schema_name",
         "table_name",
         "column_name",
-        "masking_rule_id",
-        "is_masking_enabled"
+        "masking_rule_id"
       ],
       "properties": {
         "column_name": {
@@ -15067,6 +15174,26 @@
           "type": "string",
           "x-go-name": "TableName",
           "example": "\"users\""
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "MaskingTemplateRuleRef": {
+      "type": "object",
+      "required": [
+        "rule_id"
+      ],
+      "properties": {
+        "rule_id": {
+          "description": "rule id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RuleID"
+        },
+        "rule_source": {
+          "description": "rule source: builtin or custom",
+          "type": "string",
+          "x-go-name": "RuleSource"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -16698,6 +16825,13 @@
           "x-go-name": "ID",
           "example": 1
         },
+        "rule_count": {
+          "description": "引用此敏感类型的脱敏规则数量（用于前端判断是否可编辑/删除）",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RuleCount",
+          "example": 2
+        },
         "sample_data_list": {
           "description": "示例数据，当填写了抽样数据正则表达式列表或字段名关键词时，必填",
           "type": "array",
@@ -16842,6 +16976,11 @@
           "x-go-enum-desc": "HIGH ConfidenceHigh\nMEDIUM ConfidenceMedium\nLOW ConfidenceLow",
           "x-go-name": "Confidence",
           "example": "2"
+        },
+        "is_masking_enabled": {
+          "description": "whether masking is enabled for this column",
+          "type": "boolean",
+          "x-go-name": "IsMaskingEnabled"
         },
         "masking_rule_id": {
           "description": "current masking rule id, null if no masking rule is applied",
@@ -17295,7 +17434,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateBusinessTagReq": {
       "type": "object",
@@ -17770,14 +17909,10 @@
     },
     "UpdateMaskingTemplate": {
       "type": "object",
-      "required": [
-        "rule_ids"
-      ],
       "properties": {
         "rule_ids": {
-          "description": "masking rule id list",
+          "description": "masking rule id list (deprecated, use rule_refs instead)",
           "type": "array",
-          "minLength": 1,
           "items": {
             "type": "integer",
             "format": "int64"
@@ -17786,6 +17921,20 @@
           "example": [
             1,
             2
+          ]
+        },
+        "rule_refs": {
+          "description": "masking rule references with source info",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MaskingTemplateRuleRef"
+          },
+          "x-go-name": "RuleRefs",
+          "example": [
+            {
+              "rule_id": 1,
+              "rule_source": "builtin"
+            }
           ]
         }
       },
@@ -18094,6 +18243,30 @@
           "format": "int64",
           "x-go-name": "MaskingTemplateID",
           "example": 1
+        },
+        "schema_names": {
+          "description": "scan scope - database (schema) names to add (edit mode: can only add, not remove)",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "SchemaNames",
+          "example": [
+            "db1",
+            "db2"
+          ]
+        },
+        "table_names": {
+          "description": "scan scope - table names to add (edit mode: can only add, not remove)",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "TableNames",
+          "example": [
+            "users",
+            "orders"
+          ]
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -18151,7 +18324,7 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
-    "UpdateSensitiveDataType": {
+    "UpdateSensitiveDataTypePayload": {
       "type": "object",
       "properties": {
         "field_keywords": {
@@ -18188,6 +18361,7 @@
           "example": "\"^1[3-9]\\\\d{9}$\""
         }
       },
+      "x-go-name": "UpdateSensitiveDataType",
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UpdateSensitiveDataTypeReply": {
@@ -18203,6 +18377,18 @@
           "description": "message",
           "type": "string",
           "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateSensitiveDataTypeReq": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/UpdateSensitiveDataTypePayload"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"

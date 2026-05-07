@@ -223,7 +223,7 @@ definitions:
                 type: string
                 x-go-name: Name
             rule_ids:
-                description: masking rule id list
+                description: masking rule id list (deprecated, use rule_refs instead)
                 example:
                     - 1
                     - 2
@@ -231,12 +231,19 @@ definitions:
                 items:
                     format: int64
                     type: integer
-                minLength: 1
                 type: array
                 x-go-name: RuleIDs
+            rule_refs:
+                description: masking rule references with source info
+                example:
+                    - rule_id: 1
+                      rule_source: builtin
+                items:
+                    $ref: '#/definitions/MaskingTemplateRuleRef'
+                type: array
+                x-go-name: RuleRefs
         required:
             - name
-            - rule_ids
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddMaskingTemplateReply:
@@ -472,6 +479,24 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: MaskingTemplateID
+            schema_names:
+                description: scan scope - database (schema) names, empty means all databases
+                example:
+                    - db1
+                    - db2
+                items:
+                    type: string
+                type: array
+                x-go-name: SchemaNames
+            table_names:
+                description: scan scope - table names, empty means all tables
+                example:
+                    - users
+                    - orders
+                items:
+                    type: string
+                type: array
+                x-go-name: TableNames
         required:
             - db_service_uid
             - masking_template_id
@@ -1309,6 +1334,15 @@ definitions:
                 x-go-name: TestConnectionTime
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DBServiceSchemaData:
+        properties:
+            name:
+                description: schema (database) name
+                example: '"mydb"'
+                type: string
+                x-go-name: Name
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DBServiceSourceName:
         type: string
         x-go-package: github.com/actiontech/dms/internal/dms/pkg/constant
@@ -1365,6 +1399,15 @@ definitions:
                 $ref: '#/definitions/Params'
             service_source_name:
                 $ref: '#/definitions/DBServiceSourceName'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    DBServiceTableData:
+        properties:
+            name:
+                description: table name
+                example: '"users"'
+                type: string
+                x-go-name: Name
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DBServiceUidWithNameInfo:
@@ -2230,7 +2273,7 @@ definitions:
                 type: array
                 x-go-name: Users
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetMemberGroupReply:
         properties:
             code:
@@ -3269,6 +3312,10 @@ definitions:
                 example: '"MySQL"'
                 type: string
                 x-go-name: DBType
+            has_task:
+                description: whether this db service already has a masking task created
+                type: boolean
+                x-go-name: HasTask
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListCreatableDBServicesForMaskingTaskReply:
@@ -3473,6 +3520,24 @@ definitions:
         type: object
         x-go-name: ListDBServiceReply
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v2
+    ListDBServiceSchemasForMaskingTaskReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/DBServiceSchemaData'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListDBServiceSyncTask:
         properties:
             additional_params:
@@ -3551,6 +3616,24 @@ definitions:
             data:
                 items:
                     $ref: '#/definitions/ListDBServiceSyncTask'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListDBServiceTablesForMaskingTaskReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/DBServiceTableData'
                 type: array
                 x-go-name: Data
             message:
@@ -4150,28 +4233,16 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMaskingRulesData:
         properties:
+            algorithm_type:
+                description: '脱敏算法类型: CHAR, TAG, REPLACE, HASH'
+                example: '"CHAR"'
+                type: string
+                x-go-name: AlgorithmType
             description:
                 description: description
                 example: '"mask digits"'
                 type: string
                 x-go-name: Description
-            detection_method_keyword_match_list:
-                description: 识别方式-关键字匹配（如字段名关键词等）
-                example:
-                    - phone
-                    - mobile
-                items:
-                    type: string
-                type: array
-                x-go-name: DetectionMethodKeywordMatchList
-            detection_method_regex_list:
-                description: 识别方式-正则表达式
-                example:
-                    - ^1[3-9]\d{9}$
-                items:
-                    type: string
-                type: array
-                x-go-name: DetectionMethodRegexList
             effect:
                 description: 脱敏效果
                 example: '"保留开头2位和结尾2位，中间字符替换为*"'
@@ -4193,32 +4264,27 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Id
-            masking_algorithm:
-                description: |-
-                    脱敏算法名称: CHAR, TAG, REPLACE, HASH
-                    CHAR MaskingAlgorithmDisplayNameCHAR
-                    TAG MaskingAlgorithmDisplayNameTAG
-                    REPLACE MaskingAlgorithmDisplayNameREPLACE
-                    HASH MaskingAlgorithmDisplayNameHASH
-                enum:
-                    - CHAR
-                    - TAG
-                    - REPLACE
-                    - HASH
-                example: '"CHAR"'
-                type: string
-                x-go-enum-desc: |-
-                    CHAR MaskingAlgorithmDisplayNameCHAR
-                    TAG MaskingAlgorithmDisplayNameTAG
-                    REPLACE MaskingAlgorithmDisplayNameREPLACE
-                    HASH MaskingAlgorithmDisplayNameHASH
-                x-go-name: MaskingAlgorithm
+            is_custom_type:
+                description: 是否为自定义敏感类型
+                example: false
+                type: boolean
+                x-go-name: IsCustomType
             name:
                 description: 脱敏规则名称
                 example: '"手机号脱敏"'
                 type: string
                 x-go-name: Name
-            rule_source:
+            sensitive_type_info:
+                description: 敏感数据类型描述信息
+                example: '"属于账户联系信息，泄露会带来账户安全风险"'
+                type: string
+                x-go-name: SensitiveTypeInfo
+            sensitive_type_name:
+                description: 敏感数据类型名称
+                example: '"电子邮箱"'
+                type: string
+                x-go-name: SensitiveDataTypeName
+            source:
                 description: |-
                     规则来源: 系统内置或自定义
                     builtin MaskingRuleSourceBuiltin
@@ -4232,25 +4298,6 @@ definitions:
                     builtin MaskingRuleSourceBuiltin
                     custom MaskingRuleSourceCustom
                 x-go-name: RuleSource
-            sensitive_data_type_name:
-                description: 敏感数据类型
-                example: '"phone"'
-                type: string
-                x-go-name: SensitiveDataTypeName
-            sensitive_data_type_source:
-                description: |-
-                    敏感数据类型来源: 系统内置或自定义
-                    builtin SensitiveDataTypeSourceBuiltin
-                    custom SensitiveDataTypeSourceCustom
-                enum:
-                    - builtin
-                    - custom
-                example: '"builtin"'
-                type: string
-                x-go-enum-desc: |-
-                    builtin SensitiveDataTypeSourceBuiltin
-                    custom SensitiveDataTypeSourceCustom
-                x-go-name: SensitiveDataTypeSource
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMaskingRulesReply:
@@ -4270,6 +4317,11 @@ definitions:
                 description: message
                 type: string
                 x-go-name: Message
+            total_nums:
+                description: total count of masking rules
+                format: int64
+                type: integer
+                x-go-name: Total
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMaskingTemplatesData:
@@ -4481,14 +4533,6 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberRoleWithOpRange:
         properties:
-            member_group:
-                $ref: '#/definitions/ProjectMemberGroup'
-            op_permissions:
-                description: member op permissions
-                items:
-                    $ref: '#/definitions/UidWithName'
-                type: array
-                x-go-name: OpPermissions
             op_range_type:
                 description: |-
                     op permission range type, only support db service now
@@ -4517,7 +4561,7 @@ definitions:
             role_uid:
                 $ref: '#/definitions/UidWithName'
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ListMemberTipsItem:
         properties:
             user_id:
@@ -5064,6 +5108,15 @@ definitions:
                 example: '"2024-01-15T10:30:00Z"'
                 type: string
                 x-go-name: NextExecutionAt
+            schema_names:
+                description: scan scope - database (schema) names, empty means all databases
+                example:
+                    - db1
+                    - db2
+                items:
+                    type: string
+                type: array
+                x-go-name: SchemaNames
             status:
                 description: |-
                     task status
@@ -5090,6 +5143,15 @@ definitions:
                     FAILED SensitiveDataDiscoveryTaskStatusFailed
                     STOPPED SensitiveDataDiscoveryTaskStatusStopped
                 x-go-name: Status
+            table_names:
+                description: scan scope - table names, empty means all tables
+                example:
+                    - users
+                    - orders
+                items:
+                    type: string
+                type: array
+                x-go-name: TableNames
             task_type:
                 description: |-
                     task type
@@ -5423,6 +5485,11 @@ definitions:
                     REPLACE MaskingAlgorithmMaskTypeREPLACE
                     ALGO MaskingAlgorithmMaskTypeALGO
                 x-go-name: MaskType
+            masking_algorithm_name:
+                description: 脱敏算法名称，对应已注册的算法标识（如 "FULL_MASK"、"GODLP" 等），由前端从算法列表中选择后传入
+                example: '"FULL_MASK"'
+                type: string
+                x-go-name: MaskingAlgorithmName
             offset:
                 description: CHAR 方式时从开头起保留的字符数（偏移量）
                 example: 3
@@ -5455,6 +5522,7 @@ definitions:
                 type: string
                 x-go-name: Value
         required:
+            - masking_algorithm_name
             - mask_type
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
@@ -5580,7 +5648,21 @@ definitions:
             - table_name
             - column_name
             - masking_rule_id
-            - is_masking_enabled
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    MaskingTemplateRuleRef:
+        properties:
+            rule_id:
+                description: rule id
+                format: int64
+                type: integer
+                x-go-name: RuleID
+            rule_source:
+                description: 'rule source: builtin or custom'
+                type: string
+                x-go-name: RuleSource
+        required:
+            - rule_id
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     Member:
@@ -6958,6 +7040,12 @@ definitions:
                 format: uint64
                 type: integer
                 x-go-name: ID
+            rule_count:
+                description: 引用此敏感类型的脱敏规则数量（用于前端判断是否可编辑/删除）
+                example: 2
+                format: int64
+                type: integer
+                x-go-name: RuleCount
             sample_data_list:
                 description: 示例数据，当填写了抽样数据正则表达式列表或字段名关键词时，必填
                 example:
@@ -7081,6 +7169,10 @@ definitions:
                     MEDIUM ConfidenceMedium
                     LOW ConfidenceLow
                 x-go-name: Confidence
+            is_masking_enabled:
+                description: whether masking is enabled for this column
+                type: boolean
+                x-go-name: IsMaskingEnabled
             masking_rule_id:
                 description: current masking rule id, null if no masking rule is applied
                 example: 1
@@ -7427,7 +7519,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateBusinessTagReq:
         properties:
             business_tag:
@@ -7789,18 +7881,24 @@ definitions:
     UpdateMaskingTemplate:
         properties:
             rule_ids:
-                description: masking rule id list
+                description: masking rule id list (deprecated, use rule_refs instead)
                 example:
                     - 1
                     - 2
                 items:
                     format: int64
                     type: integer
-                minLength: 1
                 type: array
                 x-go-name: RuleIDs
-        required:
-            - rule_ids
+            rule_refs:
+                description: masking rule references with source info
+                example:
+                    - rule_id: 1
+                      rule_source: builtin
+                items:
+                    $ref: '#/definitions/MaskingTemplateRuleRef'
+                type: array
+                x-go-name: RuleRefs
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateMaskingTemplateReply:
@@ -8057,6 +8155,24 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: MaskingTemplateID
+            schema_names:
+                description: 'scan scope - database (schema) names to add (edit mode: can only add, not remove)'
+                example:
+                    - db1
+                    - db2
+                items:
+                    type: string
+                type: array
+                x-go-name: SchemaNames
+            table_names:
+                description: 'scan scope - table names to add (edit mode: can only add, not remove)'
+                example:
+                    - users
+                    - orders
+                items:
+                    type: string
+                type: array
+                x-go-name: TableNames
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateSensitiveDataDiscoveryTaskData:
@@ -8105,7 +8221,7 @@ definitions:
             - action
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
-    UpdateSensitiveDataType:
+    UpdateSensitiveDataTypePayload:
         properties:
             field_keywords:
                 description: 字段名关键词
@@ -8133,6 +8249,7 @@ definitions:
                 type: array
                 x-go-name: SampleDataRegexList
         type: object
+        x-go-name: UpdateSensitiveDataType
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateSensitiveDataTypeReply:
         properties:
@@ -8145,6 +8262,14 @@ definitions:
                 description: message
                 type: string
                 x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateSensitiveDataTypeReq:
+        properties:
+            type:
+                $ref: '#/definitions/UpdateSensitiveDataTypePayload'
+        required:
+            - type
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateSmsConfiguration:
@@ -11823,13 +11948,11 @@ paths:
         put:
             operationId: UpdateSensitiveDataType
             parameters:
-                - $ref: '#/definitions/UpdateSensitiveDataType'
-                  description: 项目 UID
+                - description: 项目 UID
                   in: path
                   name: project_uid
                   required: true
                   type: string
-                  x-go-name: Type
                 - description: 敏感数据类型 ID（自定义类型的主键）
                   in: path
                   name: sensitive_data_type_id
