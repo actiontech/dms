@@ -223,7 +223,7 @@ func (d *ProjectUsecase) UpdateDBServiceBusiness(ctx context.Context, currentUse
 	}
 
 	// 检查当前用户有项目管理员权限
-	if canOpProject, err := d.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, projectUid); err != nil {
+	if canOpProject, err := d.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, projectUid, false); err != nil {
 		return fmt.Errorf("check user is project admin or global op permission failed: %v", err)
 	} else if !canOpProject {
 		return fmt.Errorf("user is not project admin or global op permission user")

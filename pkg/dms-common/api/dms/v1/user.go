@@ -46,6 +46,8 @@ type GetUser struct {
 	AccessTokenInfo AccessTokenInfo `json:"access_token_info"`
 	// user system
 	System UserSystem `json:"system"`
+	// business write permission
+	BusinessWritePermission bool `json:"business_write_permission"`
 }
 
 type AccessTokenInfo struct {
@@ -139,6 +141,8 @@ type GetUserOpPermissionReply struct {
 		IsAdmin bool `json:"is_admin"`
 		// user op permissions
 		OpPermissionList []OpPermissionItem `json:"op_permission_list"`
+		// business write permission
+		BusinessWritePermission bool `json:"business_write_permission"`
 	} `json:"data"`
 	// Generic reply
 	base.GenericResp
@@ -458,6 +462,8 @@ type ListUser struct {
 	ThirdPartyUserInfo string `json:"third_party_user_info"`
 	// user system
 	System UserSystem `json:"system"`
+	// business write permission
+	BusinessWritePermission bool `json:"business_write_permission"`
 }
 
 // swagger:model ListUserReply

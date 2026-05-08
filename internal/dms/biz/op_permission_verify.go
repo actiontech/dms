@@ -27,23 +27,36 @@ type OpPermissionVerifyRepo interface {
 }
 
 type OpPermissionVerifyUsecase struct {
-	tx   TransactionGenerator
-	repo OpPermissionVerifyRepo
-	log  *utilLog.Helper
+	tx       TransactionGenerator
+	repo     OpPermissionVerifyRepo
+	userRepo UserRepo
+	log      *utilLog.Helper
 }
 
-func NewOpPermissionVerifyUsecase(log utilLog.Logger, tx TransactionGenerator, repo OpPermissionVerifyRepo) *OpPermissionVerifyUsecase {
+func NewOpPermissionVerifyUsecase(log utilLog.Logger, tx TransactionGenerator, repo OpPermissionVerifyRepo, userRepo UserRepo) *OpPermissionVerifyUsecase {
 	return &OpPermissionVerifyUsecase{
-		tx:   tx,
-		repo: repo,
-		log:  utilLog.NewHelper(log, utilLog.WithMessageKey("biz.op_permission_verify")),
+		tx:       tx,
+		repo:     repo,
+		userRepo: userRepo,
+		log:      utilLog.NewHelper(log, utilLog.WithMessageKey("biz.op_permission_verify")),
 	}
 }
 
-func (o *OpPermissionVerifyUsecase) IsUserProjectAdmin(ctx context.Context, userUid, projectUid string) (bool, error) {
+func (o *OpPermissionVerifyUsecase) IsUserProjectAdmin(ctx context.Context, userUid, projectUid string, isBusinessWrite bool) (bool, error) {
 	// 内置用户admin和sys拥有所有权限
 	switch userUid {
 	case pkgConst.UIDOfUserAdmin, pkgConst.UIDOfUserSys:
+		if isBusinessWrite {
+			user, err := o.userRepo.GetUser(ctx, userUid)
+			if err != nil {
+				return false, err
+			}
+			if !user.BusinessWritePermission {
+				// Don't grant via admin/sys identity for business write;
+				// fall through to check project-level authorization below
+				break
+			}
+		}
 		return true, nil
 	default:
 	}
@@ -79,12 +92,21 @@ func (o *OpPermissionVerifyUsecase) HasGlobalManagementOrViewPermission(ctx cont
 	return false, nil
 }
 
-func (o *OpPermissionVerifyUsecase) CanOpGlobal(ctx context.Context, userUid string) (bool, error) {
+func (o *OpPermissionVerifyUsecase) CanOpGlobal(ctx context.Context, userUid string, isBusinessWrite bool) (bool, error) {
 	isUserDMSAdmin, err := o.IsUserDMSAdmin(ctx, userUid)
 	if err != nil {
 		return false, err
 	}
 	if isUserDMSAdmin {
+		if isBusinessWrite {
+			user, err := o.userRepo.GetUser(ctx, userUid)
+			if err != nil {
+				return false, err
+			}
+			if !user.BusinessWritePermission {
+				return false, nil
+			}
+		}
 		return true, nil
 	}
 
@@ -95,6 +117,15 @@ func (o *OpPermissionVerifyUsecase) CanOpGlobal(ctx context.Context, userUid str
 
 	for _, op := range ops {
 		if op.UID == pkgConst.UIDOfOpPermissionGlobalManagement {
+			if isBusinessWrite {
+				user, err := o.userRepo.GetUser(ctx, userUid)
+				if err != nil {
+					return false, err
+				}
+				if !user.BusinessWritePermission {
+					return false, nil
+				}
+			}
 			return true, nil
 		}
 	}
@@ -102,8 +133,8 @@ func (o *OpPermissionVerifyUsecase) CanOpGlobal(ctx context.Context, userUid str
 	return false, nil
 }
 
-func (o *OpPermissionVerifyUsecase) CanOpProject(ctx context.Context, userUid, projectUid string) (bool, error) {
-	canGlobalOp, err := o.CanOpGlobal(ctx, userUid)
+func (o *OpPermissionVerifyUsecase) CanOpProject(ctx context.Context, userUid, projectUid string, isBusinessWrite bool) (bool, error) {
+	canGlobalOp, err := o.CanOpGlobal(ctx, userUid, isBusinessWrite)
 	if err != nil {
 		return false, err
 	}
@@ -142,7 +173,7 @@ func (o *OpPermissionVerifyUsecase) HasViewPermission(ctx context.Context, userI
 	if err != nil {
 		return false, err
 	}
-	isUserProjectAdmin, err := o.IsUserProjectAdmin(ctx, userId, projectUid)
+	isUserProjectAdmin, err := o.IsUserProjectAdmin(ctx, userId, projectUid, false)
 	if err != nil {
 		return false, err
 	}
@@ -161,11 +192,11 @@ func (o *OpPermissionVerifyUsecase) HasManagePermission(ctx context.Context, use
 	if err != nil {
 		return false, err
 	}
-	isUserProjectAdmin, err := o.IsUserProjectAdmin(ctx, userId, projectUid)
+	isUserProjectAdmin, err := o.IsUserProjectAdmin(ctx, userId, projectUid, false)
 	if err != nil {
 		return false, err
 	}
-	canOpProject, err := o.CanOpProject(ctx, userId, projectUid)
+	canOpProject, err := o.CanOpProject(ctx, userId, projectUid, false)
 	if err != nil {
 		return false, err
 	}
@@ -314,7 +345,7 @@ func (o *OpPermissionVerifyUsecase) GetUserManagerProject(ctx context.Context, p
 
 func (o *OpPermissionVerifyUsecase) CanCreateProject(ctx context.Context, userUid string) (bool, error) {
 	// user admin has all op permission
-	hasGlobalOpPermission, err := o.CanOpGlobal(ctx, userUid)
+	hasGlobalOpPermission, err := o.CanOpGlobal(ctx, userUid, false)
 	if err != nil {
 		return false, err
 	}
@@ -393,7 +424,7 @@ func (o *OpPermissionVerifyUsecase) UserCanOpDB(userOpPermissions []OpPermission
 	return false
 }
 
-func (o *OpPermissionVerifyUsecase) GetCanOpDBUsers(ctx context.Context, projectUID, dbServiceUid string, needOpPermissionTypes []string) ([]string, error) {
+func (o *OpPermissionVerifyUsecase) GetCanOpDBUsers(ctx context.Context, projectUID, dbServiceUid string, needOpPermissionTypes []string, isBusinessWrite bool) ([]string, error) {
 	members, _, err := o.ListUsersOpPermissionInProject(ctx, projectUID, &ListMembersOpPermissionOption{
 		PageNumber:   1,
 		LimitPerPage: 999,
@@ -402,12 +433,70 @@ func (o *OpPermissionVerifyUsecase) GetCanOpDBUsers(ctx context.Context, project
 		return nil, err
 	}
 
+	// When isBusinessWrite=true, collect system administrators with BWP=false
+	var bwpDisabledAdmins map[string]bool
+	if isBusinessWrite {
+		bwpDisabledAdmins = make(map[string]bool)
+		for _, member := range members {
+			isAdmin := member.UserUid == pkgConst.UIDOfUserAdmin || member.UserUid == pkgConst.UIDOfUserSys
+			if !isAdmin {
+				// Check if user has global management permission
+				hasGlobal := false
+				for _, perm := range member.OpPermissions {
+					if perm.OpPermissionUID == pkgConst.UIDOfOpPermissionGlobalManagement {
+						hasGlobal = true
+						break
+					}
+				}
+				if !hasGlobal {
+					continue
+				}
+			}
+			user, err := o.userRepo.GetUser(ctx, member.UserUid)
+			if err != nil {
+				return nil, err
+			}
+			if !user.BusinessWritePermission {
+				bwpDisabledAdmins[member.UserUid] = true
+			}
+		}
+	}
+
 	userIds := make([]string, 0)
 	for _, member := range members {
+		if isBusinessWrite && bwpDisabledAdmins[member.UserUid] {
+			// BWP-disabled admin: skip admin privilege, only check project-level authorization
+			if o.userCanOpDBWithoutAdminPrivilege(member.OpPermissions, needOpPermissionTypes, dbServiceUid) {
+				userIds = append(userIds, member.UserUid)
+			}
+			continue
+		}
 		if o.UserCanOpDB(member.OpPermissions, needOpPermissionTypes, dbServiceUid) {
 			userIds = append(userIds, member.UserUid)
 		}
 	}
 
 	return userIds, nil
+}
+
+// userCanOpDBWithoutAdminPrivilege checks DB operation permission without
+// considering ProjectAdmin privilege (used for BWP-disabled system administrators).
+func (o *OpPermissionVerifyUsecase) userCanOpDBWithoutAdminPrivilege(userOpPermissions []OpPermissionWithOpRange, needOpPermissionTypes []string, dbServiceUid string) bool {
+	for _, userOpPermission := range userOpPermissions {
+		// Skip ProjectAdmin check - that's the admin privilege we're excluding
+		if userOpPermission.OpPermissionUID == pkgConst.UIDOfOpPermissionProjectAdmin {
+			continue
+		}
+
+		for _, needOpPermission := range needOpPermissionTypes {
+			if needOpPermission == userOpPermission.OpPermissionUID && userOpPermission.OpRangeType == OpRangeType(dmsV1.OpRangeTypeDBService) {
+				for _, id := range userOpPermission.RangeUIDs {
+					if id == dbServiceUid {
+						return true
+					}
+				}
+			}
+		}
+	}
+	return false
 }

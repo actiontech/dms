@@ -32,8 +32,9 @@ func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) 
 	}
 
 	tx := storage.NewTXGenerator()
+	userRepo := storage.NewUserRepo(logger, st)
 	opPermissionVerifyRepo := storage.NewOpPermissionVerifyRepo(logger, st)
-	opPermissionVerifyUsecase := biz.NewOpPermissionVerifyUsecase(logger, tx, opPermissionVerifyRepo)
+	opPermissionVerifyUsecase := biz.NewOpPermissionVerifyUsecase(logger, tx, opPermissionVerifyRepo, userRepo)
 	pluginRepo := storage.NewPluginRepo(logger, st)
 	pluginUseCase, err := biz.NewDMSPluginUsecase(logger, pluginRepo)
 	if err != nil {
@@ -53,7 +54,6 @@ func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) 
 
 	ldapConfigurationRepo := storage.NewLDAPConfigurationRepo(logger, st)
 	ldapConfigurationUsecase := biz.NewLDAPConfigurationUsecase(logger, tx, ldapConfigurationRepo)
-	userRepo := storage.NewUserRepo(logger, st)
 	userGroupRepo := storage.NewUserGroupRepo(logger, st)
 	opPermissionRepo := storage.NewOpPermissionRepo(logger, st)
 	opPermissionUsecase := biz.NewOpPermissionUsecase(logger, tx, opPermissionRepo, pluginUseCase)

@@ -98,19 +98,20 @@ func (d *DMSService) AddUser(ctx context.Context, currentUserUid string, req *dm
 	}()
 
 	args := &biz.CreateUserArgs{
-		UID:                    req.User.UID,
-		Name:                   req.User.Name,
-		Desc:                   req.User.Desc,
-		Password:               req.User.Password,
-		Email:                  req.User.Email,
-		Phone:                  req.User.Phone,
-		WxID:                   req.User.WxID,
-		IsDisabled:             false,
-		UserGroupUIDs:          req.User.UserGroupUids,
-		OpPermissionUIDs:       req.User.OpPermissionUids,
-		ThirdPartyUserID:       req.User.ThirdPartyUserID,
-		ThirdPartyUserInfo:     req.User.ThirdPartyUserInfo,
-		UserAuthenticationType: biz.UserAuthenticationType(req.User.UserAuthenticationType),
+		UID:                     req.User.UID,
+		Name:                    req.User.Name,
+		Desc:                    req.User.Desc,
+		Password:                req.User.Password,
+		Email:                   req.User.Email,
+		Phone:                   req.User.Phone,
+		WxID:                    req.User.WxID,
+		IsDisabled:              false,
+		UserGroupUIDs:           req.User.UserGroupUids,
+		OpPermissionUIDs:        req.User.OpPermissionUids,
+		ThirdPartyUserID:        req.User.ThirdPartyUserID,
+		ThirdPartyUserInfo:      req.User.ThirdPartyUserInfo,
+		UserAuthenticationType:  biz.UserAuthenticationType(req.User.UserAuthenticationType),
+		BusinessWritePermission: req.User.BusinessWritePermission,
 	}
 
 	uid, err := d.UserUsecase.AddUser(ctx, currentUserUid, args)
@@ -133,16 +134,17 @@ func (d *DMSService) UpdateUser(ctx context.Context, req *dmsV1.UpdateUserReq, c
 	}
 
 	if err = d.UserUsecase.UpdateUser(ctx, currentUserUid, &biz.UpdateUserArgs{
-		UserUID:          req.UserUid,
-		IsDisabled:       *req.User.IsDisabled,
-		Password:         req.User.Password,
-		Email:            req.User.Email,
-		Phone:            req.User.Phone,
-		WxID:             req.User.WxID,
-		Language:         req.User.Language,
-		UserGroupUIDs:    *req.User.UserGroupUids,
-		OpPermissionUIDs: *req.User.OpPermissionUids,
-		System:           (*biz.UserSystem)(req.User.System),
+		UserUID:                 req.UserUid,
+		IsDisabled:              *req.User.IsDisabled,
+		Password:                req.User.Password,
+		Email:                   req.User.Email,
+		Phone:                   req.User.Phone,
+		WxID:                    req.User.WxID,
+		Language:                req.User.Language,
+		UserGroupUIDs:           *req.User.UserGroupUids,
+		OpPermissionUIDs:        *req.User.OpPermissionUids,
+		System:                  (*biz.UserSystem)(req.User.System),
+		BusinessWritePermission: req.User.BusinessWritePermission,
 	}); nil != err {
 		return fmt.Errorf("update user failed: %v", err)
 	}
@@ -310,15 +312,16 @@ func (d *DMSService) ListUsers(ctx context.Context, req *dmsCommonV1.ListUserReq
 	ret := make([]*dmsCommonV1.ListUser, len(users))
 	for i, u := range users {
 		ret[i] = &dmsCommonV1.ListUser{
-			UserUid:            u.GetUID(),
-			Name:               u.Name,
-			Email:              u.Email,
-			Phone:              u.Phone,
-			WxID:               u.WxID,
-			IsDeleted:          u.Deleted,
-			ThirdPartyUserInfo: u.ThirdPartyUserInfo,
-			Projects:           u.Projects,
-			System:             dmsCommonV1.UserSystem(u.System),
+			UserUid:                 u.GetUID(),
+			Name:                    u.Name,
+			Email:                   u.Email,
+			Phone:                   u.Phone,
+			WxID:                    u.WxID,
+			IsDeleted:               u.Deleted,
+			ThirdPartyUserInfo:      u.ThirdPartyUserInfo,
+			Projects:                u.Projects,
+			System:                  dmsCommonV1.UserSystem(u.System),
+			BusinessWritePermission: u.BusinessWritePermission,
 		}
 		// 已删除用户只有基础信息
 		if u.Deleted {
@@ -501,7 +504,7 @@ func (d *DMSService) GetUserOpPermission(ctx context.Context, req *dmsCommonV1.G
 		projectUid = req.UserOpPermission.ProjectUid
 	}
 
-	isAdmin, err := d.OpPermissionVerifyUsecase.IsUserProjectAdmin(ctx, req.UserUid, projectUid)
+	isAdmin, err := d.OpPermissionVerifyUsecase.IsUserProjectAdmin(ctx, req.UserUid, projectUid, false)
 	if err != nil {
 		return nil, fmt.Errorf("check user admin error: %v", err)
 	}
@@ -557,11 +560,18 @@ func (d *DMSService) GetUserOpPermission(ctx context.Context, req *dmsCommonV1.G
 		})
 	}
 
+	// Get user's BusinessWritePermission for the response
+	user, err := d.UserUsecase.GetUser(ctx, req.UserUid)
+	if err != nil {
+		return nil, fmt.Errorf("get user error: %v", err)
+	}
+
 	reply = &dmsCommonV1.GetUserOpPermissionReply{
 		Data: struct {
-			IsAdmin          bool                           `json:"is_admin"`
-			OpPermissionList []dmsCommonV1.OpPermissionItem `json:"op_permission_list"`
-		}{IsAdmin: isAdmin, OpPermissionList: replyOpPermission},
+			IsAdmin                 bool                           `json:"is_admin"`
+			OpPermissionList        []dmsCommonV1.OpPermissionItem `json:"op_permission_list"`
+			BusinessWritePermission bool                           `json:"business_write_permission"`
+		}{IsAdmin: isAdmin, OpPermissionList: replyOpPermission, BusinessWritePermission: user.BusinessWritePermission},
 	}
 
 	return reply, nil
@@ -574,15 +584,16 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 	}
 
 	dmsCommonUser := &dmsCommonV1.GetUser{
-		UserUid:            u.GetUID(),
-		Name:               u.Name,
-		Email:              u.Email,
-		Phone:              u.Phone,
-		WxID:               u.WxID,
-		Language:           u.Language,
-		TwoFactorEnabled:   u.TwoFactorEnabled,
-		ThirdPartyUserInfo: u.ThirdPartyUserInfo,
-		System:             dmsCommonV1.UserSystem(u.System),
+		UserUid:                 u.GetUID(),
+		Name:                    u.Name,
+		Email:                   u.Email,
+		Phone:                   u.Phone,
+		WxID:                    u.WxID,
+		Language:                u.Language,
+		TwoFactorEnabled:        u.TwoFactorEnabled,
+		ThirdPartyUserInfo:      u.ThirdPartyUserInfo,
+		System:                  dmsCommonV1.UserSystem(u.System),
+		BusinessWritePermission: u.BusinessWritePermission,
 	}
 
 	// 获取用户状态
