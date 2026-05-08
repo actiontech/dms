@@ -7527,7 +7527,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateBusinessTagReq:
         properties:
             business_tag:
@@ -11320,14 +11320,14 @@ paths:
         get:
             operationId: GetPlaintextAccessRequestDetail
             parameters:
-                - description: 项目 UID
+                - description: project uid
                   example: '"project_uid"'
                   in: path
                   name: project_uid
                   required: true
                   type: string
                   x-go-name: ProjectUid
-                - description: 审批申请 ID
+                - description: approval request id
                   example: 1
                   format: int64
                   in: path
@@ -11337,11 +11337,11 @@ paths:
                   x-go-name: RequestID
             responses:
                 "200":
-                    description: 成功返回明文访问申请详情
+                    description: GetPlaintextAccessRequestDetailReply
                     schema:
                         $ref: '#/definitions/GetPlaintextAccessRequestDetailReply'
                 default:
-                    description: 通用错误响应
+                    description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: 获取明文访问申请详情。
@@ -11383,21 +11383,21 @@ paths:
         get:
             operationId: ListPendingApprovalRequests
             parameters:
-                - description: 项目 UID
+                - description: project uid
                   example: '"project_uid"'
                   in: path
                   name: project_uid
                   required: true
                   type: string
                   x-go-name: ProjectUid
-                - description: 单次返回的申请数量上限，默认 20
+                - description: the maximum count of requests to be returned, default is 20
                   example: "20"
                   format: uint32
                   in: query
                   name: page_size
                   type: integer
                   x-go-name: PageSize
-                - description: 申请列表的偏移量，默认 0
+                - description: the offset of requests to be returned, default is 0
                   example: "0"
                   format: uint32
                   in: query
@@ -11406,11 +11406,11 @@ paths:
                   x-go-name: PageIndex
             responses:
                 "200":
-                    description: 成功返回待审批申请列表
+                    description: ListPendingApprovalRequestsReply
                     schema:
                         $ref: '#/definitions/ListPendingApprovalRequestsReply'
                 default:
-                    description: 通用错误响应
+                    description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: 查询待审批申请列表。
@@ -11420,27 +11420,31 @@ paths:
         get:
             operationId: GetMaskingOverviewTree
             parameters:
-                - description: 项目 UID
+                - description: project uid
                   example: '"project_uid"'
                   in: path
                   name: project_uid
                   required: true
                   type: string
                   x-go-name: ProjectUid
-                - description: 数据源 UID
+                - description: data source id
                   example: '"1"'
                   in: query
                   name: db_service_uid
                   required: true
                   type: string
                   x-go-name: DBServiceUID
-                - description: 按库名、表名、列名模糊搜索的关键词
+                - description: fuzzy search keywords for column name
                   example: '"user"'
                   in: query
                   name: keywords
                   type: string
                   x-go-name: Keywords
-                - description: 脱敏配置状态过滤，枚举：CONFIGURED/PENDING_CONFIRM
+                - description: |-
+                    masking config status filters
+                    CONFIGURED MaskingConfigStatusConfigured
+                    PENDING_CONFIRM MaskingConfigStatusPendingConfirm
+                    SYSTEM_CONFIRMED MaskingConfigStatusSystemConfirmed
                   enum:
                     - CONFIGURED
                     - PENDING_CONFIRM
@@ -11455,11 +11459,11 @@ paths:
                   x-go-name: MaskingConfigStatus
             responses:
                 "200":
-                    description: 成功返回脱敏概览树
+                    description: GetMaskingOverviewTreeReply
                     schema:
                         $ref: '#/definitions/GetMaskingOverviewTreeReply'
                 default:
-                    description: 通用错误响应
+                    description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: 获取脱敏概览树。
@@ -11523,20 +11527,53 @@ paths:
         get:
             operationId: ListMaskingRules
             parameters:
-                - description: 项目 UID
+                - description: project uid
                   example: '"project_uid"'
                   in: path
                   name: project_uid
                   required: true
                   type: string
                   x-go-name: ProjectUid
+                - description: |-
+                    规则来源筛选: builtin 或 custom，为空时返回全部
+                    builtin MaskingRuleSourceBuiltin
+                    custom MaskingRuleSourceCustom
+                  enum:
+                    - builtin
+                    - custom
+                  example: '"custom"'
+                  in: query
+                  name: source
+                  type: string
+                  x-go-enum-desc: |-
+                    builtin MaskingRuleSourceBuiltin
+                    custom MaskingRuleSourceCustom
+                  x-go-name: FilterRuleSource
+                - description: 模糊搜索关键字，匹配规则名称、描述或敏感数据类型名称
+                  example: '"手机"'
+                  in: query
+                  name: keywords
+                  type: string
+                  x-go-name: FuzzyKeyword
+                - description: 分页大小，默认 20
+                  format: uint32
+                  in: query
+                  name: page_size
+                  type: integer
+                  x-go-name: PageSize
+                - description: 页码（从1开始），默认 1
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
             responses:
                 "200":
-                    description: 成功返回脱敏规则列表
+                    description: ListMaskingRulesReply
                     schema:
                         $ref: '#/definitions/ListMaskingRulesReply'
                 default:
-                    description: 通用错误响应
+                    description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: 查询项目下的脱敏规则列表（内置与自定义）。
@@ -11609,7 +11646,7 @@ paths:
                   required: true
                   type: string
                   x-go-name: ProjectUid
-                - description: 脱敏规则 ID
+                - description: 脱敏规则 id
                   example: "10001"
                   format: uint64
                   in: path
@@ -11619,11 +11656,11 @@ paths:
                   x-go-name: RuleID
             responses:
                 "200":
-                    description: 成功返回脱敏规则详情
+                    description: GetMaskingRuleDetailReply
                     schema:
                         $ref: '#/definitions/GetMaskingRuleDetailReply'
                 default:
-                    description: 通用错误响应
+                    description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: 获取脱敏规则详情。
@@ -11664,21 +11701,21 @@ paths:
         get:
             operationId: ListSensitiveDataDiscoveryTasks
             parameters:
-                - description: 项目 UID
+                - description: project uid
                   example: '"project_uid"'
                   in: path
                   name: project_uid
                   required: true
                   type: string
                   x-go-name: ProjectUid
-                - description: 单次返回的任务数量上限，默认 20
+                - description: the maximum count of tasks to be returned, default is 20
                   example: "20"
                   format: uint32
                   in: query
                   name: page_size
                   type: integer
                   x-go-name: PageSize
-                - description: 任务列表的偏移量，默认 0
+                - description: the offset of tasks to be returned, default is 0
                   example: "0"
                   format: uint32
                   in: query
@@ -11687,11 +11724,11 @@ paths:
                   x-go-name: PageIndex
             responses:
                 "200":
-                    description: 成功返回敏感数据发现任务列表
+                    description: ListSensitiveDataDiscoveryTasksReply
                     schema:
                         $ref: '#/definitions/ListSensitiveDataDiscoveryTasksReply'
                 default:
-                    description: 通用错误响应
+                    description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: 查询敏感数据发现任务列表。
@@ -11789,14 +11826,14 @@ paths:
         get:
             operationId: ListSensitiveDataDiscoveryTaskHistories
             parameters:
-                - description: 项目 UID
+                - description: project uid
                   example: '"project_uid"'
                   in: path
                   name: project_uid
                   required: true
                   type: string
                   x-go-name: ProjectUid
-                - description: 敏感数据发现任务 ID
+                - description: sensitive data discovery task id
                   example: 1
                   format: int64
                   in: path
@@ -11804,14 +11841,14 @@ paths:
                   required: true
                   type: integer
                   x-go-name: TaskID
-                - description: 单次返回的历史记录数量上限，默认 20
+                - description: the maximum count of histories to be returned, default is 20
                   example: "20"
                   format: uint32
                   in: query
                   name: page_size
                   type: integer
                   x-go-name: PageSize
-                - description: 历史记录的偏移量，默认 0
+                - description: the offset of histories to be returned, default is 0
                   example: "0"
                   format: uint32
                   in: query
@@ -11820,11 +11857,11 @@ paths:
                   x-go-name: PageIndex
             responses:
                 "200":
-                    description: 成功返回敏感数据发现任务执行历史
+                    description: ListSensitiveDataDiscoveryTaskHistoriesReply
                     schema:
                         $ref: '#/definitions/ListSensitiveDataDiscoveryTaskHistoriesReply'
                 default:
-                    description: 通用错误响应
+                    description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: 查询敏感数据发现任务执行历史。
@@ -11834,28 +11871,28 @@ paths:
         get:
             operationId: ListCreatableDBServicesForMaskingTask
             parameters:
-                - description: 项目 UID
+                - description: project uid
                   example: '"project_uid"'
                   in: path
                   name: project_uid
                   required: true
                   type: string
                   x-go-name: ProjectUid
-                - description: 单次返回的数据源数量上限，默认 100
+                - description: the maximum count of db services to be returned, default is 100
                   example: "100"
                   format: uint32
                   in: query
                   name: page_size
                   type: integer
                   x-go-name: PageSize
-                - description: 数据源列表的偏移量，默认 0
+                - description: the offset of db services to be returned, default is 0
                   example: "0"
                   format: uint32
                   in: query
                   name: page_index
                   type: integer
                   x-go-name: PageIndex
-                - description: 按数据源名称模糊搜索的关键词
+                - description: fuzzy search keywords for db service name
                   example: '"mysql"'
                   in: query
                   name: keywords
@@ -11863,11 +11900,11 @@ paths:
                   x-go-name: Keywords
             responses:
                 "200":
-                    description: 成功返回可创建敏感数据发现任务的数据源列表
+                    description: ListCreatableDBServicesForMaskingTaskReply
                     schema:
                         $ref: '#/definitions/ListCreatableDBServicesForMaskingTaskReply'
                 default:
-                    description: 通用错误响应
+                    description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: 查询可用于创建敏感数据发现任务的数据源列表。
@@ -11877,13 +11914,13 @@ paths:
         get:
             operationId: ListDBServiceSchemasForMaskingTask
             parameters:
-                - description: 项目 UID
+                - description: project uid
                   in: path
                   name: project_uid
                   required: true
                   type: string
                   x-go-name: ProjectUid
-                - description: 数据源 UID
+                - description: database service uid
                   in: query
                   name: db_service_uid
                   required: true
@@ -11891,11 +11928,11 @@ paths:
                   x-go-name: DBServiceUID
             responses:
                 "200":
-                    description: 成功返回 schema（数据库）列表
+                    description: ListDBServiceSchemasForMaskingTaskReply
                     schema:
                         $ref: '#/definitions/ListDBServiceSchemasForMaskingTaskReply'
                 default:
-                    description: 通用错误响应
+                    description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: 查询指定数据源下可用于配置敏感数据发现任务的 schema（数据库）列表。
@@ -11905,19 +11942,19 @@ paths:
         get:
             operationId: ListDBServiceTablesForMaskingTask
             parameters:
-                - description: 项目 UID
+                - description: project uid
                   in: path
                   name: project_uid
                   required: true
                   type: string
                   x-go-name: ProjectUid
-                - description: 数据源 UID
+                - description: database service uid
                   in: query
                   name: db_service_uid
                   required: true
                   type: string
                   x-go-name: DBServiceUID
-                - description: schema（数据库）名称
+                - description: schema (database) name
                   in: query
                   name: schema_name
                   required: true
@@ -11925,11 +11962,11 @@ paths:
                   x-go-name: SchemaName
             responses:
                 "200":
-                    description: 成功返回表列表
+                    description: ListDBServiceTablesForMaskingTaskReply
                     schema:
                         $ref: '#/definitions/ListDBServiceTablesForMaskingTaskReply'
                 default:
-                    description: 通用错误响应
+                    description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: 查询指定数据源与 schema 下可用于配置敏感数据发现任务的表列表。
@@ -11948,11 +11985,11 @@ paths:
                   x-go-name: ProjectUid
             responses:
                 "200":
-                    description: 成功返回敏感数据类型列表
+                    description: ListSensitiveTypesReply
                     schema:
                         $ref: '#/definitions/ListSensitiveTypesReply'
                 default:
-                    description: 通用错误响应
+                    description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: 查询敏感数据类型列表（内置与自定义）。
@@ -12077,14 +12114,14 @@ paths:
         get:
             operationId: GetTableColumnMaskingDetails
             parameters:
-                - description: 项目 UID
+                - description: project uid
                   example: '"project_uid"'
                   in: path
                   name: project_uid
                   required: true
                   type: string
                   x-go-name: ProjectUid
-                - description: 脱敏概览树中的表 ID
+                - description: table id from masking overview tree
                   example: 1
                   format: int64
                   in: path
@@ -12092,7 +12129,7 @@ paths:
                   required: true
                   type: integer
                   x-go-name: TableID
-                - description: 按列名模糊搜索的关键词
+                - description: fuzzy search keywords for column name
                   example: '"phone"'
                   in: query
                   name: keywords
@@ -12100,11 +12137,11 @@ paths:
                   x-go-name: Keywords
             responses:
                 "200":
-                    description: 成功返回表字段脱敏详情
+                    description: GetTableColumnMaskingDetailsReply
                     schema:
                         $ref: '#/definitions/GetTableColumnMaskingDetailsReply'
                 default:
-                    description: 通用错误响应
+                    description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: 获取表字段脱敏详情。
@@ -12114,20 +12151,20 @@ paths:
         get:
             operationId: ListMaskingTemplates
             parameters:
-                - description: 项目 UID
+                - description: project uid
                   example: '"project_uid"'
                   in: path
                   name: project_uid
                   required: true
                   type: string
                   x-go-name: ProjectUid
-                - description: 单次返回的脱敏模板数量上限，默认 20
+                - description: the maximum count of masking templates to be returned, default is 20
                   format: uint32
                   in: query
                   name: page_size
                   type: integer
                   x-go-name: PageSize
-                - description: 返回结果的偏移量，默认 0
+                - description: the offset of masking templates to be returned, default is 0
                   format: uint32
                   in: query
                   name: page_index
@@ -12135,11 +12172,11 @@ paths:
                   x-go-name: PageIndex
             responses:
                 "200":
-                    description: 成功返回脱敏模板列表
+                    description: ListMaskingTemplatesReply
                     schema:
                         $ref: '#/definitions/ListMaskingTemplatesReply'
                 default:
-                    description: 通用错误响应
+                    description: GenericResp
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: 查询脱敏模板列表。

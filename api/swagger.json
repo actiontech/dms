@@ -4365,7 +4365,7 @@
             "type": "string",
             "example": "\"project_uid\"",
             "x-go-name": "ProjectUid",
-            "description": "项目 UID",
+            "description": "project uid",
             "name": "project_uid",
             "in": "path",
             "required": true
@@ -4375,7 +4375,7 @@
             "format": "uint32",
             "example": "20",
             "x-go-name": "PageSize",
-            "description": "单次返回的申请数量上限，默认 20",
+            "description": "the maximum count of requests to be returned, default is 20",
             "name": "page_size",
             "in": "query"
           },
@@ -4384,20 +4384,20 @@
             "format": "uint32",
             "example": "0",
             "x-go-name": "PageIndex",
-            "description": "申请列表的偏移量，默认 0",
+            "description": "the offset of requests to be returned, default is 0",
             "name": "page_index",
             "in": "query"
           }
         ],
         "responses": {
           "200": {
-            "description": "成功返回待审批申请列表",
+            "description": "ListPendingApprovalRequestsReply",
             "schema": {
               "$ref": "#/definitions/ListPendingApprovalRequestsReply"
             }
           },
           "default": {
-            "description": "通用错误响应",
+            "description": "GenericResp",
             "schema": {
               "$ref": "#/definitions/GenericResp"
             }
@@ -4417,7 +4417,7 @@
             "type": "string",
             "example": "\"project_uid\"",
             "x-go-name": "ProjectUid",
-            "description": "项目 UID",
+            "description": "project uid",
             "name": "project_uid",
             "in": "path",
             "required": true
@@ -4427,7 +4427,7 @@
             "format": "int64",
             "example": 1,
             "x-go-name": "RequestID",
-            "description": "审批申请 ID",
+            "description": "approval request id",
             "name": "request_id",
             "in": "path",
             "required": true
@@ -4435,13 +4435,13 @@
         ],
         "responses": {
           "200": {
-            "description": "成功返回明文访问申请详情",
+            "description": "GetPlaintextAccessRequestDetailReply",
             "schema": {
               "$ref": "#/definitions/GetPlaintextAccessRequestDetailReply"
             }
           },
           "default": {
-            "description": "通用错误响应",
+            "description": "GenericResp",
             "schema": {
               "$ref": "#/definitions/GenericResp"
             }
@@ -4509,7 +4509,7 @@
             "type": "string",
             "example": "\"project_uid\"",
             "x-go-name": "ProjectUid",
-            "description": "项目 UID",
+            "description": "project uid",
             "name": "project_uid",
             "in": "path",
             "required": true
@@ -4518,7 +4518,7 @@
             "type": "string",
             "example": "\"1\"",
             "x-go-name": "DBServiceUID",
-            "description": "数据源 UID",
+            "description": "data source id",
             "name": "db_service_uid",
             "in": "query",
             "required": true
@@ -4527,7 +4527,7 @@
             "type": "string",
             "example": "\"user\"",
             "x-go-name": "Keywords",
-            "description": "按库名、表名、列名模糊搜索的关键词",
+            "description": "fuzzy search keywords for column name",
             "name": "keywords",
             "in": "query"
           },
@@ -4540,20 +4540,20 @@
             "type": "string",
             "x-go-enum-desc": "CONFIGURED MaskingConfigStatusConfigured\nPENDING_CONFIRM MaskingConfigStatusPendingConfirm\nSYSTEM_CONFIRMED MaskingConfigStatusSystemConfirmed",
             "x-go-name": "MaskingConfigStatus",
-            "description": "脱敏配置状态过滤，枚举：CONFIGURED/PENDING_CONFIRM",
+            "description": "masking config status filters\nCONFIGURED MaskingConfigStatusConfigured\nPENDING_CONFIRM MaskingConfigStatusPendingConfirm\nSYSTEM_CONFIRMED MaskingConfigStatusSystemConfirmed",
             "name": "masking_config_statuses",
             "in": "query"
           }
         ],
         "responses": {
           "200": {
-            "description": "成功返回脱敏概览树",
+            "description": "GetMaskingOverviewTreeReply",
             "schema": {
               "$ref": "#/definitions/GetMaskingOverviewTreeReply"
             }
           },
           "default": {
-            "description": "通用错误响应",
+            "description": "GenericResp",
             "schema": {
               "$ref": "#/definitions/GenericResp"
             }
@@ -4655,21 +4655,58 @@
             "type": "string",
             "example": "\"project_uid\"",
             "x-go-name": "ProjectUid",
-            "description": "项目 UID",
+            "description": "project uid",
             "name": "project_uid",
             "in": "path",
             "required": true
+          },
+          {
+            "enum": [
+              "builtin",
+              "custom"
+            ],
+            "type": "string",
+            "example": "\"custom\"",
+            "x-go-enum-desc": "builtin MaskingRuleSourceBuiltin\ncustom MaskingRuleSourceCustom",
+            "x-go-name": "FilterRuleSource",
+            "description": "规则来源筛选: builtin 或 custom，为空时返回全部\nbuiltin MaskingRuleSourceBuiltin\ncustom MaskingRuleSourceCustom",
+            "name": "source",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "example": "\"手机\"",
+            "x-go-name": "FuzzyKeyword",
+            "description": "模糊搜索关键字，匹配规则名称、描述或敏感数据类型名称",
+            "name": "keywords",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "分页大小，默认 20",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "页码（从1开始），默认 1",
+            "name": "page_index",
+            "in": "query"
           }
         ],
         "responses": {
           "200": {
-            "description": "成功返回脱敏规则列表",
+            "description": "ListMaskingRulesReply",
             "schema": {
               "$ref": "#/definitions/ListMaskingRulesReply"
             }
           },
           "default": {
-            "description": "通用错误响应",
+            "description": "GenericResp",
             "schema": {
               "$ref": "#/definitions/GenericResp"
             }
@@ -4738,7 +4775,7 @@
             "format": "uint64",
             "example": "10001",
             "x-go-name": "RuleID",
-            "description": "脱敏规则 ID",
+            "description": "脱敏规则 id",
             "name": "rule_id",
             "in": "path",
             "required": true
@@ -4746,13 +4783,13 @@
         ],
         "responses": {
           "200": {
-            "description": "成功返回脱敏规则详情",
+            "description": "GetMaskingRuleDetailReply",
             "schema": {
               "$ref": "#/definitions/GetMaskingRuleDetailReply"
             }
           },
           "default": {
-            "description": "通用错误响应",
+            "description": "GenericResp",
             "schema": {
               "$ref": "#/definitions/GenericResp"
             }
@@ -4860,7 +4897,7 @@
             "type": "string",
             "example": "\"project_uid\"",
             "x-go-name": "ProjectUid",
-            "description": "项目 UID",
+            "description": "project uid",
             "name": "project_uid",
             "in": "path",
             "required": true
@@ -4870,7 +4907,7 @@
             "format": "uint32",
             "example": "20",
             "x-go-name": "PageSize",
-            "description": "单次返回的任务数量上限，默认 20",
+            "description": "the maximum count of tasks to be returned, default is 20",
             "name": "page_size",
             "in": "query"
           },
@@ -4879,20 +4916,20 @@
             "format": "uint32",
             "example": "0",
             "x-go-name": "PageIndex",
-            "description": "任务列表的偏移量，默认 0",
+            "description": "the offset of tasks to be returned, default is 0",
             "name": "page_index",
             "in": "query"
           }
         ],
         "responses": {
           "200": {
-            "description": "成功返回敏感数据发现任务列表",
+            "description": "ListSensitiveDataDiscoveryTasksReply",
             "schema": {
               "$ref": "#/definitions/ListSensitiveDataDiscoveryTasksReply"
             }
           },
           "default": {
-            "description": "通用错误响应",
+            "description": "GenericResp",
             "schema": {
               "$ref": "#/definitions/GenericResp"
             }
@@ -4951,7 +4988,7 @@
             "type": "string",
             "example": "\"project_uid\"",
             "x-go-name": "ProjectUid",
-            "description": "项目 UID",
+            "description": "project uid",
             "name": "project_uid",
             "in": "path",
             "required": true
@@ -4961,7 +4998,7 @@
             "format": "uint32",
             "example": "100",
             "x-go-name": "PageSize",
-            "description": "单次返回的数据源数量上限，默认 100",
+            "description": "the maximum count of db services to be returned, default is 100",
             "name": "page_size",
             "in": "query"
           },
@@ -4970,7 +5007,7 @@
             "format": "uint32",
             "example": "0",
             "x-go-name": "PageIndex",
-            "description": "数据源列表的偏移量，默认 0",
+            "description": "the offset of db services to be returned, default is 0",
             "name": "page_index",
             "in": "query"
           },
@@ -4978,20 +5015,20 @@
             "type": "string",
             "example": "\"mysql\"",
             "x-go-name": "Keywords",
-            "description": "按数据源名称模糊搜索的关键词",
+            "description": "fuzzy search keywords for db service name",
             "name": "keywords",
             "in": "query"
           }
         ],
         "responses": {
           "200": {
-            "description": "成功返回可创建敏感数据发现任务的数据源列表",
+            "description": "ListCreatableDBServicesForMaskingTaskReply",
             "schema": {
               "$ref": "#/definitions/ListCreatableDBServicesForMaskingTaskReply"
             }
           },
           "default": {
-            "description": "通用错误响应",
+            "description": "GenericResp",
             "schema": {
               "$ref": "#/definitions/GenericResp"
             }
@@ -5010,7 +5047,7 @@
           {
             "type": "string",
             "x-go-name": "ProjectUid",
-            "description": "项目 UID",
+            "description": "project uid",
             "name": "project_uid",
             "in": "path",
             "required": true
@@ -5018,7 +5055,7 @@
           {
             "type": "string",
             "x-go-name": "DBServiceUID",
-            "description": "数据源 UID",
+            "description": "database service uid",
             "name": "db_service_uid",
             "in": "query",
             "required": true
@@ -5026,13 +5063,13 @@
         ],
         "responses": {
           "200": {
-            "description": "成功返回 schema（数据库）列表",
+            "description": "ListDBServiceSchemasForMaskingTaskReply",
             "schema": {
               "$ref": "#/definitions/ListDBServiceSchemasForMaskingTaskReply"
             }
           },
           "default": {
-            "description": "通用错误响应",
+            "description": "GenericResp",
             "schema": {
               "$ref": "#/definitions/GenericResp"
             }
@@ -5051,7 +5088,7 @@
           {
             "type": "string",
             "x-go-name": "ProjectUid",
-            "description": "项目 UID",
+            "description": "project uid",
             "name": "project_uid",
             "in": "path",
             "required": true
@@ -5059,7 +5096,7 @@
           {
             "type": "string",
             "x-go-name": "DBServiceUID",
-            "description": "数据源 UID",
+            "description": "database service uid",
             "name": "db_service_uid",
             "in": "query",
             "required": true
@@ -5067,7 +5104,7 @@
           {
             "type": "string",
             "x-go-name": "SchemaName",
-            "description": "schema（数据库）名称",
+            "description": "schema (database) name",
             "name": "schema_name",
             "in": "query",
             "required": true
@@ -5075,13 +5112,13 @@
         ],
         "responses": {
           "200": {
-            "description": "成功返回表列表",
+            "description": "ListDBServiceTablesForMaskingTaskReply",
             "schema": {
               "$ref": "#/definitions/ListDBServiceTablesForMaskingTaskReply"
             }
           },
           "default": {
-            "description": "通用错误响应",
+            "description": "GenericResp",
             "schema": {
               "$ref": "#/definitions/GenericResp"
             }
@@ -5191,7 +5228,7 @@
             "type": "string",
             "example": "\"project_uid\"",
             "x-go-name": "ProjectUid",
-            "description": "项目 UID",
+            "description": "project uid",
             "name": "project_uid",
             "in": "path",
             "required": true
@@ -5201,7 +5238,7 @@
             "format": "int64",
             "example": 1,
             "x-go-name": "TaskID",
-            "description": "敏感数据发现任务 ID",
+            "description": "sensitive data discovery task id",
             "name": "task_id",
             "in": "path",
             "required": true
@@ -5211,7 +5248,7 @@
             "format": "uint32",
             "example": "20",
             "x-go-name": "PageSize",
-            "description": "单次返回的历史记录数量上限，默认 20",
+            "description": "the maximum count of histories to be returned, default is 20",
             "name": "page_size",
             "in": "query"
           },
@@ -5220,20 +5257,20 @@
             "format": "uint32",
             "example": "0",
             "x-go-name": "PageIndex",
-            "description": "历史记录的偏移量，默认 0",
+            "description": "the offset of histories to be returned, default is 0",
             "name": "page_index",
             "in": "query"
           }
         ],
         "responses": {
           "200": {
-            "description": "成功返回敏感数据发现任务执行历史",
+            "description": "ListSensitiveDataDiscoveryTaskHistoriesReply",
             "schema": {
               "$ref": "#/definitions/ListSensitiveDataDiscoveryTaskHistoriesReply"
             }
           },
           "default": {
-            "description": "通用错误响应",
+            "description": "GenericResp",
             "schema": {
               "$ref": "#/definitions/GenericResp"
             }
@@ -5261,13 +5298,13 @@
         ],
         "responses": {
           "200": {
-            "description": "成功返回敏感数据类型列表",
+            "description": "ListSensitiveTypesReply",
             "schema": {
               "$ref": "#/definitions/ListSensitiveTypesReply"
             }
           },
           "default": {
-            "description": "通用错误响应",
+            "description": "GenericResp",
             "schema": {
               "$ref": "#/definitions/GenericResp"
             }
@@ -5457,7 +5494,7 @@
             "type": "string",
             "example": "\"project_uid\"",
             "x-go-name": "ProjectUid",
-            "description": "项目 UID",
+            "description": "project uid",
             "name": "project_uid",
             "in": "path",
             "required": true
@@ -5467,7 +5504,7 @@
             "format": "int64",
             "example": 1,
             "x-go-name": "TableID",
-            "description": "脱敏概览树中的表 ID",
+            "description": "table id from masking overview tree",
             "name": "table_id",
             "in": "path",
             "required": true
@@ -5476,20 +5513,20 @@
             "type": "string",
             "example": "\"phone\"",
             "x-go-name": "Keywords",
-            "description": "按列名模糊搜索的关键词",
+            "description": "fuzzy search keywords for column name",
             "name": "keywords",
             "in": "query"
           }
         ],
         "responses": {
           "200": {
-            "description": "成功返回表字段脱敏详情",
+            "description": "GetTableColumnMaskingDetailsReply",
             "schema": {
               "$ref": "#/definitions/GetTableColumnMaskingDetailsReply"
             }
           },
           "default": {
-            "description": "通用错误响应",
+            "description": "GenericResp",
             "schema": {
               "$ref": "#/definitions/GenericResp"
             }
@@ -5509,7 +5546,7 @@
             "type": "string",
             "example": "\"project_uid\"",
             "x-go-name": "ProjectUid",
-            "description": "项目 UID",
+            "description": "project uid",
             "name": "project_uid",
             "in": "path",
             "required": true
@@ -5518,7 +5555,7 @@
             "type": "integer",
             "format": "uint32",
             "x-go-name": "PageSize",
-            "description": "单次返回的脱敏模板数量上限，默认 20",
+            "description": "the maximum count of masking templates to be returned, default is 20",
             "name": "page_size",
             "in": "query"
           },
@@ -5526,20 +5563,20 @@
             "type": "integer",
             "format": "uint32",
             "x-go-name": "PageIndex",
-            "description": "返回结果的偏移量，默认 0",
+            "description": "the offset of masking templates to be returned, default is 0",
             "name": "page_index",
             "in": "query"
           }
         ],
         "responses": {
           "200": {
-            "description": "成功返回脱敏模板列表",
+            "description": "ListMaskingTemplatesReply",
             "schema": {
               "$ref": "#/definitions/ListMaskingTemplatesReply"
             }
           },
           "default": {
-            "description": "通用错误响应",
+            "description": "GenericResp",
             "schema": {
               "$ref": "#/definitions/GenericResp"
             }
@@ -17535,7 +17572,7 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "UpdateBusinessTagReq": {
       "type": "object",
