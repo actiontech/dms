@@ -98,6 +98,8 @@ type User struct {
 	LastLoginAt time.Time
 	// 用户是否被删除
 	Deleted bool
+	// 业务写权开关，默认 true；为 false 时系统管理员/admin 不通过全局身份放行业务写操作
+	BusinessWritePermission bool
 }
 
 type AccessTokenInfo struct {
@@ -110,20 +112,22 @@ type AccessTokenInfo struct {
 func initUsers() []*User {
 	return []*User{
 		{
-			UID:                    pkgConst.UIDOfUserAdmin,
-			Name:                   "admin",
-			Password:               "admin",
-			Desc:                   "built-in admin user",
-			UserAuthenticationType: UserAuthenticationTypeDMS,
-			Stat:                   UserStatOK,
+			UID:                     pkgConst.UIDOfUserAdmin,
+			Name:                    "admin",
+			Password:                "admin",
+			Desc:                    "built-in admin user",
+			UserAuthenticationType:  UserAuthenticationTypeDMS,
+			Stat:                    UserStatOK,
+			BusinessWritePermission: true,
 		},
 		{
-			UID:                    pkgConst.UIDOfUserSys,
-			Name:                   "sys",
-			Password:               "sys",
-			Desc:                   "built-in sys user",
-			UserAuthenticationType: UserAuthenticationTypeDMS,
-			Stat:                   UserStatOK,
+			UID:                     pkgConst.UIDOfUserSys,
+			Name:                    "sys",
+			Password:                "sys",
+			Desc:                    "built-in sys user",
+			UserAuthenticationType:  UserAuthenticationTypeDMS,
+			Stat:                    UserStatOK,
+			BusinessWritePermission: true,
 		},
 	}
 }
@@ -146,19 +150,25 @@ func newUser(args *CreateUserArgs) (user *User, err error) {
 	if args.UserAuthenticationType == "" {
 		args.UserAuthenticationType = UserAuthenticationTypeDMS
 	}
+	bwp := true
+	if args.BusinessWritePermission != nil {
+		bwp = *args.BusinessWritePermission
+	}
+
 	return &User{
-		UID:                    args.UID,
-		Name:                   args.Name,
-		Password:               args.Password,
-		Email:                  args.Email,
-		Phone:                  args.Phone,
-		WxID:                   args.WxID,
-		Desc:                   args.Desc,
-		UserAuthenticationType: args.UserAuthenticationType,
-		ThirdPartyUserID:       args.ThirdPartyUserID,
-		ThirdPartyUserInfo:     args.ThirdPartyUserInfo,
-		System:                 args.System,
-		Stat:                   UserStatOK,
+		UID:                     args.UID,
+		Name:                    args.Name,
+		Password:                args.Password,
+		Email:                   args.Email,
+		Phone:                   args.Phone,
+		WxID:                    args.WxID,
+		Desc:                    args.Desc,
+		UserAuthenticationType:  args.UserAuthenticationType,
+		ThirdPartyUserID:        args.ThirdPartyUserID,
+		ThirdPartyUserInfo:      args.ThirdPartyUserInfo,
+		System:                  args.System,
+		Stat:                    UserStatOK,
+		BusinessWritePermission: bwp,
 	}, nil
 }
 
@@ -482,20 +492,21 @@ func (d *UserUsecase) AfterUserLogin(ctx context.Context, uid string) (err error
 }
 
 type CreateUserArgs struct {
-	UID                    string
-	Name                   string
-	Password               string
-	ThirdPartyUserID       string
-	ThirdPartyUserInfo     string
-	Email                  string
-	Phone                  string
-	WxID                   string
-	Desc                   string
-	UserGroupUIDs          []string
-	IsDisabled             bool
-	OpPermissionUIDs       []string
-	UserAuthenticationType UserAuthenticationType
-	System                 UserSystem
+	UID                     string
+	Name                    string
+	Password                string
+	ThirdPartyUserID        string
+	ThirdPartyUserInfo      string
+	Email                   string
+	Phone                   string
+	WxID                    string
+	Desc                    string
+	UserGroupUIDs           []string
+	IsDisabled              bool
+	OpPermissionUIDs        []string
+	UserAuthenticationType  UserAuthenticationType
+	System                  UserSystem
+	BusinessWritePermission *bool // nil means use default (true)
 }
 
 func (d *UserUsecase) AddUser(ctx context.Context, currentUserUid string, args *CreateUserArgs) (uid string, err error) {

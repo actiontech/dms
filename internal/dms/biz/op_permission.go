@@ -92,13 +92,9 @@ func initOpPermission() []*OpPermission {
 			Desc:      "具备系统最高权限，可进行系统配置、用户管理等操作",
 			Service:   v1.ServiceSQLE,
 		},
-		{
-			UID:       pkgConst.UIDOfOpPermissionCreateProject,
-			Name:      "项目总监", // todo i18n 返回时会根据uid国际化，name、desc已弃用；数据库name字段是唯一键，故暂时保留
-			RangeType: OpRangeTypeGlobal,
-			Desc:      "创建项目、配置项目资源",
-			Service:   v1.ServiceSQLE,
-		},
+		// "项目总监"(UID=700001) 已下架，不再作为种子数据初始化。
+		// 存量环境中 op_permissions 表的 700001 记录保留不删（软废弃），
+		// user_op_permissions 中的 700001 由迁移脚本 migrateProjectDirectorToSystemAdmin 处理。
 		{
 			UID:       pkgConst.UIDOfOrdinaryUser,
 			Name:      "普通用户", // todo i18n 返回时会根据uid国际化，name、desc已弃用；数据库name字段是唯一键，故暂时保留
