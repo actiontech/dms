@@ -839,6 +839,7 @@ type datasourceBaseInfo struct {
 	Port          string
 	ServiceName   *string
 	EnvironmentID int64
+	DefaultSchema *string
 }
 
 // buildDatasourceBaseInfo 构建数据源基础信息
@@ -885,6 +886,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) buildCreateDatasourceRequest(ctx
 		ServiceName:   baseInfo.ServiceName,
 		SSLConfig:     client.SSLConfig{Enabled: false},
 		EnvironmentID: baseInfo.EnvironmentID,
+		DefaultSchema: baseInfo.DefaultSchema,
 	}, nil
 }
 
@@ -905,6 +907,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) buildUpdateDatasourceRequest(ctx
 		ServiceName:   baseInfo.ServiceName,
 		SSLConfig:     client.SSLConfig{Enabled: false},
 		EnvironmentID: baseInfo.EnvironmentID,
+		DefaultSchema: baseInfo.DefaultSchema,
 	}, nil
 }
 

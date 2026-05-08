@@ -978,9 +978,10 @@ type CreateDatasourceRequest struct {
 	JdbcURLParameters map[string]interface{} `json:"jdbcUrlParameters"`
 	Host              string                 `json:"host"`
 	Port              string                 `json:"port"`
+	DefaultSchema     *string                `json:"defaultSchema,omitempty"`
 }
 
-// UpdateDatasourceRequest 创建数据源请求结构
+// UpdateDatasourceRequest 更新数据源请求结构
 type UpdateDatasourceRequest struct {
 	Id                int64                   `json:"id"`
 	CreatorID         *int64                  `json:"creatorId"`
@@ -997,6 +998,7 @@ type UpdateDatasourceRequest struct {
 	JdbcURLParameters *map[string]interface{} `json:"jdbcUrlParameters"`
 	Host              string                  `json:"host"`
 	Port              string                  `json:"port"`
+	DefaultSchema     *string                 `json:"defaultSchema,omitempty"`
 }
 
 // DataSourceStatus 数据源状态结构
