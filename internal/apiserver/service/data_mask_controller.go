@@ -7,28 +7,13 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// swagger:operation GET /v1/dms/projects/{project_uid}/masking/rules Masking ListMaskingRules
+// swagger:route GET /v1/dms/projects/{project_uid}/masking/rules Masking ListMaskingRules
 //
 // 查询项目下的脱敏规则列表（内置与自定义）。
 //
-// ---
-// parameters:
-//   - name: project_uid
-//     description: 项目 UID
-//     in: path
-//     required: true
-//     type: string
-//
-// responses:
-//
-//   '200':
-//     description: 成功返回脱敏规则列表
-//     schema:
-//       "$ref": "#/definitions/ListMaskingRulesReply"
-//   default:
-//     description: 通用错误响应
-//     schema:
-//       "$ref": "#/definitions/GenericResp"
+//	responses:
+//	  200: body:ListMaskingRulesReply
+//	  default: body:GenericResp
 func (ctl *DMSController) ListMaskingRules(c echo.Context) error {
 	req := &aV1.ListMaskingRulesReq{}
 	err := bindAndValidateReq(c, req)
@@ -43,40 +28,13 @@ func (ctl *DMSController) ListMaskingRules(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:operation GET /v1/dms/projects/{project_uid}/masking/templates Masking ListMaskingTemplates
+// swagger:route GET /v1/dms/projects/{project_uid}/masking/templates Masking ListMaskingTemplates
 //
 // 查询脱敏模板列表。
 //
-// ---
-// parameters:
-//   - name: project_uid
-//     description: 项目 UID
-//     in: path
-//     required: true
-//     type: string
-//   - name: page_size
-//     description: 单次返回的脱敏模板数量上限，默认 20
-//     in: query
-//     required: false
-//     type: integer
-//     format: uint32
-//   - name: page_index
-//     description: 返回结果的偏移量，默认 0
-//     in: query
-//     required: false
-//     type: integer
-//     format: uint32
-//
-// responses:
-//
-//   '200':
-//     description: 成功返回脱敏模板列表
-//     schema:
-//       "$ref": "#/definitions/ListMaskingTemplatesReply"
-//   default:
-//     description: 通用错误响应
-//     schema:
-//       "$ref": "#/definitions/GenericResp"
+//	responses:
+//	  200: body:ListMaskingTemplatesReply
+//	  default: body:GenericResp
 func (ctl *DMSController) ListMaskingTemplates(c echo.Context) error {
 	req := &aV1.ListMaskingTemplatesReq{}
 	if err := bindAndValidateReq(c, req); err != nil {
@@ -229,45 +187,13 @@ func (ctl *DMSController) DeleteMaskingTemplate(c echo.Context) error {
 	return NewOkRespWithReply(c, &aV1.DeleteMaskingTemplateReply{})
 }
 
-// swagger:operation GET /v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks/creatable-db-services Masking ListCreatableDBServicesForMaskingTask
+// swagger:route GET /v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks/creatable-db-services Masking ListCreatableDBServicesForMaskingTask
 //
 // 查询可用于创建敏感数据发现任务的数据源列表。
 //
-// ---
-// parameters:
-//   - name: project_uid
-//     description: 项目 UID
-//     in: path
-//     required: true
-//     type: string
-//   - name: page_size
-//     description: 单次返回的数据源数量上限，默认 100
-//     in: query
-//     required: false
-//     type: integer
-//     format: uint32
-//   - name: page_index
-//     description: 数据源列表的偏移量，默认 0
-//     in: query
-//     required: false
-//     type: integer
-//     format: uint32
-//   - name: keywords
-//     description: 按数据源名称模糊搜索的关键词
-//     in: query
-//     required: false
-//     type: string
-//
-// responses:
-//
-//   '200':
-//     description: 成功返回可创建敏感数据发现任务的数据源列表
-//     schema:
-//       "$ref": "#/definitions/ListCreatableDBServicesForMaskingTaskReply"
-//   default:
-//     description: 通用错误响应
-//     schema:
-//       "$ref": "#/definitions/GenericResp"
+//	responses:
+//	  200: body:ListCreatableDBServicesForMaskingTaskReply
+//	  default: body:GenericResp
 func (ctl *DMSController) ListCreatableDBServicesForMaskingTask(c echo.Context) error {
 	req := &aV1.ListCreatableDBServicesForMaskingTaskReq{}
 	if err := bindAndValidateReq(c, req); err != nil {
@@ -286,40 +212,13 @@ func (ctl *DMSController) ListCreatableDBServicesForMaskingTask(c echo.Context) 
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:operation GET /v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks Masking ListSensitiveDataDiscoveryTasks
+// swagger:route GET /v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks Masking ListSensitiveDataDiscoveryTasks
 //
 // 查询敏感数据发现任务列表。
 //
-// ---
-// parameters:
-//   - name: project_uid
-//     description: 项目 UID
-//     in: path
-//     required: true
-//     type: string
-//   - name: page_size
-//     description: 单次返回的任务数量上限，默认 20
-//     in: query
-//     required: false
-//     type: integer
-//     format: uint32
-//   - name: page_index
-//     description: 任务列表的偏移量，默认 0
-//     in: query
-//     required: false
-//     type: integer
-//     format: uint32
-//
-// responses:
-//
-//   '200':
-//     description: 成功返回敏感数据发现任务列表
-//     schema:
-//       "$ref": "#/definitions/ListSensitiveDataDiscoveryTasksReply"
-//   default:
-//     description: 通用错误响应
-//     schema:
-//       "$ref": "#/definitions/GenericResp"
+//	responses:
+//	  200: body:ListSensitiveDataDiscoveryTasksReply
+//	  default: body:GenericResp
 func (ctl *DMSController) ListSensitiveDataDiscoveryTasks(c echo.Context) error {
 	req := &aV1.ListSensitiveDataDiscoveryTasksReq{}
 	if err := bindAndValidateReq(c, req); err != nil {
@@ -458,45 +357,13 @@ func (ctl *DMSController) DeleteSensitiveDataDiscoveryTask(c echo.Context) error
 	return NewOkRespWithReply(c, &aV1.DeleteSensitiveDataDiscoveryTaskReply{})
 }
 
-// swagger:operation GET /v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks/{task_id}/histories Masking ListSensitiveDataDiscoveryTaskHistories
+// swagger:route GET /v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks/{task_id}/histories Masking ListSensitiveDataDiscoveryTaskHistories
 //
 // 查询敏感数据发现任务执行历史。
 //
-// ---
-// parameters:
-//   - name: project_uid
-//     description: 项目 UID
-//     in: path
-//     required: true
-//     type: string
-//   - name: task_id
-//     description: 敏感数据发现任务 ID
-//     in: path
-//     required: true
-//     type: integer
-//   - name: page_size
-//     description: 单次返回的历史记录数量上限，默认 20
-//     in: query
-//     required: false
-//     type: integer
-//     format: uint32
-//   - name: page_index
-//     description: 历史记录的偏移量，默认 0
-//     in: query
-//     required: false
-//     type: integer
-//     format: uint32
-//
-// responses:
-//
-//   '200':
-//     description: 成功返回敏感数据发现任务执行历史
-//     schema:
-//       "$ref": "#/definitions/ListSensitiveDataDiscoveryTaskHistoriesReply"
-//   default:
-//     description: 通用错误响应
-//     schema:
-//       "$ref": "#/definitions/GenericResp"
+//	responses:
+//	  200: body:ListSensitiveDataDiscoveryTaskHistoriesReply
+//	  default: body:GenericResp
 func (ctl *DMSController) ListSensitiveDataDiscoveryTaskHistories(c echo.Context) error {
 	req := &aV1.ListSensitiveDataDiscoveryTaskHistoriesReq{}
 	if err := bindAndValidateReq(c, req); err != nil {
@@ -556,43 +423,13 @@ func (ctl *DMSController) ConfigureMaskingRules(c echo.Context) error {
 	return NewOkRespWithReply(c, &aV1.ConfigureMaskingRulesReply{})
 }
 
-// swagger:operation GET /v1/dms/projects/{project_uid}/masking/overview Masking GetMaskingOverviewTree
+// swagger:route GET /v1/dms/projects/{project_uid}/masking/overview Masking GetMaskingOverviewTree
 //
 // 获取脱敏概览树。
 //
-// ---
-// parameters:
-//   - name: project_uid
-//     description: 项目 UID
-//     in: path
-//     required: true
-//     type: string
-//   - name: db_service_uid
-//     description: 数据源 UID
-//     in: query
-//     required: true
-//     type: string
-//   - name: keywords
-//     description: 按库名、表名、列名模糊搜索的关键词
-//     in: query
-//     required: false
-//     type: string
-//   - name: masking_config_statuses
-//     description: "脱敏配置状态过滤，枚举：CONFIGURED/PENDING_CONFIRM"
-//     in: query
-//     required: false
-//     type: string
-//
-// responses:
-//
-//   '200':
-//     description: 成功返回脱敏概览树
-//     schema:
-//       "$ref": "#/definitions/GetMaskingOverviewTreeReply"
-//   default:
-//     description: 通用错误响应
-//     schema:
-//       "$ref": "#/definitions/GenericResp"
+//	responses:
+//	  200: body:GetMaskingOverviewTreeReply
+//	  default: body:GenericResp
 func (ctl *DMSController) GetMaskingOverviewTree(c echo.Context) error {
 	req := &aV1.GetMaskingOverviewTreeReq{}
 	if err := bindAndValidateReq(c, req); err != nil {
@@ -611,38 +448,13 @@ func (ctl *DMSController) GetMaskingOverviewTree(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:operation GET /v1/dms/projects/{project_uid}/masking/tables/{table_id}/column-masking-details Masking GetTableColumnMaskingDetails
+// swagger:route GET /v1/dms/projects/{project_uid}/masking/tables/{table_id}/column-masking-details Masking GetTableColumnMaskingDetails
 //
 // 获取表字段脱敏详情。
 //
-// ---
-// parameters:
-//   - name: project_uid
-//     description: 项目 UID
-//     in: path
-//     required: true
-//     type: string
-//   - name: table_id
-//     description: 脱敏概览树中的表 ID
-//     in: path
-//     required: true
-//     type: integer
-//   - name: keywords
-//     description: 按列名模糊搜索的关键词
-//     in: query
-//     required: false
-//     type: string
-//
-// responses:
-//
-//   '200':
-//     description: 成功返回表字段脱敏详情
-//     schema:
-//       "$ref": "#/definitions/GetTableColumnMaskingDetailsReply"
-//   default:
-//     description: 通用错误响应
-//     schema:
-//       "$ref": "#/definitions/GenericResp"
+//	responses:
+//	  200: body:GetTableColumnMaskingDetailsReply
+//	  default: body:GenericResp
 func (ctl *DMSController) GetTableColumnMaskingDetails(c echo.Context) error {
 	req := &aV1.GetTableColumnMaskingDetailsReq{}
 	if err := bindAndValidateReq(c, req); err != nil {
@@ -656,40 +468,13 @@ func (ctl *DMSController) GetTableColumnMaskingDetails(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:operation GET /v1/dms/projects/{project_uid}/masking/approval-requests/pending Masking ListPendingApprovalRequests
+// swagger:route GET /v1/dms/projects/{project_uid}/masking/approval-requests/pending Masking ListPendingApprovalRequests
 //
 // 查询待审批申请列表。
 //
-// ---
-// parameters:
-//   - name: project_uid
-//     description: 项目 UID
-//     in: path
-//     required: true
-//     type: string
-//   - name: page_size
-//     description: 单次返回的申请数量上限，默认 20
-//     in: query
-//     required: false
-//     type: integer
-//     format: uint32
-//   - name: page_index
-//     description: 申请列表的偏移量，默认 0
-//     in: query
-//     required: false
-//     type: integer
-//     format: uint32
-//
-// responses:
-//
-//   '200':
-//     description: 成功返回待审批申请列表
-//     schema:
-//       "$ref": "#/definitions/ListPendingApprovalRequestsReply"
-//   default:
-//     description: 通用错误响应
-//     schema:
-//       "$ref": "#/definitions/GenericResp"
+//	responses:
+//	  200: body:ListPendingApprovalRequestsReply
+//	  default: body:GenericResp
 func (ctl *DMSController) ListPendingApprovalRequests(c echo.Context) error {
 	req := &aV1.ListPendingApprovalRequestsReq{}
 	if err := bindAndValidateReq(c, req); err != nil {
@@ -698,33 +483,13 @@ func (ctl *DMSController) ListPendingApprovalRequests(c echo.Context) error {
 	return NewOkRespWithReply(c, &aV1.ListPendingApprovalRequestsReply{})
 }
 
-// swagger:operation GET /v1/dms/projects/{project_uid}/masking/approval-requests/{request_id} Masking GetPlaintextAccessRequestDetail
+// swagger:route GET /v1/dms/projects/{project_uid}/masking/approval-requests/{request_id} Masking GetPlaintextAccessRequestDetail
 //
 // 获取明文访问申请详情。
 //
-// ---
-// parameters:
-//   - name: project_uid
-//     description: 项目 UID
-//     in: path
-//     required: true
-//     type: string
-//   - name: request_id
-//     description: 审批申请 ID
-//     in: path
-//     required: true
-//     type: integer
-//
-// responses:
-//
-//   '200':
-//     description: 成功返回明文访问申请详情
-//     schema:
-//       "$ref": "#/definitions/GetPlaintextAccessRequestDetailReply"
-//   default:
-//     description: 通用错误响应
-//     schema:
-//       "$ref": "#/definitions/GenericResp"
+//	responses:
+//	  200: body:GetPlaintextAccessRequestDetailReply
+//	  default: body:GenericResp
 func (ctl *DMSController) GetPlaintextAccessRequestDetail(c echo.Context) error {
 	req := &aV1.GetPlaintextAccessRequestDetailReq{}
 	if err := bindAndValidateReq(c, req); err != nil {
@@ -774,33 +539,13 @@ func (ctl *DMSController) ProcessApprovalRequest(c echo.Context) error {
 	return NewOkRespWithReply(c, &aV1.ProcessApprovalRequestReply{})
 }
 
-// swagger:operation GET /v1/dms/projects/{project_uid}/masking/rules/{rule_id} Masking GetMaskingRuleDetail
+// swagger:route GET /v1/dms/projects/{project_uid}/masking/rules/{rule_id} Masking GetMaskingRuleDetail
 //
 // 获取脱敏规则详情。
 //
-// ---
-// parameters:
-//   - name: project_uid
-//     description: 项目 UID
-//     in: path
-//     required: true
-//     type: string
-//   - name: rule_id
-//     description: 脱敏规则 ID
-//     in: path
-//     required: true
-//     type: integer
-//
-// responses:
-//
-//   '200':
-//     description: 成功返回脱敏规则详情
-//     schema:
-//       "$ref": "#/definitions/GetMaskingRuleDetailReply"
-//   default:
-//     description: 通用错误响应
-//     schema:
-//       "$ref": "#/definitions/GenericResp"
+//	responses:
+//	  200: body:GetMaskingRuleDetailReply
+//	  default: body:GenericResp
 func (ctl *DMSController) GetMaskingRuleDetail(c echo.Context) error {
 	req := &aV1.GetMaskingRuleDetailReq{}
 	if err := bindAndValidateReq(c, req); err != nil {
@@ -939,28 +684,13 @@ func (ctl *DMSController) DeleteMaskingRule(c echo.Context) error {
 	return NewOkRespWithReply(c, &aV1.DeleteMaskingRuleReply{})
 }
 
-// swagger:operation GET /v1/dms/projects/{project_uid}/masking/sensitive-types Masking ListSensitiveTypes
+// swagger:route GET /v1/dms/projects/{project_uid}/masking/sensitive-types Masking ListSensitiveTypes
 //
 // 查询敏感数据类型列表（内置与自定义）。
 //
-// ---
-// parameters:
-//   - name: project_uid
-//     description: 项目 UID
-//     in: path
-//     required: true
-//     type: string
-//
-// responses:
-//
-//   '200':
-//     description: 成功返回敏感数据类型列表
-//     schema:
-//       "$ref": "#/definitions/ListSensitiveTypesReply"
-//   default:
-//     description: 通用错误响应
-//     schema:
-//       "$ref": "#/definitions/GenericResp"
+//	responses:
+//	  200: body:ListSensitiveTypesReply
+//	  default: body:GenericResp
 func (ctl *DMSController) ListSensitiveTypes(c echo.Context) error {
 	req := &aV1.ListSensitiveTypesReq{}
 	if err := bindAndValidateReq(c, req); err != nil {
@@ -1178,33 +908,13 @@ func (ctl *DMSController) PreviewMaskingEffect(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:operation GET /v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks/db-service-schemas Masking ListDBServiceSchemasForMaskingTask
+// swagger:route GET /v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks/db-service-schemas Masking ListDBServiceSchemasForMaskingTask
 //
 // 查询指定数据源下可用于配置敏感数据发现任务的 schema（数据库）列表。
 //
-// ---
-// parameters:
-//   - name: project_uid
-//     description: 项目 UID
-//     in: path
-//     required: true
-//     type: string
-//   - name: db_service_uid
-//     description: 数据源 UID
-//     in: query
-//     required: true
-//     type: string
-//
-// responses:
-//
-//   '200':
-//     description: 成功返回 schema（数据库）列表
-//     schema:
-//       "$ref": "#/definitions/ListDBServiceSchemasForMaskingTaskReply"
-//   default:
-//     description: 通用错误响应
-//     schema:
-//       "$ref": "#/definitions/GenericResp"
+//	responses:
+//	  200: body:ListDBServiceSchemasForMaskingTaskReply
+//	  default: body:GenericResp
 func (ctl *DMSController) ListDBServiceSchemasForMaskingTask(c echo.Context) error {
 	req := &aV1.ListDBServiceSchemasForMaskingTaskReq{}
 	if err := bindAndValidateReq(c, req); err != nil {
@@ -1218,38 +928,13 @@ func (ctl *DMSController) ListDBServiceSchemasForMaskingTask(c echo.Context) err
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:operation GET /v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks/db-service-tables Masking ListDBServiceTablesForMaskingTask
+// swagger:route GET /v1/dms/projects/{project_uid}/masking/sensitive-data-discovery-tasks/db-service-tables Masking ListDBServiceTablesForMaskingTask
 //
 // 查询指定数据源与 schema 下可用于配置敏感数据发现任务的表列表。
 //
-// ---
-// parameters:
-//   - name: project_uid
-//     description: 项目 UID
-//     in: path
-//     required: true
-//     type: string
-//   - name: db_service_uid
-//     description: 数据源 UID
-//     in: query
-//     required: true
-//     type: string
-//   - name: schema_name
-//     description: schema（数据库）名称
-//     in: query
-//     required: true
-//     type: string
-//
-// responses:
-//
-//   '200':
-//     description: 成功返回表列表
-//     schema:
-//       "$ref": "#/definitions/ListDBServiceTablesForMaskingTaskReply"
-//   default:
-//     description: 通用错误响应
-//     schema:
-//       "$ref": "#/definitions/GenericResp"
+//	responses:
+//	  200: body:ListDBServiceTablesForMaskingTaskReply
+//	  default: body:GenericResp
 func (ctl *DMSController) ListDBServiceTablesForMaskingTask(c echo.Context) error {
 	req := &aV1.ListDBServiceTablesForMaskingTaskReq{}
 	if err := bindAndValidateReq(c, req); err != nil {
