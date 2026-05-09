@@ -680,9 +680,9 @@ func (ctl *DMSController) GetUnmaskingWorkflow(c echo.Context) error {
 //     required: true
 //     type: string
 //   - name: approve_unmasking_workflow
-//     description: approve unmasking workflow info
+//     description: approve unmasking workflow info (optional, only carries approve_reason)
 //     in: body
-//     required: true
+//     required: false
 //     schema:
 //     "$ref": "#/definitions/ApproveUnmaskingWorkflow"
 //
