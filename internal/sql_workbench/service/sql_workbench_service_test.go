@@ -20,6 +20,7 @@ func Test_convertDBType(t *testing.T) {
 		"OB Oracle":          {input: "OceanBase For Oracle", expected: "OB_ORACLE"},
 		"OB MySQL":           {input: "OceanBase For MySQL", expected: "OB_MYSQL"},
 		"TiDB":                {input: "TiDB", expected: "TIDB"},
+		"TDSQL For InnoDB":     {input: "TDSQL For InnoDB", expected: "MYSQL"},
 		"Unknown passthrough": {input: "UnknownDB", expected: "UnknownDB"},
 	}
 	for name, tc := range cases {
@@ -43,6 +44,7 @@ func Test_SupportDBType(t *testing.T) {
 		"Oracle supported":       {input: pkgConst.DBTypeOracle, expected: true},
 		"OB MySQL supported":     {input: pkgConst.DBTypeOceanBaseMySQL, expected: true},
 		"TiDB supported":        {input: pkgConst.DBTypeTiDB, expected: true},
+		"TDSQL supported":       {input: pkgConst.DBTypeTDSQLForInnoDB, expected: true},
 		"PostgreSQL unsupported": {input: pkgConst.DBTypePostgreSQL, expected: false},
 		"SQL Server unsupported": {input: pkgConst.DBTypeSQLServer, expected: false},
 	}
