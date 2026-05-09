@@ -252,6 +252,8 @@ func ParseDBType(s string) (DBType, error) {
 		return DBTypeGaussDB, nil
 	case "HANA":
 		return DBTypeHANA, nil
+	case "PolarDB For MySQL":
+		return DBTypePolarDBMySQL, nil
 
 	default:
 		return "", fmt.Errorf("invalid db type: %s", s)
@@ -273,6 +275,7 @@ const (
 	DBTypeDM             DBType = "达梦(DM)"
 	DBTypeGaussDB        DBType = "GaussDB / openGauss"
 	DBTypeHANA           DBType = "HANA"
+	DBTypePolarDBMySQL   DBType = "PolarDB For MySQL"
 )
 
 var supportedDataExportDBTypes = map[DBType]struct{}{
@@ -291,6 +294,7 @@ var supportedDataExportDBTypes = map[DBType]struct{}{
 	DBTypeGaussDB:        {},
 	DBTypeDB2:            {},
 	DBTypeHANA:           {},
+	DBTypePolarDBMySQL:   {},
 }
 
 func CheckDBTypeIfDataExportSupported(dbtype string) bool {
