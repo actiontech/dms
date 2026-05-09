@@ -1056,15 +1056,18 @@ func (sqlWorkbenchService *SqlWorkbenchService) AuditMiddleware() echo.Middlewar
 			c.Request().Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 
 			// 解析请求体获取 SQL 和 datasource ID
+			// 注意：解析仅服务于审核辅助路径，解析失败不应直接阻塞用户的 SQL 执行；
+			// 否则一旦中间件辅助能力出错（如 sid 解码失败），用户连查询都跑不了。
+			// 真正的「未启用审核 / 审核失败」等强策略仍由后续分支按既有 fail-closed 处理。
 			sql, datasourceID, err := sqlWorkbenchService.parseStreamExecuteRequest(bodyBytes)
 			if err != nil {
-				sqlWorkbenchService.log.Errorf("failed to parse streamExecute request, skipping audit: %v", err)
-				return errors.New(locale.Bundle.LocalizeMsgByCtx(c.Request().Context(), locale.SqlWorkbenchAuditParseReqErr))
+				sqlWorkbenchService.log.Warnf("failed to parse streamExecute request, skipping audit: %v", err)
+				return next(c)
 			}
 
 			if sql == "" || datasourceID == "" {
-				sqlWorkbenchService.log.Debugf("SQL or datasource ID is empty, skipping audit")
-				return errors.New(locale.Bundle.LocalizeMsgByCtx(c.Request().Context(), locale.SqlWorkbenchAuditMissingSQLOrDatasourceErr))
+				sqlWorkbenchService.log.Warnf("SQL or datasource ID is empty, skipping audit")
+				return next(c)
 			}
 
 			// 获取当前用户 ID
@@ -1159,8 +1162,9 @@ func (sqlWorkbenchService *SqlWorkbenchService) parseSidToDatasourceID(sid strin
 		sid = sid[:idx]
 	}
 
-	// 解码 base64
-	decodedBytes, err := base64.StdEncoding.DecodeString(sid)
+	// ODC 服务端使用 Base64.getUrlEncoder() 生成 sessionId（URL-safe，包含 '-'/'_'），
+	// 这里必须用 URLEncoding 解码，否则遇到 '-'/'_' 会报 illegal base64 data。
+	decodedBytes, err := base64.URLEncoding.DecodeString(sid)
 	if err != nil {
 		return "", fmt.Errorf("failed to decode base64 sid: %v", err)
 	}
