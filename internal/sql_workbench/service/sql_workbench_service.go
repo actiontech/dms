@@ -937,6 +937,8 @@ func (sqlWorkbenchService *SqlWorkbenchService) convertDBType(dmsDBType string) 
 		return "MYSQL"
 	case "GoldenDB":
 		return "MYSQL"
+	case "PolarDB For MySQL":
+		return "MYSQL"
 	default:
 		return dmsDBType
 	}

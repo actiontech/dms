@@ -22,6 +22,7 @@ func Test_convertDBType(t *testing.T) {
 		"TiDB":                {input: "TiDB", expected: "TIDB"},
 		"TDSQL For InnoDB":     {input: "TDSQL For InnoDB", expected: "MYSQL"},
 		"GoldenDB":            {input: "GoldenDB", expected: "MYSQL"},
+		"PolarDB For MySQL":   {input: "PolarDB For MySQL", expected: "MYSQL"},
 		"Unknown passthrough": {input: "UnknownDB", expected: "UnknownDB"},
 	}
 	for name, tc := range cases {
@@ -49,6 +50,7 @@ func Test_SupportDBType(t *testing.T) {
 		"GoldenDB supported":    {input: pkgConst.DBTypeGoldenDB, expected: true},
 		"PostgreSQL unsupported": {input: pkgConst.DBTypePostgreSQL, expected: false},
 		"SQL Server unsupported": {input: pkgConst.DBTypeSQLServer, expected: false},
+		"PolarDB MySQL unsupported":  {input: pkgConst.DBTypePolarDBMySQL, expected: false},
 	}
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
