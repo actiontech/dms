@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/actiontech/dms/internal/apiserver/conf"
-	maskingBiz "github.com/actiontech/dms/internal/data_masking/biz"
 	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/internal/dms/storage"
 
@@ -42,7 +41,7 @@ type DMSService struct {
 	LicenseUsecase              *biz.LicenseUsecase
 	ClusterUsecase              *biz.ClusterUsecase
 	DataExportWorkflowUsecase   *biz.DataExportWorkflowUsecase
-	UnmaskingWorkflowUsecase    *maskingBiz.UnmaskingWorkflowUsecase
+	UnmaskingWorkflowUsecase    *unmaskingWorkflowUsecase
 	CbOperationLogUsecase       *biz.CbOperationLogUsecase
 	DataMaskingUsecase          *dataMaskingUsecase
 	FunctionSupportRegistry     *biz.FunctionSupportRegistry
