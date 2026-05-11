@@ -136,13 +136,13 @@ type DataExportWorkflowUsecase struct {
 	webhookUsecase            *WebHookConfigurationUsecase
 	userUsecase               *UserUsecase
 	systemVariableUsecase     *SystemVariableUsecase
-	maskingTaskRepo           MaskingTaskRepo
+	dbServiceUsecase          *DBServiceUsecase
 	unmaskingWorkflowUsecase  *dataMaskingBiz.UnmaskingWorkflowUsecase
 	log                       *utilLog.Helper
 	reportHost                string
 }
 
-func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator, repo WorkflowRepo, dataExportTaskRepo DataExportTaskRepo, dbServiceRepo DBServiceRepo, maskingConfigRepo DataExportMaskingConfigRepo, maskingRuleRepo DataExportMaskingRuleRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, clusterUseCase *ClusterUsecase, webhookUsecase *WebHookConfigurationUsecase, userUsecase *UserUsecase, systemVariableUsecase *SystemVariableUsecase, maskingTaskRepo MaskingTaskRepo, unmaskingWorkflowUsecase *dataMaskingBiz.UnmaskingWorkflowUsecase, reportHost string) *DataExportWorkflowUsecase {
+func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator, repo WorkflowRepo, dataExportTaskRepo DataExportTaskRepo, dbServiceRepo DBServiceRepo, maskingConfigRepo DataExportMaskingConfigRepo, maskingRuleRepo DataExportMaskingRuleRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, clusterUseCase *ClusterUsecase, webhookUsecase *WebHookConfigurationUsecase, userUsecase *UserUsecase, systemVariableUsecase *SystemVariableUsecase, dbServiceUsecase *DBServiceUsecase, unmaskingWorkflowUsecase *dataMaskingBiz.UnmaskingWorkflowUsecase, reportHost string) *DataExportWorkflowUsecase {
 	return &DataExportWorkflowUsecase{
 		tx:                        tx,
 		repo:                      repo,
@@ -157,7 +157,7 @@ func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator
 		webhookUsecase:            webhookUsecase,
 		userUsecase:               userUsecase,
 		systemVariableUsecase:     systemVariableUsecase,
-		maskingTaskRepo:           maskingTaskRepo,
+		dbServiceUsecase:          dbServiceUsecase,
 		unmaskingWorkflowUsecase:  unmaskingWorkflowUsecase,
 		log:                       utilLog.NewHelper(logger, utilLog.WithMessageKey("biz.dataExportWorkflow")),
 		reportHost:                reportHost,

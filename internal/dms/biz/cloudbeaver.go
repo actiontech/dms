@@ -91,13 +91,12 @@ type CloudbeaverUsecase struct {
 	sqlResultMasker           SQLResultMasker
 	cbOperationLogUsecase     *CbOperationLogUsecase
 	projectUsecase            *ProjectUsecase
-	maskingTaskRepo           MaskingTaskRepo
 	repo                      CloudbeaverRepo
 	proxyTargetRepo           ProxyTargetRepo
 	maintenanceTimeUsecase    *MaintenanceTimeUsecase
 }
 
-func NewCloudbeaverUsecase(log utilLog.Logger, cfg *CloudbeaverCfg, userUsecase *UserUsecase, dbServiceUsecase *DBServiceUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, dmsConfigUseCase *DMSConfigUseCase, sqlResultMasker SQLResultMasker, cloudbeaverRepo CloudbeaverRepo, proxyTargetRepo ProxyTargetRepo, cbOperationUseCase *CbOperationLogUsecase, projectUsecase *ProjectUsecase, maskingTaskRepo MaskingTaskRepo, maintenanceTimeUsecase *MaintenanceTimeUsecase) (cu *CloudbeaverUsecase) {
+func NewCloudbeaverUsecase(log utilLog.Logger, cfg *CloudbeaverCfg, userUsecase *UserUsecase, dbServiceUsecase *DBServiceUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, dmsConfigUseCase *DMSConfigUseCase, sqlResultMasker SQLResultMasker, cloudbeaverRepo CloudbeaverRepo, proxyTargetRepo ProxyTargetRepo, cbOperationUseCase *CbOperationLogUsecase, projectUsecase *ProjectUsecase, maintenanceTimeUsecase *MaintenanceTimeUsecase) (cu *CloudbeaverUsecase) {
 	cu = &CloudbeaverUsecase{
 		repo:                      cloudbeaverRepo,
 		proxyTargetRepo:           proxyTargetRepo,
@@ -108,7 +107,6 @@ func NewCloudbeaverUsecase(log utilLog.Logger, cfg *CloudbeaverCfg, userUsecase 
 		sqlResultMasker:           sqlResultMasker,
 		cbOperationLogUsecase:     cbOperationUseCase,
 		projectUsecase:            projectUsecase,
-		maskingTaskRepo:           maskingTaskRepo,
 		cloudbeaverCfg:            cfg,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.cloudbeaver")),
 		maintenanceTimeUsecase:    maintenanceTimeUsecase,
@@ -467,7 +465,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						return err
 					}
 
-					isMaskingEnabled, _ := cu.maskingTaskRepo.CheckMaskingTaskExist(c.Request().Context(), dbService.UID)
+					isMaskingEnabled := cu.dbServiceUsecase != nil && cu.dbServiceUsecase.HasSensitiveDataMaskingTask(c.Request().Context(), dbService.UID)
 					// 构建任务ID与数据脱敏的关联
 					return cu.buildTaskIdAssocDataMasking(cloudbeaverResBuf.Bytes(), taskMaskingContext{
 						Enabled:      isMaskingEnabled,
@@ -497,7 +495,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 							cu.log.Error(err)
 						}
 
-						isMaskingEnabled, _ := cu.maskingTaskRepo.CheckMaskingTaskExist(c.Request().Context(), dbService.UID)
+						isMaskingEnabled := cu.dbServiceUsecase != nil && cu.dbServiceUsecase.HasSensitiveDataMaskingTask(c.Request().Context(), dbService.UID)
 						maskCtx := taskMaskingContext{
 							Enabled:      isMaskingEnabled,
 							DBServiceUID: dbService.UID,
@@ -567,7 +565,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						return err
 					}
 
-					isMaskingEnabled, _ := cu.maskingTaskRepo.CheckMaskingTaskExist(c.Request().Context(), dbService.UID)
+					isMaskingEnabled := cu.dbServiceUsecase != nil && cu.dbServiceUsecase.HasSensitiveDataMaskingTask(c.Request().Context(), dbService.UID)
 					// 构建任务ID与数据脱敏的关联
 					return cu.buildTaskIdAssocDataMasking(cloudbeaverResBuf.Bytes(), taskMaskingContext{
 						Enabled:      isMaskingEnabled,
@@ -702,7 +700,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						}
 
 						if params.OperationName == "asyncSqlExecuteQuery" {
-							isMaskingEnabled, _ := cu.maskingTaskRepo.CheckMaskingTaskExist(c.Request().Context(), dbService.UID)
+							isMaskingEnabled := cu.dbServiceUsecase != nil && cu.dbServiceUsecase.HasSensitiveDataMaskingTask(c.Request().Context(), dbService.UID)
 							if err := cu.buildTaskIdAssocDataMasking(cloudbeaverResBuf.Bytes(), taskMaskingContext{
 								Enabled:      isMaskingEnabled,
 								DBServiceUID: dbService.UID,

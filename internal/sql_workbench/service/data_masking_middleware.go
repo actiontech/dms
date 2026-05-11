@@ -1,8 +1,8 @@
 package sql_workbench
 
 import (
-	"github.com/actiontech/dms/internal/dms/biz"
 	dataMaskingBiz "github.com/actiontech/dms/internal/data_masking/biz"
+	"github.com/actiontech/dms/internal/dms/biz"
 	"github.com/actiontech/dms/internal/sql_workbench/sqlresultmasker"
 )
 
