@@ -42,9 +42,9 @@ type DMSService struct {
 	LicenseUsecase              *biz.LicenseUsecase
 	ClusterUsecase              *biz.ClusterUsecase
 	DataExportWorkflowUsecase   *biz.DataExportWorkflowUsecase
+	UnmaskingWorkflowUsecase    *maskingBiz.UnmaskingWorkflowUsecase
 	CbOperationLogUsecase       *biz.CbOperationLogUsecase
 	DataMaskingUsecase          *dataMaskingUsecase
-	UnmaskingWorkflowUsecase    *maskingBiz.UnmaskingWorkflowUsecase
 	FunctionSupportRegistry     *biz.FunctionSupportRegistry
 	AuthAccessTokenUseCase      *biz.AuthAccessTokenUsecase
 	SwaggerUseCase              *biz.SwaggerUseCase
@@ -204,6 +204,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		LicenseUsecase:              LicenseUsecase,
 		ClusterUsecase:              clusterUsecase,
 		DataExportWorkflowUsecase:   DataExportWorkflowUsecase,
+		UnmaskingWorkflowUsecase:    nil,
 		CbOperationLogUsecase:       CbOperationLogUsecase,
 		DataMaskingUsecase:          dataMaskingUsecase,
 		FunctionSupportRegistry:     functionSupportRegistry,
