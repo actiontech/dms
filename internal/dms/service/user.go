@@ -566,12 +566,20 @@ func (d *DMSService) GetUserOpPermission(ctx context.Context, req *dmsCommonV1.G
 		return nil, fmt.Errorf("get user error: %v", err)
 	}
 
+	// The sys user (700201) is used exclusively for internal DMS-to-SQLE
+	// communication (e.g., SQL audit during data export workflow creation).
+	// It must never be restricted by BWP; always report BWP=true for sys.
+	bwp := user.BusinessWritePermission
+	if req.UserUid == pkgConst.UIDOfUserSys {
+		bwp = true
+	}
+
 	reply = &dmsCommonV1.GetUserOpPermissionReply{
 		Data: struct {
 			IsAdmin                 bool                           `json:"is_admin"`
 			OpPermissionList        []dmsCommonV1.OpPermissionItem `json:"op_permission_list"`
 			BusinessWritePermission bool                           `json:"business_write_permission"`
-		}{IsAdmin: isAdmin, OpPermissionList: replyOpPermission, BusinessWritePermission: user.BusinessWritePermission},
+		}{IsAdmin: isAdmin, OpPermissionList: replyOpPermission, BusinessWritePermission: bwp},
 	}
 
 	return reply, nil
