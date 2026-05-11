@@ -670,7 +670,8 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 	dmsCommonUser.IsAdmin = isAdmin
 	// 获取管理项目
 	userBindProjects := make([]dmsCommonV1.UserBindProject, 0)
-	if isAdmin {
+	if isAdmin && u.BusinessWritePermission {
+		// BWP=on: admin/sys users are managers of all projects
 		projects, err := getGlobalProjectList()
 		if err != nil {
 			return nil, err
@@ -679,7 +680,9 @@ func (d *DMSService) GetUser(ctx context.Context, req *dmsCommonV1.GetUserReq) (
 		for _, project := range projects {
 			userBindProjects = append(userBindProjects, dmsCommonV1.UserBindProject{ProjectID: project.UID, ProjectName: project.Name, IsManager: true})
 		}
-	} else if canViewGlobal {
+	} else if isAdmin || canViewGlobal {
+		// BWP=off admin/sys or global-view users: can see all projects,
+		// but IsManager reflects actual project-level authorization
 		projects, err := getGlobalProjectList()
 		if err != nil {
 			return nil, err
