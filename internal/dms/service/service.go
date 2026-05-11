@@ -155,7 +155,11 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	workflowRepo := storage.NewWorkflowRepo(logger, st)
 	dataExportMaskingConfigRepo := initDataExportMaskingConfigRepo(logger, st)
 	dataExportMaskingRuleRepo := initDataExportMaskingRuleRepo(logger, st)
-	DataExportWorkflowUsecase := biz.NewDataExportWorkflowUsecase(logger, tx, workflowRepo, dataExportTaskRepo, dbServiceRepo, dataExportMaskingConfigRepo, dataExportMaskingRuleRepo, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, clusterUsecase, webhookConfigurationUsecase, userUsecase, systemVariableUsecase, discoveryTaskRepo, nil, fmt.Sprintf("%s:%d", opts.ReportHost, opts.APIServiceOpts.Port))
+	unmaskingWorkflowUsecase, err := initUnmaskingWorkflowUsecase(logger, st, dmsProxyTargetRepo, opPermissionVerifyUsecase, userUsecase, dbServiceUseCase)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize unmasking workflow usecase: %v", err)
+	}
+	DataExportWorkflowUsecase := biz.NewDataExportWorkflowUsecase(logger, tx, workflowRepo, dataExportTaskRepo, dbServiceRepo, dataExportMaskingConfigRepo, dataExportMaskingRuleRepo, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, clusterUsecase, webhookConfigurationUsecase, userUsecase, systemVariableUsecase, discoveryTaskRepo, unmaskingWorkflowUsecase, fmt.Sprintf("%s:%d", opts.ReportHost, opts.APIServiceOpts.Port))
 	dataMaskingUsecase, stopDataMaskingScheduler, err := initDataMaskingUsecase(logger, st, dbServiceUseCase, clusterUsecase, dmsProxyTargetRepo)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize data masking usecase: %v", err)
@@ -204,7 +208,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		LicenseUsecase:              LicenseUsecase,
 		ClusterUsecase:              clusterUsecase,
 		DataExportWorkflowUsecase:   DataExportWorkflowUsecase,
-		UnmaskingWorkflowUsecase:    nil,
+		UnmaskingWorkflowUsecase:    unmaskingWorkflowUsecase,
 		CbOperationLogUsecase:       CbOperationLogUsecase,
 		DataMaskingUsecase:          dataMaskingUsecase,
 		FunctionSupportRegistry:     functionSupportRegistry,
