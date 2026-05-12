@@ -885,7 +885,7 @@ func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid string, arg
 				user.BusinessWritePermission = *args.BusinessWritePermission
 			}
 		} else {
-			// User is not system administrator: always reset BWP to flase
+			// User is not system administrator: always reset BWP to false
 			user.BusinessWritePermission = false
 		}
 	}
