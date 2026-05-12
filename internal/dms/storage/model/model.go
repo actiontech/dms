@@ -149,7 +149,7 @@ type User struct {
 	DeletedAt              gorm.DeletedAt `json:"delete_at" gorm:"column:delete_at" sql:"index"`
 
 	// 业务写权开关，默认 true
-	BusinessWritePermission bool `json:"business_write_permission" gorm:"column:business_write_permission;default:true;not null"`
+	BusinessWritePermission bool `json:"business_write_permission" gorm:"column:business_write_permission;default:false;not null"`
 
 	Members       []*Member       `gorm:"foreignKey:UserUID"`
 	UserGroups    []*UserGroup    `gorm:"many2many:user_group_users"`

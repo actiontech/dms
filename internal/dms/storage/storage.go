@@ -80,13 +80,6 @@ func (s *Storage) AutoMigrate(logger pkgLog.Logger) error {
 		return pkgErr.WrapStorageErr(log, err)
 	}
 
-	// data-upgrade: B-20260508_project_director_to_system_admin
-	// 将持有"项目总监"(700001)角色的用户迁移为"系统管理员"(700017)，幂等可重入
-	if err := migrateProjectDirectorToSystemAdmin(s.db); err != nil {
-		log.Errorf("migrate project director to system admin failed: %v", err)
-		return pkgErr.WrapStorageErr(log, err)
-	}
-
 	return nil
 }
 
