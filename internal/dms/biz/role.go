@@ -221,7 +221,7 @@ func (d *RoleUsecase) InitRoles(ctx context.Context) (err error) {
 func (d *RoleUsecase) CreateRole(ctx context.Context, currentUserUid, name, desc string, opPermissionUids []string) (uid string, err error) {
 	// check
 	{
-		if canGlobalOp, err := d.opPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid); err != nil {
+		if canGlobalOp, err := d.opPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid, false); err != nil {
 			return "", fmt.Errorf("check user is admin or global management permission : %v", err)
 		} else if !canGlobalOp {
 			return "", fmt.Errorf("user is not admin or global management permission")
@@ -298,7 +298,7 @@ func (d *RoleUsecase) ListRole(ctx context.Context, option *ListRolesOption) (ro
 func (d *RoleUsecase) DelRole(ctx context.Context, currentUserUid, roleUid string) (err error) {
 	// check
 	{
-		if canGlobalOp, err := d.opPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid); err != nil {
+		if canGlobalOp, err := d.opPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid, false); err != nil {
 			return fmt.Errorf("check user is admin or global management permission : %v", err)
 		} else if !canGlobalOp {
 			return fmt.Errorf("user is not admin or global management permission")
@@ -354,7 +354,7 @@ func (d *RoleUsecase) CheckRoleExist(ctx context.Context, roleUids []string) (bo
 func (d *RoleUsecase) UpdateRole(ctx context.Context, currentUserUid, updateRoleUid string, isDisabled bool, desc *string, opPermissionUids []string) error {
 	// check
 	{
-		if canGlobalOp, err := d.opPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid); err != nil {
+		if canGlobalOp, err := d.opPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid, false); err != nil {
 			return fmt.Errorf("check user is admin or global management permission : %v", err)
 		} else if !canGlobalOp {
 			return fmt.Errorf("user is not admin or global management permission")

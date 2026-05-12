@@ -312,4 +312,5 @@ var (
 	OpRecordDataExportExportWithName  = &i18n.Message{ID: "OpRecordDataExportExportWithName", Other: "执行数据导出 %s"}
 	OpRecordDataExportCancel          = &i18n.Message{ID: "OpRecordDataExportCancel", Other: "取消数据导出工单"}
 	OpRecordDataExportCancelWithName  = &i18n.Message{ID: "OpRecordDataExportCancelWithName", Other: "取消数据导出工单 %s"}
+	OpRecordUserUpdateBWP             = &i18n.Message{ID: "OpRecordUserUpdateBWP", Other: "修改用户 %s 的业务写权：%s -> %s"}
 )

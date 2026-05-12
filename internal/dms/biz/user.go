@@ -98,6 +98,8 @@ type User struct {
 	LastLoginAt time.Time
 	// 用户是否被删除
 	Deleted bool
+	// 业务写权开关，默认 true；为 false 时系统管理员/admin 不通过全局身份放行业务写操作
+	BusinessWritePermission bool
 }
 
 type AccessTokenInfo struct {
@@ -110,20 +112,22 @@ type AccessTokenInfo struct {
 func initUsers() []*User {
 	return []*User{
 		{
-			UID:                    pkgConst.UIDOfUserAdmin,
-			Name:                   "admin",
-			Password:               "admin",
-			Desc:                   "built-in admin user",
-			UserAuthenticationType: UserAuthenticationTypeDMS,
-			Stat:                   UserStatOK,
+			UID:                     pkgConst.UIDOfUserAdmin,
+			Name:                    "admin",
+			Password:                "admin",
+			Desc:                    "built-in admin user",
+			UserAuthenticationType:  UserAuthenticationTypeDMS,
+			Stat:                    UserStatOK,
+			BusinessWritePermission: true,
 		},
 		{
-			UID:                    pkgConst.UIDOfUserSys,
-			Name:                   "sys",
-			Password:               "sys",
-			Desc:                   "built-in sys user",
-			UserAuthenticationType: UserAuthenticationTypeDMS,
-			Stat:                   UserStatOK,
+			UID:                     pkgConst.UIDOfUserSys,
+			Name:                    "sys",
+			Password:                "sys",
+			Desc:                    "built-in sys user",
+			UserAuthenticationType:  UserAuthenticationTypeDMS,
+			Stat:                    UserStatOK,
+			BusinessWritePermission: true,
 		},
 	}
 }
@@ -146,19 +150,25 @@ func newUser(args *CreateUserArgs) (user *User, err error) {
 	if args.UserAuthenticationType == "" {
 		args.UserAuthenticationType = UserAuthenticationTypeDMS
 	}
+	bwp := true
+	if args.BusinessWritePermission != nil {
+		bwp = *args.BusinessWritePermission
+	}
+
 	return &User{
-		UID:                    args.UID,
-		Name:                   args.Name,
-		Password:               args.Password,
-		Email:                  args.Email,
-		Phone:                  args.Phone,
-		WxID:                   args.WxID,
-		Desc:                   args.Desc,
-		UserAuthenticationType: args.UserAuthenticationType,
-		ThirdPartyUserID:       args.ThirdPartyUserID,
-		ThirdPartyUserInfo:     args.ThirdPartyUserInfo,
-		System:                 args.System,
-		Stat:                   UserStatOK,
+		UID:                     args.UID,
+		Name:                    args.Name,
+		Password:                args.Password,
+		Email:                   args.Email,
+		Phone:                   args.Phone,
+		WxID:                    args.WxID,
+		Desc:                    args.Desc,
+		UserAuthenticationType:  args.UserAuthenticationType,
+		ThirdPartyUserID:        args.ThirdPartyUserID,
+		ThirdPartyUserInfo:      args.ThirdPartyUserInfo,
+		System:                  args.System,
+		Stat:                    UserStatOK,
+		BusinessWritePermission: bwp,
 	}, nil
 }
 
@@ -482,20 +492,21 @@ func (d *UserUsecase) AfterUserLogin(ctx context.Context, uid string) (err error
 }
 
 type CreateUserArgs struct {
-	UID                    string
-	Name                   string
-	Password               string
-	ThirdPartyUserID       string
-	ThirdPartyUserInfo     string
-	Email                  string
-	Phone                  string
-	WxID                   string
-	Desc                   string
-	UserGroupUIDs          []string
-	IsDisabled             bool
-	OpPermissionUIDs       []string
-	UserAuthenticationType UserAuthenticationType
-	System                 UserSystem
+	UID                     string
+	Name                    string
+	Password                string
+	ThirdPartyUserID        string
+	ThirdPartyUserInfo      string
+	Email                   string
+	Phone                   string
+	WxID                    string
+	Desc                    string
+	UserGroupUIDs           []string
+	IsDisabled              bool
+	OpPermissionUIDs        []string
+	UserAuthenticationType  UserAuthenticationType
+	System                  UserSystem
+	BusinessWritePermission *bool // nil means use default (true)
 }
 
 func (d *UserUsecase) AddUser(ctx context.Context, currentUserUid string, args *CreateUserArgs) (uid string, err error) {
@@ -517,7 +528,7 @@ func (d *UserUsecase) AddUser(ctx context.Context, currentUserUid string, args *
 			return "", fmt.Errorf("only admin can create user with global view or management permission")
 		}
 
-		if canGlobalOp, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid); err != nil {
+		if canGlobalOp, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid, false); err != nil {
 			return "", fmt.Errorf("check user is admin or global management permission : %v", err)
 		} else if !canGlobalOp {
 			return "", fmt.Errorf("user is not admin or global management permission")
@@ -674,7 +685,7 @@ func (d *UserUsecase) DelUser(ctx context.Context, currentUserUid, UserUid strin
 			return fmt.Errorf("only admin can delete user with global view or management permission")
 		}
 
-		if canGlobalOp, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid); err != nil {
+		if canGlobalOp, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid, false); err != nil {
 			return fmt.Errorf("check user is admin or global management permission : %v", err)
 		} else if !canGlobalOp {
 			return fmt.Errorf("user is not admin or global management permission")
@@ -743,19 +754,20 @@ func (d *UserUsecase) GetUser(ctx context.Context, userUid string) (*User, error
 }
 
 type UpdateUserArgs struct {
-	UserUID                string
-	IsDisabled             bool
-	Password               *string
-	Email                  *string
-	Phone                  *string
-	WxID                   *string
-	Language               *string
-	UserGroupUIDs          []string
-	OpPermissionUIDs       []string
-	UserAuthenticationType *UserAuthenticationType
-	ThirdPartyUserInfo     *string
-	ThirdPartyUserID       *string
-	System                 *UserSystem
+	UserUID                 string
+	IsDisabled              bool
+	Password                *string
+	Email                   *string
+	Phone                   *string
+	WxID                    *string
+	Language                *string
+	UserGroupUIDs           []string
+	OpPermissionUIDs        []string
+	UserAuthenticationType  *UserAuthenticationType
+	ThirdPartyUserInfo      *string
+	ThirdPartyUserID        *string
+	System                  *UserSystem
+	BusinessWritePermission *bool // nil means no change
 }
 
 func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid string, args *UpdateUserArgs) (err error) {
@@ -805,7 +817,7 @@ func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid string, arg
 			return fmt.Errorf("only admin can manage user with global manage or view permission")
 		}
 
-		if canGlobalOp, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid); err != nil {
+		if canGlobalOp, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid, false); err != nil {
 			return fmt.Errorf("check user is admin or global management permission : %v", err)
 		} else if !canGlobalOp {
 			return fmt.Errorf("user is not admin or global management permission")
@@ -853,6 +865,31 @@ func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid string, arg
 			user.UserAuthenticationType = *args.UserAuthenticationType
 		}
 	}
+	// Handle BusinessWritePermission:
+	// - For admin/sys users: apply BWP from args if provided
+	// - When role switches from system administrator to other: reset BWP to true
+	// - Non-system-admin users always have BWP=true
+	{
+		isAdminOrSys := user.GetUID() == pkgConst.UIDOfUserAdmin || user.GetUID() == pkgConst.UIDOfUserSys
+		hasGlobalManagement := false
+		for _, permUID := range args.OpPermissionUIDs {
+			if permUID == pkgConst.UIDOfOpPermissionGlobalManagement {
+				hasGlobalManagement = true
+				break
+			}
+		}
+
+		if isAdminOrSys || hasGlobalManagement {
+			// User is or will be system administrator: apply BWP from request
+			if args.BusinessWritePermission != nil {
+				user.BusinessWritePermission = *args.BusinessWritePermission
+			}
+		} else {
+			// User is not system administrator: always reset BWP to true
+			user.BusinessWritePermission = true
+		}
+	}
+
 	if user.Stat == UserStatOK && user.Password == "" {
 		return fmt.Errorf("password is needed when user is enabled")
 	}

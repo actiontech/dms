@@ -415,7 +415,7 @@ func (d *DMSService) ListMembersForInternal(ctx context.Context, req *dmsCommonV
 			})
 		}
 
-		isAdmin, err := d.OpPermissionVerifyUsecase.IsUserProjectAdmin(ctx, m.UserUid, req.ProjectUid)
+		isAdmin, err := d.OpPermissionVerifyUsecase.IsUserProjectAdmin(ctx, m.UserUid, req.ProjectUid, true)
 		if err != nil {
 			return nil, fmt.Errorf("check user project admin error: %v", err)
 		}

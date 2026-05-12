@@ -148,6 +148,9 @@ type User struct {
 	LastLoginAt            *time.Time     `json:"last_login_at" gorm:"column:last_login_at"`
 	DeletedAt              gorm.DeletedAt `json:"delete_at" gorm:"column:delete_at" sql:"index"`
 
+	// 业务写权开关，默认 flase
+	BusinessWritePermission bool `json:"business_write_permission" gorm:"column:business_write_permission;default:false;not null"`
+
 	Members       []*Member       `gorm:"foreignKey:UserUID"`
 	UserGroups    []*UserGroup    `gorm:"many2many:user_group_users"`
 	OpPermissions []*OpPermission `gorm:"many2many:user_op_permissions"`

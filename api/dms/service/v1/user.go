@@ -30,6 +30,8 @@ type User struct {
 	ThirdPartyUserID       string `json:"third_party_user_id"`
 	ThirdPartyUserInfo     string `json:"third_party_user_info"`
 	UserAuthenticationType string `json:"user_authentication_type"`
+	// Business write permission, only effective for system administrators
+	BusinessWritePermission *bool `json:"business_write_permission"`
 }
 
 // swagger:model
@@ -100,6 +102,8 @@ type UpdateUser struct {
 	UserAuthenticationType *string `json:"user_authentication_type"`
 	// User system
 	System *UserSystem `json:"system"`
+	// Business write permission for system administrators
+	BusinessWritePermission *bool `json:"business_write_permission"`
 }
 
 // swagger:model

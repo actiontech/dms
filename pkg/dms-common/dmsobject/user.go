@@ -74,6 +74,32 @@ func GetUserOpPermission(ctx context.Context, projectUid, userUid, dmsAddr strin
 
 }
 
+// GetUserOpPermissionWithBWP is like GetUserOpPermission but also returns the BusinessWritePermission field.
+func GetUserOpPermissionWithBWP(ctx context.Context, projectUid, userUid, dmsAddr string) (ret []dmsV1.OpPermissionItem, isAdmin bool, businessWritePermission bool, err error) {
+	header := map[string]string{
+		"Authorization": pkgHttp.DefaultDMSToken,
+	}
+
+	reqBody := struct {
+		UserOpPermission *dmsV1.UserOpPermission `json:"user_op_permission"`
+	}{
+		UserOpPermission: &dmsV1.UserOpPermission{ProjectUid: projectUid},
+	}
+
+	reply := &dmsV1.GetUserOpPermissionReply{}
+
+	url := fmt.Sprintf("%v%v", dmsAddr, dmsV1.GetUserOpPermissionRouter(userUid))
+
+	if err := pkgHttp.Get(ctx, url, header, reqBody, reply); err != nil {
+		return nil, false, true, fmt.Errorf("failed to get user op permission from %v: %v", url, err)
+	}
+	if reply.Code != 0 {
+		return nil, false, true, fmt.Errorf("http reply code(%v) error: %v", reply.Code, reply.Message)
+	}
+
+	return reply.Data.OpPermissionList, reply.Data.IsAdmin, reply.Data.BusinessWritePermission, nil
+}
+
 func ListMembersInProject(ctx context.Context, dmsAddr string, req dmsV1.ListMembersForInternalReq) ([]*dmsV1.ListMembersForInternalItem, int64, error) {
 	header := map[string]string{
 		"Authorization": pkgHttp.DefaultDMSToken,

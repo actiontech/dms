@@ -36,7 +36,7 @@ func (d *DMSService) UpdateLoginConfiguration(ctx context.Context, userId string
 	}()
 
 	// 权限校验
-	if canGlobalOp, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, userId); err != nil {
+	if canGlobalOp, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, userId, false); err != nil {
 		return fmt.Errorf("check user op permission failed: %v", err)
 	} else if !canGlobalOp {
 		return fmt.Errorf("user is not project admin or golobal op permission user")
@@ -538,13 +538,33 @@ func (d *DMSService) NotifyMessage(ctx context.Context, req *dmsCommonV1.Notific
 				},
 			),
 		),
-		OrderBy: biz.UserFieldName,
+		OrderBy:      biz.UserFieldName,
 		PageNumber:   1,
 		LimitPerPage: uint32(len(req.Notification.UserUids)),
 	})
 
-	lang2Users := make(map[language.Tag][]*biz.User, len(locale.Bundle.LanguageTags()))
+	// 过滤掉业务写权=关的系统管理员（覆盖 SQLE 侧通过 DMS API 发送的通知）
+	filteredUsers := make([]*biz.User, 0, len(users))
 	for _, user := range users {
+		isAdmin, adminErr := d.OpPermissionVerifyUsecase.IsUserDMSAdmin(ctx, user.UID)
+		if adminErr != nil {
+			d.log.Errorf("failed to check admin status for user %s: %v", user.UID, adminErr)
+			filteredUsers = append(filteredUsers, user)
+			continue
+		}
+		// 非系统管理员/admin 不受 BWP 影响，直接保留
+		if !isAdmin {
+			filteredUsers = append(filteredUsers, user)
+			continue
+		}
+		// 系统管理员/admin：业务写权=开的保留，=关的过滤掉
+		if user.BusinessWritePermission {
+			filteredUsers = append(filteredUsers, user)
+		}
+	}
+
+	lang2Users := make(map[language.Tag][]*biz.User, len(locale.Bundle.LanguageTags()))
+	for _, user := range filteredUsers {
 		langTag := locale.Bundle.MatchLangTag(user.Language)
 		lang2Users[langTag] = append(lang2Users[langTag], user)
 	}
@@ -622,7 +642,7 @@ func (d *DMSService) UpdateSystemVariables(ctx context.Context, req *dmsCommonV1
 		d.log.Infof("UpdateSystemVariables.req=%v;error=%v", req, err)
 	}()
 
-	canOpGlobal, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid)
+	canOpGlobal, err := d.OpPermissionVerifyUsecase.CanOpGlobal(ctx, currentUserUid, false)
 	if err != nil {
 		return fmt.Errorf("failed to check user can op global")
 	}

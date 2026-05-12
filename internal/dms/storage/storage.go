@@ -79,6 +79,7 @@ func (s *Storage) AutoMigrate(logger pkgLog.Logger) error {
 	if err != nil {
 		return pkgErr.WrapStorageErr(log, err)
 	}
+
 	return nil
 }
 

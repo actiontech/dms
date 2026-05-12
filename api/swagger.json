@@ -11204,7 +11204,7 @@
           "x-go-name": "Users"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "GetMemberGroupReply": {
       "type": "object",
@@ -11627,6 +11627,11 @@
           "x-go-enum-desc": "ldap UserAuthenticationTypeLDAP\ndms UserAuthenticationTypeDMS\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
           "x-go-name": "AuthenticationType"
         },
+        "business_write_permission": {
+          "description": "business write permission",
+          "type": "boolean",
+          "x-go-name": "BusinessWritePermission"
+        },
         "email": {
           "description": "user email",
           "type": "string",
@@ -11769,6 +11774,11 @@
           "description": "user op permission reply\nis user admin, admin has all permissions",
           "type": "object",
           "properties": {
+            "business_write_permission": {
+              "description": "business write permission",
+              "type": "boolean",
+              "x-go-name": "BusinessWritePermission"
+            },
             "is_admin": {
               "type": "boolean",
               "x-go-name": "IsAdmin"
@@ -14834,6 +14844,11 @@
           ],
           "x-go-enum-desc": "ldap UserAuthenticationTypeLDAP\ndms UserAuthenticationTypeDMS\noauth2 UserAuthenticationTypeOAUTH2\nunknown UserAuthenticationTypeUnknown",
           "x-go-name": "AuthenticationType"
+        },
+        "business_write_permission": {
+          "description": "business write permission",
+          "type": "boolean",
+          "x-go-name": "BusinessWritePermission"
         },
         "email": {
           "description": "user email",
@@ -18602,6 +18617,11 @@
     "UpdateUser": {
       "type": "object",
       "properties": {
+        "business_write_permission": {
+          "description": "Business write permission for system administrators",
+          "type": "boolean",
+          "x-go-name": "BusinessWritePermission"
+        },
         "email": {
           "description": "User email",
           "type": "string",
@@ -18772,6 +18792,11 @@
         "name"
       ],
       "properties": {
+        "business_write_permission": {
+          "description": "Business write permission, only effective for system administrators",
+          "type": "boolean",
+          "x-go-name": "BusinessWritePermission"
+        },
         "desc": {
           "description": "user description",
           "type": "string",

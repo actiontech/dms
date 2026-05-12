@@ -82,7 +82,7 @@ func (uc *EnvironmentTagUsecase) CreateEnvironmentTag(ctx context.Context, proje
 	}
 
 	// 检查当前用户有项目管理员权限
-	if canOpProject, err := uc.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, projectUid); err != nil {
+	if canOpProject, err := uc.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, projectUid, false); err != nil {
 		return fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
 	} else if !canOpProject {
 		return fmt.Errorf("user is not project admin or golobal op permission user")
@@ -116,7 +116,7 @@ func (uc *EnvironmentTagUsecase) UpdateEnvironmentTag(ctx context.Context, proje
 	}
 
 	// 检查当前用户有项目管理员权限
-	if canOpProject, err := uc.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, projectUid); err != nil {
+	if canOpProject, err := uc.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, projectUid, false); err != nil {
 		return fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
 	} else if !canOpProject {
 		return fmt.Errorf("user is not project admin or golobal op permission user")
@@ -145,7 +145,7 @@ func (uc *EnvironmentTagUsecase) DeleteEnvironmentTag(ctx context.Context, proje
 	}
 
 	// 检查当前用户有项目管理员权限
-	if canOpProject, err := uc.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, projectUid); err != nil {
+	if canOpProject, err := uc.opPermissionVerifyUsecase.CanOpProject(ctx, currentUserUid, projectUid, false); err != nil {
 		return fmt.Errorf("check user is project admin or golobal op permission failed: %v", err)
 	} else if !canOpProject {
 		return fmt.Errorf("user is not project admin or golobal op permission user")

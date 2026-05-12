@@ -87,7 +87,7 @@ func (m *MaintenanceTimeUsecase) CheckSQLExecutionAllowed(
 	}
 
 	// 4. 检查用户是否为管理员
-	isAdmin, err := m.opPermissionVerifyUsecase.CanOpGlobal(ctx, userUid)
+	isAdmin, err := m.opPermissionVerifyUsecase.CanOpGlobal(ctx, userUid, false)
 	if err != nil {
 		return false, "", fmt.Errorf("failed to check user admin permission: %v", err)
 	}
