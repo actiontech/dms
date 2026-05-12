@@ -128,11 +128,11 @@ func NewAndInitSqlWorkbenchService(logger utilLog.Logger, opts *conf.DMSOptions)
 	tx := storage.NewTXGenerator()
 
 	// 初始化基础存储层
+	userRepo := storage.NewUserRepo(logger, st)
 	opPermissionVerifyRepo := storage.NewOpPermissionVerifyRepo(logger, st)
-	opPermissionVerifyUsecase := biz.NewOpPermissionVerifyUsecase(logger, tx, opPermissionVerifyRepo)
+	opPermissionVerifyUsecase := biz.NewOpPermissionVerifyUsecase(logger, tx, opPermissionVerifyRepo, userRepo)
 
 	// 初始化用户相关
-	userRepo := storage.NewUserRepo(logger, st)
 	userGroupRepo := storage.NewUserGroupRepo(logger, st)
 	pluginRepo := storage.NewPluginRepo(logger, st)
 	pluginUsecase, err := biz.NewDMSPluginUsecase(logger, pluginRepo)
@@ -527,7 +527,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) getUserAccessibleDBServices(ctx 
 	}
 
 	// 检查用户是否有全局权限
-	hasGlobalOpPermission, err := sqlWorkbenchService.opPermissionVerifyUsecase.CanOpGlobal(ctx, dmsUser.UID)
+	hasGlobalOpPermission, err := sqlWorkbenchService.opPermissionVerifyUsecase.CanOpGlobal(ctx, dmsUser.UID, false)
 	if err != nil {
 		return nil, fmt.Errorf("failed to check global op permission: %v", err)
 	}
