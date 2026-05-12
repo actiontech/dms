@@ -13,6 +13,7 @@ func TestCheckDBTypeIfDataExportSupported_NewTypes(t *testing.T) {
 		"TBase":             true,
 		"GaussDB for MySQL": true, // GaussDB/openGauss: ParseDBType 的输入值是 "GaussDB for MySQL"
 		"DB2":               true,
+		"HANA":              true,
 	}
 	for dbType, expectedSupported := range newTypes {
 		t.Run(dbType, func(t *testing.T) {
@@ -58,6 +59,50 @@ func TestCheckDBTypeIfDataExportSupported_UnsupportedTypes(t *testing.T) {
 			got := CheckDBTypeIfDataExportSupported(dbType)
 			if got != expectedSupported {
 				t.Errorf("CheckDBTypeIfDataExportSupported(%q) = %v, want %v", dbType, got, expectedSupported)
+			}
+		})
+	}
+}
+
+func TestParseDBType(t *testing.T) {
+	tests := map[string]struct {
+		input       string
+		expected    DBType
+		expectError bool
+	}{
+		"MySQL":              {input: "MySQL", expected: DBTypeMySQL},
+		"TDSQL For InnoDB":   {input: "TDSQL For InnoDB", expected: DBTypeTDSQLForInnoDB},
+		"TiDB":               {input: "TiDB", expected: DBTypeTiDB},
+		"PostgreSQL":         {input: "PostgreSQL", expected: DBTypePostgreSQL},
+		"Oracle":             {input: "Oracle", expected: DBTypeOracle},
+		"DB2":                {input: "DB2", expected: DBTypeDB2},
+		"SQL Server":         {input: "SQL Server", expected: DBTypeSQLServer},
+		"OceanBase For MySQL": {input: "OceanBase For MySQL", expected: DBTypeOceanBaseMySQL},
+		"GoldenDB":           {input: "GoldenDB", expected: DBTypeGoldenDB},
+		"TBase":              {input: "TBase", expected: DBTypeTBase},
+		"Hive":               {input: "Hive", expected: DBTypeHive},
+		"DM":                 {input: "DM", expected: DBTypeDM},
+		"GaussDB for MySQL":  {input: "GaussDB for MySQL", expected: DBTypeGaussDB},
+		"HANA":               {input: "HANA", expected: DBTypeHANA},
+		"invalid type":       {input: "UnknownDB", expectError: true},
+		"empty string":       {input: "", expectError: true},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got, err := ParseDBType(tc.input)
+			if tc.expectError {
+				if err == nil {
+					t.Errorf("ParseDBType(%q) expected error, got nil", tc.input)
+				}
+				return
+			}
+			if err != nil {
+				t.Errorf("ParseDBType(%q) unexpected error: %v", tc.input, err)
+				return
+			}
+			if got != tc.expected {
+				t.Errorf("ParseDBType(%q) = %q, want %q", tc.input, got, tc.expected)
 			}
 		})
 	}
