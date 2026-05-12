@@ -2273,7 +2273,7 @@ definitions:
                 type: array
                 x-go-name: Users
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     GetMemberGroupReply:
         properties:
             code:
@@ -2599,6 +2599,10 @@ definitions:
                     oauth2 UserAuthenticationTypeOAUTH2
                     unknown UserAuthenticationTypeUnknown
                 x-go-name: AuthenticationType
+            business_write_permission:
+                description: business write permission
+                type: boolean
+                x-go-name: BusinessWritePermission
             email:
                 description: user email
                 type: string
@@ -2730,6 +2734,10 @@ definitions:
                     user op permission reply
                     is user admin, admin has all permissions
                 properties:
+                    business_write_permission:
+                        description: business write permission
+                        type: boolean
+                        x-go-name: BusinessWritePermission
                     is_admin:
                         type: boolean
                         x-go-name: IsAdmin
@@ -5242,6 +5250,10 @@ definitions:
                     oauth2 UserAuthenticationTypeOAUTH2
                     unknown UserAuthenticationTypeUnknown
                 x-go-name: AuthenticationType
+            business_write_permission:
+                description: business write permission
+                type: boolean
+                x-go-name: BusinessWritePermission
             email:
                 description: user email
                 type: string
@@ -8332,6 +8344,10 @@ definitions:
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateUser:
         properties:
+            business_write_permission:
+                description: Business write permission for system administrators
+                type: boolean
+                x-go-name: BusinessWritePermission
             email:
                 description: User email
                 type: string
@@ -8461,6 +8477,10 @@ definitions:
     User:
         description: A user
         properties:
+            business_write_permission:
+                description: Business write permission, only effective for system administrators
+                type: boolean
+                x-go-name: BusinessWritePermission
             desc:
                 description: user description
                 type: string
