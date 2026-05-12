@@ -267,6 +267,21 @@ type ExportDataExportWorkflowReq struct {
 	DataExportWorkflowUid string `param:"data_export_workflow_uid" json:"data_export_workflow_uid" validate:"required"`
 }
 
+// swagger:parameters DownloadOriginalDataExportWorkflow
+type DownloadOriginalDataExportWorkflowReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	// Required: true
+	// in:path
+	DataExportWorkflowUid string `param:"data_export_workflow_uid" json:"data_export_workflow_uid" validate:"required"`
+	// 已批准的查看原文工单 UID
+	// Required: true
+	// in:query
+	UnmaskingWorkflowUid string `query:"unmasking_workflow_uid" json:"unmasking_workflow_uid" validate:"required"`
+}
+
 type RejectDataExportWorkflowPayload struct {
 	// Required: true
 	Reason string `json:"reason" validate:"required"`
