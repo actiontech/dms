@@ -96,6 +96,17 @@ func (d *DMSService) AddUser(ctx context.Context, currentUserUid string, req *dm
 	defer func() {
 		d.log.Infof("AddUsers.req=%v;reply=%v;error=%v", req, reply, err)
 	}()
+	// 如果 BusinessWritePermission 为 nil，如果为系统管理员权限，默认有业务写权限
+	businessWritePermission := req.User.BusinessWritePermission
+	if businessWritePermission == nil {
+		for _, uid := range req.User.OpPermissionUids {
+			if uid == pkgConst.UIDOfOpPermissionGlobalManagement {
+				t := true
+				businessWritePermission = &t
+				break
+			}
+		}
+	}
 
 	args := &biz.CreateUserArgs{
 		UID:                     req.User.UID,
@@ -111,7 +122,7 @@ func (d *DMSService) AddUser(ctx context.Context, currentUserUid string, req *dm
 		ThirdPartyUserID:        req.User.ThirdPartyUserID,
 		ThirdPartyUserInfo:      req.User.ThirdPartyUserInfo,
 		UserAuthenticationType:  biz.UserAuthenticationType(req.User.UserAuthenticationType),
-		BusinessWritePermission: req.User.BusinessWritePermission,
+		BusinessWritePermission: businessWritePermission,
 	}
 
 	uid, err := d.UserUsecase.AddUser(ctx, currentUserUid, args)

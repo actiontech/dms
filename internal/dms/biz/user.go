@@ -98,7 +98,7 @@ type User struct {
 	LastLoginAt time.Time
 	// 用户是否被删除
 	Deleted bool
-	// 业务写权开关，默认 true；为 false 时系统管理员/admin 不通过全局身份放行业务写操作
+	// 业务写权开关，为 false 时系统管理员/admin 不通过全局身份放行业务写操作
 	BusinessWritePermission bool
 }
 
@@ -506,7 +506,7 @@ type CreateUserArgs struct {
 	OpPermissionUIDs        []string
 	UserAuthenticationType  UserAuthenticationType
 	System                  UserSystem
-	BusinessWritePermission *bool // nil means use default (true)
+	BusinessWritePermission *bool
 }
 
 func (d *UserUsecase) AddUser(ctx context.Context, currentUserUid string, args *CreateUserArgs) (uid string, err error) {
@@ -885,8 +885,8 @@ func (d *UserUsecase) UpdateUser(ctx context.Context, currentUserUid string, arg
 				user.BusinessWritePermission = *args.BusinessWritePermission
 			}
 		} else {
-			// User is not system administrator: always reset BWP to true
-			user.BusinessWritePermission = true
+			// User is not system administrator: always reset BWP to flase
+			user.BusinessWritePermission = false
 		}
 	}
 
