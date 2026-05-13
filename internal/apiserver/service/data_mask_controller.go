@@ -516,18 +516,18 @@ func (ctl *DMSController) GetTableColumnMaskingDetails(c echo.Context) error {
 //     in: body
 //     required: true
 //     schema:
-//     "$ref": "#/definitions/CreateUnmaskingWorkflowReq"
+//       "$ref": "#/definitions/CreateUnmaskingWorkflowReq"
 //
 // responses:
 //
-//	'200':
-//	  description: Create unmasking workflow successfully
-//	  schema:
-//	    "$ref": "#/definitions/CreateUnmaskingWorkflowReply"
-//	default:
-//	  description: Generic error response
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: Create unmasking workflow successfully
+//     schema:
+//       "$ref": "#/definitions/CreateUnmaskingWorkflowReply"
+//   default:
+//     description: Generic error response
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (ctl *DMSController) CreateUnmaskingWorkflow(c echo.Context) error {
 	req := &aV1.CreateUnmaskingWorkflowReq{}
 	if err := bindAndValidateReq(c, req); err != nil {
@@ -590,14 +590,14 @@ func (ctl *DMSController) CreateUnmaskingWorkflow(c echo.Context) error {
 //
 // responses:
 //
-//	'200':
-//	  description: List unmasking workflows successfully
-//	  schema:
-//	    "$ref": "#/definitions/ListUnmaskingWorkflowsReply"
-//	default:
-//	  description: Generic error response
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: List unmasking workflows successfully
+//     schema:
+//       "$ref": "#/definitions/ListUnmaskingWorkflowsReply"
+//   default:
+//     description: Generic error response
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (ctl *DMSController) ListUnmaskingWorkflows(c echo.Context) error {
 	req := &aV1.ListUnmaskingWorkflowsReq{}
 	if err := bindAndValidateReq(c, req); err != nil {
@@ -636,14 +636,14 @@ func (ctl *DMSController) ListUnmaskingWorkflows(c echo.Context) error {
 //
 // responses:
 //
-//	'200':
-//	  description: Get unmasking workflow detail successfully
-//	  schema:
-//	    "$ref": "#/definitions/GetUnmaskingWorkflowReply"
-//	default:
-//	  description: Generic error response
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: Get unmasking workflow detail successfully
+//     schema:
+//       "$ref": "#/definitions/GetUnmaskingWorkflowReply"
+//   default:
+//     description: Generic error response
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (ctl *DMSController) GetUnmaskingWorkflow(c echo.Context) error {
 	req := &aV1.GetUnmaskingWorkflowReq{}
 	if err := bindAndValidateReq(c, req); err != nil {
@@ -684,18 +684,18 @@ func (ctl *DMSController) GetUnmaskingWorkflow(c echo.Context) error {
 //     in: body
 //     required: false
 //     schema:
-//     "$ref": "#/definitions/ApproveUnmaskingWorkflow"
+//       "$ref": "#/definitions/ApproveUnmaskingWorkflow"
 //
 // responses:
 //
-//	'200':
-//	  description: Approve unmasking workflow successfully
-//	  schema:
-//	    "$ref": "#/definitions/ApproveUnmaskingWorkflowReply"
-//	default:
-//	  description: Generic error response
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: Approve unmasking workflow successfully
+//     schema:
+//       "$ref": "#/definitions/ApproveUnmaskingWorkflowReply"
+//   default:
+//     description: Generic error response
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (ctl *DMSController) ApproveUnmaskingWorkflow(c echo.Context) error {
 	req := &aV1.ApproveUnmaskingWorkflowReq{}
 	if err := bindAndValidateReq(c, req); err != nil {
@@ -736,18 +736,18 @@ func (ctl *DMSController) ApproveUnmaskingWorkflow(c echo.Context) error {
 //     in: body
 //     required: true
 //     schema:
-//     "$ref": "#/definitions/RejectUnmaskingWorkflow"
+//       "$ref": "#/definitions/RejectUnmaskingWorkflow"
 //
 // responses:
 //
-//	'200':
-//	  description: Reject unmasking workflow successfully
-//	  schema:
-//	    "$ref": "#/definitions/RejectUnmaskingWorkflowReply"
-//	default:
-//	  description: Generic error response
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: Reject unmasking workflow successfully
+//     schema:
+//       "$ref": "#/definitions/RejectUnmaskingWorkflowReply"
+//   default:
+//     description: Generic error response
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (ctl *DMSController) RejectUnmaskingWorkflow(c echo.Context) error {
 	req := &aV1.RejectUnmaskingWorkflowReq{}
 	if err := bindAndValidateReq(c, req); err != nil {
@@ -786,14 +786,14 @@ func (ctl *DMSController) RejectUnmaskingWorkflow(c echo.Context) error {
 //
 // responses:
 //
-//	'200':
-//	  description: Cancel unmasking workflow successfully
-//	  schema:
-//	    "$ref": "#/definitions/CancelUnmaskingWorkflowReply"
-//	default:
-//	  description: Generic error response
-//	  schema:
-//	    "$ref": "#/definitions/GenericResp"
+//   '200':
+//     description: Cancel unmasking workflow successfully
+//     schema:
+//       "$ref": "#/definitions/CancelUnmaskingWorkflowReply"
+//   default:
+//     description: Generic error response
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (ctl *DMSController) CancelUnmaskingWorkflow(c echo.Context) error {
 	req := &aV1.CancelUnmaskingWorkflowReq{}
 	if err := bindAndValidateReq(c, req); err != nil {

@@ -86,7 +86,8 @@ func (ctl *DMSController) Shutdown() error {
 //     description: the name of environment tag to be created
 //     in: body
 //     required: true
-//     type: string
+//     schema:
+//       "$ref": "#/definitions/CreateEnvironmentTagReq"
 // responses:
 //   '200':
 //     description: GenericResp
@@ -137,7 +138,8 @@ func (ctl *DMSController) CreateEnvironmentTag(c echo.Context) error {
 //     description: the name of environment tag to be updated
 //     required: true
 //     in: body
-//     type: string
+//     schema:
+//       "$ref": "#/definitions/UpdateEnvironmentTagReq"
 // responses:
 //   '200':
 //     description: GenericResp
@@ -2713,6 +2715,10 @@ func (ctl *DMSController) GetOauth2Tips(c echo.Context) error {
 // swagger:route GET /v1/dms/oauth2/link OAuth2 Oauth2LinkOrCallback
 //
 // Oauth2 Link or Callback.
+//
+//	responses:
+//	  302: description: Redirect to identity provider or post-login callback URL
+//	  default: body:GenericResp
 func (ctl *DMSController) Oauth2LinkOrCallback(c echo.Context) error {
 	// 如果是OAuth2 callback请求，QueryParam中会有code这个参数
 	if c.QueryParam("code") == "" {
@@ -3391,14 +3397,8 @@ func (ctl *DMSController) SendSmsCode(context echo.Context) error {
 //
 // ---
 // parameters:
-//   - name: code
-//     description: verify sms code
-//     required: true
-//     in: body
-//     schema:
-//       "$ref": "#/definitions/VerifySmsCodeReq"
-//   - name: username
-//     description: user name
+//   - name: body
+//     description: verify sms code request
 //     required: true
 //     in: body
 //     schema:
@@ -3856,13 +3856,53 @@ func (ctl *DMSController) GetGlobalDataExportWorkflows(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/data_export_workflows DataExportWorkflows ListAllDataExportWorkflows
+// swagger:operation GET /v1/dms/projects/data_export_workflows DataExportWorkflows ListAllDataExportWorkflows
 //
 // List all data_export workflow.
 //
-//	responses:
-//	  200: body:ListDataExportWorkflowsReply
-//	  default: body:GenericResp
+// ---
+// parameters:
+//   - name: page_size
+//     in: query
+//     required: true
+//     type: integer
+//     format: uint32
+//   - name: page_index
+//     in: query
+//     type: integer
+//     format: uint32
+//   - name: filter_by_status
+//     in: query
+//     type: string
+//   - name: filter_by_create_user_uid
+//     in: query
+//     type: string
+//   - name: filter_current_step_assignee_user_uid
+//     in: query
+//     type: string
+//   - name: filter_by_db_service_uid
+//     in: query
+//     type: string
+//   - name: filter_create_time_from
+//     in: query
+//     type: string
+//   - name: filter_create_time_to
+//     in: query
+//     type: string
+//   - name: fuzzy_keyword
+//     in: query
+//     type: string
+//
+// responses:
+//
+//   '200':
+//     description: ListDataExportWorkflowsReply
+//     schema:
+//       "$ref": "#/definitions/ListDataExportWorkflowsReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
 func (ctl *DMSController) ListAllDataExportWorkflows(c echo.Context) error {
 	req := new(aV1.ListDataExportWorkflowsReq)
 	err := bindAndValidateReq(c, req)
