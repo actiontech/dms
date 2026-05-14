@@ -8,10 +8,11 @@ import (
 
 // swagger:parameters ListMaskingRules
 type ListMaskingRulesReq struct {
-	// project uid（项目路径下由 path 注入；全局 GET /v1/dms/masking/rules 可不传，仅返回内置规则）
+	// project uid
 	// in: path
+	// Required: true
 	// Example: "project_uid"
-	ProjectUid string `param:"project_uid" query:"project_uid" json:"project_uid"`
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
 	// 规则来源筛选: builtin 或 custom，为空时返回全部
 	// in: query
 	// Example: "custom"

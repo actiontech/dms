@@ -41,7 +41,7 @@ type AddDataExportWorkflowReply struct {
 	base.GenericResp
 }
 
-// swagger:parameters ListDataExportWorkflows
+// swagger:parameters ListDataExportWorkflows ListAllDataExportWorkflows
 type ListDataExportWorkflowsReq struct {
 	// project id
 	// Required: false

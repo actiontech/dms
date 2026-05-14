@@ -51,13 +51,7 @@ func (ctl *DMSController) ListMaskingTemplates(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/db_services/{db_service_uid}/schemas/{schema_name}/tables/{table_name}/columns DBStructure ListTableColumns
-//
 // List table columns (internal API for lineage analysis).
-//
-//	responses:
-//	  200: body:ListTableColumnsReply
-//	  default: body:GenericResp
 func (ctl *DMSController) ListTableColumns(c echo.Context) error {
 	// 内部接口，仅允许sys/admin用户访问
 	currentUserUid, err := jwt.GetUserUidStrFromContext(c)

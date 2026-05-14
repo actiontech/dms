@@ -154,11 +154,6 @@ type UnmaskingSQLDetail struct {
 	// 血缘分析快照
 	LineageAnalysisSnapshot *biz.AnalyzeResult `json:"lineage_analysis_snapshot,omitempty"`
 
-	UnmaskingSQLPreviewData
-}
-
-// swagger:model UnmaskingSQLPreviewData
-type UnmaskingSQLPreviewData struct {
 	// 脱敏后的预览数据 (普通用户仅能看到此数据)
 	MaskedData *SQLQueryResult `json:"masked_data"`
 	// 原始采样数据 (仅有权限的审核人能看到)
@@ -193,7 +188,6 @@ type UnmaskingOperationLogItem struct {
 	ExtraMessage string `json:"extra_message"`
 }
 
-// swagger:model ApproveUnmaskingWorkflowReq
 type ApproveUnmaskingWorkflowReq struct {
 	// swagger:ignore
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
@@ -217,7 +211,6 @@ type ApproveUnmaskingWorkflowReply struct {
 	base.GenericResp
 }
 
-// swagger:model RejectUnmaskingWorkflowReq
 type RejectUnmaskingWorkflowReq struct {
 	// swagger:ignore
 	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
