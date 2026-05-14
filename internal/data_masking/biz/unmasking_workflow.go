@@ -251,11 +251,11 @@ type UnmaskingOpPermissionRange struct {
 // UnmaskingWorkflowOpPermissionVerifier 操作权限校验能力。
 type UnmaskingWorkflowOpPermissionVerifier interface {
 	IsUserDMSAdmin(ctx context.Context, userUID string) (bool, error)
-	CanOpGlobal(ctx context.Context, userUID string) (bool, error)
+	CanOpGlobal(ctx context.Context, userUID string, isBusinessWrite bool) (bool, error)
 	CanViewGlobal(ctx context.Context, userUID string) (bool, error)
-	IsUserProjectAdmin(ctx context.Context, userUID, projectUID string) (bool, error)
+	IsUserProjectAdmin(ctx context.Context, userUID, projectUID string, isBusinessWrite bool) (bool, error)
 	GetUserOpPermissionInProject(ctx context.Context, userUID, projectUID string) ([]UnmaskingOpPermissionRange, error)
-	GetCanOpDBUsers(ctx context.Context, projectUID, dbServiceUID string, needOpPermissionTypes []string) ([]string, error)
+	GetCanOpDBUsers(ctx context.Context, projectUID, dbServiceUID string, needOpPermissionTypes []string, isBusinessWrite bool) ([]string, error)
 }
 
 // UnmaskingWorkflowUserDirectory 用户领域：工单列表/详情等场景将用户 UID 解析为展示名。
