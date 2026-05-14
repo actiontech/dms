@@ -39,7 +39,7 @@ import (
 )
 
 type APIServer struct {
-	DMSController         *DMSController
+	DMSController          *DMSController
 	SqlWorkbenchController *SqlWorkbenchController
 	// more controllers
 
@@ -58,14 +58,18 @@ func NewAPIServer(logger utilLog.Logger, opts *conf.DMSOptions) (*APIServer, err
 		}
 
 		message := err.Error()
+		statusCode := http.StatusBadRequest
+		respCode := int(apiError.BadRequestErr)
 		if httpErr, ok := err.(*echo.HTTPError); ok {
+			statusCode = httpErr.Code
+			respCode = httpErr.Code
 			if msg, ok := httpErr.Message.(string); ok && msg != "" {
 				message = msg
 			}
 		}
 
-		_ = c.JSON(http.StatusBadRequest, bV1.GenericResp{
-			Code:    int(apiError.BadRequestErr),
+		_ = c.JSON(statusCode, bV1.GenericResp{
+			Code:    respCode,
 			Message: message,
 		})
 	}
