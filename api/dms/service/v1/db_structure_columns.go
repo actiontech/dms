@@ -4,6 +4,7 @@ import (
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 )
 
+// swagger:parameters ListTableColumns
 type ListTableColumnsReq struct {
 	// Required: true
 	// in:path
@@ -19,12 +20,14 @@ type ListTableColumnsReq struct {
 	TableName string `param:"table_name" json:"table_name" validate:"required"`
 }
 
+// swagger:model ListTableColumnsReply
 type ListTableColumnsReply struct {
 	Data []*TableColumn `json:"data"`
 	// Generic reply
 	base.GenericResp
 }
 
+// swagger:model TableColumn
 type TableColumn struct {
 	Name     string `json:"name"`
 	Type     string `json:"type"`
