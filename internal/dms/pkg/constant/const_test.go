@@ -121,6 +121,10 @@ func TestParseDBType(t *testing.T) {
 		"DM":                 {input: "DM", expected: DBTypeDM},
 		"GaussDB for MySQL":  {input: "GaussDB for MySQL", expected: DBTypeGaussDB},
 		"HANA":               {input: "HANA", expected: DBTypeHANA},
+		// PolarDB-MySQL 新增 (Issue #826)
+		"PolarDB For MySQL":  {input: "PolarDB For MySQL", expected: DBTypePolarDBForMySQL},
+		// "PolarDB" 单独不应匹配
+		"PolarDB only":       {input: "PolarDB", expectError: true},
 		"invalid type":       {input: "UnknownDB", expectError: true},
 		"empty string":       {input: "", expectError: true},
 	}
