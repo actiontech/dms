@@ -961,7 +961,8 @@ func (sqlWorkbenchService *SqlWorkbenchService) SupportDBType(dbType pkgConst.DB
 		dbType == pkgConst.DBTypeDM ||
 		dbType == pkgConst.DBTypeTiDB ||
 		dbType == pkgConst.DBTypeTDSQLForInnoDB ||
-		dbType == pkgConst.DBTypeGoldenDB
+		dbType == pkgConst.DBTypeGoldenDB ||
+		dbType == pkgConst.DBTypePolarDBForMySQL
 }
 
 // buildDatabaseUser 当是ob-mysql时需要给账号管理的账号附加租户名集群名等字符: root@oms_mysql#oms_resource_4250
