@@ -184,7 +184,12 @@ func (d *WorkflowRepo) GetDataExportWorkflowsByAssignUser(ctx context.Context, u
 		LEFT JOIN workflow_steps ws on wr.uid = ws.workflow_record_uid  and wr.current_workflow_step_id  = ws.step_id 
 		left join data_export_tasks det on JSON_SEARCH(wr.task_ids ,'one',det.uid) IS NOT NULL
 		WHERE  JSON_SEARCH(ws.assignees,"one",?) IS NOT NULL AND ws.state = "init"
-	`, userUid).Find(&workflowUids).Error; err != nil {
+		UNION
+		SELECT DISTINCT w.uid
+		FROM  workflows w
+		left join workflow_records wr on w.workflow_record_uid  = wr.uid
+		WHERE wr.status = 'rejected' AND w.create_user_uid = ?
+	`, userUid, userUid).Find(&workflowUids).Error; err != nil {
 			return fmt.Errorf("failed to find workflow by assignee user: %v", err)
 		}
 		return nil
