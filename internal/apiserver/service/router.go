@@ -225,6 +225,7 @@ func (s *APIServer) initRouter() error {
 		dataExportWorkflowsV1.POST("/:data_export_workflow_uid/approve", s.DMSController.ApproveDataExportWorkflow)
 		dataExportWorkflowsV1.POST("/:data_export_workflow_uid/reject", s.DMSController.RejectDataExportWorkflow)
 		dataExportWorkflowsV1.POST("/:data_export_workflow_uid/export", s.DMSController.ExportDataExportWorkflow)
+		dataExportWorkflowsV1.GET("/:data_export_workflow_uid/original-export/download", s.DMSController.DownloadOriginalDataExportWorkflow)
 		dataExportWorkflowsV1.POST("/cancel", s.DMSController.CancelDataExportWorkflow)
 
 		// 内部接口，仅允许sys用户访问

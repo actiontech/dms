@@ -31,6 +31,50 @@ func (ctl *DMSController) ListMaskingRules(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
+// swagger:operation GET /v1/dms/masking/rules Masking ListMaskingRulesWithoutProject
+//
+// 查询脱敏规则列表（兼容旧入口，仅返回内置规则，可携带筛选参数）。
+//
+// ---
+// parameters:
+//   - name: source
+//     description: 规则来源筛选，builtin 或 custom，为空时返回全部
+//     in: query
+//     type: string
+//   - name: keywords
+//     description: 模糊搜索关键字，匹配规则名称、描述或敏感数据类型名称
+//     in: query
+//     type: string
+//   - name: page_size
+//     description: 分页大小，默认 20
+//     in: query
+//     type: integer
+//   - name: page_index
+//     description: 页码（从1开始），默认 1
+//     in: query
+//     type: integer
+// responses:
+//   '200':
+//     description: 查询脱敏规则列表成功
+//     schema:
+//       "$ref": "#/definitions/ListMaskingRulesReply"
+//   default:
+//     description: 通用错误响应
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) ListMaskingRulesWithoutProject(c echo.Context) error {
+	req := &aV1.ListMaskingRulesReq{}
+	if err := c.Bind(req); err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	reply, err := ctl.DMS.ListMaskingRules(c.Request().Context(), req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
 // swagger:route GET /v1/dms/projects/{project_uid}/masking/templates Masking ListMaskingTemplates
 //
 // 查询脱敏模板列表。
@@ -51,7 +95,13 @@ func (ctl *DMSController) ListMaskingTemplates(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
+// swagger:route GET /v1/dms/projects/{project_uid}/db_services/{db_service_uid}/schemas/{schema_name}/tables/{table_name}/columns DBStructure ListTableColumns
+//
 // List table columns (internal API for lineage analysis).
+//
+//	responses:
+//	  200: body:ListTableColumnsReply
+//	  default: body:GenericResp
 func (ctl *DMSController) ListTableColumns(c echo.Context) error {
 	// 内部接口，仅允许sys/admin用户访问
 	currentUserUid, err := jwt.GetUserUidStrFromContext(c)

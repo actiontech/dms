@@ -282,6 +282,13 @@ type DownloadOriginalDataExportWorkflowReq struct {
 	UnmaskingWorkflowUid string `query:"unmasking_workflow_uid" json:"unmasking_workflow_uid" validate:"required"`
 }
 
+// swagger:response DownloadOriginalDataExportWorkflowReply
+type DownloadOriginalDataExportWorkflowReply struct {
+	// swagger:file
+	// in: body
+	File []byte
+}
+
 type RejectDataExportWorkflowPayload struct {
 	// Required: true
 	Reason string `json:"reason" validate:"required"`
