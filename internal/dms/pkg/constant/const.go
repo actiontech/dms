@@ -248,7 +248,13 @@ func ParseDBType(s string) (DBType, error) {
 		return DBTypeHive, nil
 	case "DM":
 		return DBTypeDM, nil
-	case "GaussDB for MySQL":
+	// GaussDB / openGauss 兼容字符串矩阵 (Issue #2868, compat-RISK-1)
+	// - "GaussDB"             : SQLE PluginName 上报值 (sqle-pg-plugin 通过 SQLE_PG_PLUGIN_DB_TYPE=GaussDB 启动)
+	// - "openGauss"           : 同义别名, 面向未来扩展保留
+	// - "GaussDB / openGauss" : DBTypeGaussDB 常量值自身回环, 避免历史数据/前端复制粘贴该字符串调用 ParseDBType 时报错
+	// - "GaussDB for MySQL"   : ADR-004 历史命名, 保留兼容 (历史 DBService 表中可能已存在该 db_type)
+	// 上述四种字符串严格字面量匹配, 不做 ToLower/ToUpper 归一化 (与 design.md §3.3 / §3.8 一致)
+	case "GaussDB", "openGauss", "GaussDB / openGauss", "GaussDB for MySQL":
 		return DBTypeGaussDB, nil
 	case "HANA":
 		return DBTypeHANA, nil
