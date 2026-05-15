@@ -146,14 +146,7 @@ func (d *DMSService) ListDataExportWorkflow(ctx context.Context, req *dmsV1.List
 		if len(creater) > 0 {
 			ret[i].Creater = creater[0]
 		}
-		// 结束时不显示当前步骤操作人，其他状态显示当前步骤操作人
-		if w.Status == string(dmsV1.DataExportWorkflowStatusWaitForExport) || w.Status == string(dmsV1.DataExportWorkflowStatusWaitForExporting) {
-			// wait_for_export/wait_for_exporting 状态下，待操作人为工单创建者
-			ret[i].CurrentStepAssigneeUsers = convertBizUidWithName(d.UserUsecase.GetBizUserIncludeDeletedWithNameByUids(ctx, []string{w.CreateUserUID}))
-		} else if w.Status != string(dmsV1.StatusFinish) && w.WorkflowRecord.CurrentWorkflowStepId > 0 &&
-			int(w.WorkflowRecord.CurrentWorkflowStepId-1) < len(w.WorkflowRecord.WorkflowSteps) {
-			ret[i].CurrentStepAssigneeUsers = convertBizUidWithName(d.UserUsecase.GetBizUserIncludeDeletedWithNameByUids(ctx, w.WorkflowRecord.WorkflowSteps[w.WorkflowRecord.CurrentWorkflowStepId-1].Assignees))
-		}
+		ret[i].CurrentStepAssigneeUsers = d.dataExportWorkflowCurrentStepAssigneeUsers(ctx, w)
 	}
 
 	return &dmsV1.ListDataExportWorkflowsReply{
@@ -195,14 +188,7 @@ func (d *DMSService) GetGlobalWorkflowsList(ctx context.Context, req *dmsV1.Filt
 		if len(creater) > 0 {
 			ret[i].Creater = creater[0]
 		}
-		// 结束时不显示当前步骤操作人，其他状态显示当前步骤操作人
-		if w.Status == string(dmsV1.DataExportWorkflowStatusWaitForExport) || w.Status == string(dmsV1.DataExportWorkflowStatusWaitForExporting) {
-			// wait_for_export/wait_for_exporting 状态下，待操作人为工单创建者
-			ret[i].CurrentStepAssigneeUsers = convertBizUidWithName(d.UserUsecase.GetBizUserIncludeDeletedWithNameByUids(ctx, []string{w.CreateUserUID}))
-		} else if w.Status != string(dmsV1.StatusFinish) && w.WorkflowRecord.CurrentWorkflowStepId > 0 &&
-			int(w.WorkflowRecord.CurrentWorkflowStepId-1) < len(w.WorkflowRecord.WorkflowSteps) {
-			ret[i].CurrentStepAssigneeUsers = convertBizUidWithName(d.UserUsecase.GetBizUserIncludeDeletedWithNameByUids(ctx, w.WorkflowRecord.WorkflowSteps[w.WorkflowRecord.CurrentWorkflowStepId-1].Assignees))
-		}
+		ret[i].CurrentStepAssigneeUsers = d.dataExportWorkflowCurrentStepAssigneeUsers(ctx, w)
 	}
 
 	return &dmsV1.GetGlobalDataExportWorkflowsReply{
@@ -383,4 +369,33 @@ func (d *DMSService) DownloadDataExportTask(ctx context.Context, req *dmsV1.Down
 
 func (d *DMSService) DownloadDataExportTaskSQLs(ctx context.Context, req *dmsV1.DownloadDataExportTaskSQLsReq, userId string) (string, []byte, error) {
 	return d.DataExportWorkflowUsecase.DownloadDataExportTaskSQLs(ctx, req, userId)
+}
+
+// dataExportWorkflowCurrentStepAssigneeUsers 返回工单待操作人；终态（完成/关闭/失败）不返回待操作人。
+func (d *DMSService) dataExportWorkflowCurrentStepAssigneeUsers(ctx context.Context, w *biz.Workflow) []dmsV1.UidWithName {
+	if isDataExportWorkflowTerminalStatus(w.Status) {
+		return nil
+	}
+	if w.Status == string(dmsV1.DataExportWorkflowStatusWaitForExport) ||
+		w.Status == string(dmsV1.DataExportWorkflowStatusWaitForExporting) ||
+		w.Status == string(dmsV1.DataExportWorkflowStatusRejected) {
+		// wait_for_export/wait_for_exporting/rejected 状态下，待操作人为工单创建者
+		return convertBizUidWithName(d.UserUsecase.GetBizUserIncludeDeletedWithNameByUids(ctx, []string{w.CreateUserUID}))
+	}
+	if w.WorkflowRecord != nil && w.WorkflowRecord.CurrentWorkflowStepId > 0 &&
+		int(w.WorkflowRecord.CurrentWorkflowStepId-1) < len(w.WorkflowRecord.WorkflowSteps) {
+		return convertBizUidWithName(d.UserUsecase.GetBizUserIncludeDeletedWithNameByUids(ctx, w.WorkflowRecord.WorkflowSteps[w.WorkflowRecord.CurrentWorkflowStepId-1].Assignees))
+	}
+	return nil
+}
+
+func isDataExportWorkflowTerminalStatus(status string) bool {
+	switch status {
+	case string(dmsV1.DataExportWorkflowStatusFinish),
+		string(dmsV1.DataExportWorkflowStatusCancel),
+		string(dmsV1.DataExportWorkflowStatusFailed):
+		return true
+	default:
+		return false
+	}
 }
