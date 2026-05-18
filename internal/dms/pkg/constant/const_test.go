@@ -14,6 +14,7 @@ func TestCheckDBTypeIfDataExportSupported_NewTypes(t *testing.T) {
 		"GaussDB for MySQL": true, // GaussDB/openGauss: ParseDBType 的输入值是 "GaussDB for MySQL"
 		"DB2":               true,
 		"HANA":              true,
+		"PolarDB For MySQL": true,
 	}
 	for dbType, expectedSupported := range newTypes {
 		t.Run(dbType, func(t *testing.T) {
@@ -41,6 +42,42 @@ func TestCheckDBTypeIfDataExportSupported_ExistingTypes(t *testing.T) {
 			got := CheckDBTypeIfDataExportSupported(dbType)
 			if got != expectedSupported {
 				t.Errorf("CheckDBTypeIfDataExportSupported(%q) = %v, want %v", dbType, got, expectedSupported)
+			}
+		})
+	}
+}
+
+func TestParseDBType_PolarDB(t *testing.T) {
+	cases := map[string]struct {
+		input       string
+		wantDBType  DBType
+		wantErr     bool
+	}{
+		"valid PolarDB For MySQL": {
+			input:      "PolarDB For MySQL",
+			wantDBType: DBTypePolarDBMySQL,
+			wantErr:    false,
+		},
+		"invalid lowercase polardb": {
+			input:      "polardb for mysql",
+			wantDBType: "",
+			wantErr:    true,
+		},
+		"invalid partial match": {
+			input:      "PolarDB",
+			wantDBType: "",
+			wantErr:    true,
+		},
+	}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			got, err := ParseDBType(tc.input)
+			if (err != nil) != tc.wantErr {
+				t.Errorf("ParseDBType(%q) error = %v, wantErr %v", tc.input, err, tc.wantErr)
+				return
+			}
+			if got != tc.wantDBType {
+				t.Errorf("ParseDBType(%q) = %v, want %v", tc.input, got, tc.wantDBType)
 			}
 		})
 	}
