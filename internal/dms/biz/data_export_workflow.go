@@ -30,6 +30,10 @@ func (dews DataExportWorkflowStatus) String() string {
 	return string(dews)
 }
 
+func isDataExportWorkflowStatusAllowDownloadOriginal(status DataExportWorkflowStatus) bool {
+	return status == DataExportWorkflowStatusFinish
+}
+
 type EventType string
 
 const (
