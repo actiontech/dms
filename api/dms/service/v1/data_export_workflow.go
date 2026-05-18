@@ -3,6 +3,7 @@ package v1
 import (
 	"time"
 
+	"github.com/actiontech/dms/internal/data_masking/biz"
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
@@ -221,6 +222,31 @@ type GetDataExportWorkflow struct {
 	CreateTime            *time.Time       `json:"create_time"`
 	WorkflowRecord        WorkflowRecord   `json:"workflow_record"`
 	WorkflowRecordHistory []WorkflowRecord `json:"workflow_record_history"`
+	// UnmaskingWorkflow 关联的查看原文工单摘要；无关联时为 null
+	UnmaskingWorkflow *DataExportRelatedUnmaskingWorkflow `json:"unmasking_workflow"`
+}
+
+// swagger:model DataExportRelatedUnmaskingWorkflow
+// DataExportRelatedUnmaskingWorkflow 数据导出工单关联的查看原文工单（仅摘要字段）
+type DataExportRelatedUnmaskingWorkflow struct {
+	// UnmaskingWorkflowUid 查看原文工单 UID，用于跳转详情等
+	UnmaskingWorkflowUid string `json:"unmasking_workflow_uid"`
+	// 创建人（uid + 展示名）
+	Creator UidWithName `json:"creator"`
+	// 创建时间 (RFC3339)
+	CreatedAt string `json:"created_at"`
+	// 过期时间 (RFC3339)，未设置时省略
+	ExpireTime string `json:"expire_time,omitempty"`
+	// 审批状态
+	ApprovalStatus biz.UnmaskingWorkflowApprovalStatus `json:"approval_status"`
+	// 使用状态
+	UsageStatus biz.UnmaskingWorkflowUsageStatus `json:"usage_status"`
+	// 申请理由
+	ApplyReason string `json:"apply_reason"`
+	// 驳回理由（整单驳回时）
+	RejectReason string `json:"reject_reason,omitempty"`
+	// 操作记录
+	OperationLogs []*UnmaskingOperationLogItem `json:"operation_logs"`
 }
 
 type WorkflowRecord struct {
