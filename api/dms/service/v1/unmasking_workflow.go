@@ -57,8 +57,18 @@ type UnmaskingWorkflowListItem struct {
 	ApprovalStatus biz.UnmaskingWorkflowApprovalStatus `json:"approval_status" validate:"oneof=pending approved rejected cancelled"`
 	// 使用情况
 	UsageStatus biz.UnmaskingWorkflowUsageStatus `json:"usage_status" validate:"oneof=unviewed viewed"`
-	// 过期时间 (RFC3339)
+	// 过期时间 (RFC3339)，兼容字段：批准前为激活截止，激活后为查看截止
 	ExpireTime string `json:"expire_time" example:"2024-01-16T10:30:00Z"`
+	// 激活查看时刻 (RFC3339)
+	ActivatedAt string `json:"activated_at"`
+	// 须在此时刻前激活查看 (RFC3339)
+	ActivationDeadline string `json:"activation_deadline"`
+	// 明文查看截止 (RFC3339)
+	ViewValidUntil string `json:"view_valid_until"`
+	// 申请人明文查看状态
+	ViewState biz.UnmaskingWorkflowViewState `json:"view_state"`
+	// 是否可点击激活查看
+	CanActivate bool `json:"can_activate"`
 	// 申请理由
 	ApplyReason string `json:"apply_reason"`
 	// 当前待处理人
@@ -251,4 +261,56 @@ type CancelUnmaskingWorkflowReq struct {
 type CancelUnmaskingWorkflowReply struct {
 	// Generic reply
 	base.GenericResp
+}
+
+// swagger:parameters ActivateUnmaskingWorkflowView
+type ActivateUnmaskingWorkflowViewReq struct {
+	// swagger:ignore
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	// in: path
+	// Required: true
+	WorkflowID string `param:"workflow_id" json:"workflow_id" validate:"required"`
+}
+
+// swagger:model ActivateUnmaskingWorkflowViewReply
+type ActivateUnmaskingWorkflowViewReply struct {
+	Data *ActivateUnmaskingWorkflowViewReplyData `json:"data"`
+	base.GenericResp
+}
+
+// swagger:model ActivateUnmaskingWorkflowViewReplyData
+type ActivateUnmaskingWorkflowViewReplyData struct {
+	ViewValidUntil string                       `json:"view_valid_until"`
+	ViewState      biz.UnmaskingWorkflowViewState `json:"view_state"`
+}
+
+// swagger:parameters GetUnmaskingWorkflowPlaintext
+type GetUnmaskingWorkflowPlaintextReq struct {
+	// swagger:ignore
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	// in: path
+	// Required: true
+	WorkflowID string `param:"workflow_id" json:"workflow_id" validate:"required"`
+}
+
+// swagger:model GetUnmaskingWorkflowPlaintextReply
+type GetUnmaskingWorkflowPlaintextReply struct {
+	Data *GetUnmaskingWorkflowPlaintext `json:"data"`
+	base.GenericResp
+}
+
+// swagger:model GetUnmaskingWorkflowPlaintext
+type GetUnmaskingWorkflowPlaintext struct {
+	ViewState      biz.UnmaskingWorkflowViewState `json:"view_state"`
+	ViewValidUntil string                         `json:"view_valid_until"`
+	UnmaskingSQLs  []*UnmaskingPlaintextSQLItem   `json:"unmasking_sqls"`
+}
+
+// swagger:model UnmaskingPlaintextSQLItem
+type UnmaskingPlaintextSQLItem struct {
+	UID           string          `json:"uid"`
+	SQLIndexID    string          `json:"sql_index_id"`
+	OriginalData  *SQLQueryResult `json:"original_data"`
+	MaskedColumns []string        `json:"masked_columns"`
+	Truncated     bool            `json:"truncated"`
 }

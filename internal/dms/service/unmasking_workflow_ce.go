@@ -44,3 +44,11 @@ func (d *DMSService) RejectUnmaskingWorkflow(ctx context.Context, req *v1.Reject
 func (d *DMSService) CancelUnmaskingWorkflow(ctx context.Context, req *v1.CancelUnmaskingWorkflowReq, currentUserUid string) error {
 	return errNotSupportUnmaskingWorkflow
 }
+
+func (d *DMSService) ActivateUnmaskingWorkflowView(ctx context.Context, req *v1.ActivateUnmaskingWorkflowViewReq, currentUserUid string) (*v1.ActivateUnmaskingWorkflowViewReply, error) {
+	return nil, errNotSupportUnmaskingWorkflow
+}
+
+func (d *DMSService) GetUnmaskingWorkflowPlaintext(ctx context.Context, req *v1.GetUnmaskingWorkflowPlaintextReq, currentUserUid string) (*v1.GetUnmaskingWorkflowPlaintextReply, error) {
+	return nil, errNotSupportUnmaskingWorkflow
+}

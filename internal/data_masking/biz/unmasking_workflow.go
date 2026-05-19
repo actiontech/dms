@@ -229,10 +229,27 @@ const (
 	UnmaskingActionDownloadOriginalData UnmaskingAction = "download_full_original_data"
 	// 取消申请
 	UnmaskingActionCancel UnmaskingAction = "cancel"
+	// 激活查看原文（工单详情）
+	UnmaskingActionActivateView UnmaskingAction = "activate_view"
 )
 
 func (a UnmaskingAction) String() string {
 	return string(a)
+}
+
+// UnmaskingWorkflowViewState 申请人明文查看状态（详情页展示）
+// swagger:enum UnmaskingWorkflowViewState
+type UnmaskingWorkflowViewState string
+
+const (
+	UnmaskingWorkflowViewStateNotActivated      UnmaskingWorkflowViewState = "not_activated"
+	UnmaskingWorkflowViewStateActive            UnmaskingWorkflowViewState = "active"
+	UnmaskingWorkflowViewStateViewExpired       UnmaskingWorkflowViewState = "view_expired"
+	UnmaskingWorkflowViewStateActivationExpired UnmaskingWorkflowViewState = "activation_expired"
+)
+
+func (s UnmaskingWorkflowViewState) String() string {
+	return string(s)
 }
 
 // 与 DMS OpRangeType 字符串取值一致，用于 UnmaskingOpPermissionRange 判定。

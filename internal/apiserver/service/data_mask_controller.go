@@ -857,6 +857,82 @@ func (ctl *DMSController) CancelUnmaskingWorkflow(c echo.Context) error {
 	return NewOkRespWithReply(c, &aV1.CancelUnmaskingWorkflowReply{})
 }
 
+// swagger:operation POST /v1/dms/projects/{project_uid}/masking/unmasking-workflows/{workflow_id}/activate Masking ActivateUnmaskingWorkflowView
+//
+// Activate plaintext view window for applicant.
+//
+// ---
+// parameters:
+//   - name: project_uid
+//     in: path
+//     required: true
+//     type: string
+//   - name: workflow_id
+//     in: path
+//     required: true
+//     type: string
+//
+// responses:
+//   '200':
+//     schema:
+//       "$ref": "#/definitions/ActivateUnmaskingWorkflowViewReply"
+//   default:
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) ActivateUnmaskingWorkflowView(c echo.Context) error {
+	req := &aV1.ActivateUnmaskingWorkflowViewReq{}
+	if err := bindAndValidateReq(c, req); err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.UnauthorizedErr)
+	}
+	reply, err := ctl.DMS.ActivateUnmaskingWorkflowView(c.Request().Context(), req, currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:operation GET /v1/dms/projects/{project_uid}/masking/unmasking-workflows/{workflow_id}/plaintext Masking GetUnmaskingWorkflowPlaintext
+//
+// Get plaintext query snapshot during active view window.
+//
+// ---
+// parameters:
+//   - name: project_uid
+//     in: path
+//     required: true
+//     type: string
+//   - name: workflow_id
+//     in: path
+//     required: true
+//     type: string
+//
+// responses:
+//   '200':
+//     schema:
+//       "$ref": "#/definitions/GetUnmaskingWorkflowPlaintextReply"
+//   default:
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) GetUnmaskingWorkflowPlaintext(c echo.Context) error {
+	req := &aV1.GetUnmaskingWorkflowPlaintextReq{}
+	if err := bindAndValidateReq(c, req); err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.UnauthorizedErr)
+	}
+	reply, err := ctl.DMS.GetUnmaskingWorkflowPlaintext(c.Request().Context(), req, currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
 // swagger:route GET /v1/dms/projects/{project_uid}/masking/rules/{rule_id} Masking GetMaskingRuleDetail
 //
 // 获取脱敏规则详情。
