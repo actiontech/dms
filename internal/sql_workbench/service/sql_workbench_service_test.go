@@ -1,6 +1,7 @@
 package sql_workbench
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/actiontech/dms/internal/dms/biz"
@@ -27,6 +28,7 @@ func Test_convertDBType(t *testing.T) {
 		"PolarDB For MySQL":   {input: "PolarDB For MySQL", expected: "MYSQL"},
 		"GaussDB":             {input: "GaussDB", expected: "GAUSSDB"},
 		"MongoDB":             {input: "MongoDB", expected: "MONGODB"},
+		"DB2":                 {input: "DB2", expected: "DB2"},
 		"Unknown passthrough": {input: "UnknownDB", expected: "UnknownDB"},
 	}
 	for name, tc := range cases {
@@ -58,6 +60,7 @@ func Test_SupportDBType(t *testing.T) {
 		"PolarDB For MySQL supported": {input: pkgConst.DBTypePolarDBForMySQL, expected: true},
 		"GaussDB supported":           {input: pkgConst.DBTypeGaussDB, expected: true},
 		"GaussDBForMySQL unsupported": {input: pkgConst.DBTypeGaussDBForMySQL, expected: false},
+		"DB2 unsupported":             {input: pkgConst.DBTypeDB2, expected: false},
 		"empty string unsupported":    {input: pkgConst.DBType(""), expected: false},
 		"unknown type unsupported":    {input: pkgConst.DBType("UnknownDBType"), expected: false},
 	}
@@ -137,3 +140,105 @@ func Test_buildMongoDatasourceOptions_tlsOnly(t *testing.T) {
 	}
 }
 
+// Test_buildDatasourceBaseInfo_DB2 覆盖 buildDatasourceBaseInfo 中 DB2 / 回归 4 组 case：
+//
+//	(a) DB2 正例：AdditionalParam database_name=testdb → baseInfo.DefaultSchema=="testdb"
+//	(b) DB2 负例：缺 database_name → 返回 err 且 err 含 "database_name"
+//	(c) MySQL 回归：DefaultSchema == nil 且无 err
+//	(d) Oracle 回归：ServiceName != nil 且无 err
+//
+// 通过 fillDatasourceBaseInfo（无 IO helper）进行 mock-only 单测，避免触达 projectUsecase / DB。
+func Test_buildDatasourceBaseInfo_DB2(t *testing.T) {
+	svc := &SqlWorkbenchService{}
+	const envID = int64(1)
+	const datasourceName = "proj:ds"
+
+	cases := map[string]struct {
+		dbService            *biz.DBService
+		expectErr            bool
+		expectErrSubstr      string
+		expectDefaultSchema  *string
+		expectServiceName    *string
+	}{
+		"DB2 happy path": {
+			dbService: &biz.DBService{
+				Name:   "db2-1",
+				DBType: "DB2",
+				AdditionalParams: pkgParams.Params{
+					{Key: "database_name", Value: "testdb"},
+				},
+			},
+			expectErr:           false,
+			expectDefaultSchema: strPtr("testdb"),
+			expectServiceName:   nil,
+		},
+		"DB2 missing database_name": {
+			dbService: &biz.DBService{
+				Name:             "db2-2",
+				DBType:           "DB2",
+				AdditionalParams: pkgParams.Params{},
+			},
+			expectErr:       true,
+			expectErrSubstr: "database_name",
+		},
+		"MySQL regression": {
+			dbService: &biz.DBService{
+				Name:             "mysql-1",
+				DBType:           "MySQL",
+				AdditionalParams: pkgParams.Params{},
+			},
+			expectErr:           false,
+			expectDefaultSchema: nil,
+			expectServiceName:   nil,
+		},
+		"Oracle regression": {
+			dbService: &biz.DBService{
+				Name:   "oracle-1",
+				DBType: "Oracle",
+				AdditionalParams: pkgParams.Params{
+					{Key: "service_name", Value: "ORCL"},
+				},
+			},
+			expectErr:           false,
+			expectDefaultSchema: nil,
+			expectServiceName:   strPtr("ORCL"),
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			got, err := svc.fillDatasourceBaseInfo(datasourceName, tc.dbService, envID)
+			if tc.expectErr {
+				if err == nil {
+					t.Fatalf("expected error, got nil; baseInfo=%+v", got)
+				}
+				if tc.expectErrSubstr != "" && !strings.Contains(err.Error(), tc.expectErrSubstr) {
+					t.Errorf("error %q does not contain %q", err.Error(), tc.expectErrSubstr)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if got == nil {
+				t.Fatalf("expected non-nil baseInfo")
+			}
+			// DefaultSchema 对比
+			if (got.DefaultSchema == nil) != (tc.expectDefaultSchema == nil) {
+				t.Errorf("DefaultSchema nil mismatch: got=%v, want=%v", got.DefaultSchema, tc.expectDefaultSchema)
+			} else if got.DefaultSchema != nil && tc.expectDefaultSchema != nil && *got.DefaultSchema != *tc.expectDefaultSchema {
+				t.Errorf("DefaultSchema = %q, want %q", *got.DefaultSchema, *tc.expectDefaultSchema)
+			}
+			// ServiceName 对比
+			if (got.ServiceName == nil) != (tc.expectServiceName == nil) {
+				t.Errorf("ServiceName nil mismatch: got=%v, want=%v", got.ServiceName, tc.expectServiceName)
+			} else if got.ServiceName != nil && tc.expectServiceName != nil && *got.ServiceName != *tc.expectServiceName {
+				t.Errorf("ServiceName = %q, want %q", *got.ServiceName, *tc.expectServiceName)
+			}
+		})
+	}
+}
+
+func strPtr(s string) *string {
+	return &s
+}

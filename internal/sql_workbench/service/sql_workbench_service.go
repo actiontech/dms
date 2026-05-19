@@ -872,6 +872,12 @@ func (sqlWorkbenchService *SqlWorkbenchService) buildDatasourceBaseInfo(ctx cont
 		return nil, err
 	}
 
+	return sqlWorkbenchService.fillDatasourceBaseInfo(datasourceName, dbService, environmentID)
+}
+
+// fillDatasourceBaseInfo 根据 dbService 字段填充 datasourceBaseInfo，
+// 不包含外部 IO（不查 project / 不连 DB），便于单元测试覆盖 DBType 分支逻辑。
+func (sqlWorkbenchService *SqlWorkbenchService) fillDatasourceBaseInfo(datasourceName string, dbService *biz.DBService, environmentID int64) (*datasourceBaseInfo, error) {
 	baseInfo := &datasourceBaseInfo{
 		Name:          datasourceName,
 		Type:          sqlWorkbenchService.convertDBType(dbService.DBType),
@@ -890,6 +896,16 @@ func (sqlWorkbenchService *SqlWorkbenchService) buildDatasourceBaseInfo(ctx cont
 
 	if dbService.DBType == string(pkgConst.DBTypeMongoDB) {
 		baseInfo.DefaultSchema, baseInfo.Properties, baseInfo.JDBCParams = buildMongoDatasourceOptions(dbService)
+	}
+
+	// DB2 特殊处理：从 AdditionalParams.database_name 取默认 schema 透传到 ODC
+	if dbService.DBType == "DB2" {
+		databaseNameParam := dbService.AdditionalParams.GetParam("database_name")
+		if databaseNameParam == nil || databaseNameParam.Value == "" {
+			return nil, fmt.Errorf("DB2 数据源 %s 缺少 AdditionalParam database_name，请在数据源 AdditionalParams 中补充", dbService.Name)
+		}
+		databaseName := databaseNameParam.Value
+		baseInfo.DefaultSchema = &databaseName
 	}
 
 	return baseInfo, nil
@@ -946,7 +962,8 @@ func (sqlWorkbenchService *SqlWorkbenchService) buildUpdateDatasourceRequest(ctx
 func (sqlWorkbenchService *SqlWorkbenchService) convertDBType(dmsDBType string) string {
 	// 这里需要根据实际的数据库类型映射关系进行转换
 	// ODC ConnectType 枚举值: OB_MYSQL, OB_ORACLE, ORACLE, MYSQL, ODP_SHARDING_OB_MYSQL,
-	// DORIS, POSTGRESQL, HIVE, DM, TIDB, SQL_SERVER, MONGODB, GAUSSDB 等
+	// DORIS, POSTGRESQL, HIVE, DM, TIDB, SQL_SERVER, MONGODB, GAUSSDB, DB2 等
+	// 其余调用创建数据源接口会直接失败
 	switch dmsDBType {
 	case "MySQL":
 		return "MYSQL"
@@ -976,6 +993,8 @@ func (sqlWorkbenchService *SqlWorkbenchService) convertDBType(dmsDBType string) 
 		return "MYSQL"
 	case "MongoDB":
 		return "MONGODB"
+	case "DB2":
+		return "DB2"
 	default:
 		return dmsDBType
 	}
