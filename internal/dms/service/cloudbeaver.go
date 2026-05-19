@@ -82,7 +82,7 @@ func NewAndInitCloudbeaverService(logger utilLog.Logger, opts *conf.DMSOptions) 
 		}
 	}
 
-	cloudbeaverUsecase := biz.NewCloudbeaverUsecase(logger, cfg, userUsecase, dbServiceUseCase, opPermissionVerifyUsecase, dmsConfigUseCase, sqlResultMasker, cloudbeaverRepo, dmsProxyTargetRepo, cbOperationLogUsecase, projectUsecase, discoveryTaskRepo, maintenanceTimeUsecase)
+	cloudbeaverUsecase := biz.NewCloudbeaverUsecase(logger, cfg, userUsecase, dbServiceUseCase, opPermissionVerifyUsecase, dmsConfigUseCase, sqlResultMasker, cloudbeaverRepo, dmsProxyTargetRepo, cbOperationLogUsecase, projectUsecase, maintenanceTimeUsecase)
 	proxyUsecase := biz.NewCloudbeaverProxyUsecase(logger, cloudbeaverUsecase)
 
 	return &CloudbeaverService{

@@ -65,7 +65,7 @@ func (c CloudbeaverConnection) PrimaryKey() string {
 }
 
 type SQLResultMasker interface {
-	MaskSQLResults(ctx context.Context, result *model.SQLExecuteInfo, dbServiceUID, schemaName string) error
+	MaskSQLResults(ctx context.Context, result *model.SQLExecuteInfo, dbServiceUID, schemaName, projectUID string) error
 }
 
 type CloudbeaverRepo interface {
@@ -91,13 +91,12 @@ type CloudbeaverUsecase struct {
 	sqlResultMasker           SQLResultMasker
 	cbOperationLogUsecase     *CbOperationLogUsecase
 	projectUsecase            *ProjectUsecase
-	maskingTaskRepo           MaskingTaskRepo
 	repo                      CloudbeaverRepo
 	proxyTargetRepo           ProxyTargetRepo
 	maintenanceTimeUsecase    *MaintenanceTimeUsecase
 }
 
-func NewCloudbeaverUsecase(log utilLog.Logger, cfg *CloudbeaverCfg, userUsecase *UserUsecase, dbServiceUsecase *DBServiceUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, dmsConfigUseCase *DMSConfigUseCase, sqlResultMasker SQLResultMasker, cloudbeaverRepo CloudbeaverRepo, proxyTargetRepo ProxyTargetRepo, cbOperationUseCase *CbOperationLogUsecase, projectUsecase *ProjectUsecase, maskingTaskRepo MaskingTaskRepo, maintenanceTimeUsecase *MaintenanceTimeUsecase) (cu *CloudbeaverUsecase) {
+func NewCloudbeaverUsecase(log utilLog.Logger, cfg *CloudbeaverCfg, userUsecase *UserUsecase, dbServiceUsecase *DBServiceUsecase, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, dmsConfigUseCase *DMSConfigUseCase, sqlResultMasker SQLResultMasker, cloudbeaverRepo CloudbeaverRepo, proxyTargetRepo ProxyTargetRepo, cbOperationUseCase *CbOperationLogUsecase, projectUsecase *ProjectUsecase, maintenanceTimeUsecase *MaintenanceTimeUsecase) (cu *CloudbeaverUsecase) {
 	cu = &CloudbeaverUsecase{
 		repo:                      cloudbeaverRepo,
 		proxyTargetRepo:           proxyTargetRepo,
@@ -108,7 +107,6 @@ func NewCloudbeaverUsecase(log utilLog.Logger, cfg *CloudbeaverCfg, userUsecase 
 		sqlResultMasker:           sqlResultMasker,
 		cbOperationLogUsecase:     cbOperationUseCase,
 		projectUsecase:            projectUsecase,
-		maskingTaskRepo:           maskingTaskRepo,
 		cloudbeaverCfg:            cfg,
 		log:                       utilLog.NewHelper(log, utilLog.WithMessageKey("biz.cloudbeaver")),
 		maintenanceTimeUsecase:    maintenanceTimeUsecase,
@@ -339,6 +337,7 @@ type taskMaskingContext struct {
 	Enabled      bool
 	DBServiceUID string
 	SchemaName   string
+	ProjectUID   string
 }
 
 var (
@@ -466,11 +465,12 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						return err
 					}
 
-					isMaskingEnabled, _ := cu.maskingTaskRepo.CheckMaskingTaskExist(c.Request().Context(), dbService.UID)
+					isMaskingEnabled := cu.dbServiceUsecase != nil && cu.dbServiceUsecase.HasSensitiveDataMaskingTask(c.Request().Context(), dbService.UID)
 					// 构建任务ID与数据脱敏的关联
 					return cu.buildTaskIdAssocDataMasking(cloudbeaverResBuf.Bytes(), taskMaskingContext{
 						Enabled:      isMaskingEnabled,
 						DBServiceUID: dbService.UID,
+						ProjectUID:   dbService.ProjectUID,
 					})
 				}
 
@@ -495,10 +495,11 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 							cu.log.Error(err)
 						}
 
-						isMaskingEnabled, _ := cu.maskingTaskRepo.CheckMaskingTaskExist(c.Request().Context(), dbService.UID)
+						isMaskingEnabled := cu.dbServiceUsecase != nil && cu.dbServiceUsecase.HasSensitiveDataMaskingTask(c.Request().Context(), dbService.UID)
 						maskCtx := taskMaskingContext{
 							Enabled:      isMaskingEnabled,
 							DBServiceUID: dbService.UID,
+							ProjectUID:   dbService.ProjectUID,
 						}
 						if ep, epErr := cu.getWorkflowExecParams(c, params); epErr == nil {
 							maskCtx.SchemaName = ep.instanceSchema
@@ -564,11 +565,12 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						return err
 					}
 
-					isMaskingEnabled, _ := cu.maskingTaskRepo.CheckMaskingTaskExist(c.Request().Context(), dbService.UID)
+					isMaskingEnabled := cu.dbServiceUsecase != nil && cu.dbServiceUsecase.HasSensitiveDataMaskingTask(c.Request().Context(), dbService.UID)
 					// 构建任务ID与数据脱敏的关联
 					return cu.buildTaskIdAssocDataMasking(cloudbeaverResBuf.Bytes(), taskMaskingContext{
 						Enabled:      isMaskingEnabled,
 						DBServiceUID: dbService.UID,
+						ProjectUID:   dbService.ProjectUID,
 					})
 				}
 
@@ -698,11 +700,12 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 						}
 
 						if params.OperationName == "asyncSqlExecuteQuery" {
-							isMaskingEnabled, _ := cu.maskingTaskRepo.CheckMaskingTaskExist(c.Request().Context(), dbService.UID)
+							isMaskingEnabled := cu.dbServiceUsecase != nil && cu.dbServiceUsecase.HasSensitiveDataMaskingTask(c.Request().Context(), dbService.UID)
 							if err := cu.buildTaskIdAssocDataMasking(cloudbeaverResBuf.Bytes(), taskMaskingContext{
 								Enabled:      isMaskingEnabled,
 								DBServiceUID: dbService.UID,
 								SchemaName:   maskingSchemaName,
+								ProjectUID:   dbService.ProjectUID,
 							}); err != nil {
 								return nil, err
 							}
@@ -754,7 +757,7 @@ func (cu *CloudbeaverUsecase) GraphQLDistributor() echo.MiddlewareFunc {
 					if cu.sqlResultMasker == nil {
 						return nil
 					}
-					return cu.sqlResultMasker.MaskSQLResults(ctx, result, maskingCtx.DBServiceUID, maskingCtx.SchemaName)
+					return cu.sqlResultMasker.MaskSQLResults(ctx, result, maskingCtx.DBServiceUID, maskingCtx.SchemaName, maskingCtx.ProjectUID)
 				}
 
 				// 创建GraphQL可执行schema

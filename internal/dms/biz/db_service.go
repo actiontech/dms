@@ -201,6 +201,26 @@ func NewDBServiceUsecase(log utilLog.Logger, repo DBServiceRepo, maskingTaskRepo
 	}
 }
 
+// CheckSensitiveDataMaskingTask 查询 data_masking_discovery_tasks 是否存在该数据源的任务行；错误原样返回（用于导出等需失败路径）。
+func (d *DBServiceUsecase) CheckSensitiveDataMaskingTask(ctx context.Context, dbServiceUID string) (bool, error) {
+	if d == nil || d.maskingTaskRepo == nil || dbServiceUID == "" {
+		return false, nil
+	}
+	return d.maskingTaskRepo.CheckMaskingTaskExist(ctx, dbServiceUID)
+}
+
+// HasSensitiveDataMaskingTask 该数据源是否已存在敏感数据发现任务；查询语义与 CheckSensitiveDataMaskingTask 一致，存储错误时视为未开启并打 debug 日志。
+func (d *DBServiceUsecase) HasSensitiveDataMaskingTask(ctx context.Context, dbServiceUID string) bool {
+	ok, err := d.CheckSensitiveDataMaskingTask(ctx, dbServiceUID)
+	if err != nil {
+		if d != nil && d.log != nil {
+			d.log.Debugf("CheckSensitiveDataMaskingTask db_service_uid=%s: %v", dbServiceUID, err)
+		}
+		return false
+	}
+	return ok
+}
+
 type BizDBServiceArgs struct {
 	Name               string
 	Desc               *string

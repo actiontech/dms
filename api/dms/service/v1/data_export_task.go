@@ -3,6 +3,7 @@ package v1
 import (
 	"time"
 
+	maskingBiz "github.com/actiontech/dms/internal/data_masking/biz"
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 )
 
@@ -127,6 +128,10 @@ type ListDataExportTaskSQL struct {
 	ExportSQLType  string           `json:"export_sql_type"`
 	AuditLevel     string           `json:"audit_level"`
 	AuditSQLResult []AuditSQLResult `json:"audit_sql_result"`
+	// 血缘分析快照（与查看原文工单 SQL 详情字段语义一致）
+	LineageAnalysisSnapshot *maskingBiz.AnalyzeResult `json:"lineage_analysis_snapshot,omitempty"`
+	// 脱敏配置快照
+	MaskingConfigSnapshot []*maskingBiz.ColumnMaskingConfig `json:"masking_config_snapshot,omitempty"`
 }
 type AuditSQLResult struct {
 	Level           string `json:"level" example:"warn"`

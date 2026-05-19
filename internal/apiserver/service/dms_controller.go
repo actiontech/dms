@@ -3976,6 +3976,32 @@ func (ctl *DMSController) ExportDataExportWorkflow(c echo.Context) error {
 	return NewOkResp(c)
 }
 
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/original-export/download DataExportWorkflows DownloadOriginalDataExportWorkflow
+//
+// Download unmasked SQL query results as a zip file. Each request runs export in memory; files are not persisted.
+//
+//	responses:
+//	  200: DownloadOriginalDataExportWorkflowReply
+//	  default: body:GenericResp
+func (ctl *DMSController) DownloadOriginalDataExportWorkflow(c echo.Context) error {
+	req := new(aV1.DownloadOriginalDataExportWorkflowReq)
+	if err := bindAndValidateReq(c, req); err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	fileName, content, err := ctl.DMS.DownloadOriginalDataExportWorkflow(c.Request().Context(), req, currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	c.Response().Header().Set(echo.HeaderContentDisposition,
+		mime.FormatMediaType("attachment", map[string]string{"filename": fileName}))
+
+	return c.Blob(http.StatusOK, "application/zip", content)
+}
+
 // swagger:operation POST /v1/dms/projects/{project_uid}/data_export_tasks DataExportTask AddDataExportTask
 //
 // Add data_export task.

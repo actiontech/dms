@@ -688,6 +688,75 @@ definitions:
                 x-go-name: Value
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    AnalyzeResult:
+        properties:
+            edges:
+                description: 血缘图边
+                items:
+                    $ref: '#/definitions/LineageEdge'
+                type: array
+                x-go-name: Edges
+            nodes:
+                description: 血缘图节点
+                items:
+                    $ref: '#/definitions/LineageNode'
+                type: array
+                x-go-name: Nodes
+            original_sql:
+                description: 原始 SQL
+                type: string
+                x-go-name: OriginalSQL
+            result_columns:
+                description: 解析到的结果列列表
+                items:
+                    $ref: '#/definitions/ResultColumn'
+                type: array
+                x-go-name: ResultColumns
+            source_columns:
+                description: 解析到的源列列表
+                items:
+                    $ref: '#/definitions/ColumnRef'
+                type: array
+                x-go-name: SourceColumns
+            tables:
+                description: 解析到的表引用列表
+                items:
+                    $ref: '#/definitions/TableRef'
+                type: array
+                x-go-name: Tables
+            title:
+                description: 分析标题/摘要
+                type: string
+                x-go-name: Title
+            warnings:
+                description: 警告信息（解析不完整等）
+                items:
+                    type: string
+                type: array
+                x-go-name: Warnings
+        type: object
+        x-go-package: github.com/actiontech/dms/internal/data_masking/biz
+    ApproveUnmaskingWorkflow:
+        properties:
+            approve_reason:
+                description: 审批理由 非必须
+                type: string
+                x-go-name: ApproveReason
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ApproveUnmaskingWorkflowReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AuditPlanTypes:
         properties:
             audit_plan_id:
@@ -925,6 +994,19 @@ definitions:
                 $ref: '#/definitions/CancelDataExportWorkflowPayload'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CancelUnmaskingWorkflowReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CheckDBServiceIsConnectableByIdReq:
         properties:
             db_service_uid:
@@ -1143,6 +1225,108 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ColumnMaskingConfig:
+        description: ColumnMaskingConfig 列级别脱敏配置领域模型
+        properties:
+            column_id:
+                description: 列 ID（db_columns.id）
+                format: uint64
+                type: integer
+                x-go-name: ColumnID
+            column_name:
+                description: 列名
+                type: string
+                x-go-name: ColumnName
+            confidence:
+                description: |-
+                    置信度
+                    High ConfidenceHigh  高：高度确信为敏感数据
+                    Medium ConfidenceMedium  中：中等确信为敏感数据
+                    Low ConfidenceLow  低：低确信为敏感数据
+                enum:
+                    - High
+                    - Medium
+                    - Low
+                type: string
+                x-go-enum-desc: |-
+                    High ConfidenceHigh  高：高度确信为敏感数据
+                    Medium ConfidenceMedium  中：中等确信为敏感数据
+                    Low ConfidenceLow  低：低确信为敏感数据
+                x-go-name: Confidence
+            created_at:
+                description: 创建时间
+                format: date-time
+                type: string
+                x-go-name: CreatedAt
+            db_service_uid:
+                description: 数据源 UID
+                type: string
+                x-go-name: DBServiceUID
+            id:
+                description: 配置记录 ID
+                format: uint64
+                type: integer
+                x-go-name: ID
+            is_masking_enabled:
+                description: 是否启用脱敏
+                type: boolean
+                x-go-name: IsMaskingEnabled
+            masking_rule_id:
+                description: 脱敏规则 ID
+                format: int64
+                type: integer
+                x-go-name: MaskingRuleID
+            masking_rule_name:
+                description: 脱敏规则名称（中文）
+                type: string
+                x-go-name: MaskingRuleName
+            schema_name:
+                description: Schema 名称
+                type: string
+                x-go-name: SchemaName
+            status:
+                description: |-
+                    配置状态
+                    PENDING_CONFIRM MaskingConfigStatusPendingConfirm
+                    CONFIGURED MaskingConfigStatusConfigured
+                    SYSTEM_CONFIRMED MaskingConfigStatusSystemConfirmed
+                enum:
+                    - PENDING_CONFIRM
+                    - CONFIGURED
+                    - SYSTEM_CONFIRMED
+                type: string
+                x-go-enum-desc: |-
+                    PENDING_CONFIRM MaskingConfigStatusPendingConfirm
+                    CONFIGURED MaskingConfigStatusConfigured
+                    SYSTEM_CONFIRMED MaskingConfigStatusSystemConfirmed
+                x-go-name: Status
+            table_name:
+                description: 表名
+                type: string
+                x-go-name: TableName
+            updated_at:
+                description: 更新时间
+                format: date-time
+                type: string
+                x-go-name: UpdatedAt
+        type: object
+        x-go-package: github.com/actiontech/dms/internal/data_masking/biz
+    ColumnRef:
+        properties:
+            column:
+                description: 列名
+                type: string
+                x-go-name: Column
+            schema:
+                description: Schema 名称
+                type: string
+                x-go-name: Schema
+            table:
+                description: 表名
+                type: string
+                x-go-name: Table
+        type: object
+        x-go-package: github.com/actiontech/dms/internal/data_masking/biz
     CompanyNotice:
         description: A companynotice
         properties:
@@ -1217,6 +1401,87 @@ definitions:
             environment_name:
                 type: string
                 x-go-name: Name
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CreateUnmaskingSQLItem:
+        properties:
+            sql_content:
+                description: 原始 SQL 内容
+                type: string
+                x-go-name: SQLContent
+            sql_index_id:
+                description: 来源侧 SQL 索引 id（如数据导出记录中的 SQL 序号）；与 SQL 工作台场景的索引约定可能不同，需结合 source_type、source_uid 解析
+                type: string
+                x-go-name: SQLIndexID
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CreateUnmaskingWorkflow:
+        properties:
+            apply_reason:
+                description: 申请理由
+                type: string
+                x-go-name: ApplyReason
+            datasource_uid:
+                description: 数据源 UID
+                type: string
+                x-go-name: DatasourceUID
+            default_schema:
+                description: SQL 默认 schema
+                type: string
+                x-go-name: DefaultSchema
+            source_type:
+                description: |-
+                    来源类型
+                    data_export UnmaskingWorkflowSourceTypeDataExport  数据导出工单
+                    sql_workbench UnmaskingWorkflowSourceTypeSQLWorkbench  SQL工作台
+                enum:
+                    - data_export
+                    - sql_workbench
+                type: string
+                x-go-enum-desc: |-
+                    data_export UnmaskingWorkflowSourceTypeDataExport  数据导出工单
+                    sql_workbench UnmaskingWorkflowSourceTypeSQLWorkbench  SQL工作台
+                x-go-name: SourceType
+            source_uid:
+                description: 来源对象 UID (如数据导出任务 UID)
+                type: string
+                x-go-name: SourceUID
+            unmasking_sqls:
+                description: 待脱敏 SQL 列表
+                items:
+                    $ref: '#/definitions/CreateUnmaskingSQLItem'
+                type: array
+                x-go-name: UnmaskingSQLs
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CreateUnmaskingWorkflowReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/CreateUnmaskingWorkflowReplyData'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CreateUnmaskingWorkflowReplyData:
+        properties:
+            workflow_id:
+                type: string
+                x-go-name: WorkflowID
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CreateUnmaskingWorkflowReq:
+        properties:
+            unmasking_workflow:
+                $ref: '#/definitions/CreateUnmaskingWorkflow'
+        required:
+            - unmasking_workflow
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CurrentProjectAdmin:
@@ -2575,6 +2840,21 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetUnmaskingWorkflowReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/UnmaskingWorkflowDetail'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetUser:
         description: A dms user
         properties:
@@ -3228,6 +3508,81 @@ definitions:
                 x-go-name: Used
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    LineageEdge:
+        properties:
+            from_id:
+                description: 起点节点 ID
+                type: string
+                x-go-name: FromID
+            to_id:
+                description: 终点节点 ID
+                type: string
+                x-go-name: ToID
+            type:
+                description: |-
+                    边类型
+                    direct EdgeTypeDirect  直接依赖
+                    transform EdgeTypeTransform  转换/计算依赖
+                    aggregate EdgeTypeAggregate  聚合依赖
+                enum:
+                    - direct
+                    - transform
+                    - aggregate
+                type: string
+                x-go-enum-desc: |-
+                    direct EdgeTypeDirect  直接依赖
+                    transform EdgeTypeTransform  转换/计算依赖
+                    aggregate EdgeTypeAggregate  聚合依赖
+                x-go-name: Type
+        type: object
+        x-go-package: github.com/actiontech/dms/internal/data_masking/biz
+    LineageNode:
+        properties:
+            column:
+                description: 列名（列节点可能存在）
+                type: string
+                x-go-name: Column
+            expr:
+                description: 表达式内容（表达式节点可能存在）
+                type: string
+                x-go-name: Expr
+            id:
+                description: 节点 ID（图内唯一）
+                type: string
+                x-go-name: ID
+            name:
+                description: 节点展示名
+                type: string
+                x-go-name: Name
+            schema:
+                description: Schema 名称（列节点可能存在）
+                type: string
+                x-go-name: Schema
+            table:
+                description: 表名（列节点可能存在）
+                type: string
+                x-go-name: Table
+            type:
+                description: |-
+                    节点类型
+                    source_column NodeTypeSource  源列节点
+                    expression NodeTypeExpression  表达式节点
+                    result_column NodeTypeResult  结果列节点
+                    table NodeTypeTable  表节点
+                enum:
+                    - source_column
+                    - expression
+                    - result_column
+                    - table
+                type: string
+                x-go-enum-desc: |-
+                    source_column NodeTypeSource  源列节点
+                    expression NodeTypeExpression  表达式节点
+                    result_column NodeTypeResult  结果列节点
+                    table NodeTypeTable  表节点
+                x-go-name: Type
+        type: object
+        x-go-package: github.com/actiontech/dms/internal/data_masking/biz
     ListBusinessTagsReply:
         properties:
             code:
@@ -3811,6 +4166,14 @@ definitions:
             export_sql_type:
                 type: string
                 x-go-name: ExportSQLType
+            lineage_analysis_snapshot:
+                $ref: '#/definitions/AnalyzeResult'
+            masking_config_snapshot:
+                description: 脱敏配置快照
+                items:
+                    $ref: '#/definitions/ColumnMaskingConfig'
+                type: array
+                x-go-name: MaskingConfigSnapshot
             sql:
                 type: string
                 x-go-name: ExportSQL
@@ -5228,6 +5591,28 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListUnmaskingWorkflowsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/UnmaskingWorkflowListItem'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListUser:
         description: A dms user
         properties:
@@ -6639,6 +7024,29 @@ definitions:
                 $ref: '#/definitions/RejectDataExportWorkflowPayload'
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    RejectUnmaskingWorkflow:
+        properties:
+            reject_reason:
+                description: 驳回理由
+                type: string
+                x-go-name: RejectReason
+        required:
+            - reject_reason
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    RejectUnmaskingWorkflowReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ResourceBusiness:
         properties:
             business_tag:
@@ -6829,6 +7237,24 @@ definitions:
                 x-go-name: ResourceType
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ResultColumn:
+        properties:
+            expression:
+                description: 结果列表达式（SQL 片段）
+                type: string
+                x-go-name: Expression
+            name:
+                description: 结果列名
+                type: string
+                x-go-name: Name
+            sources:
+                description: 来源列列表
+                items:
+                    $ref: '#/definitions/ColumnRef'
+                type: array
+                x-go-name: Sources
+        type: object
+        x-go-package: github.com/actiontech/dms/internal/data_masking/biz
     Role:
         description: A role
         properties:
@@ -6937,6 +7363,32 @@ definitions:
                 x-go-name: WorkflowExecEnabled
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    SQLQueryResult:
+        properties:
+            columns:
+                description: 列名列表
+                items:
+                    type: string
+                type: array
+                x-go-name: Columns
+            row_count:
+                description: 总行数
+                format: int64
+                type: integer
+                x-go-name: RowCount
+            rows:
+                description: 数据行列表 (每一行的数据顺序与 Columns 一致)
+                items:
+                    $ref: '#/definitions/SQLQueryResultRow'
+                type: array
+                x-go-name: Rows
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    SQLQueryResultRow:
+        items:
+            type: string
+        type: array
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     SendSmsCodeReply:
         properties:
             code:
@@ -7236,6 +7688,22 @@ definitions:
                 x-go-name: Status
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    TableRef:
+        properties:
+            alias:
+                description: 表别名
+                type: string
+                x-go-name: Alias
+            schema:
+                description: Schema 名称
+                type: string
+                x-go-name: Schema
+            table:
+                description: 表名
+                type: string
+                x-go-name: Table
+        type: object
+        x-go-package: github.com/actiontech/dms/internal/data_masking/biz
     Task:
         properties:
             task_uid:
@@ -7540,6 +8008,272 @@ definitions:
                 x-go-name: Uid
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    UnmaskingOperationLogItem:
+        properties:
+            action:
+                description: |-
+                    操作动作
+                    submit UnmaskingActionSubmit  提交申请
+                    approve UnmaskingActionApprove  批准申请
+                    reject UnmaskingActionReject  驳回申请
+                    view_unmasking_workflow_detail UnmaskingActionViewOriginalDataWorkflowDetail  查看工单详情
+                    view_full_original_data UnmaskingActionViewOriginalData  查看原文
+                    download_full_original_data UnmaskingActionDownloadOriginalData  下载原文
+                    cancel UnmaskingActionCancel  取消申请
+                enum:
+                    - submit
+                    - approve
+                    - reject
+                    - view_unmasking_workflow_detail
+                    - view_full_original_data
+                    - download_full_original_data
+                    - cancel
+                type: string
+                x-go-enum-desc: |-
+                    submit UnmaskingActionSubmit  提交申请
+                    approve UnmaskingActionApprove  批准申请
+                    reject UnmaskingActionReject  驳回申请
+                    view_unmasking_workflow_detail UnmaskingActionViewOriginalDataWorkflowDetail  查看工单详情
+                    view_full_original_data UnmaskingActionViewOriginalData  查看原文
+                    download_full_original_data UnmaskingActionDownloadOriginalData  下载原文
+                    cancel UnmaskingActionCancel  取消申请
+                x-go-name: Action
+            action_time:
+                description: 操作时间 (RFC3339)
+                type: string
+                x-go-name: ActionTime
+            extra_message:
+                description: 额外信息 (如拦截原因)
+                type: string
+                x-go-name: ExtraMessage
+            operator_name:
+                description: 操作人姓名
+                type: string
+                x-go-name: OperatorName
+            operator_uid:
+                description: 操作人 UID
+                type: string
+                x-go-name: OperatorUID
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UnmaskingSQLDetail:
+        properties:
+            lineage_analysis_snapshot:
+                $ref: '#/definitions/AnalyzeResult'
+            masked_data:
+                $ref: '#/definitions/SQLQueryResult'
+            masking_config_snapshot:
+                description: 脱敏配置快照
+                items:
+                    $ref: '#/definitions/ColumnMaskingConfig'
+                type: array
+                x-go-name: MaskingConfigSnapshot
+            original_data:
+                $ref: '#/definitions/SQLQueryResult'
+            sql_content:
+                description: 原始 SQL 内容
+                type: string
+                x-go-name: SQLContent
+            sql_index_id:
+                description: 来源侧 SQL 索引 id
+                type: string
+                x-go-name: SQLIndexID
+            uid:
+                description: SQL 详情 UID
+                type: string
+                x-go-name: UID
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UnmaskingWorkflowDetail:
+        properties:
+            applicant_name:
+                description: 申请人用户名
+                type: string
+                x-go-name: ApplicantName
+            apply_reason:
+                description: 申请理由
+                type: string
+                x-go-name: ApplyReason
+            approval_status:
+                description: |-
+                    审批状态
+                    pending UnmaskingWorkflowApprovalStatusPending  待审批
+                    approved UnmaskingWorkflowApprovalStatusApproved  已批准
+                    rejected UnmaskingWorkflowApprovalStatusRejected  已驳回
+                    cancelled UnmaskingWorkflowApprovalStatusCancelled  已取消
+                enum:
+                    - pending
+                    - approved
+                    - rejected
+                    - cancelled
+                type: string
+                x-go-enum-desc: |-
+                    pending UnmaskingWorkflowApprovalStatusPending  待审批
+                    approved UnmaskingWorkflowApprovalStatusApproved  已批准
+                    rejected UnmaskingWorkflowApprovalStatusRejected  已驳回
+                    cancelled UnmaskingWorkflowApprovalStatusCancelled  已取消
+                x-go-name: ApprovalStatus
+            created_at:
+                description: 申请时间 (RFC3339)
+                type: string
+                x-go-name: CreatedAt
+            current_assignees:
+                description: 当前待处理人
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: CurrentAssignees
+            datasource_name:
+                description: 数据源实例名称
+                type: string
+                x-go-name: DatasourceName
+            datasource_uid:
+                description: 数据源实例ID
+                type: string
+                x-go-name: DatasourceUid
+            expire_time:
+                description: 过期时间 (RFC3339)
+                type: string
+                x-go-name: ExpireTime
+            operation_logs:
+                description: 操作日志
+                items:
+                    $ref: '#/definitions/UnmaskingOperationLogItem'
+                type: array
+                x-go-name: OperationLogs
+            reject_reason:
+                description: 驳回理由 (整单驳回时)
+                type: string
+                x-go-name: RejectReason
+            source_type:
+                description: |-
+                    来源类型
+                    data_export UnmaskingWorkflowSourceTypeDataExport  数据导出工单
+                    sql_workbench UnmaskingWorkflowSourceTypeSQLWorkbench  SQL工作台
+                enum:
+                    - data_export
+                    - sql_workbench
+                type: string
+                x-go-enum-desc: |-
+                    data_export UnmaskingWorkflowSourceTypeDataExport  数据导出工单
+                    sql_workbench UnmaskingWorkflowSourceTypeSQLWorkbench  SQL工作台
+                x-go-name: SourceType
+            source_uid:
+                description: 来源对象UID
+                type: string
+                x-go-name: SourceUID
+            unmasking_sqls:
+                description: SQL 详情列表
+                items:
+                    $ref: '#/definitions/UnmaskingSQLDetail'
+                type: array
+                x-go-name: UnmaskingSQLs
+            usage_status:
+                description: |-
+                    使用情况
+                    unviewed UnmaskingWorkflowUsageStatusUnviewed  未查看
+                    viewed UnmaskingWorkflowUsageStatusViewed  已查看
+                enum:
+                    - unviewed
+                    - viewed
+                type: string
+                x-go-enum-desc: |-
+                    unviewed UnmaskingWorkflowUsageStatusUnviewed  未查看
+                    viewed UnmaskingWorkflowUsageStatusViewed  已查看
+                x-go-name: UsageStatus
+            workflow_id:
+                description: 申请编号
+                type: string
+                x-go-name: WorkflowID
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UnmaskingWorkflowListItem:
+        properties:
+            applicant_name:
+                description: 申请人用户名
+                type: string
+                x-go-name: ApplicantName
+            apply_reason:
+                description: 申请理由
+                type: string
+                x-go-name: ApplyReason
+            approval_status:
+                description: |-
+                    审批状态
+                    pending UnmaskingWorkflowApprovalStatusPending  待审批
+                    approved UnmaskingWorkflowApprovalStatusApproved  已批准
+                    rejected UnmaskingWorkflowApprovalStatusRejected  已驳回
+                    cancelled UnmaskingWorkflowApprovalStatusCancelled  已取消
+                enum:
+                    - pending
+                    - approved
+                    - rejected
+                    - cancelled
+                type: string
+                x-go-enum-desc: |-
+                    pending UnmaskingWorkflowApprovalStatusPending  待审批
+                    approved UnmaskingWorkflowApprovalStatusApproved  已批准
+                    rejected UnmaskingWorkflowApprovalStatusRejected  已驳回
+                    cancelled UnmaskingWorkflowApprovalStatusCancelled  已取消
+                x-go-name: ApprovalStatus
+            created_at:
+                description: 申请时间 (RFC3339)
+                type: string
+                x-go-name: CreatedAt
+            current_assignees:
+                description: 当前待处理人
+                items:
+                    $ref: '#/definitions/UidWithName'
+                type: array
+                x-go-name: CurrentAssignees
+            datasource_name:
+                description: 数据源实例名称
+                type: string
+                x-go-name: DatasourceName
+            datasource_uid:
+                description: 数据源实例ID
+                type: string
+                x-go-name: DatasourceUid
+            expire_time:
+                description: 过期时间 (RFC3339)
+                type: string
+                x-go-name: ExpireTime
+            source_type:
+                description: |-
+                    来源类型
+                    data_export UnmaskingWorkflowSourceTypeDataExport  数据导出工单
+                    sql_workbench UnmaskingWorkflowSourceTypeSQLWorkbench  SQL工作台
+                enum:
+                    - data_export
+                    - sql_workbench
+                type: string
+                x-go-enum-desc: |-
+                    data_export UnmaskingWorkflowSourceTypeDataExport  数据导出工单
+                    sql_workbench UnmaskingWorkflowSourceTypeSQLWorkbench  SQL工作台
+                x-go-name: SourceType
+            source_uid:
+                description: 来源对象UID
+                type: string
+                x-go-name: SourceUID
+            usage_status:
+                description: |-
+                    使用情况
+                    unviewed UnmaskingWorkflowUsageStatusUnviewed  未查看
+                    viewed UnmaskingWorkflowUsageStatusViewed  已查看
+                enum:
+                    - unviewed
+                    - viewed
+                type: string
+                x-go-enum-desc: |-
+                    unviewed UnmaskingWorkflowUsageStatusUnviewed  未查看
+                    viewed UnmaskingWorkflowUsageStatusViewed  已查看
+                x-go-name: UsageStatus
+            workflow_id:
+                description: 申请编号
+                type: string
+                x-go-name: WorkflowID
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateBusinessTagReq:
         properties:
             business_tag:
@@ -11336,106 +12070,6 @@ paths:
             summary: Update an existing environment tag.
             tags:
                 - Project
-    /v1/dms/projects/{project_uid}/masking/approval-requests/{request_id}:
-        get:
-            operationId: GetPlaintextAccessRequestDetail
-            parameters:
-                - description: project uid
-                  example: '"project_uid"'
-                  in: path
-                  name: project_uid
-                  required: true
-                  type: string
-                  x-go-name: ProjectUid
-                - description: approval request id
-                  example: 1
-                  format: int64
-                  in: path
-                  name: request_id
-                  required: true
-                  type: integer
-                  x-go-name: RequestID
-            responses:
-                "200":
-                    description: GetPlaintextAccessRequestDetailReply
-                    schema:
-                        $ref: '#/definitions/GetPlaintextAccessRequestDetailReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: 获取明文访问申请详情。
-            tags:
-                - Masking
-    /v1/dms/projects/{project_uid}/masking/approval-requests/{request_id}/decisions:
-        post:
-            operationId: ProcessApprovalRequest
-            parameters:
-                - description: 项目 UID
-                  in: path
-                  name: project_uid
-                  required: true
-                  type: string
-                - description: 审批申请 ID
-                  in: path
-                  name: request_id
-                  required: true
-                  type: integer
-                - description: 处理动作信息
-                  in: body
-                  name: action
-                  required: true
-                  schema:
-                    $ref: '#/definitions/ProcessApprovalRequestReq'
-            responses:
-                "200":
-                    description: 成功处理审批申请
-                    schema:
-                        $ref: '#/definitions/ProcessApprovalRequestReply'
-                default:
-                    description: 通用错误响应
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: 处理审批申请。
-            tags:
-                - Masking
-    /v1/dms/projects/{project_uid}/masking/approval-requests/pending:
-        get:
-            operationId: ListPendingApprovalRequests
-            parameters:
-                - description: project uid
-                  example: '"project_uid"'
-                  in: path
-                  name: project_uid
-                  required: true
-                  type: string
-                  x-go-name: ProjectUid
-                - description: the maximum count of requests to be returned, default is 20
-                  example: "20"
-                  format: uint32
-                  in: query
-                  name: page_size
-                  type: integer
-                  x-go-name: PageSize
-                - description: the offset of requests to be returned, default is 0
-                  example: "0"
-                  format: uint32
-                  in: query
-                  name: page_index
-                  type: integer
-                  x-go-name: PageIndex
-            responses:
-                "200":
-                    description: ListPendingApprovalRequestsReply
-                    schema:
-                        $ref: '#/definitions/ListPendingApprovalRequestsReply'
-                default:
-                    description: GenericResp
-                    schema:
-                        $ref: '#/definitions/GenericResp'
-            summary: 查询待审批申请列表。
-            tags:
-                - Masking
     /v1/dms/projects/{project_uid}/masking/overview:
         get:
             operationId: GetMaskingOverviewTree
@@ -12288,6 +12922,217 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: 更新脱敏模板。
+            tags:
+                - Masking
+    /v1/dms/projects/{project_uid}/masking/unmasking-workflows:
+        get:
+            operationId: ListUnmaskingWorkflows
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: the maximum count of workflows to be returned
+                  format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of workflows to be returned, default is 0
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - description: filter the approval status
+                  enum:
+                    - pending
+                    - approved
+                    - rejected
+                    - cancelled
+                  in: query
+                  name: filter_by_approval_status
+                  type: string
+                  x-go-enum-desc: |-
+                    pending UnmaskingWorkflowApprovalStatusPending  待审批
+                    approved UnmaskingWorkflowApprovalStatusApproved  已批准
+                    rejected UnmaskingWorkflowApprovalStatusRejected  已驳回
+                    cancelled UnmaskingWorkflowApprovalStatusCancelled  已取消
+                  x-go-name: FilterByApprovalStatus
+                - description: filter the usage status
+                  enum:
+                    - unviewed
+                    - viewed
+                  in: query
+                  name: filter_by_usage_status
+                  type: string
+                  x-go-enum-desc: |-
+                    unviewed UnmaskingWorkflowUsageStatusUnviewed  未查看
+                    viewed UnmaskingWorkflowUsageStatusViewed  已查看
+                  x-go-name: FilterByUsageStatus
+                - description: filter db_service id
+                  in: query
+                  name: filter_by_db_service_uid
+                  type: string
+                  x-go-name: FilterByDBServiceUid
+            responses:
+                "200":
+                    description: List unmasking workflows successfully
+                    schema:
+                        $ref: '#/definitions/ListUnmaskingWorkflowsReply'
+                default:
+                    description: Generic error response
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List unmasking workflows.
+            tags:
+                - Masking
+        post:
+            operationId: CreateUnmaskingWorkflow
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                - description: unmasking workflow info
+                  in: body
+                  name: unmasking_workflow
+                  required: true
+                  schema:
+                    $ref: '#/definitions/CreateUnmaskingWorkflowReq'
+            responses:
+                "200":
+                    description: Create unmasking workflow successfully
+                    schema:
+                        $ref: '#/definitions/CreateUnmaskingWorkflowReply'
+                default:
+                    description: Generic error response
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Create unmasking workflow.
+            tags:
+                - Masking
+    /v1/dms/projects/{project_uid}/masking/unmasking-workflows/{workflow_id}:
+        get:
+            operationId: GetUnmaskingWorkflow
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: workflow id
+                  in: path
+                  name: workflow_id
+                  required: true
+                  type: string
+                  x-go-name: WorkflowID
+            responses:
+                "200":
+                    description: Get unmasking workflow detail successfully
+                    schema:
+                        $ref: '#/definitions/GetUnmaskingWorkflowReply'
+                default:
+                    description: Generic error response
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get unmasking workflow detail.
+            tags:
+                - Masking
+    /v1/dms/projects/{project_uid}/masking/unmasking-workflows/{workflow_id}/approve:
+        post:
+            operationId: ApproveUnmaskingWorkflow
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                - description: workflow id
+                  in: path
+                  name: workflow_id
+                  required: true
+                  type: string
+                - description: approve unmasking workflow info (optional, only carries approve_reason)
+                  in: body
+                  name: approve_unmasking_workflow
+                  schema:
+                    $ref: '#/definitions/ApproveUnmaskingWorkflow'
+            responses:
+                "200":
+                    description: Approve unmasking workflow successfully
+                    schema:
+                        $ref: '#/definitions/ApproveUnmaskingWorkflowReply'
+                default:
+                    description: Generic error response
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Approve unmasking workflow.
+            tags:
+                - Masking
+    /v1/dms/projects/{project_uid}/masking/unmasking-workflows/{workflow_id}/cancel:
+        post:
+            operationId: CancelUnmaskingWorkflow
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: workflow id
+                  in: path
+                  name: workflow_id
+                  required: true
+                  type: string
+                  x-go-name: WorkflowID
+            responses:
+                "200":
+                    description: Cancel unmasking workflow successfully
+                    schema:
+                        $ref: '#/definitions/CancelUnmaskingWorkflowReply'
+                default:
+                    description: Generic error response
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Cancel unmasking workflow.
+            tags:
+                - Masking
+    /v1/dms/projects/{project_uid}/masking/unmasking-workflows/{workflow_id}/reject:
+        post:
+            operationId: RejectUnmaskingWorkflow
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                - description: workflow id
+                  in: path
+                  name: workflow_id
+                  required: true
+                  type: string
+                - description: reject unmasking workflow info
+                  in: body
+                  name: reject_unmasking_workflow
+                  required: true
+                  schema:
+                    $ref: '#/definitions/RejectUnmaskingWorkflow'
+            responses:
+                "200":
+                    description: Reject unmasking workflow successfully
+                    schema:
+                        $ref: '#/definitions/RejectUnmaskingWorkflowReply'
+                default:
+                    description: Generic error response
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Reject unmasking workflow.
             tags:
                 - Masking
     /v1/dms/projects/{project_uid}/member_groups:

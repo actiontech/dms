@@ -7,6 +7,8 @@ import (
 
 	dmsMiddleware "github.com/actiontech/dms/internal/apiserver/middleware"
 	"github.com/actiontech/dms/internal/dms/biz"
+	dmsService "github.com/actiontech/dms/internal/dms/service"
+	"github.com/actiontech/dms/internal/dms/storage"
 	"github.com/actiontech/dms/internal/pkg/locale"
 	"github.com/actiontech/dms/internal/pkg/utils"
 	sqlWorkbenchService "github.com/actiontech/dms/internal/sql_workbench/service"
@@ -223,6 +225,7 @@ func (s *APIServer) initRouter() error {
 		dataExportWorkflowsV1.POST("/:data_export_workflow_uid/approve", s.DMSController.ApproveDataExportWorkflow)
 		dataExportWorkflowsV1.POST("/:data_export_workflow_uid/reject", s.DMSController.RejectDataExportWorkflow)
 		dataExportWorkflowsV1.POST("/:data_export_workflow_uid/export", s.DMSController.ExportDataExportWorkflow)
+		dataExportWorkflowsV1.GET("/:data_export_workflow_uid/original-export/download", s.DMSController.DownloadOriginalDataExportWorkflow)
 		dataExportWorkflowsV1.POST("/cancel", s.DMSController.CancelDataExportWorkflow)
 
 		// 内部接口，仅允许sys用户访问
@@ -282,6 +285,21 @@ func (s *APIServer) initRouter() error {
 			}
 
 			sqlWorkbenchV1.Use(s.SqlWorkbenchController.SqlWorkbenchService.Login())
+
+			// 添加数据脱敏中间件
+			sqlWorkbenchV1.Use(sqlWorkbenchService.GetDataMaskingMiddleware(sqlWorkbenchService.DataMaskingMiddlewareConfig{
+				SqlResultMasker:          s.SqlWorkbenchController.SqlWorkbenchService.GetSqlResultMasker(),
+				DBServiceUsecase:         s.DMSController.DMS.DBServiceUsecase,
+				SqlWorkbenchService:      s.SqlWorkbenchController.SqlWorkbenchService,
+				UnmaskingWorkflowUsecase: s.DMSController.DMS.UnmaskingWorkflowUsecase,
+			}))
+
+			// 添加查看原文 SQL 替换中间件
+			sqlWorkbenchV1.Use(sqlWorkbenchService.GetUnmaskingWorkflowMiddleware(sqlWorkbenchService.DataMaskingMiddlewareConfig{
+				DBServiceUsecase:         s.DMSController.DMS.DBServiceUsecase,
+				SqlWorkbenchService:      s.SqlWorkbenchController.SqlWorkbenchService,
+				UnmaskingWorkflowUsecase: s.DMSController.DMS.UnmaskingWorkflowUsecase,
+			}))
 
 			// 添加操作日志记录中间件
 			sqlWorkbenchV1.Use(sqlWorkbenchService.GetOperationLogBodyDumpMiddleware(sqlWorkbenchService.OperationLogMiddlewareConfig{
@@ -484,6 +502,25 @@ func (s *APIServer) installController() error {
 
 	s.DMSController = DMSController
 	s.SqlWorkbenchController = sqlWorkbenchController
+
+	// 初始化 SQL Workbench 脱敏组件，与 DMS 共用同一套存储配置
+	st, err := storage.NewStorage(s.logger, &storage.StorageConfig{
+		User:        s.opts.ServiceOpts.Database.UserName,
+		Password:    s.opts.ServiceOpts.Database.Password,
+		Host:        s.opts.ServiceOpts.Database.Host,
+		Port:        s.opts.ServiceOpts.Database.Port,
+		Schema:      s.opts.ServiceOpts.Database.Database,
+		Debug:       s.opts.ServiceOpts.Database.Debug,
+		AutoMigrate: s.opts.ServiceOpts.Database.AutoMigrate,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to initialize storage for masker: %v", err)
+	}
+	masker, err := dmsService.NewSQLWorkbenchSQLResultMasker(s.logger, st)
+	if err != nil {
+		return fmt.Errorf("failed to create sql result masker: %v", err)
+	}
+	s.SqlWorkbenchController.SqlWorkbenchService.SetSqlResultMasker(masker)
 
 	// s.AuthController.RegisterPlugin(s.DMSController.GetRegisterPluginFn())
 	return nil

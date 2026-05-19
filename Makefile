@@ -185,6 +185,10 @@ dms_unit_test_clean:
 dms_test_dms:
 	go test -v -p 1 ./internal/dms/...
 
+# 提交前校验：社区版 / 试用版 / 企业版 / DMS 企业版 四种 GO_BUILD_TAGS 组合下均能 make install
+verify_edition_builds:
+	bash ./scripts/verify_build_editions.sh
+
 ############################### generate ##################################
 gen_repo_fields:
 	go run ./internal/dms/cmd/gencli/gencli.go -d generate-node-repo-fields ./internal/dms/storage/model/ ./internal/dms/biz/

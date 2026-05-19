@@ -23,10 +23,11 @@ import (
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/dms/storage"
-	"github.com/actiontech/dms/internal/pkg/locale"
 	dbmodel "github.com/actiontech/dms/internal/dms/storage/model"
+	"github.com/actiontech/dms/internal/pkg/locale"
 	"github.com/actiontech/dms/internal/sql_workbench/client"
 	config "github.com/actiontech/dms/internal/sql_workbench/config"
+	"github.com/actiontech/dms/internal/sql_workbench/sqlresultmasker"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	"github.com/actiontech/dms/pkg/dms-common/i18nPkg"
 	_const "github.com/actiontech/dms/pkg/dms-common/pkg/const"
@@ -102,6 +103,15 @@ type SqlWorkbenchService struct {
 	sqlWorkbenchDatasourceRepo biz.SqlWorkbenchDatasourceRepo
 	proxyTargetRepo            biz.ProxyTargetRepo
 	cbOperationLogUsecase      *biz.CbOperationLogUsecase
+	sqlResultMasker            sqlresultmasker.SQLResultMasker
+}
+
+func (sqlWorkbenchService *SqlWorkbenchService) SetSqlResultMasker(masker sqlresultmasker.SQLResultMasker) {
+	sqlWorkbenchService.sqlResultMasker = masker
+}
+
+func (sqlWorkbenchService *SqlWorkbenchService) GetSqlResultMasker() sqlresultmasker.SQLResultMasker {
+	return sqlWorkbenchService.sqlResultMasker
 }
 
 func NewAndInitSqlWorkbenchService(logger utilLog.Logger, opts *conf.DMSOptions) (*SqlWorkbenchService, error) {
@@ -1048,15 +1058,18 @@ func (sqlWorkbenchService *SqlWorkbenchService) AuditMiddleware() echo.Middlewar
 			c.Request().Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 
 			// 解析请求体获取 SQL 和 datasource ID
+			// 注意：解析仅服务于审核辅助路径，解析失败不应直接阻塞用户的 SQL 执行；
+			// 否则一旦中间件辅助能力出错（如 sid 解码失败），用户连查询都跑不了。
+			// 真正的「未启用审核 / 审核失败」等强策略仍由后续分支按既有 fail-closed 处理。
 			sql, datasourceID, err := sqlWorkbenchService.parseStreamExecuteRequest(bodyBytes)
 			if err != nil {
-				sqlWorkbenchService.log.Errorf("failed to parse streamExecute request, skipping audit: %v", err)
-				return errors.New(locale.Bundle.LocalizeMsgByCtx(c.Request().Context(), locale.SqlWorkbenchAuditParseReqErr))
+				sqlWorkbenchService.log.Warnf("failed to parse streamExecute request, skipping audit: %v", err)
+				return next(c)
 			}
 
 			if sql == "" || datasourceID == "" {
-				sqlWorkbenchService.log.Debugf("SQL or datasource ID is empty, skipping audit")
-				return errors.New(locale.Bundle.LocalizeMsgByCtx(c.Request().Context(), locale.SqlWorkbenchAuditMissingSQLOrDatasourceErr))
+				sqlWorkbenchService.log.Warnf("SQL or datasource ID is empty, skipping audit")
+				return next(c)
 			}
 
 			// 获取当前用户 ID
@@ -1151,8 +1164,9 @@ func (sqlWorkbenchService *SqlWorkbenchService) parseSidToDatasourceID(sid strin
 		sid = sid[:idx]
 	}
 
-	// 解码 base64
-	decodedBytes, err := base64.StdEncoding.DecodeString(sid)
+	// ODC 服务端使用 Base64.getUrlEncoder() 生成 sessionId（URL-safe，包含 '-'/'_'），
+	// 这里必须用 URLEncoding 解码，否则遇到 '-'/'_' 会报 illegal base64 data。
+	decodedBytes, err := base64.URLEncoding.DecodeString(sid)
 	if err != nil {
 		return "", fmt.Errorf("failed to decode base64 sid: %v", err)
 	}
@@ -1440,14 +1454,14 @@ func extractSessionID(path string) string {
 // executeAndAddAuditResult 执行真实请求并添加审核结果
 func (sqlWorkbenchService *SqlWorkbenchService) executeAndAddAuditResult(c echo.Context, next echo.HandlerFunc, auditResult *cloudbeaver.AuditSQLReply, dbService *biz.DBService) error {
 	// 创建响应拦截器
-	srw := newStreamExecuteResponseWriter(c)
+	srw := NewStreamExecuteResponseWriter(c)
 	cloudbeaverResBuf := srw.Buffer
 	c.Response().Writer = srw
 
 	defer func() {
 		// 在 defer 中处理响应
-		if srw.status != 0 {
-			srw.original.WriteHeader(srw.status)
+		if srw.Status != 0 {
+			srw.Original.WriteHeader(srw.Status)
 		}
 
 		// 读取响应内容
@@ -1460,13 +1474,13 @@ func (sqlWorkbenchService *SqlWorkbenchService) executeAndAddAuditResult(c echo.
 		responseBytes, wasGzip, err := sqlWorkbenchService.decodeResponseBody(cloudbeaverResBuf.Bytes(), srw.Header().Get("Content-Encoding"))
 		if err != nil {
 			sqlWorkbenchService.log.Debugf("Failed to decode response body, returning original response: %v", err)
-			srw.original.Write(cloudbeaverResBuf.Bytes())
+			srw.Original.Write(cloudbeaverResBuf.Bytes())
 			return
 		}
 
 		// 如果解压过，先移除 Content-Encoding，后续根据需要重新设置
 		if wasGzip {
-			srw.original.Header().Del("Content-Encoding")
+			srw.Original.Header().Del("Content-Encoding")
 		}
 
 		// 解析响应 JSON
@@ -1474,7 +1488,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) executeAndAddAuditResult(c echo.
 		if err := json.Unmarshal(responseBytes, &responseBody); err != nil {
 			sqlWorkbenchService.log.Debugf("Failed to unmarshal response, returning original response: %v", err)
 			// 如果解析失败，直接返回原始响应
-			srw.original.Write(cloudbeaverResBuf.Bytes())
+			srw.Original.Write(cloudbeaverResBuf.Bytes())
 			return
 		}
 
@@ -1488,7 +1502,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) executeAndAddAuditResult(c echo.
 		modifiedResponse, err := json.Marshal(responseBody)
 		if err != nil {
 			sqlWorkbenchService.log.Errorf("Failed to marshal modified response: %v", err)
-			srw.original.Write(cloudbeaverResBuf.Bytes())
+			srw.Original.Write(cloudbeaverResBuf.Bytes())
 			return
 		}
 
@@ -1497,26 +1511,26 @@ func (sqlWorkbenchService *SqlWorkbenchService) executeAndAddAuditResult(c echo.
 			encoded, err := sqlWorkbenchService.encodeResponseBody(modifiedResponse)
 			if err != nil {
 				sqlWorkbenchService.log.Errorf("Failed to re-encode gzip response: %v", err)
-				srw.original.Write(cloudbeaverResBuf.Bytes())
+				srw.Original.Write(cloudbeaverResBuf.Bytes())
 				return
 			}
 			finalResponse = encoded
-			srw.original.Header().Set("Content-Encoding", "gzip")
+			srw.Original.Header().Set("Content-Encoding", "gzip")
 		}
 
 		// 更新 Content-Length
-		header := srw.original.Header()
+		header := srw.Original.Header()
 		header.Set("Content-Length", fmt.Sprintf("%d", len(finalResponse)))
 
 		// 如果拦截过程中未显式写入状态码，默认使用 200
-		statusCode := srw.status
+		statusCode := srw.Status
 		if statusCode == 0 {
 			statusCode = http.StatusOK
 		}
-		srw.original.WriteHeader(statusCode)
+		srw.Original.WriteHeader(statusCode)
 
 		// 写入修改后的响应
-		if _, err := srw.original.Write(finalResponse); err != nil {
+		if _, err := srw.Original.Write(finalResponse); err != nil {
 			sqlWorkbenchService.log.Errorf("Failed to write modified response: %v", err)
 		}
 	}()
@@ -1749,34 +1763,32 @@ type SQLEAuditResultSummary struct {
 	PassRate   float64 `json:"pass_rate"`
 }
 
-// streamExecuteResponseWriter 响应拦截器，用于捕获响应内容
-type streamExecuteResponseWriter struct {
+// StreamExecuteResponseWriter 响应拦截器，用于捕获响应内容
+type StreamExecuteResponseWriter struct {
 	echo.Response
 	Buffer   *bytes.Buffer
-	original http.ResponseWriter
-	status   int
+	Original http.ResponseWriter
+	Status   int
 }
 
-func newStreamExecuteResponseWriter(c echo.Context) *streamExecuteResponseWriter {
+func NewStreamExecuteResponseWriter(c echo.Context) *StreamExecuteResponseWriter {
 	buf := new(bytes.Buffer)
-	return &streamExecuteResponseWriter{
+	return &StreamExecuteResponseWriter{
 		Response: *c.Response(),
 		Buffer:   buf,
-		original: c.Response().Writer,
+		Original: c.Response().Writer,
 	}
 }
 
-func (w *streamExecuteResponseWriter) Write(b []byte) (int, error) {
+func (w *StreamExecuteResponseWriter) Write(b []byte) (int, error) {
 	// 如果未设置状态码，则补默认值
-	if w.status == 0 {
+	if w.Status == 0 {
 		w.WriteHeader(http.StatusOK)
 	}
 	// 写入 buffer，不立即写给客户端
 	return w.Buffer.Write(b)
 }
 
-func (w *streamExecuteResponseWriter) WriteHeader(code int) {
-	w.status = code
+func (w *StreamExecuteResponseWriter) WriteHeader(code int) {
+	w.Status = code
 }
-
-

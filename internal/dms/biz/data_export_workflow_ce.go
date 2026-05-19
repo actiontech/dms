@@ -39,6 +39,10 @@ func (d *DataExportWorkflowUsecase) ExportDataExportWorkflow(ctx context.Context
 	return errNotDataExportWorkflow
 }
 
+func (d *DataExportWorkflowUsecase) DownloadOriginalDataExportWorkflow(ctx context.Context, projectUid, workflowUid, currentUserUid, unmaskingWorkflowUid string) (string, []byte, error) {
+	return "", nil, errNotDataExportWorkflow
+}
+
 func (d *DataExportWorkflowUsecase) DownloadDataExportTask(ctx context.Context, userId string, req *dmsV1.DownloadDataExportTaskReq) (bool, string, error) {
 	return false, "", errNotDataExportTask
 }

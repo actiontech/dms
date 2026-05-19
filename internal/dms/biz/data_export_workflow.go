@@ -8,6 +8,8 @@ import (
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
+
+	dataMaskingBiz "github.com/actiontech/dms/internal/data_masking/biz"
 )
 
 var ErrDataExportWorkflowNameDuplicate = errors.New("data export workflow name duplicate")
@@ -26,6 +28,10 @@ const (
 
 func (dews DataExportWorkflowStatus) String() string {
 	return string(dews)
+}
+
+func isDataExportWorkflowStatusAllowDownloadOriginal(status DataExportWorkflowStatus) bool {
+	return status == DataExportWorkflowStatusFinish
 }
 
 type EventType string
@@ -134,12 +140,13 @@ type DataExportWorkflowUsecase struct {
 	webhookUsecase            *WebHookConfigurationUsecase
 	userUsecase               *UserUsecase
 	systemVariableUsecase     *SystemVariableUsecase
-	maskingTaskRepo           MaskingTaskRepo
+	dbServiceUsecase          *DBServiceUsecase
+	unmaskingWorkflowUsecase  *dataMaskingBiz.UnmaskingWorkflowUsecase
 	log                       *utilLog.Helper
 	reportHost                string
 }
 
-func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator, repo WorkflowRepo, dataExportTaskRepo DataExportTaskRepo, dbServiceRepo DBServiceRepo, maskingConfigRepo DataExportMaskingConfigRepo, maskingRuleRepo DataExportMaskingRuleRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, clusterUseCase *ClusterUsecase, webhookUsecase *WebHookConfigurationUsecase, userUsecase *UserUsecase, systemVariableUsecase *SystemVariableUsecase, maskingTaskRepo MaskingTaskRepo, reportHost string) *DataExportWorkflowUsecase {
+func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator, repo WorkflowRepo, dataExportTaskRepo DataExportTaskRepo, dbServiceRepo DBServiceRepo, maskingConfigRepo DataExportMaskingConfigRepo, maskingRuleRepo DataExportMaskingRuleRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, clusterUseCase *ClusterUsecase, webhookUsecase *WebHookConfigurationUsecase, userUsecase *UserUsecase, systemVariableUsecase *SystemVariableUsecase, dbServiceUsecase *DBServiceUsecase, unmaskingWorkflowUsecase *dataMaskingBiz.UnmaskingWorkflowUsecase, reportHost string) *DataExportWorkflowUsecase {
 	return &DataExportWorkflowUsecase{
 		tx:                        tx,
 		repo:                      repo,
@@ -154,7 +161,8 @@ func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator
 		webhookUsecase:            webhookUsecase,
 		userUsecase:               userUsecase,
 		systemVariableUsecase:     systemVariableUsecase,
-		maskingTaskRepo:           maskingTaskRepo,
+		dbServiceUsecase:          dbServiceUsecase,
+		unmaskingWorkflowUsecase:  unmaskingWorkflowUsecase,
 		log:                       utilLog.NewHelper(logger, utilLog.WithMessageKey("biz.dataExportWorkflow")),
 		reportHost:                reportHost,
 	}
