@@ -3144,6 +3144,10 @@ definitions:
                     failed DataExportWorkflowStatusFailed
                     finish DataExportWorkflowStatusFinish
                 x-go-name: Status
+            updated_at:
+                format: date-time
+                type: string
+                x-go-name: UpdatedAt
             workflow_name:
                 type: string
                 x-go-name: WorkflowName

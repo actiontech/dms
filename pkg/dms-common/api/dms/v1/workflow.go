@@ -19,6 +19,8 @@ type FilterGlobalDataExportWorkflowReq struct {
 	FilterCurrentStepAssigneeUserUid string                     `json:"filter_current_step_assignee_user_uid" query:"filter_current_step_assignee_user_uid"`
 	FilterByDBServiceUid             string                     `json:"filter_by_db_service_uid" query:"filter_by_db_service_uid"`
 	FuzzyKeyword                     string                     `json:"fuzzy_keyword" query:"fuzzy_keyword"`
+	FilterUpdateTimeFrom             string                     `json:"filter_update_time_from" query:"filter_update_time_from"`
+	FilterUpdateTimeTo               string                     `json:"filter_update_time_to" query:"filter_update_time_to"`
 
 	// CheckUserCanAccess enables OR-based self-relevant filtering:
 	// (creator OR current assignee OR viewable db_service). When true,
@@ -47,6 +49,7 @@ type ListDataExportWorkflow struct {
 	Description              string                      `json:"desc"`                            // 数据导出工单的描述
 	Creater                  UidWithName                 `json:"creater"`                         // 数据导出工单的创建人
 	CreatedAt                time.Time                   `json:"created_at"`                      // 数据导出工单的创建时间
+	UpdatedAt                time.Time                   `json:"updated_at"`                      // 数据导出工单的更新时间
 	Status                   DataExportWorkflowStatus    `json:"status"`                          // 数据导出工单的状态
 	CurrentStepAssigneeUsers []UidWithName               `json:"current_step_assignee_user_list"` // 工单待操作人
 	DBServiceInfos           []*DBServiceUidWithNameInfo `json:"db_service_info,omitempty"`       // 所属数据源信息
