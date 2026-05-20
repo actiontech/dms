@@ -45,6 +45,8 @@ cp -R %{_builddir}/%{buildsubdir}/%{name}/builddir/static $RPM_BUILD_ROOT/usr/lo
 cp -R %{_builddir}/%{buildsubdir}/%{name}/builddir/neo4j-community $RPM_BUILD_ROOT/usr/local/%{name}/neo4j-community
 cp -R %{_builddir}/%{buildsubdir}/%{name}/builddir/lib $RPM_BUILD_ROOT/usr/local/%{name}/lib
 cp -R %{_builddir}/%{buildsubdir}/%{name}/builddir/jdk $RPM_BUILD_ROOT/usr/local/%{name}/jdk
+# sqle-pg-plugin 二进制（compat-RISK-4 / issue #850）
+cp %{_builddir}/%{buildsubdir}/%{name}/builddir/plugins/sqle-pg-plugin $RPM_BUILD_ROOT/usr/local/%{name}/plugins/sqle-pg-plugin
 
 ##########
 
