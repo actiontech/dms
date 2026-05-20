@@ -180,6 +180,7 @@ func (d *DMSService) GetGlobalWorkflowsList(ctx context.Context, req *dmsV1.Filt
 			WorkflowName:   w.Name,
 			Description:    w.Desc,
 			CreatedAt:      w.CreatedAt,
+			UpdatedAt:      w.WorkflowRecord.UpdateTime,
 			Status:         dmsV1.DataExportWorkflowStatus(w.WorkflowRecord.Status),
 			DBServiceInfos: w.DBServiceInfos,
 		}
