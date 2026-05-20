@@ -126,6 +126,12 @@ type FilterGlobalDataExportWorkflowReq struct {
 	// db_service UIDs with view_others_workflow permission for check_user_can_access
 	// in:query
 	ViewableDBServiceUids []string `json:"viewable_db_service_uids" query:"viewable_db_service_uids"`
+	// filter create time from
+	// in:query
+	FilterCreateTimeFrom string `json:"filter_create_time_from" query:"filter_create_time_from"`
+	// filter create time to
+	// in:query
+	FilterCreateTimeTo string `json:"filter_create_time_to" query:"filter_create_time_to"`
 	// filter update time from
 	// in:query
 	FilterUpdateTimeFrom string `json:"filter_update_time_from" query:"filter_update_time_from"`

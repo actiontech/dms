@@ -19,6 +19,8 @@ type FilterGlobalDataExportWorkflowReq struct {
 	FilterCurrentStepAssigneeUserUid string                     `json:"filter_current_step_assignee_user_uid" query:"filter_current_step_assignee_user_uid"`
 	FilterByDBServiceUid             string                     `json:"filter_by_db_service_uid" query:"filter_by_db_service_uid"`
 	FuzzyKeyword                     string                     `json:"fuzzy_keyword" query:"fuzzy_keyword"`
+	FilterCreateTimeFrom             string                     `json:"filter_create_time_from" query:"filter_create_time_from"`
+	FilterCreateTimeTo               string                     `json:"filter_create_time_to" query:"filter_create_time_to"`
 	FilterUpdateTimeFrom             string                     `json:"filter_update_time_from" query:"filter_update_time_from"`
 	FilterUpdateTimeTo               string                     `json:"filter_update_time_to" query:"filter_update_time_to"`
 

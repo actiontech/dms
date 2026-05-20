@@ -492,6 +492,14 @@ AND w.project_uid IN (:filter_project_uids)
 AND (w.name like :fuzzy_keyword or w.uid like :fuzzy_keyword or w.desc like :fuzzy_keyword)
 {{- end }}
 
+{{- if .filter_create_time_from }}
+AND w.created_at >= :filter_create_time_from
+{{- end }}
+
+{{- if .filter_create_time_to }}
+AND w.created_at <= :filter_create_time_to
+{{- end }}
+
 {{- if .filter_update_time_from }}
 AND wr.updated_at >= :filter_update_time_from
 {{- end }}
