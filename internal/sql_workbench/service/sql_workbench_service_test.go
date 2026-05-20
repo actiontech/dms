@@ -50,7 +50,7 @@ func Test_SupportDBType(t *testing.T) {
 		"GoldenDB supported":    {input: pkgConst.DBTypeGoldenDB, expected: true},
 		"PostgreSQL unsupported": {input: pkgConst.DBTypePostgreSQL, expected: false},
 		"SQL Server unsupported": {input: pkgConst.DBTypeSQLServer, expected: false},
-		"PolarDB MySQL unsupported":  {input: pkgConst.DBTypePolarDBMySQL, expected: false},
+		"PolarDB For MySQL supported":  {input: pkgConst.DBTypePolarDBForMySQL, expected: true},
 	}
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {

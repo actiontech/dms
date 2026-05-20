@@ -1765,7 +1765,7 @@ func (cu *CloudbeaverUsecase) GenerateCloudbeaverConnectionParams(dbService *DBS
 		return nil, err
 	}
 	switch dbType {
-	case constant.DBTypeMySQL, constant.DBTypeTDSQLForInnoDB:
+	case constant.DBTypeMySQL, constant.DBTypeTDSQLForInnoDB, constant.DBTypePolarDBForMySQL:
 		err = cu.fillMySQLParams(config)
 	case constant.DBTypeTiDB:
 		err = cu.fillTiDBParams(config)
