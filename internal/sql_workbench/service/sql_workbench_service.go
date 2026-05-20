@@ -569,40 +569,8 @@ func (sqlWorkbenchService *SqlWorkbenchService) getUserAccessibleDBServices(ctx 
 
 // filterDBServicesByPermissions 根据权限过滤数据源
 func (sqlWorkbenchService *SqlWorkbenchService) filterDBServicesByPermissions(ctx context.Context, dbServices []*biz.DBService, opPermissions []biz.OpPermissionWithOpRange) ([]*biz.DBService, error) {
-	projectIdMap := make(map[string]struct{})
-	dbServiceIdMap := make(map[string]struct{})
-
-	for _, opPermission := range opPermissions {
-		// 项目权限
-		if opPermission.OpRangeType == biz.OpRangeTypeProject && opPermission.OpPermissionUID == pkgConst.UIDOfOpPermissionProjectAdmin {
-			for _, rangeUid := range opPermission.RangeUIDs {
-				projectIdMap[rangeUid] = struct{}{}
-			}
-		}
-
-		// 数据源权限
-		if opPermission.OpRangeType == biz.OpRangeTypeDBService && opPermission.OpPermissionUID == pkgConst.UIDOfOpPermissionSQLQuery {
-			for _, rangeUid := range opPermission.RangeUIDs {
-				dbServiceIdMap[rangeUid] = struct{}{}
-			}
-		}
-	}
-
-	var filteredDBServices []*biz.DBService
-	for _, dbService := range dbServices {
-		// 检查项目权限
-		if _, hasProjectPermission := projectIdMap[dbService.ProjectUID]; hasProjectPermission {
-			filteredDBServices = append(filteredDBServices, dbService)
-			continue
-		}
-
-		// 检查数据源权限
-		if _, hasDBServicePermission := dbServiceIdMap[dbService.UID]; hasDBServicePermission {
-			filteredDBServices = append(filteredDBServices, dbService)
-		}
-	}
-
-	return filteredDBServices, nil
+	_ = ctx
+	return biz.FilterDBServicesBySQLWorkbenchAccess(dbServices, opPermissions), nil
 }
 
 // getUserCookie 获取当前用户Cookie
