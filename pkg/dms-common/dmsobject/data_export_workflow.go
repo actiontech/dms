@@ -78,6 +78,22 @@ func GetGlobalDataExportWorkflowsList(ctx context.Context, dmsAddr string, req d
 		}
 	}
 
+	if req.FilterCreateTimeFrom != "" {
+		query.Set("filter_create_time_from", req.FilterCreateTimeFrom)
+	}
+
+	if req.FilterCreateTimeTo != "" {
+		query.Set("filter_create_time_to", req.FilterCreateTimeTo)
+	}
+
+	if req.FilterUpdateTimeFrom != "" {
+		query.Set("filter_update_time_from", req.FilterUpdateTimeFrom)
+	}
+
+	if req.FilterUpdateTimeTo != "" {
+		query.Set("filter_update_time_to", req.FilterUpdateTimeTo)
+	}
+
 	// 将查询参数附加到 URL
 	baseURL.RawQuery = query.Encode()
 

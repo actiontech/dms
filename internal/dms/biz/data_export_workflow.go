@@ -93,6 +93,7 @@ type WorkflowRecord struct {
 	CurrentWorkflowStepId uint64
 	CurrentStep           *WorkflowStep
 	WorkflowSteps         []*WorkflowStep
+	UpdateTime            time.Time
 }
 
 type WorkflowStep struct {

@@ -126,6 +126,18 @@ type FilterGlobalDataExportWorkflowReq struct {
 	// db_service UIDs with view_others_workflow permission for check_user_can_access
 	// in:query
 	ViewableDBServiceUids []string `json:"viewable_db_service_uids" query:"viewable_db_service_uids"`
+	// filter create time from
+	// in:query
+	FilterCreateTimeFrom string `json:"filter_create_time_from" query:"filter_create_time_from"`
+	// filter create time to
+	// in:query
+	FilterCreateTimeTo string `json:"filter_create_time_to" query:"filter_create_time_to"`
+	// filter update time from
+	// in:query
+	FilterUpdateTimeFrom string `json:"filter_update_time_from" query:"filter_update_time_from"`
+	// filter update time to
+	// in:query
+	FilterUpdateTimeTo string `json:"filter_update_time_to" query:"filter_update_time_to"`
 }
 
 // swagger:model GetGlobalDataExportWorkflowsReply
@@ -142,6 +154,7 @@ type GlobalDataExportWorkflow struct {
 	Description  string                   `json:"desc"`          // 数据导出工单的描述
 	Creater      UidWithName              `json:"creater"`       // 数据导出工单的创建人
 	CreatedAt    time.Time                `json:"created_at"`    // 数据导出工单的创建时间
+	UpdatedAt    time.Time                `json:"updated_at"`    // 数据导出工单的更新时间
 	Status       DataExportWorkflowStatus `json:"status"`        // 数据导出工单的状态
 
 	CurrentStepAssigneeUsers []UidWithName                           `json:"current_step_assignee_user_list"` // 工单待操作人

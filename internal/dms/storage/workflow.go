@@ -413,7 +413,8 @@ SELECT
        wr.current_workflow_step_id									 AS current_workflow_step_id,
        wr.uid                                                        AS workflow_record_uid,
 	   t.db_service_uid 											 AS db_service_uid,
-	   ds.name 											    		 AS db_service_name
+	   ds.name 											    		 AS db_service_name,
+	   wr.updated_at                                                 AS update_time
 {{- template "body" . -}}
 
 ORDER BY wr.updated_at DESC
@@ -491,7 +492,21 @@ AND w.project_uid IN (:filter_project_uids)
 AND (w.name like :fuzzy_keyword or w.uid like :fuzzy_keyword or w.desc like :fuzzy_keyword)
 {{- end }}
 
+{{- if .filter_create_time_from }}
+AND w.created_at >= :filter_create_time_from
+{{- end }}
 
+{{- if .filter_create_time_to }}
+AND w.created_at <= :filter_create_time_to
+{{- end }}
+
+{{- if .filter_update_time_from }}
+AND wr.updated_at >= :filter_update_time_from
+{{- end }}
+
+{{- if .filter_update_time_to }}
+AND wr.updated_at <= :filter_update_time_to
+{{- end }}
 
 {{ end }}
 
@@ -508,6 +523,7 @@ func (d *WorkflowRepo) GetGlobalWorkflowsByParameterMap(ctx context.Context, dat
 		CreateUserUID                 string        `gorm:"column:create_user_uid"`
 		CreateUserDeletedAt           *time.Time    `gorm:"column:create_user_deleted_at"`
 		CreateTime                    time.Time     `gorm:"column:create_time"`
+		UpdateTime                    time.Time     `gorm:"column:update_time"`
 		CurrentStepAssigneeUserIDList model.Strings `gorm:"column:current_step_assignee_user_id_list"`
 		CurrentStepState              string        `gorm:"column:current_step_state"`
 		Status                        string        `gorm:"column:status"`
@@ -584,6 +600,7 @@ func (d *WorkflowRepo) GetGlobalWorkflowsByParameterMap(ctx context.Context, dat
 			Status:                biz.DataExportWorkflowStatus(result.Status),
 			CurrentWorkflowStepId: result.CurrentWorkflowStepId,
 			WorkflowSteps:         make([]*biz.WorkflowStep, result.CurrentWorkflowStepId),
+			UpdateTime:            result.UpdateTime,
 		}
 
 		// Fill the WorkflowSteps array with placeholder steps
