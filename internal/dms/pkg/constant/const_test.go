@@ -152,3 +152,35 @@ func TestParseDBType(t *testing.T) {
 		})
 	}
 }
+
+func TestParseDBType_OpenGauss_EE(t *testing.T) {
+	cases := map[string]struct {
+		input   string
+		want    DBType
+		wantErr bool
+	}{
+		"openGauss literal":              {input: "openGauss", want: DBTypeOpenGauss, wantErr: false},
+		"OPENGAUSS upper":                {input: "OPENGAUSS", want: DBTypeOpenGauss, wantErr: false},
+		"opengauss lower":                {input: "opengauss", want: DBTypeOpenGauss, wantErr: false},
+		"GaussDB regression":             {input: "GaussDB", want: DBTypeGaussDB, wantErr: false},
+		"GaussDB for MySQL regression":   {input: "GaussDB for MySQL", want: DBTypeGaussDBForMySQL, wantErr: false},
+		"Unknown returns explicit error": {input: "Unknown", want: DBType(""), wantErr: true},
+	}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			got, err := ParseDBType(tc.input)
+			if tc.wantErr {
+				if err == nil {
+					t.Fatalf("expected error for input %q, got nil", tc.input)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("unexpected error for input %q: %v", tc.input, err)
+			}
+			if got != tc.want {
+				t.Fatalf("ParseDBType(%q): got %q, want %q", tc.input, got, tc.want)
+			}
+		})
+	}
+}
