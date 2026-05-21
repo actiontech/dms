@@ -11,7 +11,9 @@ func TestCheckDBTypeIfDataExportSupported_NewTypes(t *testing.T) {
 		"TDSQL For InnoDB":  true,
 		"GoldenDB":          true,
 		"TBase":             true,
-		"GaussDB for MySQL": true, // GaussDB/openGauss: ParseDBType 的输入值是 "GaussDB for MySQL"
+		// Issue #2868: GaussDB (PostgreSQL 协议) 与 GaussDB for MySQL (MySQL 协议) 是两个独立产品
+		"GaussDB":           true, // PostgreSQL 协议 GaussDB / openGauss, 走 opengauss-connector-go-pq 驱动
+		"GaussDB for MySQL": true, // 华为云 GaussDB(for MySQL), 走 MySQL 驱动
 		"DB2":               true,
 		"HANA":              true,
 		"PolarDB For MySQL": true,
@@ -55,7 +57,7 @@ func TestParseDBType_PolarDB(t *testing.T) {
 	}{
 		"valid PolarDB For MySQL": {
 			input:      "PolarDB For MySQL",
-			wantDBType: DBTypePolarDBMySQL,
+			wantDBType: DBTypePolarDBForMySQL,
 			wantErr:    false,
 		},
 		"invalid lowercase polardb": {
@@ -119,7 +121,9 @@ func TestParseDBType(t *testing.T) {
 		"TBase":              {input: "TBase", expected: DBTypeTBase},
 		"Hive":               {input: "Hive", expected: DBTypeHive},
 		"DM":                 {input: "DM", expected: DBTypeDM},
-		"GaussDB for MySQL":  {input: "GaussDB for MySQL", expected: DBTypeGaussDB},
+		// Issue #2868: 拆分 GaussDB / GaussDB for MySQL 为两个独立产品
+		"GaussDB":            {input: "GaussDB", expected: DBTypeGaussDB},
+		"GaussDB for MySQL":  {input: "GaussDB for MySQL", expected: DBTypeGaussDBForMySQL},
 		"HANA":               {input: "HANA", expected: DBTypeHANA},
 		// PolarDB-MySQL 新增 (Issue #826)
 		"PolarDB For MySQL":  {input: "PolarDB For MySQL", expected: DBTypePolarDBForMySQL},
