@@ -230,7 +230,7 @@ type RejectUnmaskingWorkflowReq struct {
 	WorkflowID string `param:"workflow_id" json:"workflow_id" validate:"required"`
 	// in: body
 	// Required: true
-	RejectUnmaskingWorkflow *RejectUnmaskingWorkflow `json:"reject_unmasking_workflow" validate:"required"`
+	RejectReason string `json:"reject_reason" validate:"required"`
 }
 
 // swagger:model RejectUnmaskingWorkflow
@@ -280,7 +280,7 @@ type ActivateUnmaskingWorkflowViewReply struct {
 
 // swagger:model ActivateUnmaskingWorkflowViewReplyData
 type ActivateUnmaskingWorkflowViewReplyData struct {
-	ViewValidUntil string                       `json:"view_valid_until"`
+	ViewValidUntil string                         `json:"view_valid_until"`
 	ViewState      biz.UnmaskingWorkflowViewState `json:"view_state"`
 }
 
