@@ -451,6 +451,13 @@ func (s *APIServer) installMiddleware() error {
 
 	s.echo.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Skipper: middleware.Skipper(func(c echo.Context) bool {
+			// 必须先跳过 /odc_query，避免 DMS 自身的 static fallback 把
+			// `/odc_query/`、`/odc_query/index.html` 等子路径返回为 DMS index.html，
+			// 导致 ODC SQL 工作台跳转被截获。无尾斜杠的 /odc_query 由 Group route
+			// 直接走 ProxyConfig 代理到 ODC 8989，本 Skipper 不影响。
+			if strings.HasPrefix(c.Request().URL.Path, s.SqlWorkbenchController.SqlWorkbenchService.GetRootUri()) {
+				return true
+			}
 			if strings.HasPrefix(c.Request().URL.Path, s.SqlWorkbenchController.CloudbeaverService.CloudbeaverUsecase.GetRootUri()) {
 				return true
 			}
