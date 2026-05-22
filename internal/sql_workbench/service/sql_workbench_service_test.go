@@ -25,6 +25,7 @@ func Test_convertDBType(t *testing.T) {
 		"TDSQL For InnoDB":    {input: "TDSQL For InnoDB", expected: "MYSQL"},
 		"GoldenDB":            {input: "GoldenDB", expected: "MYSQL"},
 		"PolarDB For MySQL":   {input: "PolarDB For MySQL", expected: "MYSQL"},
+		"GaussDB":             {input: "GaussDB", expected: "GAUSSDB"},
 		"MongoDB":             {input: "MongoDB", expected: "MONGODB"},
 		"Unknown passthrough": {input: "UnknownDB", expected: "UnknownDB"},
 	}
@@ -52,9 +53,11 @@ func Test_SupportDBType(t *testing.T) {
 		"TDSQL supported":             {input: pkgConst.DBTypeTDSQLForInnoDB, expected: true},
 		"GoldenDB supported":          {input: pkgConst.DBTypeGoldenDB, expected: true},
 		"MongoDB unsupported":         {input: pkgConst.DBTypeMongoDB, expected: false},
-		"PostgreSQL unsupported":      {input: pkgConst.DBTypePostgreSQL, expected: false},
+		"PostgreSQL supported":        {input: pkgConst.DBTypePostgreSQL, expected: true},
 		"SQL Server unsupported":      {input: pkgConst.DBTypeSQLServer, expected: false},
 		"PolarDB For MySQL supported": {input: pkgConst.DBTypePolarDBForMySQL, expected: true},
+		"GaussDB supported":            {input: pkgConst.DBTypeGaussDB, expected: true},
+		"GaussDBForMySQL unsupported":  {input: pkgConst.DBTypeGaussDBForMySQL, expected: false},
 	}
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
@@ -63,6 +66,18 @@ func Test_SupportDBType(t *testing.T) {
 				t.Errorf("SupportDBType(%q) = %v, want %v", tc.input, got, tc.expected)
 			}
 		})
+	}
+}
+
+func Test_SupportDBType_GaussDB_PG_family_consistency(t *testing.T) {
+	svc := &SqlWorkbenchService{}
+	// CR-13: design §1.2 decision-3 locks PG family (PostgreSQL + GaussDB)
+	// must be whitelisted together; SQL workbench routing assumes the pair.
+	if got := svc.SupportDBType(pkgConst.DBTypePostgreSQL); !got {
+		t.Errorf("PostgreSQL must be supported (CR-13 / EARS-1.2)")
+	}
+	if got := svc.SupportDBType(pkgConst.DBTypeGaussDB); !got {
+		t.Errorf("GaussDB must be supported (EARS-1.2 / decision-3)")
 	}
 }
 

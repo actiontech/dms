@@ -945,13 +945,15 @@ func (sqlWorkbenchService *SqlWorkbenchService) buildUpdateDatasourceRequest(ctx
 // convertDBType 转换数据库类型
 func (sqlWorkbenchService *SqlWorkbenchService) convertDBType(dmsDBType string) string {
 	// 这里需要根据实际的数据库类型映射关系进行转换
-	// ODC目前支持的数据源有: OB_MYSQL, OB_ORACLE, ORACLE, MYSQL, ODP_SHARDING_OB_MYSQL, DORIS, POSTGRESQL
+	// ODC目前支持的数据源有: OB_MYSQL, OB_ORACLE, ORACLE, MYSQL, ODP_SHARDING_OB_MYSQL, DORIS, POSTGRESQL, GAUSSDB
 	// 其余调用创建数据源接口会直接失败
 	switch dmsDBType {
 	case "MySQL":
 		return "MYSQL"
 	case "PostgreSQL":
 		return "POSTGRESQL"
+	case "GaussDB":
+		return "GAUSSDB"
 	case "Oracle":
 		return "ORACLE"
 	case "SQL Server":
@@ -985,7 +987,9 @@ func (sqlWorkbenchService *SqlWorkbenchService) SupportDBType(dbType pkgConst.DB
 		dbType == pkgConst.DBTypeTiDB ||
 		dbType == pkgConst.DBTypeTDSQLForInnoDB ||
 		dbType == pkgConst.DBTypeGoldenDB ||
-		dbType == pkgConst.DBTypePolarDBForMySQL
+		dbType == pkgConst.DBTypePolarDBForMySQL ||
+		dbType == pkgConst.DBTypeGaussDB ||
+		dbType == pkgConst.DBTypePostgreSQL
 }
 
 func buildMongoDatasourceOptions(dbService *biz.DBService) (*string, interface{}, map[string]interface{}) {
