@@ -1121,6 +1121,24 @@ func makeHttpRequest(ctx context.Context, url string, headers map[string]string,
 }
 
 // AuditMiddleware 拦截工作台odc请求进行加工
+//
+// 设计原则（issue #850, bug 修复）：
+//
+// 本中间件提供的是「在 streamExecute 反代到 ODC 前叠加 SQLE 审核」的增强能力，
+// 不是业务流的必经环节。当：
+//   - SQL/数据源 ID 解析失败；
+//   - 缓存 / 用户上下文缺失；
+//   - 该 DBService 未开启 SQL 审核；
+//   - SQLE 服务自身调用失败；
+//
+// 均应**透传放行**（fail-open，return next(c)）让 ODC 继续执行用户的 SQL，
+// 而不是把请求 400 掉、让用户连查询都跑不通。只有审核**明确返回需要拦截**
+// 的结果（如规则违反需审批）才走 buildAuditResponseWithoutExecution 路径。
+//
+// 修复前：未启用审核 / 缓存缺失 / 用户解析失败 等辅助路径异常均直接
+// `return errors.New(...)`，被 dms 的 HTTPErrorHandler 统一映射成 400，
+// 导致 case-pg-mysql-baseline-001 等用例在 SQL Console 上完全无法运行（见
+// docs/dev/fix-task-004-odc-streamExecute-400.md）。
 func (sqlWorkbenchService *SqlWorkbenchService) AuditMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -1132,7 +1150,8 @@ func (sqlWorkbenchService *SqlWorkbenchService) AuditMiddleware() echo.Middlewar
 			// 读取请求体
 			bodyBytes, err := io.ReadAll(c.Request().Body)
 			if err != nil {
-				sqlWorkbenchService.log.Errorf("failed to read request body: %v", err)
+				// body 读不出来无法叠加审核，但也无法继续构造反代请求；保留 fail-closed。
+				sqlWorkbenchService.log.Errorf("failed to read streamExecute request body: %v", err)
 				return errors.New(locale.Bundle.LocalizeMsgByCtx(c.Request().Context(), locale.SqlWorkbenchAuditReadReqBodyErr))
 			}
 			// 恢复请求体，供后续处理使用
@@ -1141,7 +1160,6 @@ func (sqlWorkbenchService *SqlWorkbenchService) AuditMiddleware() echo.Middlewar
 			// 解析请求体获取 SQL 和 datasource ID
 			// 注意：解析仅服务于审核辅助路径，解析失败不应直接阻塞用户的 SQL 执行；
 			// 否则一旦中间件辅助能力出错（如 sid 解码失败），用户连查询都跑不了。
-			// 真正的「未启用审核 / 审核失败」等强策略仍由后续分支按既有 fail-closed 处理。
 			sql, sidInfo, err := sqlWorkbenchService.parseStreamExecuteRequest(bodyBytes)
 			if err != nil {
 				sqlWorkbenchService.log.Warnf("failed to parse streamExecute request, skipping audit: %v", err)
@@ -1157,32 +1175,37 @@ func (sqlWorkbenchService *SqlWorkbenchService) AuditMiddleware() echo.Middlewar
 			// 获取当前用户 ID
 			dmsUserId, err := sqlWorkbenchService.getDMSUserIdFromRequest(c)
 			if err != nil {
-				sqlWorkbenchService.log.Errorf("failed to get DMS user ID: %v", err)
-				return errors.New(locale.Bundle.LocalizeMsgByCtx(c.Request().Context(), locale.SqlWorkbenchAuditGetDMSUserErr))
+				// 审计需要用户上下文，缺失时跳过审计而非阻塞执行（鉴权由前置 Login() 已经把关）。
+				sqlWorkbenchService.log.Warnf("failed to get DMS user ID, skipping audit: %v", err)
+				return next(c)
 			}
 
 			// 从缓存表获取 dms_db_service_id
 			dmsDBServiceID, err := sqlWorkbenchService.getDMSDBServiceIDFromCache(c.Request().Context(), datasourceID, dmsUserId)
 			if err != nil {
-				sqlWorkbenchService.log.Errorf("failed to get dms_db_service_id from cache: %v", err)
-				return errors.New(locale.Bundle.LocalizeMsgByCtx(c.Request().Context(), locale.SqlWorkbenchAuditGetDBServiceMappingErr))
+				// 缓存查询失败属于辅助路径异常，不应阻塞 SQL 执行。
+				sqlWorkbenchService.log.Warnf("failed to get dms_db_service_id from cache, skipping audit: %v", err)
+				return next(c)
 			}
 
 			if dmsDBServiceID == "" {
-				sqlWorkbenchService.log.Debugf("dms_db_service_id not found in cache for datasource: %s", datasourceID)
-				return errors.New(locale.Bundle.LocalizeMsgByCtx(c.Request().Context(), locale.SqlWorkbenchAuditDBServiceMappingNotFoundErr))
+				// 用户首次在工作台使用该数据源 / 数据源未走"通过 DMS 加载"路径时缓存为空，应放行。
+				sqlWorkbenchService.log.Warnf("dms_db_service_id not found in cache for datasource=%s, skipping audit", datasourceID)
+				return next(c)
 			}
 
 			// 获取 DBService 信息
 			dbService, err := sqlWorkbenchService.dbServiceUsecase.GetDBService(c.Request().Context(), dmsDBServiceID)
 			if err != nil {
-				sqlWorkbenchService.log.Errorf("failed to get DBService: %v", err)
-				return errors.New(locale.Bundle.LocalizeMsgByCtx(c.Request().Context(), locale.SqlWorkbenchAuditGetDBServiceErr))
+				// DBService 元数据查询失败属于辅助路径异常，不应阻塞 SQL 执行。
+				sqlWorkbenchService.log.Warnf("failed to get DBService %s, skipping audit: %v", dmsDBServiceID, err)
+				return next(c)
 			}
 
 			// 未开启 SQL 审核时直接放行，由 ODC 执行 SQL
 			if !sqlWorkbenchService.isEnableSQLAudit(dbService) {
-				sqlWorkbenchService.log.Debugf("SQL audit is not enabled for DBService: %s", dmsDBServiceID)
+				// 未启用审核 = 该数据源没要求审核加强，按裸 ODC 反代行为放行。
+				sqlWorkbenchService.log.Debugf("SQL audit is not enabled for DBService %s, skipping audit", dmsDBServiceID)
 				return next(c)
 			}
 
@@ -1199,8 +1222,9 @@ func (sqlWorkbenchService *SqlWorkbenchService) AuditMiddleware() echo.Middlewar
 			// 调用 SQLE 审核接口
 			auditResult, err := sqlWorkbenchService.callSQLEAudit(c.Request().Context(), sql, dbService, schemaName)
 			if err != nil {
-				sqlWorkbenchService.log.Errorf("call SQLE audit failed: %v", err)
-				return errors.New(locale.Bundle.LocalizeMsgByCtx(c.Request().Context(), locale.SqlWorkbenchAuditCallSQLEErr))
+				// SQLE 服务自身故障（连不上、超时等）不应让用户的 SQL 执行链路一起挂；放行并打 Warn 便于排障。
+				sqlWorkbenchService.log.Warnf("call SQLE audit failed, skipping audit: %v", err)
+				return next(c)
 			}
 
 			// 拦截响应并添加审核结果
