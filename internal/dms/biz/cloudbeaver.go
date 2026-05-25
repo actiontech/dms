@@ -1341,38 +1341,7 @@ func (cu *CloudbeaverUsecase) connectManagement(ctx context.Context, cloudbeaver
 			return err
 		}
 
-		// 已配置的项目管理权限和数据源工作台查询权限
-		projectIdMap := map[string]struct{}{}
-		dbServiceIdMap := map[string]struct{}{}
-		for _, opPermission := range opPermissions {
-			// project permission
-			if opPermission.OpRangeType == OpRangeTypeProject && opPermission.OpPermissionUID == constant.UIDOfOpPermissionProjectAdmin {
-				for _, rangeUid := range opPermission.RangeUIDs {
-					projectIdMap[rangeUid] = struct{}{}
-				}
-			}
-
-			// db_service permission
-			if opPermission.OpRangeType == OpRangeTypeDBService && opPermission.OpPermissionUID == constant.UIDOfOpPermissionSQLQuery {
-				for _, rangeUid := range opPermission.RangeUIDs {
-					dbServiceIdMap[rangeUid] = struct{}{}
-				}
-			}
-		}
-
-		var lastActiveDBServices []*DBService
-		for _, activeDBService := range activeDBServices {
-			if _, ok := projectIdMap[activeDBService.ProjectUID]; ok {
-				lastActiveDBServices = append(lastActiveDBServices, activeDBService)
-				continue
-			}
-
-			if _, ok := dbServiceIdMap[activeDBService.UID]; ok {
-				lastActiveDBServices = append(lastActiveDBServices, activeDBService)
-			}
-		}
-
-		activeDBServices = lastActiveDBServices
+		activeDBServices = FilterDBServicesBySQLWorkbenchAccess(activeDBServices, opPermissions)
 	}
 
 	cloudbeaverUser, exist, err := cu.repo.GetCloudbeaverUserByID(ctx, cloudbeaverUserId)

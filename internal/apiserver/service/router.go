@@ -22,6 +22,29 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
+type sqlWorkbenchProxyConfiguration struct {
+	enableCloudbeaver bool
+	cloudbeaverRoot   string
+	enableOdcQuery    bool
+	odcQueryRoot      string
+}
+
+func buildSQLWorkbenchProxyConfiguration(controller *SqlWorkbenchController) sqlWorkbenchProxyConfiguration {
+	cfg := sqlWorkbenchProxyConfiguration{}
+	if controller == nil {
+		return cfg
+	}
+	if controller.CloudbeaverService != nil && controller.CloudbeaverService.CloudbeaverUsecase != nil {
+		cfg.enableCloudbeaver = controller.CloudbeaverService.CloudbeaverUsecase.IsCloudbeaverConfigured()
+		cfg.cloudbeaverRoot = controller.CloudbeaverService.CloudbeaverUsecase.GetRootUri()
+	}
+	if controller.SqlWorkbenchService != nil {
+		cfg.enableOdcQuery = controller.SqlWorkbenchService.IsConfigured()
+		cfg.odcQueryRoot = controller.SqlWorkbenchService.GetRootUri()
+	}
+	return cfg
+}
+
 func (s *APIServer) initRouter() error {
 	s.echo.GET("/swagger/*", s.DMSController.SwaggerHandler, SwaggerMiddleWare)
 
@@ -30,6 +53,7 @@ func (s *APIServer) initRouter() error {
 		return err
 	}
 	v2 := s.echo.Group(dmsV2.CurrentGroupVersion)
+	proxyCfg := buildSQLWorkbenchProxyConfiguration(s.SqlWorkbenchController)
 	// DMS RESTful resource
 	{
 		{
@@ -262,8 +286,8 @@ func (s *APIServer) initRouter() error {
 		gatewayV1.GET("/tips", s.DMSController.GetGatewayTips)
 		gatewayV1.PUT("/", s.DMSController.SyncGateways, s.DMSController.DMS.GatewayUsecase.Broadcast())
 
-		if s.SqlWorkbenchController.CloudbeaverService.CloudbeaverUsecase.IsCloudbeaverConfigured() {
-			cloudbeaverV1 := s.echo.Group(s.SqlWorkbenchController.CloudbeaverService.CloudbeaverUsecase.GetRootUri())
+		if proxyCfg.enableCloudbeaver {
+			cloudbeaverV1 := s.echo.Group(proxyCfg.cloudbeaverRoot)
 			targets, err := s.SqlWorkbenchController.CloudbeaverService.ProxyUsecase.GetCloudbeaverProxyTarget()
 			if err != nil {
 				return err
@@ -277,8 +301,8 @@ func (s *APIServer) initRouter() error {
 			}))
 		}
 
-		if s.SqlWorkbenchController.SqlWorkbenchService.IsConfigured() {
-			sqlWorkbenchV1 := s.echo.Group(s.SqlWorkbenchController.SqlWorkbenchService.GetRootUri())
+		if proxyCfg.enableOdcQuery {
+			sqlWorkbenchV1 := s.echo.Group(proxyCfg.odcQueryRoot)
 			targets, err := s.SqlWorkbenchController.SqlWorkbenchService.GetOdcProxyTarget()
 			if err != nil {
 				return err

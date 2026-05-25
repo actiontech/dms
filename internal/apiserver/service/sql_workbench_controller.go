@@ -4,10 +4,9 @@ import (
 	"fmt"
 
 	dmsV1 "github.com/actiontech/dms/api/dms/service/v1"
-	sql_workbench "github.com/actiontech/dms/internal/sql_workbench/service"
-
 	"github.com/actiontech/dms/internal/apiserver/conf"
 	"github.com/actiontech/dms/internal/dms/service"
+	sql_workbench "github.com/actiontech/dms/internal/sql_workbench/service"
 
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 	"github.com/labstack/echo/v4"
@@ -44,6 +43,22 @@ func (cc *SqlWorkbenchController) Shutdown() error {
 	return nil
 }
 
+type SQLQueryConfiguration struct {
+	EnableSQLQuery  bool   `json:"enable_sql_query"`
+	SQLQueryRootURI string `json:"sql_query_root_uri"`
+	EnableOdcQuery  bool   `json:"enable_odc_query"`
+	OdcQueryRootURI string `json:"odc_query_root_uri"`
+}
+
+func (cc *SqlWorkbenchController) buildSQLQueryConfiguration() SQLQueryConfiguration {
+	return SQLQueryConfiguration{
+		EnableSQLQuery:  cc.CloudbeaverService.CloudbeaverUsecase.IsCloudbeaverConfigured(),
+		SQLQueryRootURI: cc.CloudbeaverService.CloudbeaverUsecase.GetRootUri() + "/", // 确保URL以斜杠结尾，防止DMS开启HTTPS时，Web服务器重定向到HTTP根路径导致访问错误
+		EnableOdcQuery:  cc.SqlWorkbenchService.IsConfigured(),
+		OdcQueryRootURI: cc.SqlWorkbenchService.GetRootUri(),
+	}
+}
+
 // swagger:route GET /v1/dms/configurations/sql_query CloudBeaver GetSQLQueryConfiguration
 //
 // get sql_query configuration.
@@ -52,18 +67,6 @@ func (cc *SqlWorkbenchController) Shutdown() error {
 //	  200: body:GetSQLQueryConfigurationReply
 //	  default: body:GenericResp
 func (cc *SqlWorkbenchController) GetSQLQueryConfiguration(c echo.Context) error {
-	reply := &dmsV1.GetSQLQueryConfigurationReply{
-		Data: struct {
-			EnableSQLQuery  bool   `json:"enable_sql_query"`
-			SQLQueryRootURI string `json:"sql_query_root_uri"`
-			EnableOdcQuery  bool   `json:"enable_odc_query"`
-			OdcQueryRootURI string `json:"odc_query_root_uri"`
-		}{
-			EnableSQLQuery:  cc.CloudbeaverService.CloudbeaverUsecase.IsCloudbeaverConfigured(),
-			SQLQueryRootURI: cc.CloudbeaverService.CloudbeaverUsecase.GetRootUri() + "/", // 确保URL以斜杠结尾，防止DMS开启HTTPS时，Web服务器重定向到HTTP根路径导致访问错误
-			EnableOdcQuery:  cc.SqlWorkbenchService.IsConfigured(),
-			OdcQueryRootURI: cc.SqlWorkbenchService.GetRootUri(),
-		},
-	}
+	reply := &dmsV1.GetSQLQueryConfigurationReply{Data: cc.buildSQLQueryConfiguration()}
 	return NewOkRespWithReply(c, reply)
 }
