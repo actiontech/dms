@@ -529,8 +529,13 @@ func (d *DBServiceUsecase) GetDriverParamsByDBType(ctx context.Context, dbType s
 	if err != nil {
 		return nil, err
 	}
+	// 同时接受调用方传入的主形态与别名（如 "GaussDB / openGauss" / "GaussDB" 都接受），
+	// 与 driver_options 接口实际暴露的字面值进行同形态比对。详见 #2877 bug-C。
+	normalized := pkgConst.NormalizeDBType(dbType)
 	for _, driverOptions := range databaseOptions {
-		if driverOptions.DBType == dbType {
+		if driverOptions.DBType == dbType ||
+			driverOptions.DBType == normalized ||
+			pkgConst.NormalizeDBType(driverOptions.DBType) == normalized {
 			return convertAdditionParamsToParams(driverOptions.Params), nil
 		}
 
@@ -715,7 +720,9 @@ func (d *DBServiceUsecase) UpdateDBServiceByArgs(ctx context.Context, dbServiceU
 
 	// check
 	{
-		if ds.DBType != updateDBService.DBType {
+		// 允许调用方传入 alias（如 "GaussDB"），与落库的主形态（如
+		// "GaussDB / openGauss"）做归一化比较，详见 #2877 bug-C。
+		if pkgConst.NormalizeDBType(ds.DBType) != pkgConst.NormalizeDBType(updateDBService.DBType) {
 			return fmt.Errorf("update db service db type is unsupported")
 		}
 

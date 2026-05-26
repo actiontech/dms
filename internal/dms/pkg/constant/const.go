@@ -264,6 +264,35 @@ func ParseDBType(s string) (DBType, error) {
 	}
 }
 
+// dbTypeAliasMap 将上下游（如 SQLE plugin / 前端规范化后的 db_type）使用的别名映射回
+// DMS 内部落库使用的主形态。例如 GaussDB / openGauss 的 DBType 常量为
+// "GaussDB / openGauss"，但 SQLE plugin 与 driver_options 接口暴露给前端的字面值是
+// "GaussDB"，前端再以 "GaussDB" 作为 filter 条件回查 db_services / 在编辑数据源时回写
+// db_type，会因字面值不一致而失败（issue #2877 bug-A / bug-C）。
+//
+// 当前只覆盖 GaussDB；如未来新增其它需要 alias 的 DBType，在此处补充。
+var dbTypeAliasMap = map[string]DBType{
+	"GaussDB":             DBTypeGaussDB,
+	"GaussDB / openGauss": DBTypeGaussDB,
+	"openGauss":           DBTypeGaussDB,
+}
+
+// NormalizeDBType 将传入的 db_type 字符串归一化为 DMS 内部落库使用的主形态。
+//   - 命中 DBType 枚举常量本身（如 "MySQL"）直接返回；
+//   - 命中已知 alias（如 "GaussDB" / "openGauss"）映射为主形态 DBTypeGaussDB；
+//   - 其它字符串保持原样返回，由调用方决定是否走 ParseDBType / 白名单校验。
+//
+// 该函数只做"形态归一"，不做合法性校验；不会返回 error。
+func NormalizeDBType(s string) string {
+	if s == "" {
+		return s
+	}
+	if v, ok := dbTypeAliasMap[s]; ok {
+		return string(v)
+	}
+	return s
+}
+
 const (
 	DBTypeMySQL           DBType = "MySQL"
 	DBTypePostgreSQL      DBType = "PostgreSQL"

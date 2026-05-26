@@ -152,3 +152,33 @@ func TestParseDBType(t *testing.T) {
 		})
 	}
 }
+
+// TestNormalizeDBType 验证 db_type alias 归一化覆盖 #2877 bug-A / bug-C 的核心契约。
+func TestNormalizeDBType(t *testing.T) {
+	cases := []struct {
+		name string
+		in   string
+		want string
+	}{
+		// GaussDB 别名归一为主形态
+		{"alias-GaussDB", "GaussDB", string(DBTypeGaussDB)},
+		{"alias-openGauss", "openGauss", string(DBTypeGaussDB)},
+		// 主形态保持不变
+		{"canonical-GaussDB", string(DBTypeGaussDB), string(DBTypeGaussDB)},
+		{"canonical-MySQL", string(DBTypeMySQL), string(DBTypeMySQL)},
+		// 其它已存在的 DBType 不受影响
+		{"PostgreSQL", "PostgreSQL", "PostgreSQL"},
+		{"DM", string(DBTypeDM), string(DBTypeDM)},
+		// 未知值 / 空串保持原样
+		{"unknown", "UnknownDB", "UnknownDB"},
+		{"empty", "", ""},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := NormalizeDBType(tc.in)
+			if got != tc.want {
+				t.Errorf("NormalizeDBType(%q) = %q, want %q", tc.in, got, tc.want)
+			}
+		})
+	}
+}

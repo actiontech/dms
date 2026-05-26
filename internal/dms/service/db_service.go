@@ -557,10 +557,12 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV2.ListDB
 	}
 
 	if req.FilterByDBType != "" {
+		// 将上下游传入的 db_type 别名（如 "GaussDB"）归一为 DMS 内部落库的主形态
+		// （如 "GaussDB / openGauss"），避免字面值不一致导致 filter 命中失败。详见 #2877 bug-A。
 		andConditions = append(andConditions, pkgConst.FilterCondition{
 			Field:    string(biz.DBServiceFieldDBType),
 			Operator: pkgConst.FilterOperatorEqual,
-			Value:    req.FilterByDBType,
+			Value:    pkgConst.NormalizeDBType(req.FilterByDBType),
 		})
 	}
 
