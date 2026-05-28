@@ -985,8 +985,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) SupportDBType(dbType pkgConst.DB
 		dbType == pkgConst.DBTypeTiDB ||
 		dbType == pkgConst.DBTypeTDSQLForInnoDB ||
 		dbType == pkgConst.DBTypeGoldenDB ||
-		dbType == pkgConst.DBTypePolarDBForMySQL ||
-		dbType == pkgConst.DBTypeMongoDB
+		dbType == pkgConst.DBTypePolarDBForMySQL
 }
 
 func buildMongoDatasourceOptions(dbService *biz.DBService) (*string, interface{}, map[string]interface{}) {
@@ -996,24 +995,23 @@ func buildMongoDatasourceOptions(dbService *biz.DBService) (*string, interface{}
 		defaultSchema = &defaultDatabase
 	}
 
-	properties := map[string]interface{}{}
-	if defaultDatabase != "" {
-		properties["defaultDatabase"] = defaultDatabase
-	}
+	jdbcParams := map[string]interface{}{}
 	if authDB := dbService.AdditionalParams.GetParam(mongoAuthDatabaseParam).String(); authDB != "" {
-		properties["authenticationDatabase"] = authDB
+		jdbcParams["authSource"] = authDB
 	}
 	if authMechanism := dbService.AdditionalParams.GetParam(mongoAuthMechanismParam).String(); authMechanism != "" {
-		properties["authMechanism"] = authMechanism
+		jdbcParams["authMechanism"] = authMechanism
 	}
 	if replicaSet := dbService.AdditionalParams.GetParam(mongoReplicaSetParam).String(); replicaSet != "" {
-		properties["replicaSet"] = replicaSet
+		jdbcParams["replicaSet"] = replicaSet
 	}
-	if len(properties) > 0 {
-		properties["tlsEnabled"] = dbService.AdditionalParams.GetParam(mongoTLSEnabledParam).Bool()
+	if tlsParam := dbService.AdditionalParams.GetParam(mongoTLSEnabledParam); tlsParam != nil && tlsParam.String() != "" {
+		if tlsParam.Bool() {
+			jdbcParams["tls"] = "true"
+		} else {
+			jdbcParams["tls"] = "false"
+		}
 	}
-
-	jdbcParams := map[string]interface{}{}
 	if dbService.AdditionalParams.GetParam(mongoDirectConnectionParam).Bool() {
 		jdbcParams["directConnection"] = true
 	}
@@ -1021,10 +1019,10 @@ func buildMongoDatasourceOptions(dbService *biz.DBService) (*string, interface{}
 		jdbcParams["tlsInsecure"] = true
 	}
 
-	if len(properties) == 0 {
-		return defaultSchema, nil, jdbcParams
+	if len(jdbcParams) == 0 {
+		return defaultSchema, nil, nil
 	}
-	return defaultSchema, properties, jdbcParams
+	return defaultSchema, nil, jdbcParams
 }
 
 func interfacePtr(v interface{}) *interface{} {

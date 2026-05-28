@@ -51,7 +51,7 @@ func Test_SupportDBType(t *testing.T) {
 		"TiDB supported":              {input: pkgConst.DBTypeTiDB, expected: true},
 		"TDSQL supported":             {input: pkgConst.DBTypeTDSQLForInnoDB, expected: true},
 		"GoldenDB supported":          {input: pkgConst.DBTypeGoldenDB, expected: true},
-		"MongoDB supported":           {input: pkgConst.DBTypeMongoDB, expected: true},
+		"MongoDB unsupported":         {input: pkgConst.DBTypeMongoDB, expected: false},
 		"PostgreSQL unsupported":      {input: pkgConst.DBTypePostgreSQL, expected: false},
 		"SQL Server unsupported":      {input: pkgConst.DBTypeSQLServer, expected: false},
 		"PolarDB For MySQL supported": {input: pkgConst.DBTypePolarDBForMySQL, expected: true},
@@ -85,18 +85,38 @@ func Test_buildMongoDatasourceOptions(t *testing.T) {
 	if defaultSchema == nil || *defaultSchema != defaultDB {
 		t.Fatalf("unexpected default schema: %#v", defaultSchema)
 	}
-	properties, ok := propertiesValue.(map[string]interface{})
-	if !ok {
-		t.Fatalf("unexpected properties type: %T", propertiesValue)
+	if propertiesValue != nil {
+		t.Fatalf("expected nil properties, got %#v", propertiesValue)
 	}
-	if properties["authenticationDatabase"] != "admin" {
-		t.Fatalf("unexpected auth db: %#v", properties)
+	if jdbcParams["authSource"] != "admin" {
+		t.Fatalf("unexpected authSource: %#v", jdbcParams["authSource"])
 	}
-	if properties["tlsEnabled"] != true {
-		t.Fatalf("unexpected tlsEnabled: %#v", properties)
+	if jdbcParams["authMechanism"] != "SCRAM-SHA-256" {
+		t.Fatalf("unexpected authMechanism: %#v", jdbcParams["authMechanism"])
+	}
+	if jdbcParams["replicaSet"] != "rs0" {
+		t.Fatalf("unexpected replicaSet: %#v", jdbcParams["replicaSet"])
+	}
+	if jdbcParams["tls"] != "true" {
+		t.Fatalf("unexpected tls: %#v", jdbcParams["tls"])
 	}
 	if jdbcParams["directConnection"] != true || jdbcParams["tlsInsecure"] != true {
 		t.Fatalf("unexpected jdbc params: %#v", jdbcParams)
+	}
+}
+
+func Test_buildMongoDatasourceOptions_tlsOnly(t *testing.T) {
+	_, propertiesValue, jdbcParams := buildMongoDatasourceOptions(&biz.DBService{
+		DBType: string(pkgConst.DBTypeMongoDB),
+		AdditionalParams: pkgParams.Params{
+			&pkgParams.Param{Key: mongoTLSEnabledParam, Value: "true", Type: pkgParams.ParamTypeBool},
+		},
+	})
+	if propertiesValue != nil {
+		t.Fatalf("expected nil properties, got %#v", propertiesValue)
+	}
+	if jdbcParams["tls"] != "true" {
+		t.Fatalf("expected tls in jdbcUrlParameters when only tls is configured, got %#v", jdbcParams)
 	}
 }
 
