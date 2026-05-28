@@ -851,7 +851,19 @@ type datasourceBaseInfo struct {
 	ServiceName   *string
 	EnvironmentID int64
 	DefaultSchema *string
+	Properties    interface{}
+	JDBCParams    map[string]interface{}
 }
+
+const (
+	mongoDefaultDatabaseParam  = "default_database"
+	mongoAuthDatabaseParam     = "auth_source"
+	mongoAuthMechanismParam    = "auth_mechanism"
+	mongoReplicaSetParam       = "replica_set"
+	mongoTLSEnabledParam       = "tls"
+	mongoDirectConnectionParam = "direct_connection"
+	mongoTLSSkipVerifyParam    = "tls_skip_verify"
+)
 
 // buildDatasourceBaseInfo 构建数据源基础信息
 func (sqlWorkbenchService *SqlWorkbenchService) buildDatasourceBaseInfo(ctx context.Context, dbService *biz.DBService, environmentID int64) (*datasourceBaseInfo, error) {
@@ -876,6 +888,10 @@ func (sqlWorkbenchService *SqlWorkbenchService) buildDatasourceBaseInfo(ctx cont
 		baseInfo.ServiceName = &serviceName
 	}
 
+	if dbService.DBType == string(pkgConst.DBTypeMongoDB) {
+		baseInfo.DefaultSchema, baseInfo.Properties, baseInfo.JDBCParams = buildMongoDatasourceOptions(dbService)
+	}
+
 	return baseInfo, nil
 }
 
@@ -887,17 +903,19 @@ func (sqlWorkbenchService *SqlWorkbenchService) buildCreateDatasourceRequest(ctx
 	}
 
 	return client.CreateDatasourceRequest{
-		CreatorID:     sqlWorkbenchUser.SqlWorkbenchUserId,
-		Type:          baseInfo.Type,
-		Name:          baseInfo.Name,
-		Username:      baseInfo.Username,
-		Password:      baseInfo.Password,
-		Host:          baseInfo.Host,
-		Port:          baseInfo.Port,
-		ServiceName:   baseInfo.ServiceName,
-		SSLConfig:     client.SSLConfig{Enabled: false},
-		EnvironmentID: baseInfo.EnvironmentID,
-		DefaultSchema: baseInfo.DefaultSchema,
+		CreatorID:         sqlWorkbenchUser.SqlWorkbenchUserId,
+		Type:              baseInfo.Type,
+		Name:              baseInfo.Name,
+		Username:          baseInfo.Username,
+		Password:          baseInfo.Password,
+		Host:              baseInfo.Host,
+		Port:              baseInfo.Port,
+		ServiceName:       baseInfo.ServiceName,
+		SSLConfig:         client.SSLConfig{Enabled: false},
+		Properties:        baseInfo.Properties,
+		EnvironmentID:     baseInfo.EnvironmentID,
+		JdbcURLParameters: baseInfo.JDBCParams,
+		DefaultSchema:     baseInfo.DefaultSchema,
 	}, nil
 }
 
@@ -909,16 +927,18 @@ func (sqlWorkbenchService *SqlWorkbenchService) buildUpdateDatasourceRequest(ctx
 	}
 
 	return client.UpdateDatasourceRequest{
-		Type:          baseInfo.Type,
-		Name:          &baseInfo.Name,
-		Username:      baseInfo.Username,
-		Password:      &baseInfo.Password,
-		Host:          baseInfo.Host,
-		Port:          baseInfo.Port,
-		ServiceName:   baseInfo.ServiceName,
-		SSLConfig:     client.SSLConfig{Enabled: false},
-		EnvironmentID: baseInfo.EnvironmentID,
-		DefaultSchema: baseInfo.DefaultSchema,
+		Type:              baseInfo.Type,
+		Name:              &baseInfo.Name,
+		Username:          baseInfo.Username,
+		Password:          &baseInfo.Password,
+		Host:              baseInfo.Host,
+		Port:              baseInfo.Port,
+		ServiceName:       baseInfo.ServiceName,
+		SSLConfig:         client.SSLConfig{Enabled: false},
+		Properties:        interfacePtr(baseInfo.Properties),
+		EnvironmentID:     baseInfo.EnvironmentID,
+		JdbcURLParameters: mapPtr(baseInfo.JDBCParams),
+		DefaultSchema:     baseInfo.DefaultSchema,
 	}, nil
 }
 
@@ -950,6 +970,8 @@ func (sqlWorkbenchService *SqlWorkbenchService) convertDBType(dmsDBType string) 
 		return "MYSQL"
 	case "PolarDB For MySQL":
 		return "MYSQL"
+	case "MongoDB":
+		return "MONGODB"
 	default:
 		return dmsDBType
 	}
@@ -963,7 +985,60 @@ func (sqlWorkbenchService *SqlWorkbenchService) SupportDBType(dbType pkgConst.DB
 		dbType == pkgConst.DBTypeTiDB ||
 		dbType == pkgConst.DBTypeTDSQLForInnoDB ||
 		dbType == pkgConst.DBTypeGoldenDB ||
-		dbType == pkgConst.DBTypePolarDBForMySQL
+		dbType == pkgConst.DBTypePolarDBForMySQL ||
+		dbType == pkgConst.DBTypeMongoDB
+}
+
+func buildMongoDatasourceOptions(dbService *biz.DBService) (*string, interface{}, map[string]interface{}) {
+	defaultDatabase := dbService.AdditionalParams.GetParam(mongoDefaultDatabaseParam).String()
+	var defaultSchema *string
+	if defaultDatabase != "" {
+		defaultSchema = &defaultDatabase
+	}
+
+	properties := map[string]interface{}{}
+	if defaultDatabase != "" {
+		properties["defaultDatabase"] = defaultDatabase
+	}
+	if authDB := dbService.AdditionalParams.GetParam(mongoAuthDatabaseParam).String(); authDB != "" {
+		properties["authenticationDatabase"] = authDB
+	}
+	if authMechanism := dbService.AdditionalParams.GetParam(mongoAuthMechanismParam).String(); authMechanism != "" {
+		properties["authMechanism"] = authMechanism
+	}
+	if replicaSet := dbService.AdditionalParams.GetParam(mongoReplicaSetParam).String(); replicaSet != "" {
+		properties["replicaSet"] = replicaSet
+	}
+	if len(properties) > 0 {
+		properties["tlsEnabled"] = dbService.AdditionalParams.GetParam(mongoTLSEnabledParam).Bool()
+	}
+
+	jdbcParams := map[string]interface{}{}
+	if dbService.AdditionalParams.GetParam(mongoDirectConnectionParam).Bool() {
+		jdbcParams["directConnection"] = true
+	}
+	if dbService.AdditionalParams.GetParam(mongoTLSSkipVerifyParam).Bool() {
+		jdbcParams["tlsInsecure"] = true
+	}
+
+	if len(properties) == 0 {
+		return defaultSchema, nil, jdbcParams
+	}
+	return defaultSchema, properties, jdbcParams
+}
+
+func interfacePtr(v interface{}) *interface{} {
+	if v == nil {
+		return nil
+	}
+	return &v
+}
+
+func mapPtr(v map[string]interface{}) *map[string]interface{} {
+	if len(v) == 0 {
+		return nil
+	}
+	return &v
 }
 
 // buildDatabaseUser 当是ob-mysql时需要给账号管理的账号附加租户名集群名等字符: root@oms_mysql#oms_resource_4250

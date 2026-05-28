@@ -256,6 +256,8 @@ func ParseDBType(s string) (DBType, error) {
 		return DBTypeHANA, nil
 	case "PolarDB For MySQL":
 		return DBTypePolarDBForMySQL, nil
+	case "MongoDB":
+		return DBTypeMongoDB, nil
 	case "OceanBase For Oracle":
 		return DBTypeOceanBaseOracle, nil
 
@@ -281,6 +283,7 @@ const (
 	DBTypeGaussDBForMySQL DBType = "GaussDB for MySQL"
 	DBTypeHANA            DBType = "HANA"
 	DBTypePolarDBForMySQL DBType = "PolarDB For MySQL"
+	DBTypeMongoDB         DBType = "MongoDB"
 	DBTypeOceanBaseOracle DBType = "OceanBase For Oracle"
 )
 
