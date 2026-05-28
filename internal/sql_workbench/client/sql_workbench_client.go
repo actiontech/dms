@@ -398,7 +398,7 @@ func (c *SqlWorkbenchClient) CreateDatasources(datasource CreateDatasourceReques
 	// 检查HTTP状态码
 	if resp.StatusCode != http.StatusOK {
 		c.log.Errorf("Create datasource failed with status code: %d, response: %s", resp.StatusCode, string(body))
-		return nil, fmt.Errorf("create datasource failed with status code: %d", resp.StatusCode)
+		return nil, fmt.Errorf("create datasource failed with status code: %d, response: %s", resp.StatusCode, string(body))
 	}
 
 	// 解析响应

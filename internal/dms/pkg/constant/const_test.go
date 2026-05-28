@@ -7,10 +7,10 @@ import (
 func TestCheckDBTypeIfDataExportSupported_NewTypes(t *testing.T) {
 	// 验证新增的数据源应在白名单中
 	newTypes := map[string]bool{
-		"TiDB":              true,
-		"TDSQL For InnoDB":  true,
-		"GoldenDB":          true,
-		"TBase":             true,
+		"TiDB":             true,
+		"TDSQL For InnoDB": true,
+		"GoldenDB":         true,
+		"TBase":            true,
 		// Issue #2868: GaussDB (PostgreSQL 协议) 与 GaussDB for MySQL (MySQL 协议) 是两个独立产品
 		"GaussDB":           true, // PostgreSQL 协议 GaussDB / openGauss, 走 opengauss-connector-go-pq 驱动
 		"GaussDB for MySQL": true, // 华为云 GaussDB(for MySQL), 走 MySQL 驱动
@@ -51,9 +51,9 @@ func TestCheckDBTypeIfDataExportSupported_ExistingTypes(t *testing.T) {
 
 func TestParseDBType_PolarDB(t *testing.T) {
 	cases := map[string]struct {
-		input       string
-		wantDBType  DBType
-		wantErr     bool
+		input      string
+		wantDBType DBType
+		wantErr    bool
 	}{
 		"valid PolarDB For MySQL": {
 			input:      "PolarDB For MySQL",
@@ -109,28 +109,29 @@ func TestParseDBType(t *testing.T) {
 		expected    DBType
 		expectError bool
 	}{
-		"MySQL":              {input: "MySQL", expected: DBTypeMySQL},
-		"TDSQL For InnoDB":   {input: "TDSQL For InnoDB", expected: DBTypeTDSQLForInnoDB},
-		"TiDB":               {input: "TiDB", expected: DBTypeTiDB},
-		"PostgreSQL":         {input: "PostgreSQL", expected: DBTypePostgreSQL},
-		"Oracle":             {input: "Oracle", expected: DBTypeOracle},
-		"DB2":                {input: "DB2", expected: DBTypeDB2},
-		"SQL Server":         {input: "SQL Server", expected: DBTypeSQLServer},
+		"MySQL":               {input: "MySQL", expected: DBTypeMySQL},
+		"TDSQL For InnoDB":    {input: "TDSQL For InnoDB", expected: DBTypeTDSQLForInnoDB},
+		"TiDB":                {input: "TiDB", expected: DBTypeTiDB},
+		"PostgreSQL":          {input: "PostgreSQL", expected: DBTypePostgreSQL},
+		"Oracle":              {input: "Oracle", expected: DBTypeOracle},
+		"DB2":                 {input: "DB2", expected: DBTypeDB2},
+		"SQL Server":          {input: "SQL Server", expected: DBTypeSQLServer},
 		"OceanBase For MySQL": {input: "OceanBase For MySQL", expected: DBTypeOceanBaseMySQL},
-		"GoldenDB":           {input: "GoldenDB", expected: DBTypeGoldenDB},
-		"TBase":              {input: "TBase", expected: DBTypeTBase},
-		"Hive":               {input: "Hive", expected: DBTypeHive},
-		"DM":                 {input: "DM", expected: DBTypeDM},
+		"GoldenDB":            {input: "GoldenDB", expected: DBTypeGoldenDB},
+		"TBase":               {input: "TBase", expected: DBTypeTBase},
+		"Hive":                {input: "Hive", expected: DBTypeHive},
+		"DM":                  {input: "DM", expected: DBTypeDM},
 		// Issue #2868: 拆分 GaussDB / GaussDB for MySQL 为两个独立产品
-		"GaussDB":            {input: "GaussDB", expected: DBTypeGaussDB},
-		"GaussDB for MySQL":  {input: "GaussDB for MySQL", expected: DBTypeGaussDBForMySQL},
-		"HANA":               {input: "HANA", expected: DBTypeHANA},
+		"GaussDB":           {input: "GaussDB", expected: DBTypeGaussDB},
+		"GaussDB for MySQL": {input: "GaussDB for MySQL", expected: DBTypeGaussDBForMySQL},
+		"HANA":              {input: "HANA", expected: DBTypeHANA},
 		// PolarDB-MySQL 新增 (Issue #826)
-		"PolarDB For MySQL":  {input: "PolarDB For MySQL", expected: DBTypePolarDBForMySQL},
+		"PolarDB For MySQL": {input: "PolarDB For MySQL", expected: DBTypePolarDBForMySQL},
+		"MongoDB":           {input: "MongoDB", expected: DBTypeMongoDB},
 		// "PolarDB" 单独不应匹配
-		"PolarDB only":       {input: "PolarDB", expectError: true},
-		"invalid type":       {input: "UnknownDB", expectError: true},
-		"empty string":       {input: "", expectError: true},
+		"PolarDB only": {input: "PolarDB", expectError: true},
+		"invalid type": {input: "UnknownDB", expectError: true},
+		"empty string": {input: "", expectError: true},
 	}
 
 	for name, tc := range tests {
