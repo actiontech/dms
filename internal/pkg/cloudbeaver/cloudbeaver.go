@@ -80,6 +80,8 @@ type GraphQLImpl interface {
 	CreateUserQuery() string
 	GrantUserRoleQuery() string
 	LoginQuery() string
+	OpenSessionQuery() string
+	UpdateSessionQuery() string
 	GetActiveUserQuery() string
 	GetExecutionContextListQuery() string
 }
@@ -219,8 +221,31 @@ query authLogin(
     	configuration: null
     	credentials: $credentials
     	linkUser: false
+		forceSessionsLogout: true
   ){
     authId
+  }
+}
+`
+}
+
+func (CloudBeaverV2215) OpenSessionQuery() string {
+	return `
+mutation openSession($defaultLocale: String) {
+  session: openSession(defaultLocale: $defaultLocale) {
+    valid
+    remainingTime
+  }
+}
+`
+}
+
+func (CloudBeaverV2215) UpdateSessionQuery() string {
+	return `
+mutation updateSession {
+  session: updateSession {
+    valid
+    remainingTime
   }
 }
 `

@@ -359,7 +359,7 @@ var GraphQLHandlerRouters = map[string] /* gql operation name */ gqlBehavior{
 	"getActiveUser": {
 		UseLocalHandler:     true,
 		NeedModifyRemoteRes: true,
-	}, "authLogout": {
+	}, "openSession": {}, "authLogout": {
 		Disable: true,
 	}, "authLogin": {
 		Disable: true,
