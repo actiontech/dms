@@ -56,8 +56,10 @@ func Test_SupportDBType(t *testing.T) {
 		"PostgreSQL supported":        {input: pkgConst.DBTypePostgreSQL, expected: true},
 		"SQL Server unsupported":      {input: pkgConst.DBTypeSQLServer, expected: false},
 		"PolarDB For MySQL supported": {input: pkgConst.DBTypePolarDBForMySQL, expected: true},
-		"GaussDB supported":            {input: pkgConst.DBTypeGaussDB, expected: true},
-		"GaussDBForMySQL unsupported":  {input: pkgConst.DBTypeGaussDBForMySQL, expected: false},
+		"GaussDB supported":           {input: pkgConst.DBTypeGaussDB, expected: true},
+		"GaussDBForMySQL unsupported": {input: pkgConst.DBTypeGaussDBForMySQL, expected: false},
+		"empty string unsupported":    {input: pkgConst.DBType(""), expected: false},
+		"unknown type unsupported":    {input: pkgConst.DBType("UnknownDBType"), expected: false},
 	}
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
