@@ -1,22 +1,24 @@
 package service
 
 import (
+	"bytes"
+	"compress/gzip"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 
 	dmsMiddleware "github.com/actiontech/dms/internal/apiserver/middleware"
 	"github.com/actiontech/dms/internal/dms/biz"
-	dmsService "github.com/actiontech/dms/internal/dms/service"
-	"github.com/actiontech/dms/internal/dms/storage"
 	"github.com/actiontech/dms/internal/pkg/locale"
-	"github.com/actiontech/dms/internal/pkg/utils"
 	sqlWorkbenchService "github.com/actiontech/dms/internal/sql_workbench/service"
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	dmsV2 "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
 	"github.com/actiontech/dms/pkg/dms-common/i18nPkg"
 	commonLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
+	pkgLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
+	"github.com/go-kratos/kratos/v2/log"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -26,9 +28,6 @@ func (s *APIServer) initRouter() error {
 	s.echo.GET("/swagger/*", s.DMSController.SwaggerHandler, SwaggerMiddleWare)
 
 	v1 := s.echo.Group(dmsV1.CurrentGroupVersion)
-	if err := s.initRouterDMS(v1); err != nil {
-		return err
-	}
 	v2 := s.echo.Group(dmsV2.CurrentGroupVersion)
 	// DMS RESTful resource
 	{
@@ -126,7 +125,6 @@ func (s *APIServer) initRouter() error {
 
 		memberGroupV1 := v1.Group("/dms/projects/:project_uid/member_groups")
 		memberGroupV1.GET("", s.DMSController.ListMemberGroups)
-		memberGroupV1.GET("/tips", s.DMSController.ListMemberGroupTips)
 		memberGroupV1.GET("/:member_group_uid", s.DMSController.GetMemberGroup)
 		memberGroupV1.POST("", s.DMSController.AddMemberGroup)
 		memberGroupV1.PUT("/:member_group_uid", s.DMSController.UpdateMemberGroup)
@@ -225,7 +223,6 @@ func (s *APIServer) initRouter() error {
 		dataExportWorkflowsV1.POST("/:data_export_workflow_uid/approve", s.DMSController.ApproveDataExportWorkflow)
 		dataExportWorkflowsV1.POST("/:data_export_workflow_uid/reject", s.DMSController.RejectDataExportWorkflow)
 		dataExportWorkflowsV1.POST("/:data_export_workflow_uid/export", s.DMSController.ExportDataExportWorkflow)
-		dataExportWorkflowsV1.GET("/:data_export_workflow_uid/original-export/download", s.DMSController.DownloadOriginalDataExportWorkflow)
 		dataExportWorkflowsV1.POST("/cancel", s.DMSController.CancelDataExportWorkflow)
 
 		// 内部接口，仅允许sys用户访问
@@ -250,7 +247,13 @@ func (s *APIServer) initRouter() error {
 		operationRecordV1 := v1.Group("/dms/operation_records")
 		operationRecordV1.POST("", s.DMSController.AddOperationRecord)
 		operationRecordV1.GET("", s.DMSController.GetOperationRecordList)
+		operationRecordV1.GET("/operation_type_names", s.DMSController.GetOperationTypeNameList)
+		operationRecordV1.GET("/operation_actions", s.DMSController.GetOperationActionList)
+		operationRecordV1.GET("/operation_user_names", s.DMSController.GetOperationUserNameList)
 		operationRecordV1.GET("/exports", s.DMSController.ExportOperationRecordList)
+
+		maskingV1 := v1.Group("/dms/masking")
+		maskingV1.GET("/rules", s.DMSController.ListMaskingRules)
 
 		gatewayV1 := v1.Group("/dms/gateways")
 
@@ -272,7 +275,6 @@ func (s *APIServer) initRouter() error {
 			cloudbeaverV1.Use(s.SqlWorkbenchController.CloudbeaverService.CloudbeaverUsecase.Login())
 			cloudbeaverV1.Use(s.SqlWorkbenchController.CloudbeaverService.CloudbeaverUsecase.GraphQLDistributor())
 			cloudbeaverV1.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
-				Skipper:  middleware.DefaultSkipper,
 				Balancer: middleware.NewRandomBalancer(targets),
 			}))
 		}
@@ -286,21 +288,6 @@ func (s *APIServer) initRouter() error {
 
 			sqlWorkbenchV1.Use(s.SqlWorkbenchController.SqlWorkbenchService.Login())
 
-			// 添加数据脱敏中间件
-			sqlWorkbenchV1.Use(sqlWorkbenchService.GetDataMaskingMiddleware(sqlWorkbenchService.DataMaskingMiddlewareConfig{
-				SqlResultMasker:          s.SqlWorkbenchController.SqlWorkbenchService.GetSqlResultMasker(),
-				DBServiceUsecase:         s.DMSController.DMS.DBServiceUsecase,
-				SqlWorkbenchService:      s.SqlWorkbenchController.SqlWorkbenchService,
-				UnmaskingWorkflowUsecase: s.DMSController.DMS.UnmaskingWorkflowUsecase,
-			}))
-
-			// 添加查看原文 SQL 替换中间件
-			sqlWorkbenchV1.Use(sqlWorkbenchService.GetUnmaskingWorkflowMiddleware(sqlWorkbenchService.DataMaskingMiddlewareConfig{
-				DBServiceUsecase:         s.DMSController.DMS.DBServiceUsecase,
-				SqlWorkbenchService:      s.SqlWorkbenchController.SqlWorkbenchService,
-				UnmaskingWorkflowUsecase: s.DMSController.DMS.UnmaskingWorkflowUsecase,
-			}))
-
 			// 添加操作日志记录中间件
 			sqlWorkbenchV1.Use(sqlWorkbenchService.GetOperationLogBodyDumpMiddleware(sqlWorkbenchService.OperationLogMiddlewareConfig{
 				CbOperationLogUsecase: s.DMSController.DMS.CbOperationLogUsecase,
@@ -308,7 +295,6 @@ func (s *APIServer) initRouter() error {
 				SqlWorkbenchService:   s.SqlWorkbenchController.SqlWorkbenchService,
 			}))
 
-			sqlWorkbenchV1.Use(s.SqlWorkbenchController.SqlWorkbenchService.AuditMiddleware())
 			sqlWorkbenchV1.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
 				Skipper:  middleware.DefaultSkipper,
 				Balancer: middleware.NewRandomBalancer(targets),
@@ -348,13 +334,24 @@ func SwaggerMiddleWare(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
+// 检查 reply 是否是 Gzip 数据
+func isGzip(data []byte) bool {
+	return len(data) >= 2 && data[0] == 0x1f && data[1] == 0x8b
+}
+
 // 解码 Gzip 数据
 func decodeGzip(data []byte) string {
-	gzipBytes, err := utils.DecodeGzipBytes(data)
+	reader, err := gzip.NewReader(bytes.NewReader(data))
 	if err != nil {
 		return fmt.Sprintf("Gzip decode error: %v", err)
 	}
-	return string(gzipBytes)
+	defer reader.Close()
+
+	decoded, err := io.ReadAll(reader)
+	if err != nil {
+		return fmt.Sprintf("Read Gzip data error: %v", err)
+	}
+	return string(decoded)
 }
 
 func (s *APIServer) installMiddleware() error {
@@ -375,36 +372,25 @@ func (s *APIServer) installMiddleware() error {
 		}
 	}(allowedMethods))
 
-	var skipJWTPaths = []string{
-		dmsV1.SessionRouterGroup,
-		"/v1/dms/sessions/refresh",
-		"/v1/dms/oauth2",
-		"/v1/dms/configurations/login/tips",
-		"/v1/dms/personalization/logo",
-		"/v1/dms/configurations/license",
-		"/v1/dms/users/verify_user_login",
-		"/v1/dms/configurations/sms/send_code",
-		"/v1/dms/configurations/sms/verify_code",
-		"/v1/dms/basic_info",
-	}
-	var notSkipJWTPaths = []string{
-		sqlWorkbenchService.SQL_WORKBENCH_URL,
-	}
 	s.echo.Use(dmsMiddleware.JWTTokenAdapter(), echojwt.WithConfig(echojwt.Config{
 		Skipper: middleware.Skipper(func(c echo.Context) bool {
-			uri := c.Request().RequestURI
-			for _, skipPath := range skipJWTPaths {
-				if strings.HasSuffix(uri, skipPath) || strings.HasPrefix(uri, skipPath) {
-					return true
-				}
+			logger := log.NewHelper(log.With(pkgLog.NewKLogWrapper(s.logger), "middleware", "jwt"))
+			if strings.HasSuffix(c.Request().RequestURI, dmsV1.SessionRouterGroup) ||
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/sessions/refresh" /* TODO 使用统一方法skip */) ||
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/oauth2" /* TODO 使用统一方法skip */) ||
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/login/tips" /* TODO 使用统一方法skip */) ||
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/personalization/logo") ||
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/license" /* TODO 使用统一方法skip */) ||
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/users/verify_user_login" /* TODO 使用统一方法skip */) ||
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/sms/send_code" /* TODO 使用统一方法skip */) ||
+				strings.HasPrefix(c.Request().RequestURI, "/v1/dms/configurations/sms/verify_code" /* TODO 使用统一方法skip */) ||
+				!(strings.HasPrefix(c.Request().RequestURI, dmsV1.CurrentGroupVersion) ||
+					strings.HasPrefix(c.Request().RequestURI, dmsV2.CurrentGroupVersion)) &&
+					!strings.HasPrefix(c.Request().RequestURI, sqlWorkbenchService.SQL_WORKBENCH_URL) {
+				logger.Debugf("skipper url jwt check: %v", c.Request().RequestURI)
+				return true
 			}
-			for _, notSkipPath := range notSkipJWTPaths {
-				if strings.HasSuffix(uri, notSkipPath) || strings.HasPrefix(uri, notSkipPath) {
-					return false
-				}
-			}
-			// Non-DMS component's own uri
-			return !(strings.HasPrefix(uri, dmsV1.CurrentGroupVersion) || strings.HasPrefix(uri, dmsV2.CurrentGroupVersion))
+			return false
 		}),
 		SigningKey:  dmsV1.JwtSigningKey,
 		TokenLookup: "cookie:dms-token,header:Authorization:Bearer ", // tell the middleware where to get token: from cookie and header,
@@ -419,6 +405,14 @@ func (s *APIServer) installMiddleware() error {
 	// Middleware
 	s.echo.Use(middleware.BodyDumpWithConfig(middleware.BodyDumpConfig{
 		Skipper: func(c echo.Context) bool {
+			// 跳过WebSocket请求，避免干扰连接升级
+			if c.IsWebSocket() {
+				return true
+			}
+			// 如果未启用请求dump，跳过所有请求
+			if !s.opts.ServiceOpts.Log.EnableRequestDump {
+				return true
+			}
 			return !strings.HasPrefix(c.Request().RequestURI, dmsV1.GroupV1)
 		},
 		Handler: func(context echo.Context, req []byte, reply []byte) {
@@ -428,7 +422,7 @@ func (s *APIServer) installMiddleware() error {
 			reqStr := string(req)
 			// 尝试解码 reply（gzip 格式）
 			var replyStr string
-			if utils.IsGzip(reply) {
+			if isGzip(reply) {
 				replyStr = decodeGzip(reply)
 			} else {
 				replyStr = string(reply)
@@ -445,19 +439,19 @@ func (s *APIServer) installMiddleware() error {
 	}))
 
 	s.echo.Use(middleware.GzipWithConfig(middleware.GzipConfig{
-		Skipper: middleware.DefaultSkipper,
-		Level:   5,
+		Skipper: func(c echo.Context) bool {
+			// 跳过CloudBeaver路径，让CloudBeaver路由组自己处理压缩
+			if s.SqlWorkbenchController != nil &&
+				strings.HasPrefix(c.Request().URL.Path, s.SqlWorkbenchController.CloudbeaverService.CloudbeaverUsecase.GetRootUri()) {
+				return true
+			}
+			return false
+		},
+		Level: 5,
 	}))
 
 	s.echo.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Skipper: middleware.Skipper(func(c echo.Context) bool {
-			// 必须先跳过 /odc_query，避免 DMS 自身的 static fallback 把
-			// `/odc_query/`、`/odc_query/index.html` 等子路径返回为 DMS index.html，
-			// 导致 ODC SQL 工作台跳转被截获。无尾斜杠的 /odc_query 由 Group route
-			// 直接走 ProxyConfig 代理到 ODC 8989，本 Skipper 不影响。
-			if strings.HasPrefix(c.Request().URL.Path, s.SqlWorkbenchController.SqlWorkbenchService.GetRootUri()) {
-				return true
-			}
 			if strings.HasPrefix(c.Request().URL.Path, s.SqlWorkbenchController.CloudbeaverService.CloudbeaverUsecase.GetRootUri()) {
 				return true
 			}
@@ -497,7 +491,7 @@ func (s *APIServer) installMiddleware() error {
 }
 
 func (s *APIServer) installController() error {
-	sqlWorkbenchController, err := NewSqlWorkbenchController(s.logger, s.opts)
+	sqlWorkbenchController, err := NewSqlWorkbenchController(s.logger, s.opts, s.configFilePath)
 	if nil != err {
 		return fmt.Errorf("failed to create SqlWorkbenchController: %v", err)
 	}
@@ -509,25 +503,6 @@ func (s *APIServer) installController() error {
 
 	s.DMSController = DMSController
 	s.SqlWorkbenchController = sqlWorkbenchController
-
-	// 初始化 SQL Workbench 脱敏组件，与 DMS 共用同一套存储配置
-	st, err := storage.NewStorage(s.logger, &storage.StorageConfig{
-		User:        s.opts.ServiceOpts.Database.UserName,
-		Password:    s.opts.ServiceOpts.Database.Password,
-		Host:        s.opts.ServiceOpts.Database.Host,
-		Port:        s.opts.ServiceOpts.Database.Port,
-		Schema:      s.opts.ServiceOpts.Database.Database,
-		Debug:       s.opts.ServiceOpts.Database.Debug,
-		AutoMigrate: s.opts.ServiceOpts.Database.AutoMigrate,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to initialize storage for masker: %v", err)
-	}
-	masker, err := dmsService.NewSQLWorkbenchSQLResultMasker(s.logger, st)
-	if err != nil {
-		return fmt.Errorf("failed to create sql result masker: %v", err)
-	}
-	s.SqlWorkbenchController.SqlWorkbenchService.SetSqlResultMasker(masker)
 
 	// s.AuthController.RegisterPlugin(s.DMSController.GetRegisterPluginFn())
 	return nil

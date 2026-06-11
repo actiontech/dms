@@ -13,6 +13,9 @@ import (
 
 var _ biz.OperationRecordRepo = (*operationRecordRepo)(nil)
 
+// 内置系统账号产生的操作记录在列表/导出中不展示
+const operationRecordUserNameSys = "sys"
+
 type operationRecordRepo struct {
 	*Storage
 	log *utilLog.Helper
@@ -37,32 +40,56 @@ func (d *operationRecordRepo) SaveOperationRecord(ctx context.Context, record *b
 	return nil
 }
 
-func applyOperationRecordFilters(db *gorm.DB, opt *biz.ListOperationRecordOption) *gorm.DB {
+func applyOperationRecordBaseFilters(db *gorm.DB, opt *biz.ListOperationRecordOption) *gorm.DB {
+	db = db.Where("operation_user_name <> ?", operationRecordUserNameSys)
 	if opt.FilterOperateTimeFrom != "" {
 		db = db.Where("operation_time > ?", opt.FilterOperateTimeFrom)
 	}
 	if opt.FilterOperateTimeTo != "" {
 		db = db.Where("operation_time < ?", opt.FilterOperateTimeTo)
 	}
-	// 项目过滤：如果指定了项目，已经通过权限校验，直接使用该过滤条件
 	if opt.FilterOperateProjectName != nil {
 		db = db.Where("operation_project_name = ?", *opt.FilterOperateProjectName)
 	} else {
-		// 如果没指定项目，根据权限过滤
 		if !opt.CanViewGlobal && len(opt.AccessibleProjectNames) > 0 {
-			// 项目管理员只能查看对应项目下的操作记录
 			db = db.Where("operation_project_name IN ?", opt.AccessibleProjectNames)
 		}
-		// 如果 CanViewGlobal 为 true，不添加项目过滤（可以查看所有项目，包括空字符串）
 	}
-	if opt.FuzzySearchOperateUserName != "" {
-		db = db.Where("operation_user_name LIKE ?", "%"+opt.FuzzySearchOperateUserName+"%")
+	return db
+}
+
+func applyOperationRecordFilters(db *gorm.DB, opt *biz.ListOperationRecordOption) *gorm.DB {
+	db = applyOperationRecordBaseFilters(db, opt)
+
+	if opt.FuzzySearchOperateUserName != "" &&
+		opt.FuzzySearchOperateUserName == opt.FuzzySearchOperateContent {
+		kw := "%" + opt.FuzzySearchOperateUserName + "%"
+		db = db.Where(
+			"(operation_user_name LIKE ? OR operation_req_ip LIKE ? OR operation_i18n_content LIKE ?)",
+			kw, kw, kw,
+		)
+	} else {
+		if opt.FuzzySearchOperateUserName != "" {
+			kw := "%" + opt.FuzzySearchOperateUserName + "%"
+			db = db.Where("(operation_user_name LIKE ? OR operation_req_ip LIKE ?)", kw, kw)
+		}
+		if opt.FuzzySearchOperateContent != "" {
+			db = db.Where("operation_i18n_content LIKE ?", "%"+opt.FuzzySearchOperateContent+"%")
+		}
 	}
-	if opt.FilterOperateTypeName != "" {
-		db = db.Where("operation_type_name = ?", opt.FilterOperateTypeName)
+
+	if opt.FilterFuzzyOperateUserName != "" {
+		kw := "%" + opt.FilterFuzzyOperateUserName + "%"
+		db = db.Where("(operation_user_name LIKE ? OR operation_req_ip LIKE ?)", kw, kw)
 	}
-	if opt.FilterOperateAction != "" {
-		db = db.Where("operation_action = ?", opt.FilterOperateAction)
+	if len(opt.FilterOperateTypeNames) > 0 {
+		db = db.Where("operation_type_name IN ?", opt.FilterOperateTypeNames)
+	}
+	if len(opt.FilterOperateActions) > 0 {
+		db = db.Where("operation_action IN ?", opt.FilterOperateActions)
+	}
+	if opt.FilterOperateStatus != "" {
+		db = db.Where("operation_status = ?", opt.FilterOperateStatus)
 	}
 	return db
 }
@@ -134,6 +161,31 @@ func (d *operationRecordRepo) ExportOperationRecords(ctx context.Context, opt *b
 		ret = append(ret, record)
 	}
 
+	return ret, nil
+}
+
+func (d *operationRecordRepo) ListDistinctOperationUserNames(ctx context.Context, opt *biz.ListOperationRecordOption) ([]*biz.OperationRecordUserNameItem, error) {
+	var userNames []string
+
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		db := tx.WithContext(ctx).Model(&model.OperationRecord{})
+		db = applyOperationRecordBaseFilters(db, opt)
+		if err := db.Select("DISTINCT operation_user_name").
+			Order("operation_user_name ASC").
+			Find(&userNames).Error; err != nil {
+			return fmt.Errorf("failed to list distinct operation user names: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	ret := make([]*biz.OperationRecordUserNameItem, 0, len(userNames))
+	for _, userName := range userNames {
+		ret = append(ret, &biz.OperationRecordUserNameItem{
+			OperationUserName: userName,
+		})
+	}
 	return ret, nil
 }
 

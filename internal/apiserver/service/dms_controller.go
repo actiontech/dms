@@ -333,17 +333,11 @@ func (ctl *DMSController) ListGlobalDBServices(c echo.Context) error {
 //	  200: body:ListGlobalDBServicesTipsReply
 //	  default: body:GenericResp
 func (ctl *DMSController) ListGlobalDBServicesTips(c echo.Context) error {
-	req := new(aV1.ListGlobalDBServicesTipsReq)
-	err := bindAndValidateReq(c, req)
-	if nil != err {
-		return NewErrResp(c, err, apiError.BadRequestErr)
-	}
-
 	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
 	if err != nil {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
-	reply, err := ctl.DMS.ListGlobalDBServicesTips(c.Request().Context(), req, currentUserUid)
+	reply, err := ctl.DMS.ListGlobalDBServicesTips(c.Request().Context(), currentUserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1562,11 +1556,8 @@ func (ctl *DMSController) ListMembers(c echo.Context) error {
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-	reply, err := ctl.DMS.ListMembers(c.Request().Context(), req, currentUserUid)
+
+	reply, err := ctl.DMS.ListMembers(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -1685,32 +1676,8 @@ func (ctl *DMSController) ListMemberGroups(c echo.Context) error {
 	if nil != err {
 		return NewErrResp(c, err, apiError.BadRequestErr)
 	}
-	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-	reply, err := ctl.DMS.ListMemberGroups(c.Request().Context(), req, currentUserUid)
-	if nil != err {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-	return NewOkRespWithReply(c, reply)
-}
 
-// swagger:route GET /v1/dms/projects/{project_uid}/member_groups/tips MemberGroup ListMemberGroupTips
-//
-// List member group tips.
-//
-//	responses:
-//	  200: body:ListMemberGroupTipsReply
-//	  default: body:GenericResp
-func (ctl *DMSController) ListMemberGroupTips(c echo.Context) error {
-	req := new(aV1.ListMemberGroupTipsReq)
-	err := bindAndValidateReq(c, req)
-	if nil != err {
-		return NewErrResp(c, err, apiError.BadRequestErr)
-	}
-
-	reply, err := ctl.DMS.ListMemberGroupTips(c.Request().Context(), req.ProjectUid)
+	reply, err := ctl.DMS.ListMemberGroups(c.Request().Context(), req)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -2742,10 +2709,8 @@ func (ctl *DMSController) oauth2Callback(c echo.Context) error {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
 
-	// 1. callbackData.Error 有错误时，前端会回到登录页并展示错误信息
-	// 2. callbackData.UserExist 为false时，前端会进入手动绑定页面，绑定时调用绑定接口签发tokens
-	// 3. 没错误且用户存在时，签发tokens登录成功
-	if  callbackData.Error == "" && callbackData.UserExist {
+	// 只有在用户存在才签发tokens，不存在时后续会重定向到用户绑定页，绑定成功后再签发tokens
+	if callbackData.UserExist {
 		dmsToken, dmsCookieExp, err := claims.DmsToken()
 		if err != nil {
 			return NewErrResp(c, err, apiError.APIServerErr)
@@ -3976,32 +3941,6 @@ func (ctl *DMSController) ExportDataExportWorkflow(c echo.Context) error {
 	return NewOkResp(c)
 }
 
-// swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/original-export/download DataExportWorkflows DownloadOriginalDataExportWorkflow
-//
-// Download unmasked SQL query results as a zip file. Each request runs export in memory; files are not persisted.
-//
-//	responses:
-//	  200: DownloadOriginalDataExportWorkflowReply
-//	  default: body:GenericResp
-func (ctl *DMSController) DownloadOriginalDataExportWorkflow(c echo.Context) error {
-	req := new(aV1.DownloadOriginalDataExportWorkflowReq)
-	if err := bindAndValidateReq(c, req); err != nil {
-		return NewErrResp(c, err, apiError.BadRequestErr)
-	}
-	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-	fileName, content, err := ctl.DMS.DownloadOriginalDataExportWorkflow(c.Request().Context(), req, currentUserUid)
-	if err != nil {
-		return NewErrResp(c, err, apiError.DMSServiceErr)
-	}
-	c.Response().Header().Set(echo.HeaderContentDisposition,
-		mime.FormatMediaType("attachment", map[string]string{"filename": fileName}))
-
-	return c.Blob(http.StatusOK, "application/zip", content)
-}
-
 // swagger:operation POST /v1/dms/projects/{project_uid}/data_export_tasks DataExportTask AddDataExportTask
 //
 // Add data_export task.
@@ -4189,6 +4128,26 @@ func (ctl *DMSController) proxyDownloadDataExportTask(c echo.Context, reportHost
 	return
 }
 
+// swagger:route GET /v1/dms/masking/rules Masking ListMaskingRules
+//
+// List masking rules.
+//
+//	responses:
+//	  200: body:ListMaskingRulesReply
+//	  default: body:GenericResp
+func (ctl *DMSController) ListMaskingRules(c echo.Context) error {
+	req := &aV1.ListMaskingRulesReq{}
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	reply, err := ctl.DMS.ListMaskingRules(c.Request().Context())
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
 
 // swagger:route GET /v1/dms/projects/{project_uid}/cb_operation_logs CBOperationLogs ListCBOperationLogs
 //
@@ -5038,6 +4997,84 @@ func (ctl *DMSController) GetOperationRecordList(c echo.Context) error {
 	}
 
 	reply, err := ctl.DMS.GetOperationRecordList(c.Request().Context(), req, currentUserUid)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:operation GET /v1/dms/operation_records/operation_type_names OperationRecord GetOperationTypeNameList
+//
+// Get operation type name list.
+//
+// ---
+// responses:
+//
+//	'200':
+//	  description: GetOperationTypeNameListReply
+//	  schema:
+//	    "$ref": "#/definitions/GetOperationTypeNameListReply"
+//	default:
+//	  description: GenericResp
+//	  schema:
+//	    "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) GetOperationTypeNameList(c echo.Context) error {
+	reply := getOperationTypeNameListReply(c.Request().Context())
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:operation GET /v1/dms/operation_records/operation_actions OperationRecord GetOperationActionList
+//
+// Get operation action list.
+//
+// ---
+// responses:
+//
+//	'200':
+//	  description: GetOperationActionListReply
+//	  schema:
+//	    "$ref": "#/definitions/GetOperationActionListReply"
+//	default:
+//	  description: GenericResp
+//	  schema:
+//	    "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) GetOperationActionList(c echo.Context) error {
+	reply := getOperationActionListReply(c.Request().Context())
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:operation GET /v1/dms/operation_records/operation_user_names OperationRecord GetOperationUserNameList
+//
+// Get operation user name list.
+//
+// ---
+// parameters:
+//   - name: filter_operate_project_name
+//     in: query
+//     type: string
+// responses:
+//
+//	'200':
+//	  description: GetOperationUserNameListReply
+//	  schema:
+//	    "$ref": "#/definitions/GetOperationUserNameListReply"
+//	default:
+//	  description: GenericResp
+//	  schema:
+//	    "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) GetOperationUserNameList(c echo.Context) error {
+	req := new(aV1.GetOperationUserNameListReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+
+	reply, err := ctl.DMS.GetOperationUserNameList(c.Request().Context(), currentUserUid, req.FilterOperateProjectName)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}

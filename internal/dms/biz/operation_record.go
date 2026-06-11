@@ -9,10 +9,16 @@ import (
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 )
 
+type OperationRecordUserNameItem struct {
+	OperationUserName string
+	OperationReqIP    string
+}
+
 type OperationRecordRepo interface {
 	SaveOperationRecord(ctx context.Context, record *OperationRecord) error
 	ListOperationRecords(ctx context.Context, opt *ListOperationRecordOption) ([]*OperationRecord, uint64, error)
 	ExportOperationRecords(ctx context.Context, opt *ListOperationRecordOption) ([]*OperationRecord, error)
+	ListDistinctOperationUserNames(ctx context.Context, opt *ListOperationRecordOption) ([]*OperationRecordUserNameItem, error)
 	CleanOperationRecordOpTimeBefore(ctx context.Context, t time.Time) (rowsAffected int64, err error)
 }
 
@@ -36,8 +42,11 @@ type ListOperationRecordOption struct {
 	FilterOperateTimeTo        string
 	FilterOperateProjectName   *string
 	FuzzySearchOperateUserName string
-	FilterOperateTypeName      string
-	FilterOperateAction        string
+	FuzzySearchOperateContent  string
+	FilterFuzzyOperateUserName string
+	FilterOperateTypeNames     []string
+	FilterOperateActions       []string
+	FilterOperateStatus        string
 	// 权限相关字段
 	CanViewGlobal          bool     // 是否有全局查看权限（admin/sys/全局权限）
 	AccessibleProjectNames []string // 可访问的项目名称列表（项目管理员）
