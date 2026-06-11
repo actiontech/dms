@@ -128,6 +128,7 @@ func TestParseDBType(t *testing.T) {
 		// PolarDB-MySQL 新增 (Issue #826)
 		"PolarDB For MySQL": {input: "PolarDB For MySQL", expected: DBTypePolarDBForMySQL},
 		"MongoDB":           {input: "MongoDB", expected: DBTypeMongoDB},
+		"Redis":             {input: "Redis", expected: DBTypeRedis},
 		// "PolarDB" 单独不应匹配
 		"PolarDB only": {input: "PolarDB", expectError: true},
 		"invalid type": {input: "UnknownDB", expectError: true},
