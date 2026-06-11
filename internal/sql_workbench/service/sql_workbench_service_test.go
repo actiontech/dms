@@ -150,11 +150,6 @@ func Test_buildRedisDatasourceOptions(t *testing.T) {
 		Port:   "6379",
 		AdditionalParams: pkgParams.Params{
 			&pkgParams.Param{Key: redisDefaultDatabaseParam, Value: defaultDB, Type: pkgParams.ParamTypeString},
-			&pkgParams.Param{Key: redisTLSEnabledParam, Value: "true", Type: pkgParams.ParamTypeBool},
-			&pkgParams.Param{Key: redisTLSInsecureParam, Value: "true", Type: pkgParams.ParamTypeBool},
-			&pkgParams.Param{Key: redisScanCountParam, Value: "200", Type: pkgParams.ParamTypeString},
-			&pkgParams.Param{Key: redisKeySeparatorParam, Value: ":", Type: pkgParams.ParamTypeString},
-			&pkgParams.Param{Key: redisCommandTimeoutParam, Value: "3000", Type: pkgParams.ParamTypeString},
 		},
 	})
 	if defaultSchema == nil || *defaultSchema != defaultDB {
@@ -163,11 +158,8 @@ func Test_buildRedisDatasourceOptions(t *testing.T) {
 	if propertiesValue != nil {
 		t.Fatalf("expected nil properties, got %#v", propertiesValue)
 	}
-	if jdbcParams["defaultDatabase"] != defaultDB || jdbcParams["tls"] != true || jdbcParams["tlsInsecure"] != true {
-		t.Fatalf("unexpected redis base params: %#v", jdbcParams)
-	}
-	if jdbcParams["scanCount"] != "200" || jdbcParams["keySeparator"] != ":" || jdbcParams["commandTimeoutMs"] != "3000" {
-		t.Fatalf("unexpected redis tuning params: %#v", jdbcParams)
+	if jdbcParams["defaultDatabase"] != defaultDB {
+		t.Fatalf("unexpected redis jdbc params: %#v", jdbcParams)
 	}
 }
 
@@ -177,7 +169,7 @@ func Test_buildRedisDatasourceOptions_noSensitiveProperties(t *testing.T) {
 		User:     "default",
 		Password: "secret",
 		AdditionalParams: pkgParams.Params{
-			&pkgParams.Param{Key: redisTLSEnabledParam, Value: "false", Type: pkgParams.ParamTypeBool},
+			&pkgParams.Param{Key: redisDefaultDatabaseParam, Value: "0", Type: pkgParams.ParamTypeString},
 		},
 	})
 	if propertiesValue != nil {

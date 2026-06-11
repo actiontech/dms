@@ -863,12 +863,7 @@ const (
 	mongoTLSEnabledParam       = "tls"
 	mongoDirectConnectionParam = "direct_connection"
 	mongoTLSSkipVerifyParam    = "tls_skip_verify"
-	redisDefaultDatabaseParam  = "default_database"
-	redisTLSEnabledParam       = "tls"
-	redisTLSInsecureParam      = "tls_insecure"
-	redisScanCountParam        = "scan_count"
-	redisKeySeparatorParam     = "key_separator"
-	redisCommandTimeoutParam   = "command_timeout_ms"
+	redisDefaultDatabaseParam = "default_database"
 )
 
 // buildDatasourceBaseInfo 构建数据源基础信息
@@ -1065,29 +1060,12 @@ func buildMongoDatasourceOptions(dbService *biz.DBService) (*string, interface{}
 
 func buildRedisDatasourceOptions(dbService *biz.DBService) (*string, interface{}, map[string]interface{}) {
 	defaultDatabase := dbService.AdditionalParams.GetParam(redisDefaultDatabaseParam).String()
-	var defaultSchema *string
-	jdbcParams := map[string]interface{}{}
-	if defaultDatabase != "" {
-		defaultSchema = &defaultDatabase
-		jdbcParams["defaultDatabase"] = defaultDatabase
+	if defaultDatabase == "" {
+		return nil, nil, nil
 	}
-	if tlsParam := dbService.AdditionalParams.GetParam(redisTLSEnabledParam); tlsParam != nil && tlsParam.String() != "" {
-		jdbcParams["tls"] = tlsParam.Bool()
-	}
-	if dbService.AdditionalParams.GetParam(redisTLSInsecureParam).Bool() {
-		jdbcParams["tlsInsecure"] = true
-	}
-	if scanCount := dbService.AdditionalParams.GetParam(redisScanCountParam).String(); scanCount != "" {
-		jdbcParams["scanCount"] = scanCount
-	}
-	if keySeparator := dbService.AdditionalParams.GetParam(redisKeySeparatorParam).String(); keySeparator != "" {
-		jdbcParams["keySeparator"] = keySeparator
-	}
-	if timeout := dbService.AdditionalParams.GetParam(redisCommandTimeoutParam).String(); timeout != "" {
-		jdbcParams["commandTimeoutMs"] = timeout
-	}
-	if len(jdbcParams) == 0 {
-		return defaultSchema, nil, nil
+	defaultSchema := &defaultDatabase
+	jdbcParams := map[string]interface{}{
+		"defaultDatabase": defaultDatabase,
 	}
 	return defaultSchema, nil, jdbcParams
 }
