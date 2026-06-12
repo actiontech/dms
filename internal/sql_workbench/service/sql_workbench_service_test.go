@@ -28,6 +28,7 @@ func Test_convertDBType(t *testing.T) {
 		"PolarDB For MySQL":   {input: "PolarDB For MySQL", expected: "MYSQL"},
 		"GaussDB":             {input: "GaussDB", expected: "GAUSSDB"},
 		"MongoDB":             {input: "MongoDB", expected: "MONGODB"},
+		"Redis":               {input: "Redis", expected: "REDIS"},
 		"DB2":                 {input: "DB2", expected: "DB2"},
 		"Unknown passthrough": {input: "UnknownDB", expected: "UnknownDB"},
 	}
@@ -55,6 +56,7 @@ func Test_SupportDBType(t *testing.T) {
 		"TDSQL supported":             {input: pkgConst.DBTypeTDSQLForInnoDB, expected: true},
 		"GoldenDB supported":          {input: pkgConst.DBTypeGoldenDB, expected: true},
 		"MongoDB unsupported":         {input: pkgConst.DBTypeMongoDB, expected: false},
+		"Redis supported":             {input: pkgConst.DBTypeRedis, expected: true},
 		"PostgreSQL supported":        {input: pkgConst.DBTypePostgreSQL, expected: true},
 		"SQL Server unsupported":      {input: pkgConst.DBTypeSQLServer, expected: false},
 		"PolarDB For MySQL supported": {input: pkgConst.DBTypePolarDBForMySQL, expected: true},
@@ -140,6 +142,44 @@ func Test_buildMongoDatasourceOptions_tlsOnly(t *testing.T) {
 	}
 }
 
+func Test_buildRedisDatasourceOptions(t *testing.T) {
+	defaultDB := "2"
+	defaultSchema, propertiesValue, jdbcParams := buildRedisDatasourceOptions(&biz.DBService{
+		DBType: string(pkgConst.DBTypeRedis),
+		Host:   "127.0.0.1",
+		Port:   "6379",
+		AdditionalParams: pkgParams.Params{
+			&pkgParams.Param{Key: redisDefaultDatabaseParam, Value: defaultDB, Type: pkgParams.ParamTypeString},
+		},
+	})
+	if defaultSchema == nil || *defaultSchema != defaultDB {
+		t.Fatalf("unexpected default schema: %#v", defaultSchema)
+	}
+	if propertiesValue != nil {
+		t.Fatalf("expected nil properties, got %#v", propertiesValue)
+	}
+	if jdbcParams["defaultDatabase"] != defaultDB {
+		t.Fatalf("unexpected redis jdbc params: %#v", jdbcParams)
+	}
+}
+
+func Test_buildRedisDatasourceOptions_noSensitiveProperties(t *testing.T) {
+	_, propertiesValue, jdbcParams := buildRedisDatasourceOptions(&biz.DBService{
+		DBType:   string(pkgConst.DBTypeRedis),
+		User:     "default",
+		Password: "secret",
+		AdditionalParams: pkgParams.Params{
+			&pkgParams.Param{Key: redisDefaultDatabaseParam, Value: "0", Type: pkgParams.ParamTypeString},
+		},
+	})
+	if propertiesValue != nil {
+		t.Fatalf("expected redis properties to stay nil, got %#v", propertiesValue)
+	}
+	if _, ok := jdbcParams["password"]; ok {
+		t.Fatalf("redis password leaked into jdbc params: %#v", jdbcParams)
+	}
+}
+
 // Test_buildDatasourceBaseInfo_DB2 覆盖 buildDatasourceBaseInfo 中 DB2 / 回归 4 组 case：
 //
 //	(a) DB2 正例：AdditionalParam database_name=testdb → baseInfo.DefaultSchema=="testdb"
@@ -154,11 +194,11 @@ func Test_buildDatasourceBaseInfo_DB2(t *testing.T) {
 	const datasourceName = "proj:ds"
 
 	cases := map[string]struct {
-		dbService            *biz.DBService
-		expectErr            bool
-		expectErrSubstr      string
-		expectDefaultSchema  *string
-		expectServiceName    *string
+		dbService           *biz.DBService
+		expectErr           bool
+		expectErrSubstr     string
+		expectDefaultSchema *string
+		expectServiceName   *string
 	}{
 		"DB2 happy path": {
 			dbService: &biz.DBService{

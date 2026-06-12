@@ -863,6 +863,7 @@ const (
 	mongoTLSEnabledParam       = "tls"
 	mongoDirectConnectionParam = "direct_connection"
 	mongoTLSSkipVerifyParam    = "tls_skip_verify"
+	redisDefaultDatabaseParam = "default_database"
 )
 
 // buildDatasourceBaseInfo 构建数据源基础信息
@@ -896,6 +897,10 @@ func (sqlWorkbenchService *SqlWorkbenchService) fillDatasourceBaseInfo(datasourc
 
 	if dbService.DBType == string(pkgConst.DBTypeMongoDB) {
 		baseInfo.DefaultSchema, baseInfo.Properties, baseInfo.JDBCParams = buildMongoDatasourceOptions(dbService)
+	}
+
+	if dbService.DBType == string(pkgConst.DBTypeRedis) {
+		baseInfo.DefaultSchema, baseInfo.Properties, baseInfo.JDBCParams = buildRedisDatasourceOptions(dbService)
 	}
 
 	// DB2 特殊处理：从 AdditionalParams.database_name 取默认 schema 透传到 ODC
@@ -993,6 +998,8 @@ func (sqlWorkbenchService *SqlWorkbenchService) convertDBType(dmsDBType string) 
 		return "MYSQL"
 	case "MongoDB":
 		return "MONGODB"
+	case "Redis":
+		return "REDIS"
 	case "DB2":
 		return "DB2"
 	default:
@@ -1010,7 +1017,8 @@ func (sqlWorkbenchService *SqlWorkbenchService) SupportDBType(dbType pkgConst.DB
 		dbType == pkgConst.DBTypeGoldenDB ||
 		dbType == pkgConst.DBTypePolarDBForMySQL ||
 		dbType == pkgConst.DBTypeGaussDB ||
-		dbType == pkgConst.DBTypePostgreSQL
+		dbType == pkgConst.DBTypePostgreSQL ||
+		dbType == pkgConst.DBTypeRedis
 }
 
 func buildMongoDatasourceOptions(dbService *biz.DBService) (*string, interface{}, map[string]interface{}) {
@@ -1046,6 +1054,18 @@ func buildMongoDatasourceOptions(dbService *biz.DBService) (*string, interface{}
 
 	if len(jdbcParams) == 0 {
 		return defaultSchema, nil, nil
+	}
+	return defaultSchema, nil, jdbcParams
+}
+
+func buildRedisDatasourceOptions(dbService *biz.DBService) (*string, interface{}, map[string]interface{}) {
+	defaultDatabase := dbService.AdditionalParams.GetParam(redisDefaultDatabaseParam).String()
+	if defaultDatabase == "" {
+		return nil, nil, nil
+	}
+	defaultSchema := &defaultDatabase
+	jdbcParams := map[string]interface{}{
+		"defaultDatabase": defaultDatabase,
 	}
 	return defaultSchema, nil, jdbcParams
 }
