@@ -119,7 +119,6 @@ dms_sqle_provision_rpm_pre: docker_install
 	mkdir -p ./builddir/scripts
 	mkdir -p ./builddir/neo4j-community
 	mkdir -p ./builddir/lib
-	mkdir -p ./builddir/plugins
 
 	# 前端文件
 	cp -R ${PRE_DIR}dms-ui/packages/base/dist/* ./builddir/static/
@@ -145,9 +144,6 @@ dms_sqle_provision_rpm_pre: docker_install
 	cp ${PRE_DIR}sqle/bin/scannerd ./builddir/bin/scannerd
 	cp ${PRE_DIR}sqle/scripts/sqled.systemd ./builddir/scripts/sqled.systemd
 	cp -R ${PRE_DIR}sqle/jdk ./builddir/jdk
-
-	# sqle-pg-plugin 文件（compat-RISK-4 / issue #850）
-	cp ${PRE_DIR}sqle-pg-plugin/bin/sqle-pg-plugin ./builddir/plugins/sqle-pg-plugin
 
 	# 合并配置文件
 	touch ./builddir/config/config.yaml
