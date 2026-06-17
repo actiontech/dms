@@ -10,6 +10,7 @@ type CreateEnvironmentTagReq struct {
 	// swagger:ignore
 	ProjectUID string `param:"project_uid" json:"project_uid" validate:"required"`
 	Name       string `json:"environment_name" validate:"required,min=1,max=50"`
+	Color      string `json:"color" validate:"omitempty,max=32"`
 }
 
 // swagger:model
@@ -19,7 +20,8 @@ type UpdateEnvironmentTagReq struct {
 	// swagger:ignore
 	ProjectUID string `param:"project_uid" json:"project_uid" validate:"required"`
 
-	Name string `json:"environment_name" validate:"required,min=1,max=50"`
+	Name  string `json:"environment_name" validate:"required,min=1,max=50"`
+	Color string `json:"color" validate:"omitempty,max=32"`
 }
 
 // swagger:parameters ListEnvironmentTags

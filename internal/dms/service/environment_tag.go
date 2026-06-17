@@ -10,26 +10,26 @@ import (
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
 
-func (d *DMSService) CreateEnvironmentTag(ctx context.Context, projectUid, currentUserUid, environmentTagName string) (err error) {
+func (d *DMSService) CreateEnvironmentTag(ctx context.Context, projectUid, currentUserUid, environmentTagName, color string) (err error) {
 	d.log.Infof("CreateEnvironmentTag.req=%v", environmentTagName)
 	defer func() {
 		d.log.Infof("CreateEnvironmentTag.req=%v;error=%v", environmentTagName, err)
 	}()
 
-	if err := d.EnvironmentTagUsecase.CreateEnvironmentTag(ctx, projectUid, currentUserUid, environmentTagName); err != nil {
+	if err := d.EnvironmentTagUsecase.CreateEnvironmentTag(ctx, projectUid, currentUserUid, environmentTagName, color); err != nil {
 		return fmt.Errorf("create environment tag failed: %w", err)
 	}
 
 	return nil
 }
 
-func (d *DMSService) UpdateEnvironmentTag(ctx context.Context, projectUid, currentUserUid string, environmentTagUID, environmentTagName string) (err error) {
+func (d *DMSService) UpdateEnvironmentTag(ctx context.Context, projectUid, currentUserUid string, environmentTagUID, environmentTagName, color string) (err error) {
 	d.log.Infof("UpdateEnvironmentTag.req=%v", environmentTagName)
 	defer func() {
 		d.log.Infof("UpdateEnvironmentTag.req=%v;error=%v", environmentTagName, err)
 	}()
 
-	if err := d.EnvironmentTagUsecase.UpdateEnvironmentTag(ctx, projectUid, currentUserUid, environmentTagUID, environmentTagName); err != nil {
+	if err := d.EnvironmentTagUsecase.UpdateEnvironmentTag(ctx, projectUid, currentUserUid, environmentTagUID, environmentTagName, color); err != nil {
 		return fmt.Errorf("update environment tag failed: %w", err)
 	}
 	return nil
@@ -82,8 +82,9 @@ func (d *DMSService) ListEnvironmentTags(ctx context.Context, req *v1.ListEnviro
 	environmentTags := make([]*dmsCommonV1.EnvironmentTag, 0, len(bizEnvironmentTags))
 	for _, bizEnvironmentTag := range bizEnvironmentTags {
 		environmentTags = append(environmentTags, &dmsCommonV1.EnvironmentTag{
-			UID:  bizEnvironmentTag.UID,
-			Name: bizEnvironmentTag.Name,
+			UID:   bizEnvironmentTag.UID,
+			Name:  bizEnvironmentTag.Name,
+			Color: bizEnvironmentTag.Color,
 		})
 	}
 	return &v1.ListEnvironmentTagsReply{

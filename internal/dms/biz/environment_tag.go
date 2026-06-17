@@ -10,7 +10,7 @@ import (
 
 type EnvironmentTagRepo interface {
 	CreateEnvironmentTag(ctx context.Context, environmentTag *EnvironmentTag) error
-	UpdateEnvironmentTag(ctx context.Context, environmentTagName, environmentTagUID string) error
+	UpdateEnvironmentTag(ctx context.Context, environmentTagUID, environmentTagName, color string) error
 	DeleteEnvironmentTag(ctx context.Context, environmentTagUID string) error
 	GetEnvironmentTagByName(ctx context.Context, projectUid, name string) (bool, *EnvironmentTag, error)
 	GetEnvironmentTagByUID(ctx context.Context, uid string) (*EnvironmentTag, error)
@@ -39,9 +39,10 @@ type EnvironmentTag struct {
 	UID        string
 	Name       string
 	ProjectUID string
+	Color      string
 }
 
-func (uc *EnvironmentTagUsecase) newEnvironmentTag(projectUid, tagName string) (*EnvironmentTag, error) {
+func (uc *EnvironmentTagUsecase) newEnvironmentTag(projectUid, tagName, color string) (*EnvironmentTag, error) {
 	uid, err := pkgRand.GenStrUid()
 	if err != nil {
 		return nil, err
@@ -53,6 +54,7 @@ func (uc *EnvironmentTagUsecase) newEnvironmentTag(projectUid, tagName string) (
 		UID:        uid,
 		Name:       tagName,
 		ProjectUID: projectUid,
+		Color:      color,
 	}, nil
 }
 
@@ -66,7 +68,7 @@ func (uc *EnvironmentTagUsecase) InitDefaultEnvironmentTags(ctx context.Context,
 	}
 
 	for _, environmentTag := range defaultEnvironmentTags {
-		err = uc.CreateEnvironmentTag(ctx, projectUid, currentUserUid, environmentTag)
+		err = uc.CreateEnvironmentTag(ctx, projectUid, currentUserUid, environmentTag, "")
 		if err != nil {
 			uc.log.Errorf("create environment tag failed: %v", err)
 			return fmt.Errorf("create environment tag failed: %w", err)
@@ -75,7 +77,7 @@ func (uc *EnvironmentTagUsecase) InitDefaultEnvironmentTags(ctx context.Context,
 	return nil
 }
 
-func (uc *EnvironmentTagUsecase) CreateEnvironmentTag(ctx context.Context, projectUid, currentUserUid, tagName string) error {
+func (uc *EnvironmentTagUsecase) CreateEnvironmentTag(ctx context.Context, projectUid, currentUserUid, tagName, color string) error {
 	// 检查项目是否归档/删除
 	if err := uc.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
 		return fmt.Errorf("update db service error: %v", err)
@@ -96,7 +98,7 @@ func (uc *EnvironmentTagUsecase) CreateEnvironmentTag(ctx context.Context, proje
 	if exist {
 		return fmt.Errorf("the tag %s already exists in the current project", tagName)
 	}
-	environmentTag, err := uc.newEnvironmentTag(projectUid, tagName)
+	environmentTag, err := uc.newEnvironmentTag(projectUid, tagName, color)
 	if err != nil {
 		uc.log.Errorf("new environment tag failed: %v", err)
 		return err
@@ -109,7 +111,7 @@ func (uc *EnvironmentTagUsecase) CreateEnvironmentTag(ctx context.Context, proje
 	return nil
 }
 
-func (uc *EnvironmentTagUsecase) UpdateEnvironmentTag(ctx context.Context, projectUid, currentUserUid, environmentTagUID, environmentTagName string) error {
+func (uc *EnvironmentTagUsecase) UpdateEnvironmentTag(ctx context.Context, projectUid, currentUserUid, environmentTagUID, environmentTagName, color string) error {
 	// 检查项目是否归档/删除
 	if err := uc.projectUsecase.isProjectActive(ctx, projectUid); err != nil {
 		return fmt.Errorf("update db service error: %v", err)
@@ -130,7 +132,7 @@ func (uc *EnvironmentTagUsecase) UpdateEnvironmentTag(ctx context.Context, proje
 		uc.log.Errorf("get environment tag failed: %v", err)
 		return err
 	}
-	err = uc.environmentTagRepo.UpdateEnvironmentTag(ctx, environmentTagUID, environmentTagName)
+	err = uc.environmentTagRepo.UpdateEnvironmentTag(ctx, environmentTagUID, environmentTagName, color)
 	if err != nil {
 		uc.log.Errorf("update environment tag failed: %v", err)
 		return err
@@ -206,7 +208,7 @@ func (uc *EnvironmentTagUsecase) GetOrCreateEnvironmentTag(ctx context.Context, 
 	if exist {
 		return environmentTag, nil
 	}
-	newTag, err := uc.newEnvironmentTag(projectUid, tagName)
+	newTag, err := uc.newEnvironmentTag(projectUid, tagName, "")
 	if err != nil {
 		uc.log.Errorf("new environment tag failed: %v", err)
 		return nil, err

@@ -129,8 +129,9 @@ func convertModelDBService(ds *model.DBService) (*biz.DBService, error) {
 
 	if ds.EnvironmentTag != nil {
 		dbService.EnvironmentTag = &dmsCommonV1.EnvironmentTag{
-			UID:  ds.EnvironmentTagUID,
-			Name: ds.EnvironmentTag.EnvironmentName,
+			UID:   ds.EnvironmentTagUID,
+			Name:  ds.EnvironmentTag.EnvironmentName,
+			Color: ds.EnvironmentTag.Color,
 		}
 	}
 
