@@ -937,6 +937,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) buildCreateDatasourceRequest(ctx
 		EnvironmentID:     baseInfo.EnvironmentID,
 		JdbcURLParameters: baseInfo.JDBCParams,
 		DefaultSchema:     baseInfo.DefaultSchema,
+		PasswordSaved:     true,
 	}, nil
 }
 
@@ -960,6 +961,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) buildUpdateDatasourceRequest(ctx
 		EnvironmentID:     baseInfo.EnvironmentID,
 		JdbcURLParameters: mapPtr(baseInfo.JDBCParams),
 		DefaultSchema:     baseInfo.DefaultSchema,
+		PasswordSaved:     true,
 	}, nil
 }
 

@@ -979,6 +979,7 @@ type CreateDatasourceRequest struct {
 	Host              string                 `json:"host"`
 	Port              string                 `json:"port"`
 	DefaultSchema     *string                `json:"defaultSchema,omitempty"`
+	PasswordSaved     bool                   `json:"passwordSaved"`
 }
 
 // UpdateDatasourceRequest 更新数据源请求结构
@@ -999,6 +1000,7 @@ type UpdateDatasourceRequest struct {
 	Host              string                  `json:"host"`
 	Port              string                  `json:"port"`
 	DefaultSchema     *string                 `json:"defaultSchema,omitempty"`
+	PasswordSaved     bool                    `json:"passwordSaved"`
 }
 
 // DataSourceStatus 数据源状态结构
