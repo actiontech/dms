@@ -40,9 +40,15 @@ type GetOperationRecordListReq struct {
 	// in:query
 	FuzzySearchOperateUserName string `json:"fuzzy_search_operate_user_name" query:"fuzzy_search_operate_user_name"`
 	// in:query
-	FilterOperateTypeName string `json:"filter_operate_type_name" query:"filter_operate_type_name"`
+	FuzzySearchOperateContent string `json:"fuzzy_search_operate_content" query:"fuzzy_search_operate_content"`
 	// in:query
-	FilterOperateAction string `json:"filter_operate_action" query:"filter_operate_action"`
+	FilterFuzzyOperateUserName string `json:"filter_fuzzy_operate_user_name" query:"filter_fuzzy_operate_user_name"`
+	// in:query
+	FilterOperateTypeNames []string `json:"filter_operate_type_names" query:"filter_operate_type_names"`
+	// in:query
+	FilterOperateActions []string `json:"filter_operate_actions" query:"filter_operate_actions"`
+	// in:query
+	FilterOperateStatus string `json:"filter_operate_status" query:"filter_operate_status"`
 	// in:query
 	// Required: true
 	PageIndex uint32 `json:"page_index" query:"page_index" validate:"required"`
@@ -67,13 +73,54 @@ type OperationRecordListItem struct {
 	OperationAction    string        `json:"operation_action"`
 	OperationContent   string        `json:"operation_content"`
 	ProjectName        string        `json:"project_name"`
-	// enum: ["succeeded","failed"]
+	// enum: succeeded,failed
 	Status string `json:"status"`
 }
 
 type OperationUser struct {
 	UserName string `json:"user_name"`
 	IP       string `json:"ip"`
+}
+
+// swagger:model GetOperationTypeNameListReply
+type GetOperationTypeNameListReply struct {
+	Data []OperationTypeNameListItem `json:"data"`
+	base.GenericResp
+}
+
+type OperationTypeNameListItem struct {
+	OperationTypeName string `json:"operation_type_name"`
+	Desc              string `json:"desc"`
+}
+
+// swagger:model GetOperationActionListReply
+type GetOperationActionListReply struct {
+	Data []OperationActionListItem `json:"data"`
+	base.GenericResp
+}
+
+type OperationActionListItem struct {
+	OperationType   string `json:"operation_type"`
+	OperationAction string `json:"operation_action"`
+	Desc            string `json:"desc"`
+}
+
+// swagger:model GetOperationUserNameListReply
+type GetOperationUserNameListReply struct {
+	Data []OperationUserNameListItem `json:"data"`
+	base.GenericResp
+}
+
+type OperationUserNameListItem struct {
+	OperationUserName string `json:"operation_user_name"`
+	OperationReqIP    string `json:"operation_req_ip"`
+	Desc              string `json:"desc"`
+}
+
+// swagger:parameters GetOperationUserNameList
+type GetOperationUserNameListReq struct {
+	// in:query
+	FilterOperateProjectName *string `json:"filter_operate_project_name" query:"filter_operate_project_name"`
 }
 
 // swagger:parameters ExportOperationRecordList
@@ -87,9 +134,15 @@ type ExportOperationRecordListReq struct {
 	// in:query
 	FuzzySearchOperateUserName string `json:"fuzzy_search_operate_user_name" query:"fuzzy_search_operate_user_name"`
 	// in:query
-	FilterOperateTypeName string `json:"filter_operate_type_name" query:"filter_operate_type_name"`
+	FuzzySearchOperateContent string `json:"fuzzy_search_operate_content" query:"fuzzy_search_operate_content"`
 	// in:query
-	FilterOperateAction string `json:"filter_operate_action" query:"filter_operate_action"`
+	FilterFuzzyOperateUserName string `json:"filter_fuzzy_operate_user_name" query:"filter_fuzzy_operate_user_name"`
+	// in:query
+	FilterOperateTypeNames []string `json:"filter_operate_type_names" query:"filter_operate_type_names"`
+	// in:query
+	FilterOperateActions []string `json:"filter_operate_actions" query:"filter_operate_actions"`
+	// in:query
+	FilterOperateStatus string `json:"filter_operate_status" query:"filter_operate_status"`
 }
 
 // swagger:response ExportOperationRecordListReply

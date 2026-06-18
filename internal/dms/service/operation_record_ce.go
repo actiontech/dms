@@ -26,3 +26,7 @@ func (d *DMSService) GetOperationRecordList(ctx context.Context, req *aV1.GetOpe
 func (d *DMSService) ExportOperationRecordList(ctx context.Context, req *aV1.ExportOperationRecordListReq, currentUserUid string) (reply []byte, err error) {
 	return nil, errNotSupportOperationRecord
 }
+
+func (d *DMSService) GetOperationUserNameList(ctx context.Context, currentUserUid string, filterOperateProjectName *string) (reply *aV1.GetOperationUserNameListReply, err error) {
+	return nil, errNotSupportOperationRecord
+}
