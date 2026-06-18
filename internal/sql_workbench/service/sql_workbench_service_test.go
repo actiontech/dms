@@ -1,10 +1,12 @@
 package sql_workbench
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 
 	"github.com/actiontech/dms/internal/dms/biz"
+	"github.com/actiontech/dms/internal/sql_workbench/client"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	pkgParams "github.com/actiontech/dms/pkg/params"
 )
@@ -281,4 +283,87 @@ func Test_buildDatasourceBaseInfo_DB2(t *testing.T) {
 
 func strPtr(s string) *string {
 	return &s
+}
+
+func Test_odcDatasourceRequests_includePasswordSaved(t *testing.T) {
+	pwd := "secret"
+	createReq := client.CreateDatasourceRequest{
+		Name:          "proj:ds",
+		Type:          "MYSQL",
+		Username:      "u",
+		Password:      pwd,
+		PasswordSaved: true,
+	}
+	createJSON, err := json.Marshal(createReq)
+	if err != nil {
+		t.Fatalf("marshal create request: %v", err)
+	}
+	if !strings.Contains(string(createJSON), `"passwordSaved":true`) {
+		t.Fatalf("create request JSON missing passwordSaved:true: %s", createJSON)
+	}
+
+	updateReq := client.UpdateDatasourceRequest{
+		Type:          "MYSQL",
+		Username:      "u",
+		Password:      &pwd,
+		PasswordSaved: true,
+	}
+	updateJSON, err := json.Marshal(updateReq)
+	if err != nil {
+		t.Fatalf("marshal update request: %v", err)
+	}
+	if !strings.Contains(string(updateJSON), `"passwordSaved":true`) {
+		t.Fatalf("update request JSON missing passwordSaved:true: %s", updateJSON)
+	}
+}
+
+func Test_buildOdcCreateAndUpdateRequests_setPasswordSaved(t *testing.T) {
+	svc := &SqlWorkbenchService{}
+	baseInfo, err := svc.fillDatasourceBaseInfo("proj:ds", &biz.DBService{
+		Name:     "ds",
+		DBType:   "MySQL",
+		User:     "root",
+		Password: "pass",
+		Host:     "127.0.0.1",
+		Port:     "3306",
+	}, 1)
+	if err != nil {
+		t.Fatalf("fillDatasourceBaseInfo: %v", err)
+	}
+
+	createReq := client.CreateDatasourceRequest{
+		Type:          baseInfo.Type,
+		Name:          baseInfo.Name,
+		Username:      baseInfo.Username,
+		Password:      baseInfo.Password,
+		Host:          baseInfo.Host,
+		Port:          baseInfo.Port,
+		EnvironmentID: baseInfo.EnvironmentID,
+		PasswordSaved: true,
+	}
+	createJSON, err := json.Marshal(createReq)
+	if err != nil {
+		t.Fatalf("marshal create: %v", err)
+	}
+	if !strings.Contains(string(createJSON), `"passwordSaved":true`) {
+		t.Fatalf("expected passwordSaved in create JSON: %s", createJSON)
+	}
+
+	updateReq := client.UpdateDatasourceRequest{
+		Type:          baseInfo.Type,
+		Name:          &baseInfo.Name,
+		Username:      baseInfo.Username,
+		Password:      &baseInfo.Password,
+		Host:          baseInfo.Host,
+		Port:          baseInfo.Port,
+		EnvironmentID: baseInfo.EnvironmentID,
+		PasswordSaved: true,
+	}
+	updateJSON, err := json.Marshal(updateReq)
+	if err != nil {
+		t.Fatalf("marshal update: %v", err)
+	}
+	if !strings.Contains(string(updateJSON), `"passwordSaved":true`) {
+		t.Fatalf("expected passwordSaved in update JSON: %s", updateJSON)
+	}
 }
