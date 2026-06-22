@@ -264,11 +264,12 @@ type ListDBServiceTipsReq struct {
 }
 
 type ListDBServiceTipItem struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
-	Type string `json:"db_type"`
-	Host string `json:"host"`
-	Port string `json:"port"`
+	Id             string                      `json:"id"`
+	Name           string                      `json:"name"`
+	Type           string                      `json:"db_type"`
+	Host           string                      `json:"host"`
+	Port           string                      `json:"port"`
+	EnvironmentTag *dmsCommonV1.EnvironmentTag `json:"environment_tag,omitempty"`
 }
 
 // swagger:model ListDBServiceTipsReply

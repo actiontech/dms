@@ -95,6 +95,7 @@ type EnvironmentTag struct {
 	Model
 	ProjectUID      string `json:"project_uid" gorm:"size:32;column:project_uid;index:project_uid_name"`
 	EnvironmentName string `json:"environment_name" gorm:"not null;index:project_uid_name"`
+	Color           string `json:"color" gorm:"size:32;column:color"`
 }
 
 type ExtraParameters struct {

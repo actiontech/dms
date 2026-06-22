@@ -715,11 +715,12 @@ func (d *DMSService) ListDBServiceTips(ctx context.Context, req *dmsV1.ListDBSer
 	ret := make([]*dmsV1.ListDBServiceTipItem, 0, len(dbServices))
 	for _, item := range dbServices {
 		ret = append(ret, &dmsV1.ListDBServiceTipItem{
-			Id:   item.UID,
-			Name: item.Name,
-			Host: item.Host,
-			Port: item.Port,
-			Type: item.DBType,
+			Id:             item.UID,
+			Name:           item.Name,
+			Host:           item.Host,
+			Port:           item.Port,
+			Type:           item.DBType,
+			EnvironmentTag: item.EnvironmentTag,
 		})
 	}
 

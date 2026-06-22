@@ -109,7 +109,7 @@ func (ctl *DMSController) CreateEnvironmentTag(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = ctl.DMS.CreateEnvironmentTag(c.Request().Context(), req.ProjectUID, currentUserUid, req.Name)
+	err = ctl.DMS.CreateEnvironmentTag(c.Request().Context(), req.ProjectUID, currentUserUid, req.Name, req.Color)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
@@ -160,7 +160,7 @@ func (ctl *DMSController) UpdateEnvironmentTag(c echo.Context) error {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
-	err = ctl.DMS.UpdateEnvironmentTag(c.Request().Context(), req.ProjectUID, currentUserUid, req.EnvironmentTagUID, req.Name)
+	err = ctl.DMS.UpdateEnvironmentTag(c.Request().Context(), req.ProjectUID, currentUserUid, req.EnvironmentTagUID, req.Name, req.Color)
 	if nil != err {
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}

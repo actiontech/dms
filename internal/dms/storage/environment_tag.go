@@ -30,6 +30,7 @@ func (repo *EnvironmentTagRepo) toModel(environmentTag *biz.EnvironmentTag) *mod
 		EnvironmentName: environmentTag.Name,
 		Model:           model.Model{UID: environmentTag.UID},
 		ProjectUID:      environmentTag.ProjectUID,
+		Color:           environmentTag.Color,
 	}
 }
 
@@ -38,6 +39,7 @@ func (repo *EnvironmentTagRepo) toBiz(environmentTag *model.EnvironmentTag) *biz
 		Name:       environmentTag.EnvironmentName,
 		UID:        environmentTag.UID,
 		ProjectUID: environmentTag.ProjectUID,
+		Color:      environmentTag.Color,
 	}
 }
 
@@ -50,9 +52,12 @@ func (repo *EnvironmentTagRepo) CreateEnvironmentTag(ctx context.Context, enviro
 	})
 }
 
-func (repo *EnvironmentTagRepo) UpdateEnvironmentTag(ctx context.Context, environmentTagUID, environmentTagName string) error {
+func (repo *EnvironmentTagRepo) UpdateEnvironmentTag(ctx context.Context, environmentTagUID, environmentTagName, color string) error {
 	return transaction(repo.log, ctx, repo.db, func(tx *gorm.DB) error {
-		if err := tx.WithContext(ctx).Model(&model.EnvironmentTag{}).Where("uid = ?", environmentTagUID).Update("environment_name", environmentTagName).Error; err != nil {
+		if err := tx.WithContext(ctx).Model(&model.EnvironmentTag{}).Where("uid = ?", environmentTagUID).Updates(map[string]interface{}{
+			"environment_name": environmentTagName,
+			"color":            color,
+		}).Error; err != nil {
 			return pkgErr.WrapStorageErr(repo.log, fmt.Errorf("failed to update environment tag: %v", err))
 		}
 		return nil
