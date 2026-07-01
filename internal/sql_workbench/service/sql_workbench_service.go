@@ -1245,7 +1245,12 @@ func (sqlWorkbenchService *SqlWorkbenchService) AuditMiddleware() echo.Middlewar
 			}
 
 			// 拦截响应并添加审核结果
-			return sqlWorkbenchService.interceptAndAddAuditResult(c, next, dmsUserId, auditResult, dbService)
+			execCtx := &streamExecuteRequestContext{
+				sql:          sql,
+				datasourceID: datasourceID,
+				schemaName:   schemaName,
+			}
+			return sqlWorkbenchService.interceptAndAddAuditResult(c, next, dmsUserId, auditResult, dbService, execCtx)
 		}
 	}
 }
@@ -1480,7 +1485,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) callSQLEAudit(ctx context.Contex
 }
 
 // interceptAndAddAuditResult 拦截响应并添加审核结果
-func (sqlWorkbenchService *SqlWorkbenchService) interceptAndAddAuditResult(c echo.Context, next echo.HandlerFunc, userId string, auditResult *cloudbeaver.AuditSQLReply, dbService *biz.DBService) error {
+func (sqlWorkbenchService *SqlWorkbenchService) interceptAndAddAuditResult(c echo.Context, next echo.HandlerFunc, userId string, auditResult *cloudbeaver.AuditSQLReply, dbService *biz.DBService, execCtx *streamExecuteRequestContext) error {
 	// 判断是否需要审批
 	allowQueryWhenLessThanAuditLevel := dbService.GetAllowQueryWhenLessThanAuditLevel()
 	needApproval := sqlWorkbenchService.shouldRequireApproval(auditResult.Data.SQLResults, allowQueryWhenLessThanAuditLevel)
@@ -1488,6 +1493,11 @@ func (sqlWorkbenchService *SqlWorkbenchService) interceptAndAddAuditResult(c ech
 	// 如果需要审批，直接返回审核结果，不请求真实的 streamExecute 接口
 	if needApproval {
 		return sqlWorkbenchService.buildAuditResponseWithoutExecution(c, userId, auditResult, dbService)
+	}
+
+	// 非 DQL 且开启工单上线执行时，自动建单上线
+	if sqlWorkbenchService.shouldExecuteByWorkflow(dbService, auditResult.Data.SQLResults) {
+		return sqlWorkbenchService.executeNonDQLByWorkflow(c, userId, execCtx, auditResult, dbService)
 	}
 
 	// 不需要审批，执行真实请求并添加审核结果
@@ -1896,12 +1906,14 @@ type StreamExecuteResponse struct {
 
 // StreamExecuteData streamExecute 响应中的 data 字段
 type StreamExecuteData struct {
-	ApprovalRequired        bool                   `json:"approvalRequired"`
-	LogicalSQL              bool                   `json:"logicalSql"`
-	RequestID               *string                `json:"requestId"`
-	SQLs                    []StreamExecuteSQLItem `json:"sqls"`
-	UnauthorizedDBResources interface{}            `json:"unauthorizedDBResources"`
-	ViolatedRules           []interface{}          `json:"violatedRules"`
+	ApprovalRequired        bool                       `json:"approvalRequired"`
+	LogicalSQL              bool                       `json:"logicalSql"`
+	RequestID               *string                    `json:"requestId"`
+	SQLs                    []StreamExecuteSQLItem     `json:"sqls"`
+	UnauthorizedDBResources interface{}                `json:"unauthorizedDBResources"`
+	ViolatedRules           []interface{}              `json:"violatedRules"`
+	WorkflowInfo            *StreamExecuteWorkflowInfo `json:"workflowInfo,omitempty"`
+	ErrorMessage            string                     `json:"errorMessage,omitempty"`
 }
 
 // StreamExecuteSQLItem SQL 条目
