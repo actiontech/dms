@@ -367,3 +367,45 @@ func Test_buildOdcCreateAndUpdateRequests_setPasswordSaved(t *testing.T) {
 		t.Fatalf("expected passwordSaved in update JSON: %s", updateJSON)
 	}
 }
+
+func Test_normalizeSQLEAuditSchemaName(t *testing.T) {
+	cases := map[string]struct {
+		dbType   string
+		schema   string
+		expected string
+	}{
+		"SQL Server database.schema": {
+			dbType:   string(pkgConst.DBTypeSQLServer),
+			schema:   "TestDB.dbo",
+			expected: "TestDB",
+		},
+		"SQL Server catalog only": {
+			dbType:   string(pkgConst.DBTypeSQLServer),
+			schema:   "TestDB",
+			expected: "TestDB",
+		},
+		"SQL Server non-dbo schema": {
+			dbType:   string(pkgConst.DBTypeSQLServer),
+			schema:   "TestDB.sales",
+			expected: "TestDB",
+		},
+		"MySQL schema unchanged": {
+			dbType:   string(pkgConst.DBTypeMySQL),
+			schema:   "app.db",
+			expected: "app.db",
+		},
+		"Oracle schema unchanged": {
+			dbType:   string(pkgConst.DBTypeOracle),
+			schema:   "HR",
+			expected: "HR",
+		},
+	}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			got := normalizeSQLEAuditSchemaName(tc.dbType, tc.schema)
+			if got != tc.expected {
+				t.Fatalf("normalizeSQLEAuditSchemaName(%q, %q) = %q, want %q", tc.dbType, tc.schema, got, tc.expected)
+			}
+		})
+	}
+}
