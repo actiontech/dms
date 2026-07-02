@@ -1471,6 +1471,19 @@ func (sqlWorkbenchService *SqlWorkbenchService) isEnableSQLAudit(dbService *biz.
 	return dbService.SQLEConfig.AuditEnabled && dbService.SQLEConfig.SQLQueryConfig.AuditEnabled
 }
 
+// normalizeSQLEAuditSchemaName 将 ODC SQL Server 的 database.schema 组合归一化为 SQLE 连接库名。
+// ODC 将 SQL Server 的 database.schema 平铺为 schema 名（如 TestDB.dbo），
+// 而 SQLE 直连审核会把 schema_name 当作连接的数据库名。
+func normalizeSQLEAuditSchemaName(dbType, schemaName string) string {
+	if dbType != string(pkgConst.DBTypeSQLServer) {
+		return schemaName
+	}
+	if idx := strings.Index(schemaName, "."); idx > 0 {
+		return schemaName[:idx]
+	}
+	return schemaName
+}
+
 // callSQLEAudit 调用 SQLE 直接审核接口
 func (sqlWorkbenchService *SqlWorkbenchService) callSQLEAudit(ctx context.Context, sql string, dbService *biz.DBService, schemaName string) (*cloudbeaver.AuditSQLReply, error) {
 	// 获取 SQLE 服务地址
@@ -1480,6 +1493,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) callSQLEAudit(ctx context.Contex
 	}
 
 	sqleAddr := fmt.Sprintf("%s/v2/sql_audit", target.URL.String())
+	schemaName = normalizeSQLEAuditSchemaName(dbService.DBType, schemaName)
 
 	auditReq := cloudbeaver.AuditSQLReq{
 		InstanceType:     dbService.DBType,
