@@ -104,6 +104,7 @@ type SqlWorkbenchService struct {
 	sqlWorkbenchDatasourceRepo biz.SqlWorkbenchDatasourceRepo
 	proxyTargetRepo            biz.ProxyTargetRepo
 	cbOperationLogUsecase      *biz.CbOperationLogUsecase
+	maintenanceTimeUsecase     *biz.MaintenanceTimeUsecase
 	sqlResultMasker            sqlresultmasker.SQLResultMasker
 }
 
@@ -184,6 +185,7 @@ func NewAndInitSqlWorkbenchService(logger utilLog.Logger, opts *conf.DMSOptions)
 	// 初始化操作日志相关
 	cbOperationLogRepo := storage.NewCbOperationLogRepo(logger, st)
 	cbOperationLogUsecase := biz.NewCbOperationLogUsecase(logger, cbOperationLogRepo, opPermissionVerifyUsecase, proxyTargetRepo, biz.NewSystemVariableUsecase(logger, storage.NewSystemVariableRepo(logger, st)))
+	maintenanceTimeUsecase := biz.NewMaintenanceTimeUsecase(logger, opPermissionVerifyUsecase)
 
 	return &SqlWorkbenchService{
 		cfg:                        opts.SqlWorkBenchOpts,
@@ -197,6 +199,7 @@ func NewAndInitSqlWorkbenchService(logger utilLog.Logger, opts *conf.DMSOptions)
 		sqlWorkbenchDatasourceRepo: sqlWorkbenchDatasourceRepo,
 		proxyTargetRepo:            proxyTargetRepo,
 		cbOperationLogUsecase:      cbOperationLogUsecase,
+		maintenanceTimeUsecase:     maintenanceTimeUsecase,
 	}, nil
 }
 
@@ -1183,7 +1186,7 @@ func (sqlWorkbenchService *SqlWorkbenchService) AuditMiddleware() echo.Middlewar
 			// 注意：解析仅服务于审核辅助路径，解析失败不应直接阻塞用户的 SQL 执行；
 			// 否则一旦中间件辅助能力出错（如 sid 解码失败），用户连查询都跑不了。
 			// 真正的「未启用审核 / 审核失败」等强策略仍由后续分支按既有 fail-closed 处理。
-			sql, sidInfo, err := sqlWorkbenchService.parseStreamExecuteRequest(bodyBytes)
+			sql, sidInfo, isExecuteAnyway, err := sqlWorkbenchService.parseStreamExecuteRequest(bodyBytes)
 			if err != nil {
 				sqlWorkbenchService.log.Warnf("failed to parse streamExecute request, skipping audit: %v", err)
 				return next(c)
@@ -1246,9 +1249,10 @@ func (sqlWorkbenchService *SqlWorkbenchService) AuditMiddleware() echo.Middlewar
 
 			// 拦截响应并添加审核结果
 			execCtx := &streamExecuteRequestContext{
-				sql:          sql,
-				datasourceID: datasourceID,
-				schemaName:   schemaName,
+				sql:             sql,
+				datasourceID:    datasourceID,
+				schemaName:      schemaName,
+				isExecuteAnyway: isExecuteAnyway,
 			}
 			return sqlWorkbenchService.interceptAndAddAuditResult(c, next, dmsUserId, auditResult, dbService, execCtx)
 		}
@@ -1262,11 +1266,11 @@ type streamExecuteSidInfo struct {
 	dbID         int
 }
 
-// parseStreamExecuteRequest 解析 streamExecute 请求体，提取 SQL 与会话 sid 信息
-func (sqlWorkbenchService *SqlWorkbenchService) parseStreamExecuteRequest(bodyBytes []byte) (sql string, sidInfo *streamExecuteSidInfo, err error) {
+// parseStreamExecuteRequest 解析 streamExecute 请求体，提取 SQL、会话 sid 与 isExecuteAnyway
+func (sqlWorkbenchService *SqlWorkbenchService) parseStreamExecuteRequest(bodyBytes []byte) (sql string, sidInfo *streamExecuteSidInfo, isExecuteAnyway bool, err error) {
 	var requestBody map[string]interface{}
 	if err := json.Unmarshal(bodyBytes, &requestBody); err != nil {
-		return "", nil, fmt.Errorf("failed to unmarshal request body: %v", err)
+		return "", nil, false, fmt.Errorf("failed to unmarshal request body: %v", err)
 	}
 
 	if sqlVal, ok := requestBody["sql"]; ok {
@@ -1274,6 +1278,8 @@ func (sqlWorkbenchService *SqlWorkbenchService) parseStreamExecuteRequest(bodyBy
 			sql = sqlStr
 		}
 	}
+
+	isExecuteAnyway = parseIsExecuteAnywayFromRequest(requestBody)
 
 	if sidVal, ok := requestBody["sid"]; ok {
 		if sidStr, ok := sidVal.(string); ok {
@@ -1284,7 +1290,26 @@ func (sqlWorkbenchService *SqlWorkbenchService) parseStreamExecuteRequest(bodyBy
 		}
 	}
 
-	return sql, sidInfo, nil
+	return sql, sidInfo, isExecuteAnyway, nil
+}
+
+func parseIsExecuteAnywayFromRequest(requestBody map[string]interface{}) bool {
+	isExecuteAnywayVal, ok := requestBody["isExecuteAnyway"]
+	if !ok || isExecuteAnywayVal == nil {
+		return false
+	}
+
+	switch val := isExecuteAnywayVal.(type) {
+	case bool:
+		return val
+	case string:
+		parsed, err := strconv.ParseBool(val)
+		if err == nil {
+			return parsed
+		}
+	}
+
+	return false
 }
 
 // parseStreamExecuteSid 解析 ODC sid（与 pathUtil.generateDatabaseSid 对齐）：
@@ -1486,21 +1511,21 @@ func (sqlWorkbenchService *SqlWorkbenchService) callSQLEAudit(ctx context.Contex
 
 // interceptAndAddAuditResult 拦截响应并添加审核结果
 func (sqlWorkbenchService *SqlWorkbenchService) interceptAndAddAuditResult(c echo.Context, next echo.HandlerFunc, userId string, auditResult *cloudbeaver.AuditSQLReply, dbService *biz.DBService, execCtx *streamExecuteRequestContext) error {
-	// 判断是否需要审批
 	allowQueryWhenLessThanAuditLevel := dbService.GetAllowQueryWhenLessThanAuditLevel()
-	needApproval := sqlWorkbenchService.shouldRequireApproval(auditResult.Data.SQLResults, allowQueryWhenLessThanAuditLevel)
+	auditPassed := isAuditSuccessful(auditResult, allowQueryWhenLessThanAuditLevel)
 
-	// 如果需要审批，直接返回审核结果，不请求真实的 streamExecute 接口
-	if needApproval {
+	if !auditPassed && !execCtx.isExecuteAnyway {
 		return sqlWorkbenchService.buildAuditResponseWithoutExecution(c, userId, auditResult, dbService)
 	}
 
-	// 非 DQL 且开启工单上线执行时，自动建单上线
+	if blocked, err := sqlWorkbenchService.checkMaintenanceTime(c, userId, auditResult.Data.SQLResults, dbService); blocked || err != nil {
+		return err
+	}
+
 	if sqlWorkbenchService.shouldExecuteByWorkflow(dbService, auditResult.Data.SQLResults) {
 		return sqlWorkbenchService.executeNonDQLByWorkflow(c, userId, execCtx, auditResult, dbService)
 	}
 
-	// 不需要审批，执行真实请求并添加审核结果
 	return sqlWorkbenchService.executeAndAddAuditResult(c, next, auditResult, dbService)
 }
 
@@ -1809,35 +1834,68 @@ func (sqlWorkbenchService *SqlWorkbenchService) mergeSQLEAuditResults(data *Stre
 	}
 }
 
-// shouldRequireApproval 根据审核放行等级判断是否需要审批
-func (sqlWorkbenchService *SqlWorkbenchService) shouldRequireApproval(sqlResults []cloudbeaver.AuditSQLResV2, allowQueryWhenLessThanAuditLevel string) bool {
-	// 如果没有设置审核放行等级，那么直接放行
-	if allowQueryWhenLessThanAuditLevel == "" {
+// isAuditSuccessful 判断审核是否放行，语义对齐 CloudBeaver AuditSQL / IsSuccess
+func isAuditSuccessful(auditResult *cloudbeaver.AuditSQLReply, allowQueryWhenLessThanAuditLevel string) bool {
+	if auditResult == nil || auditResult.Data == nil {
 		return false
 	}
 
-	// 遍历所有 SQL 审核结果
-	for _, sqlResult := range sqlResults {
-		// 检查是否有执行失败的审核项
-		for _, auditItem := range sqlResult.AuditResult {
-			if auditItem.ExecutionFailed {
-				return true
+	for _, sqlResult := range auditResult.Data.SQLResults {
+		for _, res := range sqlResult.AuditResult {
+			if res.ExecutionFailed {
+				return false
 			}
-		}
-
-		// 比较审核等级：如果 SQL 的审核等级大于允许的等级，则需要审批
-		// 使用 RuleLevel 的 LessOrEqual 方法进行比较
-		sqlAuditLevel := dbmodel.RuleLevel(sqlResult.AuditLevel)
-		allowedLevel := dbmodel.RuleLevel(allowQueryWhenLessThanAuditLevel)
-
-		// 如果 SQL 的审核等级大于允许的等级（即 !LessOrEqual），则需要审批
-		if !sqlAuditLevel.LessOrEqual(allowedLevel) {
-			return true
 		}
 	}
 
-	// 所有 SQL 的审核等级都小于等于允许的等级，不需要审批
-	return false
+	if auditResult.Data.PassRate == 0 {
+		return cloudbeaver.AllowQuery(allowQueryWhenLessThanAuditLevel, auditResult.Data.SQLResults)
+	}
+
+	return true
+}
+
+// shouldRequireApproval 根据审核放行语义判断是否需要审批
+func (sqlWorkbenchService *SqlWorkbenchService) shouldRequireApproval(auditResult *cloudbeaver.AuditSQLReply, allowQueryWhenLessThanAuditLevel string) bool {
+	return !isAuditSuccessful(auditResult, allowQueryWhenLessThanAuditLevel)
+}
+
+// checkMaintenanceTime 检查运维时间管控（ODC 工作台）
+// 返回 blocked=true 表示已构造拦截响应，调用方应立即返回
+func (sqlWorkbenchService *SqlWorkbenchService) checkMaintenanceTime(c echo.Context, userID string, auditResults []cloudbeaver.AuditSQLResV2, dbService *biz.DBService) (blocked bool, err error) {
+	if sqlWorkbenchService.maintenanceTimeUsecase == nil {
+		return false, fmt.Errorf("maintenance time usecase is nil")
+	}
+
+	if userID == "" {
+		return false, fmt.Errorf("current user uid is empty")
+	}
+
+	sqlTypes := make([]string, 0, len(auditResults))
+	for _, r := range auditResults {
+		sqlTypes = append(sqlTypes, r.SQLType)
+	}
+
+	var sqlQueryConfig *biz.SQLQueryConfig
+	if dbService != nil && dbService.SQLEConfig != nil {
+		sqlQueryConfig = dbService.SQLEConfig.SQLQueryConfig
+	}
+
+	allowed, message, checkErr := sqlWorkbenchService.maintenanceTimeUsecase.CheckSQLExecutionAllowed(
+		c.Request().Context(),
+		userID,
+		sqlTypes,
+		time.Now(),
+		sqlQueryConfig,
+	)
+	if checkErr != nil {
+		sqlWorkbenchService.log.Errorf("check maintenance time failed: %v", checkErr)
+		return false, checkErr
+	}
+	if !allowed {
+		return true, sqlWorkbenchService.buildWorkflowErrorResponse(c, message)
+	}
+	return false, nil
 }
 
 // convertSQLEAuditToViolatedRules 将 SQLE 审核结果转换为 violatedRules 格式
