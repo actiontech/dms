@@ -6,10 +6,128 @@ import (
 	"testing"
 
 	"github.com/actiontech/dms/internal/dms/biz"
-	"github.com/actiontech/dms/internal/sql_workbench/client"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
+	dbmodel "github.com/actiontech/dms/internal/dms/storage/model"
+	"github.com/actiontech/dms/internal/pkg/cloudbeaver"
+	"github.com/actiontech/dms/internal/sql_workbench/client"
 	pkgParams "github.com/actiontech/dms/pkg/params"
 )
+
+func Test_isAuditSuccessful(t *testing.T) {
+	allowWarn := string(dbmodel.RuleLevelWarn)
+
+	cases := map[string]struct {
+		auditResult *cloudbeaver.AuditSQLReply
+		allowLevel  string
+		expected    bool
+	}{
+		"pass rate positive": {
+			auditResult: &cloudbeaver.AuditSQLReply{
+				Data: &cloudbeaver.AuditResDataV2{
+					PassRate: 1,
+					SQLResults: []cloudbeaver.AuditSQLResV2{
+						{AuditLevel: string(dbmodel.RuleLevelError)},
+					},
+				},
+			},
+			allowLevel: allowWarn,
+			expected:   true,
+		},
+		"execution failed blocks": {
+			auditResult: &cloudbeaver.AuditSQLReply{
+				Data: &cloudbeaver.AuditResDataV2{
+					PassRate: 1,
+					SQLResults: []cloudbeaver.AuditSQLResV2{
+						{
+							AuditLevel: string(dbmodel.RuleLevelNormal),
+							AuditResult: dbmodel.AuditResults{
+								{ExecutionFailed: true},
+							},
+						},
+					},
+				},
+			},
+			allowLevel: allowWarn,
+			expected:   false,
+		},
+		"pass rate zero and level within threshold": {
+			auditResult: &cloudbeaver.AuditSQLReply{
+				Data: &cloudbeaver.AuditResDataV2{
+					PassRate: 0,
+					SQLResults: []cloudbeaver.AuditSQLResV2{
+						{AuditLevel: string(dbmodel.RuleLevelWarn)},
+					},
+				},
+			},
+			allowLevel: allowWarn,
+			expected:   true,
+		},
+		"pass rate zero and level above threshold": {
+			auditResult: &cloudbeaver.AuditSQLReply{
+				Data: &cloudbeaver.AuditResDataV2{
+					PassRate: 0,
+					SQLResults: []cloudbeaver.AuditSQLResV2{
+						{AuditLevel: string(dbmodel.RuleLevelError)},
+					},
+				},
+			},
+			allowLevel: allowWarn,
+			expected:   false,
+		},
+		"nil audit result": {
+			auditResult: nil,
+			allowLevel:  allowWarn,
+			expected:    false,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			got := isAuditSuccessful(tc.auditResult, tc.allowLevel)
+			if got != tc.expected {
+				t.Errorf("isAuditSuccessful() = %v, want %v", got, tc.expected)
+			}
+		})
+	}
+}
+
+func Test_shouldRequireApproval(t *testing.T) {
+	svc := &SqlWorkbenchService{}
+	auditResult := &cloudbeaver.AuditSQLReply{
+		Data: &cloudbeaver.AuditResDataV2{
+			PassRate: 0,
+			SQLResults: []cloudbeaver.AuditSQLResV2{
+				{AuditLevel: string(dbmodel.RuleLevelError)},
+			},
+		},
+	}
+
+	if !svc.shouldRequireApproval(auditResult, string(dbmodel.RuleLevelWarn)) {
+		t.Fatal("expected approval required for error level when pass rate is zero")
+	}
+}
+
+func Test_parseIsExecuteAnywayFromRequest(t *testing.T) {
+	cases := map[string]struct {
+		body     map[string]interface{}
+		expected bool
+	}{
+		"bool true":      {body: map[string]interface{}{"isExecuteAnyway": true}, expected: true},
+		"bool false":     {body: map[string]interface{}{"isExecuteAnyway": false}, expected: false},
+		"string true":    {body: map[string]interface{}{"isExecuteAnyway": "true"}, expected: true},
+		"missing field":  {body: map[string]interface{}{}, expected: false},
+		"invalid string": {body: map[string]interface{}{"isExecuteAnyway": "invalid"}, expected: false},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			got := parseIsExecuteAnywayFromRequest(tc.body)
+			if got != tc.expected {
+				t.Errorf("parseIsExecuteAnywayFromRequest() = %v, want %v", got, tc.expected)
+			}
+		})
+	}
+}
 
 func Test_convertDBType(t *testing.T) {
 	svc := &SqlWorkbenchService{}
@@ -365,5 +483,47 @@ func Test_buildOdcCreateAndUpdateRequests_setPasswordSaved(t *testing.T) {
 	}
 	if !strings.Contains(string(updateJSON), `"passwordSaved":true`) {
 		t.Fatalf("expected passwordSaved in update JSON: %s", updateJSON)
+	}
+}
+
+func Test_normalizeSQLEAuditSchemaName(t *testing.T) {
+	cases := map[string]struct {
+		dbType   string
+		schema   string
+		expected string
+	}{
+		"SQL Server database.schema": {
+			dbType:   string(pkgConst.DBTypeSQLServer),
+			schema:   "TestDB.dbo",
+			expected: "TestDB",
+		},
+		"SQL Server catalog only": {
+			dbType:   string(pkgConst.DBTypeSQLServer),
+			schema:   "TestDB",
+			expected: "TestDB",
+		},
+		"SQL Server non-dbo schema": {
+			dbType:   string(pkgConst.DBTypeSQLServer),
+			schema:   "TestDB.sales",
+			expected: "TestDB",
+		},
+		"MySQL schema unchanged": {
+			dbType:   string(pkgConst.DBTypeMySQL),
+			schema:   "app.db",
+			expected: "app.db",
+		},
+		"Oracle schema unchanged": {
+			dbType:   string(pkgConst.DBTypeOracle),
+			schema:   "HR",
+			expected: "HR",
+		},
+	}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			got := normalizeSQLEAuditSchemaName(tc.dbType, tc.schema)
+			if got != tc.expected {
+				t.Fatalf("normalizeSQLEAuditSchemaName(%q, %q) = %q, want %q", tc.dbType, tc.schema, got, tc.expected)
+			}
+		})
 	}
 }
