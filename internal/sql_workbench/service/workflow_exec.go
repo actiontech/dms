@@ -81,7 +81,11 @@ func (sqlWorkbenchService *SqlWorkbenchService) shouldExecuteByWorkflow(dbServic
 }
 
 func (sqlWorkbenchService *SqlWorkbenchService) checkWorkflowPermission(ctx context.Context, userUID string, dbService *biz.DBService) (bool, error) {
-	if userUID == constant.UIDOfUserAdmin {
+	canOpGlobal, err := sqlWorkbenchService.opPermissionVerifyUsecase.CanOpGlobal(ctx, userUID, true)
+	if err != nil {
+		return false, fmt.Errorf("check global op permission err: %v", err)
+	}
+	if canOpGlobal {
 		return true, nil
 	}
 	opPermissions, err := sqlWorkbenchService.opPermissionVerifyUsecase.GetUserOpPermissionInProject(ctx, userUID, dbService.ProjectUID)
