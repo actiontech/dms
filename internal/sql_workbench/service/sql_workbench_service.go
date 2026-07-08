@@ -540,8 +540,10 @@ func (sqlWorkbenchService *SqlWorkbenchService) getUserAccessibleDBServices(ctx 
 		return nil, fmt.Errorf("failed to get active db services: %v", err)
 	}
 
-	// 检查用户是否有全局权限
-	hasGlobalOpPermission, err := sqlWorkbenchService.opPermissionVerifyUsecase.CanOpGlobal(ctx, dmsUser.UID, false)
+	// 检查用户是否有全局权限。工作台数据源同步属于业务写场景，需传入 isBusinessWrite=true，
+	// 与 CloudBeaver 的 connectManagement 保持一致：系统管理员关闭业务写权后不再放行全部数据源，
+	// 而是走项目/数据源级权限过滤。
+	hasGlobalOpPermission, err := sqlWorkbenchService.opPermissionVerifyUsecase.CanOpGlobal(ctx, dmsUser.UID, true)
 	if err != nil {
 		return nil, fmt.Errorf("failed to check global op permission: %v", err)
 	}
