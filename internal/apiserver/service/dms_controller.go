@@ -693,12 +693,17 @@ func (ctl *DMSController) AddSession(c echo.Context) error {
 		return NewErrResp(c, errors.New(reply.Data.VerifyFailedMsg), apiError.BadRequestErr)
 	}
 
-	// Create token with claims
-	token, err := jwt.GenJwtToken(jwt.WithUserId(reply.Data.UserUid))
+	loginSessionID, err := ctl.DMS.UserUsecase.CreateLoginSession(c.Request().Context(), reply.Data.UserUid)
 	if nil != err {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
-	refreshToken, err := jwt.GenRefreshToken(jwt.WithUserId(reply.Data.UserUid))
+
+	// Create token with claims
+	token, err := jwt.GenJwtToken(jwt.WithUserId(reply.Data.UserUid), jwt.WithLoginSessionID(loginSessionID))
+	if nil != err {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	refreshToken, err := jwt.GenRefreshToken(jwt.WithUserId(reply.Data.UserUid), jwt.WithLoginSessionID(loginSessionID))
 	if nil != err {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -873,12 +878,21 @@ func (ctl *DMSController) RefreshSession(c echo.Context) error {
 		return c.String(http.StatusUnauthorized, "refresh token is expired")
 	}
 
+	loginSessionID, err := jwt.ParseLoginSessionIDFromRefreshToken(refreshToken.Value)
+	if err != nil {
+		return c.String(http.StatusUnauthorized, err.Error())
+	}
+	if err = ctl.DMS.UserUsecase.ValidateLoginSession(c.Request().Context(), uid, loginSessionID); err != nil {
+		return c.String(http.StatusUnauthorized, err.Error())
+	}
+
 	// 签发的token包含第三方平台信息，需要同步刷新第三方平台token
 	if sub != "" || sid != "" {
 		claims, err := ctl.DMS.RefreshOauth2Token(c.Request().Context(), uid, sub, sid)
 		if err != nil {
 			return c.String(http.StatusUnauthorized, err.Error())
 		}
+		claims.LoginSessionID = loginSessionID
 
 		newDmsToken, dmsCookieExp, err := claims.DmsToken()
 		if err != nil {
@@ -915,7 +929,7 @@ func (ctl *DMSController) RefreshSession(c echo.Context) error {
 	}
 
 	// Create token with claims
-	token, err := jwt.GenJwtToken(jwt.WithUserId(uid))
+	token, err := jwt.GenJwtToken(jwt.WithUserId(uid), jwt.WithLoginSessionID(loginSessionID))
 	if nil != err {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
@@ -2746,6 +2760,12 @@ func (ctl *DMSController) oauth2Callback(c echo.Context) error {
 	// 2. callbackData.UserExist 为false时，前端会进入手动绑定页面，绑定时调用绑定接口签发tokens
 	// 3. 没错误且用户存在时，签发tokens登录成功
 	if  callbackData.Error == "" && callbackData.UserExist {
+		loginSessionID, err := ctl.DMS.UserUsecase.CreateLoginSession(c.Request().Context(), claims.UserId)
+		if err != nil {
+			return NewErrResp(c, err, apiError.APIServerErr)
+		}
+		claims.LoginSessionID = loginSessionID
+
 		dmsToken, dmsCookieExp, err := claims.DmsToken()
 		if err != nil {
 			return NewErrResp(c, err, apiError.APIServerErr)
@@ -2831,6 +2851,12 @@ func (ctl *DMSController) BindOauth2User(c echo.Context) error {
 	if err != nil {
 		return NewErrResp(c, err, apiError.APIServerErr)
 	}
+
+	loginSessionID, err := ctl.DMS.UserUsecase.CreateLoginSession(c.Request().Context(), claims.UserId)
+	if err != nil {
+		return NewErrResp(c, err, apiError.APIServerErr)
+	}
+	claims.LoginSessionID = loginSessionID
 
 	dmsToken, dmsCookieExp, err := claims.DmsToken()
 	if err != nil {

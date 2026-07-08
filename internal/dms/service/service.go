@@ -46,6 +46,7 @@ type DMSService struct {
 	DataMaskingUsecase          *dataMaskingUsecase
 	FunctionSupportRegistry     *biz.FunctionSupportRegistry
 	AuthAccessTokenUseCase      *biz.AuthAccessTokenUsecase
+	AuthLoginSessionUsecase     *biz.AuthLoginSessionUsecase
 	SwaggerUseCase              *biz.SwaggerUseCase
 	GatewayUsecase              *biz.GatewayUsecase
 	SystemVariableUsecase       *biz.SystemVariableUsecase
@@ -170,6 +171,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	registerFunctionProvidersToRegistry(functionSupportRegistry, dataMaskingUsecase)
 
 	authAccessTokenUsecase := biz.NewAuthAccessTokenUsecase(logger, userUsecase)
+	authLoginSessionUsecase := biz.NewAuthLoginSessionUsecase(logger, userUsecase, loginConfigurationUsecase)
 
 	cronTask := biz.NewCronTaskUsecase(logger, DataExportWorkflowUsecase, CbOperationLogUsecase, operationRecordUsecase, oauth2SessionUsecase)
 	err = cronTask.InitialTask()
@@ -212,6 +214,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		DataMaskingUsecase:          dataMaskingUsecase,
 		FunctionSupportRegistry:     functionSupportRegistry,
 		AuthAccessTokenUseCase:      authAccessTokenUsecase,
+		AuthLoginSessionUsecase:     authLoginSessionUsecase,
 		SwaggerUseCase:              swaggerUseCase,
 		GatewayUsecase:              gatewayUsecase,
 		SystemVariableUsecase:       systemVariableUsecase,

@@ -21,12 +21,13 @@ type EchoContextGetter interface {
 type CustomClaimFunc func(claims jwt.MapClaims)
 
 const (
-	JWTUserId        = "uid"
-	JWTUsername      = "name"
-	JWTExpiredTime   = "exp"
-	JWTAuditPlanName = "apn"
-	JWTLoginType     = "loginType"
-	JWTType          = "typ"
+	JWTUserId          = "uid"
+	JWTUsername        = "name"
+	JWTExpiredTime     = "exp"
+	JWTAuditPlanName   = "apn"
+	JWTLoginType       = "loginType"
+	JWTType            = "typ"
+	JWTLoginSessionID  = "jti"
 
 	DefaultDmsTokenExpHours        = 2
 	DefaultDmsRefreshTokenExpHours = 24
@@ -90,6 +91,22 @@ func ParseRefreshToken(tokenStr string) (userUid, sub, sid string, expired bool,
 	return userUid, sub, sid, expired, nil
 }
 
+func ParseLoginSessionIDFromRefreshToken(tokenStr string) (loginSessionID string, err error) {
+	token, err := parseJwtTokenStr(tokenStr)
+	if err != nil {
+		return "", err
+	}
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", fmt.Errorf("failed to convert token claims to jwt")
+	}
+	if fmt.Sprint(claims[JWTType]) != constant.DMSRefreshToken {
+		return "", fmt.Errorf("invalid jwt type")
+	}
+	loginSessionID, _ = claims[JWTLoginSessionID].(string)
+	return loginSessionID, nil
+}
+
 func genJwtToken(mapClaims jwt.MapClaims, customClaims ...CustomClaimFunc) (tokenStr string, err error) {
 	for _, claimFunc := range customClaims {
 		claimFunc(mapClaims)
@@ -151,6 +168,12 @@ func WithSub(sub string) CustomClaimFunc {
 func WithSid(sid string) CustomClaimFunc {
 	return func(claims jwt.MapClaims) {
 		claims["sid"] = sid
+	}
+}
+
+func WithLoginSessionID(id string) CustomClaimFunc {
+	return func(claims jwt.MapClaims) {
+		claims[JWTLoginSessionID] = id
 	}
 }
 
@@ -314,9 +337,10 @@ func ParseUserUidStrFromTokenWithOldJwt(token *jwtOld.Token) (uid string, err er
 }
 
 type TokenDetail struct {
-	TokenStr  string
-	UID       string
-	LoginType string
+	TokenStr        string
+	UID             string
+	LoginType       string
+	LoginSessionID  string
 }
 
 // 由于sqle使用的github.com/golang-jwt/jwt，本方法为sqle兼容
@@ -348,10 +372,16 @@ func GetTokenDetailFromContextWithOldJwt(c EchoContextGetter) (tokenDetail *Toke
 	}
 	loginType, ok := claims[JWTLoginType]
 	if !ok {
+		if loginSessionID, ok := claims[JWTLoginSessionID]; ok {
+			tokenDetail.LoginSessionID = fmt.Sprint(loginSessionID)
+		}
 		return tokenDetail, nil
 	}
 
 	tokenDetail.LoginType = fmt.Sprint(loginType)
+	if loginSessionID, ok := claims[JWTLoginSessionID]; ok {
+		tokenDetail.LoginSessionID = fmt.Sprint(loginSessionID)
+	}
 	return tokenDetail, nil
 }
 
@@ -382,9 +412,15 @@ func GetTokenDetailFromContext(c EchoContextGetter) (tokenDetail *TokenDetail, e
 	}
 	loginType, ok := claims[JWTLoginType]
 	if !ok {
+		if loginSessionID, ok := claims[JWTLoginSessionID]; ok {
+			tokenDetail.LoginSessionID = fmt.Sprint(loginSessionID)
+		}
 		return tokenDetail, nil
 	}
 
 	tokenDetail.LoginType = fmt.Sprint(loginType)
+	if loginSessionID, ok := claims[JWTLoginSessionID]; ok {
+		tokenDetail.LoginSessionID = fmt.Sprint(loginSessionID)
+	}
 	return tokenDetail, nil
 }

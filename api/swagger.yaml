@@ -15,6 +15,41 @@ definitions:
                 x-go-name: ExpiredTime
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    ActivateUnmaskingWorkflowViewReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/ActivateUnmaskingWorkflowViewReplyData'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ActivateUnmaskingWorkflowViewReplyData:
+        properties:
+            view_state:
+                enum:
+                    - not_activated
+                    - active
+                    - view_expired
+                    - activation_expired
+                type: string
+                x-go-enum-desc: |-
+                    not_activated UnmaskingWorkflowViewStateNotActivated
+                    active UnmaskingWorkflowViewStateActive
+                    view_expired UnmaskingWorkflowViewStateViewExpired
+                    activation_expired UnmaskingWorkflowViewStateActivationExpired
+                x-go-name: ViewState
+            view_valid_until:
+                type: string
+                x-go-name: ViewValidUntil
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AddDBServiceReply:
         properties:
             code:
@@ -1860,6 +1895,70 @@ definitions:
             - proxy_url_prefixs
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    DataExportRelatedUnmaskingWorkflow:
+        properties:
+            apply_reason:
+                description: 申请理由
+                type: string
+                x-go-name: ApplyReason
+            approval_status:
+                description: |-
+                    审批状态
+                    pending UnmaskingWorkflowApprovalStatusPending  待审批
+                    approved UnmaskingWorkflowApprovalStatusApproved  已批准
+                    rejected UnmaskingWorkflowApprovalStatusRejected  已驳回
+                    cancelled UnmaskingWorkflowApprovalStatusCancelled  已取消
+                enum:
+                    - pending
+                    - approved
+                    - rejected
+                    - cancelled
+                type: string
+                x-go-enum-desc: |-
+                    pending UnmaskingWorkflowApprovalStatusPending  待审批
+                    approved UnmaskingWorkflowApprovalStatusApproved  已批准
+                    rejected UnmaskingWorkflowApprovalStatusRejected  已驳回
+                    cancelled UnmaskingWorkflowApprovalStatusCancelled  已取消
+                x-go-name: ApprovalStatus
+            created_at:
+                description: 创建时间 (RFC3339)
+                type: string
+                x-go-name: CreatedAt
+            creator:
+                $ref: '#/definitions/UidWithName'
+            expire_time:
+                description: 过期时间 (RFC3339)，未设置时省略
+                type: string
+                x-go-name: ExpireTime
+            operation_logs:
+                description: 操作记录
+                items:
+                    $ref: '#/definitions/UnmaskingOperationLogItem'
+                type: array
+                x-go-name: OperationLogs
+            reject_reason:
+                description: 驳回理由（整单驳回时）
+                type: string
+                x-go-name: RejectReason
+            unmasking_workflow_uid:
+                description: UnmaskingWorkflowUid 查看原文工单 UID，用于跳转详情等
+                type: string
+                x-go-name: UnmaskingWorkflowUid
+            usage_status:
+                description: |-
+                    使用状态
+                    unviewed UnmaskingWorkflowUsageStatusUnviewed  未查看
+                    viewed UnmaskingWorkflowUsageStatusViewed  已查看
+                enum:
+                    - unviewed
+                    - viewed
+                type: string
+                x-go-enum-desc: |-
+                    unviewed UnmaskingWorkflowUsageStatusUnviewed  未查看
+                    viewed UnmaskingWorkflowUsageStatusViewed  已查看
+                x-go-name: UsageStatus
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     DataExportTask:
         properties:
             database_name:
@@ -2279,6 +2378,8 @@ definitions:
             desc:
                 type: string
                 x-go-name: Desc
+            unmasking_workflow:
+                $ref: '#/definitions/DataExportRelatedUnmaskingWorkflow'
             workflow_name:
                 type: string
                 x-go-name: Name
@@ -2834,6 +2935,46 @@ definitions:
                     $ref: '#/definitions/TableColumnMaskingDetail'
                 type: array
                 x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetUnmaskingWorkflowPlaintext:
+        properties:
+            unmasking_sqls:
+                items:
+                    $ref: '#/definitions/UnmaskingPlaintextSQLItem'
+                type: array
+                x-go-name: UnmaskingSQLs
+            view_state:
+                enum:
+                    - not_activated
+                    - active
+                    - view_expired
+                    - activation_expired
+                type: string
+                x-go-enum-desc: |-
+                    not_activated UnmaskingWorkflowViewStateNotActivated
+                    active UnmaskingWorkflowViewStateActive
+                    view_expired UnmaskingWorkflowViewStateViewExpired
+                    activation_expired UnmaskingWorkflowViewStateActivationExpired
+                x-go-name: ViewState
+            view_valid_until:
+                type: string
+                x-go-name: ViewValidUntil
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetUnmaskingWorkflowPlaintextReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/GetUnmaskingWorkflowPlaintext'
             message:
                 description: message
                 type: string
@@ -5595,6 +5736,24 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListTableColumnsReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/TableColumn'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListUnmaskingWorkflowsReply:
         properties:
             code:
@@ -5825,6 +5984,9 @@ definitions:
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     LoginConfiguration:
         properties:
+            disable_multiple_login:
+                type: boolean
+                x-go-name: DisableMultipleLogin
             disable_user_pwd_login:
                 type: boolean
                 x-go-name: DisableUserPwdLogin
@@ -5835,6 +5997,9 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     LoginTipsResData:
         properties:
+            disable_multiple_login:
+                type: boolean
+                x-go-name: DisableMultipleLogin
             disable_user_pwd_login:
                 type: boolean
                 x-go-name: DisableUserPwdLogin
@@ -7621,6 +7786,22 @@ definitions:
                 x-go-name: Url
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    TableColumn:
+        properties:
+            comment:
+                type: string
+                x-go-name: Comment
+            name:
+                type: string
+                x-go-name: Name
+            nullable:
+                type: boolean
+                x-go-name: Nullable
+            type:
+                type: string
+                x-go-name: Type
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     TableColumnMaskingDetail:
         properties:
             column_name:
@@ -8011,7 +8192,7 @@ definitions:
                 type: string
                 x-go-name: Uid
         type: object
-        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UnmaskingOperationLogItem:
         properties:
             action:
@@ -8024,6 +8205,7 @@ definitions:
                     view_full_original_data UnmaskingActionViewOriginalData  查看原文
                     download_full_original_data UnmaskingActionDownloadOriginalData  下载原文
                     cancel UnmaskingActionCancel  取消申请
+                    activate_view UnmaskingActionActivateView  激活查看原文（工单详情）
                 enum:
                     - submit
                     - approve
@@ -8032,6 +8214,7 @@ definitions:
                     - view_full_original_data
                     - download_full_original_data
                     - cancel
+                    - activate_view
                 type: string
                 x-go-enum-desc: |-
                     submit UnmaskingActionSubmit  提交申请
@@ -8041,6 +8224,7 @@ definitions:
                     view_full_original_data UnmaskingActionViewOriginalData  查看原文
                     download_full_original_data UnmaskingActionDownloadOriginalData  下载原文
                     cancel UnmaskingActionCancel  取消申请
+                    activate_view UnmaskingActionActivateView  激活查看原文（工单详情）
                 x-go-name: Action
             action_time:
                 description: 操作时间 (RFC3339)
@@ -8058,6 +8242,26 @@ definitions:
                 description: 操作人 UID
                 type: string
                 x-go-name: OperatorUID
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UnmaskingPlaintextSQLItem:
+        properties:
+            masked_columns:
+                items:
+                    type: string
+                type: array
+                x-go-name: MaskedColumns
+            original_data:
+                $ref: '#/definitions/SQLQueryResult'
+            sql_index_id:
+                type: string
+                x-go-name: SQLIndexID
+            truncated:
+                type: boolean
+                x-go-name: Truncated
+            uid:
+                type: string
+                x-go-name: UID
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UnmaskingSQLDetail:
@@ -8090,6 +8294,14 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UnmaskingWorkflowDetail:
         properties:
+            activated_at:
+                description: 激活查看时刻 (RFC3339)
+                type: string
+                x-go-name: ActivatedAt
+            activation_deadline:
+                description: 须在此时刻前激活查看 (RFC3339)
+                type: string
+                x-go-name: ActivationDeadline
             applicant_name:
                 description: 申请人用户名
                 type: string
@@ -8117,6 +8329,10 @@ definitions:
                     rejected UnmaskingWorkflowApprovalStatusRejected  已驳回
                     cancelled UnmaskingWorkflowApprovalStatusCancelled  已取消
                 x-go-name: ApprovalStatus
+            can_activate:
+                description: 是否可点击激活查看
+                type: boolean
+                x-go-name: CanActivate
             created_at:
                 description: 申请时间 (RFC3339)
                 type: string
@@ -8136,7 +8352,7 @@ definitions:
                 type: string
                 x-go-name: DatasourceUid
             expire_time:
-                description: 过期时间 (RFC3339)
+                description: 过期时间 (RFC3339)，兼容字段：批准前为激活截止，激活后为查看截止
                 type: string
                 x-go-name: ExpireTime
             operation_logs:
@@ -8185,6 +8401,29 @@ definitions:
                     unviewed UnmaskingWorkflowUsageStatusUnviewed  未查看
                     viewed UnmaskingWorkflowUsageStatusViewed  已查看
                 x-go-name: UsageStatus
+            view_state:
+                description: |-
+                    申请人明文查看状态
+                    not_activated UnmaskingWorkflowViewStateNotActivated
+                    active UnmaskingWorkflowViewStateActive
+                    view_expired UnmaskingWorkflowViewStateViewExpired
+                    activation_expired UnmaskingWorkflowViewStateActivationExpired
+                enum:
+                    - not_activated
+                    - active
+                    - view_expired
+                    - activation_expired
+                type: string
+                x-go-enum-desc: |-
+                    not_activated UnmaskingWorkflowViewStateNotActivated
+                    active UnmaskingWorkflowViewStateActive
+                    view_expired UnmaskingWorkflowViewStateViewExpired
+                    activation_expired UnmaskingWorkflowViewStateActivationExpired
+                x-go-name: ViewState
+            view_valid_until:
+                description: 明文查看截止 (RFC3339)
+                type: string
+                x-go-name: ViewValidUntil
             workflow_id:
                 description: 申请编号
                 type: string
@@ -8193,6 +8432,14 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UnmaskingWorkflowListItem:
         properties:
+            activated_at:
+                description: 激活查看时刻 (RFC3339)
+                type: string
+                x-go-name: ActivatedAt
+            activation_deadline:
+                description: 须在此时刻前激活查看 (RFC3339)
+                type: string
+                x-go-name: ActivationDeadline
             applicant_name:
                 description: 申请人用户名
                 type: string
@@ -8220,6 +8467,10 @@ definitions:
                     rejected UnmaskingWorkflowApprovalStatusRejected  已驳回
                     cancelled UnmaskingWorkflowApprovalStatusCancelled  已取消
                 x-go-name: ApprovalStatus
+            can_activate:
+                description: 是否可点击激活查看
+                type: boolean
+                x-go-name: CanActivate
             created_at:
                 description: 申请时间 (RFC3339)
                 type: string
@@ -8239,7 +8490,7 @@ definitions:
                 type: string
                 x-go-name: DatasourceUid
             expire_time:
-                description: 过期时间 (RFC3339)
+                description: 过期时间 (RFC3339)，兼容字段：批准前为激活截止，激活后为查看截止
                 type: string
                 x-go-name: ExpireTime
             source_type:
@@ -8272,6 +8523,29 @@ definitions:
                     unviewed UnmaskingWorkflowUsageStatusUnviewed  未查看
                     viewed UnmaskingWorkflowUsageStatusViewed  已查看
                 x-go-name: UsageStatus
+            view_state:
+                description: |-
+                    申请人明文查看状态
+                    not_activated UnmaskingWorkflowViewStateNotActivated
+                    active UnmaskingWorkflowViewStateActive
+                    view_expired UnmaskingWorkflowViewStateViewExpired
+                    activation_expired UnmaskingWorkflowViewStateActivationExpired
+                enum:
+                    - not_activated
+                    - active
+                    - view_expired
+                    - activation_expired
+                type: string
+                x-go-enum-desc: |-
+                    not_activated UnmaskingWorkflowViewStateNotActivated
+                    active UnmaskingWorkflowViewStateActive
+                    view_expired UnmaskingWorkflowViewStateViewExpired
+                    activation_expired UnmaskingWorkflowViewStateActivationExpired
+                x-go-name: ViewState
+            view_valid_until:
+                description: 明文查看截止 (RFC3339)
+                type: string
+                x-go-name: ViewValidUntil
             workflow_id:
                 description: 申请编号
                 type: string
@@ -10592,6 +10866,38 @@ paths:
             summary: Get gateway tips.
             tags:
                 - Gateway
+    /v1/dms/masking/rules:
+        get:
+            operationId: ListMaskingRulesWithoutProject
+            parameters:
+                - description: 规则来源筛选，builtin 或 custom，为空时返回全部
+                  in: query
+                  name: source
+                  type: string
+                - description: 模糊搜索关键字，匹配规则名称、描述或敏感数据类型名称
+                  in: query
+                  name: keywords
+                  type: string
+                - description: 分页大小，默认 20
+                  in: query
+                  name: page_size
+                  type: integer
+                - description: 页码（从1开始），默认 1
+                  in: query
+                  name: page_index
+                  type: integer
+            responses:
+                "200":
+                    description: 查询脱敏规则列表成功
+                    schema:
+                        $ref: '#/definitions/ListMaskingRulesReply'
+                default:
+                    description: 通用错误响应
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: 查询脱敏规则列表（兼容旧入口，仅返回内置规则，可携带筛选参数）。
+            tags:
+                - Masking
     /v1/dms/notifications:
         post:
             operationId: Notification
@@ -11547,6 +11853,37 @@ paths:
             summary: exec data_export workflow.
             tags:
                 - DataExportWorkflows
+    /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/original-export/download:
+        get:
+            operationId: DownloadOriginalDataExportWorkflow
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - in: path
+                  name: data_export_workflow_uid
+                  required: true
+                  type: string
+                  x-go-name: DataExportWorkflowUid
+                - description: 已批准的查看原文工单 UID
+                  in: query
+                  name: unmasking_workflow_uid
+                  required: true
+                  type: string
+                  x-go-name: UnmaskingWorkflowUid
+            responses:
+                "200":
+                    $ref: '#/responses/DownloadOriginalDataExportWorkflowReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Download unmasked SQL query results as a zip file. Each request runs export in memory; files are not persisted.
+            tags:
+                - DataExportWorkflows
     /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/reject:
         post:
             operationId: RejectDataExportWorkflow
@@ -11816,6 +12153,42 @@ paths:
             summary: check if the db_service is connectable.
             tags:
                 - DBService
+    /v1/dms/projects/{project_uid}/db_services/{db_service_uid}/schemas/{schema_name}/tables/{table_name}/columns:
+        get:
+            operationId: ListTableColumns
+            parameters:
+                - in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - in: path
+                  name: db_service_uid
+                  required: true
+                  type: string
+                  x-go-name: DBServiceUid
+                - in: path
+                  name: schema_name
+                  required: true
+                  type: string
+                  x-go-name: SchemaName
+                - in: path
+                  name: table_name
+                  required: true
+                  type: string
+                  x-go-name: TableName
+            responses:
+                "200":
+                    description: ListTableColumnsReply
+                    schema:
+                        $ref: '#/definitions/ListTableColumnsReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List table columns (internal API for lineage analysis).
+            tags:
+                - DBStructure
     /v1/dms/projects/{project_uid}/db_services/connection:
         post:
             operationId: CheckDBServiceIsConnectable
@@ -13048,6 +13421,31 @@ paths:
             summary: Get unmasking workflow detail.
             tags:
                 - Masking
+    /v1/dms/projects/{project_uid}/masking/unmasking-workflows/{workflow_id}/activate:
+        post:
+            operationId: ActivateUnmaskingWorkflowView
+            parameters:
+                - in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: WorkflowID
+                - in: path
+                  name: workflow_id
+                  required: true
+                  type: string
+            responses:
+                "200":
+                    description: ""
+                    schema:
+                        $ref: '#/definitions/ActivateUnmaskingWorkflowViewReply'
+                default:
+                    description: ""
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Activate plaintext view window for applicant.
+            tags:
+                - Masking
     /v1/dms/projects/{project_uid}/masking/unmasking-workflows/{workflow_id}/approve:
         post:
             operationId: ApproveUnmaskingWorkflow
@@ -13105,6 +13503,31 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: Cancel unmasking workflow.
+            tags:
+                - Masking
+    /v1/dms/projects/{project_uid}/masking/unmasking-workflows/{workflow_id}/plaintext:
+        get:
+            operationId: GetUnmaskingWorkflowPlaintext
+            parameters:
+                - in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: WorkflowID
+                - in: path
+                  name: workflow_id
+                  required: true
+                  type: string
+            responses:
+                "200":
+                    description: ""
+                    schema:
+                        $ref: '#/definitions/GetUnmaskingWorkflowPlaintextReply'
+                default:
+                    description: ""
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get plaintext query snapshot during active view window.
             tags:
                 - Masking
     /v1/dms/projects/{project_uid}/masking/unmasking-workflows/{workflow_id}/reject:
@@ -15323,6 +15746,10 @@ responses:
         schema:
             type: file
     DownloadDataExportTaskSQLsReply:
+        description: ""
+        schema:
+            type: file
+    DownloadOriginalDataExportWorkflowReply:
         description: ""
         schema:
             type: file

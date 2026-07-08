@@ -55,6 +55,7 @@ var AutoMigrateList = []interface{}{
 	DataExportTask{},
 	DataExportTaskRecord{},
 	UserAccessToken{},
+	UserLoginSession{},
 	CbOperationLog{},
 	EnvironmentTag{},
 	Gateway{},
@@ -295,8 +296,16 @@ func (OAuth2Session) TableName() string {
 // LoginConfiguration store local login configuration.
 type LoginConfiguration struct {
 	Model
-	LoginButtonText     string `json:"login_button_text" gorm:"column:login_button_text;size:255;default:'登录';not null"`
-	DisableUserPwdLogin bool   `json:"disable_user_pwd_login" gorm:"column:disable_user_pwd_login;default:false;not null"`
+	LoginButtonText      string `json:"login_button_text" gorm:"column:login_button_text;size:255;default:'登录';not null"`
+	DisableUserPwdLogin  bool   `json:"disable_user_pwd_login" gorm:"column:disable_user_pwd_login;default:false;not null"`
+	DisableMultipleLogin bool   `json:"disable_multiple_login" gorm:"column:disable_multiple_login;default:false;not null"`
+}
+
+// UserLoginSession stores the latest active login session ID per user.
+type UserLoginSession struct {
+	Model
+	UserUID   string `json:"user_uid" gorm:"size:32;column:user_uid;uniqueIndex"`
+	SessionID string `json:"session_id" gorm:"size:32;column:session_id;not null"`
 }
 
 // Oauth2Configuration store oauth2 server configuration.

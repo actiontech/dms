@@ -139,20 +139,25 @@ func (c CallbackRedirectData) Generate() string {
 }
 
 type ClaimsInfo struct {
-	UserId     string  `json:"user_id"`     // dms用户ID
-	Iat        float64 `json:"iat"`         // 第三方AccessToken 签发时间 (Issued At)，Unix 时间戳
-	Exp        float64 `json:"exp"`         // 第三方AccessToken 过期时间 (Expiration Time)，Unix 时间戳
-	Sub        string  `json:"sub"`         // 第三方AccessToken 主题 (Subject)，通常是用户ID或唯一标识符
-	Sid        string  `json:"sid"`         // 第三方AccessToken 会话ID (Session ID)，用于跟踪用户会话
-	RefreshIat float64 `json:"refresh_iat"` // 第三方RefreshToken 签发时间 (Issued At)，Unix 时间戳
-	RefreshExp float64 `json:"refresh_exp"` // 第三方RefreshToken 过期时间 (Expiration Time)，Unix 时间戳
+	UserId         string  `json:"user_id"`     // dms用户ID
+	Iat            float64 `json:"iat"`         // 第三方AccessToken 签发时间 (Issued At)，Unix 时间戳
+	Exp            float64 `json:"exp"`         // 第三方AccessToken 过期时间 (Expiration Time)，Unix 时间戳
+	Sub            string  `json:"sub"`         // 第三方AccessToken 主题 (Subject)，通常是用户ID或唯一标识符
+	Sid            string  `json:"sid"`         // 第三方AccessToken 会话ID (Session ID)，用于跟踪用户会话
+	RefreshIat     float64 `json:"refresh_iat"` // 第三方RefreshToken 签发时间 (Issued At)，Unix 时间戳
+	RefreshExp     float64 `json:"refresh_exp"` // 第三方RefreshToken 过期时间 (Expiration Time)，Unix 时间戳
+	LoginSessionID string  `json:"login_session_id"`
 }
 
 func (c *ClaimsInfo) DmsToken() (token string, cookieExp time.Duration, err error) {
 	c.setDefaults()
 	// 为了在第三方会话“快过期”时去刷新第三方token，故此时（通过OAuth2登录）签发的DmsToken有效期为第三方平台的0.9
 	cookieExp = time.Duration((c.Exp-c.Iat)*0.9) * time.Second
-	token, err = jwt.GenJwtToken(jwt.WithUserId(c.UserId), jwt.WithExpiredTime(cookieExp), jwt.WithSub(c.Sub), jwt.WithSid(c.Sid))
+	customClaims := []jwt.CustomClaimFunc{jwt.WithUserId(c.UserId), jwt.WithExpiredTime(cookieExp), jwt.WithSub(c.Sub), jwt.WithSid(c.Sid)}
+	if c.LoginSessionID != "" {
+		customClaims = append(customClaims, jwt.WithLoginSessionID(c.LoginSessionID))
+	}
+	token, err = jwt.GenJwtToken(customClaims...)
 	return
 }
 
@@ -161,7 +166,11 @@ func (c *ClaimsInfo) DmsRefreshToken() (token string, cookieExp time.Duration, e
 	// cookie有效期更久，和第三方refresh token有效期保持一致
 	// 这样在DmsRefreshToken过期时，cookie仍可获取，用于注销第三方会话
 	cookieExp = time.Duration(c.RefreshExp-c.RefreshIat) * time.Second
-	token, err = jwt.GenRefreshToken(jwt.WithUserId(c.UserId), jwt.WithExpiredTime(time.Duration(c.Exp-c.Iat)*time.Second), jwt.WithSub(c.Sub), jwt.WithSid(c.Sid))
+	customClaims := []jwt.CustomClaimFunc{jwt.WithUserId(c.UserId), jwt.WithExpiredTime(time.Duration(c.Exp-c.Iat)*time.Second), jwt.WithSub(c.Sub), jwt.WithSid(c.Sid)}
+	if c.LoginSessionID != "" {
+		customClaims = append(customClaims, jwt.WithLoginSessionID(c.LoginSessionID))
+	}
+	token, err = jwt.GenRefreshToken(customClaims...)
 	return
 }
 

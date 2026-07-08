@@ -11,6 +11,7 @@ import (
 	"github.com/actiontech/dms/internal/dms/storage/model"
 
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
+	pkgRand "github.com/actiontech/dms/pkg/rand"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -390,4 +391,37 @@ func (d *UserRepo) GetAccessTokenByUser(ctx context.Context, userUid string) (*b
 	}
 
 	return &biz.AccessTokenInfo{Token: userToken.Token, ExpiredTime: userToken.ExpiredTime}, nil
+}
+
+func (d *UserRepo) RecordLoginSession(ctx context.Context, userUID, sessionID string) error {
+	uid, err := pkgRand.GenStrUid()
+	if err != nil {
+		return fmt.Errorf("failed to generate login session uid: %v", err)
+	}
+	loginSession := &model.UserLoginSession{
+		Model: model.Model{
+			UID: uid,
+		},
+		UserUID:   userUID,
+		SessionID: sessionID,
+	}
+	tx := d.db.WithContext(ctx).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "user_uid"}},
+		DoUpdates: clause.AssignmentColumns([]string{"session_id", "updated_at"}),
+	}).Create(loginSession)
+	if tx.Error != nil {
+		return fmt.Errorf("failed to record login session: %v", tx.Error)
+	}
+	return nil
+}
+
+func (d *UserRepo) GetLatestLoginSession(ctx context.Context, userUID string) (sessionID string, exists bool, err error) {
+	var loginSession model.UserLoginSession
+	if err := d.db.WithContext(ctx).First(&loginSession, "user_uid = ?", userUID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return "", false, nil
+		}
+		return "", false, fmt.Errorf("failed to get login session: %v", err)
+	}
+	return loginSession.SessionID, true, nil
 }
