@@ -2060,7 +2060,11 @@ func (cu *CloudbeaverUsecase) getContextSchema(c echo.Context, connectionId, con
 // checkWorkflowPermission 校验用户是否有数据源上的"创建、审批、上线工单"的权限
 // 权限可以是项目级别的（项目管理员）或数据源级别的（直接针对数据源的工单权限）
 func (cu *CloudbeaverUsecase) checkWorkflowPermission(ctx context.Context, userUid string, dbService *DBService) (bool, error) {
-	if userUid == constant.UIDOfUserAdmin {
+	canOpGlobal, err := cu.opPermissionVerifyUsecase.CanOpGlobal(ctx, userUid, true)
+	if err != nil {
+		return false, fmt.Errorf("check global op permission err: %v", err)
+	}
+	if canOpGlobal {
 		return true, nil
 	}
 	opPermissions, err := cu.opPermissionVerifyUsecase.GetUserOpPermissionInProject(ctx, userUid, dbService.ProjectUID)
