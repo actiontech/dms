@@ -146,7 +146,11 @@ func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 
+			// 数据文件下载走 GET(/sql_query/api/data/{session}_xxx.csv)，此处跳过完整登录流程，
+			// 但仍需把当前 DMS 会话绑定的 CB session 注入请求 Cookie；否则会沿用浏览器中可能已过期
+			// 或与服务端不一致的 cb-session-id，导致 CloudBeaver 因会话与导出任务不匹配而报 Session task not found。
 			if c.Request().Method == http.MethodGet {
+				cu.injectBoundCBSession(c)
 				return next(c)
 			}
 
@@ -263,6 +267,39 @@ func (cu *CloudbeaverUsecase) Login() echo.MiddlewareFunc {
 //	Set new cookie (when "token" does not exist):
 //	  before: "sessionid=xyz789; lang=zh"
 //	  after:  "sessionid=xyz789; lang=zh; token=abc123"
+// injectBoundCBSession 在不触发完整 CloudBeaver 登录流程的前提下，
+// 将当前 DMS token 绑定的 CB 会话（服务端会话表中的值）注入到请求 Cookie 中。
+// 主要用于数据文件下载等 GET 请求，确保其与导出任务使用同一个 CB 会话，
+// 避免浏览器侧 cb-session-id 过期或不一致导致 CloudBeaver 报 Session task not found。
+// 当无 DMS token 或未绑定 CB 会话时为空操作，不影响静态资源等其它 GET 请求。
+func (cu *CloudbeaverUsecase) injectBoundCBSession(c echo.Context) {
+	var dmsToken string
+	for _, cookie := range c.Cookies() {
+		if cookie.Name == constant.DMSToken {
+			dmsToken = cookie.Value
+			break
+		}
+	}
+	if dmsToken == "" {
+		return
+	}
+
+	dmsUserId, err := jwt.ParseUidFromJwtTokenStr(dmsToken)
+	if err != nil {
+		return
+	}
+
+	cloudbeaverSessionId := cu.getCloudbeaverSession(dmsUserId, dmsToken)
+	if cloudbeaverSessionId == "" {
+		return
+	}
+
+	SetOrReplaceCBCookieByDMSToken(c, &http.Cookie{
+		Name:  CloudbeaverCookieName,
+		Value: cloudbeaverSessionId,
+	})
+}
+
 func SetOrReplaceCBCookieByDMSToken(c echo.Context, cookie *http.Cookie) {
 	req := c.Request()
 
