@@ -28,8 +28,8 @@ type DBService struct {
 	// Required: true
 	User string `json:"user" validate:"required"`
 	// DB Service admin password
-	// Required: true
-	Password string `json:"password" validate:"required"`
+	// Required: false
+	Password string `json:"password"`
 	// DB Service business name
 	// Required: true
 	// Deprecated: the business field is replaced with the environmentTag of the v2 interface.
