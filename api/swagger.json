@@ -1615,6 +1615,55 @@
         }
       }
     },
+    "/v1/dms/masking/rules": {
+      "get": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "查询脱敏规则列表（兼容旧入口，仅返回内置规则，可携带筛选参数）。",
+        "operationId": "ListMaskingRulesWithoutProject",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "规则来源筛选，builtin 或 custom，为空时返回全部",
+            "name": "source",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "模糊搜索关键字，匹配规则名称、描述或敏感数据类型名称",
+            "name": "keywords",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "分页大小，默认 20",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "页码（从1开始），默认 1",
+            "name": "page_index",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询脱敏规则列表成功",
+            "schema": {
+              "$ref": "#/definitions/ListMaskingRulesReply"
+            }
+          },
+          "default": {
+            "description": "通用错误响应",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/notifications": {
       "post": {
         "tags": [
@@ -3618,6 +3667,51 @@
         }
       }
     },
+    "/v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/original-export/download": {
+      "get": {
+        "tags": [
+          "DataExportWorkflows"
+        ],
+        "summary": "Download unmasked SQL query results as a zip file. Each request runs export in memory; files are not persisted.",
+        "operationId": "DownloadOriginalDataExportWorkflow",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "DataExportWorkflowUid",
+            "name": "data_export_workflow_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "UnmaskingWorkflowUid",
+            "description": "已批准的查看原文工单 UID",
+            "name": "unmasking_workflow_uid",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/DownloadOriginalDataExportWorkflowReply"
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid}/reject": {
       "post": {
         "tags": [
@@ -4175,6 +4269,59 @@
             "description": "CheckDBServiceIsConnectableReply",
             "schema": {
               "$ref": "#/definitions/CheckDBServiceIsConnectableReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/db_services/{db_service_uid}/schemas/{schema_name}/tables/{table_name}/columns": {
+      "get": {
+        "tags": [
+          "DBStructure"
+        ],
+        "summary": "List table columns (internal API for lineage analysis).",
+        "operationId": "ListTableColumns",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "DBServiceUid",
+            "name": "db_service_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "SchemaName",
+            "name": "schema_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "TableName",
+            "name": "table_name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListTableColumnsReply",
+            "schema": {
+              "$ref": "#/definitions/ListTableColumnsReply"
             }
           },
           "default": {
@@ -5732,6 +5879,45 @@
         }
       }
     },
+    "/v1/dms/projects/{project_uid}/masking/unmasking-workflows/{workflow_id}/activate": {
+      "post": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Activate plaintext view window for applicant.",
+        "operationId": "ActivateUnmaskingWorkflowView",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "WorkflowID",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "WorkflowID",
+            "name": "workflow_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ActivateUnmaskingWorkflowViewReply"
+            }
+          },
+          "default": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/projects/{project_uid}/masking/unmasking-workflows/{workflow_id}/approve": {
       "post": {
         "tags": [
@@ -5813,6 +5999,45 @@
           },
           "default": {
             "description": "Generic error response",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/masking/unmasking-workflows/{workflow_id}/plaintext": {
+      "get": {
+        "tags": [
+          "Masking"
+        ],
+        "summary": "Get plaintext query snapshot during active view window.",
+        "operationId": "GetUnmaskingWorkflowPlaintext",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "WorkflowID",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "WorkflowID",
+            "name": "workflow_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/GetUnmaskingWorkflowPlaintextReply"
+            }
+          },
+          "default": {
+            "description": "",
             "schema": {
               "$ref": "#/definitions/GenericResp"
             }
@@ -8387,6 +8612,47 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "ActivateUnmaskingWorkflowViewReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/ActivateUnmaskingWorkflowViewReplyData"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ActivateUnmaskingWorkflowViewReplyData": {
+      "type": "object",
+      "properties": {
+        "view_state": {
+          "type": "string",
+          "enum": [
+            "not_activated",
+            "active",
+            "view_expired",
+            "activation_expired"
+          ],
+          "x-go-enum-desc": "not_activated UnmaskingWorkflowViewStateNotActivated\nactive UnmaskingWorkflowViewStateActive\nview_expired UnmaskingWorkflowViewStateViewExpired\nactivation_expired UnmaskingWorkflowViewStateActivationExpired",
+          "x-go-name": "ViewState"
+        },
+        "view_valid_until": {
+          "type": "string",
+          "x-go-name": "ViewValidUntil"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "AddDBServiceReply": {
       "type": "object",
       "properties": {
@@ -10793,6 +11059,70 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "DataExportRelatedUnmaskingWorkflow": {
+      "type": "object",
+      "properties": {
+        "apply_reason": {
+          "description": "申请理由",
+          "type": "string",
+          "x-go-name": "ApplyReason"
+        },
+        "approval_status": {
+          "description": "审批状态\npending UnmaskingWorkflowApprovalStatusPending  待审批\napproved UnmaskingWorkflowApprovalStatusApproved  已批准\nrejected UnmaskingWorkflowApprovalStatusRejected  已驳回\ncancelled UnmaskingWorkflowApprovalStatusCancelled  已取消",
+          "type": "string",
+          "enum": [
+            "pending",
+            "approved",
+            "rejected",
+            "cancelled"
+          ],
+          "x-go-enum-desc": "pending UnmaskingWorkflowApprovalStatusPending  待审批\napproved UnmaskingWorkflowApprovalStatusApproved  已批准\nrejected UnmaskingWorkflowApprovalStatusRejected  已驳回\ncancelled UnmaskingWorkflowApprovalStatusCancelled  已取消",
+          "x-go-name": "ApprovalStatus"
+        },
+        "created_at": {
+          "description": "创建时间 (RFC3339)",
+          "type": "string",
+          "x-go-name": "CreatedAt"
+        },
+        "creator": {
+          "$ref": "#/definitions/UidWithName"
+        },
+        "expire_time": {
+          "description": "过期时间 (RFC3339)，未设置时省略",
+          "type": "string",
+          "x-go-name": "ExpireTime"
+        },
+        "operation_logs": {
+          "description": "操作记录",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UnmaskingOperationLogItem"
+          },
+          "x-go-name": "OperationLogs"
+        },
+        "reject_reason": {
+          "description": "驳回理由（整单驳回时）",
+          "type": "string",
+          "x-go-name": "RejectReason"
+        },
+        "unmasking_workflow_uid": {
+          "description": "UnmaskingWorkflowUid 查看原文工单 UID，用于跳转详情等",
+          "type": "string",
+          "x-go-name": "UnmaskingWorkflowUid"
+        },
+        "usage_status": {
+          "description": "使用状态\nunviewed UnmaskingWorkflowUsageStatusUnviewed  未查看\nviewed UnmaskingWorkflowUsageStatusViewed  已查看",
+          "type": "string",
+          "enum": [
+            "unviewed",
+            "viewed"
+          ],
+          "x-go-enum-desc": "unviewed UnmaskingWorkflowUsageStatusUnviewed  未查看\nviewed UnmaskingWorkflowUsageStatusViewed  已查看",
+          "x-go-name": "UsageStatus"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "DataExportTask": {
       "type": "object",
       "required": [
@@ -11334,6 +11664,9 @@
         "desc": {
           "type": "string",
           "x-go-name": "Desc"
+        },
+        "unmasking_workflow": {
+          "$ref": "#/definitions/DataExportRelatedUnmaskingWorkflow"
         },
         "workflow_name": {
           "type": "string",
@@ -12075,6 +12408,54 @@
             "$ref": "#/definitions/TableColumnMaskingDetail"
           },
           "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetUnmaskingWorkflowPlaintext": {
+      "type": "object",
+      "properties": {
+        "unmasking_sqls": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UnmaskingPlaintextSQLItem"
+          },
+          "x-go-name": "UnmaskingSQLs"
+        },
+        "view_state": {
+          "type": "string",
+          "enum": [
+            "not_activated",
+            "active",
+            "view_expired",
+            "activation_expired"
+          ],
+          "x-go-enum-desc": "not_activated UnmaskingWorkflowViewStateNotActivated\nactive UnmaskingWorkflowViewStateActive\nview_expired UnmaskingWorkflowViewStateViewExpired\nactivation_expired UnmaskingWorkflowViewStateActivationExpired",
+          "x-go-name": "ViewState"
+        },
+        "view_valid_until": {
+          "type": "string",
+          "x-go-name": "ViewValidUntil"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetUnmaskingWorkflowPlaintextReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/GetUnmaskingWorkflowPlaintext"
         },
         "message": {
           "description": "message",
@@ -15416,6 +15797,30 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "ListTableColumnsReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TableColumn"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "ListUnmaskingWorkflowsReply": {
       "type": "object",
       "properties": {
@@ -15659,6 +16064,10 @@
     "LoginConfiguration": {
       "type": "object",
       "properties": {
+        "disable_multiple_login": {
+          "type": "boolean",
+          "x-go-name": "DisableMultipleLogin"
+        },
         "disable_user_pwd_login": {
           "type": "boolean",
           "x-go-name": "DisableUserPwdLogin"
@@ -15673,6 +16082,10 @@
     "LoginTipsResData": {
       "type": "object",
       "properties": {
+        "disable_multiple_login": {
+          "type": "boolean",
+          "x-go-name": "DisableMultipleLogin"
+        },
         "disable_user_pwd_login": {
           "type": "boolean",
           "x-go-name": "DisableUserPwdLogin"
@@ -17815,6 +18228,28 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "TableColumn": {
+      "type": "object",
+      "properties": {
+        "comment": {
+          "type": "string",
+          "x-go-name": "Comment"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "nullable": {
+          "type": "boolean",
+          "x-go-name": "Nullable"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "TableColumnMaskingDetail": {
       "type": "object",
       "properties": {
@@ -18314,13 +18749,13 @@
           "x-go-name": "Uid"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "UnmaskingOperationLogItem": {
       "type": "object",
       "properties": {
         "action": {
-          "description": "操作动作\nsubmit UnmaskingActionSubmit  提交申请\napprove UnmaskingActionApprove  批准申请\nreject UnmaskingActionReject  驳回申请\nview_unmasking_workflow_detail UnmaskingActionViewOriginalDataWorkflowDetail  查看工单详情\nview_full_original_data UnmaskingActionViewOriginalData  查看原文\ndownload_full_original_data UnmaskingActionDownloadOriginalData  下载原文\ncancel UnmaskingActionCancel  取消申请",
+          "description": "操作动作\nsubmit UnmaskingActionSubmit  提交申请\napprove UnmaskingActionApprove  批准申请\nreject UnmaskingActionReject  驳回申请\nview_unmasking_workflow_detail UnmaskingActionViewOriginalDataWorkflowDetail  查看工单详情\nview_full_original_data UnmaskingActionViewOriginalData  查看原文\ndownload_full_original_data UnmaskingActionDownloadOriginalData  下载原文\ncancel UnmaskingActionCancel  取消申请\nactivate_view UnmaskingActionActivateView  激活查看原文（工单详情）",
           "type": "string",
           "enum": [
             "submit",
@@ -18329,9 +18764,10 @@
             "view_unmasking_workflow_detail",
             "view_full_original_data",
             "download_full_original_data",
-            "cancel"
+            "cancel",
+            "activate_view"
           ],
-          "x-go-enum-desc": "submit UnmaskingActionSubmit  提交申请\napprove UnmaskingActionApprove  批准申请\nreject UnmaskingActionReject  驳回申请\nview_unmasking_workflow_detail UnmaskingActionViewOriginalDataWorkflowDetail  查看工单详情\nview_full_original_data UnmaskingActionViewOriginalData  查看原文\ndownload_full_original_data UnmaskingActionDownloadOriginalData  下载原文\ncancel UnmaskingActionCancel  取消申请",
+          "x-go-enum-desc": "submit UnmaskingActionSubmit  提交申请\napprove UnmaskingActionApprove  批准申请\nreject UnmaskingActionReject  驳回申请\nview_unmasking_workflow_detail UnmaskingActionViewOriginalDataWorkflowDetail  查看工单详情\nview_full_original_data UnmaskingActionViewOriginalData  查看原文\ndownload_full_original_data UnmaskingActionDownloadOriginalData  下载原文\ncancel UnmaskingActionCancel  取消申请\nactivate_view UnmaskingActionActivateView  激活查看原文（工单详情）",
           "x-go-name": "Action"
         },
         "action_time": {
@@ -18353,6 +18789,34 @@
           "description": "操作人 UID",
           "type": "string",
           "x-go-name": "OperatorUID"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UnmaskingPlaintextSQLItem": {
+      "type": "object",
+      "properties": {
+        "masked_columns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "MaskedColumns"
+        },
+        "original_data": {
+          "$ref": "#/definitions/SQLQueryResult"
+        },
+        "sql_index_id": {
+          "type": "string",
+          "x-go-name": "SQLIndexID"
+        },
+        "truncated": {
+          "type": "boolean",
+          "x-go-name": "Truncated"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "UID"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -18398,6 +18862,16 @@
     "UnmaskingWorkflowDetail": {
       "type": "object",
       "properties": {
+        "activated_at": {
+          "description": "激活查看时刻 (RFC3339)",
+          "type": "string",
+          "x-go-name": "ActivatedAt"
+        },
+        "activation_deadline": {
+          "description": "须在此时刻前激活查看 (RFC3339)",
+          "type": "string",
+          "x-go-name": "ActivationDeadline"
+        },
         "applicant_name": {
           "description": "申请人用户名",
           "type": "string",
@@ -18419,6 +18893,11 @@
           ],
           "x-go-enum-desc": "pending UnmaskingWorkflowApprovalStatusPending  待审批\napproved UnmaskingWorkflowApprovalStatusApproved  已批准\nrejected UnmaskingWorkflowApprovalStatusRejected  已驳回\ncancelled UnmaskingWorkflowApprovalStatusCancelled  已取消",
           "x-go-name": "ApprovalStatus"
+        },
+        "can_activate": {
+          "description": "是否可点击激活查看",
+          "type": "boolean",
+          "x-go-name": "CanActivate"
         },
         "created_at": {
           "description": "申请时间 (RFC3339)",
@@ -18444,7 +18923,7 @@
           "x-go-name": "DatasourceUid"
         },
         "expire_time": {
-          "description": "过期时间 (RFC3339)",
+          "description": "过期时间 (RFC3339)，兼容字段：批准前为激活截止，激活后为查看截止",
           "type": "string",
           "x-go-name": "ExpireTime"
         },
@@ -18494,6 +18973,23 @@
           "x-go-enum-desc": "unviewed UnmaskingWorkflowUsageStatusUnviewed  未查看\nviewed UnmaskingWorkflowUsageStatusViewed  已查看",
           "x-go-name": "UsageStatus"
         },
+        "view_state": {
+          "description": "申请人明文查看状态\nnot_activated UnmaskingWorkflowViewStateNotActivated\nactive UnmaskingWorkflowViewStateActive\nview_expired UnmaskingWorkflowViewStateViewExpired\nactivation_expired UnmaskingWorkflowViewStateActivationExpired",
+          "type": "string",
+          "enum": [
+            "not_activated",
+            "active",
+            "view_expired",
+            "activation_expired"
+          ],
+          "x-go-enum-desc": "not_activated UnmaskingWorkflowViewStateNotActivated\nactive UnmaskingWorkflowViewStateActive\nview_expired UnmaskingWorkflowViewStateViewExpired\nactivation_expired UnmaskingWorkflowViewStateActivationExpired",
+          "x-go-name": "ViewState"
+        },
+        "view_valid_until": {
+          "description": "明文查看截止 (RFC3339)",
+          "type": "string",
+          "x-go-name": "ViewValidUntil"
+        },
         "workflow_id": {
           "description": "申请编号",
           "type": "string",
@@ -18505,6 +19001,16 @@
     "UnmaskingWorkflowListItem": {
       "type": "object",
       "properties": {
+        "activated_at": {
+          "description": "激活查看时刻 (RFC3339)",
+          "type": "string",
+          "x-go-name": "ActivatedAt"
+        },
+        "activation_deadline": {
+          "description": "须在此时刻前激活查看 (RFC3339)",
+          "type": "string",
+          "x-go-name": "ActivationDeadline"
+        },
         "applicant_name": {
           "description": "申请人用户名",
           "type": "string",
@@ -18526,6 +19032,11 @@
           ],
           "x-go-enum-desc": "pending UnmaskingWorkflowApprovalStatusPending  待审批\napproved UnmaskingWorkflowApprovalStatusApproved  已批准\nrejected UnmaskingWorkflowApprovalStatusRejected  已驳回\ncancelled UnmaskingWorkflowApprovalStatusCancelled  已取消",
           "x-go-name": "ApprovalStatus"
+        },
+        "can_activate": {
+          "description": "是否可点击激活查看",
+          "type": "boolean",
+          "x-go-name": "CanActivate"
         },
         "created_at": {
           "description": "申请时间 (RFC3339)",
@@ -18551,7 +19062,7 @@
           "x-go-name": "DatasourceUid"
         },
         "expire_time": {
-          "description": "过期时间 (RFC3339)",
+          "description": "过期时间 (RFC3339)，兼容字段：批准前为激活截止，激活后为查看截止",
           "type": "string",
           "x-go-name": "ExpireTime"
         },
@@ -18579,6 +19090,23 @@
           ],
           "x-go-enum-desc": "unviewed UnmaskingWorkflowUsageStatusUnviewed  未查看\nviewed UnmaskingWorkflowUsageStatusViewed  已查看",
           "x-go-name": "UsageStatus"
+        },
+        "view_state": {
+          "description": "申请人明文查看状态\nnot_activated UnmaskingWorkflowViewStateNotActivated\nactive UnmaskingWorkflowViewStateActive\nview_expired UnmaskingWorkflowViewStateViewExpired\nactivation_expired UnmaskingWorkflowViewStateActivationExpired",
+          "type": "string",
+          "enum": [
+            "not_activated",
+            "active",
+            "view_expired",
+            "activation_expired"
+          ],
+          "x-go-enum-desc": "not_activated UnmaskingWorkflowViewStateNotActivated\nactive UnmaskingWorkflowViewStateActive\nview_expired UnmaskingWorkflowViewStateViewExpired\nactivation_expired UnmaskingWorkflowViewStateActivationExpired",
+          "x-go-name": "ViewState"
+        },
+        "view_valid_until": {
+          "description": "明文查看截止 (RFC3339)",
+          "type": "string",
+          "x-go-name": "ViewValidUntil"
         },
         "workflow_id": {
           "description": "申请编号",
@@ -20200,6 +20728,12 @@
       }
     },
     "DownloadDataExportTaskSQLsReply": {
+      "description": "",
+      "schema": {
+        "type": "file"
+      }
+    },
+    "DownloadOriginalDataExportWorkflowReply": {
       "description": "",
       "schema": {
         "type": "file"

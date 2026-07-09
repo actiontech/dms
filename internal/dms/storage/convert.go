@@ -698,17 +698,19 @@ func convertBizLoginConfiguration(b *biz.LoginConfiguration) (*model.LoginConfig
 		Model: model.Model{
 			UID: b.UID,
 		},
-		LoginButtonText:     b.LoginButtonText,
-		DisableUserPwdLogin: b.DisableUserPwdLogin,
+		LoginButtonText:      b.LoginButtonText,
+		DisableUserPwdLogin:  b.DisableUserPwdLogin,
+		DisableMultipleLogin: b.DisableMultipleLogin,
 	}, nil
 }
 
 func convertModelLoginConfiguration(m *model.LoginConfiguration) (*biz.LoginConfiguration, error) {
 	return &biz.LoginConfiguration{
-		Base:                convertBase(m.Model),
-		UID:                 m.UID,
-		LoginButtonText:     m.LoginButtonText,
-		DisableUserPwdLogin: m.DisableUserPwdLogin,
+		Base:                 convertBase(m.Model),
+		UID:                  m.UID,
+		LoginButtonText:      m.LoginButtonText,
+		DisableUserPwdLogin:  m.DisableUserPwdLogin,
+		DisableMultipleLogin: m.DisableMultipleLogin,
 	}, nil
 }
 

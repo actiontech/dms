@@ -11,8 +11,9 @@ type GetLoginTipsReply struct {
 }
 
 type LoginTipsResData struct {
-	LoginButtonText     string `json:"login_button_text"`
-	DisableUserPwdLogin bool   `json:"disable_user_pwd_login"`
+	LoginButtonText      string `json:"login_button_text"`
+	DisableUserPwdLogin  bool   `json:"disable_user_pwd_login"`
+	DisableMultipleLogin bool   `json:"disable_multiple_login"`
 }
 
 // swagger:model
@@ -21,8 +22,9 @@ type UpdateLoginConfigurationReq struct {
 }
 
 type LoginConfiguration struct {
-	LoginButtonText     *string `json:"login_button_text"`
-	DisableUserPwdLogin *bool   `json:"disable_user_pwd_login"`
+	LoginButtonText      *string `json:"login_button_text"`
+	DisableUserPwdLogin  *bool   `json:"disable_user_pwd_login"`
+	DisableMultipleLogin *bool   `json:"disable_multiple_login"`
 }
 
 type GetOauth2ConfigurationResData struct {

@@ -409,6 +409,7 @@ func (s *APIServer) installMiddleware() error {
 		SigningKey:  dmsV1.JwtSigningKey,
 		TokenLookup: "cookie:dms-token,header:Authorization:Bearer ", // tell the middleware where to get token: from cookie and header,
 	}))
+	s.echo.Use(s.DMSController.DMS.AuthLoginSessionUsecase.CheckSingleActiveSession(biz.GatewayForwardedHeader))
 	s.echo.Use(s.DMSController.DMS.Oauth2ConfigurationUsecase.CheckBackChannelLogoutEvent())
 	// middleware gateway
 	s.echo.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{

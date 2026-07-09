@@ -6,6 +6,8 @@ import (
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 )
 
+const GatewayForwardedHeader = "X-Gateway-Forwarded"
+
 type GatewayRepo interface {
 	AddGateway(ctx context.Context, u *Gateway) error
 	DeleteGateway(ctx context.Context, id string) error

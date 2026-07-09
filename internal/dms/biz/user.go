@@ -202,6 +202,8 @@ type UserRepo interface {
 	GetUserByThirdPartyUserID(ctx context.Context, thirdPartyUserUID string) (*User, error)
 	SaveAccessToken(ctx context.Context, accessTokenInfo *AccessTokenInfo) error
 	GetAccessTokenByUser(ctx context.Context, UserUid string) (*AccessTokenInfo, error)
+	RecordLoginSession(ctx context.Context, userUID, sessionID string) error
+	GetLatestLoginSession(ctx context.Context, userUID string) (sessionID string, exists bool, err error)
 }
 
 // SqlWorkbenchUser SqlWorkbench用户缓存
@@ -1066,6 +1068,14 @@ func (d *UserUsecase) GetAccessTokenByUser(ctx context.Context, UserUid string) 
 		return nil, err
 	}
 	return accessTokenInfo, nil
+}
+
+func (d *UserUsecase) RecordLoginSession(ctx context.Context, userUID, sessionID string) error {
+	return d.repo.RecordLoginSession(ctx, userUID, sessionID)
+}
+
+func (d *UserUsecase) GetLatestLoginSession(ctx context.Context, userUID string) (sessionID string, exists bool, err error) {
+	return d.repo.GetLatestLoginSession(ctx, userUID)
 }
 
 func (d *UserUsecase) GetUserLanguageByEchoCtx(c echo.Context) string {

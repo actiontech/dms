@@ -55,6 +55,10 @@ func (m *mockUserRepo) SaveAccessToken(context.Context, *AccessTokenInfo) error 
 func (m *mockUserRepo) GetAccessTokenByUser(context.Context, string) (*AccessTokenInfo, error) {
 	return nil, nil
 }
+func (m *mockUserRepo) RecordLoginSession(context.Context, string, string) error { return nil }
+func (m *mockUserRepo) GetLatestLoginSession(context.Context, string) (string, bool, error) {
+	return "", false, nil
+}
 
 // mockOpPermissionVerifyRepo implements OpPermissionVerifyRepo for testing
 type mockOpPermissionVerifyRepo struct {

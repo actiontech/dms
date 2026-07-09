@@ -23,8 +23,9 @@ func (d *DMSService) GetLoginTips(ctx context.Context) (reply *dmsV1.GetLoginTip
 
 	return &dmsV1.GetLoginTipsReply{
 		Data: dmsV1.LoginTipsResData{
-			LoginButtonText:     loginConfiguration.LoginButtonText,
-			DisableUserPwdLogin: loginConfiguration.DisableUserPwdLogin,
+			LoginButtonText:      loginConfiguration.LoginButtonText,
+			DisableUserPwdLogin:  loginConfiguration.DisableUserPwdLogin,
+			DisableMultipleLogin: loginConfiguration.DisableMultipleLogin,
 		},
 	}, nil
 }
@@ -43,7 +44,7 @@ func (d *DMSService) UpdateLoginConfiguration(ctx context.Context, userId string
 	}
 
 	loginConfiguration := req.LoginConfiguration
-	err = d.LoginConfigurationUsecase.UpdateLoginConfiguration(ctx, loginConfiguration.LoginButtonText, loginConfiguration.DisableUserPwdLogin)
+	err = d.LoginConfigurationUsecase.UpdateLoginConfiguration(ctx, loginConfiguration.LoginButtonText, loginConfiguration.DisableUserPwdLogin, loginConfiguration.DisableMultipleLogin)
 	return
 }
 
