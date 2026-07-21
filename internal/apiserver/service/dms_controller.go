@@ -3907,6 +3907,27 @@ func (ctl *DMSController) ListAllDataExportWorkflows(c echo.Context) error {
 	return NewOkRespWithReply(c, reply)
 }
 
+// swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflows/workflow_template_used DataExportWorkflows CheckDataExportWorkflowTemplateUsed
+//
+// Check whether a data-export workflow template id is referenced by local workflows.
+// Soft-deleted SQLE templates do not block already-created workflow runtime; this is a best-effort hint.
+//
+//	responses:
+//	  200: body:CheckDataExportWorkflowTemplateUsedReply
+//	  default: body:GenericResp
+func (ctl *DMSController) CheckDataExportWorkflowTemplateUsed(c echo.Context) error {
+	req := new(aV1.CheckDataExportWorkflowTemplateUsedReq)
+	err := bindAndValidateReq(c, req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	reply, err := ctl.DMS.CheckDataExportWorkflowTemplateUsed(c.Request().Context(), req)
+	if nil != err {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
 // swagger:route GET /v1/dms/projects/{project_uid}/data_export_workflows/{data_export_workflow_uid} DataExportWorkflows GetDataExportWorkflow
 //
 // Get data_export workflow.

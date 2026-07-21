@@ -362,6 +362,31 @@ func (d *WorkflowRepo) GetDataExportWorkflowsByIds(ctx context.Context, ids []st
 	return ret, nil
 }
 
+func (d *WorkflowRepo) CountDataExportWorkflowsByTemplateId(ctx context.Context, projectUID string, templateID uint) (int64, error) {
+	var count int64
+	unfinishedStatuses := []string{
+		string(biz.DataExportWorkflowStatusWaitForApprove),
+		string(biz.DataExportWorkflowStatusWaitForExport),
+		string(biz.DataExportWorkflowStatusWaitForExporting),
+	}
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		db := tx.WithContext(ctx).Model(&model.Workflow{}).
+			Joins("LEFT JOIN workflow_records ON workflows.workflow_record_uid = workflow_records.uid").
+			Where("workflows.workflow_type = ? AND workflows.workflow_template_id = ?", biz.DataExportWorkflowEventType.String(), templateID).
+			Where("workflow_records.status IN ?", unfinishedStatuses)
+		if projectUID != "" {
+			db = db.Where("workflows.project_uid = ?", projectUID)
+		}
+		if err := db.Count(&count).Error; err != nil {
+			return fmt.Errorf("failed to count workflows by template id: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
 func (d *WorkflowRepo) DeleteDataExportWorkflowsByIds(ctx context.Context, dataExportWorkflowUids []string) error {
 	if len(dataExportWorkflowUids) == 0 {
 		return nil

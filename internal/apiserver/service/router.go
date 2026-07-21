@@ -221,6 +221,8 @@ func (s *APIServer) initRouter() error {
 		dataExportWorkflowsV1 := v1.Group("/dms/projects/:project_uid/data_export_workflows")
 		dataExportWorkflowsV1.POST("", s.DMSController.AddDataExportWorkflow)
 		dataExportWorkflowsV1.GET("", s.DMSController.ListDataExportWorkflows)
+		// 只读引用检查：供 SQLE 在跨库成本过高时查询本地冗余引用；软删模板不影响已建工单流转
+		dataExportWorkflowsV1.GET("/workflow_template_used", s.DMSController.CheckDataExportWorkflowTemplateUsed)
 		dataExportWorkflowsV1.GET("/:data_export_workflow_uid", s.DMSController.GetDataExportWorkflow)
 		dataExportWorkflowsV1.POST("/:data_export_workflow_uid/approve", s.DMSController.ApproveDataExportWorkflow)
 		dataExportWorkflowsV1.POST("/:data_export_workflow_uid/reject", s.DMSController.RejectDataExportWorkflow)

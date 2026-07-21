@@ -364,15 +364,17 @@ const (
 )
 
 const (
-	WorkflowFieldUID               WorkflowField = "uid"
-	WorkflowFieldName              WorkflowField = "name"
-	WorkflowFieldProjectUID        WorkflowField = "project_uid"
-	WorkflowFieldWorkflowType      WorkflowField = "workflow_type"
-	WorkflowFieldDesc              WorkflowField = "desc"
-	WorkflowFieldCreateTime        WorkflowField = "create_time"
-	WorkflowFieldCreateUserUID     WorkflowField = "create_user_uid"
-	WorkflowFieldWorkflowRecordUid WorkflowField = "workflow_record_uid"
-	WorkflowFieldWorkflowRecord    WorkflowField = "workflowrecord"
+	WorkflowFieldUID                  WorkflowField = "uid"
+	WorkflowFieldName                 WorkflowField = "name"
+	WorkflowFieldProjectUID           WorkflowField = "project_uid"
+	WorkflowFieldWorkflowType         WorkflowField = "workflow_type"
+	WorkflowFieldDesc                 WorkflowField = "desc"
+	WorkflowFieldCreateTime           WorkflowField = "create_time"
+	WorkflowFieldCreateUserUID        WorkflowField = "create_user_uid"
+	WorkflowFieldWorkflowRecordUid    WorkflowField = "workflow_record_uid"
+	WorkflowFieldWorkflowTemplateId   WorkflowField = "workflow_template_id"
+	WorkflowFieldWorkflowTemplateName WorkflowField = "workflow_template_name"
+	WorkflowFieldWorkflowRecord       WorkflowField = "workflowrecord"
 )
 
 const (
