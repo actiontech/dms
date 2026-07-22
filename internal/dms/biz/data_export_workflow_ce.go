@@ -69,3 +69,7 @@ func (d *DataExportWorkflowUsecase) RecycleDataExportTaskFiles() {}
 func (d *DataExportWorkflowUsecase) GetGlobalWorkflowsList(ctx context.Context, req *dmsV1.FilterGlobalDataExportWorkflowReq, limit, offset int) ([]*Workflow, int64, error) {
 	return nil, 0, errNotDataExportWorkflow
 }
+
+func (d *DataExportWorkflowUsecase) CheckDataExportWorkflowTemplateUsed(ctx context.Context, projectUID string, templateID uint) (bool, int64, error) {
+	return false, 0, errNotDataExportWorkflow
+}

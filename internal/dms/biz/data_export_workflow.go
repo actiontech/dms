@@ -61,17 +61,19 @@ func (et DataExportWorkflowEventAction) String() string {
 type Workflow struct {
 	Base
 
-	UID               string
-	Name              string
-	ProjectUID        string
-	WorkflowType      string
-	Desc              string
-	CreateTime        time.Time
-	CreateUserUID     string
-	Status            string
-	WorkflowRecordUid string
-	Tasks             []Task
-	TaskIds           []string
+	UID                  string
+	Name                 string
+	ProjectUID           string
+	WorkflowType         string
+	Desc                 string
+	CreateTime           time.Time
+	CreateUserUID        string
+	Status               string
+	WorkflowRecordUid    string
+	WorkflowTemplateId   uint
+	WorkflowTemplateName string
+	Tasks                []Task
+	TaskIds              []string
 
 	WorkflowRecord *WorkflowRecord
 	DBServiceInfos []*dmsCommonV1.DBServiceUidWithNameInfo // 所属数据源信息
@@ -125,6 +127,8 @@ type WorkflowRepo interface {
 	DeleteDataExportWorkflowsByIds(ctx context.Context, dataExportWorkflowUid []string) error
 	GetGlobalWorkflowsByParameterMap(ctx context.Context, data map[string]interface{}) ([]*Workflow, int64, error)
 	AuditWorkflowAndAdvanceStep(ctx context.Context, workflowRecordUid string, step *WorkflowStep, nextStepId uint64, operateId, reason string) error
+	// CountDataExportWorkflowsByTemplateId 供 SQLE 跨库引用检查：模板软删不影响已建工单流转，仅统计本地冗余引用。
+	CountDataExportWorkflowsByTemplateId(ctx context.Context, projectUID string, templateID uint) (int64, error)
 }
 
 type DataExportWorkflowUsecase struct {

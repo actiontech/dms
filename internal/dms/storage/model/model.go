@@ -307,7 +307,6 @@ type UserLoginSession struct {
 	UserUID   string `json:"user_uid" gorm:"size:32;column:user_uid;uniqueIndex"`
 	SessionID string `json:"session_id" gorm:"size:32;column:session_id;not null"`
 }
-
 // Oauth2Configuration store oauth2 server configuration.
 type Oauth2Configuration struct {
 	Model
@@ -483,13 +482,15 @@ type ClusterNodeInfo struct {
 }
 type Workflow struct {
 	Model
-	Name              string     `json:"name" gorm:"size:255;not null;index:project_uid_name,unique" example:""`
-	ProjectUID        string     `json:"project_uid" gorm:"size:32;column:project_uid;index:project_uid_name,unique"`
-	WorkflowType      string     `json:"workflow_type" gorm:"size:64;column:workflow_type; not null" example:"export"`
-	Desc              string     `json:"desc" gorm:"column:desc" example:"this is a data transform export workflow"`
-	CreateTime        *time.Time `json:"create_time" gorm:"column:create_time"`
-	CreateUserUID     string     `json:"create_user_uid" gorm:"size:32;column:create_user_uid"`
-	WorkflowRecordUid string     `json:"workflow_record_uid" gorm:"size:32;column:workflow_record_uid"`
+	Name                 string     `json:"name" gorm:"size:255;not null;index:project_uid_name,unique" example:""`
+	ProjectUID           string     `json:"project_uid" gorm:"size:32;column:project_uid;index:project_uid_name,unique"`
+	WorkflowType         string     `json:"workflow_type" gorm:"size:64;column:workflow_type; not null" example:"export"`
+	Desc                 string     `json:"desc" gorm:"column:desc" example:"this is a data transform export workflow"`
+	CreateTime           *time.Time `json:"create_time" gorm:"column:create_time"`
+	CreateUserUID        string     `json:"create_user_uid" gorm:"size:32;column:create_user_uid"`
+	WorkflowRecordUid    string     `json:"workflow_record_uid" gorm:"size:32;column:workflow_record_uid"`
+	WorkflowTemplateId   uint       `json:"workflow_template_id" gorm:"column:workflow_template_id;default:0;index" example:"1"`
+	WorkflowTemplateName string     `json:"workflow_template_name" gorm:"size:255;column:workflow_template_name" example:""`
 
 	WorkflowRecord *WorkflowRecord `gorm:"foreignkey:WorkflowUid"`
 }

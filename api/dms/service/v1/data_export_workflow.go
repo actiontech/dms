@@ -28,6 +28,10 @@ type DataExportWorkflow struct {
 	// Required: true
 	// example: [export_task_uid1,export_task_uid2]
 	Tasks []Task `json:"tasks" validate:"required"`
+	// workflow template id from SQLE; omit or 0 to use project default data_export template
+	// Required: false
+	// example: 1
+	WorkflowTemplateId uint `json:"workflow_template_id"`
 }
 
 // swagger:model AddDataExportWorkflowReply
@@ -76,6 +80,9 @@ type ListDataExportWorkflowsReq struct {
 	// filter fuzzy key word for id/name
 	// in:query
 	FuzzyKeyword string `json:"fuzzy_keyword" query:"fuzzy_keyword"`
+	// filter by workflow template id
+	// in:query
+	FilterWorkflowTemplateId uint `json:"filter_workflow_template_id" query:"filter_workflow_template_id"`
 }
 
 // swagger:parameters FilterGlobalDataExportWorkflowReq
@@ -171,15 +178,17 @@ type ListDataExportWorkflowsReply struct {
 }
 
 type ListDataExportWorkflow struct {
-	ProjectUid   string                   `json:"project_uid"`
-	ProjectName  string                   `json:"project_name"`  // 项目名称
-	WorkflowID   string                   `json:"workflow_uid"`  // 数据导出工单ID
-	WorkflowName string                   `json:"workflow_name"` // 数据导出工单的名称
-	Description  string                   `json:"desc"`          // 数据导出工单的描述
-	Creater      UidWithName              `json:"creater"`       // 数据导出工单的创建人
-	CreatedAt    time.Time                `json:"created_at"`    // 数据导出工单的创建时间
-	ExportedAt   time.Time                `json:"exported_at"`   // 执行数据导出工单的时间
-	Status       DataExportWorkflowStatus `json:"status"`        // 数据导出工单的状态
+	ProjectUid           string                   `json:"project_uid"`
+	ProjectName          string                   `json:"project_name"`           // 项目名称
+	WorkflowID           string                   `json:"workflow_uid"`           // 数据导出工单ID
+	WorkflowName         string                   `json:"workflow_name"`          // 数据导出工单的名称
+	Description          string                   `json:"desc"`                   // 数据导出工单的描述
+	Creater              UidWithName              `json:"creater"`                // 数据导出工单的创建人
+	CreatedAt            time.Time                `json:"created_at"`             // 数据导出工单的创建时间
+	ExportedAt           time.Time                `json:"exported_at"`            // 执行数据导出工单的时间
+	Status               DataExportWorkflowStatus `json:"status"`                 // 数据导出工单的状态
+	WorkflowTemplateId   uint                     `json:"workflow_template_id"`   // 创建时关联的审批模板 ID（历史工单可为 0）
+	WorkflowTemplateName string                   `json:"workflow_template_name"` // 创建时冗余保存的审批模板名称
 
 	CurrentStepAssigneeUsers []UidWithName                           `json:"current_step_assignee_user_list"` // 工单待操作人
 	DBServiceInfos           []*dmsCommonV1.DBServiceUidWithNameInfo `json:"db_service_info,omitempty"`       // 所属数据源信息
@@ -233,10 +242,33 @@ type GetDataExportWorkflow struct {
 	Desc                  string           `json:"desc,omitempty"`
 	CreateUser            UidWithName      `json:"create_user"`
 	CreateTime            *time.Time       `json:"create_time"`
+	WorkflowTemplateId    uint             `json:"workflow_template_id"`
+	WorkflowTemplateName  string           `json:"workflow_template_name"`
 	WorkflowRecord        WorkflowRecord   `json:"workflow_record"`
 	WorkflowRecordHistory []WorkflowRecord `json:"workflow_record_history"`
 	// UnmaskingWorkflow 关联的查看原文工单摘要；无关联时为 null
 	UnmaskingWorkflow *DataExportRelatedUnmaskingWorkflow `json:"unmasking_workflow"`
+}
+
+// swagger:parameters CheckDataExportWorkflowTemplateUsed
+type CheckDataExportWorkflowTemplateUsedReq struct {
+	// project id
+	// Required: true
+	// in:path
+	ProjectUid string `param:"project_uid" json:"project_uid" validate:"required"`
+	// workflow template id
+	// Required: true
+	// in:query
+	WorkflowTemplateId uint `query:"workflow_template_id" json:"workflow_template_id" validate:"required"`
+}
+
+// swagger:model CheckDataExportWorkflowTemplateUsedReply
+type CheckDataExportWorkflowTemplateUsedReply struct {
+	Data struct {
+		IsUsed bool  `json:"is_used"`
+		Count  int64 `json:"count"`
+	} `json:"data"`
+	base.GenericResp
 }
 
 // swagger:model DataExportRelatedUnmaskingWorkflow

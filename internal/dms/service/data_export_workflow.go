@@ -18,10 +18,11 @@ func (d *DMSService) AddDataExportWorkflow(ctx context.Context, req *dmsV1.AddDa
 		tasks = append(tasks, biz.Task{UID: t.Uid})
 	}
 	args := &biz.Workflow{
-		Name:       req.DataExportWorkflow.Name,
-		Desc:       req.DataExportWorkflow.Desc,
-		Tasks:      tasks,
-		ProjectUID: req.ProjectUid,
+		Name:               req.DataExportWorkflow.Name,
+		Desc:               req.DataExportWorkflow.Desc,
+		Tasks:              tasks,
+		ProjectUID:         req.ProjectUid,
+		WorkflowTemplateId: req.DataExportWorkflow.WorkflowTemplateId,
 	}
 	uid, err := d.DataExportWorkflowUsecase.AddDataExportWorkflow(ctx, currentUserUid, args)
 	if err != nil {
@@ -76,6 +77,14 @@ func (d *DMSService) ListDataExportWorkflow(ctx context.Context, req *dmsV1.List
 			Field:    string(biz.WorkflowFieldProjectUID),
 			Operator: pkgConst.FilterOperatorEqual,
 			Value:    req.ProjectUid,
+		})
+	}
+
+	if req.FilterWorkflowTemplateId != 0 {
+		andConditions = append(andConditions, pkgConst.FilterCondition{
+			Field:    string(biz.WorkflowFieldWorkflowTemplateId),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    req.FilterWorkflowTemplateId,
 		})
 	}
 
@@ -134,13 +143,15 @@ func (d *DMSService) ListDataExportWorkflow(ctx context.Context, req *dmsV1.List
 	ret := make([]*dmsV1.ListDataExportWorkflow, len(workflows))
 	for i, w := range workflows {
 		ret[i] = &dmsV1.ListDataExportWorkflow{
-			ProjectUid:   w.ProjectUID,
-			ProjectName:  projectMap[w.ProjectUID],
-			WorkflowID:   w.UID,
-			WorkflowName: w.Name,
-			Description:  w.Desc,
-			CreatedAt:    w.CreatedAt,
-			Status:       dmsV1.DataExportWorkflowStatus(w.WorkflowRecord.Status),
+			ProjectUid:           w.ProjectUID,
+			ProjectName:          projectMap[w.ProjectUID],
+			WorkflowID:           w.UID,
+			WorkflowName:         w.Name,
+			Description:          w.Desc,
+			CreatedAt:            w.CreatedAt,
+			Status:               dmsV1.DataExportWorkflowStatus(w.WorkflowRecord.Status),
+			WorkflowTemplateId:   w.WorkflowTemplateId,
+			WorkflowTemplateName: w.WorkflowTemplateName,
 		}
 		creater := convertBizUidWithName(d.UserUsecase.GetBizUserWithNameByUids(ctx, []string{w.CreateUserUID}))
 		if len(creater) > 0 {
@@ -205,11 +216,13 @@ func (d *DMSService) GetDataExportWorkflow(ctx context.Context, req *dmsV1.GetDa
 	}
 
 	data := &dmsV1.GetDataExportWorkflow{
-		Name:       w.Name,
-		WorkflowID: w.UID,
-		Desc:       w.Desc,
-		CreateUser: convertBizUidWithName(d.UserUsecase.GetBizUserWithNameByUids(ctx, []string{w.CreateUserUID}))[0],
-		CreateTime: &w.CreateTime,
+		Name:                 w.Name,
+		WorkflowID:           w.UID,
+		Desc:                 w.Desc,
+		CreateUser:           convertBizUidWithName(d.UserUsecase.GetBizUserWithNameByUids(ctx, []string{w.CreateUserUID}))[0],
+		CreateTime:           &w.CreateTime,
+		WorkflowTemplateId:   w.WorkflowTemplateId,
+		WorkflowTemplateName: w.WorkflowTemplateName,
 		WorkflowRecord: dmsV1.WorkflowRecord{
 			CurrentStepNumber: uint(w.WorkflowRecord.CurrentWorkflowStepId),
 			Status:            dmsV1.DataExportWorkflowStatus(w.WorkflowRecord.Status),
@@ -412,4 +425,15 @@ func isDataExportWorkflowTerminalStatus(status string) bool {
 	default:
 		return false
 	}
+}
+
+func (d *DMSService) CheckDataExportWorkflowTemplateUsed(ctx context.Context, req *dmsV1.CheckDataExportWorkflowTemplateUsedReq) (*dmsV1.CheckDataExportWorkflowTemplateUsedReply, error) {
+	isUsed, count, err := d.DataExportWorkflowUsecase.CheckDataExportWorkflowTemplateUsed(ctx, req.ProjectUid, req.WorkflowTemplateId)
+	if err != nil {
+		return nil, err
+	}
+	reply := &dmsV1.CheckDataExportWorkflowTemplateUsedReply{}
+	reply.Data.IsUsed = isUsed
+	reply.Data.Count = count
+	return reply, nil
 }
