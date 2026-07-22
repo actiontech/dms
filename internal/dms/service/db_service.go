@@ -41,10 +41,22 @@ func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV2.UpdateDBSer
 		return err
 	}
 	for _, additionalParam := range req.DBService.AdditionalParams {
+		if isRedisConnectionModeParam(req.DBService.DBType, additionalParam.Name) {
+			if err := setRedisConnectionModeParam(&additionalParams, additionalParam.Value); err != nil {
+				return err
+			}
+			continue
+		}
 		err = additionalParams.SetParamValue(additionalParam.Name, additionalParam.Value)
 		if err != nil {
 			return fmt.Errorf("set param value failed,invalid db type: %s", req.DBService.DBType)
 		}
+	}
+	if err := normalizeRedisConnectionModeParams(req.DBService.DBType, &additionalParams); err != nil {
+		return err
+	}
+	if err := validateDBServiceUser(req.DBService.DBType, req.DBService.User, additionalParams); err != nil {
+		return err
 	}
 
 	args := &biz.BizDBServiceArgs{
@@ -80,6 +92,9 @@ func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV2.UpdateDBSer
 }
 
 func (d *DMSService) CheckDBServiceIsConnectable(ctx context.Context, req *dmsV1.CheckDBServiceIsConnectableReq) (reply *dmsV1.CheckDBServiceIsConnectableReply, err error) {
+	if err := normalizeCheckDbConnectable(&req.DBService); err != nil {
+		return nil, err
+	}
 	results, err := d.DBServiceUsecase.IsConnectable(ctx, req.DBService)
 
 	if err != nil {
@@ -111,6 +126,10 @@ func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *d
 			Name:  item.Key,
 			Value: item.Value,
 		})
+	}
+	additionParams, err = appendRedisConnectionModeIfMissing(dbService.DBType, additionParams)
+	if err != nil {
+		return nil, err
 	}
 
 	checkDbConnectableParams := dmsCommonV1.CheckDbConnectable{
@@ -236,11 +255,26 @@ func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceRe
 	}()
 
 	additionalParams, err := d.DBServiceUsecase.GetDriverParamsByDBType(ctx, req.DBService.DBType)
+	if err != nil {
+		return nil, err
+	}
 	for _, additionalParam := range req.DBService.AdditionalParams {
+		if isRedisConnectionModeParam(req.DBService.DBType, additionalParam.Name) {
+			if err := setRedisConnectionModeParam(&additionalParams, additionalParam.Value); err != nil {
+				return nil, err
+			}
+			continue
+		}
 		err = additionalParams.SetParamValue(additionalParam.Name, additionalParam.Value)
 		if err != nil {
 			return nil, fmt.Errorf("set param value failed,invalid db type: %s", req.DBService.DBType)
 		}
+	}
+	if err := normalizeRedisConnectionModeParams(req.DBService.DBType, &additionalParams); err != nil {
+		return nil, err
+	}
+	if err := validateDBServiceUser(req.DBService.DBType, req.DBService.User, additionalParams); err != nil {
+		return nil, err
 	}
 
 	args := &biz.BizDBServiceArgs{
@@ -291,11 +325,26 @@ func (d *DMSService) AddDBServiceV2(ctx context.Context, req *dmsV2.AddDBService
 	}()
 
 	additionalParams, err := d.DBServiceUsecase.GetDriverParamsByDBType(ctx, req.DBService.DBType)
+	if err != nil {
+		return nil, err
+	}
 	for _, additionalParam := range req.DBService.AdditionalParams {
+		if isRedisConnectionModeParam(req.DBService.DBType, additionalParam.Name) {
+			if err := setRedisConnectionModeParam(&additionalParams, additionalParam.Value); err != nil {
+				return nil, err
+			}
+			continue
+		}
 		err = additionalParams.SetParamValue(additionalParam.Name, additionalParam.Value)
 		if err != nil {
 			return nil, fmt.Errorf("set param value failed,invalid db type: %s", req.DBService.DBType)
 		}
+	}
+	if err := normalizeRedisConnectionModeParams(req.DBService.DBType, &additionalParams); err != nil {
+		return nil, err
+	}
+	if err := validateDBServiceUser(req.DBService.DBType, req.DBService.User, additionalParams); err != nil {
+		return nil, err
 	}
 
 	args := &biz.BizDBServiceArgs{
@@ -671,18 +720,20 @@ func (d *DMSService) ListDBServices(ctx context.Context, req *dmsCommonV2.ListDB
 			ret[i].LastConnectionTestErrorMessage = *u.LastConnectionErrorMsg
 		}
 
-		if u.AdditionalParams != nil {
-			additionalParams := make([]*dmsCommonV1.AdditionalParam, 0, len(u.AdditionalParams))
-			for _, item := range u.AdditionalParams {
-				additionalParams = append(additionalParams, &dmsCommonV1.AdditionalParam{
-					Name:        item.Key,
-					Value:       item.Value,
-					Description: item.Desc,
-					Type:        string(item.Type),
-				})
-			}
-			ret[i].AdditionalParams = additionalParams
+		additionalParams := make([]*dmsCommonV1.AdditionalParam, 0, len(u.AdditionalParams)+1)
+		for _, item := range u.AdditionalParams {
+			additionalParams = append(additionalParams, &dmsCommonV1.AdditionalParam{
+				Name:        item.Key,
+				Value:       item.Value,
+				Description: item.Desc,
+				Type:        string(item.Type),
+			})
 		}
+		additionalParams, err = appendRedisConnectionModeIfMissing(u.DBType, additionalParams)
+		if err != nil {
+			return nil, err
+		}
+		ret[i].AdditionalParams = additionalParams
 
 		if u.SQLEConfig != nil {
 			sqlConfig := &dmsCommonV1.SQLEConfig{

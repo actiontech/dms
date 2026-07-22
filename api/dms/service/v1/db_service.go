@@ -26,7 +26,7 @@ type DBService struct {
 	Port string `json:"port" validate:"required"`
 	// DB Service admin user
 	// Required: true
-	User string `json:"user" validate:"required"`
+	User string `json:"user"`
 	// DB Service admin password
 	// Required: true
 	Password string `json:"password" validate:"required"`
@@ -182,7 +182,7 @@ type UpdateDBService struct {
 	Port string `json:"port" validate:"required"`
 	// DB Service admin user
 	// Required: true
-	User string `json:"user" validate:"required"`
+	User string `json:"user"`
 	// DB Service admin password
 	Password *string `json:"password"`
 	// DB Service business name
@@ -413,7 +413,7 @@ type ListGlobalDBService struct {
 	// TODO This parameter is deprecated and will be removed soon.
 	// the db service business name
 	// Deprecated: the business field is replaced with the environmentTag of the v2 interface.
-	Business       string          `json:"business"`
+	Business string `json:"business"`
 	// DB Service maintenance time
 	MaintenanceTimes []*dmsCommonV1.MaintenanceTime `json:"maintenance_times"`
 	// DB desc

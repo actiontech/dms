@@ -106,7 +106,7 @@ type DBService struct {
 	Port string `json:"port" validate:"required"`
 	// DB Service admin user
 	// Required: true
-	User string `json:"user" validate:"required"`
+	User string `json:"user"`
 	// DB Service admin password
 	// Required: true
 	Password string `json:"password" validate:"required"`
@@ -161,7 +161,7 @@ type UpdateDBService struct {
 	Port string `json:"port" validate:"required"`
 	// DB Service admin user
 	// Required: true
-	User string `json:"user" validate:"required"`
+	User string `json:"user"`
 	// DB Service admin password
 	Password *string `json:"password"`
 	// DB Service environment tag
