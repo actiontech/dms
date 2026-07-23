@@ -640,6 +640,12 @@ func (d *DBServiceUsecase) TestDbServiceConnection(ctx context.Context, dbServic
 			Value: item.Value,
 		})
 	}
+	additionParams, err := appendRedisConnectionModeIfMissing(dbService.DBType, additionParams)
+	if err != nil {
+		connectionResult.ConnectionStatus = LastConnectionStatusFailed
+		connectionResult.ConnectErrorMessage = err.Error()
+		return connectionResult, err
+	}
 
 	checkDbConnectableParams := dmsCommonV1.CheckDbConnectable{
 		DBType:           dbService.DBType,
@@ -719,9 +725,11 @@ func (d *DBServiceUsecase) UpdateDBServiceByArgs(ctx context.Context, dbServiceU
 			return fmt.Errorf("update db service db type is unsupported")
 		}
 
-		if updateDBService.Host == "" || updateDBService.Port == "" ||
-			updateDBService.User == "" || updateDBService.EnvironmentTagUID == "" {
-			return fmt.Errorf("db service's host,port,user,environment can't be empty")
+		if updateDBService.Host == "" || updateDBService.Port == "" || updateDBService.EnvironmentTagUID == "" {
+			return fmt.Errorf("db service's host,port,environment can't be empty")
+		}
+		if updateDBService.User == "" && !isRedisClusterDBServiceArgs(updateDBService) {
+			return fmt.Errorf("db service user can't be empty")
 		}
 		_, err := d.environmentTagUsecase.GetEnvironmentTagByUID(ctx, updateDBService.EnvironmentTagUID)
 		if err != nil {
