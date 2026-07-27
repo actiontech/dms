@@ -861,13 +861,9 @@ type datasourceBaseInfo struct {
 }
 
 const (
-	mongoDefaultDatabaseParam  = "default_database"
-	mongoAuthDatabaseParam     = "auth_source"
-	mongoAuthMechanismParam    = "auth_mechanism"
-	mongoReplicaSetParam       = "replica_set"
-	mongoTLSEnabledParam       = "tls"
-	mongoDirectConnectionParam = "direct_connection"
-	mongoTLSSkipVerifyParam    = "tls_skip_verify"
+	mongoDefaultDatabaseParam = "default_database"
+	mongoAuthDatabaseParam    = "auth_source"
+	mongoReplicaSetParam      = "replica_set"
 	redisDefaultDatabaseParam = "default_database"
 )
 
@@ -1039,24 +1035,9 @@ func buildMongoDatasourceOptions(dbService *biz.DBService) (*string, interface{}
 	if authDB := dbService.AdditionalParams.GetParam(mongoAuthDatabaseParam).String(); authDB != "" {
 		jdbcParams["authSource"] = authDB
 	}
-	if authMechanism := dbService.AdditionalParams.GetParam(mongoAuthMechanismParam).String(); authMechanism != "" {
-		jdbcParams["authMechanism"] = authMechanism
-	}
+	// Legacy keys auth_mechanism / tls / tls_skip_verify / direct_connection are ignored if present.
 	if replicaSet := dbService.AdditionalParams.GetParam(mongoReplicaSetParam).String(); replicaSet != "" {
 		jdbcParams["replicaSet"] = replicaSet
-	}
-	if tlsParam := dbService.AdditionalParams.GetParam(mongoTLSEnabledParam); tlsParam != nil && tlsParam.String() != "" {
-		if tlsParam.Bool() {
-			jdbcParams["tls"] = "true"
-		} else {
-			jdbcParams["tls"] = "false"
-		}
-	}
-	if dbService.AdditionalParams.GetParam(mongoDirectConnectionParam).Bool() {
-		jdbcParams["directConnection"] = true
-	}
-	if dbService.AdditionalParams.GetParam(mongoTLSSkipVerifyParam).Bool() {
-		jdbcParams["tlsInsecure"] = true
 	}
 
 	if len(jdbcParams) == 0 {
