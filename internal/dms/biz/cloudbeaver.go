@@ -11,6 +11,7 @@ import (
 	"mime/multipart"
 	"net"
 	"net/http"
+	"net/url"
 	"path"
 	"strconv"
 	"strings"
@@ -2341,13 +2342,13 @@ func (cu *CloudbeaverUsecase) AutoCreateAndExecuteWorkflow(ctx context.Context, 
 		return nil, fmt.Errorf("close multipart writer failed: %v", err)
 	}
 
-	url := fmt.Sprintf("%s/v1/projects/%s/workflows/auto_create_and_execute", sqleUrl, projectName)
+	reqURL := fmt.Sprintf("%s/v1/projects/%s/workflows/auto_create_and_execute", sqleUrl, url.PathEscape(projectName))
 	headers := map[string]string{
 		"Authorization": pkgHttp.DefaultDMSToken,
 	}
 
 	var reply AutoCreateAndExecuteWorkflowRes
-	if err := pkgHttp.Call(ctx, http.MethodPost, url, headers, writer.FormDataContentType(), requestBody.Bytes(), &reply); err != nil {
+	if err := pkgHttp.Call(ctx, http.MethodPost, reqURL, headers, writer.FormDataContentType(), requestBody.Bytes(), &reply); err != nil {
 		return nil, fmt.Errorf("request sqle failed: %v", err)
 	}
 

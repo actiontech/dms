@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"sync"
 	"time"
 
@@ -417,7 +418,7 @@ func (d *DBServiceUsecase) AddInstanceAuditPlanForDBServiceFromSqle(ctx context.
 	if err != nil {
 		return fmt.Errorf("get proxy target by name failed: %v", err)
 	}
-	sqleAddr := fmt.Sprintf("%s/v2/projects/%s/instance_audit_plans", target.URL.String(), project.Name)
+	sqleAddr := fmt.Sprintf("%s/v2/projects/%s/instance_audit_plans", target.URL.String(), url.PathEscape(project.Name))
 	header := map[string]string{
 		"Authorization":           pkgHttp.DefaultDMSToken,
 		i18nPkg.AcceptLanguageKey: locale.Bundle.GetLangTagFromCtx(ctx).String(),
