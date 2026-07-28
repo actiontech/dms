@@ -379,7 +379,7 @@ func (d *DMSService) ListDataExportTaskSQLs(ctx context.Context, req *dmsV1.List
 }
 
 func (d *DMSService) ApproveDataExportWorkflow(ctx context.Context, req *dmsV1.ApproveDataExportWorkflowReq, userId string) (err error) {
-	return d.DataExportWorkflowUsecase.ApproveDataExportWorkflow(ctx, req.ProjectUid, req.DataExportWorkflowUid, userId)
+	return d.DataExportWorkflowUsecase.ApproveDataExportWorkflow(ctx, req.ProjectUid, req.DataExportWorkflowUid, userId, req.Payload.Reason)
 }
 
 func (d *DMSService) RejectDataExportWorkflow(ctx context.Context, req *dmsV1.RejectDataExportWorkflowReq, userId string) (err error) {

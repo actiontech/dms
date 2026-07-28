@@ -316,6 +316,11 @@ type WorkflowStep struct {
 	Reason        string             `json:"reason,omitempty"`
 }
 
+type ApproveDataExportWorkflowPayload struct {
+	// optional approval comment; empty / omitted means no comment
+	Reason string `json:"reason"`
+}
+
 // swagger:parameters ApproveDataExportWorkflow
 type ApproveDataExportWorkflowReq struct {
 	// project id
@@ -325,6 +330,8 @@ type ApproveDataExportWorkflowReq struct {
 	// Required: true
 	// in:path
 	DataExportWorkflowUid string `param:"data_export_workflow_uid" json:"data_export_workflow_uid" validate:"required"`
+	// optional body; omit / empty payload / empty reason → ""
+	Payload ApproveDataExportWorkflowPayload `json:"payload"`
 }
 
 // swagger:parameters ExportDataExportWorkflow
