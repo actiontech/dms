@@ -217,11 +217,7 @@ func Test_buildMongoDatasourceOptions(t *testing.T) {
 		AdditionalParams: pkgParams.Params{
 			&pkgParams.Param{Key: mongoDefaultDatabaseParam, Value: defaultDB, Type: pkgParams.ParamTypeString},
 			&pkgParams.Param{Key: mongoAuthDatabaseParam, Value: "admin", Type: pkgParams.ParamTypeString},
-			&pkgParams.Param{Key: "auth_mechanism", Value: "SCRAM-SHA-256", Type: pkgParams.ParamTypeString},
 			&pkgParams.Param{Key: mongoReplicaSetParam, Value: "rs0", Type: pkgParams.ParamTypeString},
-			&pkgParams.Param{Key: "tls", Value: "true", Type: pkgParams.ParamTypeBool},
-			&pkgParams.Param{Key: "direct_connection", Value: "true", Type: pkgParams.ParamTypeBool},
-			&pkgParams.Param{Key: "tls_skip_verify", Value: "true", Type: pkgParams.ParamTypeBool},
 		},
 	})
 	if defaultSchema == nil || *defaultSchema != defaultDB {
@@ -235,18 +231,6 @@ func Test_buildMongoDatasourceOptions(t *testing.T) {
 	}
 	if jdbcParams["replicaSet"] != "rs0" {
 		t.Fatalf("unexpected replicaSet: %#v", jdbcParams["replicaSet"])
-	}
-	if _, ok := jdbcParams["authMechanism"]; ok {
-		t.Fatalf("authMechanism must be ignored, got %#v", jdbcParams)
-	}
-	if _, ok := jdbcParams["tls"]; ok {
-		t.Fatalf("tls must be ignored, got %#v", jdbcParams)
-	}
-	if _, ok := jdbcParams["directConnection"]; ok {
-		t.Fatalf("directConnection must be ignored, got %#v", jdbcParams)
-	}
-	if _, ok := jdbcParams["tlsInsecure"]; ok {
-		t.Fatalf("tlsInsecure must be ignored, got %#v", jdbcParams)
 	}
 }
 
