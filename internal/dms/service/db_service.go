@@ -41,9 +41,6 @@ func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV2.UpdateDBSer
 		return err
 	}
 	for _, additionalParam := range req.DBService.AdditionalParams {
-		if isDeprecatedMongoAdditionalParam(req.DBService.DBType, additionalParam.Name) {
-			continue
-		}
 		if isRedisConnectionModeParam(req.DBService.DBType, additionalParam.Name) {
 			if err := setRedisConnectionModeParam(&additionalParams, additionalParam.Value); err != nil {
 				return err
@@ -125,9 +122,6 @@ func (d *DMSService) CheckDBServiceIsConnectableById(ctx context.Context, req *d
 
 	var additionParams []*dmsCommonV1.AdditionalParam
 	for _, item := range dbService.AdditionalParams {
-		if isDeprecatedMongoAdditionalParam(dbService.DBType, item.Key) {
-			continue
-		}
 		additionParams = append(additionParams, &dmsCommonV1.AdditionalParam{
 			Name:  item.Key,
 			Value: item.Value,
@@ -265,9 +259,6 @@ func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceRe
 		return nil, err
 	}
 	for _, additionalParam := range req.DBService.AdditionalParams {
-		if isDeprecatedMongoAdditionalParam(req.DBService.DBType, additionalParam.Name) {
-			continue
-		}
 		if isRedisConnectionModeParam(req.DBService.DBType, additionalParam.Name) {
 			if err := setRedisConnectionModeParam(&additionalParams, additionalParam.Value); err != nil {
 				return nil, err
@@ -338,9 +329,6 @@ func (d *DMSService) AddDBServiceV2(ctx context.Context, req *dmsV2.AddDBService
 		return nil, err
 	}
 	for _, additionalParam := range req.DBService.AdditionalParams {
-		if isDeprecatedMongoAdditionalParam(req.DBService.DBType, additionalParam.Name) {
-			continue
-		}
 		if isRedisConnectionModeParam(req.DBService.DBType, additionalParam.Name) {
 			if err := setRedisConnectionModeParam(&additionalParams, additionalParam.Value); err != nil {
 				return nil, err

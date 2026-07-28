@@ -1035,7 +1035,6 @@ func buildMongoDatasourceOptions(dbService *biz.DBService) (*string, interface{}
 	if authDB := dbService.AdditionalParams.GetParam(mongoAuthDatabaseParam).String(); authDB != "" {
 		jdbcParams["authSource"] = authDB
 	}
-	// Legacy keys auth_mechanism / tls / tls_skip_verify / direct_connection are ignored if present.
 	if replicaSet := dbService.AdditionalParams.GetParam(mongoReplicaSetParam).String(); replicaSet != "" {
 		jdbcParams["replicaSet"] = replicaSet
 	}
