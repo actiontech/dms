@@ -23,7 +23,7 @@ func (d *DataExportWorkflowUsecase) GetDataExportWorkflow(ctx context.Context, w
 	return nil, errNotDataExportWorkflow
 }
 
-func (d *DataExportWorkflowUsecase) ApproveDataExportWorkflow(ctx context.Context, projectId, workflowId, userId string) error {
+func (d *DataExportWorkflowUsecase) ApproveDataExportWorkflow(ctx context.Context, projectId, workflowId, userId, reason string) error {
 	return errNotDataExportWorkflow
 }
 

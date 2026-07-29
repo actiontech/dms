@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/actiontech/dms/api"
 	aV1 "github.com/actiontech/dms/api/dms/service/v1"
@@ -3763,10 +3764,23 @@ func (ctl *DMSController) AddDataExportWorkflow(c echo.Context) error {
 //	  default: body:GenericResp
 func (ctl *DMSController) ApproveDataExportWorkflow(c echo.Context) error {
 	req := &aV1.ApproveDataExportWorkflowReq{}
-	err := bindAndValidateReq(c, req)
-	if nil != err {
-		return NewErrResp(c, err, apiError.BadRequestErr)
+	// 兼容旧客户端：无 body / ContentLength=0 时按空意见处理。
+	// path 参数与 body 同属 req，跳过 bind 时须从 Param 注入，避免空 uid 查库失败。
+	if c.Request().ContentLength != 0 {
+		err := bindAndValidateReq(c, req)
+		if nil != err {
+			return NewErrResp(c, err, apiError.BadRequestErr)
+		}
+	} else {
+		req.ProjectUid = c.Param("project_uid")
+		req.DataExportWorkflowUid = c.Param("data_export_workflow_uid")
 	}
+
+	reason := strings.TrimSpace(req.Payload.Reason)
+	if utf8.RuneCountInString(reason) > 255 {
+		return NewErrResp(c, fmt.Errorf("审批意见不能超过255个字符"), apiError.BadRequestErr)
+	}
+	req.Payload.Reason = reason
 
 	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
 	if err != nil {
