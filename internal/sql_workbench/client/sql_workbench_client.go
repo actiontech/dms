@@ -7,10 +7,12 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -612,14 +614,19 @@ func (c *SqlWorkbenchClient) CreateUsers(users []CreateUserRequest, publicKey st
 		return nil, fmt.Errorf("failed to read create users response: %v", err)
 	}
 
+	var createUsersResp CreateUsersResponse
+	_ = json.Unmarshal(body, &createUsersResp)
+
 	// 检查HTTP状态码
 	if resp.StatusCode != http.StatusOK {
 		c.log.Errorf("Create users failed with status code: %d, response: %s", resp.StatusCode, string(body))
+		if isCreateUsersDuplicatedResponse(resp.StatusCode, body, &createUsersResp) {
+			return nil, newCreateUsersConflictError(resp.StatusCode, &createUsersResp, body)
+		}
 		return nil, fmt.Errorf("create users failed with status code: %d", resp.StatusCode)
 	}
 
-	// 解析响应
-	var createUsersResp CreateUsersResponse
+	// 解析响应（HTTP 200 时要求结构合法）
 	if err := json.Unmarshal(body, &createUsersResp); err != nil {
 		c.log.Errorf("Failed to parse create users response: %v", err)
 		return nil, fmt.Errorf("failed to parse create users response: %v", err)
@@ -632,11 +639,239 @@ func (c *SqlWorkbenchClient) CreateUsers(users []CreateUserRequest, publicKey st
 			errorMsg = *createUsersResp.Message
 		}
 		c.log.Errorf("Create users failed: %s", errorMsg)
+		if isCreateUsersDuplicatedResponse(resp.StatusCode, body, &createUsersResp) {
+			return nil, newCreateUsersConflictError(resp.StatusCode, &createUsersResp, body)
+		}
 		return nil, fmt.Errorf("create users failed: %s", errorMsg)
 	}
 
 	c.log.Infof("Successfully created %d users", len(createUsersResp.Data.Contents))
 	return &createUsersResp, nil
+}
+
+// CreateUsersConflictError 表示 ODC 侧账号已存在冲突，调用方可走再查绑定兜底
+type CreateUsersConflictError struct {
+	StatusCode int
+	Code       string
+	Message    string
+}
+
+func (e *CreateUsersConflictError) Error() string {
+	if e.Message != "" {
+		return fmt.Sprintf("create users conflict: %s", e.Message)
+	}
+	if e.Code != "" {
+		return fmt.Sprintf("create users conflict: code=%s status=%d", e.Code, e.StatusCode)
+	}
+	return fmt.Sprintf("create users conflict: status=%d", e.StatusCode)
+}
+
+// IsCreateUsersConflict 判断错误是否为账号已存在冲突
+func IsCreateUsersConflict(err error) bool {
+	var conflict *CreateUsersConflictError
+	return errors.As(err, &conflict)
+}
+
+func newCreateUsersConflictError(statusCode int, resp *CreateUsersResponse, body []byte) *CreateUsersConflictError {
+	err := &CreateUsersConflictError{StatusCode: statusCode}
+	if resp != nil {
+		if resp.Code != nil {
+			err.Code = *resp.Code
+		}
+		if resp.Message != nil {
+			err.Message = *resp.Message
+		}
+	}
+	if err.Message == "" {
+		err.Message = string(body)
+	}
+	return err
+}
+
+func isCreateUsersDuplicatedResponse(statusCode int, body []byte, resp *CreateUsersResponse) bool {
+	bodyStr := string(body)
+	if resp != nil && resp.Code != nil && strings.Contains(*resp.Code, "DuplicatedExists") {
+		return true
+	}
+	if strings.Contains(bodyStr, "DuplicatedExists") {
+		return true
+	}
+	if resp != nil && resp.Message != nil {
+		msg := *resp.Message
+		if strings.Contains(msg, "已存在") || strings.Contains(strings.ToLower(msg), "already exist") {
+			return true
+		}
+	}
+	if strings.Contains(bodyStr, "已存在") {
+		return true
+	}
+	_ = statusCode
+	return false
+}
+
+// ListUsers 按 accountName 查询 ODC 用户列表
+func (c *SqlWorkbenchClient) ListUsers(accountName string, cookie string) (*ListUsersResponse, error) {
+	c.log.Infof("Attempting to list users by accountName: %s", accountName)
+
+	listUsersURL := fmt.Sprintf("%s/api/v2/iam/users?accountName=%s&currentOrganizationId=1&size=100",
+		c.baseURL, url.QueryEscape(accountName))
+
+	req, err := http.NewRequest("GET", listUsersURL, nil)
+	if err != nil {
+		c.log.Errorf("Failed to create list users request: %v", err)
+		return nil, fmt.Errorf("failed to create list users request: %v", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Cookie", cookie)
+	req.Header.Set("X-Xsrf-Token", c.ExtractCookieValue(cookie, "XSRF-TOKEN"))
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		c.log.Errorf("Failed to send list users request: %v", err)
+		return nil, fmt.Errorf("failed to send list users request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		c.log.Errorf("Failed to read list users response: %v", err)
+		return nil, fmt.Errorf("failed to read list users response: %v", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		c.log.Errorf("List users failed with status code: %d, response: %s", resp.StatusCode, string(body))
+		return nil, fmt.Errorf("list users failed with status code: %d", resp.StatusCode)
+	}
+
+	var listUsersResp ListUsersResponse
+	if err := json.Unmarshal(body, &listUsersResp); err != nil {
+		c.log.Errorf("Failed to parse list users response: %v", err)
+		return nil, fmt.Errorf("failed to parse list users response: %v", err)
+	}
+
+	if !listUsersResp.Successful {
+		errorMsg := "list users failed"
+		if listUsersResp.Message != nil {
+			errorMsg = *listUsersResp.Message
+		}
+		c.log.Errorf("List users failed: %s", errorMsg)
+		return nil, fmt.Errorf("list users failed: %s", errorMsg)
+	}
+
+	c.log.Infof("Successfully listed %d users for accountName %s", len(listUsersResp.Data.Contents), accountName)
+	return &listUsersResp, nil
+}
+
+// SetUserEnabled 启用或禁用 ODC 用户
+func (c *SqlWorkbenchClient) SetUserEnabled(userID int64, enabled bool, cookie string) (*SetUserEnabledResponse, error) {
+	c.log.Infof("Attempting to set user enabled=%v for id=%d", enabled, userID)
+
+	setEnabledURL := fmt.Sprintf("%s/api/v2/iam/users/%d/setEnabled?currentOrganizationId=1", c.baseURL, userID)
+	payload := SetEnabledRequest{Enabled: enabled}
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal setEnabled request: %v", err)
+	}
+
+	req, err := http.NewRequest("POST", setEnabledURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create setEnabled request: %v", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Cookie", cookie)
+	req.Header.Set("X-Xsrf-Token", c.ExtractCookieValue(cookie, "XSRF-TOKEN"))
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		c.log.Errorf("Failed to send setEnabled request: %v", err)
+		return nil, fmt.Errorf("failed to send setEnabled request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read setEnabled response: %v", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		c.log.Errorf("setEnabled failed with status code: %d, response: %s", resp.StatusCode, string(body))
+		return nil, fmt.Errorf("setEnabled failed with status code: %d", resp.StatusCode)
+	}
+
+	var setEnabledResp SetUserEnabledResponse
+	if err := json.Unmarshal(body, &setEnabledResp); err != nil {
+		return nil, fmt.Errorf("failed to parse setEnabled response: %v", err)
+	}
+	if !setEnabledResp.Successful {
+		errorMsg := "setEnabled failed"
+		if setEnabledResp.Message != nil {
+			errorMsg = *setEnabledResp.Message
+		}
+		return nil, fmt.Errorf("%s", errorMsg)
+	}
+
+	c.log.Infof("Successfully set user enabled=%v for id=%d", enabled, userID)
+	return &setEnabledResp, nil
+}
+
+// ResetUserPassword 管理员重置用户密码（newPassword 明文，内部 RSA 加密）
+func (c *SqlWorkbenchClient) ResetUserPassword(userID int64, newPassword, publicKey, cookie string) (*ResetUserPasswordResponse, error) {
+	c.log.Infof("Attempting to reset password for user id=%d", userID)
+
+	encryptedPassword, err := c.EncryptPasswordWithRSA(newPassword, publicKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encrypt new password: %v", err)
+	}
+
+	resetURL := fmt.Sprintf("%s/api/v2/iam/users/resetPassword?id=%d&currentOrganizationId=1", c.baseURL, userID)
+	payload := ResetPasswordRequest{NewPassword: encryptedPassword}
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal resetPassword request: %v", err)
+	}
+
+	req, err := http.NewRequest("POST", resetURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create resetPassword request: %v", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Cookie", cookie)
+	req.Header.Set("X-Xsrf-Token", c.ExtractCookieValue(cookie, "XSRF-TOKEN"))
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		c.log.Errorf("Failed to send resetPassword request: %v", err)
+		return nil, fmt.Errorf("failed to send resetPassword request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read resetPassword response: %v", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		c.log.Errorf("resetPassword failed with status code: %d, response: %s", resp.StatusCode, string(body))
+		return nil, fmt.Errorf("resetPassword failed with status code: %d", resp.StatusCode)
+	}
+
+	var resetResp ResetUserPasswordResponse
+	if err := json.Unmarshal(body, &resetResp); err != nil {
+		return nil, fmt.Errorf("failed to parse resetPassword response: %v", err)
+	}
+	if !resetResp.Successful {
+		errorMsg := "resetPassword failed"
+		if resetResp.Message != nil {
+			errorMsg = *resetResp.Message
+		}
+		return nil, fmt.Errorf("%s", errorMsg)
+	}
+
+	c.log.Infof("Successfully reset password for user id=%d", userID)
+	return &resetResp, nil
 }
 
 // ActivateUser 激活用户
@@ -919,6 +1154,63 @@ type CreateUsersResponse struct {
 	Code    *string     `json:"code,omitempty"`
 	Message *string     `json:"message,omitempty"`
 	Error   interface{} `json:"error,omitempty"`
+}
+
+// ListUsersResponse 查询用户列表响应
+type ListUsersResponse struct {
+	Data struct {
+		Contents []User `json:"contents"`
+	} `json:"data"`
+	DurationMillis int64   `json:"durationMillis"`
+	HTTPStatus     string  `json:"httpStatus"`
+	RequestID      string  `json:"requestId"`
+	Server         string  `json:"server"`
+	Successful     bool    `json:"successful"`
+	Timestamp      float64 `json:"timestamp"`
+	TraceID        string  `json:"traceId"`
+	Code           *string `json:"code,omitempty"`
+	Message        *string `json:"message,omitempty"`
+	Error          interface{} `json:"error,omitempty"`
+}
+
+// SetEnabledRequest 启用/禁用用户请求
+type SetEnabledRequest struct {
+	Enabled bool `json:"enabled"`
+}
+
+// SetUserEnabledResponse 启用/禁用用户响应
+type SetUserEnabledResponse struct {
+	Data           User    `json:"data"`
+	DurationMillis int64   `json:"durationMillis"`
+	HTTPStatus     string  `json:"httpStatus"`
+	RequestID      string  `json:"requestId"`
+	Server         string  `json:"server"`
+	Successful     bool    `json:"successful"`
+	Timestamp      float64 `json:"timestamp"`
+	TraceID        string  `json:"traceId"`
+	Code           *string `json:"code,omitempty"`
+	Message        *string `json:"message,omitempty"`
+	Error          interface{} `json:"error,omitempty"`
+}
+
+// ResetPasswordRequest 管理员重置密码请求
+type ResetPasswordRequest struct {
+	NewPassword string `json:"newPassword"`
+}
+
+// ResetUserPasswordResponse 管理员重置密码响应
+type ResetUserPasswordResponse struct {
+	Data           User    `json:"data"`
+	DurationMillis int64   `json:"durationMillis"`
+	HTTPStatus     string  `json:"httpStatus"`
+	RequestID      string  `json:"requestId"`
+	Server         string  `json:"server"`
+	Successful     bool    `json:"successful"`
+	Timestamp      float64 `json:"timestamp"`
+	TraceID        string  `json:"traceId"`
+	Code           *string `json:"code,omitempty"`
+	Message        *string `json:"message,omitempty"`
+	Error          interface{} `json:"error,omitempty"`
 }
 
 // Organization 组织结构

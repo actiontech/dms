@@ -217,6 +217,7 @@ type SqlWorkbenchUser struct {
 type SqlWorkbenchUserRepo interface {
 	GetSqlWorkbenchUserByDMSUserID(ctx context.Context, dmsUserID string) (*SqlWorkbenchUser, bool, error)
 	SaveSqlWorkbenchUserCache(ctx context.Context, user *SqlWorkbenchUser) error
+	DeleteSqlWorkbenchUserCache(ctx context.Context, dmsUserID string) error
 }
 
 // SqlWorkbenchDatasource SqlWorkbench数据源缓存
@@ -233,7 +234,13 @@ type SqlWorkbenchDatasourceRepo interface {
 	GetSqlWorkbenchDatasourceByDMSDBServiceID(ctx context.Context, dmsDBServiceID, dmsUserID, purpose string) (*SqlWorkbenchDatasource, bool, error)
 	SaveSqlWorkbenchDatasourceCache(ctx context.Context, datasource *SqlWorkbenchDatasource) error
 	DeleteSqlWorkbenchDatasourceCache(ctx context.Context, dmsDBServiceID, dmsUserID, purpose string) error
+	DeleteSqlWorkbenchDatasourceCachesByUserID(ctx context.Context, dmsUserID string) error
 	GetSqlWorkbenchDatasourcesByUserID(ctx context.Context, dmsUserID string) ([]*SqlWorkbenchDatasource, error)
+}
+
+// SqlWorkbenchLifecycle 删除 DMS 用户时的 SqlWorkbench/ODC 生命周期清理（策略 B）
+type SqlWorkbenchLifecycle interface {
+	CleanupOnDMSUserDelete(ctx context.Context, dmsUserID, dmsUserName string) error
 }
 
 type UserUsecase struct {
@@ -247,7 +254,13 @@ type UserUsecase struct {
 	ldapConfigurationUsecase  *LDAPConfigurationUsecase
 	cloudBeaverRepo           CloudbeaverRepo
 	gatewayUsecase            *GatewayUsecase
+	sqlWorkbenchLifecycle     SqlWorkbenchLifecycle
 	log                       *utilLog.Helper
+}
+
+// SetSqlWorkbenchLifecycle 注入策略 B 清理能力（由 apiserver 在 SqlWorkbenchService 就绪后接线）
+func (d *UserUsecase) SetSqlWorkbenchLifecycle(lifecycle SqlWorkbenchLifecycle) {
+	d.sqlWorkbenchLifecycle = lifecycle
 }
 
 func NewUserUsecase(log utilLog.Logger, tx TransactionGenerator, repo UserRepo, userGroupRepo UserGroupRepo, pluginUsecase *PluginUsecase, opPermissionUsecase *OpPermissionUsecase,
@@ -717,6 +730,13 @@ func (d *UserUsecase) DelUser(ctx context.Context, currentUserUid, UserUid strin
 
 	if err := d.cloudBeaverRepo.DeleteAllCloudbeaverCachesByUserId(tx, UserUid); nil != err {
 		return fmt.Errorf("delete cloudbeaver cache failed: %v", err)
+	}
+
+	// 策略 B：清 SqlWorkbench 缓存 + 会话，并对 ODC 对应用户禁用（ODC 失败不阻断）
+	if d.sqlWorkbenchLifecycle != nil {
+		if err := d.sqlWorkbenchLifecycle.CleanupOnDMSUserDelete(tx, UserUid, ds.Name); err != nil {
+			return fmt.Errorf("delete sql workbench cache failed: %v", err)
+		}
 	}
 
 	if err := d.repo.DelUser(tx, UserUid); nil != err {
