@@ -226,6 +226,7 @@ func (d *DMSService) GetDataExportWorkflow(ctx context.Context, req *dmsV1.GetDa
 		WorkflowRecord: dmsV1.WorkflowRecord{
 			CurrentStepNumber: uint(w.WorkflowRecord.CurrentWorkflowStepId),
 			Status:            dmsV1.DataExportWorkflowStatus(w.WorkflowRecord.Status),
+			ExportFailSummary: w.WorkflowRecord.ExportFailSummary,
 		},
 	}
 
@@ -297,14 +298,16 @@ func (d *DMSService) BatchGetDataExportTask(ctx context.Context, req *dmsV1.Batc
 	data := make([]*dmsV1.GetDataExportTask, 0)
 	for _, task := range tasks {
 		data = append(data, &dmsV1.GetDataExportTask{
-			TaskUid:         task.UID,
-			DBInfo:          dmsV1.TaskDBInfo{UidWithName: convertBizUidWithName(d.DBServiceUsecase.GetBizDBWithNameByUids(ctx, []string{task.DBServiceUid}))[0], DBType: "", DatabaseName: task.DatabaseName},
-			Status:          dmsV1.DataExportTaskStatus(task.ExportStatus),
-			ExportStartTime: task.ExportStartTime,
-			ExportEndTime:   task.ExportEndTime,
-			FileName:        task.ExportFileName,
-			ExportType:      task.ExportType,
-			ExportFileType:  task.ExportFileType,
+			TaskUid:          task.UID,
+			DBInfo:           dmsV1.TaskDBInfo{UidWithName: convertBizUidWithName(d.DBServiceUsecase.GetBizDBWithNameByUids(ctx, []string{task.DBServiceUid}))[0], DBType: "", DatabaseName: task.DatabaseName},
+			Status:           dmsV1.DataExportTaskStatus(task.ExportStatus),
+			ExportStartTime:  task.ExportStartTime,
+			ExportEndTime:    task.ExportEndTime,
+			FileName:         task.ExportFileName,
+			ExportType:       task.ExportType,
+			ExportFileType:   task.ExportFileType,
+			ExportFailStage:  task.ExportFailStage,
+			ExportFailReason: task.ExportFailReason,
 			AuditResult: dmsV1.AuditTaskResult{
 				AuditLevel: task.AuditLevel,
 				Score:      task.AuditScore,
@@ -352,6 +355,7 @@ func (d *DMSService) ListDataExportTaskSQLs(ctx context.Context, req *dmsV1.List
 			ExportSQL:     w.ExportSQL,
 			AuditLevel:    w.AuditLevel,
 			ExportResult:  w.ExportResult,
+			ExportStatus:  w.ExportStatus.String(),
 			ExportSQLType: w.ExportSQLType,
 		}
 		if d.UnmaskingWorkflowUsecase != nil {

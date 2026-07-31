@@ -137,6 +137,7 @@ NotifyDataWorkflowBodyHead = "\n📋 Data Export Workflow Topic: %v\n📍 Projec
 NotifyDataWorkflowBodyInstanceAndSchema = "🗄️ Data Source: %v\n📊 Schema: %v"
 NotifyDataWorkflowBodyLink = "🔗 Data Export Workflow Link: %v"
 NotifyDataWorkflowBodyReason = "❌ Rejection Reason: %v"
+NotifyDataWorkflowBodyExportFailReason = "❌ Failure Reason: %v"
 NotifyDataWorkflowBodyReport = "⭐ Data Export Workflow Audit Score: %v"
 NotifyDataWorkflowBodyStartEnd = "▶️ Execute Start Time: %v\n◀️ Execute End Time: %v"
 NotifyDataWorkflowBodyWorkFlowErr = "⚠️ Failed to read data export workflow task content, please check the workflow status through the SQLE interface"

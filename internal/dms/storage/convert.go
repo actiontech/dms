@@ -1100,6 +1100,7 @@ func convertBizWorkflowRecord(b *biz.WorkflowRecord) *model.WorkflowRecord {
 		CurrentWorkflowStepId: b.CurrentWorkflowStepId,
 		Status:                b.Status.String(),
 		TaskIds:               taskIds,
+		ExportFailSummary:     b.ExportFailSummary,
 	}
 	if b.WorkflowSteps != nil {
 		for _, step := range b.WorkflowSteps {
@@ -1116,6 +1117,7 @@ func convertModelWorkflowRecord(m *model.WorkflowRecord) (wr *biz.WorkflowRecord
 		Tasks:                 make([]biz.Task, 0),
 		CurrentWorkflowStepId: m.CurrentWorkflowStepId,
 		CurrentStep:           convertModelWorkflowStep(m, m.CurrentWorkflowStepId),
+		ExportFailSummary:     m.ExportFailSummary,
 	}
 
 	if len(m.Steps) != 0 {
@@ -1183,6 +1185,8 @@ func convertBizDataExportTask(b *biz.DataExportTask) *model.DataExportTask {
 		ExportStatus:      b.ExportStatus.String(),
 		ExportStartTime:   b.ExportStartTime,
 		ExportEndTime:     b.ExportEndTime,
+		ExportFailStage:   b.ExportFailStage,
+		ExportFailReason:  b.ExportFailReason,
 		AuditPassRate:     b.AuditPassRate,
 		AuditScore:        b.AuditScore,
 		AuditLevel:        b.AuditLevel,
@@ -1213,6 +1217,8 @@ func convertModelDataExportTask(m *model.DataExportTask) *biz.DataExportTask {
 		ExportStatus:      biz.DataExportTaskStatus(m.ExportStatus),
 		ExportStartTime:   m.ExportStartTime,
 		ExportEndTime:     m.ExportEndTime,
+		ExportFailStage:   m.ExportFailStage,
+		ExportFailReason:  m.ExportFailReason,
 	}
 	if m.DataExportTaskRecords != nil {
 		for _, r := range m.DataExportTaskRecords {
@@ -1230,6 +1236,7 @@ func convertBizDataExportTaskRecords(b *biz.DataExportTaskRecord) *model.DataExp
 		ExportSQL:        b.ExportSQL,
 		ExportSQLType:    b.ExportSQLType,
 		ExportResult:     b.ExportResult,
+		ExportStatus:     b.ExportStatus.String(),
 		AuditLevel:       b.AuditLevel,
 		AuditResults:     b.AuditSQLResults,
 	}
@@ -1244,6 +1251,7 @@ func convertModelDataExportTaskRecords(m *model.DataExportTaskRecord) *biz.DataE
 		ExportSQLType:    m.ExportSQLType,
 		AuditLevel:       m.AuditLevel,
 		ExportResult:     m.ExportResult,
+		ExportStatus:     biz.DataExportSQLExportStatus(m.ExportStatus),
 		AuditSQLResults:  m.AuditResults,
 	}
 	return b

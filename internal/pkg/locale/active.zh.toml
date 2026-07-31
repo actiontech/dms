@@ -137,6 +137,7 @@ NotifyDataWorkflowBodyHead = "\n📋 数据导出工单主题: %v\n📍 所属�
 NotifyDataWorkflowBodyInstanceAndSchema = "🗄️ 数据源: %v\n📊 schema: %v\n"
 NotifyDataWorkflowBodyLink = "🔗 数据导出工单链接: %v"
 NotifyDataWorkflowBodyReason = "❌ 驳回原因: %v"
+NotifyDataWorkflowBodyExportFailReason = "❌ 失败原因: %v"
 NotifyDataWorkflowBodyReport = "⭐ 数据导出工单审核得分: %v"
 NotifyDataWorkflowBodyStartEnd = "▶️ 数据导出开始时间: %v\n◀️ 数据导出结束时间: %v"
 NotifyDataWorkflowBodyWorkFlowErr = "❌ 读取工单任务内容失败，请通过SQLE界面确认工单状态"

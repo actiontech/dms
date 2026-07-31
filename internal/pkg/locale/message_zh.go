@@ -259,6 +259,7 @@ var (
 	NotifyDataWorkflowBodyInstanceAndSchema = &i18n.Message{ID: "NotifyDataWorkflowBodyInstanceAndSchema", Other: "🗄️ 数据源: %v\n📊 schema: %v\n"}
 	NotifyDataWorkflowBodyLink              = &i18n.Message{ID: "NotifyDataWorkflowBodyLink", Other: "🔗 数据导出工单链接: %v"}
 	NotifyDataWorkflowBodyReason            = &i18n.Message{ID: "NotifyDataWorkflowBodyReason", Other: "❌ 驳回原因: %v"}
+	NotifyDataWorkflowBodyExportFailReason  = &i18n.Message{ID: "NotifyDataWorkflowBodyExportFailReason", Other: "❌ 失败原因: %v"}
 	NotifyDataWorkflowBodyReport            = &i18n.Message{ID: "NotifyDataWorkflowBodyReport", Other: "⭐ 数据导出工单审核得分: %v"}
 	NotifyDataWorkflowBodyStartEnd          = &i18n.Message{ID: "NotifyDataWorkflowBodyStartEnd", Other: "▶️ 数据导出开始时间: %v\n◀️ 数据导出结束时间: %v"}
 	NotifyDataWorkflowBodyWorkFlowErr       = &i18n.Message{ID: "NotifyDataWorkflowBodyWorkFlowErr", Other: "❌ 读取工单任务内容失败，请通过SQLE界面确认工单状态"}
