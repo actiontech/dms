@@ -509,6 +509,8 @@ type WorkflowRecord struct {
 	CurrentWorkflowStepId uint64  `json:"current_workflow_step_id"`
 	Status                string  `gorm:"default:\"wait_for_export\""`
 	TaskIds               Strings `json:"task_ids" gorm:"type:json"`
+	// ExportFailSummary 导出执行失败时的工单级人类可读摘要；成功或非导出失败为空
+	ExportFailSummary string `json:"export_fail_summary" gorm:"type:text"`
 
 	Steps []*WorkflowStep `gorm:"foreignkey:WorkflowRecordUid"`
 }
@@ -572,7 +574,11 @@ type DataExportTask struct {
 	ExportStatus      string     `json:"export_status" gorm:"column:export_status;size:32"`
 	ExportStartTime   *time.Time `json:"export_start_time" gorm:"column:export_start_time"`
 	ExportEndTime     *time.Time `json:"export_end_time" gorm:"column:export_end_time"`
-	CreateUserUID     string     `json:"create_user_uid" gorm:"size:32;column:create_user_uid"`
+	// ExportFailStage 任务失败阶段 wire（connect/prepare/sql_execute/file_generate/...）；成功为空
+	ExportFailStage string `json:"export_fail_stage" gorm:"column:export_fail_stage;size:32"`
+	// ExportFailReason 任务失败人类可读原因；成功为空
+	ExportFailReason string `json:"export_fail_reason" gorm:"column:export_fail_reason;type:text"`
+	CreateUserUID    string     `json:"create_user_uid" gorm:"size:32;column:create_user_uid"`
 	// Audit Result
 	AuditPassRate float64 `json:"audit_pass_rate"`
 	AuditScore    int32   `json:"audit_score"`

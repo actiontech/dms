@@ -2334,6 +2334,14 @@ definitions:
                 format: date-time
                 type: string
                 x-go-name: ExportEndTime
+            export_fail_reason:
+                description: 失败人类可读原因；非失败可省略
+                type: string
+                x-go-name: ExportFailReason
+            export_fail_stage:
+                description: '失败阶段 wire：task_schedule / connect / prepare / sql_execute / file_generate；非失败可省略'
+                type: string
+                x-go-name: ExportFailStage
             export_file_type:
                 type: string
                 x-go-name: ExportFileType
@@ -4306,11 +4314,20 @@ definitions:
                 type: array
                 x-go-name: AuditSQLResult
             export_result:
+                description: 导出结果（人类可读；成败以 export_status 为准）
                 type: string
                 x-go-name: ExportResult
             export_sql_type:
                 type: string
                 x-go-name: ExportSQLType
+            export_status:
+                description: 导出执行状态 success/failed/not_executed；未开始可为空
+                enum:
+                    - success
+                    - failed
+                    - not_executed
+                type: string
+                x-go-name: ExportStatus
             lineage_analysis_snapshot:
                 $ref: '#/definitions/AnalyzeResult'
             masking_config_snapshot:
@@ -9731,6 +9748,10 @@ definitions:
                 format: uint64
                 type: integer
                 x-go-name: CurrentStepNumber
+            export_fail_summary:
+                description: 导出失败摘要（人类可读）；失败类状态时有值，成功/非导出失败为空
+                type: string
+                x-go-name: ExportFailSummary
             status:
                 enum:
                     - wait_for_approve

@@ -318,6 +318,19 @@ func (d *WorkflowRepo) UpdateWorkflowStatusById(ctx context.Context, dataExportW
 	})
 }
 
+func (d *WorkflowRepo) UpdateWorkflowExportStatusById(ctx context.Context, dataExportWorkflowUid string, status biz.DataExportWorkflowStatus, exportFailSummary string) error {
+	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		fields := map[string]interface{}{
+			"status":              status,
+			"export_fail_summary": exportFailSummary,
+		}
+		if err := tx.WithContext(ctx).Model(&model.WorkflowRecord{}).Where("uid = ?", dataExportWorkflowUid).Updates(fields).Error; err != nil {
+			return fmt.Errorf("failed to update workflow export status, err: %v", err)
+		}
+		return nil
+	})
+}
+
 func (d *WorkflowRepo) CancelWorkflow(ctx context.Context, workflowRecordIds []string, workflowSteps []*biz.WorkflowStep, operateId string) error {
 	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Model(&model.WorkflowRecord{}).Where("uid in (?)", workflowRecordIds).Update("status", biz.DataExportWorkflowStatusCancel).Error; err != nil {

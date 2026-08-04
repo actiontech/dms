@@ -85,7 +85,10 @@ type GetDataExportTask struct {
 	AuditResult     AuditTaskResult      `json:"audit_result"`
 	ExportType      string               `json:"export_type"`      // Export Type example: SQL Meta
 	ExportFileType  string               `json:"export_file_type"` // Export Content example: CSV SQL EXCEL
-
+	// 失败阶段 wire：task_schedule / connect / prepare / sql_execute / file_generate；非失败可省略
+	ExportFailStage string `json:"export_fail_stage,omitempty"`
+	// 失败人类可读原因；非失败可省略
+	ExportFailReason string `json:"export_fail_reason,omitempty"`
 }
 
 // SQL审核结果
@@ -122,9 +125,13 @@ type ListDataExportTaskSQLsReply struct {
 }
 
 type ListDataExportTaskSQL struct {
-	ID             uint             `json:"uid"`
-	ExportSQL      string           `json:"sql"`
-	ExportResult   string           `json:"export_result"` // 导出结果
+	ID        uint   `json:"uid"`
+	ExportSQL string `json:"sql"`
+	// 导出结果（人类可读；成败以 export_status 为准）
+	ExportResult string `json:"export_result"`
+	// 导出执行状态：success / failed / not_executed；未开始可为空
+	// Enum: success,failed,not_executed
+	ExportStatus   string           `json:"export_status"`
 	ExportSQLType  string           `json:"export_sql_type"`
 	AuditLevel     string           `json:"audit_level"`
 	AuditSQLResult []AuditSQLResult `json:"audit_sql_result"`

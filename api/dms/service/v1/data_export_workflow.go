@@ -298,7 +298,9 @@ type WorkflowRecord struct {
 	Tasks             []*Task                  `json:"tasks"`
 	CurrentStepNumber uint                     `json:"current_step_number,omitempty"`
 	Status            DataExportWorkflowStatus `json:"status"`
-	Steps             []*WorkflowStep          `json:"workflow_step_list,omitempty"`
+	// 导出失败摘要（人类可读）；失败类状态时有值，成功/非导出失败为空
+	ExportFailSummary string `json:"export_fail_summary,omitempty"`
+	Steps             []*WorkflowStep `json:"workflow_step_list,omitempty"`
 }
 
 type Task struct {

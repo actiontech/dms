@@ -96,6 +96,8 @@ type WorkflowRecord struct {
 	CurrentStep           *WorkflowStep
 	WorkflowSteps         []*WorkflowStep
 	UpdateTime            time.Time
+	// ExportFailSummary 导出失败摘要（持久化）；成功/非失败为空
+	ExportFailSummary string
 }
 
 type WorkflowStep struct {
@@ -114,6 +116,8 @@ type WorkflowRepo interface {
 	ListDataExportWorkflows(ctx context.Context, opt *ListWorkflowsOption) ([]*Workflow, int64, error)
 	GetDataExportWorkflow(ctx context.Context, dataExportWorkflowUid string) (*Workflow, error)
 	UpdateWorkflowStatusById(ctx context.Context, dataExportWorkflowUid string, status DataExportWorkflowStatus) error
+	// UpdateWorkflowExportStatusById 更新工单导出状态与失败摘要（进入 exporting 时 summary 传空以清空上一轮）
+	UpdateWorkflowExportStatusById(ctx context.Context, dataExportWorkflowUid string, status DataExportWorkflowStatus, exportFailSummary string) error
 	GetDataExportWorkflowsByIds(ctx context.Context, dataExportWorkflowUid []string) ([]*Workflow, error)
 	CancelWorkflow(ctx context.Context, workflowRecordIds []string, workflowSteps []*WorkflowStep, operateId string) error
 	AuditWorkflow(ctx context.Context, dataExportWorkflowUid string, status DataExportWorkflowStatus, step *WorkflowStep, operateId, reason string) error
