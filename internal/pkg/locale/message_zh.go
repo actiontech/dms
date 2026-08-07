@@ -273,6 +273,10 @@ var (
 	OpRecordCurrentUserUpdate                        = &i18n.Message{ID: "OpRecordCurrentUserUpdate", Other: "更新个人中心账号基本信息"}
 	OpRecordUserUpdate                               = &i18n.Message{ID: "OpRecordUserUpdate", Other: "更新用户 %s"}
 	OpRecordUserDelete                               = &i18n.Message{ID: "OpRecordUserDelete", Other: "删除用户 %s"}
+	OpRecordUserLoginWithName                        = &i18n.Message{ID: "OpRecordUserLoginWithName", Other: "用户 %s 登入系统"}
+	OpRecordUserLogoutWithName                       = &i18n.Message{ID: "OpRecordUserLogoutWithName", Other: "用户 %s 登出系统"}
+	OpRecordUserOAuth2LoginWithName                  = &i18n.Message{ID: "OpRecordUserOAuth2LoginWithName", Other: "用户 %s 通过OAuth2登入系统"}
+	OpRecordUserOAuth2BindLoginWithName              = &i18n.Message{ID: "OpRecordUserOAuth2BindLoginWithName", Other: "用户 %s 通过OAuth2绑定登入系统"}
 	OpRecordMemberCreate                             = &i18n.Message{ID: "OpRecordMemberCreate", Other: "添加成员"}
 	OpRecordMemberCreateWithName                     = &i18n.Message{ID: "OpRecordMemberCreateWithName", Other: "添加成员 %s"}
 	OpRecordMemberUpdate                             = &i18n.Message{ID: "OpRecordMemberUpdate", Other: "更新成员 %s"}
