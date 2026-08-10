@@ -30,7 +30,6 @@ import (
 
 	dmsV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	"github.com/actiontech/dms/pkg/dms-common/api/jwt"
-	i18nPkg "github.com/actiontech/dms/pkg/dms-common/i18nPkg"
 
 	utilLog "github.com/actiontech/dms/pkg/dms-common/pkg/log"
 
@@ -744,7 +743,7 @@ func (ctl *DMSController) AddSession(c echo.Context) error {
 				OperationAction:      "login",
 				OperationProjectName:  "",
 				OperationStatus:      "succeeded",
-				OperationI18nContent: i18nPkg.ConvertStr2I18nAsDefaultLang(fmt.Sprintf("用户 %s 登入系统", user.Name)),
+				OperationI18nContent: locale.Bundle.LocalizeAllWithArgs(locale.OpRecordUserLoginWithName, user.Name),
 			},
 		}
 		_, err = ctl.DMS.AddOperationRecord(c.Request().Context(), recordReq)
@@ -821,7 +820,7 @@ func (ctl *DMSController) DelSession(c echo.Context) error {
 					OperationAction:      "logout",
 					OperationProjectName:  "",
 					OperationStatus:      "succeeded",
-					OperationI18nContent: i18nPkg.ConvertStr2I18nAsDefaultLang(fmt.Sprintf("用户 %s 登出系统", user.Name)),
+					OperationI18nContent: locale.Bundle.LocalizeAllWithArgs(locale.OpRecordUserLogoutWithName, user.Name),
 				},
 			}
 			_, err = ctl.DMS.AddOperationRecord(c.Request().Context(), recordReq)
@@ -2806,7 +2805,7 @@ func (ctl *DMSController) oauth2Callback(c echo.Context) error {
 						OperationAction:      "login",
 						OperationProjectName: "",
 						OperationStatus:      "succeeded",
-						OperationI18nContent: i18nPkg.ConvertStr2I18nAsDefaultLang(fmt.Sprintf("用户 %s 通过OAuth2登入系统", user.Name)),
+						OperationI18nContent: locale.Bundle.LocalizeAllWithArgs(locale.OpRecordUserOAuth2LoginWithName, user.Name),
 					},
 				}
 				_, err = ctl.DMS.AddOperationRecord(c.Request().Context(), recordReq)
@@ -2897,7 +2896,7 @@ func (ctl *DMSController) BindOauth2User(c echo.Context) error {
 					OperationAction:      "login",
 					OperationProjectName: "",
 					OperationStatus:      "succeeded",
-					OperationI18nContent: i18nPkg.ConvertStr2I18nAsDefaultLang(fmt.Sprintf("用户 %s 通过OAuth2绑定登入系统", user.Name)),
+					OperationI18nContent: locale.Bundle.LocalizeAllWithArgs(locale.OpRecordUserOAuth2BindLoginWithName, user.Name),
 				},
 			}
 			_, err = ctl.DMS.AddOperationRecord(c.Request().Context(), recordReq)
