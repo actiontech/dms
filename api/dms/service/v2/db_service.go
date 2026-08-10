@@ -108,8 +108,8 @@ type DBService struct {
 	// Required: true
 	User string `json:"user"`
 	// DB Service admin password
-	// Required: true
-	Password string `json:"password" validate:"required"`
+	// Required: false — empty string allowed (e.g. GBase-8a)
+	Password string `json:"password"`
 	// DB Service environment tag
 	// Required: true
 	EnvironmentTagUID string `json:"environment_tag_uid" validate:"required"`

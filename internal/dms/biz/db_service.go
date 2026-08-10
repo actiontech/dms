@@ -743,9 +743,7 @@ func (d *DBServiceUsecase) UpdateDBServiceByArgs(ctx context.Context, dbServiceU
 			ds.Desc = *updateDBService.Desc
 		}
 		if updateDBService.Password != nil {
-			if *updateDBService.Password == "" {
-				return fmt.Errorf("password can't be empty")
-			}
+			// empty string allowed (align with Add API; e.g. GBase-8a)
 			ds.Password = *updateDBService.Password
 		}
 
