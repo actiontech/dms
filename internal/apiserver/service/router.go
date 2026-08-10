@@ -532,6 +532,9 @@ func (s *APIServer) installController() error {
 	}
 	s.SqlWorkbenchController.SqlWorkbenchService.SetSqlResultMasker(masker)
 
+	// 策略 B：DMS 删用户时清理 SqlWorkbench 缓存/会话并禁用 ODC 对应用户
+	s.DMSController.DMS.UserUsecase.SetSqlWorkbenchLifecycle(s.SqlWorkbenchController.SqlWorkbenchService)
+
 	// s.AuthController.RegisterPlugin(s.DMSController.GetRegisterPluginFn())
 	return nil
 }

@@ -62,7 +62,15 @@ type odcSession struct {
 var (
 	dmsUserIdODCSessionMap = make(map[string]odcSession)
 	odcSessionMutex        = &sync.Mutex{}
+	ensureUserLocks        sync.Map // accountName -> *sync.Mutex，串行化同账号 ensure，避免并发重置密码
 )
+
+func lockEnsureSqlWorkbenchUser(accountName string) func() {
+	v, _ := ensureUserLocks.LoadOrStore(accountName, &sync.Mutex{})
+	mu := v.(*sync.Mutex)
+	mu.Lock()
+	return mu.Unlock
+}
 
 // generateSqlWorkbenchUsername 生成 SQL Workbench 用户名
 func (s *SqlWorkbenchService) generateSqlWorkbenchUsername(dmsUserName string) string {
@@ -283,14 +291,14 @@ func (sqlWorkbenchService *SqlWorkbenchService) Login() echo.MiddlewareFunc {
 				return err
 			}
 
-			// 3. 如果用户不存在，调用sqlworkbench创建用户接口进行创建
+			// 3. 缓存未命中：策略 A — 先查 ODC 再创建，冲突再查绑定
 			if !exists {
-				err = sqlWorkbenchService.createSqlWorkbenchUser(c.Request().Context(), user)
+				err = sqlWorkbenchService.ensureSqlWorkbenchUser(c.Request().Context(), user)
 				if err != nil {
-					sqlWorkbenchService.log.Errorf("Failed to create sql workbench user: %v", err)
+					sqlWorkbenchService.log.Errorf("Failed to ensure sql workbench user: %v", err)
 					return err
 				}
-				// 重新获取创建后的用户信息
+				// 重新获取绑定/创建后的用户信息
 				sqlWorkbenchUser, _, err = sqlWorkbenchService.sqlWorkbenchUserRepo.GetSqlWorkbenchUserByDMSUserID(c.Request().Context(), dmsUserId)
 				if err != nil {
 					sqlWorkbenchService.log.Errorf("Failed to get created sql workbench user: %v", err)
@@ -320,18 +328,29 @@ func (sqlWorkbenchService *SqlWorkbenchService) Login() echo.MiddlewareFunc {
 	}
 }
 
-// createSqlWorkbenchUser 创建SqlWorkbench用户
-func (sqlWorkbenchService *SqlWorkbenchService) createSqlWorkbenchUser(ctx context.Context, dmsUser *biz.User) error {
+// ensureSqlWorkbenchUser 策略 A：映射缺失时先查 ODC，命中则复用绑定；无则创建；创建冲突再查绑定
+func (sqlWorkbenchService *SqlWorkbenchService) ensureSqlWorkbenchUser(ctx context.Context, dmsUser *biz.User) error {
+	accountName := sqlWorkbenchService.generateSqlWorkbenchUsername(dmsUser.Name)
+	unlock := lockEnsureSqlWorkbenchUser(accountName)
+	defer unlock()
+
 	cookie, _, publicKey, err := sqlWorkbenchService.getUserCookie(sqlWorkbenchService.cfg.AdminUser, sqlWorkbenchService.cfg.AdminPassword)
 	if err != nil {
 		return err
 	}
 
-	// 创建用户请求
-	sqlWorkbenchUsername := sqlWorkbenchService.generateSqlWorkbenchUsername(dmsUser.Name)
+	odcUser, err := sqlWorkbenchService.findExactSqlWorkbenchUser(accountName, cookie)
+	if err != nil {
+		return err
+	}
+	if odcUser != nil {
+		sqlWorkbenchService.log.Infof("Found existing sql workbench user %s (ID: %d), binding for DMS user %s", accountName, odcUser.ID, dmsUser.Name)
+		return sqlWorkbenchService.bindExistingSqlWorkbenchUser(ctx, dmsUser, odcUser, publicKey, cookie)
+	}
+
 	createUserReq := []client.CreateUserRequest{
 		{
-			AccountName: sqlWorkbenchUsername,
+			AccountName: accountName,
 			Name:        dmsUser.Name,
 			Password:    SQL_WORKBENCH_DEFAULT_PASSWORD,
 			Enabled:     true,
@@ -339,9 +358,22 @@ func (sqlWorkbenchService *SqlWorkbenchService) createSqlWorkbenchUser(ctx conte
 		},
 	}
 
-	// 调用创建用户接口
 	createUserResp, err := sqlWorkbenchService.client.CreateUsers(createUserReq, publicKey, cookie)
 	if err != nil {
+		// 冲突（DuplicatedExists）或并发创建写冲突（如 DataAccessError）：再查绑定
+		sqlWorkbenchService.log.Infof("Create sql workbench user failed for %s: %v; re-list and try bind", accountName, err)
+		odcUser, listErr := sqlWorkbenchService.findExactSqlWorkbenchUser(accountName, cookie)
+		if listErr != nil {
+			return fmt.Errorf("failed to create user in sql workbench: %v (re-list: %v)", err, listErr)
+		}
+		if odcUser != nil {
+			if client.IsCreateUsersConflict(err) {
+				sqlWorkbenchService.log.Infof("Create conflict for %s, binding existing user", accountName)
+			} else {
+				sqlWorkbenchService.log.Infof("Create failed but user %s now exists, binding", accountName)
+			}
+			return sqlWorkbenchService.bindExistingSqlWorkbenchUser(ctx, dmsUser, odcUser, publicKey, cookie)
+		}
 		return fmt.Errorf("failed to create user in sql workbench: %v", err)
 	}
 
@@ -349,9 +381,8 @@ func (sqlWorkbenchService *SqlWorkbenchService) createSqlWorkbenchUser(ctx conte
 		return fmt.Errorf("no user created in sql workbench")
 	}
 
-	// 激活用户
 	activateUserResp, err := sqlWorkbenchService.client.ActivateUser(
-		sqlWorkbenchService.generateSqlWorkbenchUsername(dmsUser.Name),
+		accountName,
 		SQL_WORKBENCH_DEFAULT_PASSWORD,
 		SQL_WORKBENCH_REAL_PASSWORD,
 		publicKey,
@@ -361,20 +392,97 @@ func (sqlWorkbenchService *SqlWorkbenchService) createSqlWorkbenchUser(ctx conte
 		return fmt.Errorf("failed to activate user in sql workbench: %v", err)
 	}
 
-	// 保存用户缓存
 	sqlWorkbenchUser := &biz.SqlWorkbenchUser{
-		SqlWorkbenchUsername: sqlWorkbenchService.generateSqlWorkbenchUsername(dmsUser.Name),
+		SqlWorkbenchUsername: accountName,
 		DMSUserID:            dmsUser.UID,
 		SqlWorkbenchUserId:   activateUserResp.Data.ID,
 	}
-
-	err = sqlWorkbenchService.sqlWorkbenchUserRepo.SaveSqlWorkbenchUserCache(ctx, sqlWorkbenchUser)
-	if err != nil {
+	if err = sqlWorkbenchService.sqlWorkbenchUserRepo.SaveSqlWorkbenchUserCache(ctx, sqlWorkbenchUser); err != nil {
 		return fmt.Errorf("failed to save sql workbench user cache: %v", err)
 	}
 
 	sqlWorkbenchService.log.Infof("Successfully created and activated sql workbench user for DMS user %s (ID: %d)", dmsUser.Name, activateUserResp.Data.ID)
 	return nil
+}
+
+// findExactSqlWorkbenchUser 按 accountName 精确匹配；0 返回 nil；>1 硬失败
+func (sqlWorkbenchService *SqlWorkbenchService) findExactSqlWorkbenchUser(accountName, cookie string) (*client.User, error) {
+	listResp, err := sqlWorkbenchService.client.ListUsers(accountName, cookie)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list sql workbench users: %v", err)
+	}
+
+	matches := make([]client.User, 0)
+	for _, u := range listResp.Data.Contents {
+		if u.AccountName == accountName {
+			matches = append(matches, u)
+		}
+	}
+	switch len(matches) {
+	case 0:
+		return nil, nil
+	case 1:
+		user := matches[0]
+		return &user, nil
+	default:
+		return nil, fmt.Errorf("ambiguous sql workbench users for accountName %s: found %d", accountName, len(matches))
+	}
+}
+
+// bindExistingSqlWorkbenchUser 复用已有 ODC 账户：ensureUsable 后写本地映射
+func (sqlWorkbenchService *SqlWorkbenchService) bindExistingSqlWorkbenchUser(ctx context.Context, dmsUser *biz.User, odcUser *client.User, publicKey, cookie string) error {
+	if err := sqlWorkbenchService.ensureSqlWorkbenchUserUsable(odcUser, publicKey, cookie); err != nil {
+		return err
+	}
+
+	sqlWorkbenchUser := &biz.SqlWorkbenchUser{
+		SqlWorkbenchUsername: sqlWorkbenchService.generateSqlWorkbenchUsername(dmsUser.Name),
+		DMSUserID:            dmsUser.UID,
+		SqlWorkbenchUserId:   odcUser.ID,
+	}
+	if err := sqlWorkbenchService.sqlWorkbenchUserRepo.SaveSqlWorkbenchUserCache(ctx, sqlWorkbenchUser); err != nil {
+		return fmt.Errorf("failed to save sql workbench user cache: %v", err)
+	}
+
+	sqlWorkbenchService.log.Infof("Successfully bound existing sql workbench user %s (ID: %d) for DMS user %s", sqlWorkbenchUser.SqlWorkbenchUsername, odcUser.ID, dmsUser.Name)
+	return nil
+}
+
+// ensureSqlWorkbenchUserUsable 启用（若禁用）并强制对齐代管登录密码。
+// ODC admin resetPassword 会将 active 置为 false，故先重置为 DEFAULT 再 Activate(DEFAULT→REAL)，
+// 最终密码为 SQL_WORKBENCH_REAL_PASSWORD 且账户可用（与新建路径一致）。
+// 若代管密码已可登录则跳过重置，避免并发绑定互相踩密码。
+func (sqlWorkbenchService *SqlWorkbenchService) ensureSqlWorkbenchUserUsable(odcUser *client.User, publicKey, cookie string) error {
+	if !odcUser.Enabled {
+		if _, err := sqlWorkbenchService.client.SetUserEnabled(odcUser.ID, true, cookie); err != nil {
+			return fmt.Errorf("failed to enable sql workbench user: %v", err)
+		}
+	}
+
+	if _, err := sqlWorkbenchService.client.Login(odcUser.AccountName, SQL_WORKBENCH_REAL_PASSWORD, publicKey); err == nil {
+		sqlWorkbenchService.log.Infof("sql workbench user %s already usable with managed password, skip reset", odcUser.AccountName)
+		return nil
+	}
+
+	if _, err := sqlWorkbenchService.client.ResetUserPassword(odcUser.ID, SQL_WORKBENCH_DEFAULT_PASSWORD, publicKey, cookie); err != nil {
+		return fmt.Errorf("failed to reset sql workbench user password: %v", err)
+	}
+
+	if _, err := sqlWorkbenchService.client.ActivateUser(
+		odcUser.AccountName,
+		SQL_WORKBENCH_DEFAULT_PASSWORD,
+		SQL_WORKBENCH_REAL_PASSWORD,
+		publicKey,
+		cookie,
+	); err != nil {
+		return fmt.Errorf("failed to activate sql workbench user after password reset: %v", err)
+	}
+	return nil
+}
+
+// createSqlWorkbenchUser 保留为 ensure 新建路径的语义别名（测试/兼容调用）
+func (sqlWorkbenchService *SqlWorkbenchService) createSqlWorkbenchUser(ctx context.Context, dmsUser *biz.User) error {
+	return sqlWorkbenchService.ensureSqlWorkbenchUser(ctx, dmsUser)
 }
 
 // loginSqlWorkbenchUser 使用SqlWorkbench用户登录并设置Cookie
@@ -460,6 +568,80 @@ func (sqlWorkbenchService *SqlWorkbenchService) clearODCSession(dmsUserId string
 	defer odcSessionMutex.Unlock()
 
 	delete(dmsUserIdODCSessionMap, dmsUserId)
+}
+
+// CleanupOnDMSUserDelete 策略 B：删除 DMS 用户时清理 SqlWorkbench 缓存/会话并对 ODC 用户禁用（非删除）
+// B1–B3 缓存失败返回 error（阻断 DMS 删除）；B4 忽略不存在；B5 ODC 禁用失败仅记日志不返回 error。
+func (sqlWorkbenchService *SqlWorkbenchService) CleanupOnDMSUserDelete(ctx context.Context, dmsUserID, dmsUserName string) error {
+	// B1: 读用户缓存（记下 ODC user id，供 B5）
+	cachedUser, _, err := sqlWorkbenchService.sqlWorkbenchUserRepo.GetSqlWorkbenchUserByDMSUserID(ctx, dmsUserID)
+	if err != nil {
+		return fmt.Errorf("get sql workbench user cache failed: %v", err)
+	}
+
+	var odcUserID int64
+	var odcUsername string
+	if cachedUser != nil {
+		odcUserID = cachedUser.SqlWorkbenchUserId
+		odcUsername = cachedUser.SqlWorkbenchUsername
+	}
+
+	// B2: 删数据源缓存
+	if err := sqlWorkbenchService.sqlWorkbenchDatasourceRepo.DeleteSqlWorkbenchDatasourceCachesByUserID(ctx, dmsUserID); err != nil {
+		return fmt.Errorf("delete sql workbench datasource caches failed: %v", err)
+	}
+
+	// B3: 删用户缓存
+	if err := sqlWorkbenchService.sqlWorkbenchUserRepo.DeleteSqlWorkbenchUserCache(ctx, dmsUserID); err != nil {
+		return fmt.Errorf("delete sql workbench user cache failed: %v", err)
+	}
+
+	// B4: 清内存会话
+	sqlWorkbenchService.clearODCSession(dmsUserID)
+
+	// B5: ODC 禁用（失败不阻断）
+	sqlWorkbenchService.disableODCUserOnDMSDelete(odcUserID, odcUsername, dmsUserName)
+
+	sqlWorkbenchService.log.Infof("SqlWorkbench cleanup on DMS user delete done: dmsUserId=%s name=%s", dmsUserID, dmsUserName)
+	return nil
+}
+
+// disableODCUserOnDMSDelete 对 ODC 对应用户执行 setEnabled(false)；任何失败只记日志
+func (sqlWorkbenchService *SqlWorkbenchService) disableODCUserOnDMSDelete(odcUserID int64, cachedUsername, dmsUserName string) {
+	if !sqlWorkbenchService.IsConfigured() || sqlWorkbenchService.client == nil {
+		sqlWorkbenchService.log.Infof("SqlWorkbench not configured, skip ODC disable for DMS user %s", dmsUserName)
+		return
+	}
+
+	cookie, _, _, err := sqlWorkbenchService.getUserCookie(sqlWorkbenchService.cfg.AdminUser, sqlWorkbenchService.cfg.AdminPassword)
+	if err != nil {
+		sqlWorkbenchService.log.Errorf("ODC disable skipped: admin login failed for DMS user %s: %v", dmsUserName, err)
+		return
+	}
+
+	targetID := odcUserID
+	if targetID == 0 {
+		accountName := cachedUsername
+		if accountName == "" {
+			accountName = sqlWorkbenchService.generateSqlWorkbenchUsername(dmsUserName)
+		}
+		odcUser, listErr := sqlWorkbenchService.findExactSqlWorkbenchUser(accountName, cookie)
+		if listErr != nil {
+			sqlWorkbenchService.log.Errorf("ODC disable skipped: list user %s failed: %v", accountName, listErr)
+			return
+		}
+		if odcUser == nil {
+			sqlWorkbenchService.log.Infof("ODC disable no-op: no unique user for %s", accountName)
+			return
+		}
+		targetID = odcUser.ID
+	}
+
+	if _, err := sqlWorkbenchService.client.SetUserEnabled(targetID, false, cookie); err != nil {
+		sqlWorkbenchService.log.Errorf("ODC disable failed for user id=%d (DMS user %s): %v", targetID, dmsUserName, err)
+		return
+	}
+	sqlWorkbenchService.log.Infof("ODC user id=%d disabled after DMS user %s delete", targetID, dmsUserName)
 }
 
 // validateODCSession 验证 ODC 会话是否有效

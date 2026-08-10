@@ -45,6 +45,15 @@ func (sr *SqlWorkbenchRepo) SaveSqlWorkbenchUserCache(ctx context.Context, user 
 	})
 }
 
+func (sr *SqlWorkbenchRepo) DeleteSqlWorkbenchUserCache(ctx context.Context, dmsUserID string) error {
+	return transaction(sr.log, ctx, sr.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Where("dms_user_id = ?", dmsUserID).Delete(&model.SqlWorkbenchUserCache{}).Error; err != nil {
+			return fmt.Errorf("failed to delete sql workbench user cache: %v", err)
+		}
+		return nil
+	})
+}
+
 func convertModelSqlWorkbenchUser(user *model.SqlWorkbenchUserCache) *biz.SqlWorkbenchUser {
 	return &biz.SqlWorkbenchUser{
 		DMSUserID:            user.DMSUserID,
@@ -105,6 +114,15 @@ func (sr *SqlWorkbenchDatasourceRepo) DeleteSqlWorkbenchDatasourceCache(ctx cont
 	return transaction(sr.log, ctx, sr.db, func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Where("dms_db_service_id = ? AND dms_user_id = ? AND purpose = ?", dmsDBServiceID, dmsUserID, purpose).Delete(&model.SqlWorkbenchDatasourceCache{}).Error; err != nil {
 			return fmt.Errorf("failed to delete sql workbench datasource cache: %v", err)
+		}
+		return nil
+	})
+}
+
+func (sr *SqlWorkbenchDatasourceRepo) DeleteSqlWorkbenchDatasourceCachesByUserID(ctx context.Context, dmsUserID string) error {
+	return transaction(sr.log, ctx, sr.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Where("dms_user_id = ?", dmsUserID).Delete(&model.SqlWorkbenchDatasourceCache{}).Error; err != nil {
+			return fmt.Errorf("failed to delete sql workbench datasource caches by user id: %v", err)
 		}
 		return nil
 	})
