@@ -115,7 +115,7 @@ func newDBServiceUsecaseForEmptyPasswordTest(repo *fakeDBServiceRepoForPassword)
 	return NewDBServiceUsecase(logger, repo, nil, pluginUC, opUC, projectUC, nil, envUC)
 }
 
-func TestUpdateDBServiceByArgs_EmptyPasswordAllowed(t *testing.T) {
+func TestUpdateDBServiceByArgs_EmptyPasswordRejected(t *testing.T) {
 	repo := &fakeDBServiceRepoForPassword{
 		svc: &DBService{
 			UID:        "ds-1",
@@ -138,14 +138,14 @@ func TestUpdateDBServiceByArgs_EmptyPasswordAllowed(t *testing.T) {
 		Password:          &empty,
 		EnvironmentTagUID: "env-1",
 	}, pkgConst.UIDOfUserAdmin)
-	if err != nil {
-		t.Fatalf("expected Update with password=\"\" to succeed (not \"password can't be empty\"), got: %v", err)
+	if err == nil {
+		t.Fatal("expected Update with password=\"\" to fail")
 	}
-	if repo.updated == nil {
-		t.Fatal("expected UpdateDBService to be called")
+	if !strings.Contains(err.Error(), "password can't be empty") {
+		t.Fatalf("expected \"password can't be empty\", got: %v", err)
 	}
-	if repo.updated.Password != "" {
-		t.Fatalf("expected stored password to be empty string, got %q", repo.updated.Password)
+	if repo.updated != nil {
+		t.Fatal("expected UpdateDBService not to be called when password is empty")
 	}
 }
 
@@ -163,13 +163,13 @@ func TestUpdateDBServiceByArgs_MissingHostStillRejected(t *testing.T) {
 		},
 	}
 	uc := newDBServiceUsecaseForEmptyPasswordTest(repo)
-	empty := ""
+	pwd := "not-empty"
 	err := uc.UpdateDBServiceByArgs(context.Background(), "ds-1", &BizDBServiceArgs{
 		DBType:            "GBase-8a",
 		Host:              "",
 		Port:              "5258",
 		User:              "root",
-		Password:          &empty,
+		Password:          &pwd,
 		EnvironmentTagUID: "env-1",
 	}, pkgConst.UIDOfUserAdmin)
 	if err == nil {
@@ -177,8 +177,5 @@ func TestUpdateDBServiceByArgs_MissingHostStillRejected(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "host") {
 		t.Fatalf("expected host-related error, got: %v", err)
-	}
-	if strings.Contains(err.Error(), "password can't be empty") {
-		t.Fatalf("must not fail on legacy empty-password check: %v", err)
 	}
 }

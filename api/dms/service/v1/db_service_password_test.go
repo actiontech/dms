@@ -7,7 +7,7 @@ import (
 	utilConf "github.com/actiontech/dms/pkg/dms-common/pkg/config"
 )
 
-func TestAddDBServiceReq_EmptyPasswordAllowed(t *testing.T) {
+func TestAddDBServiceReq_EmptyPasswordRejected(t *testing.T) {
 	t.Parallel()
 
 	base := func(password string) *AddDBServiceReq {
@@ -28,17 +28,20 @@ func TestAddDBServiceReq_EmptyPasswordAllowed(t *testing.T) {
 
 	t.Run("password_empty_string", func(t *testing.T) {
 		t.Parallel()
-		if err := utilConf.Validate(base("")); err != nil {
-			t.Fatalf("expected empty password to pass Add validation, got: %v", err)
+		err := utilConf.Validate(base(""))
+		if err == nil {
+			t.Fatal("expected empty password to fail Add validation")
+		}
+		msg := strings.ToLower(err.Error())
+		if !strings.Contains(msg, "password") || !strings.Contains(msg, "required") {
+			t.Fatalf("expected Password required validation error, got: %v", err)
 		}
 	})
 
-	t.Run("password_omitted_zero_value", func(t *testing.T) {
+	t.Run("password_non_empty_passes_password_rule", func(t *testing.T) {
 		t.Parallel()
-		req := base("")
-		req.DBService.Password = "" // JSON omit binds to zero value
-		if err := utilConf.Validate(req); err != nil {
-			t.Fatalf("expected omitted/zero password to pass Add validation, got: %v", err)
+		if err := utilConf.Validate(base("not-empty")); err != nil {
+			t.Fatalf("expected non-empty password to pass Add validation, got: %v", err)
 		}
 	})
 }
@@ -54,7 +57,7 @@ func TestAddDBServiceReq_MissingHostStillRequired(t *testing.T) {
 			Host:     "",
 			Port:     "5258",
 			User:     "root",
-			Password: "",
+			Password: "not-empty",
 			Business: "default",
 		},
 	}
@@ -66,8 +69,5 @@ func TestAddDBServiceReq_MissingHostStillRequired(t *testing.T) {
 	msg := err.Error()
 	if !strings.Contains(msg, "Host") || !strings.Contains(msg, "required") {
 		t.Fatalf("expected Host required validation error, got: %v", err)
-	}
-	if strings.Contains(strings.ToLower(msg), "password") {
-		t.Fatalf("Host failure must not be attributed to password: %v", err)
 	}
 }
