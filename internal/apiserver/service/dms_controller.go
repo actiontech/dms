@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -40,7 +41,8 @@ type DMSController struct {
 	DMS                *service.DMSService
 	CloudbeaverService *service.CloudbeaverService
 
-	log *utilLog.Helper
+	log         *utilLog.Helper
+	enableHttps bool
 	shutdownCallback func() error
 }
 
@@ -49,11 +51,16 @@ func NewDMSController(logger utilLog.Logger, opts *conf.DMSOptions, cbService *s
 	if nil != err {
 		return nil, fmt.Errorf("failed to init dms service: %v", err)
 	}
+	enableHttps := false
+	if opts != nil && opts.APIServiceOpts != nil {
+		enableHttps = opts.APIServiceOpts.EnableHttps
+	}
 	return &DMSController{
 		// log:   log.NewHelper(log.With(logger, "module", "controller/DMS")),
 		DMS:                dmsService,
 		CloudbeaverService: cbService,
-		log: utilLog.NewHelper(logger, utilLog.WithMessageKey("controller")),
+		log:                utilLog.NewHelper(logger, utilLog.WithMessageKey("controller")),
+		enableHttps:        enableHttps,
 		shutdownCallback: func() error {
 			if err := dmsService.Shutdown(); err != nil {
 				return err
@@ -4203,13 +4210,16 @@ func (ctl *DMSController) DownloadDataExportTask(c echo.Context) error {
 
 	isProxy, filePath, err := ctl.DMS.DownloadDataExportTask(c.Request().Context(), req, currentUserUid)
 	if nil != err {
+		ctl.log.Errorf("DownloadDataExportTask failed: task_uid=%s user_uid=%s error=%v", req.DataExportTaskUid, currentUserUid, err)
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 
 	if isProxy {
+		ctl.log.Infof("DownloadDataExportTask proxy: task_uid=%s user_uid=%s report_host=%s", req.DataExportTaskUid, currentUserUid, filePath)
 		return ctl.proxyDownloadDataExportTask(c, filePath)
 	}
 
+	ctl.log.Infof("DownloadDataExportTask local: task_uid=%s user_uid=%s file=%s", req.DataExportTaskUid, currentUserUid, filePath)
 	fileName := filepath.Base(filePath)
 	c.Response().Header().Set(echo.HeaderContentDisposition,
 		mime.FormatMediaType("attachment", map[string]string{"filename": fileName}))
@@ -4217,12 +4227,32 @@ func (ctl *DMSController) DownloadDataExportTask(c echo.Context) error {
 	return c.File(filePath)
 }
 
+// nodeProxyScheme returns the scheme used for inter-node reverse proxy.
+// Cluster nodes are assumed to share the same dms.api.enable_https setting.
+func nodeProxyScheme(enableHttps bool) string {
+	if enableHttps {
+		return "https"
+	}
+	return "http"
+}
+
 func (ctl *DMSController) proxyDownloadDataExportTask(c echo.Context, reportHost string) (err error) {
-	protocol := strings.ToLower(strings.Split(c.Request().Proto, "/")[0])
+	scheme := nodeProxyScheme(ctl.enableHttps)
+	target, err := url.Parse(fmt.Sprintf("%s://%s", scheme, reportHost))
+	if err != nil {
+		ctl.log.Errorf("proxyDownloadDataExportTask invalid target: report_host=%s scheme=%s error=%v", reportHost, scheme, err)
+		return echo.NewHTTPError(http.StatusBadGateway, fmt.Sprintf("invalid report host %s: %v", reportHost, err))
+	}
+	ctl.log.Infof("proxyDownloadDataExportTask target=%s", target.String())
 
 	// reference from echo framework proxy middleware
-	target, _ := url.Parse(fmt.Sprintf("%s://%s", protocol, reportHost))
 	reverseProxy := httputil.NewSingleHostReverseProxy(target)
+	if scheme == "https" {
+		// Inter-node traffic is internal; certificates are often self-signed without IP SANs.
+		reverseProxy.Transport = &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, //nolint:gosec // cluster internal proxy
+		}
+	}
 	reverseProxy.ErrorHandler = func(resp http.ResponseWriter, req *http.Request, err error) {
 		// If the client canceled the request (usually by closing the connection), we can report a
 		// client error (4xx) instead of a server error (5xx) to correctly identify the situation.
@@ -4230,10 +4260,12 @@ func (ctl *DMSController) proxyDownloadDataExportTask(c echo.Context, reportHost
 		// context.Canceled error with unexported garbage value requiring a substring check, see
 		// https://github.com/golang/go/blob/6965b01ea248cabb70c3749fd218b36089a21efb/src/net/net.go#L416-L430
 		if err == context.Canceled || strings.Contains(err.Error(), "operation was canceled") {
+			ctl.log.Errorf("proxyDownloadDataExportTask client closed connection: target=%s error=%v", target.String(), err)
 			httpError := echo.NewHTTPError(middleware.StatusCodeContextCanceled, fmt.Sprintf("client closed connection: %v", err))
 			httpError.Internal = err
 			c.Set("_error", httpError)
 		} else {
+			ctl.log.Errorf("proxyDownloadDataExportTask unreachable: target=%s error=%v", target.String(), err)
 			httpError := echo.NewHTTPError(http.StatusBadGateway, fmt.Sprintf("remote %s unreachable, could not forward: %v", reportHost, err))
 			httpError.Internal = err
 			c.Set("_error", httpError)
