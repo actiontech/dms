@@ -52,6 +52,7 @@ type DMSService struct {
 	SystemVariableUsecase       *biz.SystemVariableUsecase
 	OperationRecordUsecase      *biz.OperationRecordUsecase
 	MaintenanceTimeUsecase      *biz.MaintenanceTimeUsecase
+	UserActivityUsecase         *biz.UserActivityUsecase
 	log                         *utilLog.Helper
 	shutdownCallback            func() error
 }
@@ -150,6 +151,8 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	maintenanceTimeUsecase := biz.NewMaintenanceTimeUsecase(logger, opPermissionVerifyUsecase)
 	operationRecordRepo := storage.NewOperationRecordRepo(logger, st)
 	operationRecordUsecase := biz.NewOperationRecordUsecase(logger, operationRecordRepo, systemVariableUsecase)
+	userActivityRepo := storage.NewUserActivityRepo(logger, st)
+	userActivityUsecase := biz.NewUserActivityUsecase(logger, userActivityRepo, systemVariableUsecase)
 	cbOperationRepo := storage.NewCbOperationLogRepo(logger, st)
 	CbOperationLogUsecase := biz.NewCbOperationLogUsecase(logger, cbOperationRepo, opPermissionVerifyUsecase, dmsProxyTargetRepo, systemVariableUsecase)
 	workflowRepo := storage.NewWorkflowRepo(logger, st)
@@ -173,7 +176,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	authAccessTokenUsecase := biz.NewAuthAccessTokenUsecase(logger, userUsecase)
 	authLoginSessionUsecase := biz.NewAuthLoginSessionUsecase(logger, userUsecase, loginConfigurationUsecase)
 
-	cronTask := biz.NewCronTaskUsecase(logger, DataExportWorkflowUsecase, CbOperationLogUsecase, operationRecordUsecase, oauth2SessionUsecase)
+	cronTask := biz.NewCronTaskUsecase(logger, DataExportWorkflowUsecase, CbOperationLogUsecase, operationRecordUsecase, userActivityUsecase, oauth2SessionUsecase)
 	err = cronTask.InitialTask()
 	if err != nil {
 		return nil, fmt.Errorf("failed to new cron task: %v", err)
@@ -220,6 +223,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		SystemVariableUsecase:       systemVariableUsecase,
 		OperationRecordUsecase:      operationRecordUsecase,
 		MaintenanceTimeUsecase:      maintenanceTimeUsecase,
+		UserActivityUsecase:         userActivityUsecase,
 		log:                         utilLog.NewHelper(logger, utilLog.WithMessageKey("dms.service")),
 		shutdownCallback: func() error {
 			stopDataMaskingScheduler()

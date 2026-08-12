@@ -100,5 +100,12 @@ func convertModelSystemVariables(variables []*model.SystemVariable) map[string]b
 		}
 	}
 
+	if _, ok := sysVariables[biz.SystemVariableUserRequestLogExpiredHours]; !ok {
+		sysVariables[biz.SystemVariableUserRequestLogExpiredHours] = biz.SystemVariable{
+			Key:   biz.SystemVariableUserRequestLogExpiredHours,
+			Value: strconv.Itoa(biz.DefaultUserRequestLogExpiredHours),
+		}
+	}
+
 	return sysVariables
 }

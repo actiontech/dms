@@ -625,11 +625,17 @@ func (d *DMSService) GetSystemVariables(ctx context.Context, currentUserUid stri
 		return nil, err
 	}
 
+	userRequestLogExpiredHours, err := strconv.Atoi(variables[biz.SystemVariableUserRequestLogExpiredHours].Value)
+	if err != nil {
+		return nil, err
+	}
+
 	return &dmsCommonV1.GetSystemVariablesReply{
 		Data: dmsCommonV1.SystemVariablesResV1{
 			Url:                                variables[biz.SystemVariableSqleUrl].Value,
 			OperationRecordExpiredHours:        operationRecordExpiredHours,
 			CbOperationLogsExpiredHours:        cbOperationLogsExpiredHours,
+			UserRequestLogExpiredHours:         userRequestLogExpiredHours,
 			SystemVariableSSHPrimaryKey:        variables[biz.SystemVariableSSHPrimaryKey].Value,
 			SystemVariableWorkflowExpiredHours: systemVariableWorkflowExpiredHours,
 		},
@@ -672,6 +678,13 @@ func (d *DMSService) UpdateSystemVariables(ctx context.Context, req *dmsCommonV1
 		variables = append(variables, &biz.SystemVariable{
 			Key:   biz.SystemVariableCbOperationLogsExpiredHours,
 			Value: fmt.Sprintf("%d", *req.CbOperationLogsExpiredHours),
+		})
+	}
+
+	if req.UserRequestLogExpiredHours != nil {
+		variables = append(variables, &biz.SystemVariable{
+			Key:   biz.SystemVariableUserRequestLogExpiredHours,
+			Value: fmt.Sprintf("%d", *req.UserRequestLogExpiredHours),
 		})
 	}
 

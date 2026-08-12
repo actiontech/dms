@@ -11,6 +11,7 @@ type CronTaskUsecase struct {
 	workflowUsecase        *DataExportWorkflowUsecase
 	cbOperationLogUsecase  *CbOperationLogUsecase
 	operationRecordUsecase *OperationRecordUsecase
+	userActivityUsecase    *UserActivityUsecase
 	licenseUsecase         *LicenseUsecase
 	oauth2SessionUsecase   *OAuth2SessionUsecase
 }
@@ -18,13 +19,14 @@ type cronTask struct {
 	cron *cron.Cron
 }
 
-func NewCronTaskUsecase(log utilLog.Logger, wu *DataExportWorkflowUsecase, cu *CbOperationLogUsecase, oru *OperationRecordUsecase, os *OAuth2SessionUsecase) *CronTaskUsecase {
+func NewCronTaskUsecase(log utilLog.Logger, wu *DataExportWorkflowUsecase, cu *CbOperationLogUsecase, oru *OperationRecordUsecase, uau *UserActivityUsecase, os *OAuth2SessionUsecase) *CronTaskUsecase {
 	ctu := &CronTaskUsecase{
 		log:                    utilLog.NewHelper(log, utilLog.WithMessageKey("biz.cronTask")),
 		cronTask:               &cronTask{cron: cron.New()},
 		workflowUsecase:        wu,
 		cbOperationLogUsecase:  cu,
 		operationRecordUsecase: oru,
+		userActivityUsecase:    uau,
 		oauth2SessionUsecase:   os,
 	}
 	return ctu
@@ -52,6 +54,10 @@ func (ctu *CronTaskUsecase) InitialTask() error {
 	}
 
 	if _, err := ctu.cronTask.cron.AddFunc("@hourly", ctu.oauth2SessionUsecase.DeleteExpiredSessions); err != nil {
+		return err
+	}
+
+	if err := ctu.registerUserActivityCronTasks(); err != nil {
 		return err
 	}
 

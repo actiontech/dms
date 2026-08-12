@@ -13,6 +13,7 @@ const (
 	SystemVariableOperationRecordExpiredHours = "system_variable_operation_record_expired_hours"
 	SystemVariableCbOperationLogsExpiredHours = "system_variable_cb_operation_logs_expired_hours"
 	SystemVariableSSHPrimaryKey               = "system_variable_ssh_primary_key"
+	SystemVariableUserRequestLogExpiredHours  = "system_variable_user_request_log_expired_hours"
 )
 
 const (
@@ -20,6 +21,7 @@ const (
 	DefaultCbOperationLogsExpiredHours        = 90 * 24
 	DefaultSystemVariableWorkflowExpiredHours  = 30 * 24
 	DefaultSystemVariableSqlManageRawExpiredHours= 30 * 24
+	DefaultUserRequestLogExpiredHours             = 90 * 24
 )
 
 // SystemVariable 系统变量业务模型
