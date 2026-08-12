@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/url"
 	"strings"
 	"sync"
@@ -19,6 +20,7 @@ import (
 type ProxyTargetRepo interface {
 	SaveProxyTarget(ctx context.Context, u *ProxyTarget) error
 	UpdateProxyTarget(ctx context.Context, u *ProxyTarget) error
+	DeleteProxyTargetByName(ctx context.Context, name string) error
 	ListProxyTargets(ctx context.Context) ([]*ProxyTarget, error)
 	ListProxyTargetsByScenarios(ctx context.Context, scenarios []ProxyScenario) ([]*ProxyTarget, error)
 	GetProxyTargetByName(ctx context.Context, name string) (*ProxyTarget, error)
@@ -197,6 +199,59 @@ func (d *DmsProxyUsecase) ListProxyTargets(ctx context.Context) ([]*ProxyTarget,
 
 func (d *DmsProxyUsecase) ListProxyTargetsByScenarios(ctx context.Context, scenarios []ProxyScenario) ([]*ProxyTarget, error) {
 	return d.repo.ListProxyTargetsByScenarios(ctx, scenarios)
+}
+
+// IsRegisteredServiceIP reports whether clientIP equals the host IP of any registered ProxyTarget URL.
+// Domains without a parseable IPv4 host do not exempt (no silent allow). defaultTargetSelf is excluded.
+// Exemption follows registration lifecycle: present in memory after register; gone after DeleteProxyTargetByName.
+func (d *DmsProxyUsecase) IsRegisteredServiceIP(clientIP string) bool {
+	if d == nil || clientIP == "" {
+		return false
+	}
+	ip := net.ParseIP(clientIP)
+	if ip == nil || ip.To4() == nil {
+		return false
+	}
+	client := ip.To4().String()
+
+	d.mutex.RLock()
+	defer d.mutex.RUnlock()
+	for _, t := range d.targets {
+		if t == nil || t.URL == nil {
+			continue
+		}
+		host := t.URL.Hostname()
+		hostIP := net.ParseIP(host)
+		if hostIP == nil || hostIP.To4() == nil {
+			continue
+		}
+		if hostIP.To4().String() == client {
+			return true
+		}
+	}
+	return false
+}
+
+// DeleteProxyTargetByName removes a registration from DB and memory so IP exemption is cancelled immediately.
+func (d *DmsProxyUsecase) DeleteProxyTargetByName(ctx context.Context, name string) error {
+	if name == "" {
+		return fmt.Errorf("proxy target name is empty")
+	}
+	d.mutex.Lock()
+	defer d.mutex.Unlock()
+
+	if err := d.repo.DeleteProxyTargetByName(ctx, name); err != nil {
+		return err
+	}
+	next := make([]*ProxyTarget, 0, len(d.targets))
+	for _, t := range d.targets {
+		if t == nil || t.Name == name {
+			continue
+		}
+		next = append(next, t)
+	}
+	d.targets = next
+	return nil
 }
 
 // AddTarget实现echo的ProxyBalancer接口， 没有实际意义

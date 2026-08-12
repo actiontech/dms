@@ -218,6 +218,12 @@ func (s *APIServer) initRouter() error {
 		configurationV1.GET("/license/usage", s.DMSController.GetLicenseUsage)            /* TODO AdminUserAllowed()*/
 		configurationV1.GET("/system_variables", s.DMSController.GetSystemVariables)      /* TODO AdminUserAllowed()*/
 		configurationV1.PATCH("/system_variables", s.DMSController.UpdateSystemVariables) /* TODO AdminUserAllowed()*/
+		configurationV1.GET("/access_restriction", s.DMSController.GetAccessRestriction)
+		configurationV1.PATCH("/access_restriction", s.DMSController.UpdateAccessRestriction)
+		configurationV1.POST("/access_restriction/rules", s.DMSController.CreateAccessWhitelistRule)
+		configurationV1.PUT("/access_restriction/rules/:rule_uid", s.DMSController.UpdateAccessWhitelistRule)
+		configurationV1.DELETE("/access_restriction/rules/:rule_uid", s.DMSController.DeleteAccessWhitelistRule)
+		configurationV1.GET("/access_restriction/client_ip", s.DMSController.GetAccessRestrictionClientIP)
 		// notify
 		notificationV1 := v1.Group(dmsV1.NotificationRouterGroup)
 		notificationV1.POST("", s.DMSController.Notify) /* TODO AdminUserAllowed()*/
@@ -383,6 +389,9 @@ func (s *APIServer) installMiddleware() error {
 			}
 		}
 	}(allowedMethods))
+
+	// Access restriction: early global gate (before JWT). Order: register never-block → off allow → registered IP → whitelist → 403.
+	s.echo.Use(dmsMiddleware.AccessRestriction(s.DMSController.DMS.AccessRestrictionUsecase, s.DMSController.DMS.DmsProxyUsecase))
 
 	var skipJWTPaths = []string{
 		dmsV1.SessionRouterGroup,

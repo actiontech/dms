@@ -61,6 +61,7 @@ var AutoMigrateList = []interface{}{
 	Gateway{},
 	SystemVariable{},
 	OperationRecord{},
+	AccessWhitelistRule{},
 }
 
 type Model struct {
@@ -744,6 +745,18 @@ type Gateway struct {
 type SystemVariable struct {
 	Key   string `gorm:"primary_key"`
 	Value string `gorm:"not null;type:text"`
+}
+
+// AccessWhitelistRule stores IP/CIDR whitelist entries for access restriction.
+type AccessWhitelistRule struct {
+	Model
+	Source     string `json:"source" gorm:"column:source;size:64;not null;uniqueIndex"`
+	PolicyType string `json:"policy_type" gorm:"column:policy_type;size:32;not null;default:whitelist"`
+	Remark     string `json:"remark" gorm:"column:remark;size:255"`
+}
+
+func (AccessWhitelistRule) TableName() string {
+	return "access_whitelist_rules"
 }
 
 type OperationRecord struct {
