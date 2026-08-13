@@ -5026,6 +5026,183 @@ func (ctl *DMSController) UpdateSystemVariables(c echo.Context) error {
 	return NewOkResp(c)
 }
 
+// swagger:route GET /v1/dms/configurations/access_restriction Configuration GetAccessRestriction
+//
+// Get access restriction configuration.
+//
+//	responses:
+//	  200: body:GetAccessRestrictionReply
+//	  default: body:GenericResp
+func (ctl *DMSController) GetAccessRestriction(c echo.Context) error {
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	reply, err := ctl.DMS.GetAccessRestriction(c.Request().Context(), currentUserUid)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:operation PATCH /v1/dms/configurations/access_restriction Configuration UpdateAccessRestriction
+//
+// Update access restriction switch.
+//
+// ---
+// parameters:
+//   - name: access_restriction
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/UpdateAccessRestrictionReq"
+// responses:
+//   '200':
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) UpdateAccessRestriction(c echo.Context) error {
+	req := new(aV1.UpdateAccessRestrictionReq)
+	err := bindAndValidateReq(c, req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	err = ctl.DMS.UpdateAccessRestriction(c.Request().Context(), currentUserUid, req, biz.ExtractClientIP(c.Request()))
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkResp(c)
+}
+
+// swagger:operation POST /v1/dms/configurations/access_restriction/rules Configuration CreateAccessWhitelistRule
+//
+// Create access whitelist rule.
+//
+// ---
+// parameters:
+//   - name: rule
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/CreateAccessWhitelistRuleReq"
+// responses:
+//   '200':
+//     description: CreateAccessWhitelistRuleReply
+//     schema:
+//       "$ref": "#/definitions/CreateAccessWhitelistRuleReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) CreateAccessWhitelistRule(c echo.Context) error {
+	req := new(aV1.CreateAccessWhitelistRuleReq)
+	err := bindAndValidateReq(c, req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	reply, err := ctl.DMS.CreateAccessWhitelistRule(c.Request().Context(), currentUserUid, req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:operation PUT /v1/dms/configurations/access_restriction/rules/{rule_uid} Configuration UpdateAccessWhitelistRule
+//
+// Update access whitelist rule.
+//
+// ---
+// parameters:
+//   - name: rule_uid
+//     in: path
+//     required: true
+//     type: string
+//   - name: rule
+//     in: body
+//     required: true
+//     schema:
+//       "$ref": "#/definitions/UpdateAccessWhitelistRuleReq"
+// responses:
+//   '200':
+//     description: UpdateAccessWhitelistRuleReply
+//     schema:
+//       "$ref": "#/definitions/UpdateAccessWhitelistRuleReply"
+//   default:
+//     description: GenericResp
+//     schema:
+//       "$ref": "#/definitions/GenericResp"
+func (ctl *DMSController) UpdateAccessWhitelistRule(c echo.Context) error {
+	req := new(aV1.UpdateAccessWhitelistRuleReq)
+	err := bindAndValidateReq(c, req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	reply, err := ctl.DMS.UpdateAccessWhitelistRule(c.Request().Context(), currentUserUid, req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
+// swagger:route DELETE /v1/dms/configurations/access_restriction/rules/{rule_uid} Configuration DeleteAccessWhitelistRule
+//
+// Delete access whitelist rule.
+//
+//	responses:
+//	  200: body:GenericResp
+//	  default: body:GenericResp
+func (ctl *DMSController) DeleteAccessWhitelistRule(c echo.Context) error {
+	req := new(aV1.DeleteAccessWhitelistRuleReq)
+	err := bindAndValidateReq(c, req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.BadRequestErr)
+	}
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	err = ctl.DMS.DeleteAccessWhitelistRule(c.Request().Context(), currentUserUid, req)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkResp(c)
+}
+
+// swagger:route GET /v1/dms/configurations/access_restriction/client_ip Configuration GetAccessRestrictionClientIP
+//
+// Get current request client IP for access restriction.
+//
+//	responses:
+//	  200: body:GetAccessRestrictionClientIPReply
+//	  default: body:GenericResp
+func (ctl *DMSController) GetAccessRestrictionClientIP(c echo.Context) error {
+	currentUserUid, err := jwt.GetUserUidStrFromContext(c)
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	reply, err := ctl.DMS.GetAccessRestrictionClientIP(c.Request().Context(), currentUserUid, c.Request())
+	if err != nil {
+		return NewErrResp(c, err, apiError.DMSServiceErr)
+	}
+	return NewOkRespWithReply(c, reply)
+}
+
 // swagger:operation POST /v1/dms/operation_records OperationRecord AddOperationRecord
 //
 // Add operation record.

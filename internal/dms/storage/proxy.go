@@ -153,3 +153,12 @@ func (d *ProxyTargetRepo) GetProxyTargetByName(ctx context.Context, name string)
 
 	return t, nil
 }
+
+func (d *ProxyTargetRepo) DeleteProxyTargetByName(ctx context.Context, name string) error {
+	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Where("name = ?", name).Delete(&model.ProxyTarget{}).Error; err != nil {
+			return fmt.Errorf("failed to delete proxy target: %v", err)
+		}
+		return nil
+	})
+}

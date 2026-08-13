@@ -53,6 +53,7 @@ type DMSService struct {
 	OperationRecordUsecase      *biz.OperationRecordUsecase
 	MaintenanceTimeUsecase      *biz.MaintenanceTimeUsecase
 	UserActivityUsecase         *biz.UserActivityUsecase
+	AccessRestrictionUsecase    *biz.AccessRestrictionUsecase
 	log                         *utilLog.Helper
 	shutdownCallback            func() error
 }
@@ -148,6 +149,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 
 	swaggerUseCase := biz.NewSwaggerUseCase(logger, dmsProxyUsecase)
 	systemVariableUsecase := biz.NewSystemVariableUsecase(logger, storage.NewSystemVariableRepo(logger, st))
+	accessRestrictionUsecase := biz.NewAccessRestrictionUsecase(logger, storage.NewAccessRestrictionRepo(logger, st))
 	maintenanceTimeUsecase := biz.NewMaintenanceTimeUsecase(logger, opPermissionVerifyUsecase)
 	operationRecordRepo := storage.NewOperationRecordRepo(logger, st)
 	operationRecordUsecase := biz.NewOperationRecordUsecase(logger, operationRecordRepo, systemVariableUsecase)
@@ -224,6 +226,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		OperationRecordUsecase:      operationRecordUsecase,
 		MaintenanceTimeUsecase:      maintenanceTimeUsecase,
 		UserActivityUsecase:         userActivityUsecase,
+		AccessRestrictionUsecase:    accessRestrictionUsecase,
 		log:                         utilLog.NewHelper(logger, utilLog.WithMessageKey("dms.service")),
 		shutdownCallback: func() error {
 			stopDataMaskingScheduler()
