@@ -130,6 +130,7 @@ func TestParseDBType(t *testing.T) {
 		"MongoDB":           {input: "MongoDB", expected: DBTypeMongoDB},
 		"Redis":             {input: "Redis", expected: DBTypeRedis},
 		"KingBase":          {input: "KingBase", expected: DBTypeKingBase},
+		"GBase-8a":          {input: "GBase-8a", expected: DBTypeGBase8a},
 		// "PolarDB" 单独不应匹配
 		"PolarDB only": {input: "PolarDB", expectError: true},
 		"invalid type": {input: "UnknownDB", expectError: true},

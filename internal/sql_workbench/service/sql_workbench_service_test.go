@@ -151,6 +151,7 @@ func Test_convertDBType(t *testing.T) {
 		"Redis":               {input: "Redis", expected: "REDIS"},
 		"DB2":                 {input: "DB2", expected: "DB2"},
 		"KingBase":            {input: "KingBase", expected: "KINGBASE"},
+		"GBase-8a":            {input: "GBase-8a", expected: "GBASE_8A"},
 		"Unknown passthrough": {input: "UnknownDB", expected: "UnknownDB"},
 	}
 	for name, tc := range cases {
@@ -185,6 +186,7 @@ func Test_SupportDBType(t *testing.T) {
 		"GaussDBForMySQL unsupported": {input: pkgConst.DBTypeGaussDBForMySQL, expected: false},
 		"DB2 unsupported":             {input: pkgConst.DBTypeDB2, expected: false},
 		"KingBase supported":          {input: pkgConst.DBTypeKingBase, expected: true},
+		"GBase-8a supported":          {input: pkgConst.DBTypeGBase8a, expected: true},
 		"empty string unsupported":    {input: pkgConst.DBType(""), expected: false},
 		"unknown type unsupported":    {input: pkgConst.DBType("UnknownDBType"), expected: false},
 	}
@@ -312,6 +314,7 @@ func Test_buildDatasourceBaseInfo_DB2(t *testing.T) {
 		expectErrSubstr     string
 		expectDefaultSchema *string
 		expectServiceName   *string
+		expectJdbcVcName    *string // nil = 不要求 JDBCParams；非 nil = 断言 jdbcUrlParameters.vcName
 	}{
 		"DB2 happy path": {
 			dbService: &biz.DBService{
@@ -356,6 +359,53 @@ func Test_buildDatasourceBaseInfo_DB2(t *testing.T) {
 			expectDefaultSchema: nil,
 			expectServiceName:   strPtr("ORCL"),
 		},
+		"GBase-8a happy path defaults vc1": {
+			dbService: &biz.DBService{
+				Name:   "gbase8a-1",
+				DBType: string(pkgConst.DBTypeGBase8a),
+				AdditionalParams: pkgParams.Params{
+					{Key: "database", Value: "gbase"},
+				},
+			},
+			expectErr:           false,
+			expectDefaultSchema: strPtr("gbase"),
+			expectServiceName:   nil,
+			expectJdbcVcName:    strPtr("vc1"),
+		},
+		"GBase-8a vc_name override": {
+			dbService: &biz.DBService{
+				Name:   "gbase8a-vc",
+				DBType: string(pkgConst.DBTypeGBase8a),
+				AdditionalParams: pkgParams.Params{
+					{Key: "database", Value: "gbase"},
+					{Key: "vc_name", Value: "vc_custom"},
+				},
+			},
+			expectErr:           false,
+			expectDefaultSchema: strPtr("gbase"),
+			expectServiceName:   nil,
+			expectJdbcVcName:    strPtr("vc_custom"),
+		},
+		"GBase-8a missing database": {
+			dbService: &biz.DBService{
+				Name:             "gbase8a-2",
+				DBType:           string(pkgConst.DBTypeGBase8a),
+				AdditionalParams: pkgParams.Params{},
+			},
+			expectErr:       true,
+			expectErrSubstr: "database",
+		},
+		"GBase-8a ignores database_name": {
+			dbService: &biz.DBService{
+				Name:   "gbase8a-3",
+				DBType: string(pkgConst.DBTypeGBase8a),
+				AdditionalParams: pkgParams.Params{
+					{Key: "database_name", Value: "wrong"},
+				},
+			},
+			expectErr:       true,
+			expectErrSubstr: "database",
+		},
 	}
 
 	for name, tc := range cases {
@@ -387,6 +437,15 @@ func Test_buildDatasourceBaseInfo_DB2(t *testing.T) {
 				t.Errorf("ServiceName nil mismatch: got=%v, want=%v", got.ServiceName, tc.expectServiceName)
 			} else if got.ServiceName != nil && tc.expectServiceName != nil && *got.ServiceName != *tc.expectServiceName {
 				t.Errorf("ServiceName = %q, want %q", *got.ServiceName, *tc.expectServiceName)
+			}
+			if tc.expectJdbcVcName != nil {
+				if got.JDBCParams == nil {
+					t.Fatalf("expected JDBCParams with vcName=%q, got nil", *tc.expectJdbcVcName)
+				}
+				gotVC, _ := got.JDBCParams[gbase8aJdbcVcNameKey].(string)
+				if gotVC != *tc.expectJdbcVcName {
+					t.Errorf("JDBCParams.vcName = %q, want %q; params=%v", gotVC, *tc.expectJdbcVcName, got.JDBCParams)
+				}
 			}
 		})
 	}
