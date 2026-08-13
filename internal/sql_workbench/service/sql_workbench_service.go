@@ -1096,6 +1096,16 @@ func (sqlWorkbenchService *SqlWorkbenchService) fillDatasourceBaseInfo(datasourc
 		baseInfo.DefaultSchema = &databaseName
 	}
 
+	// KingBase：database_name → ODC defaultSchema；缺失则失败，禁止静默空默认库
+	if dbService.DBType == string(pkgConst.DBTypeKingBase) {
+		databaseNameParam := dbService.AdditionalParams.GetParam("database_name")
+		if databaseNameParam == nil || databaseNameParam.Value == "" {
+			return nil, fmt.Errorf("KingBase 数据源 %s 缺少 AdditionalParam database_name，请在数据源 AdditionalParams 中补充", dbService.Name)
+		}
+		databaseName := databaseNameParam.Value
+		baseInfo.DefaultSchema = &databaseName
+	}
+
 	return baseInfo, nil
 }
 
@@ -1187,6 +1197,8 @@ func (sqlWorkbenchService *SqlWorkbenchService) convertDBType(dmsDBType string) 
 		return "REDIS"
 	case "DB2":
 		return "DB2"
+	case "KingBase":
+		return "KINGBASE"
 	default:
 		return dmsDBType
 	}
@@ -1203,7 +1215,8 @@ func (sqlWorkbenchService *SqlWorkbenchService) SupportDBType(dbType pkgConst.DB
 		dbType == pkgConst.DBTypePolarDBForMySQL ||
 		dbType == pkgConst.DBTypeGaussDB ||
 		dbType == pkgConst.DBTypePostgreSQL ||
-		dbType == pkgConst.DBTypeRedis
+		dbType == pkgConst.DBTypeRedis ||
+		dbType == pkgConst.DBTypeKingBase
 }
 
 func buildMongoDatasourceOptions(dbService *biz.DBService) (*string, interface{}, map[string]interface{}) {
