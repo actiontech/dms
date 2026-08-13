@@ -7,6 +7,7 @@ type UpdateSystemVariablesReqV1 struct {
 	Url                                *string `json:"url" form:"url" example:"http://10.186.61.32:8080" validate:"omitempty,url"`
 	OperationRecordExpiredHours        *int    `json:"operation_record_expired_hours" form:"operation_record_expired_hours" example:"2160"`
 	CbOperationLogsExpiredHours        *int    `json:"cb_operation_logs_expired_hours" form:"cb_operation_logs_expired_hours" example:"2160"`
+	UserRequestLogExpiredHours         *int    `json:"user_request_log_expired_hours" form:"user_request_log_expired_hours" example:"2160"`
 	SystemVariableSSHPrimaryKey        *string `json:"system_variable_ssh_primary_key"`
 	SystemVariableWorkflowExpiredHours *int    `json:"system_variable_workflow_expired_hours"`
 	SystemVariableSqlManageRawExpiredHours *int `json:"system_variable_sql_manage_raw_expired_hours"`
@@ -23,6 +24,7 @@ type SystemVariablesResV1 struct {
 	Url                                string `json:"url"`
 	OperationRecordExpiredHours        int    `json:"operation_record_expired_hours"`
 	CbOperationLogsExpiredHours        int    `json:"cb_operation_logs_expired_hours"`
+	UserRequestLogExpiredHours         int    `json:"user_request_log_expired_hours"`
 	SystemVariableSSHPrimaryKey        string `json:"system_variable_ssh_primary_key"`
 	SystemVariableWorkflowExpiredHours int    `json:"system_variable_workflow_expired_hours"`
 	SystemVariableSqlManageRawExpiredHours int `json:"system_variable_sql_manage_raw_expired_hours"`

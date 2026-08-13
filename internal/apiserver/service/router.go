@@ -165,6 +165,13 @@ func (s *APIServer) initRouter() error {
 		resourceOverviewV1.GET("/resource_list", s.DMSController.GetResourceOverviewResourceList)
 		resourceOverviewV1.GET("/download", s.DMSController.DownloadResourceOverviewList)
 
+		userActivityV1 := v1.Group("/dms/statistic/user_activity")
+		userActivityV1.GET("/summary", s.DMSController.GetUserActivitySummary)
+		userActivityV1.GET("/daily_trend", s.DMSController.ListUserActivityDailyTrend)
+		userActivityV1.GET("/module_distribution", s.DMSController.ListUserActivityModuleDistribution)
+		userActivityV1.GET("/hourly_distribution", s.DMSController.ListUserActivityHourlyDistribution)
+		userActivityV1.GET("/users", s.DMSController.ListUserActivityUsers)
+
 		// oauth2 interface does not require login authentication
 		oauth2V1 := v1.Group("/dms/oauth2")
 		oauth2V1.GET("/tips", s.DMSController.GetOauth2Tips)
@@ -482,6 +489,8 @@ func (s *APIServer) installMiddleware() error {
 	s.echo.Use(dmsMiddleware.LicenseAdapter(s.DMSController.DMS.LicenseUsecase))
 
 	s.echo.Use(s.DMSController.DMS.AuthAccessTokenUseCase.CheckLatestAccessToken())
+
+	s.echo.Use(dmsMiddleware.UserActivityMiddleware(s.DMSController.DMS))
 
 	s.echo.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
 		Skipper:  s.DMSController.DMS.DmsProxyUsecase.GetEchoProxySkipper(),
