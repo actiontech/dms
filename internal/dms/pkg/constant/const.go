@@ -293,6 +293,7 @@ const (
 	DBTypeRedis           DBType = "Redis"
 	DBTypeOceanBaseOracle DBType = "OceanBase For Oracle"
 	DBTypeKingBase        DBType = "KingBase"
+	DBTypeGBase8a         DBType = "GBase-8a"
 )
 
 var supportedDataExportDBTypes = map[DBType]struct{}{
