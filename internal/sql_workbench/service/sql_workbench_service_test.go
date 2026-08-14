@@ -150,6 +150,7 @@ func Test_convertDBType(t *testing.T) {
 		"MongoDB":             {input: "MongoDB", expected: "MONGODB"},
 		"Redis":               {input: "Redis", expected: "REDIS"},
 		"DB2":                 {input: "DB2", expected: "DB2"},
+		"KingBase":            {input: "KingBase", expected: "KINGBASE"},
 		"Unknown passthrough": {input: "UnknownDB", expected: "UnknownDB"},
 	}
 	for name, tc := range cases {
@@ -183,6 +184,7 @@ func Test_SupportDBType(t *testing.T) {
 		"GaussDB supported":           {input: pkgConst.DBTypeGaussDB, expected: true},
 		"GaussDBForMySQL unsupported": {input: pkgConst.DBTypeGaussDBForMySQL, expected: false},
 		"DB2 unsupported":             {input: pkgConst.DBTypeDB2, expected: false},
+		"KingBase supported":          {input: pkgConst.DBTypeKingBase, expected: true},
 		"empty string unsupported":    {input: pkgConst.DBType(""), expected: false},
 		"unknown type unsupported":    {input: pkgConst.DBType("UnknownDBType"), expected: false},
 	}
@@ -385,6 +387,89 @@ func Test_buildDatasourceBaseInfo_DB2(t *testing.T) {
 				t.Errorf("ServiceName nil mismatch: got=%v, want=%v", got.ServiceName, tc.expectServiceName)
 			} else if got.ServiceName != nil && tc.expectServiceName != nil && *got.ServiceName != *tc.expectServiceName {
 				t.Errorf("ServiceName = %q, want %q", *got.ServiceName, *tc.expectServiceName)
+			}
+		})
+	}
+}
+
+// Test_buildDatasourceBaseInfo_KingBase 覆盖 KingBase → defaultSchema 契约（S1 / AC-1）：
+//
+//	(a) 正例：database_name=test → DefaultSchema=="test" 且 Type 经 convert 为 KINGBASE
+//	(b) 负例：缺 database_name → err 含 "database_name"
+//	(c) MySQL 回归：DefaultSchema == nil
+func Test_buildDatasourceBaseInfo_KingBase(t *testing.T) {
+	svc := &SqlWorkbenchService{}
+	const envID = int64(1)
+	const datasourceName = "proj:kingbase_odc_test"
+
+	cases := map[string]struct {
+		dbService           *biz.DBService
+		expectErr           bool
+		expectErrSubstr     string
+		expectDefaultSchema *string
+		expectType          string
+	}{
+		"KingBase happy path": {
+			dbService: &biz.DBService{
+				Name:   "kingbase_odc_test",
+				DBType: string(pkgConst.DBTypeKingBase),
+				Host:   "10.186.16.126",
+				Port:   "1522",
+				User:   "kb_dev",
+				AdditionalParams: pkgParams.Params{
+					{Key: "database_name", Value: "test"},
+				},
+			},
+			expectErr:           false,
+			expectDefaultSchema: strPtr("test"),
+			expectType:          "KINGBASE",
+		},
+		"KingBase missing database_name": {
+			dbService: &biz.DBService{
+				Name:             "kingbase-missing-db",
+				DBType:           string(pkgConst.DBTypeKingBase),
+				AdditionalParams: pkgParams.Params{},
+			},
+			expectErr:       true,
+			expectErrSubstr: "database_name",
+		},
+		"MySQL regression still no DefaultSchema": {
+			dbService: &biz.DBService{
+				Name:             "mysql-1",
+				DBType:           "MySQL",
+				AdditionalParams: pkgParams.Params{},
+			},
+			expectErr:           false,
+			expectDefaultSchema: nil,
+			expectType:          "MYSQL",
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			got, err := svc.fillDatasourceBaseInfo(datasourceName, tc.dbService, envID)
+			if tc.expectErr {
+				if err == nil {
+					t.Fatalf("expected error, got nil; baseInfo=%+v", got)
+				}
+				if tc.expectErrSubstr != "" && !strings.Contains(err.Error(), tc.expectErrSubstr) {
+					t.Errorf("error %q does not contain %q", err.Error(), tc.expectErrSubstr)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if got == nil {
+				t.Fatalf("expected non-nil baseInfo")
+			}
+			if tc.expectType != "" && got.Type != tc.expectType {
+				t.Errorf("Type = %q, want %q", got.Type, tc.expectType)
+			}
+			if (got.DefaultSchema == nil) != (tc.expectDefaultSchema == nil) {
+				t.Errorf("DefaultSchema nil mismatch: got=%v, want=%v", got.DefaultSchema, tc.expectDefaultSchema)
+			} else if got.DefaultSchema != nil && tc.expectDefaultSchema != nil && *got.DefaultSchema != *tc.expectDefaultSchema {
+				t.Errorf("DefaultSchema = %q, want %q", *got.DefaultSchema, *tc.expectDefaultSchema)
 			}
 		})
 	}
