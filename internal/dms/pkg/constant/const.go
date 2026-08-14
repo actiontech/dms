@@ -264,6 +264,8 @@ func ParseDBType(s string) (DBType, error) {
 		return DBTypeOceanBaseOracle, nil
 	case "KingBase":
 		return DBTypeKingBase, nil
+	case "GBase-8a":
+		return DBTypeGBase8a, nil
 
 	default:
 		return "", fmt.Errorf("invalid db type: %s", s)
@@ -291,6 +293,7 @@ const (
 	DBTypeRedis           DBType = "Redis"
 	DBTypeOceanBaseOracle DBType = "OceanBase For Oracle"
 	DBTypeKingBase        DBType = "KingBase"
+	DBTypeGBase8a         DBType = "GBase-8a"
 )
 
 var supportedDataExportDBTypes = map[DBType]struct{}{

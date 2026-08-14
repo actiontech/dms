@@ -1047,6 +1047,13 @@ const (
 	mongoAuthDatabaseParam    = "auth_source"
 	mongoReplicaSetParam      = "replica_set"
 	redisDefaultDatabaseParam = "default_database"
+
+	// GBase-8a：DMS 附加参数 → ODC 字段
+	gbase8aDatabaseParam     = "database"
+	gbase8aVcNameParam       = "vc_name"
+	gbase8aVcNameParamAlias  = "vcName"
+	gbase8aJdbcVcNameKey     = "vcName"
+	gbase8aDefaultSessionVC  = "vc1" // 与 DSN / session_vc 对齐；表单暂未暴露 VC 时的会话硬门槛缺省
 )
 
 // buildDatasourceBaseInfo 构建数据源基础信息
@@ -1106,7 +1113,32 @@ func (sqlWorkbenchService *SqlWorkbenchService) fillDatasourceBaseInfo(datasourc
 		baseInfo.DefaultSchema = &databaseName
 	}
 
+	// GBase-8a：AdditionalParams.database → DefaultSchema；VC → jdbcUrlParameters.vcName
+	if dbService.DBType == string(pkgConst.DBTypeGBase8a) {
+		databaseParam := dbService.AdditionalParams.GetParam(gbase8aDatabaseParam)
+		if databaseParam == nil || databaseParam.Value == "" {
+			return nil, fmt.Errorf("GBase-8a 数据源 %s 缺少 AdditionalParam database，请在数据源 AdditionalParams 中补充", dbService.Name)
+		}
+		database := databaseParam.Value
+		baseInfo.DefaultSchema = &database
+		baseInfo.JDBCParams = buildGBase8aJdbcUrlParameters(dbService)
+	}
+
 	return baseInfo, nil
+}
+
+// buildGBase8aJdbcUrlParameters 将会话 VC 写入 ODC jdbcUrlParameters（键 vcName）。
+// 优先 AdditionalParams.vc_name / vcName；缺省注入 vc1（S2 会话硬门槛；插件 metas 暂仅暴露 database）。
+func buildGBase8aJdbcUrlParameters(dbService *biz.DBService) map[string]interface{} {
+	vcName := gbase8aDefaultSessionVC
+	if p := dbService.AdditionalParams.GetParam(gbase8aVcNameParam); p != nil && p.Value != "" {
+		vcName = p.Value
+	} else if p := dbService.AdditionalParams.GetParam(gbase8aVcNameParamAlias); p != nil && p.Value != "" {
+		vcName = p.Value
+	}
+	return map[string]interface{}{
+		gbase8aJdbcVcNameKey: vcName,
+	}
 }
 
 // buildCreateDatasourceRequest 构建创建数据源请求
@@ -1199,6 +1231,8 @@ func (sqlWorkbenchService *SqlWorkbenchService) convertDBType(dmsDBType string) 
 		return "DB2"
 	case "KingBase":
 		return "KINGBASE"
+	case "GBase-8a":
+		return "GBASE_8A"
 	default:
 		return dmsDBType
 	}
@@ -1216,7 +1250,8 @@ func (sqlWorkbenchService *SqlWorkbenchService) SupportDBType(dbType pkgConst.DB
 		dbType == pkgConst.DBTypeGaussDB ||
 		dbType == pkgConst.DBTypePostgreSQL ||
 		dbType == pkgConst.DBTypeRedis ||
-		dbType == pkgConst.DBTypeKingBase
+		dbType == pkgConst.DBTypeKingBase ||
+		dbType == pkgConst.DBTypeGBase8a
 }
 
 func buildMongoDatasourceOptions(dbService *biz.DBService) (*string, interface{}, map[string]interface{}) {
