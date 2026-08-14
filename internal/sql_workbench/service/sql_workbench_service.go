@@ -175,13 +175,15 @@ func NewAndInitSqlWorkbenchService(logger utilLog.Logger, opts *conf.DMSOptions)
 	// 初始化项目相关
 	memberUsecase := &biz.MemberUsecase{}
 	environmentTagUsecase := biz.EnvironmentTagUsecase{}
+	opsTypeUsecase := biz.OpsTypeUsecase{}
 	businessTagUsecase := biz.NewBusinessTagUsecase(storage.NewBusinessTagRepo(logger, st), logger)
 	projectRepo := storage.NewProjectRepo(logger, st)
-	projectUsecase := biz.NewProjectUsecase(logger, tx, projectRepo, memberUsecase, opPermissionVerifyUsecase, pluginUsecase, businessTagUsecase, &environmentTagUsecase)
+	projectUsecase := biz.NewProjectUsecase(logger, tx, projectRepo, memberUsecase, opPermissionVerifyUsecase, pluginUsecase, businessTagUsecase, &environmentTagUsecase, &opsTypeUsecase)
 
 	// 初始化数据源相关
 	dbServiceRepo := storage.NewDBServiceRepo(logger, st)
 	environmentTagUsecase = *biz.NewEnvironmentTagUsecase(storage.NewEnvironmentTagRepo(logger, st), logger, projectUsecase, opPermissionVerifyUsecase)
+	opsTypeUsecase = *biz.NewOpsTypeUsecase(storage.NewOpsTypeRepo(logger, st), logger, projectUsecase, opPermissionVerifyUsecase)
 	proxyTargetRepo := storage.NewProxyTargetRepo(logger, st)
 	discoveryTaskRepo := storage.NewSensitiveDataDiscoveryTaskRepo(logger, st)
 	dbServiceUsecase := biz.NewDBServiceUsecase(logger, dbServiceRepo, discoveryTaskRepo, pluginUsecase, opPermissionVerifyUsecase, projectUsecase, proxyTargetRepo, &environmentTagUsecase)

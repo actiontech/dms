@@ -32,6 +32,10 @@ type DataExportWorkflow struct {
 	// Required: false
 	// example: 1
 	WorkflowTemplateId uint `json:"workflow_template_id"`
+	// ops type uid from project dictionary; omit or empty means unset; immutable after create
+	// Required: false
+	// example: 7002001
+	OpsTypeUID string `json:"ops_type_uid"`
 }
 
 // swagger:model AddDataExportWorkflowReply
@@ -83,9 +87,12 @@ type ListDataExportWorkflowsReq struct {
 	// filter by workflow template id
 	// in:query
 	FilterWorkflowTemplateId uint `json:"filter_workflow_template_id" query:"filter_workflow_template_id"`
+	// filter by ops type uid（单选；空则不筛；不提供「未设置」）
+	// in:query
+	FilterByOpsTypeUid string `json:"filter_by_ops_type_uid" query:"filter_by_ops_type_uid"`
 }
 
-// swagger:parameters FilterGlobalDataExportWorkflowReq
+// swagger:parameters GetGlobalDataExportWorkflows
 type FilterGlobalDataExportWorkflowReq struct {
 	// filter status list
 	// in:query
@@ -145,6 +152,9 @@ type FilterGlobalDataExportWorkflowReq struct {
 	// filter update time to
 	// in:query
 	FilterUpdateTimeTo string `json:"filter_update_time_to" query:"filter_update_time_to"`
+	// filter by ops type uid（单选；空则不筛；不提供「未设置」；与项目内列表同构）
+	// in:query
+	FilterByOpsTypeUid string `json:"filter_by_ops_type_uid" query:"filter_by_ops_type_uid"`
 }
 
 // swagger:model GetGlobalDataExportWorkflowsReply
@@ -163,6 +173,8 @@ type GlobalDataExportWorkflow struct {
 	CreatedAt    time.Time                `json:"created_at"`    // 数据导出工单的创建时间
 	UpdatedAt    time.Time                `json:"updated_at"`    // 数据导出工单的更新时间
 	Status       DataExportWorkflowStatus `json:"status"`        // 数据导出工单的状态
+	// OpsType 运维类型（按工单所属项目字典批量解析）；未设置或字典项已删时省略
+	OpsType *dmsCommonV1.OpsType `json:"ops_type,omitempty"`
 
 	CurrentStepAssigneeUsers []UidWithName                           `json:"current_step_assignee_user_list"` // 工单待操作人
 	DBServiceInfos           []*dmsCommonV1.DBServiceUidWithNameInfo `json:"db_service_info,omitempty"`       // 所属数据源信息
@@ -189,6 +201,8 @@ type ListDataExportWorkflow struct {
 	Status               DataExportWorkflowStatus `json:"status"`                 // 数据导出工单的状态
 	WorkflowTemplateId   uint                     `json:"workflow_template_id"`   // 创建时关联的审批模板 ID（历史工单可为 0）
 	WorkflowTemplateName string                   `json:"workflow_template_name"` // 创建时冗余保存的审批模板名称
+	// OpsType 运维类型（项目字典批量解析）；未设置或字典项已删时省略，供前端「-」约定
+	OpsType *dmsCommonV1.OpsType `json:"ops_type,omitempty"`
 
 	CurrentStepAssigneeUsers []UidWithName                           `json:"current_step_assignee_user_list"` // 工单待操作人
 	DBServiceInfos           []*dmsCommonV1.DBServiceUidWithNameInfo `json:"db_service_info,omitempty"`       // 所属数据源信息
@@ -237,15 +251,17 @@ const (
 )
 
 type GetDataExportWorkflow struct {
-	Name                  string           `json:"workflow_name"`
-	WorkflowID            string           `json:"workflow_uid"`
-	Desc                  string           `json:"desc,omitempty"`
-	CreateUser            UidWithName      `json:"create_user"`
-	CreateTime            *time.Time       `json:"create_time"`
-	WorkflowTemplateId    uint             `json:"workflow_template_id"`
-	WorkflowTemplateName  string           `json:"workflow_template_name"`
-	WorkflowRecord        WorkflowRecord   `json:"workflow_record"`
-	WorkflowRecordHistory []WorkflowRecord `json:"workflow_record_history"`
+	Name                 string      `json:"workflow_name"`
+	WorkflowID           string      `json:"workflow_uid"`
+	Desc                 string      `json:"desc,omitempty"`
+	CreateUser           UidWithName `json:"create_user"`
+	CreateTime           *time.Time  `json:"create_time"`
+	WorkflowTemplateId   uint        `json:"workflow_template_id"`
+	WorkflowTemplateName string      `json:"workflow_template_name"`
+	// OpsType 运维类型（项目字典解析）；未设置或字典项已删时省略，供前端「-」约定
+	OpsType               *dmsCommonV1.OpsType `json:"ops_type,omitempty"`
+	WorkflowRecord        WorkflowRecord       `json:"workflow_record"`
+	WorkflowRecordHistory []WorkflowRecord     `json:"workflow_record_history"`
 	// UnmaskingWorkflow 关联的查看原文工单摘要；无关联时为 null
 	UnmaskingWorkflow *DataExportRelatedUnmaskingWorkflow `json:"unmasking_workflow"`
 }
@@ -299,7 +315,7 @@ type WorkflowRecord struct {
 	CurrentStepNumber uint                     `json:"current_step_number,omitempty"`
 	Status            DataExportWorkflowStatus `json:"status"`
 	// 导出失败摘要（人类可读）；失败类状态时有值，成功/非导出失败为空
-	ExportFailSummary string `json:"export_fail_summary,omitempty"`
+	ExportFailSummary string          `json:"export_fail_summary,omitempty"`
 	Steps             []*WorkflowStep `json:"workflow_step_list,omitempty"`
 }
 

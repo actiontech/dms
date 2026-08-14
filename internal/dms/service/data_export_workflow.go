@@ -9,6 +9,7 @@ import (
 	"github.com/actiontech/dms/internal/dms/biz"
 	pkgConst "github.com/actiontech/dms/internal/dms/pkg/constant"
 	"github.com/actiontech/dms/internal/pkg/locale"
+	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 )
 
 func (d *DMSService) AddDataExportWorkflow(ctx context.Context, req *dmsV1.AddDataExportWorkflowReq, currentUserUid string) (reply *dmsV1.AddDataExportWorkflowReply, err error) {
@@ -23,6 +24,7 @@ func (d *DMSService) AddDataExportWorkflow(ctx context.Context, req *dmsV1.AddDa
 		Tasks:              tasks,
 		ProjectUID:         req.ProjectUid,
 		WorkflowTemplateId: req.DataExportWorkflow.WorkflowTemplateId,
+		OpsTypeUID:         req.DataExportWorkflow.OpsTypeUID,
 	}
 	uid, err := d.DataExportWorkflowUsecase.AddDataExportWorkflow(ctx, currentUserUid, args)
 	if err != nil {
@@ -88,6 +90,14 @@ func (d *DMSService) ListDataExportWorkflow(ctx context.Context, req *dmsV1.List
 		})
 	}
 
+	if req.FilterByOpsTypeUid != "" {
+		andConditions = append(andConditions, pkgConst.FilterCondition{
+			Field:    string(biz.WorkflowFieldOpsTypeUID),
+			Operator: pkgConst.FilterOperatorEqual,
+			Value:    req.FilterByOpsTypeUid,
+		})
+	}
+
 	if len(andConditions) > 0 {
 		filterByOptions.Groups = append(filterByOptions.Groups, pkgConst.NewConditionGroup(pkgConst.FilterLogicAnd, andConditions...))
 	}
@@ -140,6 +150,9 @@ func (d *DMSService) ListDataExportWorkflow(ctx context.Context, req *dmsV1.List
 		}
 	}
 
+	// 按项目批量解析运维类型名称（D8：禁止逐条请求字典）
+	opsTypeNameByProject := d.buildOpsTypeNameMapsByProjects(ctx, projectUIDs)
+
 	ret := make([]*dmsV1.ListDataExportWorkflow, len(workflows))
 	for i, w := range workflows {
 		ret[i] = &dmsV1.ListDataExportWorkflow{
@@ -152,6 +165,7 @@ func (d *DMSService) ListDataExportWorkflow(ctx context.Context, req *dmsV1.List
 			Status:               dmsV1.DataExportWorkflowStatus(w.WorkflowRecord.Status),
 			WorkflowTemplateId:   w.WorkflowTemplateId,
 			WorkflowTemplateName: w.WorkflowTemplateName,
+			OpsType:              resolveOpsTypeFromNameMap(w.OpsTypeUID, opsTypeNameByProject[w.ProjectUID]),
 		}
 		creater := convertBizUidWithName(d.UserUsecase.GetBizUserWithNameByUids(ctx, []string{w.CreateUserUID}))
 		if len(creater) > 0 {
@@ -183,6 +197,9 @@ func (d *DMSService) GetGlobalWorkflowsList(ctx context.Context, req *dmsV1.Filt
 		}
 	}
 
+	// 跨项目按所属项目字典批量解析名称（D8：禁止逐条请求）
+	opsTypeNameByProject := d.buildOpsTypeNameMapsByProjects(ctx, projectUIDs)
+
 	ret := make([]*dmsV1.GlobalDataExportWorkflow, len(workflows))
 	for i, w := range workflows {
 		ret[i] = &dmsV1.GlobalDataExportWorkflow{
@@ -194,6 +211,7 @@ func (d *DMSService) GetGlobalWorkflowsList(ctx context.Context, req *dmsV1.Filt
 			UpdatedAt:      w.WorkflowRecord.UpdateTime,
 			Status:         dmsV1.DataExportWorkflowStatus(w.WorkflowRecord.Status),
 			DBServiceInfos: w.DBServiceInfos,
+			OpsType:        resolveOpsTypeFromNameMap(w.OpsTypeUID, opsTypeNameByProject[w.ProjectUID]),
 		}
 
 		creater := convertBizUidWithName(d.UserUsecase.GetBizUserIncludeDeletedWithNameByUids(ctx, []string{w.CreateUserUID}))
@@ -223,6 +241,7 @@ func (d *DMSService) GetDataExportWorkflow(ctx context.Context, req *dmsV1.GetDa
 		CreateTime:           &w.CreateTime,
 		WorkflowTemplateId:   w.WorkflowTemplateId,
 		WorkflowTemplateName: w.WorkflowTemplateName,
+		OpsType:              d.resolveDataExportWorkflowOpsType(ctx, w.ProjectUID, w.OpsTypeUID),
 		WorkflowRecord: dmsV1.WorkflowRecord{
 			CurrentStepNumber: uint(w.WorkflowRecord.CurrentWorkflowStepId),
 			Status:            dmsV1.DataExportWorkflowStatus(w.WorkflowRecord.Status),
@@ -254,6 +273,70 @@ func (d *DMSService) GetDataExportWorkflow(ctx context.Context, req *dmsV1.GetDa
 	return &dmsV1.GetDataExportWorkflowReply{
 		Data: data,
 	}, nil
+}
+
+// resolveDataExportWorkflowOpsType 按项目字典解析运维类型展示名；未设置/已删/非本项目 → nil（前端「-」）。
+func (d *DMSService) resolveDataExportWorkflowOpsType(ctx context.Context, projectUID, opsTypeUID string) *dmsCommonV1.OpsType {
+	if opsTypeUID == "" || d.OpsTypeUsecase == nil {
+		return nil
+	}
+	opsType, err := d.OpsTypeUsecase.GetOpsTypeByUID(ctx, opsTypeUID)
+	if err != nil || opsType == nil {
+		return nil
+	}
+	if opsType.ProjectUID != "" && projectUID != "" && opsType.ProjectUID != projectUID {
+		return nil
+	}
+	return &dmsCommonV1.OpsType{
+		UID:  opsType.UID,
+		Name: localizeOpsTypeDisplayName(ctx, opsType.Name),
+	}
+}
+
+const listOpsTypesBatchPageSize = 1000
+
+// buildOpsTypeNameMapsByProjects 按项目一次拉取字典，构建 uid→name（列表批量回填，禁止逐条 Get）。
+func (d *DMSService) buildOpsTypeNameMapsByProjects(ctx context.Context, projectUIDs map[string]bool) map[string]map[string]string {
+	out := make(map[string]map[string]string, len(projectUIDs))
+	if d.OpsTypeUsecase == nil {
+		return out
+	}
+	for projectUID := range projectUIDs {
+		if projectUID == "" {
+			continue
+		}
+		opsTypes, _, err := d.OpsTypeUsecase.ListOpsTypes(ctx, &biz.ListOpsTypesOption{
+			ProjectUID: projectUID,
+			Limit:      listOpsTypesBatchPageSize,
+			Offset:     0,
+		})
+		if err != nil {
+			continue
+		}
+		nameByUID := make(map[string]string, len(opsTypes))
+		for _, ot := range opsTypes {
+			if ot == nil || ot.UID == "" {
+				continue
+			}
+			nameByUID[ot.UID] = localizeOpsTypeDisplayName(ctx, ot.Name)
+		}
+		out[projectUID] = nameByUID
+	}
+	return out
+}
+
+func resolveOpsTypeFromNameMap(opsTypeUID string, nameByUID map[string]string) *dmsCommonV1.OpsType {
+	if opsTypeUID == "" || nameByUID == nil {
+		return nil
+	}
+	name, ok := nameByUID[opsTypeUID]
+	if !ok {
+		return nil
+	}
+	return &dmsCommonV1.OpsType{
+		UID:  opsTypeUID,
+		Name: name,
+	}
 }
 
 func (d *DMSService) ExportDataExportWorkflow(ctx context.Context, req *dmsV1.ExportDataExportWorkflowReq, currentUserUid string) error {
