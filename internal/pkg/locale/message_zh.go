@@ -245,6 +245,15 @@ var (
 	OAuth2SyncSessionErr                        = &i18n.Message{ID: "OAuth2SyncSessionErr", Other: "同步OAuth2会话失败: %v"}
 )
 
+// Ops Type（默认字典名存库为中文规范名；展示与拒删提示按请求语言本地化）
+var (
+	DefaultOpsTypeNameDataModification       = &i18n.Message{ID: "DefaultOpsTypeNameDataModification", Other: "数据修改"}
+	DefaultOpsTypeNameDataExtraction         = &i18n.Message{ID: "DefaultOpsTypeNameDataExtraction", Other: "数据提取"}
+	DefaultOpsTypeNameServiceMaintenance     = &i18n.Message{ID: "DefaultOpsTypeNameServiceMaintenance", Other: "服务维护"}
+	DefaultOpsTypeNameConfigModification     = &i18n.Message{ID: "DefaultOpsTypeNameConfigModification", Other: "配置修改"}
+	ErrOpsTypeReferencedByDataExportWorkflow = &i18n.Message{ID: "ErrOpsTypeReferencedByDataExportWorkflow", Other: "该运维类型已被数据导出工单引用，无法删除"}
+)
+
 // Data Export Workflow
 var (
 	DataExportWorkflowNameDuplicateErr      = &i18n.Message{ID: "DataExportWorkflowNameDuplicateErr", Other: "工单名称重复了，请您修改工单名称后重新提交工单。"}

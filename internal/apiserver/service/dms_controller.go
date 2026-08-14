@@ -3756,6 +3756,9 @@ func (ctl *DMSController) AddDataExportWorkflow(c echo.Context) error {
 		if errors.Is(err, biz.ErrDataExportWorkflowNameDuplicate) {
 			return NewErrResp(c, errors.New(locale.Bundle.LocalizeMsgByCtx(c.Request().Context(), locale.DataExportWorkflowNameDuplicateErr)), apiError.BadRequestErr)
 		}
+		if errors.Is(err, biz.ErrOpsTypeNotBelongToProject) {
+			return NewErrResp(c, biz.ErrOpsTypeNotBelongToProject, apiError.BadRequestErr)
+		}
 		return NewErrResp(c, err, apiError.DMSServiceErr)
 	}
 	return NewOkRespWithReply(c, reply)

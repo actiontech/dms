@@ -2,6 +2,25 @@ basePath: /
 consumes:
     - application/json
 definitions:
+    AccessRestrictionClientIP:
+        properties:
+            client_ip:
+                type: string
+                x-go-name: ClientIP
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    AccessRestrictionConfig:
+        properties:
+            enabled:
+                type: boolean
+                x-go-name: Enabled
+            rules:
+                items:
+                    $ref: '#/definitions/AccessWhitelistRuleItem'
+                type: array
+                x-go-name: Rules
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     AccessTokenInfo:
         properties:
             access_token:
@@ -15,6 +34,25 @@ definitions:
                 x-go-name: ExpiredTime
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    AccessWhitelistRuleItem:
+        properties:
+            policy_type:
+                type: string
+                x-go-name: PolicyType
+            remark:
+                type: string
+                x-go-name: Remark
+            source:
+                type: string
+                x-go-name: Source
+            uid:
+                type: string
+                x-go-name: UID
+            updated_at:
+                type: string
+                x-go-name: UpdatedAt
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ActivateUnmaskingWorkflowViewReply:
         properties:
             code:
@@ -771,6 +809,14 @@ definitions:
                 x-go-name: Warnings
         type: object
         x-go-package: github.com/actiontech/dms/internal/data_masking/biz
+    ApproveDataExportWorkflowPayload:
+        properties:
+            reason:
+                description: optional approval comment; empty / omitted means no comment
+                type: string
+                x-go-name: Reason
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ApproveUnmaskingWorkflow:
         properties:
             approve_reason:
@@ -1151,6 +1197,30 @@ definitions:
                 x-go-name: DBServices
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CheckDataExportWorkflowTemplateUsedReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                properties:
+                    count:
+                        format: int64
+                        type: integer
+                        x-go-name: Count
+                    is_used:
+                        type: boolean
+                        x-go-name: IsUsed
+                type: object
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CheckDbConnectable:
         properties:
             additional_params:
@@ -1425,6 +1495,34 @@ definitions:
             - masking_rule_configs
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CreateAccessWhitelistRuleReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/AccessWhitelistRuleItem'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CreateAccessWhitelistRuleReq:
+        properties:
+            policy_type:
+                type: string
+                x-go-name: PolicyType
+            remark:
+                type: string
+                x-go-name: Remark
+            source:
+                type: string
+                x-go-name: Source
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CreateBusinessTagReq:
         properties:
             business_tag:
@@ -1433,7 +1531,17 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     CreateEnvironmentTagReq:
         properties:
+            color:
+                type: string
+                x-go-name: Color
             environment_name:
+                type: string
+                x-go-name: Name
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    CreateOpsTypeReq:
+        properties:
+            ops_type_name:
                 type: string
                 x-go-name: Name
         type: object
@@ -1991,6 +2099,11 @@ definitions:
                 example: d1
                 type: string
                 x-go-name: Name
+            ops_type_uid:
+                description: ops type uid from project dictionary; omit or empty means unset; immutable after create
+                example: "7002001"
+                type: string
+                x-go-name: OpsTypeUID
             tasks:
                 description: export task info
                 example: '[export_task_uid1,export_task_uid2]'
@@ -1998,6 +2111,12 @@ definitions:
                     $ref: '#/definitions/Task'
                 type: array
                 x-go-name: Tasks
+            workflow_template_id:
+                description: workflow template id from SQLE; omit or 0 to use project default data_export template
+                example: 1
+                format: uint64
+                type: integer
+                x-go-name: WorkflowTemplateId
         required:
             - name
             - tasks
@@ -2139,6 +2258,9 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     EnvironmentTag:
         properties:
+            color:
+                type: string
+                x-go-name: Color
             name:
                 description: 环境属性标签最多50个字符
                 type: string
@@ -2222,6 +2344,36 @@ definitions:
                 x-go-name: Message
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/base/v1
+    GetAccessRestrictionClientIPReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/AccessRestrictionClientIP'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    GetAccessRestrictionReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/AccessRestrictionConfig'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetBasicInfoReply:
         properties:
             code:
@@ -2339,7 +2491,7 @@ definitions:
                 type: string
                 x-go-name: ExportFailReason
             export_fail_stage:
-                description: '失败阶段 wire：task_schedule / connect / prepare / sql_execute / file_generate；非失败可省略'
+                description: 失败阶段 wire：task_schedule / connect / prepare / sql_execute / file_generate；非失败可省略
                 type: string
                 x-go-name: ExportFailStage
             export_file_type:
@@ -2386,6 +2538,8 @@ definitions:
             desc:
                 type: string
                 x-go-name: Desc
+            ops_type:
+                $ref: '#/definitions/OpsType'
             unmasking_workflow:
                 $ref: '#/definitions/DataExportRelatedUnmaskingWorkflow'
             workflow_name:
@@ -2398,6 +2552,13 @@ definitions:
                     $ref: '#/definitions/WorkflowRecord'
                 type: array
                 x-go-name: WorkflowRecordHistory
+            workflow_template_id:
+                format: uint64
+                type: integer
+                x-go-name: WorkflowTemplateId
+            workflow_template_name:
+                type: string
+                x-go-name: WorkflowTemplateName
             workflow_uid:
                 type: string
                 x-go-name: WorkflowID
@@ -3125,6 +3286,21 @@ definitions:
                 x-go-name: WxID
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    GetUserActivitySummaryReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/UserActivitySummary'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     GetUserBySessionReply:
         properties:
             code:
@@ -3272,6 +3448,8 @@ definitions:
             desc:
                 type: string
                 x-go-name: Description
+            ops_type:
+                $ref: '#/definitions/OpsType'
             project_info:
                 $ref: '#/definitions/ProjectInfo'
             status:
@@ -4163,6 +4341,8 @@ definitions:
             db_type:
                 type: string
                 x-go-name: Type
+            environment_tag:
+                $ref: '#/definitions/EnvironmentTag'
             host:
                 type: string
                 x-go-name: Host
@@ -4321,7 +4501,7 @@ definitions:
                 type: string
                 x-go-name: ExportSQLType
             export_status:
-                description: 导出执行状态 success/failed/not_executed；未开始可为空
+                description: 导出执行状态：success / failed / not_executed；未开始可为空
                 enum:
                     - success
                     - failed
@@ -4392,6 +4572,8 @@ definitions:
                 format: date-time
                 type: string
                 x-go-name: ExportedAt
+            ops_type:
+                $ref: '#/definitions/OpsType'
             project_info:
                 $ref: '#/definitions/ProjectInfo'
             project_name:
@@ -4422,6 +4604,13 @@ definitions:
             workflow_name:
                 type: string
                 x-go-name: WorkflowName
+            workflow_template_id:
+                format: uint64
+                type: integer
+                x-go-name: WorkflowTemplateId
+            workflow_template_name:
+                type: string
+                x-go-name: WorkflowTemplateName
             workflow_uid:
                 type: string
                 x-go-name: WorkflowID
@@ -5066,14 +5255,6 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListMemberRoleWithOpRange:
         properties:
-            member_group:
-                $ref: '#/definitions/ProjectMemberGroup'
-            op_permissions:
-                description: member op permissions
-                items:
-                    $ref: '#/definitions/UidWithName'
-                type: array
-                x-go-name: OpPermissions
             op_range_type:
                 description: |-
                     op permission range type, only support db service now
@@ -5102,7 +5283,7 @@ definitions:
             role_uid:
                 $ref: '#/definitions/UidWithName'
         type: object
-        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     ListMemberTipsItem:
         properties:
             user_id:
@@ -5218,6 +5399,28 @@ definitions:
                 description: List op_permission reply
                 items:
                     $ref: '#/definitions/ListOpPermission'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                format: int64
+                type: integer
+                x-go-name: Total
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListOpsTypesReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/OpsType'
                 type: array
                 x-go-name: Data
             message:
@@ -5905,6 +6108,82 @@ definitions:
                 x-go-name: WxID
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
+    ListUserActivityDailyTrendReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/UserActivityDailyTrendItem'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListUserActivityHourlyDistributionReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/UserActivityHourlyDistributionItem'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListUserActivityModuleDistributionReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/UserActivityModuleDistributionItem'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    ListUserActivityUsersReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                items:
+                    $ref: '#/definitions/UserActivityUserItem'
+                type: array
+                x-go-name: Data
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+            total_nums:
+                format: uint64
+                type: integer
+                x-go-name: TotalNums
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     ListUserGroup:
         description: A dms user group
         properties:
@@ -6742,6 +7021,18 @@ definitions:
                 x-go-name: UserName
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    OpsType:
+        properties:
+            name:
+                description: 运维类型名称最多50个字符
+                type: string
+                x-go-name: Name
+            uid:
+                type: string
+                x-go-name: UID
+        title: OpsType 项目级运维类型字典项（对标 EnvironmentTag，无色标）。
+        type: object
+        x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     Param:
         properties:
             desc:
@@ -7801,6 +8092,10 @@ definitions:
             url:
                 type: string
                 x-go-name: Url
+            user_request_log_expired_hours:
+                format: int64
+                type: integer
+                x-go-name: UserRequestLogExpiredHours
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     TableColumn:
@@ -8569,6 +8864,28 @@ definitions:
                 x-go-name: WorkflowID
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateAccessRestrictionReq:
+        properties:
+            enabled:
+                type: boolean
+                x-go-name: Enabled
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateAccessWhitelistRuleReply:
+        properties:
+            code:
+                description: code
+                format: int64
+                type: integer
+                x-go-name: Code
+            data:
+                $ref: '#/definitions/AccessWhitelistRuleItem'
+            message:
+                description: message
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateBusinessTagReq:
         properties:
             business_tag:
@@ -8820,6 +9137,9 @@ definitions:
         x-go-package: github.com/actiontech/dms/api/dms/service/v2
     UpdateEnvironmentTagReq:
         properties:
+            color:
+                type: string
+                x-go-name: Color
             environment_name:
                 type: string
                 x-go-name: Name
@@ -9029,6 +9349,13 @@ definitions:
         properties:
             member:
                 $ref: '#/definitions/UpdateMember'
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UpdateOpsTypeReq:
+        properties:
+            ops_type_name:
+                type: string
+                x-go-name: Name
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UpdateProject:
@@ -9369,6 +9696,10 @@ definitions:
             url:
                 type: string
                 x-go-name: Url
+            user_request_log_expired_hours:
+                format: int64
+                type: integer
+                x-go-name: UserRequestLogExpiredHours
         type: object
         x-go-package: github.com/actiontech/dms/pkg/dms-common/api/dms/v1
     UpdateUser:
@@ -9561,6 +9892,119 @@ definitions:
                 x-go-name: WxID
         required:
             - name
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UserActivityDailyTrendItem:
+        properties:
+            dau:
+                format: int64
+                type: integer
+                x-go-name: DAU
+            error_count:
+                format: int64
+                type: integer
+                x-go-name: ErrorCount
+            request_count:
+                format: int64
+                type: integer
+                x-go-name: RequestCount
+            stat_date:
+                type: string
+                x-go-name: StatDate
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UserActivityHourlyDistributionItem:
+        properties:
+            active_users:
+                format: int64
+                type: integer
+                x-go-name: ActiveUsers
+            request_count:
+                format: int64
+                type: integer
+                x-go-name: RequestCount
+            stat_hour:
+                format: int64
+                type: integer
+                x-go-name: StatHour
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UserActivityModuleDistributionItem:
+        properties:
+            module_code:
+                type: string
+                x-go-name: ModuleCode
+            module_name:
+                type: string
+                x-go-name: ModuleName
+            percent:
+                format: double
+                type: number
+                x-go-name: Percent
+            request_count:
+                format: int64
+                type: integer
+                x-go-name: RequestCount
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UserActivitySummary:
+        properties:
+            avg_request_per_user:
+                format: double
+                type: number
+                x-go-name: AvgRequestPerUser
+            dau:
+                format: int64
+                type: integer
+                x-go-name: DAU
+            error_count:
+                format: int64
+                type: integer
+                x-go-name: ErrorCount
+            error_rate:
+                format: double
+                type: number
+                x-go-name: ErrorRate
+            peak_hour:
+                format: int64
+                type: integer
+                x-go-name: PeakHour
+            peak_hour_requests:
+                format: int64
+                type: integer
+                x-go-name: PeakHourRequests
+            request_count:
+                format: int64
+                type: integer
+                x-go-name: RequestCount
+        type: object
+        x-go-package: github.com/actiontech/dms/api/dms/service/v1
+    UserActivityUserItem:
+        properties:
+            active_days:
+                format: int64
+                type: integer
+                x-go-name: ActiveDays
+            last_active_at:
+                format: date-time
+                type: string
+                x-go-name: LastActiveAt
+            request_count:
+                format: int64
+                type: integer
+                x-go-name: RequestCount
+            top_module_code:
+                type: string
+                x-go-name: TopModuleCode
+            top_module_name:
+                type: string
+                x-go-name: TopModuleName
+            user_name:
+                type: string
+                x-go-name: UserName
+            user_uid:
+                type: string
+                x-go-name: UserUID
         type: object
         x-go-package: github.com/actiontech/dms/api/dms/service/v1
     UserBindProject:
@@ -9884,6 +10328,116 @@ paths:
                         $ref: '#/definitions/GenericResp'
             tags:
                 - CompanyNotice
+    /v1/dms/configurations/access_restriction:
+        get:
+            operationId: GetAccessRestriction
+            responses:
+                "200":
+                    description: GetAccessRestrictionReply
+                    schema:
+                        $ref: '#/definitions/GetAccessRestrictionReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get access restriction configuration.
+            tags:
+                - Configuration
+        patch:
+            operationId: UpdateAccessRestriction
+            parameters:
+                - in: body
+                  name: access_restriction
+                  required: true
+                  schema:
+                    $ref: '#/definitions/UpdateAccessRestrictionReq'
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Update access restriction switch.
+            tags:
+                - Configuration
+    /v1/dms/configurations/access_restriction/client_ip:
+        get:
+            operationId: GetAccessRestrictionClientIP
+            responses:
+                "200":
+                    description: GetAccessRestrictionClientIPReply
+                    schema:
+                        $ref: '#/definitions/GetAccessRestrictionClientIPReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get current request client IP for access restriction.
+            tags:
+                - Configuration
+    /v1/dms/configurations/access_restriction/rules:
+        post:
+            operationId: CreateAccessWhitelistRule
+            parameters:
+                - in: body
+                  name: rule
+                  required: true
+                  schema:
+                    $ref: '#/definitions/CreateAccessWhitelistRuleReq'
+            responses:
+                "200":
+                    description: CreateAccessWhitelistRuleReply
+                    schema:
+                        $ref: '#/definitions/CreateAccessWhitelistRuleReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Create access whitelist rule.
+            tags:
+                - Configuration
+    /v1/dms/configurations/access_restriction/rules/{rule_uid}:
+        delete:
+            operationId: DeleteAccessWhitelistRule
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Delete access whitelist rule.
+            tags:
+                - Configuration
+        put:
+            operationId: UpdateAccessWhitelistRule
+            parameters:
+                - in: path
+                  name: rule_uid
+                  required: true
+                  type: string
+                - in: body
+                  name: rule
+                  required: true
+                  schema:
+                    $ref: '#/definitions/UpdateAccessWhitelistRuleReq'
+            responses:
+                "200":
+                    description: UpdateAccessWhitelistRuleReply
+                    schema:
+                        $ref: '#/definitions/UpdateAccessWhitelistRuleReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Update access whitelist rule.
+            tags:
+                - Configuration
     /v1/dms/configurations/feishu:
         get:
             operationId: GetFeishuConfiguration
@@ -10464,6 +11018,148 @@ paths:
     /v1/dms/dashboard/data_export_workflows:
         get:
             operationId: GetGlobalDataExportWorkflows
+            parameters:
+                - description: filter status list
+                  in: query
+                  items:
+                    enum:
+                        - wait_for_approve
+                        - wait_for_export
+                        - exporting
+                        - rejected
+                        - cancel
+                        - failed
+                        - finish
+                    type: string
+                  name: filter_status_list
+                  type: array
+                  x-go-name: FilterStatusList
+                - description: filter db service uid
+                  in: query
+                  name: filter_db_service_uid
+                  type: string
+                  x-go-name: FilterDBServiceUid
+                - description: filter project priority
+                  in: query
+                  name: filter_current_step_assignee_user_id
+                  type: string
+                  x-go-name: FilterCurrentStepAssigneeUserId
+                - description: filter project uids
+                  in: query
+                  items:
+                    type: string
+                  name: filter_project_uids
+                  type: array
+                  x-go-name: FilterProjectUids
+                - description: filter project uid
+                  in: query
+                  name: filter_project_uid
+                  type: string
+                  x-go-name: FilterProjectUid
+                - description: the maximum count of member to be returned
+                  format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+                - description: the offset of members to be returned, default is 0
+                  format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - description: |-
+                    filter the status
+                    wait_for_approve DataExportWorkflowStatusWaitForApprove
+                    wait_for_export DataExportWorkflowStatusWaitForExport
+                    exporting DataExportWorkflowStatusWaitForExporting
+                    rejected DataExportWorkflowStatusRejected
+                    cancel DataExportWorkflowStatusCancel
+                    failed DataExportWorkflowStatusFailed
+                    finish DataExportWorkflowStatusFinish
+                  enum:
+                    - wait_for_approve
+                    - wait_for_export
+                    - exporting
+                    - rejected
+                    - cancel
+                    - failed
+                    - finish
+                  in: query
+                  name: filter_by_status
+                  type: string
+                  x-go-enum-desc: |-
+                    wait_for_approve DataExportWorkflowStatusWaitForApprove
+                    wait_for_export DataExportWorkflowStatusWaitForExport
+                    exporting DataExportWorkflowStatusWaitForExporting
+                    rejected DataExportWorkflowStatusRejected
+                    cancel DataExportWorkflowStatusCancel
+                    failed DataExportWorkflowStatusFailed
+                    finish DataExportWorkflowStatusFinish
+                  x-go-name: FilterByStatus
+                - description: filter create user id
+                  in: query
+                  name: filter_by_create_user_uid
+                  type: string
+                  x-go-name: FilterByCreateUserUid
+                - description: filter current assignee user id
+                  in: query
+                  name: filter_current_step_assignee_user_uid
+                  type: string
+                  x-go-name: FilterCurrentStepAssigneeUserUid
+                - description: filter db_service id
+                  in: query
+                  name: filter_by_db_service_uid
+                  type: string
+                  x-go-name: FilterByDBServiceUid
+                - description: filter fuzzy key word for id/name
+                  in: query
+                  name: fuzzy_keyword
+                  type: string
+                  x-go-name: FuzzyKeyword
+                - description: enable OR-based self-relevant filtering (creator OR assignee OR viewable db_service)
+                  in: query
+                  name: check_user_can_access
+                  type: boolean
+                  x-go-name: CheckUserCanAccess
+                - description: current user id for check_user_can_access filter
+                  in: query
+                  name: current_user_id
+                  type: string
+                  x-go-name: CurrentUserID
+                - description: db_service UIDs with view_others_workflow permission for check_user_can_access
+                  in: query
+                  items:
+                    type: string
+                  name: viewable_db_service_uids
+                  type: array
+                  x-go-name: ViewableDBServiceUids
+                - description: filter create time from
+                  in: query
+                  name: filter_create_time_from
+                  type: string
+                  x-go-name: FilterCreateTimeFrom
+                - description: filter create time to
+                  in: query
+                  name: filter_create_time_to
+                  type: string
+                  x-go-name: FilterCreateTimeTo
+                - description: filter update time from
+                  in: query
+                  name: filter_update_time_from
+                  type: string
+                  x-go-name: FilterUpdateTimeFrom
+                - description: filter update time to
+                  in: query
+                  name: filter_update_time_to
+                  type: string
+                  x-go-name: FilterUpdateTimeTo
+                - description: filter by ops type uid（单选；空则不筛；不提供「未设置」；与项目内列表同构）
+                  in: query
+                  name: filter_by_ops_type_uid
+                  type: string
+                  x-go-name: FilterByOpsTypeUid
             responses:
                 "200":
                     description: GetGlobalDataExportWorkflowsReply
@@ -11756,6 +12452,17 @@ paths:
                   name: fuzzy_keyword
                   type: string
                   x-go-name: FuzzyKeyword
+                - description: filter by workflow template id
+                  format: uint64
+                  in: query
+                  name: filter_workflow_template_id
+                  type: integer
+                  x-go-name: FilterWorkflowTemplateId
+                - description: filter by ops type uid（单选；空则不筛；不提供「未设置」）
+                  in: query
+                  name: filter_by_ops_type_uid
+                  type: string
+                  x-go-name: FilterByOpsTypeUid
             responses:
                 "200":
                     description: ListDataExportWorkflowsReply
@@ -11835,6 +12542,11 @@ paths:
                   required: true
                   type: string
                   x-go-name: DataExportWorkflowUid
+                - $ref: '#/definitions/ApproveDataExportWorkflowPayload'
+                  description: optional body; omit / empty payload / empty reason → ""
+                  in: query
+                  name: payload
+                  x-go-name: Payload
             responses:
                 "200":
                     description: GenericResp
@@ -11959,6 +12671,36 @@ paths:
                     schema:
                         $ref: '#/definitions/GenericResp'
             summary: Cancel data export workflows.
+            tags:
+                - DataExportWorkflows
+    /v1/dms/projects/{project_uid}/data_export_workflows/workflow_template_used:
+        get:
+            description: Soft-deleted SQLE templates do not block already-created workflow runtime; this is a best-effort hint.
+            operationId: CheckDataExportWorkflowTemplateUsed
+            parameters:
+                - description: project id
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUid
+                - description: workflow template id
+                  format: uint64
+                  in: query
+                  name: workflow_template_id
+                  required: true
+                  type: integer
+                  x-go-name: WorkflowTemplateId
+            responses:
+                "200":
+                    description: CheckDataExportWorkflowTemplateUsedReply
+                    schema:
+                        $ref: '#/definitions/CheckDataExportWorkflowTemplateUsedReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Check whether a data-export workflow template id is referenced by local workflows.
             tags:
                 - DataExportWorkflows
     /v1/dms/projects/{project_uid}/db_services:
@@ -13959,6 +14701,119 @@ paths:
             summary: List member tips.
             tags:
                 - Member
+    /v1/dms/projects/{project_uid}/ops_types:
+        get:
+            operationId: ListOpsTypes
+            parameters:
+                - in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUID
+                - format: uint32
+                  in: query
+                  name: page_index
+                  type: integer
+                  x-go-name: PageIndex
+                - format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+            responses:
+                "200":
+                    description: ListOpsTypesReply
+                    schema:
+                        $ref: '#/definitions/ListOpsTypesReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List ops types.
+            tags:
+                - Project
+        post:
+            operationId: CreateOpsType
+            parameters:
+                - description: project uid
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                - description: the name of ops type to be created
+                  in: body
+                  name: ops_type_name
+                  required: true
+                  type: string
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Create a new ops type.
+            tags:
+                - Project
+    /v1/dms/projects/{project_uid}/ops_types/{ops_type_uid}:
+        delete:
+            operationId: DeleteOpsType
+            parameters:
+                - in: path
+                  name: ops_type_uid
+                  required: true
+                  type: string
+                  x-go-name: OpsTypeUID
+                - in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                  x-go-name: ProjectUID
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Delete an existing ops type.
+            tags:
+                - Project
+        put:
+            operationId: UpdateOpsType
+            parameters:
+                - description: project uid
+                  in: path
+                  name: project_uid
+                  required: true
+                  type: string
+                - description: ops type id
+                  in: path
+                  name: ops_type_uid
+                  required: true
+                  type: string
+                - description: the name of ops type to be updated
+                  in: body
+                  name: ops_type_name
+                  required: true
+                  type: string
+            responses:
+                "200":
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Update an existing ops type.
+            tags:
+                - Project
     /v1/dms/projects/{project_uid}/unarchive:
         put:
             operationId: UnarchiveProject
@@ -14183,6 +15038,17 @@ paths:
                   name: fuzzy_keyword
                   type: string
                   x-go-name: FuzzyKeyword
+                - description: filter by workflow template id
+                  format: uint64
+                  in: query
+                  name: filter_workflow_template_id
+                  type: integer
+                  x-go-name: FilterWorkflowTemplateId
+                - description: filter by ops type uid（单选；空则不筛；不提供「未设置」）
+                  in: query
+                  name: filter_by_ops_type_uid
+                  type: string
+                  x-go-name: FilterByOpsTypeUid
             responses:
                 "200":
                     description: ListDataExportWorkflowsReply
@@ -14786,6 +15652,133 @@ paths:
             summary: Get current user.
             tags:
                 - Session
+    /v1/dms/statistic/user_activity/daily_trend:
+        get:
+            operationId: ListUserActivityDailyTrend
+            parameters:
+                - in: query
+                  name: filter_date_from
+                  required: true
+                  type: string
+                  x-go-name: FilterDateFrom
+                - in: query
+                  name: filter_date_to
+                  required: true
+                  type: string
+                  x-go-name: FilterDateTo
+            responses:
+                "200":
+                    description: ListUserActivityDailyTrendReply
+                    schema:
+                        $ref: '#/definitions/ListUserActivityDailyTrendReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List user activity daily trend.
+            tags:
+                - UserActivity
+    /v1/dms/statistic/user_activity/hourly_distribution:
+        get:
+            operationId: ListUserActivityHourlyDistribution
+            parameters:
+                - in: query
+                  name: stat_date
+                  required: true
+                  type: string
+                  x-go-name: StatDate
+            responses:
+                "200":
+                    description: ListUserActivityHourlyDistributionReply
+                    schema:
+                        $ref: '#/definitions/ListUserActivityHourlyDistributionReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List user activity hourly distribution for a date.
+            tags:
+                - UserActivity
+    /v1/dms/statistic/user_activity/module_distribution:
+        get:
+            operationId: ListUserActivityModuleDistribution
+            parameters:
+                - in: query
+                  name: stat_date
+                  required: true
+                  type: string
+                  x-go-name: StatDate
+            responses:
+                "200":
+                    description: ListUserActivityModuleDistributionReply
+                    schema:
+                        $ref: '#/definitions/ListUserActivityModuleDistributionReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List user activity module distribution for a date.
+            tags:
+                - UserActivity
+    /v1/dms/statistic/user_activity/summary:
+        get:
+            operationId: GetUserActivitySummary
+            parameters:
+                - in: query
+                  name: stat_date
+                  required: true
+                  type: string
+                  x-go-name: StatDate
+            responses:
+                "200":
+                    description: GetUserActivitySummaryReply
+                    schema:
+                        $ref: '#/definitions/GetUserActivitySummaryReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: Get user activity summary KPI for a date.
+            tags:
+                - UserActivity
+    /v1/dms/statistic/user_activity/users:
+        get:
+            operationId: ListUserActivityUsers
+            parameters:
+                - in: query
+                  name: filter_date_from
+                  required: true
+                  type: string
+                  x-go-name: FilterDateFrom
+                - in: query
+                  name: filter_date_to
+                  required: true
+                  type: string
+                  x-go-name: FilterDateTo
+                - format: uint32
+                  in: query
+                  name: page_index
+                  required: true
+                  type: integer
+                  x-go-name: PageIndex
+                - format: uint32
+                  in: query
+                  name: page_size
+                  required: true
+                  type: integer
+                  x-go-name: PageSize
+            responses:
+                "200":
+                    description: ListUserActivityUsersReply
+                    schema:
+                        $ref: '#/definitions/ListUserActivityUsersReply'
+                default:
+                    description: GenericResp
+                    schema:
+                        $ref: '#/definitions/GenericResp'
+            summary: List user activity ranking/details.
+            tags:
+                - UserActivity
     /v1/dms/user_groups:
         get:
             operationId: ListUserGroups

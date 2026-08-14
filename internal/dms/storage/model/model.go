@@ -58,6 +58,7 @@ var AutoMigrateList = []interface{}{
 	UserLoginSession{},
 	CbOperationLog{},
 	EnvironmentTag{},
+	OpsType{},
 	Gateway{},
 	SystemVariable{},
 	OperationRecord{},
@@ -98,6 +99,13 @@ type EnvironmentTag struct {
 	ProjectUID      string `json:"project_uid" gorm:"size:32;column:project_uid;index:project_uid_name"`
 	EnvironmentName string `json:"environment_name" gorm:"not null;index:project_uid_name"`
 	Color           string `json:"color" gorm:"size:32;column:color"`
+}
+
+// OpsType 项目级运维类型字典项（对标 EnvironmentTag，无色标）。
+type OpsType struct {
+	Model
+	ProjectUID  string `json:"project_uid" gorm:"size:32;column:project_uid;uniqueIndex:project_uid_ops_type_name"`
+	OpsTypeName string `json:"ops_type_name" gorm:"size:191;column:ops_type_name;not null;uniqueIndex:project_uid_ops_type_name"`
 }
 
 type ExtraParameters struct {
@@ -492,6 +500,8 @@ type Workflow struct {
 	WorkflowRecordUid    string     `json:"workflow_record_uid" gorm:"size:32;column:workflow_record_uid"`
 	WorkflowTemplateId   uint       `json:"workflow_template_id" gorm:"column:workflow_template_id;default:0;index" example:"1"`
 	WorkflowTemplateName string     `json:"workflow_template_name" gorm:"size:255;column:workflow_template_name" example:""`
+	// OpsTypeUID 运维类型字典项标识（引用式存储；空表示未设置；创建后不可改）
+	OpsTypeUID string `json:"ops_type_uid" gorm:"size:32;column:ops_type_uid;default:''"`
 
 	WorkflowRecord *WorkflowRecord `gorm:"foreignkey:WorkflowUid"`
 }

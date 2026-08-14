@@ -92,6 +92,7 @@ type ProjectUsecase struct {
 	memberUsecase             *MemberUsecase
 	businessTagUsecase        *BusinessTagUsecase
 	environmentTagUsecase     *EnvironmentTagUsecase
+	opsTypeUsecase            *OpsTypeUsecase
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	pluginUsecase             *PluginUsecase
 	log                       *utilLog.Helper
@@ -102,7 +103,8 @@ func NewProjectUsecase(log utilLog.Logger, tx TransactionGenerator, repo Project
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase,
 	pluginUsecase *PluginUsecase,
 	businessTagUsecase *BusinessTagUsecase,
-	environmentTagUsecase *EnvironmentTagUsecase) *ProjectUsecase {
+	environmentTagUsecase *EnvironmentTagUsecase,
+	opsTypeUsecase *OpsTypeUsecase) *ProjectUsecase {
 	return &ProjectUsecase{
 		tx:                        tx,
 		repo:                      repo,
@@ -111,6 +113,7 @@ func NewProjectUsecase(log utilLog.Logger, tx TransactionGenerator, repo Project
 		pluginUsecase:             pluginUsecase,
 		businessTagUsecase:        businessTagUsecase,
 		environmentTagUsecase:     environmentTagUsecase,
+		opsTypeUsecase:            opsTypeUsecase,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 	}
 }
@@ -206,6 +209,16 @@ func (d *ProjectUsecase) InitProjects(ctx context.Context) (err error) {
 				"create_user_uid", n.CreateUserUID,
 			)
 			return fmt.Errorf("init default environment tags failed: %v", err)
+		}
+		// 初始化运维类型字典
+		err = d.opsTypeUsecase.InitDefaultOpsTypes(ctx, n.UID, n.CreateUserUID)
+		if err != nil {
+			d.log.Error("init default ops types failed",
+				"error", err,
+				"project_uid", n.UID,
+				"create_user_uid", n.CreateUserUID,
+			)
+			return fmt.Errorf("init default ops types failed: %v", err)
 		}
 	}
 	d.log.Debug("init project success")
