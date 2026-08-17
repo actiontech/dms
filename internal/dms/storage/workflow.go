@@ -44,6 +44,29 @@ func (d *WorkflowRepo) SaveWorkflow(ctx context.Context, dataExportWorkflow *biz
 	return nil
 }
 
+// UpdateWorkflowColumns 更新 workflows 行字段；强制忽略 ops_type_uid（创建后不可改）。
+func (d *WorkflowRepo) UpdateWorkflowColumns(ctx context.Context, workflowUID string, updates map[string]interface{}) error {
+	if updates == nil {
+		return nil
+	}
+	safe := make(map[string]interface{}, len(updates))
+	for k, v := range updates {
+		if k == "ops_type_uid" {
+			continue
+		}
+		safe[k] = v
+	}
+	if len(safe) == 0 {
+		return nil
+	}
+	return transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Model(&model.Workflow{}).Where("uid = ?", workflowUID).Updates(safe).Error; err != nil {
+			return fmt.Errorf("failed to update workflow columns: %v", err)
+		}
+		return nil
+	})
+}
+
 func (d *WorkflowRepo) IsDataExportWorkflowNameDuplicate(ctx context.Context, projectUID, workflowName string) (bool, error) {
 	var count int64
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
@@ -400,6 +423,28 @@ func (d *WorkflowRepo) CountDataExportWorkflowsByTemplateId(ctx context.Context,
 	return count, nil
 }
 
+// CountDataExportWorkflowsByOpsTypeUID 统计本项目数据导出工单对指定运维类型的引用数（含任意状态；空串不计）。
+func (d *WorkflowRepo) CountDataExportWorkflowsByOpsTypeUID(ctx context.Context, projectUID, opsTypeUID string) (int64, error) {
+	if opsTypeUID == "" {
+		return 0, nil
+	}
+	var count int64
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		db := tx.WithContext(ctx).Model(&model.Workflow{}).
+			Where("workflow_type = ? AND ops_type_uid = ?", biz.DataExportWorkflowEventType.String(), opsTypeUID)
+		if projectUID != "" {
+			db = db.Where("project_uid = ?", projectUID)
+		}
+		if err := db.Count(&count).Error; err != nil {
+			return fmt.Errorf("failed to count workflows by ops type uid: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
 func (d *WorkflowRepo) DeleteDataExportWorkflowsByIds(ctx context.Context, dataExportWorkflowUids []string) error {
 	if len(dataExportWorkflowUids) == 0 {
 		return nil
@@ -452,7 +497,8 @@ SELECT
        wr.uid                                                        AS workflow_record_uid,
 	   t.db_service_uid 											 AS db_service_uid,
 	   ds.name 											    		 AS db_service_name,
-	   wr.updated_at                                                 AS update_time
+	   wr.updated_at                                                 AS update_time,
+	   w.ops_type_uid                                                AS ops_type_uid
 {{- template "body" . -}}
 
 ORDER BY wr.updated_at DESC
@@ -546,6 +592,10 @@ AND wr.updated_at >= :filter_update_time_from
 AND wr.updated_at <= :filter_update_time_to
 {{- end }}
 
+{{- if .filter_by_ops_type_uid }}
+AND w.ops_type_uid = :filter_by_ops_type_uid
+{{- end }}
+
 {{ end }}
 
 `
@@ -569,6 +619,7 @@ func (d *WorkflowRepo) GetGlobalWorkflowsByParameterMap(ctx context.Context, dat
 		WorkflowRecordUID             string        `gorm:"column:workflow_record_uid"`
 		DBServiceUID                  string        `gorm:"column:db_service_uid"`
 		DBServiceName                 string        `gorm:"column:db_service_name"`
+		OpsTypeUID                    string        `gorm:"column:ops_type_uid"`
 	}
 
 	var results []workflowQueryResult
@@ -616,6 +667,7 @@ func (d *WorkflowRepo) GetGlobalWorkflowsByParameterMap(ctx context.Context, dat
 			CreateTime:    result.CreateTime,
 			CreateUserUID: result.CreateUserUID,
 			Status:        result.Status,
+			OpsTypeUID:    result.OpsTypeUID,
 			ProjectInfo: &dmsCommonV1.ProjectInfo{
 				ProjectUid:      result.ProjectUID,
 				ProjectName:     result.ProjectName,

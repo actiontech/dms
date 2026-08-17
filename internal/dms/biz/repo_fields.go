@@ -374,6 +374,7 @@ const (
 	WorkflowFieldWorkflowRecordUid    WorkflowField = "workflow_record_uid"
 	WorkflowFieldWorkflowTemplateId   WorkflowField = "workflow_template_id"
 	WorkflowFieldWorkflowTemplateName WorkflowField = "workflow_template_name"
+	WorkflowFieldOpsTypeUID           WorkflowField = "ops_type_uid"
 	WorkflowFieldWorkflowRecord       WorkflowField = "workflowrecord"
 )
 

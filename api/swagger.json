@@ -80,7 +80,7 @@
         "parameters": [
           {
             "description": "Update a companynotice",
-            "name": "company_notice",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -88,6 +88,176 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/access_restriction": {
+      "get": {
+        "tags": [
+          "Configuration"
+        ],
+        "summary": "Get access restriction configuration.",
+        "operationId": "GetAccessRestriction",
+        "responses": {
+          "200": {
+            "description": "GetAccessRestrictionReply",
+            "schema": {
+              "$ref": "#/definitions/GetAccessRestrictionReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Configuration"
+        ],
+        "summary": "Update access restriction switch.",
+        "operationId": "UpdateAccessRestriction",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateAccessRestrictionReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/access_restriction/client_ip": {
+      "get": {
+        "tags": [
+          "Configuration"
+        ],
+        "summary": "Get current request client IP for access restriction.",
+        "operationId": "GetAccessRestrictionClientIP",
+        "responses": {
+          "200": {
+            "description": "GetAccessRestrictionClientIPReply",
+            "schema": {
+              "$ref": "#/definitions/GetAccessRestrictionClientIPReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/access_restriction/rules": {
+      "post": {
+        "tags": [
+          "Configuration"
+        ],
+        "summary": "Create access whitelist rule.",
+        "operationId": "CreateAccessWhitelistRule",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateAccessWhitelistRuleReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CreateAccessWhitelistRuleReply",
+            "schema": {
+              "$ref": "#/definitions/CreateAccessWhitelistRuleReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/configurations/access_restriction/rules/{rule_uid}": {
+      "put": {
+        "tags": [
+          "Configuration"
+        ],
+        "summary": "Update access whitelist rule.",
+        "operationId": "UpdateAccessWhitelistRule",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "rule_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateAccessWhitelistRuleReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "UpdateAccessWhitelistRuleReply",
+            "schema": {
+              "$ref": "#/definitions/UpdateAccessWhitelistRuleReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Configuration"
+        ],
+        "summary": "Delete access whitelist rule.",
+        "operationId": "DeleteAccessWhitelistRule",
         "responses": {
           "200": {
             "description": "GenericResp",
@@ -135,7 +305,7 @@
         "parameters": [
           {
             "description": "update feishu configuration",
-            "name": "update_feishu_configuration",
+            "name": "body",
             "in": "body",
             "schema": {
               "$ref": "#/definitions/UpdateFeishuConfigurationReq"
@@ -168,7 +338,7 @@
         "parameters": [
           {
             "description": "test feishu configuration",
-            "name": "test_feishu_configuration",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -223,7 +393,7 @@
         "parameters": [
           {
             "description": "update ldap configuration",
-            "name": "ldap",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -391,7 +561,7 @@
         "parameters": [
           {
             "description": "update login configuration",
-            "name": "login",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -469,7 +639,7 @@
         "parameters": [
           {
             "description": "update oauth2 configuration",
-            "name": "oauth2",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -524,7 +694,7 @@
         "parameters": [
           {
             "description": "update sms configuration",
-            "name": "update_sms_configuration",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -558,7 +728,7 @@
         "parameters": [
           {
             "description": "user name",
-            "name": "username",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -592,7 +762,7 @@
         "parameters": [
           {
             "description": "test sms configuration",
-            "name": "test_sms_configuration",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -626,7 +796,7 @@
         "parameters": [
           {
             "description": "verify sms code",
-            "name": "code",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -635,7 +805,7 @@
           },
           {
             "description": "user name",
-            "name": "username",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -690,7 +860,7 @@
         "parameters": [
           {
             "description": "update smtp configuration",
-            "name": "smtp_configuration",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -724,7 +894,7 @@
         "parameters": [
           {
             "description": "test smtp configuration",
-            "name": "test_smtp_configuration",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -802,7 +972,7 @@
         "parameters": [
           {
             "description": "更新系统变量配置",
-            "name": "system_variables",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -857,7 +1027,7 @@
         "parameters": [
           {
             "description": "webhook configuration",
-            "name": "webhook_config",
+            "name": "body",
             "in": "body",
             "schema": {
               "$ref": "#/definitions/UpdateWebHookConfigurationReq"
@@ -934,7 +1104,7 @@
         "parameters": [
           {
             "description": "update wechat configuration",
-            "name": "update_wechat_configuration",
+            "name": "body",
             "in": "body",
             "schema": {
               "$ref": "#/definitions/UpdateWeChatConfigurationReq"
@@ -967,7 +1137,7 @@
         "parameters": [
           {
             "description": "test wechat configuration",
-            "name": "test_wechat_configuration",
+            "name": "body",
             "in": "body",
             "schema": {
               "$ref": "#/definitions/TestWeChatConfigurationReq"
@@ -997,6 +1167,179 @@
         ],
         "summary": "Get global data export workflows.",
         "operationId": "GetGlobalDataExportWorkflows",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "enum": [
+                "wait_for_approve",
+                "wait_for_export",
+                "exporting",
+                "rejected",
+                "cancel",
+                "failed",
+                "finish"
+              ],
+              "type": "string"
+            },
+            "x-go-name": "FilterStatusList",
+            "description": "filter status list",
+            "name": "filter_status_list",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterDBServiceUid",
+            "description": "filter db service uid",
+            "name": "filter_db_service_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterCurrentStepAssigneeUserId",
+            "description": "filter project priority",
+            "name": "filter_current_step_assignee_user_id",
+            "in": "query"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "x-go-name": "FilterProjectUids",
+            "description": "filter project uids",
+            "name": "filter_project_uids",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterProjectUid",
+            "description": "filter project uid",
+            "name": "filter_project_uid",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "description": "the maximum count of member to be returned",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "description": "the offset of members to be returned, default is 0",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "wait_for_approve",
+              "wait_for_export",
+              "exporting",
+              "rejected",
+              "cancel",
+              "failed",
+              "finish"
+            ],
+            "type": "string",
+            "x-go-enum-desc": "wait_for_approve DataExportWorkflowStatusWaitForApprove\nwait_for_export DataExportWorkflowStatusWaitForExport\nexporting DataExportWorkflowStatusWaitForExporting\nrejected DataExportWorkflowStatusRejected\ncancel DataExportWorkflowStatusCancel\nfailed DataExportWorkflowStatusFailed\nfinish DataExportWorkflowStatusFinish",
+            "x-go-name": "FilterByStatus",
+            "description": "filter the status\nwait_for_approve DataExportWorkflowStatusWaitForApprove\nwait_for_export DataExportWorkflowStatusWaitForExport\nexporting DataExportWorkflowStatusWaitForExporting\nrejected DataExportWorkflowStatusRejected\ncancel DataExportWorkflowStatusCancel\nfailed DataExportWorkflowStatusFailed\nfinish DataExportWorkflowStatusFinish",
+            "name": "filter_by_status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByCreateUserUid",
+            "description": "filter create user id",
+            "name": "filter_by_create_user_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterCurrentStepAssigneeUserUid",
+            "description": "filter current assignee user id",
+            "name": "filter_current_step_assignee_user_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByDBServiceUid",
+            "description": "filter db_service id",
+            "name": "filter_by_db_service_uid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FuzzyKeyword",
+            "description": "filter fuzzy key word for id/name",
+            "name": "fuzzy_keyword",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "x-go-name": "CheckUserCanAccess",
+            "description": "enable OR-based self-relevant filtering (creator OR assignee OR viewable db_service)",
+            "name": "check_user_can_access",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "CurrentUserID",
+            "description": "current user id for check_user_can_access filter",
+            "name": "current_user_id",
+            "in": "query"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "x-go-name": "ViewableDBServiceUids",
+            "description": "db_service UIDs with view_others_workflow permission for check_user_can_access",
+            "name": "viewable_db_service_uids",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterCreateTimeFrom",
+            "description": "filter create time from",
+            "name": "filter_create_time_from",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterCreateTimeTo",
+            "description": "filter create time to",
+            "name": "filter_create_time_to",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterUpdateTimeFrom",
+            "description": "filter update time from",
+            "name": "filter_update_time_from",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterUpdateTimeTo",
+            "description": "filter update time to",
+            "name": "filter_update_time_to",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByOpsTypeUid",
+            "description": "filter by ops type uid（单选；空则不筛；不提供「未设置」；与项目内列表同构）",
+            "name": "filter_by_ops_type_uid",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "GetGlobalDataExportWorkflowsReply",
@@ -1044,7 +1387,7 @@
         "parameters": [
           {
             "description": "Add new db service sync task",
-            "name": "db_service_sync_task",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -1138,7 +1481,7 @@
           },
           {
             "description": "update db service sync task",
-            "name": "db_service_sync_task",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -1467,7 +1810,7 @@
         "parameters": [
           {
             "description": "add gateway",
-            "name": "add_gateway",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -1561,7 +1904,7 @@
           },
           {
             "description": "update gateway",
-            "name": "update_gateway",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -1675,7 +2018,7 @@
           {
             "x-go-name": "Notification",
             "description": "notification",
-            "name": "notification",
+            "name": "body",
             "in": "body",
             "schema": {
               "$ref": "#/definitions/Notification"
@@ -1739,7 +2082,7 @@
         "operationId": "BindOauth2User",
         "parameters": [
           {
-            "name": "BindOauth2UserReq",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -1927,7 +2270,7 @@
         "parameters": [
           {
             "description": "Add new operation record",
-            "name": "operation_record",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -2082,7 +2425,7 @@
         "parameters": [
           {
             "description": "Register dms plugin",
-            "name": "plugin",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -2214,7 +2557,7 @@
         "parameters": [
           {
             "description": "Add new Project",
-            "name": "project",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -2292,7 +2635,7 @@
         "parameters": [
           {
             "description": "business tag to be created",
-            "name": "business_tag",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -2333,7 +2676,7 @@
           },
           {
             "description": "the business tag to be updated",
-            "name": "business_tag",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -2397,7 +2740,7 @@
         "parameters": [
           {
             "description": "check db_services have enough privileges",
-            "name": "db_services",
+            "name": "body",
             "in": "body",
             "schema": {
               "$ref": "#/definitions/CheckDBServicesPrivilegesReq"
@@ -2511,6 +2854,21 @@
             "description": "filter fuzzy key word for id/name",
             "name": "fuzzy_keyword",
             "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint64",
+            "x-go-name": "FilterWorkflowTemplateId",
+            "description": "filter by workflow template id",
+            "name": "filter_workflow_template_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByOpsTypeUid",
+            "description": "filter by ops type uid（单选；空则不筛；不提供「未设置」）",
+            "name": "filter_by_ops_type_uid",
+            "in": "query"
           }
         ],
         "responses": {
@@ -2539,7 +2897,7 @@
         "parameters": [
           {
             "description": "check db_service is connectable",
-            "name": "db_services",
+            "name": "body",
             "in": "body",
             "schema": {
               "$ref": "#/definitions/DBServiceConnectionReq"
@@ -2572,7 +2930,7 @@
         "parameters": [
           {
             "description": "check db_services is connectable",
-            "name": "db_services",
+            "name": "body",
             "in": "body",
             "schema": {
               "$ref": "#/definitions/DBServicesConnectionReq"
@@ -2653,7 +3011,7 @@
         "parameters": [
           {
             "description": "import projects",
-            "name": "projects",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -2688,7 +3046,7 @@
         "parameters": [
           {
             "description": "new db services",
-            "name": "db_services",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -2876,7 +3234,7 @@
           },
           {
             "description": "Update a project",
-            "name": "project",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -3206,7 +3564,7 @@
           },
           {
             "description": "add data export workflow",
-            "name": "data_export_tasks",
+            "name": "body",
             "in": "body",
             "schema": {
               "$ref": "#/definitions/AddDataExportTaskReq"
@@ -3451,6 +3809,21 @@
             "description": "filter fuzzy key word for id/name",
             "name": "fuzzy_keyword",
             "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint64",
+            "x-go-name": "FilterWorkflowTemplateId",
+            "description": "filter by workflow template id",
+            "name": "filter_workflow_template_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterByOpsTypeUid",
+            "description": "filter by ops type uid（单选；空则不筛；不提供「未设置」）",
+            "name": "filter_by_ops_type_uid",
+            "in": "query"
           }
         ],
         "responses": {
@@ -3484,7 +3857,7 @@
           },
           {
             "description": "add data export workflow",
-            "name": "data_export_workflow",
+            "name": "body",
             "in": "body",
             "schema": {
               "$ref": "#/definitions/AddDataExportWorkflowReq"
@@ -3523,7 +3896,7 @@
             "required": true
           },
           {
-            "name": "payload",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -3536,6 +3909,49 @@
             "description": "GenericResp",
             "schema": {
               "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/data_export_workflows/workflow_template_used": {
+      "get": {
+        "description": "Soft-deleted SQLE templates do not block already-created workflow runtime; this is a best-effort hint.",
+        "tags": [
+          "DataExportWorkflows"
+        ],
+        "summary": "Check whether a data-export workflow template id is referenced by local workflows.",
+        "operationId": "CheckDataExportWorkflowTemplateUsed",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUid",
+            "description": "project id",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint64",
+            "x-go-name": "WorkflowTemplateId",
+            "description": "workflow template id",
+            "name": "workflow_template_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CheckDataExportWorkflowTemplateUsedReply",
+            "schema": {
+              "$ref": "#/definitions/CheckDataExportWorkflowTemplateUsedReply"
             }
           },
           "default": {
@@ -3609,6 +4025,13 @@
             "name": "data_export_workflow_uid",
             "in": "path",
             "required": true
+          },
+          {
+            "$ref": "#/definitions/ApproveDataExportWorkflowPayload",
+            "x-go-name": "Payload",
+            "description": "optional body; omit / empty payload / empty reason → \"\"",
+            "name": "payload",
+            "in": "query"
           }
         ],
         "responses": {
@@ -3734,7 +4157,7 @@
             "required": true
           },
           {
-            "name": "payload",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -3913,7 +4336,7 @@
           },
           {
             "description": "Add new db service",
-            "name": "db_service",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -3954,7 +4377,7 @@
           },
           {
             "description": "check db_service is connectable",
-            "name": "db_service",
+            "name": "body",
             "in": "body",
             "schema": {
               "$ref": "#/definitions/CheckDBServiceIsConnectableReq"
@@ -3994,7 +4417,7 @@
           },
           {
             "description": "check db_services is connectable",
-            "name": "db_services",
+            "name": "body",
             "in": "body",
             "schema": {
               "$ref": "#/definitions/CheckDBServicesIsConnectableReq"
@@ -4035,7 +4458,7 @@
           },
           {
             "description": "new db services",
-            "name": "db_services",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -4179,7 +4602,7 @@
           },
           {
             "description": "Update a DB service",
-            "name": "db_service",
+            "name": "body",
             "in": "body",
             "schema": {
               "$ref": "#/definitions/UpdateDBServiceReq"
@@ -4581,7 +5004,7 @@
           },
           {
             "description": "脱敏效果预览请求体",
-            "name": "preview_req",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -4622,7 +5045,7 @@
           },
           {
             "description": "批量创建或更新脱敏规则的配置",
-            "name": "masking_rule_configs_req",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -4732,7 +5155,7 @@
           },
           {
             "description": "脱敏规则信息",
-            "name": "rule",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -4822,7 +5245,7 @@
           },
           {
             "description": "脱敏规则更新信息",
-            "name": "rule",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -4955,7 +5378,7 @@
           },
           {
             "description": "敏感数据发现任务信息",
-            "name": "task",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -5153,7 +5576,7 @@
           },
           {
             "description": "敏感数据发现任务信息",
-            "name": "task",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -5602,7 +6025,7 @@
           },
           {
             "description": "脱敏模板信息",
-            "name": "masking_template",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -5650,7 +6073,7 @@
           },
           {
             "description": "脱敏模板信息",
-            "name": "masking_template",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -5814,7 +6237,7 @@
           },
           {
             "description": "unmasking workflow info",
-            "name": "unmasking_workflow",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -5942,7 +6365,7 @@
           },
           {
             "description": "approve unmasking workflow info (optional, only carries approve_reason)",
-            "name": "approve_unmasking_workflow",
+            "name": "body",
             "in": "body",
             "schema": {
               "$ref": "#/definitions/ApproveUnmaskingWorkflow"
@@ -6069,7 +6492,7 @@
           },
           {
             "description": "reject unmasking workflow info",
-            "name": "reject_unmasking_workflow",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -6176,7 +6599,7 @@
           },
           {
             "description": "Add new member group",
-            "name": "member_group",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -6296,7 +6719,7 @@
           },
           {
             "description": "Update a member group",
-            "name": "member_group",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -6442,7 +6865,7 @@
           },
           {
             "description": "Add new member",
-            "name": "member",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -6573,7 +6996,7 @@
           },
           {
             "description": "Update a member",
-            "name": "member",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -6616,6 +7039,173 @@
             "x-go-name": "MemberUid",
             "description": "member uid",
             "name": "member_uid",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/ops_types": {
+      "get": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "List ops types.",
+        "operationId": "ListOpsTypes",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ProjectUID",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListOpsTypesReply",
+            "schema": {
+              "$ref": "#/definitions/ListOpsTypesReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Create a new ops type.",
+        "operationId": "CreateOpsType",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "the name of ops type to be created",
+            "name": "ops_type_name",
+            "in": "body",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/projects/{project_uid}/ops_types/{ops_type_uid}": {
+      "put": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Update an existing ops type.",
+        "operationId": "UpdateOpsType",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "project uid",
+            "name": "project_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "ops type id",
+            "name": "ops_type_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "the name of ops type to be updated",
+            "name": "ops_type_name",
+            "in": "body",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Delete an existing ops type.",
+        "operationId": "DeleteOpsType",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "OpsTypeUID",
+            "name": "ops_type_uid",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "ProjectUID",
+            "name": "project_uid",
             "in": "path",
             "required": true
           }
@@ -6679,7 +7269,7 @@
         "parameters": [
           {
             "description": "register dms proxy",
-            "name": "dms_proxy_target",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -7015,7 +7605,7 @@
         "parameters": [
           {
             "description": "Add new role",
-            "name": "role",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -7056,7 +7646,7 @@
           },
           {
             "description": "Update a role",
-            "name": "role",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -7121,7 +7711,7 @@
         "parameters": [
           {
             "description": "Add a new session",
-            "name": "session",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -7220,6 +7810,196 @@
         }
       }
     },
+    "/v1/dms/statistic/user_activity/daily_trend": {
+      "get": {
+        "tags": [
+          "UserActivity"
+        ],
+        "summary": "List user activity daily trend.",
+        "operationId": "ListUserActivityDailyTrend",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "FilterDateFrom",
+            "name": "filter_date_from",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterDateTo",
+            "name": "filter_date_to",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListUserActivityDailyTrendReply",
+            "schema": {
+              "$ref": "#/definitions/ListUserActivityDailyTrendReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/statistic/user_activity/hourly_distribution": {
+      "get": {
+        "tags": [
+          "UserActivity"
+        ],
+        "summary": "List user activity hourly distribution for a date.",
+        "operationId": "ListUserActivityHourlyDistribution",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "StatDate",
+            "name": "stat_date",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListUserActivityHourlyDistributionReply",
+            "schema": {
+              "$ref": "#/definitions/ListUserActivityHourlyDistributionReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/statistic/user_activity/module_distribution": {
+      "get": {
+        "tags": [
+          "UserActivity"
+        ],
+        "summary": "List user activity module distribution for a date.",
+        "operationId": "ListUserActivityModuleDistribution",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "StatDate",
+            "name": "stat_date",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListUserActivityModuleDistributionReply",
+            "schema": {
+              "$ref": "#/definitions/ListUserActivityModuleDistributionReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/statistic/user_activity/summary": {
+      "get": {
+        "tags": [
+          "UserActivity"
+        ],
+        "summary": "Get user activity summary KPI for a date.",
+        "operationId": "GetUserActivitySummary",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "StatDate",
+            "name": "stat_date",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GetUserActivitySummaryReply",
+            "schema": {
+              "$ref": "#/definitions/GetUserActivitySummaryReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
+    "/v1/dms/statistic/user_activity/users": {
+      "get": {
+        "tags": [
+          "UserActivity"
+        ],
+        "summary": "List user activity ranking/details.",
+        "operationId": "ListUserActivityUsers",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "FilterDateFrom",
+            "name": "filter_date_from",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "FilterDateTo",
+            "name": "filter_date_to",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageIndex",
+            "name": "page_index",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "uint32",
+            "x-go-name": "PageSize",
+            "name": "page_size",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ListUserActivityUsersReply",
+            "schema": {
+              "$ref": "#/definitions/ListUserActivityUsersReply"
+            }
+          },
+          "default": {
+            "description": "GenericResp",
+            "schema": {
+              "$ref": "#/definitions/GenericResp"
+            }
+          }
+        }
+      }
+    },
     "/v1/dms/user_groups": {
       "get": {
         "tags": [
@@ -7288,7 +8068,7 @@
         "parameters": [
           {
             "description": "Add new user group",
-            "name": "user_group",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -7329,7 +8109,7 @@
           },
           {
             "description": "Update a user group",
-            "name": "user_group",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -7525,7 +8305,7 @@
         "parameters": [
           {
             "description": "Update current user",
-            "name": "current_user",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -7557,7 +8337,7 @@
         "parameters": [
           {
             "description": "Add new user",
-            "name": "user",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -7590,7 +8370,7 @@
         "operationId": "GenAccessToken",
         "parameters": [
           {
-            "name": "expiration_days",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -7624,7 +8404,7 @@
         "parameters": [
           {
             "description": "Add a new session",
-            "name": "session",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -7653,7 +8433,7 @@
         "tags": [
           "User"
         ],
-        "summary": "Get user info, This API is used by other component such as sqle\u0026auth to get user info.",
+        "summary": "Get user info, This API is used by other component such as sqle&auth to get user info.",
         "operationId": "GetUser",
         "parameters": [
           {
@@ -7696,7 +8476,7 @@
           },
           {
             "description": "Update a user",
-            "name": "user",
+            "name": "body",
             "in": "body",
             "schema": {
               "$ref": "#/definitions/UpdateUserReq"
@@ -7755,7 +8535,7 @@
         "tags": [
           "User"
         ],
-        "summary": "Get user op permission info, This API is used by other component such as sqle\u0026auth to check user permissions.",
+        "summary": "Get user op permission info, This API is used by other component such as sqle&auth to check user permissions.",
         "operationId": "GetUserOpPermission",
         "parameters": [
           {
@@ -7775,7 +8555,7 @@
           {
             "x-go-name": "UserOpPermission",
             "description": "user op permission info",
-            "name": "user_op_permission",
+            "name": "body",
             "in": "body",
             "schema": {
               "$ref": "#/definitions/UserOpPermission"
@@ -7808,7 +8588,7 @@
         "parameters": [
           {
             "description": "webhooks",
-            "name": "webhook_message",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -8079,7 +8859,7 @@
         "parameters": [
           {
             "description": "Add new Project",
-            "name": "project",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -8113,7 +8893,7 @@
         "parameters": [
           {
             "description": "import projects",
-            "name": "projects",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -8147,7 +8927,7 @@
         "parameters": [
           {
             "description": "new db services",
-            "name": "db_services",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -8259,7 +9039,7 @@
           },
           {
             "description": "Update a project",
-            "name": "project",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -8436,7 +9216,7 @@
           },
           {
             "description": "Add new db service",
-            "name": "db_service",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -8477,7 +9257,7 @@
           },
           {
             "description": "new db services",
-            "name": "db_services",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
@@ -8569,7 +9349,7 @@
           },
           {
             "description": "Update a DB service",
-            "name": "db_service",
+            "name": "body",
             "in": "body",
             "schema": {
               "$ref": "#/definitions/UpdateDBServiceReqV2"
@@ -8594,6 +9374,33 @@
     }
   },
   "definitions": {
+    "AccessRestrictionClientIP": {
+      "type": "object",
+      "properties": {
+        "client_ip": {
+          "type": "string",
+          "x-go-name": "ClientIP"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "AccessRestrictionConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "x-go-name": "Enabled"
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AccessWhitelistRuleItem"
+          },
+          "x-go-name": "Rules"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "AccessTokenInfo": {
       "type": "object",
       "properties": {
@@ -8611,6 +9418,32 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
+    },
+    "AccessWhitelistRuleItem": {
+      "type": "object",
+      "properties": {
+        "policy_type": {
+          "type": "string",
+          "x-go-name": "PolicyType"
+        },
+        "remark": {
+          "type": "string",
+          "x-go-name": "Remark"
+        },
+        "source": {
+          "type": "string",
+          "x-go-name": "Source"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "UID"
+        },
+        "updated_at": {
+          "type": "string",
+          "x-go-name": "UpdatedAt"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "ActivateUnmaskingWorkflowViewReply": {
       "type": "object",
@@ -9610,6 +10443,17 @@
       },
       "x-go-package": "github.com/actiontech/dms/internal/data_masking/biz"
     },
+    "ApproveDataExportWorkflowPayload": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "description": "optional approval comment; empty / omitted means no comment",
+          "type": "string",
+          "x-go-name": "Reason"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "ApproveUnmaskingWorkflow": {
       "type": "object",
       "properties": {
@@ -10131,6 +10975,38 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "CheckDataExportWorkflowTemplateUsedReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "integer",
+              "format": "int64",
+              "x-go-name": "Count"
+            },
+            "is_used": {
+              "type": "boolean",
+              "x-go-name": "IsUsed"
+            }
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "CheckDbConnectable": {
       "type": "object",
       "required": [
@@ -10461,6 +11337,44 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "CreateAccessWhitelistRuleReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/AccessWhitelistRuleItem"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "CreateAccessWhitelistRuleReq": {
+      "type": "object",
+      "properties": {
+        "policy_type": {
+          "type": "string",
+          "x-go-name": "PolicyType"
+        },
+        "remark": {
+          "type": "string",
+          "x-go-name": "Remark"
+        },
+        "source": {
+          "type": "string",
+          "x-go-name": "Source"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "CreateBusinessTagReq": {
       "type": "object",
       "properties": {
@@ -10473,7 +11387,21 @@
     "CreateEnvironmentTagReq": {
       "type": "object",
       "properties": {
+        "color": {
+          "type": "string",
+          "x-go-name": "Color"
+        },
         "environment_name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "CreateOpsTypeReq": {
+      "type": "object",
+      "properties": {
+        "ops_type_name": {
           "type": "string",
           "x-go-name": "Name"
         }
@@ -11166,6 +12094,12 @@
           "x-go-name": "Name",
           "example": "d1"
         },
+        "ops_type_uid": {
+          "description": "ops type uid from project dictionary; omit or empty means unset; immutable after create",
+          "type": "string",
+          "x-go-name": "OpsTypeUID",
+          "example": "7002001"
+        },
         "tasks": {
           "description": "export task info",
           "type": "array",
@@ -11174,6 +12108,13 @@
           },
           "x-go-name": "Tasks",
           "example": "[export_task_uid1,export_task_uid2]"
+        },
+        "workflow_template_id": {
+          "description": "workflow template id from SQLE; omit or 0 to use project default data_export template",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "WorkflowTemplateId",
+          "example": 1
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -11354,6 +12295,10 @@
     "EnvironmentTag": {
       "type": "object",
       "properties": {
+        "color": {
+          "type": "string",
+          "x-go-name": "Color"
+        },
         "name": {
           "description": "环境属性标签最多50个字符",
           "type": "string",
@@ -11466,6 +12411,46 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
+    },
+    "GetAccessRestrictionClientIPReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/AccessRestrictionClientIP"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "GetAccessRestrictionReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/AccessRestrictionConfig"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
     "GetBasicInfoReply": {
       "type": "object",
@@ -11675,6 +12660,9 @@
           "type": "string",
           "x-go-name": "Desc"
         },
+        "ops_type": {
+          "$ref": "#/definitions/OpsType"
+        },
         "unmasking_workflow": {
           "$ref": "#/definitions/DataExportRelatedUnmaskingWorkflow"
         },
@@ -11691,6 +12679,15 @@
             "$ref": "#/definitions/WorkflowRecord"
           },
           "x-go-name": "WorkflowRecordHistory"
+        },
+        "workflow_template_id": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "WorkflowTemplateId"
+        },
+        "workflow_template_name": {
+          "type": "string",
+          "x-go-name": "WorkflowTemplateName"
         },
         "workflow_uid": {
           "type": "string",
@@ -11908,7 +12905,7 @@
           "$ref": "#/definitions/MaskingOverviewDashboard"
         },
         "databases": {
-          "description": "database_name -\u003e database node",
+          "description": "database_name -> database node",
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/MaskingOverviewDatabaseNode"
@@ -12614,6 +13611,26 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "GetUserActivitySummaryReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/UserActivitySummary"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "GetUserBySessionReply": {
       "type": "object",
       "properties": {
@@ -12806,6 +13823,9 @@
         "desc": {
           "type": "string",
           "x-go-name": "Description"
+        },
+        "ops_type": {
+          "$ref": "#/definitions/OpsType"
         },
         "project_info": {
           "$ref": "#/definitions/ProjectInfo"
@@ -13930,6 +14950,9 @@
           "type": "string",
           "x-go-name": "Type"
         },
+        "environment_tag": {
+          "$ref": "#/definitions/EnvironmentTag"
+        },
         "host": {
           "type": "string",
           "x-go-name": "Host"
@@ -14128,7 +15151,7 @@
           "x-go-name": "ExportSQLType"
         },
         "export_status": {
-          "description": "导出执行状态 success/failed/not_executed；未开始可为空",
+          "description": "导出执行状态：success / failed / not_executed；未开始可为空",
           "type": "string",
           "enum": [
             "success",
@@ -14223,6 +15246,9 @@
           "format": "date-time",
           "x-go-name": "ExportedAt"
         },
+        "ops_type": {
+          "$ref": "#/definitions/OpsType"
+        },
         "project_info": {
           "$ref": "#/definitions/ProjectInfo"
         },
@@ -14251,6 +15277,15 @@
         "workflow_name": {
           "type": "string",
           "x-go-name": "WorkflowName"
+        },
+        "workflow_template_id": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "WorkflowTemplateId"
+        },
+        "workflow_template_name": {
+          "type": "string",
+          "x-go-name": "WorkflowTemplateName"
         },
         "workflow_uid": {
           "type": "string",
@@ -15055,17 +16090,6 @@
     "ListMemberRoleWithOpRange": {
       "type": "object",
       "properties": {
-        "member_group": {
-          "$ref": "#/definitions/ProjectMemberGroup"
-        },
-        "op_permissions": {
-          "description": "member op permissions",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/UidWithName"
-          },
-          "x-go-name": "OpPermissions"
-        },
         "op_range_type": {
           "description": "op permission range type, only support db service now\nunknown OpRangeTypeUnknown\nglobal OpRangeTypeGlobal  全局权限: 该权限只能被用户使用\nproject OpRangeTypeProject  项目权限: 该权限只能被成员使用\ndb_service OpRangeTypeDBService  项目内的数据源权限: 该权限只能被成员使用",
           "type": "string",
@@ -15090,7 +16114,7 @@
           "$ref": "#/definitions/UidWithName"
         }
       },
-      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "ListMemberTipsItem": {
       "type": "object",
@@ -15236,6 +16260,35 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/ListOpPermission"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListOpsTypesReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OpsType"
           },
           "x-go-name": "Data"
         },
@@ -15978,6 +17031,107 @@
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
+    "ListUserActivityDailyTrendReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserActivityDailyTrendItem"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListUserActivityHourlyDistributionReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserActivityHourlyDistributionItem"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListUserActivityModuleDistributionReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserActivityModuleDistributionItem"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "ListUserActivityUsersReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserActivityUserItem"
+          },
+          "x-go-name": "Data"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "total_nums": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "TotalNums"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "ListUserGroup": {
       "description": "A dms user group",
       "type": "object",
@@ -16252,7 +17406,7 @@
       "type": "object",
       "properties": {
         "tables": {
-          "description": "table_name -\u003e table overview data",
+          "description": "table_name -> table overview data",
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/MaskingOverviewTableData"
@@ -16911,6 +18065,22 @@
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "OpsType": {
+      "type": "object",
+      "title": "OpsType 项目级运维类型字典项（对标 EnvironmentTag，无色标）。",
+      "properties": {
+        "name": {
+          "description": "运维类型名称最多50个字符",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "uid": {
+          "type": "string",
+          "x-go-name": "UID"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
     },
     "Param": {
       "type": "object",
@@ -18164,7 +19334,7 @@
       "type": "object",
       "properties": {
         "tables": {
-          "description": "table_name -\u003e table node",
+          "description": "table_name -> table node",
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/SuspectedSensitiveTableNode"
@@ -18178,7 +19348,7 @@
       "type": "object",
       "properties": {
         "databases": {
-          "description": "database_name -\u003e database node",
+          "description": "database_name -> database node",
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/SuspectedSensitiveDatabaseNode"
@@ -18192,7 +19362,7 @@
       "type": "object",
       "properties": {
         "fields": {
-          "description": "field_name -\u003e scan result",
+          "description": "field_name -> scan result",
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/SensitiveFieldScanResult"
@@ -18245,6 +19415,11 @@
         "url": {
           "type": "string",
           "x-go-name": "Url"
+        },
+        "user_request_log_expired_hours": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "UserRequestLogExpiredHours"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -19137,6 +20312,36 @@
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
     },
+    "UpdateAccessRestrictionReq": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "x-go-name": "Enabled"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateAccessWhitelistRuleReply": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "code",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "$ref": "#/definitions/AccessWhitelistRuleItem"
+        },
+        "message": {
+          "description": "message",
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
     "UpdateBusinessTagReq": {
       "type": "object",
       "properties": {
@@ -19459,6 +20664,10 @@
     "UpdateEnvironmentTagReq": {
       "type": "object",
       "properties": {
+        "color": {
+          "type": "string",
+          "x-go-name": "Color"
+        },
         "environment_name": {
           "type": "string",
           "x-go-name": "Name"
@@ -19749,6 +20958,16 @@
       "properties": {
         "member": {
           "$ref": "#/definitions/UpdateMember"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UpdateOpsTypeReq": {
+      "type": "object",
+      "properties": {
+        "ops_type_name": {
+          "type": "string",
+          "x-go-name": "Name"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
@@ -20158,6 +21377,11 @@
         "url": {
           "type": "string",
           "x-go-name": "Url"
+        },
+        "user_request_log_expired_hours": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "UserRequestLogExpiredHours"
         }
       },
       "x-go-package": "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -20407,6 +21631,154 @@
           "description": "user wxid",
           "type": "string",
           "x-go-name": "WxID"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UserActivityDailyTrendItem": {
+      "type": "object",
+      "properties": {
+        "dau": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "DAU"
+        },
+        "error_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ErrorCount"
+        },
+        "request_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RequestCount"
+        },
+        "stat_date": {
+          "type": "string",
+          "x-go-name": "StatDate"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UserActivityHourlyDistributionItem": {
+      "type": "object",
+      "properties": {
+        "active_users": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ActiveUsers"
+        },
+        "request_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RequestCount"
+        },
+        "stat_hour": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "StatHour"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UserActivityModuleDistributionItem": {
+      "type": "object",
+      "properties": {
+        "module_code": {
+          "type": "string",
+          "x-go-name": "ModuleCode"
+        },
+        "module_name": {
+          "type": "string",
+          "x-go-name": "ModuleName"
+        },
+        "percent": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "Percent"
+        },
+        "request_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RequestCount"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UserActivitySummary": {
+      "type": "object",
+      "properties": {
+        "avg_request_per_user": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "AvgRequestPerUser"
+        },
+        "dau": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "DAU"
+        },
+        "error_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ErrorCount"
+        },
+        "error_rate": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "ErrorRate"
+        },
+        "peak_hour": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "PeakHour"
+        },
+        "peak_hour_requests": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "PeakHourRequests"
+        },
+        "request_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RequestCount"
+        }
+      },
+      "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"
+    },
+    "UserActivityUserItem": {
+      "type": "object",
+      "properties": {
+        "active_days": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ActiveDays"
+        },
+        "last_active_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "LastActiveAt"
+        },
+        "request_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RequestCount"
+        },
+        "top_module_code": {
+          "type": "string",
+          "x-go-name": "TopModuleCode"
+        },
+        "top_module_name": {
+          "type": "string",
+          "x-go-name": "TopModuleName"
+        },
+        "user_name": {
+          "type": "string",
+          "x-go-name": "UserName"
+        },
+        "user_uid": {
+          "type": "string",
+          "x-go-name": "UserUID"
         }
       },
       "x-go-package": "github.com/actiontech/dms/api/dms/service/v1"

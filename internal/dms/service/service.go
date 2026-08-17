@@ -19,6 +19,7 @@ type DMSService struct {
 	DBServiceUsecase            *biz.DBServiceUsecase
 	DBServiceSyncTaskUsecase    *biz.DBServiceSyncTaskUsecase
 	EnvironmentTagUsecase       *biz.EnvironmentTagUsecase
+	OpsTypeUsecase              *biz.OpsTypeUsecase
 	LoginConfigurationUsecase   *biz.LoginConfigurationUsecase
 	UserUsecase                 *biz.UserUsecase
 	UserGroupUsecase            *biz.UserGroupUsecase
@@ -84,13 +85,15 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	// 预定义解决usecase循环依赖问题
 	memberUsecase := biz.MemberUsecase{}
 	environmentTagUsecase := biz.EnvironmentTagUsecase{}
+	opsTypeUsecase := biz.OpsTypeUsecase{}
 	businessTagUsecase := biz.NewBusinessTagUsecase(storage.NewBusinessTagRepo(logger, st), logger)
 	projectRepo := storage.NewProjectRepo(logger, st)
-	projectUsecase := biz.NewProjectUsecase(logger, tx, projectRepo, &memberUsecase, opPermissionVerifyUsecase, pluginUseCase, businessTagUsecase, &environmentTagUsecase)
+	projectUsecase := biz.NewProjectUsecase(logger, tx, projectRepo, &memberUsecase, opPermissionVerifyUsecase, pluginUseCase, businessTagUsecase, &environmentTagUsecase, &opsTypeUsecase)
 	dbServiceRepo := storage.NewDBServiceRepo(logger, st)
 	dmsProxyTargetRepo := storage.NewProxyTargetRepo(logger, st)
 	resourceOverviewUsecase := biz.NewResourceOverviewUsecase(logger, projectRepo, dbServiceRepo, *opPermissionVerifyUsecase, storage.NewResourceOverviewRepo(logger, st), dmsProxyTargetRepo)
 	environmentTagUsecase = *biz.NewEnvironmentTagUsecase(storage.NewEnvironmentTagRepo(logger, st), logger, projectUsecase, opPermissionVerifyUsecase)
+	opsTypeUsecase = *biz.NewOpsTypeUsecase(storage.NewOpsTypeRepo(logger, st), logger, projectUsecase, opPermissionVerifyUsecase)
 	discoveryTaskRepo := storage.NewSensitiveDataDiscoveryTaskRepo(logger, st)
 	dbServiceUseCase := biz.NewDBServiceUsecase(logger, dbServiceRepo, discoveryTaskRepo, pluginUseCase, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, &environmentTagUsecase)
 	dbServiceTaskRepo := storage.NewDBServiceSyncTaskRepo(logger, st)
@@ -164,7 +167,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize unmasking workflow usecase: %v", err)
 	}
-	DataExportWorkflowUsecase := biz.NewDataExportWorkflowUsecase(logger, tx, workflowRepo, dataExportTaskRepo, dbServiceRepo, dataExportMaskingConfigRepo, dataExportMaskingRuleRepo, opPermissionVerifyUsecase, projectUsecase, dmsProxyTargetRepo, clusterUsecase, webhookConfigurationUsecase, userUsecase, systemVariableUsecase, dbServiceUseCase, unmaskingWorkflowUsecase, fmt.Sprintf("%s:%d", opts.ReportHost, opts.APIServiceOpts.Port))
+	DataExportWorkflowUsecase := biz.NewDataExportWorkflowUsecase(logger, tx, workflowRepo, dataExportTaskRepo, dbServiceRepo, dataExportMaskingConfigRepo, dataExportMaskingRuleRepo, opPermissionVerifyUsecase, projectUsecase, &opsTypeUsecase, dmsProxyTargetRepo, clusterUsecase, webhookConfigurationUsecase, userUsecase, systemVariableUsecase, dbServiceUseCase, unmaskingWorkflowUsecase, fmt.Sprintf("%s:%d", opts.ReportHost, opts.APIServiceOpts.Port))
 	dataMaskingUsecase, stopDataMaskingScheduler, err := initDataMaskingUsecase(logger, st, dbServiceUseCase, clusterUsecase, dmsProxyTargetRepo)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize data masking usecase: %v", err)
@@ -189,6 +192,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		ResourceOverviewUsecase:     resourceOverviewUsecase,
 		BusinessTagUsecase:          businessTagUsecase,
 		EnvironmentTagUsecase:       &environmentTagUsecase,
+		OpsTypeUsecase:              &opsTypeUsecase,
 		PluginUsecase:               pluginUseCase,
 		DBServiceUsecase:            dbServiceUseCase,
 		DBServiceSyncTaskUsecase:    dbServiceTaskUsecase,

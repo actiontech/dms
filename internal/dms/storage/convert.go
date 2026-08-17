@@ -1051,6 +1051,7 @@ func convertBizWorkflow(b *biz.Workflow) *model.Workflow {
 		WorkflowRecordUid:    b.WorkflowRecordUid,
 		WorkflowTemplateId:   b.WorkflowTemplateId,
 		WorkflowTemplateName: b.WorkflowTemplateName,
+		OpsTypeUID:           b.OpsTypeUID,
 	}
 	if b.WorkflowRecord != nil {
 		workflow.WorkflowRecord = convertBizWorkflowRecord(b.WorkflowRecord)
@@ -1072,6 +1073,7 @@ func convertModelWorkflow(m *model.Workflow) (w *biz.Workflow, err error) {
 		WorkflowRecordUid:    m.WorkflowRecordUid,
 		WorkflowTemplateId:   m.WorkflowTemplateId,
 		WorkflowTemplateName: m.WorkflowTemplateName,
+		OpsTypeUID:           m.OpsTypeUID,
 		TaskIds:              m.GetTaskIds(),
 	}
 	if m.WorkflowRecord != nil {

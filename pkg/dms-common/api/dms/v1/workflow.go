@@ -23,6 +23,8 @@ type FilterGlobalDataExportWorkflowReq struct {
 	FilterCreateTimeTo               string                     `json:"filter_create_time_to" query:"filter_create_time_to"`
 	FilterUpdateTimeFrom             string                     `json:"filter_update_time_from" query:"filter_update_time_from"`
 	FilterUpdateTimeTo               string                     `json:"filter_update_time_to" query:"filter_update_time_to"`
+	// FilterByOpsTypeUid 按运维类型单选筛选（空则不筛；不提供「未设置」）
+	FilterByOpsTypeUid string `json:"filter_by_ops_type_uid" query:"filter_by_ops_type_uid"`
 
 	// CheckUserCanAccess enables OR-based self-relevant filtering:
 	// (creator OR current assignee OR viewable db_service). When true,
@@ -53,6 +55,7 @@ type ListDataExportWorkflow struct {
 	CreatedAt                time.Time                   `json:"created_at"`                      // 数据导出工单的创建时间
 	UpdatedAt                time.Time                   `json:"updated_at"`                      // 数据导出工单的更新时间
 	Status                   DataExportWorkflowStatus    `json:"status"`                          // 数据导出工单的状态
+	OpsType                  *OpsType                    `json:"ops_type,omitempty"`              // 运维类型；未设置或字典已删时省略
 	CurrentStepAssigneeUsers []UidWithName               `json:"current_step_assignee_user_list"` // 工单待操作人
 	DBServiceInfos           []*DBServiceUidWithNameInfo `json:"db_service_info,omitempty"`       // 所属数据源信息
 	ProjectInfo              *ProjectInfo                `json:"project_info,omitempty"`          // 所属项目信息

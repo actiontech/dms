@@ -94,6 +94,10 @@ func GetGlobalDataExportWorkflowsList(ctx context.Context, dmsAddr string, req d
 		query.Set("filter_update_time_to", req.FilterUpdateTimeTo)
 	}
 
+	if req.FilterByOpsTypeUid != "" {
+		query.Set("filter_by_ops_type_uid", req.FilterByOpsTypeUid)
+	}
+
 	// 将查询参数附加到 URL
 	baseURL.RawQuery = query.Encode()
 

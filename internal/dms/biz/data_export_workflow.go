@@ -14,6 +14,9 @@ import (
 
 var ErrDataExportWorkflowNameDuplicate = errors.New("data export workflow name duplicate")
 
+// ErrOpsTypeNotBelongToProject 所选运维类型标识不属于本项目字典（或不存在）。
+var ErrOpsTypeNotBelongToProject = errors.New("所选运维类型不属于本项目字典")
+
 type DataExportWorkflowStatus string
 
 const (
@@ -72,8 +75,10 @@ type Workflow struct {
 	WorkflowRecordUid    string
 	WorkflowTemplateId   uint
 	WorkflowTemplateName string
-	Tasks                []Task
-	TaskIds              []string
+	// OpsTypeUID 运维类型字典项标识；空表示未设置；创建后不可改
+	OpsTypeUID string
+	Tasks      []Task
+	TaskIds    []string
 
 	WorkflowRecord *WorkflowRecord
 	DBServiceInfos []*dmsCommonV1.DBServiceUidWithNameInfo // 所属数据源信息
@@ -118,6 +123,8 @@ type WorkflowRepo interface {
 	UpdateWorkflowStatusById(ctx context.Context, dataExportWorkflowUid string, status DataExportWorkflowStatus) error
 	// UpdateWorkflowExportStatusById 更新工单导出状态与失败摘要（进入 exporting 时 summary 传空以清空上一轮）
 	UpdateWorkflowExportStatusById(ctx context.Context, dataExportWorkflowUid string, status DataExportWorkflowStatus, exportFailSummary string) error
+	// UpdateWorkflowColumns 更新 workflows 行字段；强制忽略 ops_type_uid（创建后不可改）。
+	UpdateWorkflowColumns(ctx context.Context, workflowUID string, updates map[string]interface{}) error
 	GetDataExportWorkflowsByIds(ctx context.Context, dataExportWorkflowUid []string) ([]*Workflow, error)
 	CancelWorkflow(ctx context.Context, workflowRecordIds []string, workflowSteps []*WorkflowStep, operateId string) error
 	AuditWorkflow(ctx context.Context, dataExportWorkflowUid string, status DataExportWorkflowStatus, step *WorkflowStep, operateId, reason string) error
@@ -133,6 +140,8 @@ type WorkflowRepo interface {
 	AuditWorkflowAndAdvanceStep(ctx context.Context, workflowRecordUid string, step *WorkflowStep, nextStepId uint64, operateId, reason string) error
 	// CountDataExportWorkflowsByTemplateId 供 SQLE 跨库引用检查：模板软删不影响已建工单流转，仅统计本地冗余引用。
 	CountDataExportWorkflowsByTemplateId(ctx context.Context, projectUID string, templateID uint) (int64, error)
+	// CountDataExportWorkflowsByOpsTypeUID 供运维类型删除前引用校验：统计本项目数据导出工单对该类型标识的引用数。
+	CountDataExportWorkflowsByOpsTypeUID(ctx context.Context, projectUID, opsTypeUID string) (int64, error)
 }
 
 type DataExportWorkflowUsecase struct {
@@ -145,6 +154,7 @@ type DataExportWorkflowUsecase struct {
 	dmsProxyTargetRepo        ProxyTargetRepo
 	opPermissionVerifyUsecase *OpPermissionVerifyUsecase
 	projectUsecase            *ProjectUsecase
+	opsTypeUsecase            *OpsTypeUsecase
 	clusterUsecase            *ClusterUsecase
 	webhookUsecase            *WebHookConfigurationUsecase
 	userUsecase               *UserUsecase
@@ -155,7 +165,7 @@ type DataExportWorkflowUsecase struct {
 	reportHost                string
 }
 
-func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator, repo WorkflowRepo, dataExportTaskRepo DataExportTaskRepo, dbServiceRepo DBServiceRepo, maskingConfigRepo DataExportMaskingConfigRepo, maskingRuleRepo DataExportMaskingRuleRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, proxyTargetRepo ProxyTargetRepo, clusterUseCase *ClusterUsecase, webhookUsecase *WebHookConfigurationUsecase, userUsecase *UserUsecase, systemVariableUsecase *SystemVariableUsecase, dbServiceUsecase *DBServiceUsecase, unmaskingWorkflowUsecase *dataMaskingBiz.UnmaskingWorkflowUsecase, reportHost string) *DataExportWorkflowUsecase {
+func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator, repo WorkflowRepo, dataExportTaskRepo DataExportTaskRepo, dbServiceRepo DBServiceRepo, maskingConfigRepo DataExportMaskingConfigRepo, maskingRuleRepo DataExportMaskingRuleRepo, opPermissionVerifyUsecase *OpPermissionVerifyUsecase, projectUsecase *ProjectUsecase, opsTypeUsecase *OpsTypeUsecase, proxyTargetRepo ProxyTargetRepo, clusterUseCase *ClusterUsecase, webhookUsecase *WebHookConfigurationUsecase, userUsecase *UserUsecase, systemVariableUsecase *SystemVariableUsecase, dbServiceUsecase *DBServiceUsecase, unmaskingWorkflowUsecase *dataMaskingBiz.UnmaskingWorkflowUsecase, reportHost string) *DataExportWorkflowUsecase {
 	return &DataExportWorkflowUsecase{
 		tx:                        tx,
 		repo:                      repo,
@@ -164,6 +174,7 @@ func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator
 		maskingRuleRepo:           maskingRuleRepo,
 		opPermissionVerifyUsecase: opPermissionVerifyUsecase,
 		projectUsecase:            projectUsecase,
+		opsTypeUsecase:            opsTypeUsecase,
 		dmsProxyTargetRepo:        proxyTargetRepo,
 		dataExportTaskRepo:        dataExportTaskRepo,
 		clusterUsecase:            clusterUseCase,
@@ -175,6 +186,14 @@ func NewDataExportWorkflowUsecase(logger utilLog.Logger, tx TransactionGenerator
 		log:                       utilLog.NewHelper(logger, utilLog.WithMessageKey("biz.dataExportWorkflow")),
 		reportHost:                reportHost,
 	}
+}
+
+// CountDataExportWorkflowsByOpsTypeUID 统计本项目数据导出工单对运维类型标识的引用数（删除字典前引用校验）。
+func (d *DataExportWorkflowUsecase) CountDataExportWorkflowsByOpsTypeUID(ctx context.Context, projectUID, opsTypeUID string) (int64, error) {
+	if opsTypeUID == "" {
+		return 0, nil
+	}
+	return d.repo.CountDataExportWorkflowsByOpsTypeUID(ctx, projectUID, opsTypeUID)
 }
 
 type ListWorkflowsOption struct {

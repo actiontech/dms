@@ -78,6 +78,12 @@ func (s *APIServer) initRouter() error {
 		environmentTagV1.PUT("/:environment_tag_uid", s.DMSController.UpdateEnvironmentTag)
 		environmentTagV1.DELETE("/:environment_tag_uid", s.DMSController.DeleteEnvironmentTag)
 
+		opsTypeV1 := v1.Group(dmsV1.OpsTypeRouterGroup)
+		opsTypeV1.POST("", s.DMSController.CreateOpsType)
+		opsTypeV1.GET("", s.DMSController.ListOpsTypes)
+		opsTypeV1.PUT("/:ops_type_uid", s.DMSController.UpdateOpsType)
+		opsTypeV1.DELETE("/:ops_type_uid", s.DMSController.DeleteOpsType)
+
 		dbServiceSyncTaskV1 := v1.Group("/dms/db_service_sync_tasks")
 		dbServiceSyncTaskV1.GET("/tips", s.DMSController.ListDBServiceSyncTaskTips)
 		dbServiceSyncTaskV1.GET("", s.DMSController.ListDBServiceSyncTasks)

@@ -16,6 +16,7 @@ var (
 	UserRouterGroup               = "/dms/users"
 	DBServiceRouterGroup          = "/dms/projects/:project_uid/db_services"
 	DBEnvironmentTagGroup         = "/dms/projects/:project_uid/environment_tags"
+	OpsTypeRouterGroup            = "/dms/projects/:project_uid/ops_types"
 	ProxyRouterGroup              = "/dms/proxys"
 	PluginRouterGroup             = "/dms/plugins"
 	MemberRouterGroup             = "/dms/projects/:project_uid/members"
@@ -95,4 +96,8 @@ func GetDBConnectionAbleRouter() string {
 
 func GetGlobalDataExportWorkflowsRouter() string {
 	return fmt.Sprintf("%s%s", CurrentGroupVersion, "/dms/dashboard/data_export_workflows")
+}
+
+func GetOpsTypesRouter(projectUid string) string {
+	return fmt.Sprintf("%s%s", CurrentGroupVersion, strings.Replace(OpsTypeRouterGroup, ":project_uid", projectUid, 1))
 }
