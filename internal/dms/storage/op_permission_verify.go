@@ -442,6 +442,7 @@ func (o *OpPermissionVerifyRepo) ListUsersOpPermissionInProject(ctx context.Cont
 			}
 
 			{
+				// 角色挂载权限 UNION 成员/成员组项目权限槽（与 GetUserOpPermissionInProject 合并语义一致）
 				if err = tx.WithContext(ctx).Raw(`
 				SELECT 
 					m.user_uid, p.op_permission_uid, r.op_range_type, r.range_uids 
@@ -455,7 +456,20 @@ func (o *OpPermissionVerifyRepo) ListUsersOpPermissionInProject(ctx context.Cont
 				JOIN member_group_users mgu ON mg.uid = mgu.member_group_uid
 				JOIN member_group_role_op_ranges mgror ON mgu.member_group_uid = mgror.member_group_uid
 				JOIN role_op_permissions rop ON mgror.role_uid = rop.role_uid
-				WHERE mg.project_uid = ? and mgu.user_uid in (?)`, userIds, projectUid, projectUid, userIds).Scan(&permissionResults).Error; err != nil {
+				WHERE mg.project_uid = ? and mgu.user_uid in (?)
+				UNION
+				SELECT
+					m.user_uid, mop.op_permission_uid, 'project' AS op_range_type, m.project_uid AS range_uids
+				FROM members AS m
+				JOIN member_op_permissions AS mop ON m.uid = mop.member_uid AND m.user_uid IN (?) AND m.project_uid = ?
+				UNION
+				SELECT
+					DISTINCT mgu.user_uid, mgop.op_permission_uid, 'project' AS op_range_type, mg.project_uid AS range_uids
+				FROM member_groups mg
+				JOIN member_group_users mgu ON mg.uid = mgu.member_group_uid
+				JOIN member_group_op_permissions AS mgop ON mg.uid = mgop.member_group_uid
+				WHERE mg.project_uid = ? AND mgu.user_uid IN (?)`,
+					userIds, projectUid, projectUid, userIds, userIds, projectUid, projectUid, userIds).Scan(&permissionResults).Error; err != nil {
 					return fmt.Errorf("failed to get user op permission in project: %v", err)
 				}
 			}
