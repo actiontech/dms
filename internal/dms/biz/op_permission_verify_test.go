@@ -323,6 +323,7 @@ func TestGetCanOpDBUsers(t *testing.T) {
 		members         []ListMembersOpPermissionItem
 		users           map[string]*User
 		isBusinessWrite bool
+		needPermUID     string
 		wantUserUIDs    []string
 	}{
 		{
@@ -340,6 +341,7 @@ func TestGetCanOpDBUsers(t *testing.T) {
 				pkgConst.UIDOfUserAdmin: {UID: pkgConst.UIDOfUserAdmin, BusinessWritePermission: true},
 			},
 			isBusinessWrite: true,
+			needPermUID:     opPermExportApproval,
 			wantUserUIDs:    []string{pkgConst.UIDOfUserAdmin},
 		},
 		{
@@ -357,6 +359,7 @@ func TestGetCanOpDBUsers(t *testing.T) {
 				pkgConst.UIDOfUserAdmin: {UID: pkgConst.UIDOfUserAdmin, BusinessWritePermission: false},
 			},
 			isBusinessWrite: true,
+			needPermUID:     opPermExportApproval,
 			// Admin has ProjectAdmin but BWP=false skips admin privilege;
 			// userCanOpDBWithoutAdminPrivilege skips ProjectAdmin -> not included
 			wantUserUIDs: []string{},
@@ -381,6 +384,7 @@ func TestGetCanOpDBUsers(t *testing.T) {
 				pkgConst.UIDOfUserAdmin: {UID: pkgConst.UIDOfUserAdmin, BusinessWritePermission: false},
 			},
 			isBusinessWrite: true,
+			needPermUID:     opPermExportApproval,
 			// Admin has BWP=false but also has explicit DB permission -> included via project auth
 			wantUserUIDs: []string{pkgConst.UIDOfUserAdmin},
 		},
@@ -411,6 +415,7 @@ func TestGetCanOpDBUsers(t *testing.T) {
 				"normal_user_1":         {UID: "normal_user_1", BusinessWritePermission: true},
 			},
 			isBusinessWrite: true,
+			needPermUID:     opPermExportApproval,
 			// Only normal user has explicit DB permission; admin BWP=false without explicit auth
 			wantUserUIDs: []string{"normal_user_1"},
 		},
@@ -429,6 +434,7 @@ func TestGetCanOpDBUsers(t *testing.T) {
 				pkgConst.UIDOfUserAdmin: {UID: pkgConst.UIDOfUserAdmin, BusinessWritePermission: false},
 			},
 			isBusinessWrite: false,
+			needPermUID:     opPermExportApproval,
 			// Resource config: BWP doesn't affect, admin privilege applies
 			wantUserUIDs: []string{pkgConst.UIDOfUserAdmin},
 		},
@@ -451,6 +457,7 @@ func TestGetCanOpDBUsers(t *testing.T) {
 				"normal_user_1": {UID: "normal_user_1", BusinessWritePermission: true},
 			},
 			isBusinessWrite: true,
+			needPermUID:     opPermExportApproval,
 			wantUserUIDs:    []string{"normal_user_1"},
 		},
 		{
@@ -466,7 +473,88 @@ func TestGetCanOpDBUsers(t *testing.T) {
 				"normal_user_1": {UID: "normal_user_1", BusinessWritePermission: true},
 			},
 			isBusinessWrite: true,
+			needPermUID:     opPermExportApproval,
 			wantUserUIDs:    []string{},
+		},
+		{
+			name: "project_range_masking_audit_hits_all_db_in_project",
+			members: []ListMembersOpPermissionItem{
+				{
+					UserUid:  "masking_approver_b",
+					UserName: "approver_b",
+					OpPermissions: []OpPermissionWithOpRange{
+						{
+							OpPermissionUID: pkgConst.UIdOfOpPermissionMaskingAudit,
+							OpRangeType:     OpRangeType(dmsV1.OpRangeTypeProject),
+							RangeUIDs:       []string{testProjectUID},
+						},
+					},
+				},
+			},
+			users: map[string]*User{
+				"masking_approver_b": {UID: "masking_approver_b", BusinessWritePermission: true},
+			},
+			isBusinessWrite: true,
+			needPermUID:     pkgConst.UIdOfOpPermissionMaskingAudit,
+			wantUserUIDs:    []string{"masking_approver_b"},
+		},
+		{
+			name: "project_range_masking_audit_not_selected_for_export_approval",
+			members: []ListMembersOpPermissionItem{
+				{
+					UserUid:  "masking_only_user",
+					UserName: "masking_only",
+					OpPermissions: []OpPermissionWithOpRange{
+						{
+							OpPermissionUID: pkgConst.UIdOfOpPermissionMaskingAudit,
+							OpRangeType:     OpRangeType(dmsV1.OpRangeTypeProject),
+							RangeUIDs:       []string{testProjectUID},
+						},
+					},
+				},
+				{
+					UserUid:  "export_approver",
+					UserName: "export_approver",
+					OpPermissions: []OpPermissionWithOpRange{
+						{
+							OpPermissionUID: opPermExportApproval,
+							OpRangeType:     OpRangeType(dmsV1.OpRangeTypeDBService),
+							RangeUIDs:       []string{testDBServiceUID},
+						},
+					},
+				},
+			},
+			users: map[string]*User{
+				"masking_only_user": {UID: "masking_only_user", BusinessWritePermission: true},
+				"export_approver":   {UID: "export_approver", BusinessWritePermission: true},
+			},
+			isBusinessWrite: true,
+			needPermUID:     opPermExportApproval,
+			// need=ExportApproval：仅有 project·700038 者不得入选
+			wantUserUIDs: []string{"export_approver"},
+		},
+		{
+			name: "admin_bwp_off_with_project_range_masking_audit",
+			members: []ListMembersOpPermissionItem{
+				{
+					UserUid:  pkgConst.UIDOfUserAdmin,
+					UserName: "admin",
+					OpPermissions: []OpPermissionWithOpRange{
+						{OpPermissionUID: pkgConst.UIDOfOpPermissionProjectAdmin},
+						{
+							OpPermissionUID: pkgConst.UIdOfOpPermissionMaskingAudit,
+							OpRangeType:     OpRangeType(dmsV1.OpRangeTypeProject),
+							RangeUIDs:       []string{testProjectUID},
+						},
+					},
+				},
+			},
+			users: map[string]*User{
+				pkgConst.UIDOfUserAdmin: {UID: pkgConst.UIDOfUserAdmin, BusinessWritePermission: false},
+			},
+			isBusinessWrite: true,
+			needPermUID:     pkgConst.UIdOfOpPermissionMaskingAudit,
+			wantUserUIDs:    []string{pkgConst.UIDOfUserAdmin},
 		},
 	}
 
@@ -485,11 +573,47 @@ func TestGetCanOpDBUsers(t *testing.T) {
 				context.Background(),
 				testProjectUID,
 				testDBServiceUID,
-				[]string{opPermExportApproval},
+				[]string{tc.needPermUID},
 				tc.isBusinessWrite,
 			)
 			assert.NoError(t, err)
 			assert.ElementsMatch(t, tc.wantUserUIDs, got, "case: %s", tc.name)
 		})
 	}
+}
+
+// TestUserCanOpDB_ProjectRange covers S2: project-scoped permission hits all DB services in project.
+func TestUserCanOpDB_ProjectRange(t *testing.T) {
+	uc := newTestOpPermissionVerifyUsecase(&mockUserRepo{users: map[string]*User{}}, &mockOpPermissionVerifyRepo{})
+	maskingAudit := pkgConst.UIdOfOpPermissionMaskingAudit
+	exportApproval := pkgConst.UIDOfOpPermissionExportApprovalReject
+
+	t.Run("project_range_matching_uid_hits", func(t *testing.T) {
+		perms := []OpPermissionWithOpRange{{
+			OpPermissionUID: maskingAudit,
+			OpRangeType:     OpRangeType(dmsV1.OpRangeTypeProject),
+			RangeUIDs:       []string{"project_1"},
+		}}
+		assert.True(t, uc.UserCanOpDB(perms, []string{maskingAudit}, "db_any"))
+		assert.True(t, uc.userCanOpDBWithoutAdminPrivilege(perms, []string{maskingAudit}, "db_any"))
+	})
+
+	t.Run("project_range_wrong_uid_misses", func(t *testing.T) {
+		perms := []OpPermissionWithOpRange{{
+			OpPermissionUID: maskingAudit,
+			OpRangeType:     OpRangeType(dmsV1.OpRangeTypeProject),
+			RangeUIDs:       []string{"project_1"},
+		}}
+		assert.False(t, uc.UserCanOpDB(perms, []string{exportApproval}, "db_1"))
+	})
+
+	t.Run("db_service_range_still_requires_uid_match", func(t *testing.T) {
+		perms := []OpPermissionWithOpRange{{
+			OpPermissionUID: exportApproval,
+			OpRangeType:     OpRangeType(dmsV1.OpRangeTypeDBService),
+			RangeUIDs:       []string{"db_1"},
+		}}
+		assert.True(t, uc.UserCanOpDB(perms, []string{exportApproval}, "db_1"))
+		assert.False(t, uc.UserCanOpDB(perms, []string{exportApproval}, "db_2"))
+	})
 }

@@ -401,6 +401,16 @@ func (o *OpPermissionVerifyUsecase) GetUserProject(ctx context.Context, userUid 
 	return projects, nil
 }
 
+// UserCanOpDB 判断用户在 dbServiceUid 上是否具备 needOpPermissionTypes 中的任一权限。
+//
+// 两种授权范围的判定语义不同：
+//   - db_service：授予到具体数据源，需 RangeUIDs 命中 dbServiceUid；
+//   - project：授予到整个项目，视为命中项目内全部数据源（如「脱敏审核」700038）。
+//
+// project 分支不会放大数据源级权限：范围为 project 的记录只可能来自成员/成员组的
+// 「项目管理权限」槽，而该槽的可选项由 ListProjectOpPermissions 限定为注册范围是
+// project 的权限；数据源级授权走角色，其可选项由 ListMemberOpPermissions 明确排除
+// project 范围。两个入口互斥，db_service 权限不会被标记成 project。
 func (o *OpPermissionVerifyUsecase) UserCanOpDB(userOpPermissions []OpPermissionWithOpRange, needOpPermissionTypes []string, dbServiceUid string) bool {
 	for _, userOpPermission := range userOpPermissions {
 		// 项目管理员可以查看所有数据源
@@ -410,13 +420,19 @@ func (o *OpPermissionVerifyUsecase) UserCanOpDB(userOpPermissions []OpPermission
 
 		// 动作权限(创建、审核、上线工单等)
 		for _, needOpPermission := range needOpPermissionTypes {
-			if needOpPermission == userOpPermission.OpPermissionUID && userOpPermission.OpRangeType == OpRangeType(dmsV1.OpRangeTypeDBService) {
+			if needOpPermission != userOpPermission.OpPermissionUID {
+				continue
+			}
+			switch userOpPermission.OpRangeType {
+			case OpRangeType(dmsV1.OpRangeTypeDBService):
 				// 对象权限(指定数据源)
 				for _, id := range userOpPermission.RangeUIDs {
 					if id == dbServiceUid {
 						return true
 					}
 				}
+			case OpRangeType(dmsV1.OpRangeTypeProject):
+				return true
 			}
 		}
 	}
@@ -481,6 +497,8 @@ func (o *OpPermissionVerifyUsecase) GetCanOpDBUsers(ctx context.Context, project
 
 // userCanOpDBWithoutAdminPrivilege checks DB operation permission without
 // considering ProjectAdmin privilege (used for BWP-disabled system administrators).
+// 范围判定与 UserCanOpDB 保持一致：project 范围视为命中项目内全部数据源，
+// 否则 BWP 关闭的管理员会因项目级授权被漏判。
 func (o *OpPermissionVerifyUsecase) userCanOpDBWithoutAdminPrivilege(userOpPermissions []OpPermissionWithOpRange, needOpPermissionTypes []string, dbServiceUid string) bool {
 	for _, userOpPermission := range userOpPermissions {
 		// Skip ProjectAdmin check - that's the admin privilege we're excluding
@@ -489,12 +507,18 @@ func (o *OpPermissionVerifyUsecase) userCanOpDBWithoutAdminPrivilege(userOpPermi
 		}
 
 		for _, needOpPermission := range needOpPermissionTypes {
-			if needOpPermission == userOpPermission.OpPermissionUID && userOpPermission.OpRangeType == OpRangeType(dmsV1.OpRangeTypeDBService) {
+			if needOpPermission != userOpPermission.OpPermissionUID {
+				continue
+			}
+			switch userOpPermission.OpRangeType {
+			case OpRangeType(dmsV1.OpRangeTypeDBService):
 				for _, id := range userOpPermission.RangeUIDs {
 					if id == dbServiceUid {
 						return true
 					}
 				}
+			case OpRangeType(dmsV1.OpRangeTypeProject):
+				return true
 			}
 		}
 	}
