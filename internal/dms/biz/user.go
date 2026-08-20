@@ -627,6 +627,24 @@ func (d *UserUsecase) CheckUserExist(ctx context.Context, userUids []string) (ex
 	return d.repo.CheckUserExist(ctx, userUids)
 }
 
+// EnsureUserEligibleForProjectMembership 校验用户可被新纳入项目成员/成员组：存在、未删除、状态正常。
+func (d *UserUsecase) EnsureUserEligibleForProjectMembership(ctx context.Context, userUid string) error {
+	user, err := d.repo.GetUserIncludeDeleted(ctx, userUid)
+	if err != nil {
+		if errors.Is(err, pkgErr.ErrStorageNoData) {
+			return fmt.Errorf("user not exist")
+		}
+		return fmt.Errorf("get user failed: %v", err)
+	}
+	if user.Deleted {
+		return fmt.Errorf("user has been deleted")
+	}
+	if user.Stat != UserStatOK {
+		return fmt.Errorf("user is disabled")
+	}
+	return nil
+}
+
 // InsureUserToUserGroups 确保用户属于指定的多个用户组
 func (d *UserUsecase) InsureUserToUserGroups(ctx context.Context, userGroupUids []string, userUid string) (err error) {
 	// check
