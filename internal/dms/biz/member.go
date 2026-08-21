@@ -99,11 +99,9 @@ func (m *MemberUsecase) CreateMember(ctx context.Context, currentUserUid string,
 			return "", fmt.Errorf("create member error: %v", err)
 		}
 
-		// 检查成员用户存在
-		if exist, err := m.userUsecase.CheckUserExist(ctx, []string{memberUserUid}); err != nil {
-			return "", fmt.Errorf("check user exist failed: %v", err)
-		} else if !exist {
-			return "", fmt.Errorf("user not exist")
+		// 检查成员用户可纳入（存在、未删除、状态正常）
+		if err := m.userUsecase.EnsureUserEligibleForProjectMembership(ctx, memberUserUid); err != nil {
+			return "", err
 		}
 
 		if err := m.CheckRoleAndOpRanges(ctx, roleAndOpRanges); err != nil {
