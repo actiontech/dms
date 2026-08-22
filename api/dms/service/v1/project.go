@@ -307,9 +307,33 @@ type CheckDBServicesPrivilegesReq struct {
 // swagger:model CheckDBServicesPrivilegesReply
 type CheckDBServicesPrivilegesReply struct {
 	base.GenericResp
-	Data []CheckDBServicesPrivilegesItem `json:"data"`
+	Data []CheckDBServicePrivilegeResult `json:"data"`
 }
 
-type CheckDBServicesPrivilegesItem struct {
-	CheckDBServicesPrivileges []CheckDBServiceIsConnectableReplyItem
+// CheckDBServicePrivilegeResult is the per-datasource privilege probe result (S2).
+type CheckDBServicePrivilegeResult struct {
+	DBType               string                          `json:"db_type"`
+	CheckSupport         string                          `json:"check_support"` // supported | unsupported_auto_check
+	ConnectivityPrecheck ConnectivityPrecheckResult      `json:"connectivity_precheck"`
+	Modules              []DBServicePrivilegeModuleItem   `json:"modules"`
+	SummaryMessage       string                          `json:"summary_message,omitempty"`
+}
+
+type ConnectivityPrecheckResult struct {
+	OK           bool   `json:"ok"`
+	ErrorMessage string `json:"error_message,omitempty"`
+}
+
+type DBServicePrivilegeModuleItem struct {
+	Module            string                        `json:"module"`
+	ModuleName        string                        `json:"module_name"`
+	Status            string                        `json:"status"` // available | partially_available | unavailable | unsupported_auto_check
+	MissingPrivileges []DBServiceMissingPrivilegeItem `json:"missing_privileges"`
+	Message           string                        `json:"message,omitempty"`
+}
+
+type DBServiceMissingPrivilegeItem struct {
+	Privilege   string `json:"privilege"`
+	ObjectScope string `json:"object_scope,omitempty"`
+	Note        string `json:"note,omitempty"`
 }
