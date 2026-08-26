@@ -189,7 +189,80 @@ func (d *UserRepo) ListUsers(ctx context.Context, opt *biz.ListUsersOption) (use
 		}
 		users = append(users, ds)
 	}
+
+	// Batch fill projects = direct members ∪ member groups (same semantics as GetUserProject; no N+1).
+	uids := make([]string, 0, len(users))
+	for _, u := range users {
+		if u != nil && u.UID != "" {
+			uids = append(uids, u.UID)
+		}
+	}
+	projectNamesByUID, err := d.listProjectNamesByUserUIDs(ctx, uids)
+	if err != nil {
+		return nil, 0, pkgErr.WrapStorageErr(d.log, err)
+	}
+	for _, u := range users {
+		if u == nil {
+			continue
+		}
+		if names, ok := projectNamesByUID[u.UID]; ok {
+			u.Projects = names
+		} else {
+			u.Projects = []string{}
+		}
+	}
 	return users, total, nil
+}
+
+type userProjectNameRow struct {
+	UserUID     string `gorm:"column:user_uid"`
+	ProjectName string `gorm:"column:project_name"`
+}
+
+// listProjectNamesByUserUIDs returns project names per user UID in one query
+// (members UNION member_groups via member_group_users), matching GetUserProject set semantics.
+func (d *UserRepo) listProjectNamesByUserUIDs(ctx context.Context, uids []string) (map[string][]string, error) {
+	result := make(map[string][]string)
+	if len(uids) == 0 {
+		return result, nil
+	}
+
+	var rows []userProjectNameRow
+	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Raw(`
+			SELECT m.user_uid AS user_uid, n.name AS project_name
+			FROM projects n
+			JOIN members m ON n.uid = m.project_uid
+			WHERE m.user_uid IN (?)
+			UNION
+			SELECT mgu.user_uid AS user_uid, n.name AS project_name
+			FROM projects n
+			JOIN member_groups mg ON n.uid = mg.project_uid
+			JOIN member_group_users mgu ON mgu.member_group_uid = mg.uid
+			WHERE mgu.user_uid IN (?)
+		`, uids, uids).Scan(&rows).Error; err != nil {
+			return fmt.Errorf("failed to list project names by user uids: %v", err)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	seen := make(map[string]map[string]struct{}, len(uids))
+	for _, row := range rows {
+		if row.UserUID == "" || row.ProjectName == "" {
+			continue
+		}
+		if _, ok := seen[row.UserUID]; !ok {
+			seen[row.UserUID] = make(map[string]struct{})
+		}
+		if _, dup := seen[row.UserUID][row.ProjectName]; dup {
+			continue
+		}
+		seen[row.UserUID][row.ProjectName] = struct{}{}
+		result[row.UserUID] = append(result[row.UserUID], row.ProjectName)
+	}
+	return result, nil
 }
 
 func (d *UserRepo) CountUsers(ctx context.Context, opts []constant.FilterCondition) (total int64, err error) {
