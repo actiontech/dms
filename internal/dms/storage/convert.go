@@ -255,9 +255,15 @@ func convertModelUser(u *model.User) (*biz.User, error) {
 	}
 
 	projects := make([]string, 0)
+	seenProjects := make(map[string]struct{})
 	for _, member := range u.Members {
 		if member != nil && member.Project != nil {
-			projects = append(projects, member.Project.Name)
+			name := member.Project.Name
+			if _, ok := seenProjects[name]; ok {
+				continue
+			}
+			seenProjects[name] = struct{}{}
+			projects = append(projects, name)
 		}
 	}
 
