@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -231,7 +232,7 @@ func (f *FeishuNotifier) Notify(ctx context.Context, notificationSubject, notifi
 		}
 	}
 	if len(errMsgs) > 0 {
-		return fmt.Errorf(strings.Join(errMsgs, "\n"))
+		return errors.New(strings.Join(errMsgs, "\n"))
 	}
 	return nil
 }
