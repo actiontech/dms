@@ -271,23 +271,44 @@ func (d *DMSService) CheckDBServiceHasEnoughPrivileges(ctx context.Context, req 
 	if err != nil {
 		return nil, err
 	}
-	checkDBServicesPrivileges := make([]dmsV1.CheckDBServicesPrivilegesItem, len(req.DBServices))
-	for i, checkDBServicePrivilegesResult := range checkdbServicePrivilegesResults {
-		items := make([]dmsV1.CheckDBServiceIsConnectableReplyItem, 0)
-		for _, item := range checkDBServicePrivilegesResult.ComponentPrivilegesResult {
-			items = append(items, dmsV1.CheckDBServiceIsConnectableReplyItem{
-				IsConnectable:       item.IsConnectable,
-				Component:           item.Component,
-				ConnectErrorMessage: item.ConnectErrorMessage,
+	return &dmsV1.CheckDBServicesPrivilegesReply{
+		Data: mapPrivilegeCheckResults(checkdbServicePrivilegesResults),
+	}, nil
+}
+
+// mapPrivilegeCheckResults maps biz privilege probe results to the S2 HTTP Reply shape.
+// Missing privileges must surface as modules[] statuses, never as connectivity failure fields.
+func mapPrivilegeCheckResults(results []*biz.CheckDBServicePrivileges) []dmsV1.CheckDBServicePrivilegeResult {
+	out := make([]dmsV1.CheckDBServicePrivilegeResult, len(results))
+	for i, checkDBServicePrivilegesResult := range results {
+		modules := make([]dmsV1.DBServicePrivilegeModuleItem, 0, len(checkDBServicePrivilegesResult.Modules))
+		for _, m := range checkDBServicePrivilegesResult.Modules {
+			missing := make([]dmsV1.DBServiceMissingPrivilegeItem, 0, len(m.MissingPrivileges))
+			for _, mp := range m.MissingPrivileges {
+				missing = append(missing, dmsV1.DBServiceMissingPrivilegeItem{
+					Privilege:   mp.Privilege,
+					ObjectScope: mp.ObjectScope,
+					Note:        mp.Note,
+				})
+			}
+			modules = append(modules, dmsV1.DBServicePrivilegeModuleItem{
+				Module:            m.Module,
+				ModuleName:        m.ModuleName,
+				Status:            m.Status,
+				MissingPrivileges: missing,
+				Message:           m.Message,
 			})
 		}
-		checkDBServicesPrivileges[i] = dmsV1.CheckDBServicesPrivilegesItem{
-			CheckDBServicesPrivileges: items,
+		out[i] = dmsV1.CheckDBServicePrivilegeResult{
+			DBType:       checkDBServicePrivilegesResult.DBType,
+			CheckSupport: checkDBServicePrivilegesResult.CheckSupport,
+			ConnectivityPrecheck: dmsV1.ConnectivityPrecheckResult{
+				OK:           checkDBServicePrivilegesResult.ConnectivityPrecheck.OK,
+				ErrorMessage: checkDBServicePrivilegesResult.ConnectivityPrecheck.ErrorMessage,
+			},
+			Modules:        modules,
+			SummaryMessage: checkDBServicePrivilegesResult.SummaryMessage,
 		}
-
 	}
-
-	return &dmsV1.CheckDBServicesPrivilegesReply{
-		Data: checkDBServicesPrivileges,
-	}, nil
+	return out
 }
