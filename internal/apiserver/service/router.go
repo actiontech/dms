@@ -329,6 +329,10 @@ func (s *APIServer) initRouter() error {
 				SqlWorkbenchService:   s.SqlWorkbenchController.SqlWorkbenchService,
 			}))
 
+			sqlWorkbenchV1.Use(sqlWorkbenchService.GetPrivilegeDeniedMiddleware(sqlWorkbenchService.PrivilegeDeniedMiddlewareConfig{
+				SqlWorkbenchService: s.SqlWorkbenchController.SqlWorkbenchService,
+			}))
+
 			sqlWorkbenchV1.Use(s.SqlWorkbenchController.SqlWorkbenchService.AuditMiddleware())
 			sqlWorkbenchV1.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
 				Skipper:  middleware.DefaultSkipper,
