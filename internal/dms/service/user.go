@@ -850,6 +850,8 @@ func convertBizOpPermission(opPermissionUid string) (apiOpPermissionTyp dmsCommo
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionDesensitization
 	case pkgConst.UIdOfOpPermissionMaskingAudit:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionMaskingAudit
+	case pkgConst.UIdOfOpPermissionPrivilegeApplyAudit:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionPrivilegeApplyAudit
 	case pkgConst.UIDOfOrdinaryUser:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeNone
 	default:

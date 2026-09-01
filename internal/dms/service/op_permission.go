@@ -51,6 +51,7 @@ var OpPermissionNameByUID = map[string]*i18n.Message{
 	pkgConst.UIdOfOpPermissionManageRoleMange:         locale.NameOpPermissionManageRoleMange,
 	pkgConst.UIdOfOpPermissionDesensitization:         locale.NameOpPermissionDesensitization,
 	pkgConst.UIdOfOpPermissionMaskingAudit:            locale.NameOpPermissionMaskingAudit,
+	pkgConst.UIdOfOpPermissionPrivilegeApplyAudit:     locale.NameOpPermissionPrivilegeApplyAudit,
 }
 
 var OpPermissionDescByUID = map[string]*i18n.Message{
@@ -91,6 +92,7 @@ var OpPermissionDescByUID = map[string]*i18n.Message{
 	pkgConst.UIdOfOpPermissionManageRoleMange:         locale.DescOpPermissionManageRoleMange,
 	pkgConst.UIdOfOpPermissionDesensitization:        locale.DescOpPermissionDesensitization,
 	pkgConst.UIdOfOpPermissionMaskingAudit:           locale.DescOpPermissionMaskingAudit,
+	pkgConst.UIdOfOpPermissionPrivilegeApplyAudit:    locale.DescOpPermissionPrivilegeApplyAudit,
 }
 
 func (d *DMSService) ListOpPermissions(ctx context.Context, req *dmsV1.ListOpPermissionReq) (reply *dmsV1.ListOpPermissionReply, err error) {

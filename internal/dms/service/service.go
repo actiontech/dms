@@ -43,6 +43,7 @@ type DMSService struct {
 	ClusterUsecase              *biz.ClusterUsecase
 	DataExportWorkflowUsecase   *biz.DataExportWorkflowUsecase
 	UnmaskingWorkflowUsecase    *unmaskingWorkflowUsecase
+	PrivilegeApplyWorkflowUsecase *privilegeApplyWorkflowUsecase
 	CbOperationLogUsecase       *biz.CbOperationLogUsecase
 	DataMaskingUsecase          *dataMaskingUsecase
 	FunctionSupportRegistry     *biz.FunctionSupportRegistry
@@ -167,6 +168,10 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize unmasking workflow usecase: %v", err)
 	}
+	privilegeApplyWorkflowUsecase, err := initPrivilegeApplyWorkflowUsecase(logger, st, dmsProxyTargetRepo, opPermissionVerifyUsecase, userUsecase, dbServiceUseCase)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize privilege apply workflow usecase: %v", err)
+	}
 	DataExportWorkflowUsecase := biz.NewDataExportWorkflowUsecase(logger, tx, workflowRepo, dataExportTaskRepo, dbServiceRepo, dataExportMaskingConfigRepo, dataExportMaskingRuleRepo, opPermissionVerifyUsecase, projectUsecase, &opsTypeUsecase, dmsProxyTargetRepo, clusterUsecase, webhookConfigurationUsecase, userUsecase, systemVariableUsecase, dbServiceUseCase, unmaskingWorkflowUsecase, fmt.Sprintf("%s:%d", opts.ReportHost, opts.APIServiceOpts.Port))
 	dataMaskingUsecase, stopDataMaskingScheduler, err := initDataMaskingUsecase(logger, st, dbServiceUseCase, clusterUsecase, dmsProxyTargetRepo)
 	if err != nil {
@@ -219,6 +224,7 @@ func NewAndInitDMSService(logger utilLog.Logger, opts *conf.DMSOptions) (*DMSSer
 		ClusterUsecase:              clusterUsecase,
 		DataExportWorkflowUsecase:   DataExportWorkflowUsecase,
 		UnmaskingWorkflowUsecase:    unmaskingWorkflowUsecase,
+		PrivilegeApplyWorkflowUsecase: privilegeApplyWorkflowUsecase,
 		CbOperationLogUsecase:       CbOperationLogUsecase,
 		DataMaskingUsecase:          dataMaskingUsecase,
 		FunctionSupportRegistry:     functionSupportRegistry,

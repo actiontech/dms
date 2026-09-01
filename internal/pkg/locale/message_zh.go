@@ -61,6 +61,7 @@ var (
 	NameOpPermissionManageRoleMange         = &i18n.Message{ID: "NameOpPermissionManageRoleMange", Other: "角色管理权限"}
 	NameOpPermissionDesensitization         = &i18n.Message{ID: "NameOpPermissionDesensitization", Other: "配置脱敏任务"}
 	NameOpPermissionMaskingAudit            = &i18n.Message{ID: "NameOpPermissionMaskingAudit", Other: "脱敏审核"}
+	NameOpPermissionPrivilegeApplyAudit     = &i18n.Message{ID: "NameOpPermissionPrivilegeApplyAudit", Other: "提权审批"}
 
 	DescOpPermissionGlobalManagement        = &i18n.Message{ID: "DescOpPermissionGlobalManagement", Other: "具备系统最高权限，可进行系统配置、用户管理等操作"}
 	DescOpPermissionGlobalView              = &i18n.Message{ID: "DescOpPermissionGlobalView", Other: "负责系统操作审计、数据合规检查等工作"}
@@ -99,6 +100,7 @@ var (
 	DescOpPermissionManageRoleMange         = &i18n.Message{ID: "DescOpPermissionManageRoleMange", Other: "角色管理权限；拥有该权限的用户可以管理角色"}
 	DescOpPermissionDesensitization         = &i18n.Message{ID: "DescOpPermissionDesensitization", Other: "配置脱敏任务；拥有该权限的用户可以管理脱敏模板、脱敏发现任务和规则配置"}
 	DescOpPermissionMaskingAudit            = &i18n.Message{ID: "DescOpPermissionMaskingAudit", Other: "脱敏审核；拥有该权限的用户可以查看和处理脱敏审批请求"}
+	DescOpPermissionPrivilegeApplyAudit     = &i18n.Message{ID: "DescOpPermissionPrivilegeApplyAudit", Other: "提权审批；拥有该权限的用户可以审批工作台提权申请"}
 )
 
 // role

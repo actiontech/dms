@@ -48,6 +48,7 @@ const (
 	UIdOfOpPermissionDesensitization         = "700036"
 	UIDOfOpPermissionViewSQLInsight          = "700037"
 	UIdOfOpPermissionMaskingAudit            = "700038"
+	UIdOfOpPermissionPrivilegeApplyAudit     = "700039"
 
 	UIDOfDMSConfig = "700100"
 
@@ -128,6 +129,8 @@ func ConvertPermissionIdToType(opPermissionUid string) (apiOpPermissionTyp dmsCo
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionDesensitization
 	case UIdOfOpPermissionMaskingAudit:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionMaskingAudit
+	case UIdOfOpPermissionPrivilegeApplyAudit:
+		apiOpPermissionTyp = dmsCommonV1.OpPermissionPrivilegeApplyAudit
 	case UIDOfOrdinaryUser:
 		apiOpPermissionTyp = dmsCommonV1.OpPermissionTypeNone
 	default:
@@ -207,6 +210,8 @@ func ConvertPermissionTypeToId(opPermissionType dmsCommonV1.OpPermissionType) (p
 		permissionId = UIdOfOpPermissionDesensitization
 	case dmsCommonV1.OpPermissionMaskingAudit:
 		permissionId = UIdOfOpPermissionMaskingAudit
+	case dmsCommonV1.OpPermissionPrivilegeApplyAudit:
+		permissionId = UIdOfOpPermissionPrivilegeApplyAudit
 	case dmsCommonV1.OpPermissionTypeNone:
 		permissionId = UIDOfOrdinaryUser
 	default:
