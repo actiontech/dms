@@ -334,7 +334,7 @@ func initOpPermission() []*OpPermission {
 			UID:       pkgConst.UIdOfOpPermissionPrivilegeApplyAudit,
 			Name:      "提权审批",
 			RangeType: OpRangeTypeProject,
-			Module:    SQLWorkBench,
+			Module:    AccountManagement,
 			Service:   v1.ServiceDMS,
 		},
 	}
