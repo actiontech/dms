@@ -146,12 +146,14 @@ type PrivilegeApplyOperationLog struct {
 
 // ListPrivilegeApplyWorkflowsOption 列表查询选项
 type ListPrivilegeApplyWorkflowsOption struct {
-	PageSize             uint32
-	PageIndex            uint32
-	ProjectUID           string
-	FilterByTab          string // pending | handled
-	FilterByDBServiceUID string
-	ViewerUID            string
+	PageSize              uint32
+	PageIndex             uint32
+	ProjectUID            string
+	FilterByTab           string // pending | handled
+	FilterByDBServiceUID  string
+	ViewerUID             string
+	// FilterByApplicantUID 由 usecase 按身份写入；普通成员仅见本人申请（AC-016）。禁止信任前端可见范围参。
+	FilterByApplicantUID  string
 	CanAuditDBServiceUIDs map[string]struct{}
 }
 
