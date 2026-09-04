@@ -40,14 +40,16 @@ type CreatePrivilegeApplyWorkflowReq struct {
 
 // swagger:model CreatePrivilegeApplyWorkflow
 type CreatePrivilegeApplyWorkflow struct {
-	DBServiceUid         string                            `json:"db_service_uid" validate:"required"`
-	SourceDBAccountUid   string                            `json:"source_db_account_uid" validate:"required"`
-	RawSQL               string                            `json:"raw_sql" validate:"required"`
-	ErrorMessage         string                            `json:"error_message" validate:"required"`
-	RequestedObjects     []privilegeApplyBiz.PrivilegeObject `json:"requested_objects"`
-	RequestedActions     []string                          `json:"requested_actions"`
-	ApplyReason          string                            `json:"apply_reason" validate:"required"`
-	ExpectedExpireDays   *int64                            `json:"expected_expire_days"`
+	DBServiceUid       string                              `json:"db_service_uid" validate:"required"`
+	SourceDBAccountUid string                              `json:"source_db_account_uid" validate:"required"`
+	// RawSQL 可选：工作台/Transit 预填可有值；列表独立发起允许空串或缺省
+	RawSQL string `json:"raw_sql"`
+	// ErrorMessage 可选：同上
+	ErrorMessage       string                                `json:"error_message"`
+	RequestedObjects   []privilegeApplyBiz.PrivilegeObject   `json:"requested_objects"`
+	RequestedActions   []string                              `json:"requested_actions"`
+	ApplyReason        string                                `json:"apply_reason" validate:"required"`
+	ExpectedExpireDays *int64                                `json:"expected_expire_days"`
 }
 
 // swagger:model CreatePrivilegeApplyWorkflowReply
