@@ -30,11 +30,11 @@ func EnvPrepare(ctx context.Context, logger utilLog.Logger,
 			return fmt.Errorf("failed to get dms config: %v", err)
 		}
 
-		// 如果找到了，则判断是否需要初始化数据对象操作
+		// 权限点种子：每次启动幂等补齐缺失项（InitOpPermissions 对已存在 UID 跳过）
+		if err := opPermissionUsecase.InitOpPermissions(tx, initOpPermission()); nil != err {
+			return err
+		}
 		if dmsConfig.NeedInitOpPermissions {
-			if err := opPermissionUsecase.InitOpPermissions(tx, initOpPermission()); nil != err {
-				return err
-			}
 			dmsConfig.NeedInitOpPermissions = false
 			if err := config.UpdateDMSConfig(tx, dmsConfig); nil != err {
 				return fmt.Errorf("failed to update dms config: %v", err)

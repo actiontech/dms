@@ -330,6 +330,13 @@ func initOpPermission() []*OpPermission {
 			Module:    DesensitizationRule,
 			Service:   v1.ServiceDMS,
 		},
+		{
+			UID:       pkgConst.UIdOfOpPermissionPrivilegeApplyAudit,
+			Name:      "提权审批",
+			RangeType: OpRangeTypeProject,
+			Module:    AccountManagement,
+			Service:   v1.ServiceDMS,
+		},
 	}
 }
 
