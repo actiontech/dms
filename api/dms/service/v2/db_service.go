@@ -2,6 +2,7 @@ package v2
 
 import (
 	"bytes"
+	"encoding/json"
 
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
@@ -107,9 +108,10 @@ type DBService struct {
 	// DB Service admin user
 	// Required: true
 	User string `json:"user"`
-	// DB Service admin password
-	// Required: true
-	Password string `json:"password" validate:"required"`
+	// Legacy plaintext password; create path rejects when JSON key present
+	Password string `json:"password"`
+	// Transport ciphertext: Base64(AES-256-CBC(password)) with fixed SecretKey
+	SecretPassword string `json:"secret_password,omitempty"`
 	// DB Service environment tag
 	// Required: true
 	EnvironmentTagUID string `json:"environment_tag_uid" validate:"required"`
@@ -130,6 +132,60 @@ type DBService struct {
 	// backup switch
 	// Required: false
 	BackupMaxRows *uint64 `json:"backup_max_rows,omitempty"`
+
+	// passwordKeyPresent is set by UnmarshalJSON when the JSON object contains a "password" key.
+	passwordKeyPresent bool `json:"-"`
+}
+
+// UnmarshalJSON detects whether the wire JSON contains a plaintext "password" key
+// (including empty string), which the create path must reject.
+func (d *DBService) UnmarshalJSON(data []byte) error {
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	_, d.passwordKeyPresent = raw["password"]
+
+	type plain struct {
+		Name              string                           `json:"name"`
+		DBType            string                           `json:"db_type"`
+		Host              string                           `json:"host"`
+		Port              string                           `json:"port"`
+		User              string                           `json:"user"`
+		Password          string                           `json:"password"`
+		SecretPassword    string                           `json:"secret_password"`
+		EnvironmentTagUID string                           `json:"environment_tag_uid"`
+		MaintenanceTimes  []*dmsCommonV1.MaintenanceTime   `json:"maintenance_times"`
+		AdditionalParams  []*dmsCommonV1.AdditionalParam   `json:"additional_params"`
+		Desc              string                           `json:"desc"`
+		SQLEConfig        *dmsCommonV1.SQLEConfig          `json:"sqle_config"`
+		EnableBackup      bool                             `json:"enable_backup"`
+		BackupMaxRows     *uint64                          `json:"backup_max_rows,omitempty"`
+	}
+	var p plain
+	if err := json.Unmarshal(data, &p); err != nil {
+		return err
+	}
+	d.Name = p.Name
+	d.DBType = p.DBType
+	d.Host = p.Host
+	d.Port = p.Port
+	d.User = p.User
+	d.Password = p.Password
+	d.SecretPassword = p.SecretPassword
+	d.EnvironmentTagUID = p.EnvironmentTagUID
+	d.MaintenanceTimes = p.MaintenanceTimes
+	d.AdditionalParams = p.AdditionalParams
+	d.Desc = p.Desc
+	d.SQLEConfig = p.SQLEConfig
+	d.EnableBackup = p.EnableBackup
+	d.BackupMaxRows = p.BackupMaxRows
+	return nil
+}
+
+// HasPasswordKey reports whether the request JSON included a "password" field.
+func (d *DBService) HasPasswordKey() bool {
+	return d.passwordKeyPresent
 }
 
 // swagger:model AddDBServiceReqV2
@@ -162,8 +218,10 @@ type UpdateDBService struct {
 	// DB Service admin user
 	// Required: true
 	User string `json:"user"`
-	// DB Service admin password
+	// Legacy plaintext password; update path rejects when JSON key present
 	Password *string `json:"password"`
+	// Transport ciphertext: Base64(AES-256-CBC(password)); only when updating password
+	SecretPassword string `json:"secret_password,omitempty"`
 	// DB Service environment tag
 	// Required: true
 	EnvironmentTagUID string `json:"environment_tag_uid" validate:"required"`
@@ -183,6 +241,66 @@ type UpdateDBService struct {
 	// backup switch
 	// Required: false
 	BackupMaxRows *uint64 `json:"backup_max_rows,omitempty"`
+
+	// passwordKeyPresent is set by UnmarshalJSON when the JSON object contains a "password" key.
+	passwordKeyPresent bool `json:"-"`
+	// secretPasswordKeyPresent is set when JSON contains "secret_password" (even if empty).
+	secretPasswordKeyPresent bool `json:"-"`
+}
+
+// UnmarshalJSON detects whether the wire JSON contains a plaintext "password" key
+// (including empty string / null), which the update path must reject.
+func (u *UpdateDBService) UnmarshalJSON(data []byte) error {
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	_, u.passwordKeyPresent = raw["password"]
+	_, u.secretPasswordKeyPresent = raw["secret_password"]
+
+	type plain struct {
+		DBType            string                         `json:"db_type"`
+		Host              string                         `json:"host"`
+		Port              string                         `json:"port"`
+		User              string                         `json:"user"`
+		Password          *string                        `json:"password"`
+		SecretPassword    string                         `json:"secret_password"`
+		EnvironmentTagUID string                         `json:"environment_tag_uid"`
+		MaintenanceTimes  []*dmsCommonV1.MaintenanceTime `json:"maintenance_times"`
+		AdditionalParams  []*dmsCommonV1.AdditionalParam `json:"additional_params"`
+		Desc              *string                        `json:"desc"`
+		SQLEConfig        *dmsCommonV1.SQLEConfig        `json:"sqle_config"`
+		EnableBackup      bool                           `json:"enable_backup"`
+		BackupMaxRows     *uint64                        `json:"backup_max_rows,omitempty"`
+	}
+	var p plain
+	if err := json.Unmarshal(data, &p); err != nil {
+		return err
+	}
+	u.DBType = p.DBType
+	u.Host = p.Host
+	u.Port = p.Port
+	u.User = p.User
+	u.Password = p.Password
+	u.SecretPassword = p.SecretPassword
+	u.EnvironmentTagUID = p.EnvironmentTagUID
+	u.MaintenanceTimes = p.MaintenanceTimes
+	u.AdditionalParams = p.AdditionalParams
+	u.Desc = p.Desc
+	u.SQLEConfig = p.SQLEConfig
+	u.EnableBackup = p.EnableBackup
+	u.BackupMaxRows = p.BackupMaxRows
+	return nil
+}
+
+// HasPasswordKey reports whether the request JSON included a "password" field.
+func (u *UpdateDBService) HasPasswordKey() bool {
+	return u.passwordKeyPresent
+}
+
+// HasSecretPasswordKey reports whether the request JSON included a "secret_password" field.
+func (u *UpdateDBService) HasSecretPasswordKey() bool {
+	return u.secretPasswordKeyPresent
 }
 
 // swagger:model ImportDBServicesOfOneProjectReqV2
