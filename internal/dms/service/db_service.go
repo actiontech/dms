@@ -12,6 +12,7 @@ import (
 	dmsCommonV1 "github.com/actiontech/dms/pkg/dms-common/api/dms/v1"
 	dmsCommonV2 "github.com/actiontech/dms/pkg/dms-common/api/dms/v2"
 	pkgAes "github.com/actiontech/dms/pkg/dms-common/pkg/aes"
+	"github.com/actiontech/dms/pkg/dms-common/pkg/aes_transport"
 	"github.com/actiontech/dms/pkg/params"
 	"github.com/actiontech/dms/pkg/periods"
 	"github.com/go-openapi/strfmt"
@@ -31,6 +32,25 @@ func (d *DMSService) DelDBService(ctx context.Context, req *dmsV1.DelDBServiceRe
 }
 
 func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV2.UpdateDBServiceReq, currentUserUid string) (err error) {
+	if req.DBService.HasPasswordKey() {
+		return fmt.Errorf("禁止明文口令传输")
+	}
+
+	var password *string
+	if req.DBService.HasSecretPasswordKey() {
+		if req.DBService.SecretPassword == "" {
+			return fmt.Errorf("口令密文不完整")
+		}
+		plainPassword, err := aes_transport.DecryptSecretPassword(req.DBService.SecretPassword)
+		if err != nil {
+			return err
+		}
+		password = &plainPassword
+	}
+	// Clear request password fields before logging / usecase so %v never prints secrets.
+	req.DBService.SecretPassword = ""
+	req.DBService.Password = nil
+
 	d.log.Infof("UpdateDBService.req=%v", req)
 	defer func() {
 		d.log.Infof("UpdateDBService.req=%v;error=%v", req, err)
@@ -65,7 +85,7 @@ func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV2.UpdateDBSer
 		Host:              req.DBService.Host,
 		Port:              req.DBService.Port,
 		User:              req.DBService.User,
-		Password:          req.DBService.Password,
+		Password:          password,
 		EnvironmentTagUID: req.DBService.EnvironmentTagUID,
 		EnableBackup:      req.DBService.EnableBackup,
 		BackupMaxRows:     autoChooseBackupMaxRows(req.DBService.EnableBackup, req.DBService.BackupMaxRows),
@@ -92,10 +112,26 @@ func (d *DMSService) UpdateDBService(ctx context.Context, req *dmsV2.UpdateDBSer
 }
 
 func (d *DMSService) CheckDBServiceIsConnectable(ctx context.Context, req *dmsV1.CheckDBServiceIsConnectableReq) (reply *dmsV1.CheckDBServiceIsConnectableReply, err error) {
-	if err := normalizeCheckDbConnectable(&req.DBService); err != nil {
+	if req.DBService.HasPasswordKey() {
+		return nil, fmt.Errorf("禁止明文口令传输")
+	}
+	if req.DBService.SecretPassword == "" {
+		return nil, fmt.Errorf("口令密文不完整")
+	}
+	plainPassword, err := aes_transport.DecryptSecretPassword(req.DBService.SecretPassword)
+	if err != nil {
 		return nil, err
 	}
-	results, err := d.DBServiceUsecase.IsConnectable(ctx, req.DBService)
+	// Keep plaintext in a local copy only; clear req so it cannot leak via %v logging.
+	req.DBService.SecretPassword = ""
+	req.DBService.Password = ""
+	checkArgs := req.DBService
+	checkArgs.Password = plainPassword
+
+	if err := normalizeCheckDbConnectable(&checkArgs); err != nil {
+		return nil, err
+	}
+	results, err := d.DBServiceUsecase.IsConnectable(ctx, checkArgs)
 
 	if err != nil {
 		d.log.Errorf("IsConnectable err: %v", err)
@@ -319,6 +355,21 @@ func (d *DMSService) AddDBService(ctx context.Context, req *dmsV1.AddDBServiceRe
 }
 
 func (d *DMSService) AddDBServiceV2(ctx context.Context, req *dmsV2.AddDBServiceReq, currentUserUid string) (reply *dmsV1.AddDBServiceReply, err error) {
+	if req.DBService.HasPasswordKey() {
+		return nil, fmt.Errorf("禁止明文口令传输")
+	}
+	if req.DBService.SecretPassword == "" {
+		return nil, fmt.Errorf("口令密文不完整")
+	}
+	plainPassword, err := aes_transport.DecryptSecretPassword(req.DBService.SecretPassword)
+	if err != nil {
+		return nil, err
+	}
+	// Keep plaintext in a local variable only; clear req before logging / usecase.
+	req.DBService.SecretPassword = ""
+	req.DBService.Password = ""
+	password := plainPassword
+
 	d.log.Infof("AddDBServices.req=%v", req)
 	defer func() {
 		d.log.Infof("AddDBServices.req=%v;reply=%v;error=%v", req, reply, err)
@@ -354,7 +405,7 @@ func (d *DMSService) AddDBServiceV2(ctx context.Context, req *dmsV2.AddDBService
 		Host:              req.DBService.Host,
 		Port:              req.DBService.Port,
 		User:              req.DBService.User,
-		Password:          &req.DBService.Password,
+		Password:          &password,
 		EnvironmentTagUID: req.DBService.EnvironmentTagUID,
 		MaintenancePeriod: d.convertMaintenanceTimeToPeriod(req.DBService.MaintenanceTimes),
 		ProjectUID:        req.ProjectUid,

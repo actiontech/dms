@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"encoding/json"
+
 	base "github.com/actiontech/dms/pkg/dms-common/api/base/v1"
 	"github.com/go-openapi/strfmt"
 )
@@ -22,13 +24,54 @@ type CheckDbConnectable struct {
 	// Required: true
 	// example: 3306
 	Port string `json:"port"  example:"3306" valid:"required,port"`
-	// DB Service admin password
-	// Required: true
+	// DB Service admin password (legacy plaintext; form connect path rejects when JSON key present)
 	// example: 123456
 	Password string `json:"password"  example:"123456"`
+	// Transport ciphertext: Base64(AES-256-CBC(password)) with fixed SecretKey
+	SecretPassword string `json:"secret_password,omitempty"`
 	// DB Service Custom connection parameters
 	// Required: false
 	AdditionalParams []*AdditionalParam `json:"additional_params" from:"additional_params"`
+
+	// passwordKeyPresent is set by UnmarshalJSON when the JSON object contains a "password" key.
+	passwordKeyPresent bool `json:"-"`
+}
+
+// UnmarshalJSON detects whether the wire JSON contains a plaintext "password" key
+// (including empty string), which the form connect path must reject.
+func (c *CheckDbConnectable) UnmarshalJSON(data []byte) error {
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	_, c.passwordKeyPresent = raw["password"]
+
+	type plain struct {
+		DBType           string             `json:"db_type"`
+		User             string             `json:"user"`
+		Host             string             `json:"host"`
+		Port             string             `json:"port"`
+		Password         string             `json:"password"`
+		SecretPassword   string             `json:"secret_password"`
+		AdditionalParams []*AdditionalParam `json:"additional_params"`
+	}
+	var p plain
+	if err := json.Unmarshal(data, &p); err != nil {
+		return err
+	}
+	c.DBType = p.DBType
+	c.User = p.User
+	c.Host = p.Host
+	c.Port = p.Port
+	c.Password = p.Password
+	c.SecretPassword = p.SecretPassword
+	c.AdditionalParams = p.AdditionalParams
+	return nil
+}
+
+// HasPasswordKey reports whether the request JSON included a "password" field.
+func (c *CheckDbConnectable) HasPasswordKey() bool {
+	return c.passwordKeyPresent
 }
 
 type AdditionalParam struct {
