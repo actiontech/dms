@@ -94,6 +94,10 @@ func GetDBConnectionAbleRouter() string {
 	return fmt.Sprintf("%s%s/connection", CurrentGroupVersion, InternalDBServiceRouterGroup)
 }
 
+func GetDBServicePrivilegesRouter() string {
+	return fmt.Sprintf("%s%s/privileges", CurrentGroupVersion, InternalDBServiceRouterGroup)
+}
+
 func GetGlobalDataExportWorkflowsRouter() string {
 	return fmt.Sprintf("%s%s", CurrentGroupVersion, "/dms/dashboard/data_export_workflows")
 }
