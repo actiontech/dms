@@ -138,6 +138,18 @@ func (d *WorkflowRepo) ListDataExportWorkflows(ctx context.Context, opt *biz.Lis
 	return Workflows, total, nil
 }
 
+func (d *WorkflowRepo) ListExpiredWorkflowUIDs(ctx context.Context, expiredBefore time.Time) ([]string, error) {
+	workflowUIDs := make([]string, 0)
+	if err := d.db.WithContext(ctx).
+		Model(&model.Workflow{}).
+		Where("create_time <= ?", expiredBefore).
+		Order("create_time ASC").
+		Pluck("uid", &workflowUIDs).Error; err != nil {
+		return nil, pkgErr.WrapStorageErr(d.log, fmt.Errorf("failed to list expired workflow UIDs: %v", err))
+	}
+	return workflowUIDs, nil
+}
+
 func (d *WorkflowRepo) GetDataExportWorkflowsForView(ctx context.Context, userUid string) ([]string, error) {
 	workflowUids := make([]string, 0)
 	if err := transaction(d.log, ctx, d.db, func(tx *gorm.DB) error {

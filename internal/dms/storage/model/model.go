@@ -507,6 +507,9 @@ type Workflow struct {
 }
 
 func (w *Workflow) GetTaskIds() Strings {
+	if w == nil || w.WorkflowRecord == nil {
+		return nil
+	}
 	return w.WorkflowRecord.TaskIds
 }
 
