@@ -96,6 +96,7 @@ type WorkflowStep struct {
 type WorkflowRepo interface {
 	SaveWorkflow(ctx context.Context, dataExportWorkflow *Workflow) error
 	ListDataExportWorkflows(ctx context.Context, opt *ListWorkflowsOption) ([]*Workflow, int64, error)
+	ListExpiredWorkflowUIDs(ctx context.Context, expiredBefore time.Time) ([]string, error)
 	GetDataExportWorkflow(ctx context.Context, dataExportWorkflowUid string) (*Workflow, error)
 	UpdateWorkflowStatusById(ctx context.Context, dataExportWorkflowUid string, status DataExportWorkflowStatus) error
 	GetDataExportWorkflowsByIds(ctx context.Context, dataExportWorkflowUid []string) ([]*Workflow, error)
