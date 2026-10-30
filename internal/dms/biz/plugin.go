@@ -289,6 +289,9 @@ const (
 
 var databaseDriverOptions []*v1.DatabaseDriverOption
 
+// componentDBTypeParams: componentName -> dbType -> param name set（聚合前各组件契约）
+var componentDBTypeParams = map[string]map[string]map[string]struct{}{}
+
 func (p *PluginUsecase) GetDatabaseDriverOptionsCache(ctx context.Context) ([]*v1.DatabaseDriverOption, error) {
 	if len(databaseDriverOptions) != 0 {
 		return databaseDriverOptions, nil
@@ -304,6 +307,69 @@ func (p *PluginUsecase) GetDatabaseDriverOptionsCache(ctx context.Context) ([]*v
 
 func (p *PluginUsecase) ClearDatabaseDriverOptionsCache() {
 	databaseDriverOptions = []*v1.DatabaseDriverOption{}
+	componentDBTypeParams = map[string]map[string]map[string]struct{}{}
+}
+
+func (p *PluginUsecase) refreshComponentDBTypeParams(optionRes []struct {
+	options []*v1.DatabaseDriverOption
+	source  string
+}) {
+	next := make(map[string]map[string]map[string]struct{}, len(optionRes))
+	for _, res := range optionRes {
+		for _, opt := range res.options {
+			if opt == nil {
+				continue
+			}
+			if next[res.source] == nil {
+				next[res.source] = map[string]map[string]struct{}{}
+			}
+			set := make(map[string]struct{}, len(opt.Params))
+			for _, param := range opt.Params {
+				if param != nil && param.Name != "" {
+					set[param.Name] = struct{}{}
+				}
+			}
+			next[res.source][opt.DBType] = set
+		}
+	}
+	componentDBTypeParams = next
+}
+
+// GetComponentParamNamesForDBType 返回某组件在指定 db_type 上声明的附加参数名集合。
+func (p *PluginUsecase) GetComponentParamNamesForDBType(ctx context.Context, componentName, dbType string) (map[string]struct{}, error) {
+	if p == nil {
+		return map[string]struct{}{}, nil
+	}
+	if len(componentDBTypeParams) == 0 {
+		if _, err := p.GetDatabaseDriverOptionsCache(ctx); err != nil {
+			return nil, err
+		}
+	}
+	if byType, ok := componentDBTypeParams[componentName]; ok {
+		if set, ok := byType[dbType]; ok {
+			return set, nil
+		}
+	}
+	return map[string]struct{}{}, nil
+}
+
+// GetUnionParamNamesForDBType 返回所有组件在指定 db_type 上声明的附加参数名并集。
+func (p *PluginUsecase) GetUnionParamNamesForDBType(ctx context.Context, dbType string) (map[string]struct{}, error) {
+	if p == nil {
+		return map[string]struct{}{}, nil
+	}
+	if len(componentDBTypeParams) == 0 {
+		if _, err := p.GetDatabaseDriverOptionsCache(ctx); err != nil {
+			return nil, err
+		}
+	}
+	union := map[string]struct{}{}
+	for _, byType := range componentDBTypeParams {
+		for name := range byType[dbType] {
+			union[name] = struct{}{}
+		}
+	}
+	return union, nil
 }
 
 // 获取数据库插件扩展选项和加载数据库插件logo
@@ -355,6 +421,7 @@ func (p *PluginUsecase) GetDatabaseDriverOptionsHandle(ctx context.Context) ([]*
 	if len(errs) > 0 {
 		return nil, fmt.Errorf("encountered errors: %v", errs)
 	}
+	p.refreshComponentDBTypeParams(dbOptions)
 	options := p.aggregateOptions(log, dbOptions)
 	dbTypes := make([]string, 0, len(options))
 	for _, dbType := range options {
