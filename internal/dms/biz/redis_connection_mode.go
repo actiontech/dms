@@ -30,12 +30,9 @@ func normalizeRedisConnectionModeValue(value string) (string, error) {
 	}
 }
 
-func isRedisClusterDBServiceArgs(args *BizDBServiceArgs) bool {
-	if args == nil || !isRedisDBType(args.DBType) {
-		return false
-	}
-	mode, err := normalizeRedisConnectionModeValue(args.AdditionalParams.GetParam(redisConnectionModeParam).String())
-	return err == nil && mode == redisConnectionModeCluster
+// allowsEmptyDBServiceUser: Redis standalone/cluster may omit connection user.
+func allowsEmptyDBServiceUser(args *BizDBServiceArgs) bool {
+	return args != nil && isRedisDBType(args.DBType)
 }
 
 func appendRedisConnectionModeIfMissing(dbType string, additionalParams []*dmsCommonV1.AdditionalParam) ([]*dmsCommonV1.AdditionalParam, error) {

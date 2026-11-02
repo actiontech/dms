@@ -729,7 +729,7 @@ func (d *DBServiceUsecase) UpdateDBServiceByArgs(ctx context.Context, dbServiceU
 		if updateDBService.Host == "" || updateDBService.Port == "" || updateDBService.EnvironmentTagUID == "" {
 			return fmt.Errorf("db service's host,port,environment can't be empty")
 		}
-		if updateDBService.User == "" && !isRedisClusterDBServiceArgs(updateDBService) {
+		if updateDBService.User == "" && !allowsEmptyDBServiceUser(updateDBService) {
 			return fmt.Errorf("db service user can't be empty")
 		}
 		_, err := d.environmentTagUsecase.GetEnvironmentTagByUID(ctx, updateDBService.EnvironmentTagUID)

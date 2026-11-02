@@ -68,13 +68,9 @@ func normalizeRedisConnectionModeParams(dbType string, additionalParams *params.
 
 func validateDBServiceUser(dbType, user string, additionalParams params.Params) error {
 	if isRedisDBType(dbType) {
-		mode, err := normalizeRedisConnectionModeValue(additionalParams.GetParam(redisConnectionModeParam).String())
-		if err != nil {
-			return err
-		}
-		if mode == redisConnectionModeCluster {
-			return nil
-		}
+		// Redis standalone/cluster: empty connection user is allowed (ACL optional).
+		_, err := normalizeRedisConnectionModeValue(additionalParams.GetParam(redisConnectionModeParam).String())
+		return err
 	}
 	if user == "" {
 		return fmt.Errorf("db service user can't be empty")
@@ -83,8 +79,11 @@ func validateDBServiceUser(dbType, user string, additionalParams params.Params) 
 }
 
 func normalizeCheckDbConnectable(dbService *dmsCommonV1.CheckDbConnectable) error {
-	if dbService == nil || !isRedisDBType(dbService.DBType) {
-		if dbService != nil && dbService.User == "" {
+	if dbService == nil {
+		return nil
+	}
+	if !isRedisDBType(dbService.DBType) {
+		if dbService.User == "" {
 			return fmt.Errorf("db service user can't be empty")
 		}
 		return nil
@@ -115,9 +114,7 @@ func normalizeCheckDbConnectable(dbService *dmsCommonV1.CheckDbConnectable) erro
 			Type:  string(params.ParamTypeString),
 		})
 	}
-	if normalizedMode != redisConnectionModeCluster && dbService.User == "" {
-		return fmt.Errorf("db service user can't be empty")
-	}
+	// Redis (standalone and cluster): empty user is allowed; do not reject here.
 	return nil
 }
 
