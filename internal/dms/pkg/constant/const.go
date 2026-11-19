@@ -318,6 +318,7 @@ var supportedDataExportDBTypes = map[DBType]struct{}{
 	DBTypePolarDBForMySQL: {},
 	DBTypeOceanBaseOracle: {},
 	DBTypeClickHouse:      {},
+	DBTypeMongoDB:         {},
 }
 
 func CheckDBTypeIfDataExportSupported(dbtype string) bool {
