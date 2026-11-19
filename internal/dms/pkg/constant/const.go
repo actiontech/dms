@@ -314,6 +314,7 @@ var supportedDataExportDBTypes = map[DBType]struct{}{
 	DBTypeHANA:            {},
 	DBTypePolarDBForMySQL: {},
 	DBTypeOceanBaseOracle: {},
+	DBTypeMongoDB:         {},
 }
 
 func CheckDBTypeIfDataExportSupported(dbtype string) bool {

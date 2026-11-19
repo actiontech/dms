@@ -24,6 +24,9 @@ type DataExportTask struct {
 	// The exported SQL statement executed. it's necessary when ExportType is SQL
 	// SELECT * FROM DMS_test LIMIT 20;
 	ExportSQL string `json:"export_sql"`
+	// Export file type: CSV or JSON; default CSV when empty
+	// Enum: CSV,JSON
+	ExportFileType string `json:"export_file_type"`
 }
 
 // swagger:model AddDataExportTaskReply

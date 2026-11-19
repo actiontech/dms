@@ -12067,6 +12067,15 @@
           "type": "string",
           "x-go-name": "DBServiceUid"
         },
+        "export_file_type": {
+          "description": "Export file type: CSV or JSON; default CSV when empty",
+          "type": "string",
+          "enum": [
+            "CSV",
+            "JSON"
+          ],
+          "x-go-name": "ExportFileType"
+        },
         "export_sql": {
           "description": "The exported SQL statement executed. it's necessary when ExportType is SQL\nSELECT * FROM DMS_test LIMIT 20;",
           "type": "string",
