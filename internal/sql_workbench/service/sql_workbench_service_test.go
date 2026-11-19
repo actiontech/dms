@@ -152,6 +152,7 @@ func Test_convertDBType(t *testing.T) {
 		"DB2":                 {input: "DB2", expected: "DB2"},
 		"KingBase":            {input: "KingBase", expected: "KINGBASE"},
 		"GBase-8a":            {input: "GBase-8a", expected: "GBASE_8A"},
+		"ClickHouse":          {input: "ClickHouse", expected: "CLICKHOUSE"},
 		"Unknown passthrough": {input: "UnknownDB", expected: "UnknownDB"},
 	}
 	for name, tc := range cases {
@@ -187,6 +188,7 @@ func Test_SupportDBType(t *testing.T) {
 		"DB2 unsupported":             {input: pkgConst.DBTypeDB2, expected: false},
 		"KingBase supported":          {input: pkgConst.DBTypeKingBase, expected: true},
 		"GBase-8a supported":          {input: pkgConst.DBTypeGBase8a, expected: true},
+		"ClickHouse supported":        {input: pkgConst.DBTypeClickHouse, expected: true},
 		"empty string unsupported":    {input: pkgConst.DBType(""), expected: false},
 		"unknown type unsupported":    {input: pkgConst.DBType("UnknownDBType"), expected: false},
 	}
