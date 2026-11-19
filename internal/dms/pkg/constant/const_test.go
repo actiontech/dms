@@ -17,6 +17,7 @@ func TestCheckDBTypeIfDataExportSupported_NewTypes(t *testing.T) {
 		"DB2":               true,
 		"HANA":              true,
 		"PolarDB For MySQL": true,
+		"ClickHouse":        true,
 	}
 	for dbType, expectedSupported := range newTypes {
 		t.Run(dbType, func(t *testing.T) {
@@ -131,6 +132,7 @@ func TestParseDBType(t *testing.T) {
 		"Redis":             {input: "Redis", expected: DBTypeRedis},
 		"KingBase":          {input: "KingBase", expected: DBTypeKingBase},
 		"GBase-8a":          {input: "GBase-8a", expected: DBTypeGBase8a},
+		"ClickHouse":        {input: "ClickHouse", expected: DBTypeClickHouse},
 		// "PolarDB" 单独不应匹配
 		"PolarDB only": {input: "PolarDB", expectError: true},
 		"invalid type": {input: "UnknownDB", expectError: true},

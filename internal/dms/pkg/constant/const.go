@@ -266,6 +266,8 @@ func ParseDBType(s string) (DBType, error) {
 		return DBTypeKingBase, nil
 	case "GBase-8a":
 		return DBTypeGBase8a, nil
+	case "ClickHouse":
+		return DBTypeClickHouse, nil
 
 	default:
 		return "", fmt.Errorf("invalid db type: %s", s)
@@ -294,6 +296,7 @@ const (
 	DBTypeOceanBaseOracle DBType = "OceanBase For Oracle"
 	DBTypeKingBase        DBType = "KingBase"
 	DBTypeGBase8a         DBType = "GBase-8a"
+	DBTypeClickHouse      DBType = "ClickHouse"
 )
 
 var supportedDataExportDBTypes = map[DBType]struct{}{
@@ -314,6 +317,7 @@ var supportedDataExportDBTypes = map[DBType]struct{}{
 	DBTypeHANA:            {},
 	DBTypePolarDBForMySQL: {},
 	DBTypeOceanBaseOracle: {},
+	DBTypeClickHouse:      {},
 }
 
 func CheckDBTypeIfDataExportSupported(dbtype string) bool {
