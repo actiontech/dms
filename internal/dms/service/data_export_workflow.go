@@ -343,16 +343,32 @@ func (d *DMSService) ExportDataExportWorkflow(ctx context.Context, req *dmsV1.Ex
 	return d.DataExportWorkflowUsecase.ExportDataExportWorkflow(ctx, req.ProjectUid, req.DataExportWorkflowUid, currentUserUid)
 
 }
+
+func normalizeDataExportFileType(raw string) (string, error) {
+	fileType := strings.ToUpper(strings.TrimSpace(raw))
+	if fileType == "" {
+		return "CSV", nil
+	}
+	if fileType != "CSV" && fileType != "JSON" {
+		return "", fmt.Errorf("export_file_type must be CSV or JSON")
+	}
+	return fileType, nil
+}
+
 func (d *DMSService) AddDataExportTask(ctx context.Context, req *dmsV1.AddDataExportTaskReq, currentUserUid string) (reply *dmsV1.AddDataExportTaskReply, err error) {
 	// generate biz arg
 	args := make([]*biz.DataExportTask, 0)
 	for _, task := range req.DataExportTasks {
+		exportFileType, err := normalizeDataExportFileType(task.ExportFileType)
+		if err != nil {
+			return nil, err
+		}
 		args = append(args, &biz.DataExportTask{
 			DBServiceUid:   task.DBServiceUid,
 			CreateUserUID:  currentUserUid,
 			DatabaseName:   task.DatabaseName,
 			ExportType:     "SQL",
-			ExportFileType: "CSV",
+			ExportFileType: exportFileType,
 			ExportSQL:      task.ExportSQL,
 			ExportStatus:   biz.DataExportTaskStatusInit,
 		})
