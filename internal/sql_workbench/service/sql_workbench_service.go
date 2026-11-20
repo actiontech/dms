@@ -1235,6 +1235,8 @@ func (sqlWorkbenchService *SqlWorkbenchService) convertDBType(dmsDBType string) 
 		return "KINGBASE"
 	case "GBase-8a":
 		return "GBASE_8A"
+	case "ClickHouse":
+		return "CLICKHOUSE"
 	default:
 		return dmsDBType
 	}
@@ -1253,7 +1255,8 @@ func (sqlWorkbenchService *SqlWorkbenchService) SupportDBType(dbType pkgConst.DB
 		dbType == pkgConst.DBTypePostgreSQL ||
 		dbType == pkgConst.DBTypeRedis ||
 		dbType == pkgConst.DBTypeKingBase ||
-		dbType == pkgConst.DBTypeGBase8a
+		dbType == pkgConst.DBTypeGBase8a ||
+		dbType == pkgConst.DBTypeClickHouse
 }
 
 func buildMongoDatasourceOptions(dbService *biz.DBService) (*string, interface{}, map[string]interface{}) {
