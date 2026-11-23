@@ -18,6 +18,7 @@ func TestCheckDBTypeIfDataExportSupported_NewTypes(t *testing.T) {
 		"HANA":              true,
 		"PolarDB For MySQL": true,
 		"ClickHouse":        true,
+		"MongoDB":           true,
 	}
 	for dbType, expectedSupported := range newTypes {
 		t.Run(dbType, func(t *testing.T) {
@@ -89,7 +90,6 @@ func TestParseDBType_PolarDB(t *testing.T) {
 func TestCheckDBTypeIfDataExportSupported_UnsupportedTypes(t *testing.T) {
 	// 验证未支持的类型返回 false
 	unsupportedTypes := map[string]bool{
-		"MongoDB":   false,
 		"Redis":     false,
 		"UnknownDB": false,
 		"":          false,
