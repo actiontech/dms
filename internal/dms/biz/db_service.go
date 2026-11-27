@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"strings"
 	"sync"
 	"time"
 
@@ -792,6 +793,15 @@ type IsConnectableReply struct {
 	ConnectErrorMessage string `json:"connect_error_message"`
 }
 
+// isConnectivityPluginUnavailable reports whether a component failed only because
+// its DB driver plugin is missing/unloaded. That must not be mapped to datasource
+// connectivity failure (S1: connect = dial+auth+session; AC-007 SQL Server without ms-plugin).
+func isConnectivityPluginUnavailable(msg string) bool {
+	m := strings.ToLower(msg)
+	return strings.Contains(m, "plugin not found") ||
+		strings.Contains(m, "open plugin:")
+}
+
 func (d *DBServiceUsecase) IsConnectable(ctx context.Context, params dmsCommonV1.CheckDbConnectable) ([]*IsConnectableReply, error) {
 	dmsProxyTargets, err := d.dmsProxyTargetRepo.ListProxyTargetsByScenarios(ctx, []ProxyScenario{ProxyScenarioInternalService})
 	if err != nil {
@@ -817,9 +827,18 @@ func (d *DBServiceUsecase) IsConnectable(ctx context.Context, params dmsCommonV1
 			var reply = &v1Base.GenericResp{}
 			err = pkgHttp.POST(ctx, fmt.Sprintf("%s%s", target.URL.String(), uri), header, params, reply)
 			if err != nil {
-				isConnectableReply.ConnectErrorMessage = err.Error()
+				if isConnectivityPluginUnavailable(err.Error()) {
+					// Plugin absent ≠ instance unreachable; do not fail aggregate / leak plugin text.
+					isConnectableReply.IsConnectable = true
+				} else {
+					isConnectableReply.ConnectErrorMessage = err.Error()
+				}
 			} else if reply.Code != 0 {
-				isConnectableReply.ConnectErrorMessage = reply.Message
+				if isConnectivityPluginUnavailable(reply.Message) {
+					isConnectableReply.IsConnectable = true
+				} else {
+					isConnectableReply.ConnectErrorMessage = reply.Message
+				}
 			} else {
 				isConnectableReply.IsConnectable = true
 			}
@@ -880,7 +899,77 @@ func (d *DBServiceUsecase) GetBusiness(ctx context.Context, projectUid string) (
 }
 
 type CheckDBServicePrivileges struct {
-	ComponentPrivilegesResult []*IsConnectableReply
+	DBType               string
+	CheckSupport         string
+	ConnectivityPrecheck ConnectivityPrecheck
+	Modules              []PrivilegeModuleResult
+	SummaryMessage       string
+}
+
+type ConnectivityPrecheck struct {
+	OK           bool
+	ErrorMessage string
+}
+
+type PrivilegeModuleResult struct {
+	Module            string
+	ModuleName        string
+	Status            string
+	MissingPrivileges []MissingPrivilegeItem
+	Message           string
+}
+
+type MissingPrivilegeItem struct {
+	Privilege   string
+	ObjectScope string
+	Note        string
+}
+
+const provisionProxyName = "provision"
+
+func unsupportedPrivilegeModules() []PrivilegeModuleResult {
+	defs := []struct{ module, name string }{
+		{"sql_workbench_query", "SQL 工作台查询"},
+		{"sql_audit_analysis", "SQL 审核 / SQL 分析"},
+		{"data_export", "数据导出"},
+		{"sql_deploy", "SQL 上线"},
+		{"smart_scan", "智能扫描"},
+		{"account_privilege_mgmt", "账号与权限管理"},
+	}
+	out := make([]PrivilegeModuleResult, 0, len(defs))
+	for _, d := range defs {
+		out = append(out, PrivilegeModuleResult{
+			Module:            d.module,
+			ModuleName:        d.name,
+			Status:            "unsupported_auto_check",
+			MissingPrivileges: []MissingPrivilegeItem{},
+		})
+	}
+	return out
+}
+
+type provisionModulePrivilegesReply struct {
+	v1Base.GenericResp
+	Data *struct {
+		DBType               string `json:"db_type"`
+		CheckSupport         string `json:"check_support"`
+		ConnectivityPrecheck struct {
+			OK           bool   `json:"ok"`
+			ErrorMessage string `json:"error_message"`
+		} `json:"connectivity_precheck"`
+		Modules []struct {
+			Module            string `json:"module"`
+			ModuleName        string `json:"module_name"`
+			Status            string `json:"status"`
+			MissingPrivileges []struct {
+				Privilege   string `json:"privilege"`
+				ObjectScope string `json:"object_scope"`
+				Note        string `json:"note"`
+			} `json:"missing_privileges"`
+			Message string `json:"message"`
+		} `json:"modules"`
+		SummaryMessage string `json:"summary_message"`
+	} `json:"data"`
 }
 
 func (d *DBServiceUsecase) CheckDBServiceHasEnoughPrivileges(ctx context.Context, params []dmsCommonV1.CheckDbConnectable) ([]*CheckDBServicePrivileges, error) {
@@ -902,21 +991,15 @@ func (d *DBServiceUsecase) CheckDBServiceHasEnoughPrivileges(ctx context.Context
 		go func(i int, param dmsCommonV1.CheckDbConnectable) {
 			defer wg.Done()
 
-			semaphore <- struct{}{}        // acquire slot
-			defer func() { <-semaphore }() // release slot
+			semaphore <- struct{}{}
+			defer func() { <-semaphore }()
 
-			r, err := d.IsConnectable(ctx, param)
+			r, err := d.checkOneDBServicePrivileges(ctx, param)
 			if err != nil {
 				resultCh <- resultItem{index: i, err: fmt.Errorf("check db service privileges failed: %v", err)}
 				return
 			}
-
-			resultCh <- resultItem{
-				index: i,
-				result: &CheckDBServicePrivileges{
-					ComponentPrivilegesResult: r,
-				},
-			}
+			resultCh <- resultItem{index: i, result: r}
 		}(i, v)
 	}
 
@@ -931,4 +1014,79 @@ func (d *DBServiceUsecase) CheckDBServiceHasEnoughPrivileges(ctx context.Context
 	}
 
 	return ret, nil
+}
+
+func (d *DBServiceUsecase) checkOneDBServicePrivileges(ctx context.Context, param dmsCommonV1.CheckDbConnectable) (*CheckDBServicePrivileges, error) {
+	// Phase-3 allowlist：MySQL / OceanBase For MySQL / SQL Server 走模块自动探测；其余短路径 unsupported。
+	if !isModulePrivilegeAutoCheckSupported(param.DBType) {
+		return &CheckDBServicePrivileges{
+			DBType:       param.DBType,
+			CheckSupport: "unsupported_auto_check",
+			ConnectivityPrecheck: ConnectivityPrecheck{
+				OK: true,
+			},
+			Modules:        unsupportedPrivilegeModules(),
+			SummaryMessage: "暂不支持自动检查",
+		}, nil
+	}
+
+	target, err := d.dmsProxyTargetRepo.GetProxyTargetByName(ctx, provisionProxyName)
+	if err != nil {
+		return nil, fmt.Errorf("get provision proxy: %w", err)
+	}
+
+	header := map[string]string{
+		"Authorization": pkgHttp.DefaultDMSToken,
+	}
+	uri := dmsCommonV1.GetDBServicePrivilegesRouter()
+	reply := &provisionModulePrivilegesReply{}
+	err = pkgHttp.POST(ctx, fmt.Sprintf("%s%s", target.URL.String(), uri), header, param, reply)
+	if err != nil {
+		return nil, err
+	}
+	if reply.Code != 0 {
+		return nil, fmt.Errorf("provision privileges check failed: %s", reply.Message)
+	}
+	if reply.Data == nil {
+		return nil, fmt.Errorf("provision privileges check returned empty data")
+	}
+
+	modules := make([]PrivilegeModuleResult, 0, len(reply.Data.Modules))
+	for _, m := range reply.Data.Modules {
+		missing := make([]MissingPrivilegeItem, 0, len(m.MissingPrivileges))
+		for _, mp := range m.MissingPrivileges {
+			missing = append(missing, MissingPrivilegeItem{
+				Privilege:   mp.Privilege,
+				ObjectScope: mp.ObjectScope,
+				Note:        mp.Note,
+			})
+		}
+		modules = append(modules, PrivilegeModuleResult{
+			Module:            m.Module,
+			ModuleName:        m.ModuleName,
+			Status:            m.Status,
+			MissingPrivileges: missing,
+			Message:           m.Message,
+		})
+	}
+
+	return &CheckDBServicePrivileges{
+		DBType:       reply.Data.DBType,
+		CheckSupport: reply.Data.CheckSupport,
+		ConnectivityPrecheck: ConnectivityPrecheck{
+			OK:           reply.Data.ConnectivityPrecheck.OK,
+			ErrorMessage: reply.Data.ConnectivityPrecheck.ErrorMessage,
+		},
+		Modules:        modules,
+		SummaryMessage: reply.Data.SummaryMessage,
+	}, nil
+}
+
+func isModulePrivilegeAutoCheckSupported(dbType string) bool {
+	switch strings.TrimSpace(dbType) {
+	case "MySQL", "OceanBase For MySQL", "SQL Server":
+		return true
+	default:
+		return false
+	}
 }
