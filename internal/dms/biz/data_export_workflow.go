@@ -119,6 +119,7 @@ type WorkflowRepo interface {
 	SaveWorkflow(ctx context.Context, dataExportWorkflow *Workflow) error
 	IsDataExportWorkflowNameDuplicate(ctx context.Context, projectUID, workflowName string) (bool, error)
 	ListDataExportWorkflows(ctx context.Context, opt *ListWorkflowsOption) ([]*Workflow, int64, error)
+	ListExpiredWorkflowUIDs(ctx context.Context, expiredBefore time.Time) ([]string, error)
 	GetDataExportWorkflow(ctx context.Context, dataExportWorkflowUid string) (*Workflow, error)
 	UpdateWorkflowStatusById(ctx context.Context, dataExportWorkflowUid string, status DataExportWorkflowStatus) error
 	// UpdateWorkflowExportStatusById 更新工单导出状态与失败摘要（进入 exporting 时 summary 传空以清空上一轮）
