@@ -792,6 +792,32 @@ type IsConnectableReply struct {
 	ConnectErrorMessage string `json:"connect_error_message"`
 }
 
+// filterAdditionalParamsByComponentContract 按目标组件契约裁剪附加参数：
+// - 本组件契约内：保留
+// - 仅属于其他组件契约：剥离（避免跨组件广播导致误拒收）
+// - 不属于任何组件契约（拼错/未知）：保留下发，由组件明确失败（禁止静默吞掉）
+// union 为空时不做裁剪，保持原行为。
+func filterAdditionalParamsByComponentContract(
+	params []*dmsCommonV1.AdditionalParam,
+	componentAllowlist, unionAllowlist map[string]struct{},
+) []*dmsCommonV1.AdditionalParam {
+	if len(params) == 0 || len(unionAllowlist) == 0 {
+		return params
+	}
+	out := make([]*dmsCommonV1.AdditionalParam, 0, len(params))
+	for _, p := range params {
+		if p == nil {
+			continue
+		}
+		_, inComponent := componentAllowlist[p.Name]
+		_, inUnion := unionAllowlist[p.Name]
+		if inComponent || !inUnion {
+			out = append(out, p)
+		}
+	}
+	return out
+}
+
 func (d *DBServiceUsecase) IsConnectable(ctx context.Context, params dmsCommonV1.CheckDbConnectable) ([]*IsConnectableReply, error) {
 	dmsProxyTargets, err := d.dmsProxyTargetRepo.ListProxyTargetsByScenarios(ctx, []ProxyScenario{ProxyScenarioInternalService})
 	if err != nil {
@@ -806,6 +832,15 @@ func (d *DBServiceUsecase) IsConnectable(ctx context.Context, params dmsCommonV1
 
 	uri := v1.GetDBConnectionAbleRouter()
 
+	var unionAllowlist map[string]struct{}
+	if d.pluginUsecase != nil {
+		if u, uErr := d.pluginUsecase.GetUnionParamNamesForDBType(ctx, params.DBType); uErr != nil {
+			d.log.Errorf("get union additional params for db_type %s failed: %v; fallback to broadcast", params.DBType, uErr)
+		} else {
+			unionAllowlist = u
+		}
+	}
+
 	var wg = &sync.WaitGroup{}
 	wg.Add(len(dmsProxyTargets))
 
@@ -813,9 +848,19 @@ func (d *DBServiceUsecase) IsConnectable(ctx context.Context, params dmsCommonV1
 		go func(i int, target *ProxyTarget) {
 			defer wg.Done()
 
+			reqParams := params
+			if d.pluginUsecase != nil && len(unionAllowlist) > 0 {
+				componentAllowlist, cErr := d.pluginUsecase.GetComponentParamNamesForDBType(ctx, target.Name, params.DBType)
+				if cErr != nil {
+					d.log.Errorf("get component %s additional params for db_type %s failed: %v; fallback to broadcast", target.Name, params.DBType, cErr)
+				} else {
+					reqParams.AdditionalParams = filterAdditionalParamsByComponentContract(params.AdditionalParams, componentAllowlist, unionAllowlist)
+				}
+			}
+
 			isConnectableReply := &IsConnectableReply{Component: target.Name}
 			var reply = &v1Base.GenericResp{}
-			err = pkgHttp.POST(ctx, fmt.Sprintf("%s%s", target.URL.String(), uri), header, params, reply)
+			err = pkgHttp.POST(ctx, fmt.Sprintf("%s%s", target.URL.String(), uri), header, reqParams, reply)
 			if err != nil {
 				isConnectableReply.ConnectErrorMessage = err.Error()
 			} else if reply.Code != 0 {
